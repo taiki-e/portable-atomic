@@ -95,17 +95,6 @@ macro_rules! doc_comment {
     };
 }
 
-#[allow(unused_macros)] // used by riscv
-macro_rules! unreachable_unchecked {
-    ($($tt:tt)*) => {
-        if cfg!(debug_assertions) {
-            unreachable!($($tt)*)
-        } else {
-            core::hint::unreachable_unchecked()
-        }
-    };
-}
-
 pub(crate) trait AtomicRepr {
     const IS_ALWAYS_LOCK_FREE: bool;
     fn is_lock_free() -> bool;

@@ -167,72 +167,82 @@ macro_rules! atomic_int {
 
         impl AtomicOperations for $int_type {
             #[inline(never)] // needed for correct codegen on release mode
-            unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
+            unsafe fn atomic_load_relaxed(src: *const Self) -> Self {
                 unsafe {
                     let out;
-                    match order {
-                        Ordering::Relaxed => {
-                            asm!(
-                                concat!("l", $asm_suffix, " {0}, 0({1})"),
-                                in(reg) src,
-                                lateout(reg) out,
-                                options(nostack),
-                            );
-                        }
-                        Ordering::Acquire  => {
-                            asm!(
-                                concat!("l", $asm_suffix, " {0}, 0({1})"),
-                                "fence r, rw",
-                                in(reg) src,
-                                lateout(reg) out,
-                                options(nostack),
-                            );
-                        }
-                        Ordering::SeqCst => {
-                            asm!(
-                                "fence rw, rw",
-                                concat!("l", $asm_suffix, " {0}, 0({1})"),
-                                "fence r, rw",
-                                in(reg) src,
-                                lateout(reg) out,
-                                options(nostack),
-                            );
-                        }
-                        // This function is `inline(never)`, so normal
-                        // `unreachable!` cannot be removed by optimization.
-                        // SAFETY: The caller must guarantee that the `order` is valid.
-                        _ => unreachable_unchecked!(),
-                    }
+                    asm!(
+                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        in(reg) src,
+                        lateout(reg) out,
+                        options(nostack),
+                    );
+                    out
+                }
+            }
+            #[inline(never)] // needed for correct codegen on release mode
+            unsafe fn atomic_load_acquire(src: *const Self) -> Self {
+                unsafe {
+                    let out;
+                    asm!(
+                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        "fence r, rw",
+                        in(reg) src,
+                        lateout(reg) out,
+                        options(nostack),
+                    );
+                    out
+                }
+            }
+            #[inline(never)] // needed for correct codegen on release mode
+            unsafe fn atomic_load_seq_cst(src: *const Self) -> Self {
+                unsafe {
+                    let out;
+                    asm!(
+                        "fence rw, rw",
+                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        "fence r, rw",
+                        in(reg) src,
+                        lateout(reg) out,
+                        options(nostack),
+                    );
                     out
                 }
             }
 
             #[inline(never)] // needed for correct codegen on release mode
-            unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
+            unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
                 unsafe {
-                    match order {
-                        Ordering::Relaxed => {
-                            asm!(
-                                concat!("s", $asm_suffix, " {1}, 0({0})"),
-                                in(reg) dst,
-                                in(reg) val,
-                                options(nostack),
-                            );
-                        }
-                        Ordering::Release | Ordering::SeqCst => {
-                            asm!(
-                                "fence rw, w",
-                                concat!("s", $asm_suffix, " {1}, 0({0})"),
-                                in(reg) dst,
-                                in(reg) val,
-                                options(nostack),
-                            );
-                        }
-                        // This function is `inline(never)`, so normal
-                        // `unreachable!` cannot be removed by optimization.
-                        // SAFETY: The caller must guarantee that the `order` is valid.
-                        _ => unreachable_unchecked!(),
-                    }
+                    asm!(
+                        concat!("s", $asm_suffix, " {1}, 0({0})"),
+                        in(reg) dst,
+                        in(reg) val,
+                        options(nostack),
+                    );
+                }
+            }
+            #[inline(never)] // needed for correct codegen on release mode
+            unsafe fn atomic_store_release(dst: *mut Self, val: Self) {
+                unsafe {
+                    asm!(
+                        "fence rw, w",
+                        concat!("s", $asm_suffix, " {1}, 0({0})"),
+                        in(reg) dst,
+                        in(reg) val,
+                        options(nostack),
+                    );
+                }
+            }
+            #[inline(never)] // needed for correct codegen on release mode
+            unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
+                // Release and SeqCst store is the same in riscv.
+                unsafe {
+                    asm!(
+                        "fence rw, w",
+                        concat!("s", $asm_suffix, " {1}, 0({0})"),
+                        in(reg) dst,
+                        in(reg) val,
+                        options(nostack),
+                    );
                 }
             }
         }
@@ -258,9 +268,38 @@ atomic_int!(isize, AtomicIsize, "d");
 #[cfg(target_pointer_width = "64")]
 atomic_int!(usize, AtomicUsize, "d");
 
-trait AtomicOperations {
-    unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self;
-    unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering);
+trait AtomicOperations: Sized {
+    #[inline(always)]
+    unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        unsafe {
+            match order {
+                Ordering::Relaxed => Self::atomic_load_relaxed(src),
+                Ordering::Acquire => Self::atomic_load_acquire(src),
+                Ordering::SeqCst => Self::atomic_load_seq_cst(src),
+                _ => unreachable!(),
+            }
+        }
+    }
+    unsafe fn atomic_load_relaxed(src: *const Self) -> Self;
+    unsafe fn atomic_load_acquire(src: *const Self) -> Self;
+    unsafe fn atomic_load_seq_cst(src: *const Self) -> Self;
+
+    #[inline(always)]
+    unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
+        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+        unsafe {
+            match order {
+                Ordering::Relaxed => Self::atomic_store_relaxed(dst, val),
+                Ordering::Release => Self::atomic_store_release(dst, val),
+                Ordering::SeqCst => Self::atomic_store_seq_cst(dst, val),
+                _ => unreachable!(),
+            }
+        }
+    }
+    unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self);
+    unsafe fn atomic_store_release(dst: *mut Self, val: Self);
+    unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self);
 }
 
 #[cfg(test)]
