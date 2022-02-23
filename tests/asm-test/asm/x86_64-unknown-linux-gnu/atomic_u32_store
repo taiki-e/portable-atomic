@@ -1,0 +1,9 @@
+asm_test::atomic_u32_store::relaxed:
+ mov     dword, ptr, [rdi], esi
+ ret
+asm_test::atomic_u32_store::release:
+ mov     dword, ptr, [rdi], esi
+ ret
+asm_test::atomic_u32_store::seq_cst:
+ xchg    dword, ptr, [rdi], esi
+ ret

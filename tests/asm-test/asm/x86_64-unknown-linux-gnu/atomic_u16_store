@@ -1,0 +1,9 @@
+asm_test::atomic_u16_store::relaxed:
+ mov     word, ptr, [rdi], si
+ ret
+asm_test::atomic_u16_store::release:
+ mov     word, ptr, [rdi], si
+ ret
+asm_test::atomic_u16_store::seq_cst:
+ xchg    word, ptr, [rdi], si
+ ret

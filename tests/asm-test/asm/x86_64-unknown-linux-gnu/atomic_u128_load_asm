@@ -1,0 +1,12 @@
+asm_test::atomic_u128_load_asm::atomic_load:
+ xor     esi, esi
+ xor     ecx, ecx
+ xor     edx, edx
+ xor     eax, eax
+ #APP
+ xchg    rsi, rbx
+ lock    cmpxchg16b, xmmword, ptr, [rdi]
+ sete    r8b
+ mov     rbx, rsi
+ #NO_APP
+ ret

@@ -1,0 +1,9 @@
+asm_test::atomic_u32_load::relaxed:
+ mov     eax, dword, ptr, [rdi]
+ ret
+asm_test::atomic_u32_load::acquire:
+ mov     eax, dword, ptr, [rdi]
+ ret
+asm_test::atomic_u32_load::seq_cst:
+ mov     eax, dword, ptr, [rdi]
+ ret

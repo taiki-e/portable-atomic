@@ -1,0 +1,9 @@
+asm_test::atomic_u16_store::relaxed:
+ sh      a1, 0(a0)
+ #NO_APP
+ ret
+asm_test::atomic_u16_store::release:
+ fence   rw, w
+ sh      a1, 0(a0)
+ #NO_APP
+ ret

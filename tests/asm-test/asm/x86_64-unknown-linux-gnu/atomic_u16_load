@@ -1,0 +1,9 @@
+asm_test::atomic_u16_load::relaxed:
+ movzx   eax, word, ptr, [rdi]
+ ret
+asm_test::atomic_u16_load::acquire:
+ movzx   eax, word, ptr, [rdi]
+ ret
+asm_test::atomic_u16_load::seq_cst:
+ movzx   eax, word, ptr, [rdi]
+ ret

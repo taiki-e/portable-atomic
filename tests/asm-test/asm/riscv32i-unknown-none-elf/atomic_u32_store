@@ -1,0 +1,9 @@
+asm_test::atomic_u32_store::relaxed:
+ sw      a1, 0(a0)
+ #NO_APP
+ ret
+asm_test::atomic_u32_store::release:
+ fence   rw, w
+ sw      a1, 0(a0)
+ #NO_APP
+ ret

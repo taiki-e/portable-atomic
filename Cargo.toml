@@ -1,0 +1,75 @@
+[package]
+name = "portable-atomic"
+version = "0.1.0"
+edition = "2018"
+rust-version = "1.34"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/taiki-e/portable-atomic"
+keywords = ["atomic"]
+categories = ["concurrency", "data-structures", "embedded", "no-std"]
+exclude = ["/.*", "/tools"]
+description = """
+Portable atomic types.
+"""
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[workspace]
+members = [
+    "bench",
+    "tests/asm-test",
+    "tests/no-std",
+]
+
+[features]
+default = ["fallback"]
+
+# (enabled by default) Enable fallback implementations.
+fallback = []
+
+# Provide `Atomic{I,U}128`.
+#
+# Note:
+# - This implicitly enables the `fallback` feature.
+# - Atomic operations are only available for Rust 1.59+ on x86_64 and nightly on aarch64, otherwise the fallback implementation is used.
+# - On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
+#
+# The above status is likely to change in the future:
+# - When `Atomic{I,U}128` is stabilized in the standard library.
+# - When 128-bit atomic operations are supported in other architectures. ([riscv](https://lists.riscv.org/g/tech/topic/requirements_for_128_bit/76126473?p=))
+#
+# If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
+i128 = ["fallback"]
+
+# Similar to the `i128` feature, but tries to use `cmpxchg16b` in more cases based on dynamic CPU feature detection.
+#
+# Note:
+# - Dynamic detection is only enabled in nightly, otherwise it works the same as the `i128` feature.
+# - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the `i128` feature.
+# - If both `i128` and `i128-dynamic` features are used in the dependency graph, `i128-dynamic` takes precedence.
+# - This is compatible with no-std (as with all features except std).
+i128-dynamic = ["i128"]
+
+# Provide `AtomicF{32,64}`.
+# Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
+float = []
+
+# TODO
+# # Provides generic `atomic<t>` type.
+# generic = []
+
+# Use `std`.
+std = []
+
+[dependencies]
+# Implements serde::{Serialize,Deserialize} for atomic types.
+serde = { version = "1.0.103", optional = true, default-features = false }
+
+[dev-dependencies]
+crossbeam-utils = "0.8"
+fastrand = "1"
+quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
+static_assertions = "1"

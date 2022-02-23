@@ -1,0 +1,406 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+      - staging
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: full
+  RUST_TEST_THREADS: 1
+  RUSTDOCFLAGS: -D warnings
+  RUSTFLAGS: -D warnings
+  RUSTUP_MAX_RETRIES: 10
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rust: stable
+          - rust: beta
+          - rust: nightly
+          - rust: nightly
+            os: macos-latest
+          - rust: nightly
+            os: windows-latest
+          - rust: nightly
+            target: aarch64-unknown-linux-gnu
+          - rust: nightly
+            target: arm-unknown-linux-gnueabi
+          - rust: nightly
+            target: armv5te-unknown-linux-gnueabi
+          - rust: nightly
+            target: armv7-unknown-linux-gnueabi
+          - rust: nightly
+            target: armv7-unknown-linux-gnueabihf
+          - rust: nightly
+            target: i586-unknown-linux-gnu
+          - rust: nightly
+            target: i686-unknown-linux-gnu
+          - rust: nightly
+            target: mips-unknown-linux-gnu
+            os: ubuntu-18.04
+          - rust: nightly
+            target: mips64-unknown-linux-gnuabi64
+            os: ubuntu-18.04
+          - rust: nightly
+            target: mips64el-unknown-linux-gnuabi64
+          - rust: nightly
+            target: mipsel-unknown-linux-gnu
+          - rust: nightly
+            target: powerpc-unknown-linux-gnu
+          - rust: nightly
+            target: powerpc64-unknown-linux-gnu
+            os: ubuntu-18.04
+          - rust: nightly
+            target: powerpc64le-unknown-linux-gnu
+          - rust: nightly
+            target: riscv64gc-unknown-linux-gnu
+          - rust: nightly
+            target: s390x-unknown-linux-gnu
+          - rust: nightly
+            target: sparc64-unknown-linux-gnu
+            os: ubuntu-18.04
+          - rust: nightly
+            target: thumbv7neon-unknown-linux-gnueabihf
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          toolchain: ${{ matrix.rust }}
+          component: rust-src
+      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@cargo-minimal-versions
+      - uses: taiki-e/setup-cross-toolchain@main
+        with:
+          target: ${{ matrix.target }}
+        if: matrix.target != ''
+      - run: cargo test -v --workspace --exclude asm-test --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -v --workspace --exclude asm-test --all-features --release $DOCTEST_XCOMPILE
+      # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+        if: startsWith(matrix.rust, 'nightly')
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+        if: startsWith(matrix.rust, 'nightly')
+      - run: cargo test -v --workspace --exclude asm-test --all-features
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+      - run: cargo test -v --workspace --exclude asm-test --all-features --release
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+      # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: startsWith(matrix.rust, 'nightly') && (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: startsWith(matrix.rust, 'nightly') && (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
+      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --ignore-private
+      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --ignore-private
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+      - run: cargo minimal-versions build -vv --workspace --all-features --ignore-private
+        if: startsWith(matrix.rust, 'nightly')
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - rust: stable
+          - rust: beta
+          - rust: nightly
+          # for avr: https://github.com/rust-lang/compiler-builtins/issues/400
+          - rust: nightly-2020-12-26
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          toolchain: ${{ matrix.rust }}
+          component: rust-src
+      - uses: taiki-e/install-action@cargo-hack
+      - run: tools/build.sh
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@cargo-hack
+      # Make sure this crate can be built with MSRV and all later versions.
+      # However, this takes time, so for PR, set the version interval.
+      - run: cargo hack build --workspace --feature-powerset --ignore-private --no-dev-deps --version-range ..
+        if: github.event_name != 'pull_request'
+      - run: cargo hack build --workspace --feature-powerset --ignore-private --no-dev-deps --version-range .. --version-step 2
+        if: github.event_name == 'pull_request'
+      - run: cargo hack test --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range ..
+        if: github.event_name != 'pull_request'
+      - run: cargo hack test --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range .. --version-step 2
+        if: github.event_name == 'pull_request'
+
+  miri:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          component: miri
+      - run: cargo miri test --workspace --exclude asm-test --all-features
+        env:
+          MIRIFLAGS: -Zmiri-check-number-validity -Zmiri-symbolic-alignment-check -Zmiri-tag-raw-pointers -Zmiri-disable-isolation
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
+
+  san:
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer:
+          - address
+          - memory
+          - thread
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          component: rust-src
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+        # TODO: tsan hang on release mode
+        if: matrix.sanitizer != 'thread'
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+        # TODO: tsan hang on release mode
+        if: matrix.sanitizer != 'thread'
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+      - run: |
+          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+
+  valgrind:
+    env:
+      CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          component: rust-src
+      - uses: taiki-e/install-action@valgrind
+      - run: cargo test -v --workspace --exclude asm-test --all-features -Z doctest-xcompile
+      - run: cargo test -v --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
+      # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+      - run: cargo test --workspace --exclude asm-test --all-features -Z doctest-xcompile
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+      - run: cargo test --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+      # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_LTO: thin
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+      - run: |
+          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+
+  cov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          component: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - run: cargo llvm-cov --workspace --exclude asm-test --all-features
+      - run: cargo llvm-cov --workspace --exclude asm-test --all-features --text --no-run --hide-instantiations
+      - run: cargo llvm-cov --workspace --exclude asm-test --all-features --text --no-run
+
+  codegen:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+      - uses: taiki-e/github-actions/install-rust@main
+      - run: tools/no_atomic.sh
+      - run: git add -N . && git diff --exit-code
+        if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+      - id: diff
+        run: |
+          git config user.name "Taiki Endo"
+          git config user.email "te316e89@gmail.com"
+          git add -N .
+          if ! git diff --exit-code; then
+              git add .
+              git commit -m "Update no_atomic.rs"
+              echo "::set-output name=success::false"
+          fi
+        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
+      - uses: taiki-e/create-pull-request@v3
+        with:
+          title: Update no_atomic.rs
+          body: |
+            Auto-generated by [create-pull-request][1]
+            [Please close and immediately reopen this pull request to run CI.][2]
+
+            [1]: https://github.com/peter-evans/create-pull-request
+            [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
+          branch: update-no-atomic-rs
+        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
+
+  tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          component: clippy,rustfmt
+      - uses: taiki-e/install-action@shellcheck
+      - run: cargo fmt --all --check
+        if: always()
+      - run: cargo clippy --workspace --all-features --all-targets
+        if: always()
+      - run: shellcheck $(git ls-files '*.sh')
+        if: always()
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+      - run: cargo doc --workspace --all-features
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
+
+  # This job doesn't actually test anything, but they're used to tell bors the
+  # build completed, as there is no practical way to detect when a workflow is
+  # successful listening to webhooks only.
+  #
+  # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
+
+  ci-success:
+    name: ci
+    if: github.event_name == 'push' && success()
+    needs:
+      - test
+      - build
+      - msrv
+      - miri
+      - san
+      - valgrind
+      - cov
+      - codegen
+      - tidy
+      - docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark the job as a success
+        run: exit 0

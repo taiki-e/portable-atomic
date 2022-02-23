@@ -1,0 +1,11 @@
+asm_test::atomic_u8_store::relaxed:
+ sb      a1, 0(a0)
+ ret
+asm_test::atomic_u8_store::release:
+ fence   rw, w
+ sb      a1, 0(a0)
+ ret
+asm_test::atomic_u8_store::seq_cst:
+ fence   rw, w
+ sb      a1, 0(a0)
+ ret

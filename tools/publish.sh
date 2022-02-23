@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+cd "$(dirname "$0")"/..
+
+# Publish a new release.
+#
+# USAGE:
+#    ./tools/publish.sh
+#
+# Note:
+# - This script requires parse-changelog <https://github.com/taiki-e/parse-changelog>
+
+bail() {
+    echo >&2 "error: $*"
+    exit 1
+}
+
+if [[ $# -gt 0 ]]; then
+    bail "invalid argument '$1'"
+fi
+
+# Make sure that the version number of all publishable workspace members matches.
+metadata="$(cargo metadata --format-version=1 --all-features --no-deps)"
+for id in $(jq <<<"${metadata}" '.workspace_members[]'); do
+    pkg="$(jq <<<"${metadata}" ".packages[] | select(.id == ${id})")"
+    publish=$(jq <<<"${pkg}" -r '.publish')
+    # Publishing is unrestricted if null, and forbidden if an empty array.
+    if [[ "${publish}" == "[]" ]]; then
+        continue
+    fi
+    actual_version=$(jq <<<"${pkg}" -r '.version')
+    if [[ -z "${version:-}" ]]; then
+        version="${actual_version}"
+    fi
+    if [[ "${actual_version}" != "${version}" ]]; then
+        name=$(jq <<<"${pkg}" -r '.name')
+        bail "publishable workspace members must be version '${version}', but package '${name}' is version '${actual_version}'"
+    fi
+done
+tag="v${version}"
+
+# Make sure there is no uncommitted change.
+git diff --exit-code
+git diff --exit-code --staged
+
+# Make sure the same release has not been created in the past.
+if gh release view "${tag}" &>/dev/null; then
+    bail "tag '${tag}' has already been created and pushed"
+fi
+
+# Make sure that a valid release note for this version exists.
+# https://github.com/taiki-e/parse-changelog
+echo "============== CHANGELOG =============="
+parse-changelog CHANGELOG.md "${version}"
+echo "======================================="
+
+release_date=$(date --utc '+%Y-%m-%d')
+if ! grep -Eq "^## \\[${version//./\\.}\\] - ${release_date}$" CHANGELOG.md; then
+    bail "not found section '[${version}] - ${release_date}' in CHANGELOG.md"
+fi
+if ! grep -Eq "^\\[${version//./\\.}\\]: " CHANGELOG.md; then
+    bail "not found link to [${version}] in CHANGELOG.md"
+fi
+
+set -x
+
+git push origin main
+git tag "${tag}"
+git push origin --tags

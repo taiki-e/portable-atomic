@@ -1,0 +1,21 @@
+[package]
+name = "bench"
+version = "0.0.0"
+edition = "2018"
+publish = false
+
+[features]
+default = ["i128"]
+i128 = []
+
+[dev-dependencies]
+atomic = "0.5"
+criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # https://github.com/bheisler/criterion.rs/pull/496 + patches to reduce deps more
+crossbeam-utils = "0.8"
+fastrand = "1"
+quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" }  # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
+static_assertions = "1"
+
+[[bench]]
+name = "bench"
+harness = false

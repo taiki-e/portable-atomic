@@ -1,0 +1,17 @@
+[package]
+name = "no-std"
+version = "0.0.0"
+edition = "2018"
+publish = false
+
+[lib]
+doctest = false
+doc = false
+
+[features]
+i128 = ["portable-atomic/i128"]
+i128-dynamic = ["portable-atomic/i128-dynamic"]
+float = ["portable-atomic/float"]
+
+[dependencies]
+portable-atomic = { path = "../..", default-features = false, features = ["fallback"] }

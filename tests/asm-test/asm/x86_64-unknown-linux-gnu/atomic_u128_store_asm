@@ -1,0 +1,13 @@
+asm_test::atomic_u128_store_asm::atomic_store:
+ mov     rcx, rdx
+ mov     rax, rsi
+.LBB28_1:
+ #APP
+ xchg    rsi, rbx
+ lock    cmpxchg16b, xmmword, ptr, [rdi]
+ sete    r8b
+ mov     rbx, rsi
+ #NO_APP
+ test    r8b, r8b
+ je      .LBB28_1
+ ret

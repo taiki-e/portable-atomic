@@ -1,0 +1,9 @@
+asm_test::atomic_u64_store::relaxed:
+ mov     qword, ptr, [rdi], rsi
+ ret
+asm_test::atomic_u64_store::release:
+ mov     qword, ptr, [rdi], rsi
+ ret
+asm_test::atomic_u64_store::seq_cst:
+ xchg    qword, ptr, [rdi], rsi
+ ret
