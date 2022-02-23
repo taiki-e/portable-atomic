@@ -75,13 +75,13 @@ unsafe fn cmpxchg16b(
 ) -> (u128, bool) {
     debug_assert!(detect::has_cmpxchg16b());
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
-    #[cfg(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature = "cmpxchg16b", miri)))]
+    #[cfg(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature_cmpxchg16b, miri)))]
     unsafe {
         let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
         (res, res == old)
     }
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
-    #[cfg(not(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature = "cmpxchg16b", miri))))]
+    #[cfg(not(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature_cmpxchg16b, miri))))]
     unsafe {
         let _ = (success, failure);
         _cmpxchg16b(dst, old, new)
@@ -290,7 +290,7 @@ macro_rules! atomic128 {
         }
 
         impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = cfg!(target_feature = "cmpxchg16b");
+            const IS_ALWAYS_LOCK_FREE: bool = cfg!(target_feature_cmpxchg16b);
             #[inline]
             fn is_lock_free() -> bool {
                 detect::has_cmpxchg16b()
@@ -691,11 +691,20 @@ atomic128!(AtomicU128, u128);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::AtomicRepr;
 
     test_atomic_int!(test_atomic_i128, AtomicI128, i128);
     test_atomic_int!(test_atomic_u128, AtomicU128, u128);
 
-    #[cfg(target_feature = "cmpxchg16b")]
+    #[test]
+    #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
+    fn test() {
+        assert!(std::is_x86_feature_detected!("cmpxchg16b"));
+        assert!(AtomicI128::is_lock_free());
+        assert!(AtomicU128::is_lock_free());
+    }
+
+    #[cfg(target_feature_cmpxchg16b)]
     mod quickcheck {
         use crate::tests::helper::Align16;
 

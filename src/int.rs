@@ -466,11 +466,11 @@ atomic instructions or locks will be used.
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
                     #[cfg(any(
+                        armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
-                        all(target_arch = "arm", not(target_feature = "v6"))
                     ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):
@@ -528,11 +528,11 @@ atomic instructions or locks will be used.
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
                     #[cfg(any(
+                        armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
-                        all(target_arch = "arm", not(target_feature = "v6"))
                     ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):

@@ -29,7 +29,7 @@ mod riscv;
     cfg(any(
         test,
         not(any(
-            portable_atomic_atomic_128,
+            portable_atomic_core_atomic_128,
             all(portable_atomic_cmpxchg16b, not(portable_atomic_cmpxchg16b_dynamic))
         ))
     ))
@@ -178,14 +178,14 @@ pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 
 // Atomic{I,U}128
-#[cfg(portable_atomic_atomic_128)]
+#[cfg(portable_atomic_core_atomic_128)]
 pub(crate) use self::core_atomic::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has cmpxchg16b => use cmpxchg16b
 #[cfg(portable_atomic_cmpxchg16b)]
 pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "i128")]
-#[cfg(not(any(portable_atomic_atomic_128, portable_atomic_cmpxchg16b)))]
+#[cfg(not(any(portable_atomic_core_atomic_128, portable_atomic_cmpxchg16b)))]
 #[cfg_attr(
     not(portable_atomic_cfg_target_has_atomic),
     cfg(not(portable_atomic_no_atomic_cas))

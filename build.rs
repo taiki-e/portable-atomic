@@ -106,6 +106,18 @@ fn main() {
     if target.starts_with("thumbv6m-") && target.contains("-none") {
         println!("cargo:rustc-cfg=thumbv6m");
     }
+    // #[cfg(not(target_feature = "v6"))] doesn't work on stable.
+    if target.starts_with("armv5te-") {
+        println!("cargo:rustc-cfg=armv5te");
+    }
+    // #[cfg(target_feature = "cmpxchg16b")] doesn't work on stable.
+    let has_cmpxchg16b = target.starts_with("x86_64-")
+        && env::var("CARGO_CFG_TARGET_FEATURE")
+            .ok()
+            .map_or(false, |s| s.split(',').any(|s| s == "cmpxchg16b"));
+    if has_cmpxchg16b {
+        println!("cargo:rustc-cfg=target_feature_cmpxchg16b");
+    }
 
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
@@ -118,10 +130,7 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
         } else if (version.minor >= 59 || version.nightly)
             && target.starts_with("x86_64-")
-            && (version.nightly && cfg!(feature = "i128-dynamic")
-                || env::var("CARGO_CFG_TARGET_FEATURE")
-                    .ok()
-                    .map_or(false, |s| s.split(',').any(|s| s == "cmpxchg16b")))
+            && (version.nightly && cfg!(feature = "i128-dynamic") || has_cmpxchg16b)
         {
             // On x86_64, if cmpxchg16b is available, we can use it to provide Atomic*128.
             println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b");

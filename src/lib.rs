@@ -34,7 +34,7 @@
 )]
 // 128-bit atomic
 #![cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_atomic_128),
+    any(all(test, portable_atomic_nightly), portable_atomic_core_atomic_128),
     feature(integer_atomics)
 )]
 #![cfg_attr(
