@@ -15,9 +15,30 @@ macro_rules! __test_atomic_common {
         }
     };
 }
+macro_rules! __test_atomic_pub_common {
+    ($atomic_type:ty, $value_type:ty) => {
+        #[test]
+        fn assert_ref_unwind_safe() {
+            #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]
+            static_assertions::assert_impl_all!($atomic_type: std::panic::RefUnwindSafe);
+            #[cfg(all(portable_atomic_no_core_unwind_safe, not(feature = "std")))]
+            static_assertions::assert_not_impl_all!($atomic_type: std::panic::RefUnwindSafe);
+        }
+        #[test]
+        fn is_lock_free() {
+            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
+            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
+            let is_lock_free = <$atomic_type>::is_lock_free();
+            if IS_ALWAYS_LOCK_FREE {
+                // If is_always_lock_free is true, then is_lock_free must always be true.
+                assert!(is_lock_free);
+            }
+        }
+    };
+}
 
 macro_rules! __test_atomic_int_load_store {
-    ($atomic_type:ty, $int_type:ident) => {
+    ($atomic_type:ty, $int_type:ident, single_thread) => {
         __test_atomic_common!($atomic_type, $int_type);
         use crate::tests::helper::*;
         #[test]
@@ -37,10 +58,40 @@ macro_rules! __test_atomic_int_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), 5);
         }
     };
+    ($atomic_type:ty, $int_type:ident) => {
+        __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
+        use crossbeam_utils::thread;
+        #[test]
+        fn stress_load_store() {
+            #[cfg(miri)]
+            const N: usize = 500;
+            #[cfg(not(miri))]
+            const N: usize = 100000;
+            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..8) };
+            std::eprintln!("threads={}", threads);
+            let a = <$atomic_type>::new(0);
+            thread::scope(|s| {
+                for _ in 0..threads {
+                    s.spawn(|_| {
+                        for _ in 0..N {
+                            let v = fastrand::$int_type(..);
+                            a.store(v, Ordering::Release);
+                        }
+                    });
+                    s.spawn(|_| {
+                        for _ in 0..N {
+                            a.load(Ordering::Acquire);
+                        }
+                    });
+                }
+            })
+            .unwrap();
+        }
+    };
 }
 macro_rules! __test_atomic_float_load_store {
-    ($atomic_type:ty, $int_type:ident) => {
-        __test_atomic_common!($atomic_type, $int_type);
+    ($atomic_type:ty, $float_type:ident, single_thread) => {
+        __test_atomic_common!($atomic_type, $float_type);
         use crate::tests::helper::*;
         #[test]
         fn accessor() {
@@ -59,9 +110,13 @@ macro_rules! __test_atomic_float_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), 5.0);
         }
     };
+    ($atomic_type:ty, $float_type:ident) => {
+        __test_atomic_float_load_store!($atomic_type, $float_type, single_thread);
+        // TODO: multi thread
+    };
 }
 macro_rules! __test_atomic_bool_load_store {
-    ($atomic_type:ty) => {
+    ($atomic_type:ty, single_thread) => {
         __test_atomic_common!($atomic_type, bool);
         use crate::tests::helper::*;
         #[test]
@@ -81,9 +136,13 @@ macro_rules! __test_atomic_bool_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), true);
         }
     };
+    ($atomic_type:ty) => {
+        __test_atomic_bool_load_store!($atomic_type, single_thread);
+        // TODO: multi thread
+    };
 }
 macro_rules! __test_atomic_ptr_load_store {
-    ($atomic_type:ty) => {
+    ($atomic_type:ty, single_thread) => {
         __test_atomic_common!($atomic_type, *mut u8);
         use crate::tests::helper::*;
         use std::ptr;
@@ -96,7 +155,7 @@ macro_rules! __test_atomic_ptr_load_store {
             assert!(!a.into_inner().is_null());
         }
         #[test]
-        fn load() {
+        fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(ptr::null_mut());
             test_load_ordering(|order| VAR.load(order));
             test_store_ordering(|order| VAR.store(ptr::null_mut(), order));
@@ -107,10 +166,14 @@ macro_rules! __test_atomic_ptr_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), p);
         }
     };
+    ($atomic_type:ty) => {
+        __test_atomic_ptr_load_store!($atomic_type, single_thread);
+        // TODO: multi thread
+    };
 }
 
-macro_rules! __test_atomic_int_single_thread {
-    ($atomic_type:ty, $int_type:ident) => {
+macro_rules! __test_atomic_int {
+    ($atomic_type:ty, $int_type:ident, single_thread) => {
         use core::$int_type;
         #[test]
         fn swap() {
@@ -136,6 +199,7 @@ macro_rules! __test_atomic_int_single_thread {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4, 4, success, failure)
             });
+            assert_eq!(a.compare_exchange_weak(6, 8, Ordering::SeqCst, Ordering::Acquire), Err(4),);
             let mut old = a.load(Ordering::Relaxed);
             loop {
                 let new = old * 2;
@@ -292,9 +356,50 @@ macro_rules! __test_atomic_int_single_thread {
             }
         }
     };
+    ($atomic_type:ty, $int_type:ident) => {
+        __test_atomic_int!($atomic_type, $int_type, single_thread);
+        #[test]
+        fn stress() {
+            #[cfg(miri)]
+            const N: usize = 500;
+            #[cfg(not(miri))]
+            const N: usize = 100000;
+            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..8) };
+            std::eprintln!("threads={}", threads);
+            let a = <$atomic_type>::new(0);
+            thread::scope(|s| {
+                for _ in 0..threads {
+                    s.spawn(|_| {
+                        for _ in 0..N {
+                            let v = fastrand::$int_type(..);
+                            a.store(v, Ordering::Release);
+                        }
+                    });
+                    s.spawn(|_| {
+                        for _ in 0..N {
+                            a.load(Ordering::Acquire);
+                        }
+                    });
+                    s.spawn(|_| {
+                        for i in 0..N {
+                            let old = if i % 2 == 0 {
+                                fastrand::$int_type(..)
+                            } else {
+                                a.load(Ordering::Relaxed)
+                            };
+                            let new = fastrand::$int_type(..);
+                            let _ =
+                                a.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire);
+                        }
+                    });
+                }
+            })
+            .unwrap();
+        }
+    };
 }
-macro_rules! __test_atomic_float_single_thread {
-    ($atomic_type:ty, $float_type:ident) => {
+macro_rules! __test_atomic_float {
+    ($atomic_type:ty, $float_type:ident, single_thread) => {
         use core::$float_type;
         #[test]
         fn swap() {
@@ -326,6 +431,10 @@ macro_rules! __test_atomic_float_single_thread {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4.0, 4.0, success, failure)
             });
+            assert_eq!(
+                a.compare_exchange_weak(6.0, 8.0, Ordering::SeqCst, Ordering::Acquire),
+                Err(4.0),
+            );
             let mut old = a.load(Ordering::Relaxed);
             loop {
                 let new = old * 2.0;
@@ -376,69 +485,214 @@ macro_rules! __test_atomic_float_single_thread {
         }
         // TODO: quickcheck
     };
-}
-
-macro_rules! __test_atomic_int_multi_thread {
-    ($atomic_type:ty, $int_type:ident) => {
-        use crossbeam_utils::thread;
-        #[test]
-        fn stress() {
-            #[cfg(miri)]
-            const N: usize = 500;
-            #[cfg(not(miri))]
-            const N: usize = 100000;
-            let a = <$atomic_type>::new(0);
-            thread::scope(|s| {
-                for _ in 0..2 {
-                    s.spawn(|_| {
-                        for _ in 0..N {
-                            let v = fastrand::$int_type(..);
-                            a.store(v, Ordering::Release);
-                        }
-                    });
-                    s.spawn(|_| {
-                        for _ in 0..N {
-                            a.load(Ordering::Acquire);
-                        }
-                    });
-                    s.spawn(|_| {
-                        for i in 0..N {
-                            let old = if i % 2 == 0 {
-                                fastrand::$int_type(..)
-                            } else {
-                                a.load(Ordering::Relaxed)
-                            };
-                            let new = fastrand::$int_type(..);
-                            let _ =
-                                a.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire);
-                        }
-                    });
-                }
-            })
-            .unwrap();
-        }
+    ($atomic_type:ty, $float_type:ident) => {
+        __test_atomic_float!($atomic_type, $float_type, single_thread);
+        // TODO: multi thread
     };
 }
-
-macro_rules! __test_atomic_pub_common {
-    ($atomic_type:ty, $value_type:ty) => {
+macro_rules! __test_atomic_bool {
+    ($atomic_type:ty, single_thread) => {
         #[test]
-        fn assert_ref_unwind_safe() {
-            #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]
-            static_assertions::assert_impl_all!($atomic_type: std::panic::RefUnwindSafe);
-            #[cfg(all(portable_atomic_no_core_unwind_safe, not(feature = "std")))]
-            static_assertions::assert_not_impl_all!($atomic_type: std::panic::RefUnwindSafe);
+        fn swap() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| a.swap(true, order));
+            assert_eq!(a.swap(false, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), false);
         }
         #[test]
-        fn is_lock_free() {
-            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
-            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
-            let is_lock_free = <$atomic_type>::is_lock_free();
-            if IS_ALWAYS_LOCK_FREE {
-                // If is_always_lock_free is true, then is_lock_free must always be true.
-                assert!(is_lock_free);
+        fn compare_exchange() {
+            let a = <$atomic_type>::new(true);
+            test_compare_exchange_ordering(|success, failure| {
+                a.compare_exchange(true, true, success, failure)
+            });
+            assert_eq!(
+                a.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed),
+                Ok(true),
+            );
+            assert_eq!(a.load(Ordering::Relaxed), false);
+            assert_eq!(
+                a.compare_exchange(true, true, Ordering::SeqCst, Ordering::Acquire),
+                Err(false),
+            );
+            assert_eq!(a.load(Ordering::Relaxed), false);
+        }
+        #[test]
+        fn compare_exchange_weak() {
+            let a = <$atomic_type>::new(false);
+            test_compare_exchange_ordering(|success, failure| {
+                a.compare_exchange_weak(false, false, success, failure)
+            });
+            assert_eq!(
+                a.compare_exchange_weak(true, true, Ordering::SeqCst, Ordering::Acquire),
+                Err(false),
+            );
+            let mut old = a.load(Ordering::Relaxed);
+            let new = true;
+            loop {
+                match a.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
+                    Ok(_) => break,
+                    Err(x) => old = x,
+                }
+            }
+            assert_eq!(a.load(Ordering::Relaxed), true);
+        }
+        #[test]
+        fn fetch_and() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| assert_eq!(a.fetch_and(true, order), true));
+            assert_eq!(a.fetch_and(false, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+            let a = <$atomic_type>::new(true);
+            assert_eq!(a.fetch_and(true, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(false);
+            assert_eq!(a.fetch_and(false, Ordering::SeqCst), false);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+        }
+        #[test]
+        fn fetch_nand() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| assert_eq!(a.fetch_nand(false, order), true));
+            assert_eq!(a.fetch_nand(false, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(true);
+            assert_eq!(a.fetch_nand(true, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst) as usize, 0);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+            let a = <$atomic_type>::new(false);
+            assert_eq!(a.fetch_nand(false, Ordering::SeqCst), false);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+        }
+        #[test]
+        fn fetch_or() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| assert_eq!(a.fetch_or(false, order), true));
+            assert_eq!(a.fetch_or(false, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(true);
+            assert_eq!(a.fetch_or(true, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(false);
+            assert_eq!(a.fetch_or(false, Ordering::SeqCst), false);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+        }
+        #[test]
+        fn fetch_xor() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| assert_eq!(a.fetch_xor(false, order), true));
+            assert_eq!(a.fetch_xor(false, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(true);
+            assert_eq!(a.fetch_xor(true, Ordering::SeqCst), true);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+            let a = <$atomic_type>::new(false);
+            assert_eq!(a.fetch_xor(false, Ordering::SeqCst), false);
+            assert_eq!(a.load(Ordering::SeqCst), false);
+        }
+        mod quickcheck {
+            use super::super::*;
+            ::quickcheck::quickcheck! {
+                fn fetch_and(x: bool, y: bool) -> bool {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_and(y, Ordering::Relaxed), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x & y);
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_and(x, Ordering::Relaxed), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y & x);
+                    true
+                }
+                fn fetch_nand(x: bool, y: bool) -> bool {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_nand(y, Ordering::Relaxed), x);
+                    assert_eq!(a.load(Ordering::Relaxed), !(x & y));
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_nand(x, Ordering::Relaxed), y);
+                    assert_eq!(a.load(Ordering::Relaxed), !(y & x));
+                    true
+                }
+                fn fetch_or(x: bool, y: bool) -> bool {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_or(y, Ordering::Relaxed), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x | y);
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_or(x, Ordering::Relaxed), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y | x);
+                    true
+                }
+                fn fetch_xor(x: bool, y: bool) -> bool {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_xor(y, Ordering::Relaxed), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_xor(x, Ordering::Relaxed), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                    true
+                }
             }
         }
+    };
+    ($atomic_type:ty) => {
+        __test_atomic_bool!($atomic_type, single_thread);
+        // TODO: multi thread
+    };
+}
+macro_rules! __test_atomic_ptr {
+    ($atomic_type:ty, single_thread) => {
+        #[test]
+        fn swap() {
+            let a = <$atomic_type>::new(ptr::null_mut());
+            test_swap_ordering(|order| a.swap(ptr::null_mut(), order));
+            let x = &mut 1;
+            assert_eq!(a.swap(x, Ordering::SeqCst), ptr::null_mut());
+            assert_eq!(a.load(Ordering::SeqCst), x as _);
+        }
+        #[test]
+        fn compare_exchange() {
+            let a = <$atomic_type>::new(ptr::null_mut());
+            test_compare_exchange_ordering(|success, failure| {
+                a.compare_exchange(ptr::null_mut(), ptr::null_mut(), success, failure)
+            });
+            let x = &mut 1;
+            assert_eq!(
+                a.compare_exchange(ptr::null_mut(), x, Ordering::Acquire, Ordering::Relaxed),
+                Ok(ptr::null_mut()),
+            );
+            assert_eq!(a.load(Ordering::Relaxed), x as _);
+            assert_eq!(
+                a.compare_exchange(
+                    ptr::null_mut(),
+                    ptr::null_mut(),
+                    Ordering::SeqCst,
+                    Ordering::Acquire
+                ),
+                Err(x as _),
+            );
+            assert_eq!(a.load(Ordering::Relaxed), x as _);
+        }
+        #[test]
+        fn compare_exchange_weak() {
+            let a = <$atomic_type>::new(ptr::null_mut());
+            test_compare_exchange_ordering(|success, failure| {
+                a.compare_exchange_weak(ptr::null_mut(), ptr::null_mut(), success, failure)
+            });
+            let x = &mut 1;
+            assert_eq!(
+                a.compare_exchange_weak(x, x, Ordering::SeqCst, Ordering::Acquire),
+                Err(ptr::null_mut()),
+            );
+            let mut old = a.load(Ordering::Relaxed);
+            loop {
+                match a.compare_exchange_weak(old, x, Ordering::SeqCst, Ordering::Relaxed) {
+                    Ok(_) => break,
+                    Err(x) => old = x,
+                }
+            }
+            assert_eq!(a.load(Ordering::Relaxed), x as _);
+        }
+    };
+    ($atomic_type:ty) => {
+        __test_atomic_ptr!($atomic_type, single_thread);
+        // TODO: multi thread
     };
 }
 
@@ -569,33 +823,33 @@ macro_rules! test_atomic_ptr_load_store {
     };
 }
 
-#[allow(unused_macros)] // for interrupt
+#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_int_single_thread {
     ($test_module:ident, $atomic_type:ty, $int_type:ident) => {
         mod $test_module {
             use super::*;
-            __test_atomic_int_load_store!($atomic_type, $int_type);
-            __test_atomic_int_single_thread!($atomic_type, $int_type);
+            __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
+            __test_atomic_int!($atomic_type, $int_type, single_thread);
         }
     };
 }
-#[allow(unused_macros)] // for interrupt
+#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_bool_single_thread {
     ($test_module:ident, $atomic_type:ty) => {
         mod $test_module {
             use super::*;
-            __test_atomic_bool_load_store!($atomic_type);
-            // __test_atomic_bool_single_thread!($atomic_type); // TODO
+            __test_atomic_bool_load_store!($atomic_type, single_thread);
+            __test_atomic_bool!($atomic_type, single_thread);
         }
     };
 }
-#[allow(unused_macros)] // for interrupt
+#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_ptr_single_thread {
     ($test_module:ident, $atomic_type:ty) => {
         mod $test_module {
             use super::*;
-            __test_atomic_ptr_load_store!($atomic_type);
-            // __test_atomic_ptr_single_thread!($atomic_type); // TODO
+            __test_atomic_ptr_load_store!($atomic_type, single_thread);
+            __test_atomic_ptr!($atomic_type, single_thread);
         }
     };
 }
@@ -605,8 +859,7 @@ macro_rules! test_atomic_int {
         mod $test_module {
             use super::*;
             __test_atomic_int_load_store!($atomic_type, $int_type);
-            __test_atomic_int_single_thread!($atomic_type, $int_type);
-            __test_atomic_int_multi_thread!($atomic_type, $int_type);
+            __test_atomic_int!($atomic_type, $int_type);
         }
     };
 }
@@ -616,8 +869,7 @@ macro_rules! test_atomic_int_pub {
         mod $test_module {
             use super::*;
             __test_atomic_int_load_store!($atomic_type, $int_type);
-            __test_atomic_int_single_thread!($atomic_type, $int_type);
-            __test_atomic_int_multi_thread!($atomic_type, $int_type);
+            __test_atomic_int!($atomic_type, $int_type);
             __test_atomic_int_pub!($atomic_type, $int_type);
         }
     };
@@ -627,8 +879,7 @@ macro_rules! test_atomic_float_pub {
         mod $test_module {
             use super::*;
             __test_atomic_float_load_store!($atomic_type, $float_type);
-            __test_atomic_float_single_thread!($atomic_type, $float_type);
-            // __test_atomic_float_multi_thread!($atomic_type, $float_type); // TODO
+            __test_atomic_float!($atomic_type, $float_type);
             __test_atomic_float_pub!($atomic_type, $float_type);
         }
     };
@@ -638,8 +889,7 @@ macro_rules! test_atomic_bool_pub {
         mod $test_module {
             use super::*;
             __test_atomic_bool_load_store!($atomic_type);
-            // __test_atomic_bool_single_thread!($atomic_type); // TODO
-            // __test_atomic_bool_multi_thread!($atomic_type); // TODO
+            __test_atomic_bool!($atomic_type);
             __test_atomic_bool_pub!($atomic_type);
         }
     };
@@ -649,8 +899,7 @@ macro_rules! test_atomic_ptr_pub {
         mod $test_module {
             use super::*;
             __test_atomic_ptr_load_store!($atomic_type);
-            // __test_atomic_ptr_single_thread!($atomic_type); // TODO
-            // __test_atomic_ptr_multi_thread!($atomic_type); // TODO
+            __test_atomic_ptr!($atomic_type);
             __test_atomic_ptr_pub!($atomic_type);
         }
     };

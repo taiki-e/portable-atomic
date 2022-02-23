@@ -112,16 +112,16 @@ build() {
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
                         RUSTFLAGS="${RUSTFLAGS:-} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x cargo "${args[@]}" --feature-powerset --optional-deps --manifest-path Cargo.toml --target-dir target/assume-single-core "$@"
+                            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/assume-single-core "$@"
                         ;;
                 esac
             fi
             ;;
     esac
-    x cargo "${args[@]}" --feature-powerset --optional-deps --manifest-path Cargo.toml "$@"
+    x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml "$@"
     if [[ "${target}" == "x86_64-"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+cmpxchg16b" \
-            x cargo "${args[@]}" --feature-powerset --optional-deps --manifest-path Cargo.toml --target-dir target/cmpxchg16b "$@"
+            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/cmpxchg16b "$@"
     fi
 }
 

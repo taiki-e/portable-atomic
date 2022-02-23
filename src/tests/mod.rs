@@ -1,5 +1,10 @@
+#![allow(clippy::wildcard_imports)]
+
 #[macro_use]
 pub(crate) mod helper;
+
+#[cfg(feature = "serde")]
+mod serde;
 
 use super::*;
 

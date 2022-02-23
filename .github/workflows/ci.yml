@@ -18,6 +18,7 @@ env:
   CARGO_INCREMENTAL: 0
   CARGO_NET_RETRY: 10
   CARGO_TERM_COLOR: always
+  QEMU_STRACE: 1
   RUST_BACKTRACE: full
   RUST_TEST_THREADS: 1
   RUSTDOCFLAGS: -D warnings
@@ -92,7 +93,7 @@ jobs:
           component: rust-src
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/setup-cross-toolchain@main
+      - uses: taiki-e/setup-cross-toolchain@v1
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
@@ -132,8 +133,8 @@ jobs:
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: startsWith(matrix.rust, 'nightly') && (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
-      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --ignore-private
-      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --ignore-private
+      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
+      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
