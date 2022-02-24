@@ -5,7 +5,7 @@ use core::{fmt, marker::PhantomData, sync::atomic::Ordering};
 use crate::{imp, utils::NoRefUnwindSafe};
 
 macro_rules! atomic_int {
-    ($atomic_type:ident, $int_type:ident, $align:expr) => {
+    ($(#[$attrs:meta])* $atomic_type:ident, $int_type:ident, $align:expr) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
 
@@ -19,6 +19,7 @@ You can call [`", stringify!($atomic_type), "::is_lock_free()`] to check whether
 atomic instructions or locks will be used.
 "
             ),
+            $(#[$attrs])*
             // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
             // will show clearer docs.
             #[repr(C, align($align))]
@@ -645,7 +646,12 @@ atomic_int!(AtomicU64, u64, 8);
     portable_atomic_cfg_target_has_atomic,
     cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
 )]
-atomic_int!(AtomicI128, i128, 16);
+atomic_int!(
+    #[cfg_attr(docsrs, doc(cfg(any(feature = "i128", feature = "i128-dynamic"))))]
+    AtomicI128,
+    i128,
+    16
+);
 #[cfg(feature = "i128")]
 #[cfg_attr(
     not(portable_atomic_cfg_target_has_atomic),
@@ -655,4 +661,9 @@ atomic_int!(AtomicI128, i128, 16);
     portable_atomic_cfg_target_has_atomic,
     cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
 )]
-atomic_int!(AtomicU128, u128, 16);
+atomic_int!(
+    #[cfg_attr(docsrs, doc(cfg(any(feature = "i128", feature = "i128-dynamic"))))]
+    AtomicU128,
+    u128,
+    16
+);
