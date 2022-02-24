@@ -93,7 +93,7 @@ jobs:
           component: rust-src
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/setup-cross-toolchain@v1
+      - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
