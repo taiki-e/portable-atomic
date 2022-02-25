@@ -15,12 +15,12 @@ use crate::utils::{
 };
 
 struct Spinlock {
-    state: CachePadded<AtomicUsize>,
+    state: AtomicUsize,
 }
 
 impl Spinlock {
     const fn new() -> Self {
-        Self { state: CachePadded::new(AtomicUsize::new(0)) }
+        Self { state: AtomicUsize::new(0) }
     }
 
     #[inline]
@@ -59,8 +59,8 @@ fn lock(addr: usize) -> SpinlockGuard {
     // dispersed across all locks.
     const LEN: usize = 67;
     #[allow(clippy::declare_interior_mutable_const)]
-    const L: Spinlock = Spinlock::new();
-    static LOCKS: [Spinlock; LEN] = [
+    const L: CachePadded<Spinlock> = CachePadded::new(Spinlock::new());
+    static LOCKS: [CachePadded<Spinlock>; LEN] = [
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L,

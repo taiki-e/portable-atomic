@@ -16,15 +16,15 @@
 // vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
 // counter will not be increased that fast.
 #[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
-#[path = "seq_lock.rs"]
 mod seq_lock;
-#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
-#[path = "seq_lock_wide.rs"]
-mod seq_lock;
-#[cfg(all(test, any(target_pointer_width = "64", target_pointer_width = "128")))]
-#[allow(dead_code)]
-#[path = "seq_lock_wide.rs"]
+#[cfg(any(test, not(any(target_pointer_width = "64", target_pointer_width = "128"))))]
+#[cfg_attr(test, allow(dead_code))]
 mod seq_lock_wide;
+
+#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+use self::seq_lock::{SeqLock, SeqLockWriteGuard};
+#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+use self::seq_lock_wide::{SeqLock, SeqLockWriteGuard};
 
 use core::{
     cell::UnsafeCell,
@@ -32,8 +32,9 @@ use core::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use self::seq_lock::{SeqLock, SeqLockWriteGuard};
-use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
+use crate::utils::{
+    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering, CachePadded,
+};
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]
@@ -41,10 +42,13 @@ use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, asser
 fn lock(addr: usize) -> &'static SeqLock {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
+    //
+    // crossbeam-utils 0.8.7 uses 97 here but does not use CachePadded,
+    // so the actual concurrency level will be smaller.
     const LEN: usize = 67;
     #[allow(clippy::declare_interior_mutable_const)]
-    const L: SeqLock = SeqLock::new();
-    static LOCKS: [SeqLock; LEN] = [
+    const L: CachePadded<SeqLock> = CachePadded::new(SeqLock::new());
+    static LOCKS: [CachePadded<SeqLock>; LEN] = [
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L,

@@ -5,7 +5,7 @@ use core::{
     sync::atomic::{self, AtomicUsize, Ordering},
 };
 
-use crate::utils::{Backoff, CachePadded};
+use crate::utils::Backoff;
 
 /// A simple stamped lock.
 ///
@@ -13,21 +13,18 @@ use crate::utils::{Backoff, CachePadded};
 /// bits.
 pub(crate) struct SeqLock {
     /// The high bits of the current state of the lock.
-    state_hi: CachePadded<AtomicUsize>,
+    state_hi: AtomicUsize,
 
     /// The low bits of the current state of the lock.
     ///
     /// All bits except the least significant one hold the current stamp. When locked, the state_lo
     /// equals 1 and doesn't contain a valid stamp.
-    state_lo: CachePadded<AtomicUsize>,
+    state_lo: AtomicUsize,
 }
 
 impl SeqLock {
     pub(crate) const fn new() -> Self {
-        Self {
-            state_hi: CachePadded::new(AtomicUsize::new(0)),
-            state_lo: CachePadded::new(AtomicUsize::new(0)),
-        }
+        Self { state_hi: AtomicUsize::new(0), state_lo: AtomicUsize::new(0) }
     }
 
     /// If not locked, returns the current stamp.
@@ -114,6 +111,9 @@ impl SeqLockWriteGuard {
     /// Releases the lock without incrementing the stamp.
     #[inline]
     pub(crate) fn abort(self) {
+        // Restore the stamp.
+        //
+        // Release ordering for synchronizing with `optimistic_read`.
         self.lock.state_lo.store(self.state_lo, Ordering::Release);
 
         // We specifically don't want to call drop(), since that's

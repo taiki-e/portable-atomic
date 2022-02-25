@@ -27,7 +27,7 @@ mod cmpxchg16b_intrinsics;
 #[path = "../../src/imp/cmpxchg16b.rs"]
 mod cmpxchg16b_stdsimd;
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/fallback.rs"]
+#[path = "../../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
 #[allow(dead_code, unused_imports)]
 #[path = "imp/spinlock_fallback.rs"]
@@ -185,9 +185,9 @@ benches!(bench_atomic_rs, atomic::Atomic<u128>);
 
 criterion_group!(
     benches,
-    bench_portable_atomic_cmpxchg16b_stdsimd,
     bench_portable_atomic_seqlock_fallback,
     bench_atomic_cell,
+    bench_portable_atomic_cmpxchg16b_stdsimd,
     bench_portable_atomic_cmpxchg16b_intrinsics,
     bench_portable_atomic_spinlock_fallback,
     bench_atomic_rs
