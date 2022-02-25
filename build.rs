@@ -12,6 +12,10 @@ use std::{
 
 include!("no_atomic.rs");
 
+// rustc +stable -Vv | grep -E '^(commit-date|release)'
+const LATEST_STABLE: Version =
+    Version { minor: 59, nightly: false, commit_date: Date { year: 2022, month: 2, day: 23 } };
+
 const PROBE_ATOMIC_128: &str = r#"
 #![no_std]
 #![feature(integer_atomics)]
@@ -54,10 +58,7 @@ fn main() {
     };
     let version = match rustc_version() {
         Some(version) => version,
-        None => {
-            println!("cargo:warning={}: unable to determine rustc version", env!("CARGO_PKG_NAME"));
-            return;
-        }
+        None => LATEST_STABLE,
     };
 
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
@@ -89,18 +90,19 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         }
     } else {
-        println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
-    }
-    if NO_ATOMIC_CAS.contains(&&*target) {
-        println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
+        // TODO: invert portable_atomic_cfg_target_has_atomic once Rust 1.60 became stable.
+        // println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
+        if NO_ATOMIC_CAS.contains(&&*target) {
+            println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
+        }
+        if NO_ATOMIC_64.contains(&&*target) {
+            println!("cargo:rustc-cfg=portable_atomic_no_atomic_64");
+        } else {
+            // Otherwise, assuming `"max-atomic-width" == 64` or `"max-atomic-width" == 128`.
+        }
     }
     if NO_ATOMIC.contains(&&*target) {
-        println!("cargo:rustc-cfg=portable_atomic_no_atomic_64");
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
-    } else if NO_ATOMIC_64.contains(&&*target) {
-        println!("cargo:rustc-cfg=portable_atomic_no_atomic_64");
-    } else {
-        // Otherwise, assuming `"max-atomic-width" == 64` or `"max-atomic-width" == 128`.
     }
 
     if target.starts_with("thumbv6m-") && target.contains("-none") {

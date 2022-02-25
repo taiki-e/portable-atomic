@@ -80,7 +80,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     case "${rustc_version}" in
         1.4* | 1.50.* | 1.51.*) ;;
         *)
-            check_cfg='-Z unstable-options --check-cfg=names(miri,docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_64,thumbv6m,armv5te,target_feature_cmpxchg16b,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic)'
+            check_cfg='-Z unstable-options --check-cfg=names(miri,docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_64,thumbv6m,armv5te,target_feature_cmpxchg16b,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic)'
             ;;
     esac
 fi
