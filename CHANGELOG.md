@@ -10,9 +10,14 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.1.1] - 2022-02-25
+
+- Fix doc cfg on `Atomic{I,U}128`.
+
 ## [0.1.0] - 2022-02-24
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/taiki-e/portable-atomic/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/taiki-e/portable-atomic/releases/tag/v0.1.0
