@@ -146,7 +146,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - rust: stable
+          - rust: stable
           - rust: beta
           - rust: nightly
           # for avr: https://github.com/rust-lang/compiler-builtins/issues/400

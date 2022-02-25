@@ -5,7 +5,7 @@ cd "$(dirname "$0")"/..
 
 trap -- 'exit 0' SIGINT
 
-targets=(
+default_targets=(
     # no atomic load/store (16-bit)
     avr-unknown-gnu-atmega328
     msp430-none-elf
@@ -61,7 +61,17 @@ targets=(
     thumbv7neon-unknown-linux-gnueabihf
 )
 
-common_args=("$@")
+common_args=()
+if [[ "${1:-}" == "+"* ]]; then
+    common_args+=("$1")
+    shift
+fi
+if [[ $# -gt 0 ]]; then
+    targets=("$@")
+else
+    targets=("${default_targets[@]}")
+fi
+
 rustup_target_list=$(rustup ${common_args[@]+"${common_args[@]}"} target list)
 rustc_target_list=$(rustc ${common_args[@]+"${common_args[@]}"} --print target-list)
 rustc_version=$(rustc ${common_args[@]+"${common_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
@@ -111,8 +121,8 @@ build() {
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
     case "${target}" in
         *-none* | avr-* | riscv32imc-esp-espidf)
-            args+=(--skip std)
-            cfgs=$(rustc --print cfg --target "${target}")
+            args+=(--exclude-features "std")
+            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${common_args[@]+"${common_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO
