@@ -15,16 +15,47 @@
 // In narrow architectures (pointer width <= 16), the counter is still <= 32-bit and may be
 // vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
 // counter will not be increased that fast.
+#[cfg(any(test, not(feature = "parking_lot")))]
 #[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+#[cfg_attr(test, allow(dead_code))]
 mod seq_lock;
-#[cfg(any(test, not(any(target_pointer_width = "64", target_pointer_width = "128"))))]
+#[cfg(feature = "parking_lot")]
+#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+mod seq_lock_parking_lot;
+#[cfg(any(
+    test,
+    all(
+        not(feature = "parking_lot"),
+        not(any(target_pointer_width = "64", target_pointer_width = "128"))
+    )
+))]
 #[cfg_attr(test, allow(dead_code))]
 mod seq_lock_wide;
+#[cfg(feature = "parking_lot")]
+#[cfg(any(test, not(any(target_pointer_width = "64", target_pointer_width = "128"))))]
+#[cfg_attr(test, allow(dead_code))]
+mod seq_lock_wide_parking_lot;
 
-#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+#[cfg(all(
+    not(feature = "parking_lot"),
+    any(target_pointer_width = "64", target_pointer_width = "128")
+))]
 use self::seq_lock::{SeqLock, SeqLockWriteGuard};
-#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+#[cfg(all(
+    feature = "parking_lot",
+    any(target_pointer_width = "64", target_pointer_width = "128")
+))]
+use self::seq_lock_parking_lot::{SeqLock, SeqLockWriteGuard};
+#[cfg(all(
+    not(feature = "parking_lot"),
+    not(any(target_pointer_width = "64", target_pointer_width = "128"))
+))]
 use self::seq_lock_wide::{SeqLock, SeqLockWriteGuard};
+#[cfg(all(
+    feature = "parking_lot",
+    not(any(target_pointer_width = "64", target_pointer_width = "128"))
+))]
+use self::seq_lock_wide_parking_lot::{SeqLock, SeqLockWriteGuard};
 
 use core::{
     cell::UnsafeCell,

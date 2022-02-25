@@ -98,7 +98,9 @@ jobs:
           target: ${{ matrix.target }}
         if: matrix.target != ''
       - run: cargo test -v --workspace --exclude asm-test --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -v --features i128-dynamic,float,std,serde $DOCTEST_XCOMPILE
       - run: cargo test -v --workspace --exclude asm-test --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -v --features i128-dynamic,float,std,serde --release $DOCTEST_XCOMPILE
       # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
       - run: |
           cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
@@ -172,9 +174,10 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       # Make sure this crate can be built with MSRV and all later versions.
       # However, this takes time, so for PR, set the version interval.
-      - run: cargo hack build --workspace --feature-powerset --ignore-private --no-dev-deps --version-range ..
+      # parking_lot feature is excluded because it has a higher MSRV.
+      - run: cargo hack build --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range ..
         if: github.event_name != 'pull_request'
-      - run: cargo hack build --workspace --feature-powerset --ignore-private --no-dev-deps --version-range .. --version-step 2
+      - run: cargo hack build --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range .. --version-step 2
         if: github.event_name == 'pull_request'
       - run: cargo hack test --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range ..
         if: github.event_name != 'pull_request'

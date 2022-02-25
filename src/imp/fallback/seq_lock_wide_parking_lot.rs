@@ -1,11 +1,12 @@
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/seq_lock_wide.rs.
+// Adjusted to use parking_lot instead of spinlock.
 
 use core::{
     mem::ManuallyDrop,
     sync::atomic::{self, AtomicUsize, Ordering},
 };
 
-use crate::utils::Backoff;
+use parking_lot::{Mutex, MutexGuard};
 
 /// A simple stamped lock.
 ///
@@ -20,11 +21,17 @@ pub(crate) struct SeqLock {
     /// All bits except the least significant one hold the current stamp. When locked, the state_lo
     /// equals 1 and doesn't contain a valid stamp.
     state_lo: AtomicUsize,
+
+    lock: Mutex<()>,
 }
 
 impl SeqLock {
     pub(crate) const fn new() -> Self {
-        Self { state_hi: AtomicUsize::new(0), state_lo: AtomicUsize::new(0) }
+        Self {
+            state_hi: AtomicUsize::new(0),
+            state_lo: AtomicUsize::new(0),
+            lock: parking_lot::const_mutex(()),
+        }
     }
 
     /// If not locked, returns the current stamp.
@@ -78,22 +85,16 @@ impl SeqLock {
     /// Grabs the lock for writing.
     #[inline]
     pub(crate) fn write(&'static self) -> SeqLockWriteGuard {
-        let mut backoff = Backoff::new();
-        loop {
-            let previous = self.state_lo.swap(1, Ordering::Acquire);
+        let guard = self.lock.lock();
 
-            if previous != 1 {
-                // To synchronize with the acquire fence in `validate_read` via any modification to
-                // the data at the critical section of `(state_hi, previous)`.
-                atomic::fence(Ordering::Release);
+        let previous = self.state_lo.load(Ordering::Relaxed);
+        self.state_lo.store(1, Ordering::Relaxed);
+        // To synchronize with the acquire fence in `validate_read` via any modification to
+        // the data at the critical section of `(state_hi, previous)`.
+        atomic::fence(Ordering::Release);
 
-                return SeqLockWriteGuard { lock: self, state_lo: previous };
-            }
-
-            while self.state_lo.load(Ordering::Relaxed) == 1 {
-                backoff.snooze();
-            }
-        }
+        debug_assert_ne!(previous, 1);
+        SeqLockWriteGuard { lock: self, state_lo: previous, guard: Some(guard) }
     }
 }
 
@@ -105,6 +106,8 @@ pub(crate) struct SeqLockWriteGuard {
 
     /// The stamp before locking.
     state_lo: usize,
+
+    guard: Option<MutexGuard<'static, ()>>,
 }
 
 impl SeqLockWriteGuard {
@@ -113,12 +116,16 @@ impl SeqLockWriteGuard {
     pub(crate) fn abort(self) {
         // We specifically don't want to call drop(), since that's
         // what increments the stamp.
-        let this = ManuallyDrop::new(self);
+        let mut this = ManuallyDrop::new(self);
 
         // Restore the stamp.
         //
         // Release ordering for synchronizing with `optimistic_read`.
         this.lock.state_lo.store(this.state_lo, Ordering::Release);
+
+        // Release the lock.
+        debug_assert!(this.guard.is_some());
+        this.guard = None;
     }
 }
 
@@ -135,10 +142,13 @@ impl Drop for SeqLockWriteGuard {
             self.lock.state_hi.store(state_hi.wrapping_add(1), Ordering::Release);
         }
 
-        // Release the lock and increment the stamp.
+        // Increment the stamp.
         //
         // Release ordering for synchronizing with `optimistic_read`.
         self.lock.state_lo.store(state_lo, Ordering::Release);
+
+        // The lock will be automatically released when `guard` is dropped.
+        debug_assert!(self.guard.is_some());
     }
 }
 

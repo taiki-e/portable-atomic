@@ -41,7 +41,7 @@ Portable atomic types.
   - Dynamic detection is only enabled in nightly, otherwise it works the same as the `i128` feature.
   - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the `i128` feature.
   - If both `i128` and `i128-dynamic` features are used in the dependency graph, `i128-dynamic` takes precedence.
-  - This is compatible with no-std (as with all features except std).
+  - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 
 - **`float`**<br>
   Provide `AtomicF{32,64}`.
@@ -58,6 +58,16 @@ Portable atomic types.
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
 
+  Note:
+  - The MSRV when this feature enables depends on the MSRV of [serde].
+
+- **`parking_lot`**<br>
+  Use [parking_lot] in global locks of fallback implementation.
+
+  Note:
+  - This is not compatible with no-std.
+  - The MSRV when this feature enables depends on the MSRV of [parking_lot].
+
 ## Optional cfg
 
 - **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
@@ -67,6 +77,9 @@ Portable atomic types.
   Note: This cfg is `unsafe`, and enabling this cfg for multi-core systems is **unsound**.
 
   This is intentionally not an optional feature. If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.
+
+[parking_lot]: https://github.com/Amanieu/parking_lot
+[serde]: https://github.com/serde-rs/serde
 
 ## License
 

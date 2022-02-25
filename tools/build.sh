@@ -121,7 +121,7 @@ build() {
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
     case "${target}" in
         *-none* | avr-* | riscv32imc-esp-espidf)
-            args+=(--exclude-features "std")
+            args+=(--exclude-features "std,parking_lot")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${common_args[@]+"${common_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
                 case "${target}" in

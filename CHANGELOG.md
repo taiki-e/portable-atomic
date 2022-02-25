@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `parking_lot` feature to use parking_lot in global locks of fallback implementation.
+
 ## [0.1.1] - 2022-02-25
 
 - Fix doc cfg on `Atomic{I,U}128`.

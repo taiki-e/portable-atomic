@@ -50,7 +50,7 @@ i128 = ["fallback"]
 # - Dynamic detection is only enabled in nightly, otherwise it works the same as the `i128` feature.
 # - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the `i128` feature.
 # - If both `i128` and `i128-dynamic` features are used in the dependency graph, `i128-dynamic` takes precedence.
-# - This is compatible with no-std (as with all features except std).
+# - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 i128-dynamic = ["i128"]
 
 # Provide `AtomicF{32,64}`.
@@ -64,9 +64,20 @@ float = []
 # Use `std`.
 std = []
 
+# Note: serde is public dependencies.
 [dependencies]
 # Implements serde::{Serialize,Deserialize} for atomic types.
+#
+# Note:
+# - The MSRV when this feature enables depends on the MSRV of parking_lot.
 serde = { version = "1.0.103", optional = true, default-features = false }
+
+# Use parking_lot in global locks of fallback implementation.
+#
+# Note:
+# - This is not compatible with no-std.
+# - The MSRV when this feature enables depends on the MSRV of parking_lot.
+parking_lot = { version = ">=0.11, <=0.12", optional = true }
 
 [dev-dependencies]
 crossbeam-utils = "0.8"
