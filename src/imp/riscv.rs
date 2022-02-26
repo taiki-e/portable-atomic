@@ -166,81 +166,81 @@ macro_rules! atomic_int {
         }
 
         impl AtomicOperations for $int_type {
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_relaxed(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
-                        in(reg) src,
-                        lateout(reg) out,
+                        concat!("l", $asm_suffix, " a0, 0(a1)"),
+                        in("a0") src,
+                        lateout("a1") out,
                         options(nostack),
                     );
                     out
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_acquire(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        concat!("l", $asm_suffix, " a0, 0(a1)"),
                         "fence r, rw",
-                        in(reg) src,
-                        lateout(reg) out,
+                        in("a0") src,
+                        lateout("a1") out,
                         options(nostack),
                     );
                     out
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_seq_cst(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
                         "fence rw, rw",
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        concat!("l", $asm_suffix, " a0, 0(a1)"),
                         "fence r, rw",
-                        in(reg) src,
-                        lateout(reg) out,
+                        in("a0") src,
+                        lateout("a1") out,
                         options(nostack),
                     );
                     out
                 }
             }
 
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("s", $asm_suffix, " a1, 0(a0)"),
+                        in("a0") dst,
+                        in("a1") val,
                         options(nostack),
                     );
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_release(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
                         "fence rw, w",
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("s", $asm_suffix, " a1, 0(a0)"),
+                        in("a0") dst,
+                        in("a1") val,
                         options(nostack),
                     );
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
                 // Release and SeqCst store is the same in riscv.
                 unsafe {
                     asm!(
                         "fence rw, w",
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("s", $asm_suffix, " a1, 0(a0)"),
+                        in("a0") dst,
+                        in("a1") val,
                         options(nostack),
                     );
                 }
