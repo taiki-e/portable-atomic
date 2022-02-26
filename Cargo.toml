@@ -69,7 +69,7 @@ std = []
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
 # Note:
-# - The MSRV when this feature enables depends on the MSRV of parking_lot.
+# - The MSRV when this feature enables depends on the MSRV of serde.
 serde = { version = "1.0.103", optional = true, default-features = false }
 
 # Use parking_lot in global locks of fallback implementation.
