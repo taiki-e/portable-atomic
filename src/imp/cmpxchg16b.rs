@@ -12,18 +12,10 @@ use crate::utils::{
     strongest_failure_ordering,
 };
 
-// Refs:
-// - https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b
-// - https://doc.rust-lang.org/nightly/reference/inline-assembly.html
-//
-// Generated asm:
-// - https://godbolt.org/z/9frds7oav
-#[inline(never)] // needed for correct codegen on release mode
-#[cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic),
-    target_feature(enable = "cmpxchg16b")
-)]
+#[inline(always)]
 unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
+    // The representation of a 128-bit value.
+    // This type can always be safely transmuted to/from u128.
     #[derive(Clone, Copy)]
     #[repr(C)]
     struct U128 {
@@ -35,29 +27,39 @@ unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
-    // Should not use `preserves_flags` because cmpxchg16b may change the ZF flag.
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned (required by cmpxchg16b), that there are no
+    // concurrent non-atomic operations, and that the CPU supports cmpxchg16b.
+    //
+    // If the value at `dst` (destination operand) and rdx:rax are equal, the
+    // 128-bit value in rcx:rbx is stored in the `dst`, otherwise the value at
+    // `dst` is loaded to rdx:rax.
+    //
+    // The ZF flag is set if the value at `dst` and rdx:rax are equal,
+    // otherwise it is cleared. Other flags are unaffected.
+    //
+    // Generated asm: https://godbolt.org/z/sbsWbG3nr
     unsafe {
         let r: u8;
-        let mut old: U128 = core::mem::transmute(old);
+        let old: U128 = core::mem::transmute(old);
         let new: U128 = core::mem::transmute(new);
+        let (prev_lo, prev_hi);
         asm!(
             // rbx is reserved by LLVM
-            "xchg {b}, rbx",
+            "xchg rsi, rbx",
             "lock cmpxchg16b xmmword ptr [rdi]",
-            "sete {r}",
-            "mov rbx, {b}",
-            b = in(reg) new.lo,
-            r = out(reg_byte) r,
-            in("rcx") new.hi,
+            "sete r8b",
+            "mov rbx, rsi",
             in("rdi") dst,
-            // If the value at `dst` is not the same as `old`,
-            // the value at `dst` will be written to rdx:rax.
-            inout("rax") old.lo,
-            inout("rdx") old.hi,
+            inlateout("rax") old.lo => prev_lo,
+            inlateout("rdx") old.hi => prev_hi,
+            inout("rsi") new.lo => _,
+            in("rcx") new.hi,
+            out("r8b") r,
+            // Should not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
             options(nostack),
         );
-        (core::mem::transmute(old), r != 0)
+        (core::mem::transmute(U128 { lo: prev_lo, hi: prev_hi }), r != 0)
     }
 }
 
