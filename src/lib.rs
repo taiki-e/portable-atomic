@@ -20,6 +20,7 @@
 #![warn(
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
+    clippy::inline_asm_x86_att_syntax,
     clippy::missing_inline_in_public_items,
     clippy::pedantic,
     clippy::undocumented_unsafe_blocks
@@ -30,7 +31,8 @@
     clippy::inline_always,
     clippy::missing_errors_doc,
     clippy::module_inception,
-    clippy::must_use_candidate
+    clippy::must_use_candidate,
+    clippy::type_complexity
 )]
 // 128-bit atomic
 #![cfg_attr(
@@ -79,10 +81,9 @@
     target_pointer_width = "16",
     target_pointer_width = "32",
     target_pointer_width = "64",
-    target_pointer_width = "128",
 )))]
 compile_error!(
-    "portable-atomic currently only supports targets with {16,32,64,128}-bit pointer width; \
+    "portable-atomic currently only supports targets with {16,32,64}-bit pointer width; \
      if you need support for others, \
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );

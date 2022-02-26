@@ -874,6 +874,7 @@ macro_rules! test_atomic_int_pub {
         }
     };
 }
+#[cfg(feature = "float")]
 macro_rules! test_atomic_float_pub {
     ($test_module:ident, $atomic_type:ty, $float_type:ident) => {
         mod $test_module {
@@ -919,6 +920,13 @@ pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
         f(order);
     }
 
+    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
+        && option_env!("MSAN_OPTIONS").is_some()
+    {
+        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
+        return;
+    }
+
     // Miri's panic handling is slow
     if !cfg!(miri) {
         assert_eq!(
@@ -937,6 +945,13 @@ pub(crate) fn store_orderings() -> [Ordering; 3] {
 pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &store_orderings() {
         f(order);
+    }
+
+    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
+        && option_env!("MSAN_OPTIONS").is_some()
+    {
+        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
+        return;
     }
 
     // Miri's panic handling is slow
@@ -970,6 +985,13 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
 ) {
     for &(success, failure) in &compare_exchange_orderings() {
         f(success, failure);
+    }
+
+    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
+        && option_env!("MSAN_OPTIONS").is_some()
+    {
+        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
+        return;
     }
 
     // Miri's panic handling is slow

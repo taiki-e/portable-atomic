@@ -104,7 +104,7 @@ build() {
             *) return 0 ;;
         esac
     fi
-    args+=(${common_args[@]+"${common_args[@]}"} hack build)
+    args+=(${common_args[@]+"${common_args[@]}"} hack build -vvv)
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         return 0
     fi

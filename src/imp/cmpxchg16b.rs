@@ -712,6 +712,7 @@ mod tests {
 
         ::quickcheck::quickcheck! {
             #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
+            #[cfg_attr(sanitize_thread, ignore)] // TSan doesn't know the semantic of the asm synchronization instructions.
             fn test(x: u128, y: u128, z: u128) -> bool {
                 assert!(std::is_x86_feature_detected!("cmpxchg16b"));
                 unsafe {

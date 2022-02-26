@@ -91,7 +91,7 @@ fn main() {
         }
     } else {
         // TODO: invert portable_atomic_cfg_target_has_atomic once Rust 1.60 became stable.
-        // println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
+        println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
         if NO_ATOMIC_CAS.contains(&&*target) {
             println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
         }
@@ -121,6 +121,12 @@ fn main() {
         println!("cargo:rustc-cfg=target_feature_cmpxchg16b");
     }
 
+    // `cfg(sanitize = "..")` is not stabilized.
+    let tsan = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default().contains("thread");
+    if tsan {
+        println!("cargo:rustc-cfg=sanitize_thread");
+    }
+
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
     }
@@ -132,7 +138,7 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
         } else if (version.minor >= 59 || version.nightly)
             && target.starts_with("x86_64-")
-            && (version.nightly && cfg!(feature = "i128-dynamic") || has_cmpxchg16b)
+            && (version.nightly && cfg!(feature = "i128-dynamic") && !tsan || has_cmpxchg16b)
         {
             // On x86_64, if cmpxchg16b is available, we can use it to provide Atomic*128.
             println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b");

@@ -97,50 +97,50 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
-      - run: cargo test -v --workspace --exclude asm-test --all-features $DOCTEST_XCOMPILE
-      - run: cargo test -v --features i128-dynamic,float,std,serde $DOCTEST_XCOMPILE
-      - run: cargo test -v --workspace --exclude asm-test --all-features --release $DOCTEST_XCOMPILE
-      - run: cargo test -v --features i128-dynamic,float,std,serde --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude asm-test --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -vv --features i128-dynamic,float,std,serde $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude asm-test --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --features i128-dynamic,float,std,serde --release $DOCTEST_XCOMPILE
       # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
         if: startsWith(matrix.rust, 'nightly')
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
         if: startsWith(matrix.rust, 'nightly')
-      - run: cargo test -v --workspace --exclude asm-test --all-features
+      - run: cargo test -vv --workspace --exclude asm-test --all-features
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -v --workspace --exclude asm-test --all-features --release
+      - run: cargo test -vv --workspace --exclude asm-test --all-features --release
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
       # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: startsWith(matrix.rust, 'nightly') && (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "${CARGO_BUILD_TARGET:-"$(rustc -Vv | grep host | sed 's/host: //')"}"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: startsWith(matrix.rust, 'nightly') && (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
-      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
-      - run: cargo hack build -vv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
+      - run: cargo hack build -vvv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
+      - run: cargo hack build -vvv --workspace --feature-powerset --optional-deps --no-dev-deps --ignore-private
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo minimal-versions build -vv --workspace --all-features --ignore-private
+      - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private
         if: startsWith(matrix.rust, 'nightly')
 
   build:
@@ -175,13 +175,13 @@ jobs:
       # Make sure this crate can be built with MSRV and all later versions.
       # However, this takes time, so for PR, set the version interval.
       # parking_lot feature is excluded because it has a higher MSRV.
-      - run: cargo hack build --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range ..
+      - run: cargo hack build -vvv --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range ..
         if: github.event_name != 'pull_request'
-      - run: cargo hack build --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range .. --version-step 2
+      - run: cargo hack build -vvv --workspace --feature-powerset --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range .. --version-step 2
         if: github.event_name == 'pull_request'
-      - run: cargo hack test --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range ..
+      - run: cargo hack test -vvv --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range ..
         if: github.event_name != 'pull_request'
-      - run: cargo hack test --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range .. --version-step 2
+      - run: cargo hack test -vvv --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range .. --version-step 2
         if: github.event_name == 'pull_request'
 
   miri:
@@ -215,55 +215,55 @@ jobs:
         with:
           component: rust-src
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
+          echo "ASAN_OPTIONS=detect_stack_use_after_return=1" >>"${GITHUB_ENV}"
+          echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+        if: matrix.sanitizer == 'address'
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
-        # TODO: tsan hang on release mode
-        if: matrix.sanitizer != 'thread'
+          echo "MSAN_OPTIONS=verbosity=2" >>"${GITHUB_ENV}"
+          echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+        if: matrix.sanitizer == 'memory'
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+        if: matrix.sanitizer == 'thread'
+      - run: |
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+      - run: |
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+      - run: |
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }}
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
-        # TODO: tsan hang on release mode
-        if: matrix.sanitizer != 'thread'
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test --workspace --exclude asm-test --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z sanitizer=${{ matrix.sanitizer }} -C target-feature=+cmpxchg16b
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
 
   valgrind:
     env:
@@ -277,32 +277,32 @@ jobs:
         with:
           component: rust-src
       - uses: taiki-e/install-action@valgrind
-      - run: cargo test -v --workspace --exclude asm-test --all-features -Z doctest-xcompile
-      - run: cargo test -v --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude asm-test --all-features -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
       # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-      - run: cargo test --workspace --exclude asm-test --all-features -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude asm-test --all-features -Z doctest-xcompile
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-      - run: cargo test --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude asm-test --all-features --release -Z doctest-xcompile
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_LTO: thin
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test -v --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
