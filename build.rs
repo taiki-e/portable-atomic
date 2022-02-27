@@ -18,6 +18,7 @@ const LATEST_STABLE: Version =
 
 const PROBE_ATOMIC_128: &str = r#"
 #![no_std]
+#![allow(stable_features)]
 #![feature(integer_atomics)]
 fn _probe() {
     let v = core::sync::atomic::AtomicU128::new(0);
@@ -26,6 +27,7 @@ fn _probe() {
 "#;
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
+#![allow(stable_features)]
 #![feature(stdsimd, cmpxchg16b_target_feature)]
 #[allow(unused_unsafe)]
 #[target_feature(enable = "cmpxchg16b")]
