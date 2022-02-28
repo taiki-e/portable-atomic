@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix inline assembly for riscv without A-extension.
+
 ## [0.1.2] - 2022-02-26
 
 - Add `parking_lot` feature to use parking_lot in global locks of fallback implementation.

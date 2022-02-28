@@ -1,9 +1,11 @@
-//! Atomic{I8,U8,I16,U16,I32,U32,Isize,Usize,Bool,Ptr} implementation on riscv (load/store only).
-//!
-//! Based on:
-//! - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
-//!   <https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting>
-//! - asm generated for riscv64gc linux: <https://godbolt.org/z/Pb9Mj7d8x>
+// Atomic load/store implementation on riscv.
+//
+// Based on:
+// - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
+//   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
+// - asm generated for riscv64gc linux
+//
+// Generated asm: https://godbolt.org/z/ojneff8T6
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -166,12 +168,12 @@ macro_rules! atomic_int {
         }
 
         impl AtomicOperations for $int_type {
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_relaxed(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        concat!("l", $asm_suffix, " {1}, 0({0})"),
                         in(reg) src,
                         lateout(reg) out,
                         options(nostack),
@@ -179,12 +181,12 @@ macro_rules! atomic_int {
                     out
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_acquire(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        concat!("l", $asm_suffix, " {1}, 0({0})"),
                         "fence r, rw",
                         in(reg) src,
                         lateout(reg) out,
@@ -193,13 +195,13 @@ macro_rules! atomic_int {
                     out
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_load_seq_cst(src: *const Self) -> Self {
                 unsafe {
                     let out;
                     asm!(
                         "fence rw, rw",
-                        concat!("l", $asm_suffix, " {0}, 0({1})"),
+                        concat!("l", $asm_suffix, " {1}, 0({0})"),
                         "fence r, rw",
                         in(reg) src,
                         lateout(reg) out,
@@ -209,7 +211,7 @@ macro_rules! atomic_int {
                 }
             }
 
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
@@ -220,7 +222,7 @@ macro_rules! atomic_int {
                     );
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_release(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
@@ -232,7 +234,7 @@ macro_rules! atomic_int {
                     );
                 }
             }
-            #[inline(never)] // needed for correct codegen on release mode
+            #[inline(always)]
             unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
                 // Release and SeqCst store is the same in riscv.
                 unsafe {
