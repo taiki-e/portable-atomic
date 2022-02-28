@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.1.3] - 2022-02-28
+
 - Fix inline assembly for riscv without A-extension.
 
 ## [0.1.2] - 2022-02-26
@@ -26,7 +28,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/taiki-e/portable-atomic/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/taiki-e/portable-atomic/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/taiki-e/portable-atomic/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/taiki-e/portable-atomic/releases/tag/v0.1.0
