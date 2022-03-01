@@ -56,6 +56,10 @@ macro_rules! __test_atomic_int_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), 10);
             VAR.store(5, Ordering::SeqCst);
             assert_eq!(VAR.load(Ordering::SeqCst), 5);
+            let a = <$atomic_type>::new(1);
+            assert_eq!(a.load(Ordering::SeqCst), 1);
+            a.store(2, Ordering::SeqCst);
+            assert_eq!(a.load(Ordering::SeqCst), 2);
         }
     };
     ($atomic_type:ty, $int_type:ident) => {
@@ -75,12 +79,12 @@ macro_rules! __test_atomic_int_load_store {
                     s.spawn(|_| {
                         for _ in 0..N {
                             let v = fastrand::$int_type(..);
-                            a.store(v, Ordering::Release);
+                            a.store(v, rand_store_ordering());
                         }
                     });
                     s.spawn(|_| {
                         for _ in 0..N {
-                            a.load(Ordering::Acquire);
+                            a.load(rand_load_ordering());
                         }
                     });
                 }
@@ -108,6 +112,10 @@ macro_rules! __test_atomic_float_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), 10.0);
             VAR.store(5.0, Ordering::SeqCst);
             assert_eq!(VAR.load(Ordering::SeqCst), 5.0);
+            let a = <$atomic_type>::new(1.0);
+            assert_eq!(a.load(Ordering::SeqCst), 1.0);
+            a.store(2.0, Ordering::SeqCst);
+            assert_eq!(a.load(Ordering::SeqCst), 2.0);
         }
     };
     ($atomic_type:ty, $float_type:ident) => {
@@ -134,6 +142,10 @@ macro_rules! __test_atomic_bool_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), false);
             VAR.store(true, Ordering::SeqCst);
             assert_eq!(VAR.load(Ordering::SeqCst), true);
+            let a = <$atomic_type>::new(true);
+            assert_eq!(a.load(Ordering::SeqCst), true);
+            a.store(false, Ordering::SeqCst);
+            assert_eq!(a.load(Ordering::SeqCst), false);
         }
     };
     ($atomic_type:ty) => {
@@ -164,6 +176,10 @@ macro_rules! __test_atomic_ptr_load_store {
             assert_eq!(VAR.load(Ordering::SeqCst), ptr::null_mut());
             VAR.store(p, Ordering::SeqCst);
             assert_eq!(VAR.load(Ordering::SeqCst), p);
+            let a = <$atomic_type>::new(p);
+            assert_eq!(a.load(Ordering::SeqCst), p);
+            a.store(ptr::null_mut(), Ordering::SeqCst);
+            assert_eq!(a.load(Ordering::SeqCst), ptr::null_mut());
         }
     };
     ($atomic_type:ty) => {
@@ -280,77 +296,78 @@ macro_rules! __test_atomic_int {
         }
         mod quickcheck {
             use super::super::*;
+            use crate::tests::helper::*;
             ::quickcheck::quickcheck! {
                 fn fetch_add(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_add(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_add(y));
+                    assert_eq!(a.fetch_add(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x.wrapping_add(y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_add(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_add(x));
+                    assert_eq!(a.fetch_add(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y.wrapping_add(x));
                     true
                 }
                 fn fetch_sub(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_sub(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_sub(y));
+                    assert_eq!(a.fetch_sub(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x.wrapping_sub(y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_sub(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_sub(x));
+                    assert_eq!(a.fetch_sub(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y.wrapping_sub(x));
                     true
                 }
                 fn fetch_and(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_and(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x & y);
+                    assert_eq!(a.fetch_and(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x & y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_and(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y & x);
+                    assert_eq!(a.fetch_and(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y & x);
                     true
                 }
                 fn fetch_nand(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_nand(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), !(x & y));
+                    assert_eq!(a.fetch_nand(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), !(x & y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_nand(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), !(y & x));
+                    assert_eq!(a.fetch_nand(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), !(y & x));
                     true
                 }
                 fn fetch_or(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_or(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x | y);
+                    assert_eq!(a.fetch_or(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x | y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_or(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y | x);
+                    assert_eq!(a.fetch_or(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y | x);
                     true
                 }
                 fn fetch_xor(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_xor(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                    assert_eq!(a.fetch_xor(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x ^ y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_xor(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                    assert_eq!(a.fetch_xor(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y ^ x);
                     true
                 }
                 fn fetch_max(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_max(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(x, y));
+                    assert_eq!(a.fetch_max(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), core::cmp::max(x, y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_max(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(y, x));
+                    assert_eq!(a.fetch_max(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), core::cmp::max(y, x));
                     true
                 }
                 fn fetch_min(x: $int_type, y: $int_type) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_min(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(x, y));
+                    assert_eq!(a.fetch_min(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), core::cmp::min(x, y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_min(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(y, x));
+                    assert_eq!(a.fetch_min(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), core::cmp::min(y, x));
                     true
                 }
             }
@@ -372,12 +389,12 @@ macro_rules! __test_atomic_int {
                     s.spawn(|_| {
                         for _ in 0..N {
                             let v = fastrand::$int_type(..);
-                            a.store(v, Ordering::Release);
+                            a.store(v, rand_store_ordering());
                         }
                     });
                     s.spawn(|_| {
                         for _ in 0..N {
-                            a.load(Ordering::Acquire);
+                            a.load(rand_load_ordering());
                         }
                     });
                     s.spawn(|_| {
@@ -385,11 +402,11 @@ macro_rules! __test_atomic_int {
                             let old = if i % 2 == 0 {
                                 fastrand::$int_type(..)
                             } else {
-                                a.load(Ordering::Relaxed)
+                                a.load(rand_load_ordering())
                             };
                             let new = fastrand::$int_type(..);
-                            let _ =
-                                a.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire);
+                            let o = rand_compare_exchange_ordering();
+                            let _ = a.compare_exchange(old, new, o.0, o.1);
                         }
                     });
                 }
@@ -581,51 +598,52 @@ macro_rules! __test_atomic_bool {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_xor(false, order), true));
             assert_eq!(a.fetch_xor(false, Ordering::SeqCst), true);
-            assert_eq!(a.load(Ordering::SeqCst), true);
+            assert_eq!(a.load(rand_load_ordering()), true);
             let a = <$atomic_type>::new(true);
             assert_eq!(a.fetch_xor(true, Ordering::SeqCst), true);
-            assert_eq!(a.load(Ordering::SeqCst), false);
+            assert_eq!(a.load(rand_load_ordering()), false);
             let a = <$atomic_type>::new(false);
             assert_eq!(a.fetch_xor(false, Ordering::SeqCst), false);
-            assert_eq!(a.load(Ordering::SeqCst), false);
+            assert_eq!(a.load(rand_load_ordering()), false);
         }
         mod quickcheck {
             use super::super::*;
+            use crate::tests::helper::*;
             ::quickcheck::quickcheck! {
                 fn fetch_and(x: bool, y: bool) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_and(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x & y);
+                    assert_eq!(a.fetch_and(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x & y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_and(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y & x);
+                    assert_eq!(a.fetch_and(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y & x);
                     true
                 }
                 fn fetch_nand(x: bool, y: bool) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_nand(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), !(x & y));
+                    assert_eq!(a.fetch_nand(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), !(x & y));
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_nand(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), !(y & x));
+                    assert_eq!(a.fetch_nand(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), !(y & x));
                     true
                 }
                 fn fetch_or(x: bool, y: bool) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_or(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x | y);
+                    assert_eq!(a.fetch_or(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x | y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_or(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y | x);
+                    assert_eq!(a.fetch_or(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y | x);
                     true
                 }
                 fn fetch_xor(x: bool, y: bool) -> bool {
                     let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_xor(y, Ordering::Relaxed), x);
-                    assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                    assert_eq!(a.fetch_xor(y, rand_swap_ordering()), x);
+                    assert_eq!(a.load(rand_load_ordering()), x ^ y);
                     let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_xor(x, Ordering::Relaxed), y);
-                    assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                    assert_eq!(a.fetch_xor(x, rand_swap_ordering()), y);
+                    assert_eq!(a.load(rand_load_ordering()), y ^ x);
                     true
                 }
             }
@@ -907,13 +925,20 @@ macro_rules! test_atomic_ptr_pub {
 }
 
 pub(crate) fn assert_panic<T: std::fmt::Debug>(f: impl FnOnce() -> T) -> std::string::String {
-    let msg = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)).unwrap_err();
+    let hook = std::panic::take_hook();
+    std::panic::set_hook(std::boxed::Box::new(|_| {})); // Suppress panic msg
+    let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    std::panic::set_hook(hook);
+    let msg = res.unwrap_err();
     msg.downcast_ref::<std::string::String>()
         .cloned()
         .unwrap_or_else(|| msg.downcast_ref::<&'static str>().copied().unwrap().into())
 }
 pub(crate) fn load_orderings() -> [Ordering; 3] {
     [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst]
+}
+pub(crate) fn rand_load_ordering() -> Ordering {
+    load_orderings()[fastrand::usize(0..3)]
 }
 pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &load_orderings() {
@@ -941,6 +966,9 @@ pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
 }
 pub(crate) fn store_orderings() -> [Ordering; 3] {
     [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst]
+}
+pub(crate) fn rand_store_ordering() -> Ordering {
+    store_orderings()[fastrand::usize(0..3)]
 }
 pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &store_orderings() {
@@ -979,6 +1007,9 @@ pub(crate) fn compare_exchange_orderings() -> [(Ordering, Ordering); 9] {
         (Ordering::SeqCst, Ordering::Acquire),
         (Ordering::SeqCst, Ordering::SeqCst),
     ]
+}
+pub(crate) fn rand_compare_exchange_ordering() -> (Ordering, Ordering) {
+    compare_exchange_orderings()[fastrand::usize(0..9)]
 }
 pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
     f: impl Fn(Ordering, Ordering) -> T,
@@ -1028,6 +1059,9 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
 }
 pub(crate) fn all_orderings() -> [Ordering; 5] {
     [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
+}
+pub(crate) fn rand_swap_ordering() -> Ordering {
+    all_orderings()[fastrand::usize(0..5)]
 }
 pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &all_orderings() {

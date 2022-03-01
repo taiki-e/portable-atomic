@@ -23,6 +23,7 @@ mod tests {
 #[allow(dead_code, unused_imports)]
 #[path = "imp/intrinsics.rs"]
 mod cmpxchg16b_intrinsics;
+#[cfg(target_arch = "x86_64")]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/cmpxchg16b.rs"]
 mod cmpxchg16b_stdsimd;
@@ -61,6 +62,7 @@ macro_rules! impl_atomic_u128 {
     };
 }
 impl_atomic_u128!(cmpxchg16b_intrinsics::AtomicU128);
+#[cfg(target_arch = "x86_64")]
 impl_atomic_u128!(cmpxchg16b_stdsimd::AtomicU128);
 impl_atomic_u128!(seqlock_fallback::AtomicU128);
 impl_atomic_u128!(spinlock_fallback::AtomicU128);
@@ -177,6 +179,7 @@ macro_rules! benches {
     };
 }
 benches!(bench_portable_atomic_cmpxchg16b_intrinsics, cmpxchg16b_intrinsics::AtomicU128);
+#[cfg(target_arch = "x86_64")]
 benches!(bench_portable_atomic_cmpxchg16b_stdsimd, cmpxchg16b_intrinsics::AtomicU128);
 benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128);
 benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128);
@@ -187,7 +190,7 @@ criterion_group!(
     benches,
     bench_portable_atomic_seqlock_fallback,
     bench_atomic_cell,
-    bench_portable_atomic_cmpxchg16b_stdsimd,
+    // bench_portable_atomic_cmpxchg16b_stdsimd,
     bench_portable_atomic_cmpxchg16b_intrinsics,
     bench_portable_atomic_spinlock_fallback,
     bench_atomic_rs
