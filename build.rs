@@ -58,6 +58,15 @@ fn main() {
             return;
         }
     };
+    // HACK: If --target is specified, rustflags is not applied to the build
+    // script itself, so the build script will not be rerun when these are changed.
+    println!("cargo:rerun-if-env-changed=RUSTFLAGS");
+    println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
+    println!(
+        "cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS",
+        target.to_uppercase().replace('-', "_").replace('.', "_")
+    );
+
     let version = match rustc_version() {
         Some(version) => version,
         None => LATEST_STABLE,
@@ -117,39 +126,12 @@ fn main() {
 
     // cmpxchg16b is available via asm (1.59+) or stdsimd (nightly).
     let may_use_cmpxchg16b =
-        target.starts_with("x86_64-") && (version.minor >= 59 || version.nightly);
+        target.starts_with("x86_64") && (version.minor >= 59 || version.nightly);
     let mut has_cmpxchg16b = false;
     if may_use_cmpxchg16b {
-        // Currently, it seems that the only way that works on the stable is
-        // to parse the `-C target-feature` in RUSTFLAGS.
-        //
-        // - #[cfg(target_feature = "cmpxchg16b")] doesn't work on stable.
-        // - CARGO_CFG_TARGET_FEATURE excludes unstable features on stable.
-        //
-        // https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
-        if version.nightly {
-            has_cmpxchg16b = env::var("CARGO_CFG_TARGET_FEATURE")
-                .ok()
-                .map_or(false, |s| s.split(',').any(|s| s == "cmpxchg16b"));
-        } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
-            // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
-            has_cmpxchg16b = target == "x86_64-apple-darwin";
-            for mut flag in rustflags.to_string_lossy().split('\x1f') {
-                if flag.starts_with("-C") {
-                    flag = &flag["-C".len()..];
-                }
-                if flag.starts_with("target-feature=") {
-                    flag = &flag["target-feature=".len()..];
-                    for s in flag.split(',') {
-                        match s {
-                            "+cmpxchg16b" => has_cmpxchg16b = true,
-                            "-cmpxchg16b" => has_cmpxchg16b = false,
-                            _ => {}
-                        }
-                    }
-                }
-            }
-        }
+        // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
+        has_cmpxchg16b =
+            has_unstable_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version);
     }
     if has_cmpxchg16b {
         println!("cargo:rustc-cfg=target_feature_cmpxchg16b");
@@ -283,4 +265,42 @@ fn probe(code: &str, target: Option<&str>) -> Option<bool> {
 
     let status = child.wait().ok()?;
     Some(status.success())
+}
+
+fn has_stable_target_feature(name: &str) -> bool {
+    env::var("CARGO_CFG_TARGET_FEATURE").ok().map_or(false, |s| s.split(',').any(|s| s == name))
+}
+
+fn has_unstable_target_feature(
+    name: &str,
+    mut has_target_feature: bool,
+    version: &Version,
+) -> bool {
+    // Currently, it seems that the only way that works on the stable is
+    // to parse the `-C target-feature` in RUSTFLAGS.
+    //
+    // - #[cfg(target_feature = "cmpxchg16b")] doesn't work on stable.
+    // - CARGO_CFG_TARGET_FEATURE excludes unstable features on stable.
+    //
+    // https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
+    if version.nightly {
+        has_target_feature = has_stable_target_feature(name);
+    } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+        for mut flag in rustflags.to_string_lossy().split('\x1f') {
+            if flag.starts_with("-C") {
+                flag = &flag["-C".len()..];
+            }
+            if flag.starts_with("target-feature=") {
+                flag = &flag["target-feature=".len()..];
+                for s in flag.split(',') {
+                    match (s.as_bytes()[0] as char, &s[1..]) {
+                        ('+', f) if f == name => has_target_feature = true,
+                        ('-', f) if f == name => has_target_feature = false,
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+    has_target_feature
 }

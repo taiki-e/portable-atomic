@@ -1,10 +1,10 @@
-//! Critical section based fallback implementations
-//!
-//! Since critical session-based fallback is not sound on multi-core systems,
-//! this module will only be enabled in one of the following cases:
-//!
-//! - If the user explicitly declares the target to be single-core using an unsafe cfg.
-//! - If the target can be safely assumed to be single-core.
+// Critical section based fallback implementations
+//
+// Since critical session-based fallback is not sound on multi-core systems,
+// this module will only be enabled in one of the following cases:
+//
+// - If the user explicitly declares the target to be single-core using an unsafe cfg.
+// - If the target can be safely assumed to be single-core.
 
 #![cfg_attr(test, allow(dead_code))] // TODO
 

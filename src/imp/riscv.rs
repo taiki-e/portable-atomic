@@ -1,4 +1,4 @@
-// Atomic load/store implementation on riscv.
+// Atomic load/store implementation on RISC-V.
 //
 // Based on:
 // - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
@@ -103,12 +103,14 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         assert_load_ordering(order);
+        // TODO: remove int to ptr cast
         unsafe { usize::atomic_load(self.p.get() as *mut usize, order) as *mut T }
     }
 
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         assert_store_ordering(order);
+        // TODO: remove int to ptr cast
         unsafe {
             usize::atomic_store(self.p.get() as *mut usize, ptr as usize, order);
         }
@@ -173,9 +175,9 @@ macro_rules! atomic_int {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) src,
-                        lateout(reg) out,
+                        concat!("l", $asm_suffix, " {out}, 0({src})"),
+                        src = in(reg) src,
+                        out = lateout(reg) out,
                         options(nostack),
                     );
                     out
@@ -186,10 +188,10 @@ macro_rules! atomic_int {
                 unsafe {
                     let out;
                     asm!(
-                        concat!("l", $asm_suffix, " {1}, 0({0})"),
+                        concat!("l", $asm_suffix, " {out}, 0({src})"),
                         "fence r, rw",
-                        in(reg) src,
-                        lateout(reg) out,
+                        src = in(reg) src,
+                        out = lateout(reg) out,
                         options(nostack),
                     );
                     out
@@ -201,10 +203,10 @@ macro_rules! atomic_int {
                     let out;
                     asm!(
                         "fence rw, rw",
-                        concat!("l", $asm_suffix, " {1}, 0({0})"),
+                        concat!("l", $asm_suffix, " {out}, 0({src})"),
                         "fence r, rw",
-                        in(reg) src,
-                        lateout(reg) out,
+                        src = in(reg) src,
+                        out = lateout(reg) out,
                         options(nostack),
                     );
                     out
@@ -215,9 +217,9 @@ macro_rules! atomic_int {
             unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
                         options(nostack),
                     );
                 }
@@ -227,25 +229,17 @@ macro_rules! atomic_int {
                 unsafe {
                     asm!(
                         "fence rw, w",
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
                         options(nostack),
                     );
                 }
             }
             #[inline(always)]
             unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
-                // Release and SeqCst store is the same in riscv.
-                unsafe {
-                    asm!(
-                        "fence rw, w",
-                        concat!("s", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
-                        options(nostack),
-                    );
-                }
+                // Release store and SeqCst store are equivalent in RISC-V.
+                unsafe { Self::atomic_store_release(dst, val) }
             }
         }
     }

@@ -1,4 +1,5 @@
 #![warn(unsafe_op_in_unsafe_fn)]
+#![allow(dead_code)]
 #![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics)]
 
 use std::{

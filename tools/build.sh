@@ -136,7 +136,7 @@ build() {
     esac
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
         x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml "$@"
-    if [[ "${target}" == "x86_64-"* ]]; then
+    if [[ "${target}" == "x86_64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+cmpxchg16b" \
             x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/cmpxchg16b "$@"
     fi

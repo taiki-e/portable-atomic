@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation using cmpxchg16b.
+// Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
 
 #[path = "cmpxchg16b_detect.rs"]
 mod detect;
@@ -12,19 +12,18 @@ use crate::utils::{
     strongest_failure_ordering,
 };
 
+/// A 128-bit value represented as a pair of 64-bit values.
+// This type is #[repr(C)], both fields have the same in-memory representation
+// and are plain old datatypes, so access to the fields is always safe.
+#[derive(Clone, Copy)]
+#[repr(C)]
+union U128 {
+    u128: u128,
+    pair: [u64; 2],
+}
+
 #[inline(always)]
 unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-    // The representation of a 128-bit value.
-    // This type can always be safely transmuted to/from u128.
-    #[derive(Clone, Copy)]
-    #[repr(C)]
-    struct U128 {
-        /// The low-order 64 bits of a 128-bit value.
-        lo: u64,
-        /// The high-order 64 bits of a 128-bit value.
-        hi: u64,
-    }
-
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -38,11 +37,11 @@ unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     // The ZF flag is set if the value at `dst` and rdx:rax are equal,
     // otherwise it is cleared. Other flags are unaffected.
     //
-    // Generated asm: https://godbolt.org/z/sbsWbG3nr
+    // Generated asm: https://godbolt.org/z/G34YbYMqq
     unsafe {
         let r: u8;
-        let old: U128 = core::mem::transmute(old);
-        let new: U128 = core::mem::transmute(new);
+        let old: U128 = U128 { u128: old };
+        let new: U128 = U128 { u128: new };
         let (prev_lo, prev_hi);
         asm!(
             // rbx is reserved by LLVM
@@ -51,15 +50,15 @@ unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
             "sete r8b",
             "mov rbx, rsi",
             in("rdi") dst,
-            inlateout("rax") old.lo => prev_lo,
-            inlateout("rdx") old.hi => prev_hi,
-            inout("rsi") new.lo => _,
-            in("rcx") new.hi,
-            out("r8b") r,
+            inlateout("rax") old.pair[0] => prev_lo,
+            inlateout("rdx") old.pair[1] => prev_hi,
+            inout("rsi") new.pair[0] => _,
+            in("rcx") new.pair[1],
+            lateout("r8b") r,
             // Should not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
             options(nostack),
         );
-        (core::mem::transmute(U128 { lo: prev_lo, hi: prev_hi }), r != 0)
+        (U128 { pair: [prev_lo, prev_hi] }.u128, r != 0)
     }
 }
 
@@ -76,14 +75,20 @@ unsafe fn cmpxchg16b(
     failure: Ordering,
 ) -> (u128, bool) {
     debug_assert!(detect::has_cmpxchg16b());
+    #[cfg(all(
+        portable_atomic_cmpxchg16b_stdsimd,
+        any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
+    ))]
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
-    #[cfg(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature_cmpxchg16b, miri)))]
     unsafe {
         let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
         (res, res == old)
     }
+    #[cfg(not(all(
+        portable_atomic_cmpxchg16b_stdsimd,
+        any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
+    )))]
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
-    #[cfg(not(all(portable_atomic_cmpxchg16b_stdsimd, any(target_feature_cmpxchg16b, miri))))]
     unsafe {
         let _ = (success, failure);
         _cmpxchg16b(dst, old, new)
@@ -95,10 +100,10 @@ unsafe fn cmpxchg16b(
     any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic),
     target_feature(enable = "cmpxchg16b")
 )]
-unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
+unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     let fail_order = strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe { cmpxchg16b(dst, 0, 0, order, fail_order).0 }
+    unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
 }
 
 #[inline]
@@ -292,7 +297,8 @@ macro_rules! atomic128 {
         }
 
         impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = cfg!(target_feature_cmpxchg16b);
+            const IS_ALWAYS_LOCK_FREE: bool =
+                cfg!(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b"));
             #[inline]
             fn is_lock_free() -> bool {
                 detect::has_cmpxchg16b()
@@ -706,7 +712,7 @@ mod tests {
         assert!(AtomicU128::is_lock_free());
     }
 
-    #[cfg(target_feature_cmpxchg16b)]
+    #[cfg(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
     mod quickcheck {
         use crate::tests::helper::Align16;
 

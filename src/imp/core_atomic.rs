@@ -1,4 +1,4 @@
-//! Re-exports of the standard library's atomic types.
+// Re-exports of the standard library's atomic types.
 
 macro_rules! atomic {
     ($($atomic_type:ident),*) => {$(

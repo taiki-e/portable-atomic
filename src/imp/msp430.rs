@@ -1,10 +1,10 @@
-//! Atomic{I8,U8,I16,U16,Isize,Usize,Bool,Ptr} implementation on msp430 (load/store only).
-//!
-//! Adapted from https://github.com/pftbest/msp430-atomic.
-//! Including https://github.com/pftbest/msp430-atomic/pull/4 for a compile error fix.
-//! Including https://github.com/pftbest/msp430-atomic/pull/5 for a soundness bug fix.
-//!
-//! Note: Ordering is always SeqCst.
+// Atomic load/store implementation on msp430.
+//
+// Adapted from https://github.com/pftbest/msp430-atomic.
+// Including https://github.com/pftbest/msp430-atomic/pull/4 for a compile error fix.
+// Including https://github.com/pftbest/msp430-atomic/pull/5 for a soundness bug fix.
+//
+// Note: Ordering is always SeqCst.
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -102,12 +102,14 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         assert_load_ordering(order);
+        // TODO: remove int to ptr cast
         unsafe { usize::atomic_load(self.p.get() as *mut usize) as *mut T }
     }
 
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         assert_store_ordering(order);
+        // TODO: remove int to ptr cast
         unsafe {
             usize::atomic_store(self.p.get() as *mut usize, ptr as usize);
         }
@@ -173,9 +175,9 @@ macro_rules! atomic_int {
                     let out;
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("mov", $asm_suffix, " @{0}, {1}"),
-                        in(reg) src,
-                        lateout(reg) out,
+                        concat!("mov", $asm_suffix, " @{src}, {out}"),
+                        src = in(reg) src,
+                        out = lateout(reg) out,
                         options(nostack),
                     );
                     #[cfg(portable_atomic_no_asm)]
@@ -192,9 +194,9 @@ macro_rules! atomic_int {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("mov", $asm_suffix, " {1}, 0({0})"),
-                        in(reg) dst,
-                        in(reg) val,
+                        concat!("mov", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
                         options(nostack),
                     );
                     #[cfg(portable_atomic_no_asm)]
