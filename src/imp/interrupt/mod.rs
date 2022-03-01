@@ -28,11 +28,35 @@ use core::sync::atomic;
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]
 mod arch;
 
+#[cfg(not(portable_atomic_no_asm))]
+use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 use crate::utils::{assert_load_ordering, assert_store_ordering};
 
 const IS_ALWAYS_LOCK_FREE: bool = false;
+
+// HACK: std compiler_fence is not guaranteed not to emit machine code.
+// https://github.com/rust-lang/rust/issues/62256.
+#[cfg(any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"))]
+#[inline]
+pub(super) fn compiler_fence() {
+    // SAFETY: we don't call any instructions.
+    unsafe {
+        asm!("", options(nostack, preserves_flags));
+    }
+}
+#[cfg(any(target_arch = "avr", target_arch = "msp430"))]
+#[inline]
+pub(super) fn compiler_fence() {
+    // SAFETY: we don't call any instructions.
+    unsafe {
+        #[cfg(not(portable_atomic_no_asm))]
+        asm!("", options(nostack, preserves_flags));
+        #[cfg(portable_atomic_no_asm)]
+        llvm_asm!("" ::: "memory" : "volatile");
+    }
+}
 
 #[inline]
 fn with<F, R>(f: F) -> R
@@ -45,10 +69,18 @@ where
     // Disable interrupts
     arch::disable();
 
+    // Ensure no subsequent memory accesses are reordered to before interrupts are disabled.
+    // https://github.com/rust-embedded/cortex-m/pull/264
+    compiler_fence();
+
     let r = f();
 
     // Restore interrupt state
     if interrupts_enabled {
+        // Ensure no preceding memory accesses are reordered to after interrupts are enabled.
+        // https://github.com/rust-embedded/cortex-m/pull/264
+        compiler_fence();
+
         // SAFETY: we've checked that interrupts were enabled before disabling interrupts.
         unsafe { arch::enable() }
     }

@@ -18,7 +18,6 @@ pub(super) fn is_enabled() -> bool {
 #[inline]
 pub(super) fn disable() {
     unsafe {
-        // compiler_fence is not available on msp430, so this should not be nomem.
         #[cfg(not(portable_atomic_no_asm))]
         asm!("dint {{ nop", options(nostack));
         #[cfg(portable_atomic_no_asm)]
@@ -29,7 +28,6 @@ pub(super) fn disable() {
 #[inline]
 pub(super) unsafe fn enable() {
     unsafe {
-        // compiler_fence is not available on msp430, so this should not be nomem.
         #[cfg(not(portable_atomic_no_asm))]
         asm!("nop {{ eint {{ nop", options(nostack));
         #[cfg(portable_atomic_no_asm)]
