@@ -9,10 +9,10 @@
 Portable atomic types.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
-- Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
-- (optional) Provide `Atomic{I,U}128`.
+- (optional) Provide `Atomic{I,U}128`. (lock-free on x86_64 and aarch64 at Rust 1.59+)
 - (optional) Provide `AtomicF{32,64}`.
 <!-- - (optional) Provide generic `Atomic<T>` type. -->
+- Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - (optional, [single-core only](#optional-cfg)) Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr)
 
 ## Optional features
@@ -24,13 +24,9 @@ Portable atomic types.
   Provide `Atomic{I,U}128`.
 
   Note:
-  - This implicitly enables the `fallback` feature.
-  - Atomic operations are only available for Rust 1.59+ on x86_64 and nightly on aarch64, otherwise the fallback implementation is used.
+  - 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
   - On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
-
-  The above status is likely to change in the future:
-  - When `Atomic{I,U}128` is stabilized in the standard library.
-  - When 128-bit atomic operations are supported in other architectures. ([riscv](https://lists.riscv.org/g/tech/topic/requirements_for_128_bit/76126473?p=))
+  - This implicitly enables the `fallback` feature.
 
   If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
 

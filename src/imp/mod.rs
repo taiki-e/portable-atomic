@@ -6,6 +6,14 @@
 mod core_atomic;
 
 #[cfg(any(
+    all(test, not(sanitize_thread)),
+    all(feature = "i128", not(portable_atomic_core_atomic_128))
+))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(target_arch = "aarch64")]
+mod aarch64;
+
+#[cfg(any(
     all(
         test,
         not(portable_atomic_no_asm),
@@ -37,7 +45,12 @@ mod riscv;
         test,
         not(any(
             portable_atomic_core_atomic_128,
-            all(portable_atomic_cmpxchg16b, not(portable_atomic_cmpxchg16b_dynamic))
+            all(portable_atomic_cmpxchg16b, not(portable_atomic_cmpxchg16b_dynamic)),
+            all(
+                not(portable_atomic_core_atomic_128),
+                any(not(portable_atomic_no_asm), portable_atomic_nightly),
+                target_arch = "aarch64"
+            )
         ))
     ))
 )]
@@ -187,11 +200,24 @@ pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 // Atomic{I,U}128
 #[cfg(portable_atomic_core_atomic_128)]
 pub(crate) use self::core_atomic::{AtomicI128, AtomicU128};
+// aarch64 stable
+#[cfg(feature = "i128")]
+#[cfg(all(
+    not(portable_atomic_core_atomic_128),
+    any(not(portable_atomic_no_asm), portable_atomic_nightly),
+    target_arch = "aarch64"
+))]
+pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has cmpxchg16b => use cmpxchg16b
 #[cfg(portable_atomic_cmpxchg16b)]
 pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "i128")]
+#[cfg(not(all(
+    not(portable_atomic_core_atomic_128),
+    any(not(portable_atomic_no_asm), portable_atomic_nightly),
+    target_arch = "aarch64"
+)))]
 #[cfg(not(any(portable_atomic_core_atomic_128, portable_atomic_cmpxchg16b)))]
 #[cfg_attr(
     not(portable_atomic_cfg_target_has_atomic),
