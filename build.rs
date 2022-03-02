@@ -124,6 +124,13 @@ fn main() {
         println!("cargo:rustc-cfg=armv5te");
     }
 
+    if target.starts_with("aarch64")
+        && (version.minor >= 59 || version.nightly)
+        && has_unstable_target_feature("lse", false, &version)
+    {
+        println!("cargo:rustc-cfg=portable_atomic_target_feature_lse");
+    }
+
     // cmpxchg16b is available via asm (1.59+) or stdsimd (nightly).
     let may_use_cmpxchg16b =
         target.starts_with("x86_64") && (version.minor >= 59 || version.nightly);

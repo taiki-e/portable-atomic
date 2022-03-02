@@ -60,7 +60,8 @@
         any(
             thumbv6m,
             all(target_arch = "riscv32", portable_atomic_no_atomic_load_store),
-            portable_atomic_cmpxchg16b
+            portable_atomic_cmpxchg16b,
+            target_arch = "aarch64",
         ),
         portable_atomic_no_asm,
     ),

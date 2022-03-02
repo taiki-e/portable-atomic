@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Support 128-bit atomics for aarch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))
+
 ## [0.1.3] - 2022-02-28
 
 - Fix inline assembly for riscv without A-extension.

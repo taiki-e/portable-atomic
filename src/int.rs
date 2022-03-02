@@ -467,6 +467,7 @@ atomic instructions or locks will be used.
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
                     #[cfg(any(
+                        all(target_arch = "aarch64", any(portable_atomic_target_feature_lse, target_feature = "lse")),
                         armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
@@ -475,6 +476,7 @@ atomic instructions or locks will be used.
                     ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):
+                        // - aarch64+lse's `AtomicI{8,16}::fetch_{max,min}` (release mode)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
                         // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
@@ -529,6 +531,7 @@ atomic instructions or locks will be used.
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
                     #[cfg(any(
+                        all(target_arch = "aarch64", any(portable_atomic_target_feature_lse, target_feature = "lse")),
                         armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
@@ -537,6 +540,7 @@ atomic instructions or locks will be used.
                     ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):
+                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
                         // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)

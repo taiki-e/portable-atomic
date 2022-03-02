@@ -28,6 +28,8 @@ default_targets=(
     aarch64-unknown-none
     # aarch64 no Atomic{I,U}128
     aarch64-pc-windows-msvc
+    # aarch64_be
+    aarch64_be-unknown-linux-gnu
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
@@ -80,7 +82,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     case "${rustc_version}" in
         1.4* | 1.50.* | 1.51.*) ;;
         *)
-            check_cfg='-Z unstable-options --check-cfg=names(miri,docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_64,thumbv6m,armv5te,portable_atomic_target_feature_cmpxchg16b,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic)'
+            check_cfg='-Z unstable-options --check-cfg=names(miri,docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_64,thumbv6m,armv5te,portable_atomic_target_feature_cmpxchg16b,portable_atomic_target_feature_lse,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic)'
             ;;
     esac
 fi
@@ -106,16 +108,19 @@ build() {
     fi
     args+=(${common_args[@]+"${common_args[@]}"} hack build -vvv)
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
+        echo "target '${target}' not available on ${rustc_version}"
         return 0
     fi
-    if ! grep <<<"${rustup_target_list}" -Eq "^${target} \\((installed|default)\\)$"; then
-        if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
-            x rustup ${common_args[@]+"${common_args[@]}"} target add "${target}"
-        elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
-            args+=(-Z build-std=core)
-        else
-            return 0
-        fi
+    if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
+        x rustup ${common_args[@]+"${common_args[@]}"} target add "${target}" &>/dev/null
+    elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+        case "${target}" in
+            *-none* | avr-* | riscv32imc-esp-espidf) args+=(-Z build-std=core) ;;
+            *) args+=(-Z build-std) ;;
+        esac
+    else
+        echo "target '${target}' requires nightly compiler"
+        return 0
     fi
     args+=(--target "${target}")
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
@@ -139,6 +144,10 @@ build() {
     if [[ "${target}" == "x86_64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+cmpxchg16b" \
             x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/cmpxchg16b "$@"
+    fi
+    if [[ "${target}" == "aarch64"* ]]; then
+        RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+lse" \
+            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/lse "$@"
     fi
 }
 
