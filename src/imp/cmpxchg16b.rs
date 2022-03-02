@@ -77,7 +77,7 @@ unsafe fn cmpxchg16b(
     debug_assert!(detect::has_cmpxchg16b());
     #[cfg(all(
         portable_atomic_cmpxchg16b_stdsimd,
-        any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
+        any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
     ))]
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
     unsafe {
@@ -86,7 +86,7 @@ unsafe fn cmpxchg16b(
     }
     #[cfg(not(all(
         portable_atomic_cmpxchg16b_stdsimd,
-        any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
+        any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b", miri)
     )))]
     // SAFETY: the caller must uphold the safety contract for `cmpxchg16b`.
     unsafe {
@@ -298,7 +298,7 @@ macro_rules! atomic128 {
 
         impl crate::utils::AtomicRepr for $atomic_type {
             const IS_ALWAYS_LOCK_FREE: bool =
-                cfg!(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b"));
+                cfg!(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"));
             #[inline]
             fn is_lock_free() -> bool {
                 detect::has_cmpxchg16b()
@@ -712,7 +712,7 @@ mod tests {
         assert!(AtomicU128::is_lock_free());
     }
 
-    #[cfg(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
+    #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
     mod quickcheck {
         use crate::tests::helper::Align16;
 

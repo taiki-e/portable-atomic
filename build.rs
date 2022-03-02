@@ -134,7 +134,7 @@ fn main() {
             has_unstable_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version);
     }
     if has_cmpxchg16b {
-        println!("cargo:rustc-cfg=target_feature_cmpxchg16b");
+        println!("cargo:rustc-cfg=portable_atomic_target_feature_cmpxchg16b");
     }
 
     // `cfg(sanitize = "..")` is not stabilized.

@@ -24,12 +24,12 @@ fn _has_cmpxchg16b() -> bool {
 
 #[inline(always)]
 pub(crate) fn has_cmpxchg16b() -> bool {
-    #[cfg(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
+    #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
     {
         // cmpxchg16b is statically available.
         true
     }
-    #[cfg(not(any(target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
+    #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
     {
         // Adapted from https://github.com/BurntSushi/memchr/blob/8e1da98fee06d66c13e66c330e3a3dd6ccf0e3a0/src/memchr/x86/mod.rs#L9-L71.
         use core::{
