@@ -102,9 +102,7 @@ macro_rules! atomic {
 
             #[inline]
             unsafe fn chunks(&self) -> &[AtomicUsize; Self::LEN] {
-                #[cfg(not(test))]
                 static_assert!($atomic_type::LEN > 1);
-                static_assert!($atomic_type::LEN > 0);
                 static_assert!(mem::size_of::<$int_type>() % mem::size_of::<usize>() == 0);
 
                 // clippy bug that does not recognize safety comments inside macros.
@@ -374,14 +372,14 @@ macro_rules! atomic {
     };
 }
 
-#[cfg(not(target_pointer_width = "128"))]
+#[cfg(not(target_pointer_width = "64"))]
 #[cfg_attr(
     not(portable_atomic_cfg_target_has_atomic),
     cfg(any(test, portable_atomic_no_atomic_64))
 )]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(any(test, not(target_has_atomic = "64"))))]
 atomic!(AtomicI64, i64, 8);
-#[cfg(not(target_pointer_width = "128"))]
+#[cfg(not(target_pointer_width = "64"))]
 #[cfg_attr(
     not(portable_atomic_cfg_target_has_atomic),
     cfg(any(test, portable_atomic_no_atomic_64))
@@ -398,7 +396,9 @@ atomic!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
+    #[cfg(not(target_pointer_width = "64"))]
     test_atomic_int!(test_atomic_i64, AtomicI64, i64);
+    #[cfg(not(target_pointer_width = "64"))]
     test_atomic_int!(test_atomic_u64, AtomicU64, u64);
     test_atomic_int!(test_atomic_i128, AtomicI128, i128);
     test_atomic_int!(test_atomic_u128, AtomicU128, u128);
