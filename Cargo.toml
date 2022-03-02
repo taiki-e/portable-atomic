@@ -1,6 +1,6 @@
 [package]
 name = "portable-atomic"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2018"
 rust-version = "1.34"
 license = "Apache-2.0 OR MIT"
