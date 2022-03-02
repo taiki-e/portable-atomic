@@ -45,14 +45,14 @@ unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         let (prev_lo, prev_hi);
         asm!(
             // rbx is reserved by LLVM
-            "xchg rsi, rbx",
+            "xchg {rbx_tmp}, rbx",
             "lock cmpxchg16b xmmword ptr [rdi]",
             "sete r8b",
-            "mov rbx, rsi",
+            "mov rbx, {rbx_tmp}",
+            rbx_tmp = inout(reg) new.pair[0] => _,
             in("rdi") dst,
             inlateout("rax") old.pair[0] => prev_lo,
             inlateout("rdx") old.pair[1] => prev_hi,
-            inout("rsi") new.pair[0] => _,
             in("rcx") new.pair[1],
             lateout("r8b") r,
             // Should not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
