@@ -20,9 +20,7 @@ test_atomic_int_pub!(test_atomic_i32, AtomicI32, i32);
 test_atomic_int_pub!(test_atomic_u32, AtomicU32, u32);
 test_atomic_int_pub!(test_atomic_i64, AtomicI64, i64);
 test_atomic_int_pub!(test_atomic_u64, AtomicU64, u64);
-#[cfg(feature = "i128")]
 test_atomic_int_pub!(test_atomic_i128, AtomicI128, i128);
-#[cfg(feature = "i128")]
 test_atomic_int_pub!(test_atomic_u128, AtomicU128, u128);
 #[cfg(feature = "float")]
 test_atomic_float_pub!(test_atomic_f32, AtomicF32, f32);

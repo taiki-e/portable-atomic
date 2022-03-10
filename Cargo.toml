@@ -28,26 +28,18 @@ members = [
 default = ["fallback"]
 
 # (enabled by default) Enable fallback implementations.
+#
+# Disabling this allows only atomic types for which the platform natively supports atomic operations.
 fallback = []
-
-# Provide `Atomic{I,U}128`.
-#
-# Note:
-# - 128-bit atomic operations are only available for Rust 1.59+ on x86_64 and aarch64, otherwise the fallback implementation is used.
-# - On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
-# - This implicitly enables the `fallback` feature.
-#
-# If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
-i128 = ["fallback"]
 
 # Similar to the `i128` feature, but tries to use `cmpxchg16b` in more cases based on dynamic CPU feature detection.
 #
 # Note:
-# - Dynamic detection is only enabled in nightly, otherwise it works the same as the `i128` feature.
-# - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the `i128` feature.
-# - If both `i128` and `i128-dynamic` features are used in the dependency graph, `i128-dynamic` takes precedence.
+# - This implicitly enables the `fallback` feature.
+# - Dynamic detection is only enabled in nightly, otherwise it works the same as the default.
+# - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the default.
 # - This is compatible with no-std (as with all features except `std` and `parking_lot`).
-i128-dynamic = ["i128"]
+i128-dynamic = ["fallback"]
 
 # Provide `AtomicF{32,64}`.
 # Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.

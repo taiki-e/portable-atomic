@@ -95,6 +95,34 @@ macro_rules! doc_comment {
     };
 }
 
+macro_rules! serde_impls {
+    ($atomic_type:ident) => {
+        #[cfg(feature = "serde")]
+        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+        impl serde::Serialize for $atomic_type {
+            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                // https://github.com/serde-rs/serde/blob/v1.0.136/serde/src/ser/impls.rs#L918-L919
+                self.load(Ordering::SeqCst).serialize(serializer)
+            }
+        }
+        #[cfg(feature = "serde")]
+        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+        impl<'de> serde::Deserialize<'de> for $atomic_type {
+            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                serde::Deserialize::deserialize(deserializer).map(Self::new)
+            }
+        }
+    };
+}
+
 pub(crate) trait AtomicRepr {
     const IS_ALWAYS_LOCK_FREE: bool;
     fn is_lock_free() -> bool;

@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Remove `i128` feature. `Atomic{I,U}128` are now always enabled.
+
 - Add `AtomicF{32,64}::as_bits`.
 
 ## [0.1.4] - 2022-03-02

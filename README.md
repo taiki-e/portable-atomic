@@ -9,34 +9,33 @@
 Portable atomic types.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
-- (optional) Provide `Atomic{I,U}128`. (lock-free on x86_64 and aarch64 at Rust 1.59+)
+- Provide `Atomic{I,U}128`. (lock-free on x86_64 and aarch64)
 - (optional) Provide `AtomicF{32,64}`.
 <!-- - (optional) Provide generic `Atomic<T>` type. -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - (optional, [single-core only](#optional-cfg)) Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr)
+
+## 128-bit atomics support (Atomic{I,U}128)
+
+- 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
+- On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
+
+If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
 
 ## Optional features
 
 - **`fallback`** *(enabled by default)*<br>
   Enable fallback implementations.
 
-- **`i128`**<br>
-  Provide `Atomic{I,U}128`.
-
-  Note:
-  - 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
-  - On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
-  - This implicitly enables the `fallback` feature.
-
-  If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
+  Disabling this allows only atomic types for which the platform natively supports atomic operations.
 
 - **`i128-dynamic`**<br>
   Similar to the `i128` feature, but tries to use `cmpxchg16b` in more cases based on dynamic CPU feature detection.
 
   Note:
-  - Dynamic detection is only enabled in nightly, otherwise it works the same as the `i128` feature.
-  - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the `i128` feature.
-  - If both `i128` and `i128-dynamic` features are used in the dependency graph, `i128-dynamic` takes precedence.
+  - This implicitly enables the `fallback` feature.
+  - Dynamic detection is only enabled in nightly, otherwise it works the same as the default.
+  - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the default.
   - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 
 - **`float`**<br>

@@ -5,10 +5,7 @@
 #[cfg(not(portable_atomic_no_atomic_load_store))]
 mod core_atomic;
 
-#[cfg(any(
-    all(test, not(sanitize_thread)),
-    all(feature = "i128", not(portable_atomic_core_atomic_128))
-))]
+#[cfg(any(all(test, not(sanitize_thread)), not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "aarch64")]
 mod aarch64;
@@ -39,29 +36,18 @@ mod riscv;
 // Lock-based fallback implementations
 
 #[cfg(feature = "fallback")]
-#[cfg_attr(
-    feature = "i128",
-    cfg(any(
-        test,
-        not(any(
-            portable_atomic_core_atomic_128,
-            all(portable_atomic_cmpxchg16b, not(portable_atomic_cmpxchg16b_dynamic)),
-            all(
-                not(portable_atomic_core_atomic_128),
-                any(not(portable_atomic_no_asm), portable_atomic_nightly),
-                target_arch = "aarch64"
-            )
-        ))
+#[cfg(any(
+    test,
+    not(any(
+        portable_atomic_core_atomic_128,
+        all(portable_atomic_cmpxchg16b, not(portable_atomic_cmpxchg16b_dynamic)),
+        all(
+            not(portable_atomic_core_atomic_128),
+            any(not(portable_atomic_no_asm), portable_atomic_nightly),
+            target_arch = "aarch64"
+        )
     ))
-)]
-#[cfg_attr(
-    all(not(feature = "i128"), not(portable_atomic_cfg_target_has_atomic)),
-    cfg(any(test, portable_atomic_no_atomic_64))
-)]
-#[cfg_attr(
-    all(not(feature = "i128"), portable_atomic_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "64")))
-)]
+))]
 #[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(target_has_atomic = "ptr"))]
 mod fallback;
@@ -169,6 +155,7 @@ pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::riscv::{AtomicI32, AtomicU32};
 // no core Atomic{I,U}32 & no CAS & assume single core => critical section based fallback
+#[cfg(any(target_pointer_width = "32", target_pointer_width = "64", feature = "fallback"))]
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(not(target_has_atomic = "ptr")))]
@@ -192,6 +179,7 @@ pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(target_has_atomic = "ptr"))]
 pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 // no core Atomic{I,U}64 & no CAS & assume single core => critical section based fallback
+#[cfg(any(target_pointer_width = "64", feature = "fallback"))]
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(not(target_has_atomic = "ptr")))]
@@ -201,7 +189,6 @@ pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 #[cfg(portable_atomic_core_atomic_128)]
 pub(crate) use self::core_atomic::{AtomicI128, AtomicU128};
 // aarch64 stable
-#[cfg(feature = "i128")]
 #[cfg(all(
     not(portable_atomic_core_atomic_128),
     any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -212,7 +199,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 #[cfg(portable_atomic_cmpxchg16b)]
 pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
-#[cfg(feature = "i128")]
+#[cfg(feature = "fallback")]
 #[cfg(not(all(
     not(portable_atomic_core_atomic_128),
     any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -226,7 +213,7 @@ pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(target_has_atomic = "ptr"))]
 pub(crate) use self::fallback::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & no CAS & assume_single_core => critical section based fallback
-#[cfg(feature = "i128")]
+#[cfg(feature = "fallback")]
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(not(target_has_atomic = "ptr")))]

@@ -204,9 +204,9 @@ macro_rules! __test_atomic_int {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(5, 5, success, failure)
             });
-            assert_eq!(a.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed), Ok(5),);
+            assert_eq!(a.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed), Ok(5));
             assert_eq!(a.load(Ordering::Relaxed), 10);
-            assert_eq!(a.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire), Err(10),);
+            assert_eq!(a.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire), Err(10));
             assert_eq!(a.load(Ordering::Relaxed), 10);
         }
         #[test]
@@ -215,7 +215,7 @@ macro_rules! __test_atomic_int {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4, 4, success, failure)
             });
-            assert_eq!(a.compare_exchange_weak(6, 8, Ordering::SeqCst, Ordering::Acquire), Err(4),);
+            assert_eq!(a.compare_exchange_weak(6, 8, Ordering::SeqCst, Ordering::Acquire), Err(4));
             let mut old = a.load(Ordering::Relaxed);
             loop {
                 let new = old * 2;

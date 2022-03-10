@@ -153,22 +153,20 @@ fn main() {
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
     }
-    if cfg!(feature = "i128") {
-        if version.nightly
-            && HAS_ATOMIC_128.contains(&&*target)
-            && probe(PROBE_ATOMIC_128, Some(&target)).unwrap_or(false)
-        {
-            println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
-        } else if may_use_cmpxchg16b
-            && (version.nightly && cfg!(feature = "i128-dynamic") && !tsan || has_cmpxchg16b)
-        {
-            // On x86_64, if cmpxchg16b is available, we can use it to provide Atomic*128.
-            println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b");
-            if version.nightly && probe(PROBE_CMPXCHG16B, Some(&target)).unwrap_or(false) {
-                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
-                if cfg!(feature = "i128-dynamic") {
-                    println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
-                }
+    if version.nightly
+        && HAS_ATOMIC_128.contains(&&*target)
+        && probe(PROBE_ATOMIC_128, Some(&target)).unwrap_or(false)
+    {
+        println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
+    } else if may_use_cmpxchg16b
+        && (version.nightly && cfg!(feature = "i128-dynamic") && !tsan || has_cmpxchg16b)
+    {
+        // On x86_64, if cmpxchg16b is available, we can use it to provide Atomic*128.
+        println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b");
+        if version.nightly && probe(PROBE_CMPXCHG16B, Some(&target)).unwrap_or(false) {
+            println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
+            if cfg!(feature = "i128-dynamic") {
+                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
             }
         }
     }

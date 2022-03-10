@@ -4,13 +4,11 @@
 
 use portable_atomic as atomic;
 use portable_atomic::{
-    hint, AtomicBool, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16,
-    AtomicU32, AtomicU64, AtomicU8, AtomicUsize, Ordering,
+    hint, AtomicBool, AtomicI128, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize,
+    AtomicPtr, AtomicU128, AtomicU16, AtomicU32, AtomicU64, AtomicU8, AtomicUsize, Ordering,
 };
 #[cfg(feature = "float")]
 use portable_atomic::{AtomicF32, AtomicF64};
-#[cfg(any(feature = "i128", feature = "i128-dynamic"))]
-use portable_atomic::{AtomicI128, AtomicU128};
 
 /// `#[cfg(target_has_atomic = "ptr")]` for stable Rust.
 ///

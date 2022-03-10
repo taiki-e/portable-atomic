@@ -387,9 +387,7 @@ atomic!(AtomicI64, i64, 8);
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(any(test, not(target_has_atomic = "64"))))]
 atomic!(AtomicU64, u64, 8);
 
-#[cfg(any(test, feature = "i128"))]
 atomic!(AtomicI128, i128, 16);
-#[cfg(any(test, feature = "i128"))]
 atomic!(AtomicU128, u128, 16);
 
 #[cfg(test)]

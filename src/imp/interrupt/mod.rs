@@ -544,10 +544,10 @@ atomic_int!(load_store_atomic, AtomicI32, i32, 4);
 #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicU32, u32, 4);
 #[cfg(target_pointer_width = "16")]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicI32, i32, 4);
 #[cfg(target_pointer_width = "16")]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicU32, u32, 4);
 
 #[cfg(target_pointer_width = "64")]
@@ -557,15 +557,15 @@ atomic_int!(load_store_atomic, AtomicI64, i64, 8);
 #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicU64, u64, 8);
 #[cfg(not(target_pointer_width = "64"))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicI64, i64, 8);
 #[cfg(not(target_pointer_width = "64"))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicU64, u64, 8);
 
-#[cfg(any(test, all(feature = "i128", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicI128, i128, 16);
-#[cfg(any(test, all(feature = "i128", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
 atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
 
 #[cfg(test)]

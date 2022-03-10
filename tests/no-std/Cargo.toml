@@ -9,7 +9,6 @@ doctest = false
 doc = false
 
 [features]
-i128 = ["portable-atomic/i128"]
 i128-dynamic = ["portable-atomic/i128-dynamic"]
 float = ["portable-atomic/float"]
 

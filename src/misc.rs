@@ -52,6 +52,8 @@ impl core::panic::RefUnwindSafe for AtomicBool {}
 #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
 impl std::panic::RefUnwindSafe for AtomicBool {}
 
+serde_impls!(AtomicBool);
+
 impl AtomicBool {
     /// Creates a new `AtomicBool`.
     #[inline]
