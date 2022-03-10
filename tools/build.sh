@@ -133,21 +133,21 @@ build() {
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
                         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/assume-single-core "$@"
+                            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/assume-single-core "$@"
                         ;;
                 esac
             fi
             ;;
     esac
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
-        x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml "$@"
+        x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private "$@"
     if [[ "${target}" == "x86_64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+cmpxchg16b" \
-            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/cmpxchg16b "$@"
+            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/cmpxchg16b "$@"
     fi
     if [[ "${target}" == "aarch64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+lse" \
-            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --manifest-path Cargo.toml --target-dir target/lse "$@"
+            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/lse "$@"
     fi
 }
 

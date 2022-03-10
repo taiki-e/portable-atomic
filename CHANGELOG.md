@@ -12,6 +12,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Remove `i128` feature. `Atomic{I,U}128` are now always enabled.
 
+- Add `outline-atomics` feature. Currently, this is the same as the 0.1's `i128-dynamic`, except that `fallback` feature is not implicitly enabled.
+
+- Remove `i128-dynamic` feature in favor of `outline-atomics` feature.
+
 - Add `AtomicF{32,64}::as_bits`.
 
 ## [0.1.4] - 2022-03-02

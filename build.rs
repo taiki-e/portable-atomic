@@ -69,7 +69,10 @@ fn main() {
 
     let version = match rustc_version() {
         Some(version) => version,
-        None => LATEST_STABLE,
+        None => {
+            println!("cargo:warning={}: unable to determine rustc version", env!("CARGO_PKG_NAME"));
+            LATEST_STABLE
+        }
     };
 
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
@@ -159,13 +162,17 @@ fn main() {
     {
         println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
     } else if may_use_cmpxchg16b
-        && (version.nightly && cfg!(feature = "i128-dynamic") && !tsan || has_cmpxchg16b)
+        && (has_cmpxchg16b
+            || version.nightly
+                && cfg!(feature = "fallback")
+                && cfg!(feature = "outline-atomics")
+                && !tsan)
     {
         // On x86_64, if cmpxchg16b is available, we can use it to provide Atomic*128.
         println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b");
         if version.nightly && probe(PROBE_CMPXCHG16B, Some(&target)).unwrap_or(false) {
             println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
-            if cfg!(feature = "i128-dynamic") {
+            if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
             }
         }

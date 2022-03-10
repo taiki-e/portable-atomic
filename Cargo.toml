@@ -32,14 +32,13 @@ default = ["fallback"]
 # Disabling this allows only atomic types for which the platform natively supports atomic operations.
 fallback = []
 
-# Similar to the `i128` feature, but tries to use `cmpxchg16b` in more cases based on dynamic CPU feature detection.
+# Enable dynamic CPU feature detection.
 #
 # Note:
-# - This implicitly enables the `fallback` feature.
-# - Dynamic detection is only enabled in nightly, otherwise it works the same as the default.
-# - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the default.
+# - Dynamic detection is currently only enabled in nightly, otherwise it works the same as the default.
+# - If the required target features are enabled at compile time, the atomic operations are inlined.
 # - This is compatible with no-std (as with all features except `std` and `parking_lot`).
-i128-dynamic = ["fallback"]
+outline-atomics = []
 
 # Provide `AtomicF{32,64}`.
 # Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.

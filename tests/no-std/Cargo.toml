@@ -9,7 +9,7 @@ doctest = false
 doc = false
 
 [features]
-i128-dynamic = ["portable-atomic/i128-dynamic"]
+outline-atomics = ["portable-atomic/outline-atomics"]
 float = ["portable-atomic/float"]
 
 [dependencies]

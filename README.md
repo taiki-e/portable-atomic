@@ -9,18 +9,17 @@
 Portable atomic types.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
-- Provide `Atomic{I,U}128`. (lock-free on x86_64 and aarch64)
-- (optional) Provide `AtomicF{32,64}`.
-<!-- - (optional) Provide generic `Atomic<T>` type. -->
+- Provide `AtomicI128` and `AtomicU128`.
+- Provide `AtomicF32` and `AtomicF64`. (optional)
+<!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
-- (optional, [single-core only](#optional-cfg)) Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr) (optional, [single-core only](#optional-cfg))
 
-## 128-bit atomics support (Atomic{I,U}128)
+## 128-bit atomics support (AtomicI128,AtomicU128)
 
-- 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
-- On x86_64, when `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
+Native 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
 
-If you need support for dynamic CPU feature detection, use the `i128-dynamic` feature.
+On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile time, this uses the fallback implementation. `cmpxchg16b` is enabled by default only on macOS.
 
 ## Optional features
 
@@ -29,13 +28,12 @@ If you need support for dynamic CPU feature detection, use the `i128-dynamic` fe
 
   Disabling this allows only atomic types for which the platform natively supports atomic operations.
 
-- **`i128-dynamic`**<br>
-  Similar to the `i128` feature, but tries to use `cmpxchg16b` in more cases based on dynamic CPU feature detection.
+- **`outline-atomics`**<br>
+  Enable dynamic CPU feature detection.
 
   Note:
-  - This implicitly enables the `fallback` feature.
-  - Dynamic detection is only enabled in nightly, otherwise it works the same as the default.
-  - When `cmpxchg16b` target feature is enabled at compile time, this works exactly the same as the default.
+  - Dynamic detection is currently only enabled in nightly, otherwise it works the same as the default.
+  - If the required target features are enabled at compile time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 
 - **`float`**<br>
@@ -71,7 +69,7 @@ If you need support for dynamic CPU feature detection, use the `i128-dynamic` fe
 
   Note: This cfg is `unsafe`, and enabling this cfg for multi-core systems is **unsound**.
 
-  This is intentionally not an optional feature. If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.
+  This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
 
 [parking_lot]: https://github.com/Amanieu/parking_lot
 [serde]: https://github.com/serde-rs/serde
