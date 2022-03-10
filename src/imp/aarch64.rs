@@ -9,11 +9,15 @@
 // otherwise, always use LDXP/STXP loop. In the future, we may want to support
 // outline atomics or mix of both methods.
 //
-// Implementation is based on:
-// - asm generated for aarch64 linux:
-//   - default: https://godbolt.org/z/4nvGW91Mh
-//   - +lse: https://godbolt.org/z/s7Tc59odP
+// Refs:
+// - ARM Compiler armasm User Guide
+//   https://developer.arm.com/documentation/dui0801/latest
+// - Arm Architecture Reference Manual for A-profile architecture
+//   https://developer.arm.com/documentation/ddi0487/latest
 // - progress64 https://github.com/ARM-software/progress64
+//
+// Generated asm(default): https://godbolt.org/z/4nvGW91Mh
+// Generated asm(+lse): https://godbolt.org/z/s7Tc59odP
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

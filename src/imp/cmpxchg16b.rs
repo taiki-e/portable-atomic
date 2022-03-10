@@ -37,6 +37,8 @@ unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     // The ZF flag is set if the value at `dst` and rdx:rax are equal,
     // otherwise it is cleared. Other flags are unaffected.
     //
+    // Refs: https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b
+    //
     // Generated asm: https://godbolt.org/z/G34YbYMqq
     unsafe {
         let r: u8;

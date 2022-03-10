@@ -1,9 +1,8 @@
 // Atomic load/store implementation on RISC-V.
 //
-// Based on:
+// Refs:
 // - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
 //   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
-// - asm generated for riscv64gc linux
 //
 // Generated asm: https://godbolt.org/z/ojneff8T6
 
