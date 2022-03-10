@@ -5,19 +5,13 @@
 #[cfg(not(portable_atomic_no_atomic_load_store))]
 mod core_atomic;
 
-#[cfg(any(all(test, not(sanitize_thread)), not(portable_atomic_core_atomic_128)))]
+#[cfg(any(test, not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "aarch64")]
 mod aarch64;
 
-#[cfg(any(
-    all(
-        test,
-        not(portable_atomic_no_asm),
-        not(all(sanitize_thread, not(portable_atomic_cmpxchg16b_stdsimd)))
-    ),
-    portable_atomic_cmpxchg16b
-))]
+#[cfg(any(test, portable_atomic_cmpxchg16b))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "x86_64")]
 mod cmpxchg16b;
 
