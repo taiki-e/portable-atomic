@@ -15,13 +15,15 @@ pub(super) fn is_enabled() -> bool {
 #[inline]
 pub(super) fn disable() {
     unsafe {
-        asm!("cpsid i", options(nomem, nostack, preserves_flags));
+        // Do not use `nomem` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
+        asm!("cpsid i", options(nostack, preserves_flags));
     }
 }
 
 #[inline]
 pub(super) unsafe fn enable() {
     unsafe {
-        asm!("cpsie i", options(nomem, nostack, preserves_flags));
+        // Do not use `nomem` because prevent preceding memory accesses from being reordered after interrupts are enabled.
+        asm!("cpsie i", options(nostack, preserves_flags));
     }
 }
