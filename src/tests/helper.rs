@@ -67,23 +67,20 @@ macro_rules! __test_atomic_int_load_store {
         use crossbeam_utils::thread;
         #[test]
         fn stress_load_store() {
-            #[cfg(miri)]
-            const N: usize = 500;
-            #[cfg(not(miri))]
-            const N: usize = 100000;
-            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..8) };
-            std::eprintln!("threads={}", threads);
+            let iterations = if cfg!(miri) { 500 } else { 25_000 };
+            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
             let a = <$atomic_type>::new(0);
+            std::eprintln!("threads={}", threads);
             thread::scope(|s| {
                 for _ in 0..threads {
                     s.spawn(|_| {
-                        for _ in 0..N {
+                        for _ in 0..iterations {
                             let v = fastrand::$int_type(..);
                             a.store(v, rand_store_ordering());
                         }
                     });
                     s.spawn(|_| {
-                        for _ in 0..N {
+                        for _ in 0..iterations {
                             a.load(rand_load_ordering());
                         }
                     });
@@ -377,28 +374,25 @@ macro_rules! __test_atomic_int {
         __test_atomic_int!($atomic_type, $int_type, single_thread);
         #[test]
         fn stress() {
-            #[cfg(miri)]
-            const N: usize = 500;
-            #[cfg(not(miri))]
-            const N: usize = 100000;
-            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..8) };
-            std::eprintln!("threads={}", threads);
+            let iterations = if cfg!(miri) { 500 } else { 25_000 };
+            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
             let a = <$atomic_type>::new(0);
+            std::eprintln!("threads={}", threads);
             thread::scope(|s| {
                 for _ in 0..threads {
                     s.spawn(|_| {
-                        for _ in 0..N {
+                        for _ in 0..iterations {
                             let v = fastrand::$int_type(..);
                             a.store(v, rand_store_ordering());
                         }
                     });
                     s.spawn(|_| {
-                        for _ in 0..N {
+                        for _ in 0..iterations {
                             a.load(rand_load_ordering());
                         }
                     });
                     s.spawn(|_| {
-                        for i in 0..N {
+                        for i in 0..iterations {
                             let old = if i % 2 == 0 {
                                 fastrand::$int_type(..)
                             } else {
