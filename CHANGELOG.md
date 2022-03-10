@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `AtomicF{32,64}::as_bits`.
+
 ## [0.1.4] - 2022-03-02
 
 - Support 128-bit atomics for aarch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))

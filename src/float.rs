@@ -415,13 +415,20 @@ This type has the same in-memory representation as the underlying floating point
             // TODO: Add as_mut_ptr once it is stable on other std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
 
-            fn as_bits(&self) -> &crate::$atomic_int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
-                // SAFETY: $atomic_type and $atomic_int_type have the same layout,
-                // and there is no concurrent access to the value that does not go through this method.
-                unsafe {
-                    &*(self as *const $atomic_type as *const crate::$atomic_int_type)
+            doc_comment! {
+                concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
+
+See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
+portability of this operation (there are almost no issues)."),
+                #[inline]
+                pub fn as_bits(&self) -> &crate::$atomic_int_type {
+                    // clippy bug that does not recognize safety comments inside macros.
+                    #[allow(clippy::undocumented_unsafe_blocks)]
+                    // SAFETY: $atomic_type and $atomic_int_type have the same layout,
+                    // and there is no concurrent access to the value that does not go through this method.
+                    unsafe {
+                        &*(self as *const $atomic_type as *const crate::$atomic_int_type)
+                    }
                 }
             }
         }
