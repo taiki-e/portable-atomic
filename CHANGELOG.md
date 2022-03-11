@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Implement aarch64 outline-atomics.
+
 ## [0.2.0] - 2022-03-10
 
 - Remove `i128` feature. `Atomic{I,U}128` are now always enabled.

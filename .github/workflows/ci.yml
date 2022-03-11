@@ -43,6 +43,8 @@ jobs:
             os: windows-latest
           - rust: stable
             target: aarch64-unknown-linux-gnu
+          - rust: beta
+            target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
           - rust: nightly

@@ -32,11 +32,13 @@ default = ["fallback"]
 # Disabling this allows only atomic types for which the platform natively supports atomic operations.
 fallback = []
 
-# Enable dynamic CPU feature detection.
+# Enable run-time CPU feature detection.
+#
+# This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as cmpxchg16b (x86_64) and LSE (aarch64).
 #
 # Note:
 # - Dynamic detection is currently only enabled in nightly, otherwise it works the same as the default.
-# - If the required target features are enabled at compile time, the atomic operations are inlined.
+# - If the required target features are enabled at compile-time, the atomic operations are inlined.
 # - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 outline-atomics = []
 

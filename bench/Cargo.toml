@@ -5,7 +5,9 @@ edition = "2018"
 publish = false
 
 [features]
+default = ["fallback", "std"]
 fallback = []
+std = []
 outline-atomics = []
 
 [dev-dependencies]

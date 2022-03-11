@@ -1,6 +1,6 @@
 #![warn(unsafe_op_in_unsafe_fn)]
 #![allow(dead_code)]
-#![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics)]
+#![feature(aarch64_target_feature, cmpxchg16b_target_feature, stdsimd, core_intrinsics)]
 
 use std::{
     hint,
@@ -21,13 +21,17 @@ mod tests {
     #[macro_use]
     pub(crate) mod helper;
 }
+#[cfg(target_arch = "aarch64")]
 #[allow(dead_code, unused_imports)]
-#[path = "imp/intrinsics.rs"]
-mod cmpxchg16b_intrinsics;
+#[path = "../../src/imp/aarch64.rs"]
+mod aarch64;
 #[cfg(target_arch = "x86_64")]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/cmpxchg16b.rs"]
 mod cmpxchg16b_stdsimd;
+#[allow(dead_code, unused_imports)]
+#[path = "imp/intrinsics.rs"]
+mod intrinsics;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
@@ -37,7 +41,7 @@ use seqlock_fallback as fallback;
 #[path = "imp/spinlock_fallback.rs"]
 mod spinlock_fallback;
 
-const THREADS: usize = 4;
+const THREADS: usize = 2;
 const N: u32 = 5000;
 
 trait AtomicInt<T: Copy>: Sized + Send + Sync {
@@ -64,9 +68,11 @@ macro_rules! impl_atomic_u128 {
         }
     };
 }
-impl_atomic_u128!(cmpxchg16b_intrinsics::AtomicU128);
+impl_atomic_u128!(intrinsics::AtomicU128);
 #[cfg(target_arch = "x86_64")]
 impl_atomic_u128!(cmpxchg16b_stdsimd::AtomicU128);
+#[cfg(target_arch = "aarch64")]
+impl_atomic_u128!(aarch64::AtomicU128);
 impl_atomic_u128!(seqlock_fallback::AtomicU128);
 impl_atomic_u128!(spinlock_fallback::AtomicU128);
 impl_atomic_u128!(atomic::Atomic<u128>);
@@ -181,20 +187,27 @@ macro_rules! benches {
         }
     };
 }
-benches!(bench_portable_atomic_cmpxchg16b_intrinsics, cmpxchg16b_intrinsics::AtomicU128);
+benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128);
 #[cfg(target_arch = "x86_64")]
-benches!(bench_portable_atomic_cmpxchg16b_stdsimd, cmpxchg16b_intrinsics::AtomicU128);
+benches!(bench_portable_atomic_cmpxchg16b_stdsimd, cmpxchg16b_stdsimd::AtomicU128);
+#[cfg(target_arch = "aarch64")]
+benches!(bench_portable_atomic_aarch64, aarch64::AtomicU128);
 benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128);
 benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128);
 benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u128>);
 benches!(bench_atomic_rs, atomic::Atomic<u128>);
 
+#[cfg(target_arch = "aarch64")]
+use bench_portable_atomic_aarch64 as arch;
+#[cfg(target_arch = "x86_64")]
+use bench_portable_atomic_cmpxchg16b_stdsimd as arch;
+
 criterion_group!(
     benches,
     bench_portable_atomic_seqlock_fallback,
     bench_atomic_cell,
-    // bench_portable_atomic_cmpxchg16b_stdsimd,
-    bench_portable_atomic_cmpxchg16b_intrinsics,
+    arch,
+    bench_portable_atomic_intrinsics,
     bench_portable_atomic_spinlock_fallback,
     bench_atomic_rs
 );

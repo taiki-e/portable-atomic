@@ -25,6 +25,13 @@ fn _probe() {
     let _ = v.swap(1, core::sync::atomic::Ordering::Relaxed);
 }
 "#;
+const PROBE_AARCH64_TARGET_FEATURE: &str = r#"
+#![no_std]
+#![allow(stable_features)]
+#![feature(aarch64_target_feature)]
+#[target_feature(enable = "lse")]
+unsafe fn _probe() {}
+"#;
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
 #![allow(stable_features)]
@@ -96,7 +103,7 @@ fn main() {
 
     if version.minor >= 60 || version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_cfg_target_has_atomic");
-        // feature(cfg_target_has_atomic) stabilized in 1.60 (commit-date: 2022-02-10) https://github.com/rust-lang/rust/pull/93824
+        // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (commit-date: 2022-02-10) https://github.com/rust-lang/rust/pull/93824
         if version.nightly
             && version.minor <= 60
             && (version.commit_date < Date { year: 2022, month: 2, day: 10 })
@@ -156,13 +163,18 @@ fn main() {
             println!("cargo:rustc-cfg=sanitize_thread");
         }
 
-        if HAS_ATOMIC_128.contains(&&*target)
-            && probe(PROBE_ATOMIC_128, Some(&target)).unwrap_or(false)
-        {
+        if HAS_ATOMIC_128.contains(&&*target) && probe(PROBE_ATOMIC_128, &target).unwrap_or(false) {
             println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
+        } else if target.starts_with("aarch64")
+            && version.minor >= 60 // is_aarch64_feature_detected! stabilized in Rust 1.60
+            && cfg!(feature = "outline-atomics")
+            && cfg!(feature = "std") // is_aarch64_feature_detected! requires std
+            && probe(PROBE_AARCH64_TARGET_FEATURE, &target).unwrap_or(false)
+        {
+            println!("cargo:rustc-cfg=portable_atomic_lse_dynamic");
         } else if may_use_cmpxchg16b
             && (has_cmpxchg16b || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
-            && probe(PROBE_CMPXCHG16B, Some(&target)).unwrap_or(false)
+            && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
         {
             println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
             if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
@@ -223,7 +235,7 @@ fn rustc_version() -> Option<Version> {
 }
 
 // Adapted from https://github.com/cuviper/autocfg/blob/1.1.0/src/lib.rs#L205-L237 and https://github.com/dtolnay/anyhow/blob/1.0.53/build.rs#L67-L102.
-fn probe(code: &str, target: Option<&str>) -> Option<bool> {
+fn probe(code: &str, target: &str) -> Option<bool> {
     static ID: AtomicUsize = AtomicUsize::new(0);
 
     let rustc = env::var_os("RUSTC")?;
@@ -249,9 +261,7 @@ fn probe(code: &str, target: Option<&str>) -> Option<bool> {
         .arg(out_dir)
         .arg("--emit=llvm-ir");
 
-    if let Some(target) = target {
-        cmd.arg("--target").arg(target);
-    }
+    cmd.arg("--target").arg(target);
 
     if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         if !rustflags.is_empty() {

@@ -5,9 +5,10 @@
 // - LDXP/STXP loop (DW LL/SC)
 // - CASP (DWCAS) added as FEAT_LSE
 //
-// Currently, we always use CASP if FEAT_LSE is enabled at compile-time,
-// otherwise, always use LDXP/STXP loop. In the future, we may want to support
-// outline atomics or mix of both methods.
+// If the `outline-atomics` feature is not enabled, we always use CASP if
+// FEAT_LSE is enabled at compile-time, otherwise, always use LDXP/STXP loop.
+// If the `outline-atomics` feature is enabled, we use CASP for
+// compare_exchange(_weak) if FEAT_LSE is available at run-time.
 //
 // Refs:
 // - ARM Compiler armasm User Guide
@@ -122,7 +123,16 @@ unsafe fn _stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     }
 }
 
-#[cfg(any(test, portable_atomic_target_feature_lse, target_feature = "lse"))]
+#[cfg(any(
+    test,
+    portable_atomic_target_feature_lse,
+    target_feature = "lse",
+    portable_atomic_lse_dynamic,
+))]
+#[cfg_attr(
+    any(all(test, portable_atomic_nightly), portable_atomic_lse_dynamic),
+    target_feature(enable = "lse")
+)]
 #[inline]
 unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
@@ -219,25 +229,57 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     _failure: Ordering,
 ) -> Result<u128, u128> {
+    #[inline]
+    unsafe fn _compare_exchange_ldxp_stxp(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+    ) -> u128 {
+        // SAFETY: the caller must uphold the safety contract for `_compare_exchange_ldxp_stxp`.
+        unsafe { atomic_update(dst, success, |x| if x == old { new } else { x }) }
+    }
+
     #[cfg(any(portable_atomic_target_feature_lse, target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    unsafe {
-        let res = _casp(dst, old, new, success);
-        if res == old {
-            Ok(res)
-        } else {
-            Err(res)
-        }
-    }
+    let res = unsafe { _casp(dst, old, new, success) };
+    #[cfg(not(portable_atomic_lse_dynamic))]
     #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    unsafe {
-        let res = atomic_update(dst, success, |x| if x == old { new } else { x });
-        if res == old {
-            Ok(res)
-        } else {
-            Err(res)
+    let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
+    #[cfg(portable_atomic_lse_dynamic)]
+    #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
+    let res = {
+        // Adapted from https://github.com/BurntSushi/memchr/blob/8e1da98fee06d66c13e66c330e3a3dd6ccf0e3a0/src/memchr/x86/mod.rs#L9-L71.
+        use core::{mem, sync::atomic::AtomicPtr};
+        type FnRaw = *mut ();
+        type FnTy = unsafe fn(*mut u128, u128, u128, Ordering) -> u128;
+        static FUNC: AtomicPtr<()> = AtomicPtr::new(detect as FnRaw);
+        #[cold]
+        unsafe fn detect(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128 {
+            let func: FnTy = if std::arch::is_aarch64_feature_detected!("lse") {
+                _casp
+            } else {
+                _compare_exchange_ldxp_stxp
+            };
+            FUNC.store(func as FnRaw, Ordering::Relaxed);
+            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+            // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+            // and we’ve checked if FEAT_LSE is available,
+            unsafe { func(dst, old, new, success) }
         }
+        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
+        // the caller must guarantee that `dst` is valid for both writes and
+        // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+        unsafe {
+            let func = FUNC.load(Ordering::Relaxed);
+            mem::transmute::<FnRaw, FnTy>(func)(dst, old, new, success)
+        }
+    };
+    if res == old {
+        Ok(res)
+    } else {
+        Err(res)
     }
 }
 
