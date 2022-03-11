@@ -351,6 +351,8 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
       - uses: taiki-e/github-actions/install-rust@main
       - run: tools/no_atomic.sh
       - run: git add -N . && git diff --exit-code
