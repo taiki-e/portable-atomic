@@ -80,7 +80,8 @@ rustc_version=$(rustc ${common_args[@]+"${common_args[@]}"} -Vv | grep 'release:
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     rustup ${common_args[@]+"${common_args[@]}"} component add rust-src &>/dev/null
     case "${rustc_version}" in
-        1.4* | 1.50.* | 1.51.*) ;;
+        # -Z check-cfg-features requires 1.61.0-nightly
+        1.3* | 1.4* | 1.5* | 1.60.*) ;;
         *)
             check_cfg='-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,thumbv6m,armv5te,portable_atomic_target_feature_cmpxchg16b,portable_atomic_target_feature_lse,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic)'
             ;;
@@ -99,6 +100,10 @@ build() {
     local target="$1"
     shift
     args=()
+    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
+        echo "target '${target}' not available on ${rustc_version}"
+        return 0
+    fi
     if [[ "${target}" == "avr-"* ]]; then
         # https://github.com/rust-lang/compiler-builtins/issues/400
         case "${rustc_version}" in
@@ -106,11 +111,7 @@ build() {
             *) return 0 ;;
         esac
     fi
-    args+=(${common_args[@]+"${common_args[@]}"} hack build -vvv)
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
-        echo "target '${target}' not available on ${rustc_version}"
-        return 0
-    fi
+    args+=(${common_args[@]+"${common_args[@]}"} hack build)
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${common_args[@]+"${common_args[@]}"} target add "${target}" &>/dev/null
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
@@ -122,7 +123,11 @@ build() {
         echo "target '${target}' requires nightly compiler"
         return 0
     fi
+    if [[ -n "${check_cfg:-}" ]]; then
+        args+=(-Z check-cfg-features)
+    fi
     args+=(--target "${target}")
+
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
     case "${target}" in
         *-none* | avr-* | riscv32imc-esp-espidf)
