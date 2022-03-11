@@ -283,7 +283,7 @@ mod cmpxchg16b {
     use core::arch::asm;
 
     // Copied from src/imp/cmpxchg16b.rs
-    #[inline(always)]
+    #[inline]
     pub(crate) unsafe fn _cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         /// A 128-bit value represented as a pair of 64-bit values.
         // This type is #[repr(C)], both fields have the same in-memory representation

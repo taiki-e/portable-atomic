@@ -169,7 +169,7 @@ macro_rules! atomic_int {
         }
 
         impl AtomicOperations for $int_type {
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_load(src: *const Self) -> Self {
                 unsafe {
                     let out;
@@ -189,7 +189,7 @@ macro_rules! atomic_int {
                 }
             }
 
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_store(dst: *mut Self, val: Self) {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]

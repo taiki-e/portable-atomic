@@ -22,7 +22,7 @@ union U128 {
     pair: [u64; 2],
 }
 
-#[inline(always)]
+#[inline]
 unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     debug_assert!(dst as usize % 16 == 0);
 
@@ -64,7 +64,7 @@ unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     }
 }
 
-#[inline(always)]
+#[inline]
 unsafe fn cmpxchg16b(
     dst: *mut u128,
     old: u128,

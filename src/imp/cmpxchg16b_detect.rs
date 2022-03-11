@@ -1,4 +1,4 @@
-#[inline(always)]
+#[inline]
 fn _has_cmpxchg16b() -> bool {
     // https://github.com/rust-lang/stdarch/blob/b4a0e07552cf90ef8f1a5b775bf70e4db94b3d63/crates/core_arch/src/x86/cpuid.rs#L102-L105
     #[cfg(target_env = "sgx")]
@@ -26,7 +26,7 @@ fn _has_cmpxchg16b() -> bool {
     }
 }
 
-#[inline(always)]
+#[inline]
 pub(crate) fn has_cmpxchg16b() -> bool {
     #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
     {

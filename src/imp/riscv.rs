@@ -169,7 +169,7 @@ macro_rules! atomic_int {
         }
 
         impl AtomicOperations for $int_type {
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_load_relaxed(src: *const Self) -> Self {
                 unsafe {
                     let out;
@@ -182,7 +182,7 @@ macro_rules! atomic_int {
                     out
                 }
             }
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_load_acquire(src: *const Self) -> Self {
                 unsafe {
                     let out;
@@ -196,7 +196,7 @@ macro_rules! atomic_int {
                     out
                 }
             }
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_load_seq_cst(src: *const Self) -> Self {
                 unsafe {
                     let out;
@@ -212,7 +212,7 @@ macro_rules! atomic_int {
                 }
             }
 
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
@@ -223,7 +223,7 @@ macro_rules! atomic_int {
                     );
                 }
             }
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_store_release(dst: *mut Self, val: Self) {
                 unsafe {
                     asm!(
@@ -235,7 +235,7 @@ macro_rules! atomic_int {
                     );
                 }
             }
-            #[inline(always)]
+            #[inline]
             unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
                 // Release store and SeqCst store are equivalent in RISC-V.
                 unsafe { Self::atomic_store_release(dst, val) }
@@ -264,7 +264,7 @@ atomic_int!(isize, AtomicIsize, "d");
 atomic_int!(usize, AtomicUsize, "d");
 
 trait AtomicOperations: Sized {
-    #[inline(always)]
+    #[inline]
     unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         unsafe {
@@ -280,7 +280,7 @@ trait AtomicOperations: Sized {
     unsafe fn atomic_load_acquire(src: *const Self) -> Self;
     unsafe fn atomic_load_seq_cst(src: *const Self) -> Self;
 
-    #[inline(always)]
+    #[inline]
     unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         unsafe {
