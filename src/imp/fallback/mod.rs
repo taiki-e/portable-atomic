@@ -63,9 +63,7 @@ use core::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use crate::utils::{
-    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering, CachePadded,
-};
+use crate::utils::{assert_compare_exchange_ordering, CachePadded};
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]
@@ -113,6 +111,7 @@ macro_rules! atomic {
                 }
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
@@ -232,9 +231,10 @@ macro_rules! atomic {
                 self.v.into_inner()
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
+                crate::utils::assert_load_ordering(order);
                 let lock = lock(self.v.get() as usize);
 
                 // Try doing an optimistic read first.
@@ -254,13 +254,15 @@ macro_rules! atomic {
                 val
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
+                crate::utils::assert_store_ordering(order);
                 let guard = lock(self.v.get() as usize).write();
                 self.write(val, &guard)
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -303,6 +305,7 @@ macro_rules! atomic {
                 self.compare_exchange(current, new, success, failure)
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -311,6 +314,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -319,6 +323,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -327,6 +332,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -335,6 +341,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -343,6 +350,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -351,6 +359,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[cfg(any(test, not(portable_atomic_no_atomic_min_max)))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
@@ -360,6 +369,7 @@ macro_rules! atomic {
                 result
             }
 
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[cfg(any(test, not(portable_atomic_no_atomic_min_max)))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
@@ -387,6 +397,7 @@ atomic!(AtomicI64, i64, 8);
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(any(test, not(target_has_atomic = "64"))))]
 atomic!(AtomicU64, u64, 8);
 
+#[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
 atomic!(AtomicI128, i128, 16);
 atomic!(AtomicU128, u128, 16);
 

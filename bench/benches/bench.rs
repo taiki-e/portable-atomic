@@ -31,6 +31,8 @@ mod cmpxchg16b_stdsimd;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
+#[allow(unused_imports)]
+use seqlock_fallback as fallback;
 #[allow(dead_code, unused_imports)]
 #[path = "imp/spinlock_fallback.rs"]
 mod spinlock_fallback;

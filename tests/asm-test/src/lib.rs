@@ -87,6 +87,36 @@ pub mod atomic_u64_load {
     }
 }
 
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+pub mod atomic_u128_load_portable_atomic {
+    use portable_atomic::{AtomicU128, Ordering};
+    type A<'a> = &'a AtomicU128;
+    type T = u128;
+    #[inline(never)]
+    pub fn relaxed(a: A<'_>) -> T {
+        a.load(Ordering::Relaxed)
+    }
+    #[inline(never)]
+    pub fn acquire(a: A<'_>) -> T {
+        a.load(Ordering::Acquire)
+    }
+    #[inline(never)]
+    pub fn seq_cst(a: A<'_>) -> T {
+        a.load(Ordering::SeqCst)
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+#[cfg(target_feature = "cmpxchg16b")]
+pub mod atomic_u128_load_asm {
+    type A = *mut u128;
+    type T = u128;
+    #[inline(never)]
+    pub unsafe fn atomic_load(dst: A) -> T {
+        unsafe { crate::cmpxchg16b::_cmpxchg16b(dst, 0, 0).0 }
+    }
+}
+
 #[cfg(any(target_has_atomic_load_store = "128", target_feature = "cmpxchg16b"))]
 pub mod atomic_u128_load_intrinsics {
     use core::intrinsics;
@@ -103,17 +133,6 @@ pub mod atomic_u128_load_intrinsics {
     #[inline(never)]
     pub unsafe fn seq_cst(a: A) -> T {
         unsafe { intrinsics::atomic_load(a) }
-    }
-}
-
-#[cfg(target_arch = "x86_64")]
-#[cfg(target_feature = "cmpxchg16b")]
-pub mod atomic_u128_load_asm {
-    type A = *mut u128;
-    type T = u128;
-    #[inline(never)]
-    pub unsafe fn atomic_load(dst: A) -> T {
-        unsafe { crate::cmpxchg16b::_cmpxchg16b(dst, 0, 0).0 }
     }
 }
 
@@ -186,6 +205,25 @@ pub mod atomic_u64_store {
     use core::sync::atomic::{AtomicU64, Ordering};
     type A<'a> = &'a AtomicU64;
     type T = u64;
+    #[inline(never)]
+    pub fn relaxed(a: A<'_>, val: T) {
+        a.store(val, Ordering::Relaxed)
+    }
+    #[inline(never)]
+    pub fn release(a: A<'_>, val: T) {
+        a.store(val, Ordering::Release)
+    }
+    #[inline(never)]
+    pub fn seq_cst(a: A<'_>, val: T) {
+        a.store(val, Ordering::SeqCst)
+    }
+}
+
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+pub mod atomic_u128_store_portable_atomic {
+    use portable_atomic::{AtomicU128, Ordering};
+    type A<'a> = &'a AtomicU128;
+    type T = u128;
     #[inline(never)]
     pub fn relaxed(a: A<'_>, val: T) {
         a.store(val, Ordering::Relaxed)

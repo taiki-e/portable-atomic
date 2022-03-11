@@ -9,6 +9,7 @@ use indexmap::{IndexMap, IndexSet};
 use lexopt::prelude::*;
 
 const DEFAULT_TARGETS: &[&str] = &[
+    "x86_64-unknown-linux-gnu",
     // riscv
     "riscv64gc-unknown-linux-gnu",
     "riscv32imc-unknown-none-elf",
@@ -102,7 +103,8 @@ fn main() -> Result<()> {
                     target,
                     func
                 );
-                if target.contains("x86_64") {
+                if target.starts_with("x86_64") {
+                    // Disable this to show asm for outline-atomics
                     cmd = cmd.env("RUSTFLAGS", "-C target-feature=+cmpxchg16b");
                 } else {
                     cmd = cmd.env_remove("RUSTFLAGS");
@@ -115,14 +117,11 @@ fn main() -> Result<()> {
                     assert!(cmd.run().is_err());
                     continue;
                 }
-                if target.starts_with("x86_64-")
-                    && (func.ends_with("load_portable_atomic::relaxed")
-                        || func.ends_with("load_portable_atomic::seq_cst")
-                        || func.ends_with("store_portable_atomic::release")
-                        || func.ends_with("store_portable_atomic::seq_cst"))
+                if target.starts_with("x86_64")
+                    && func.contains("_portable_atomic::")
+                    && cmd.stderr_capture().stdout_capture().run().is_err()
                 {
                     // the same as above case
-                    assert!(cmd.run().is_err());
                     continue;
                 }
                 let asm = &cmd.read()?;

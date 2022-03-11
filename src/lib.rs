@@ -128,8 +128,8 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
         any(
             thumbv6m,
             all(target_arch = "riscv32", portable_atomic_no_atomic_load_store),
-            portable_atomic_cmpxchg16b,
             target_arch = "aarch64",
+            target_arch = "x86_64",
         ),
         portable_atomic_no_asm,
     ),
@@ -1356,7 +1356,16 @@ atomic_int!(AtomicU64, u64, 8);
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             target_arch = "aarch64"
         ),
-        portable_atomic_cmpxchg16b
+        all(
+            not(portable_atomic_core_atomic_128),
+            any(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(
+                portable_atomic_target_feature_cmpxchg16b,
+                target_feature = "cmpxchg16b",
+                portable_atomic_cmpxchg16b_dynamic
+            ),
+            target_arch = "x86_64",
+        ),
     ))
 )]
 #[cfg_attr(
@@ -1377,7 +1386,16 @@ atomic_int!(AtomicI128, i128, 16);
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             target_arch = "aarch64"
         ),
-        portable_atomic_cmpxchg16b
+        all(
+            not(portable_atomic_core_atomic_128),
+            any(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(
+                portable_atomic_target_feature_cmpxchg16b,
+                target_feature = "cmpxchg16b",
+                portable_atomic_cmpxchg16b_dynamic
+            ),
+            target_arch = "x86_64",
+        ),
     ))
 )]
 #[cfg_attr(

@@ -1,0 +1,30 @@
+asm_test::atomic_u128_store_portable_atomic::relaxed:
+ push    rbx
+ mov     rcx, rdx
+ mov     rbx, rsi
+ mov     rax, rsi
+.LBB31_1:
+ lock    cmpxchg16b, xmmword, ptr, [rdi]
+ jne     .LBB31_1
+ pop     rbx
+ ret
+asm_test::atomic_u128_store_portable_atomic::release:
+ push    rbx
+ mov     rcx, rdx
+ mov     rbx, rsi
+ mov     rax, rsi
+.LBB32_1:
+ lock    cmpxchg16b, xmmword, ptr, [rdi]
+ jne     .LBB32_1
+ pop     rbx
+ ret
+asm_test::atomic_u128_store_portable_atomic::seq_cst:
+ push    rbx
+ mov     rcx, rdx
+ mov     rbx, rsi
+ mov     rax, rsi
+.LBB33_1:
+ lock    cmpxchg16b, xmmword, ptr, [rdi]
+ jne     .LBB33_1
+ pop     rbx
+ ret
