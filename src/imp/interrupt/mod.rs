@@ -7,6 +7,7 @@
 // - If the target can be safely assumed to be single-core.
 
 #![cfg_attr(test, allow(dead_code))] // TODO
+#![allow(clippy::undocumented_unsafe_blocks)] // TODO
 
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts.

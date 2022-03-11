@@ -96,6 +96,7 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     clippy::undocumented_unsafe_blocks
 )]
 #![allow(
+    clippy::cast_lossless,
     clippy::doc_markdown,
     clippy::float_cmp,
     clippy::inline_always,

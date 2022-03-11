@@ -63,9 +63,9 @@ default_targets=(
     thumbv7neon-unknown-linux-gnueabihf
 )
 
-common_args=()
+pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
-    common_args+=("$1")
+    pre_args+=("$1")
     shift
 fi
 if [[ $# -gt 0 ]]; then
@@ -74,16 +74,19 @@ else
     targets=("${default_targets[@]}")
 fi
 
-rustup_target_list=$(rustup ${common_args[@]+"${common_args[@]}"} target list)
-rustc_target_list=$(rustc ${common_args[@]+"${common_args[@]}"} --print target-list)
-rustc_version=$(rustc ${common_args[@]+"${common_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
+rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+subcmd=build
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
-    rustup ${common_args[@]+"${common_args[@]}"} component add rust-src &>/dev/null
+    rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     case "${rustc_version}" in
         # -Z check-cfg-features requires 1.61.0-nightly
         1.3* | 1.4* | 1.5* | 1.60.*) ;;
         *)
             check_cfg='-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_no_underscore_consts,portable_atomic_no_atomic_min_max,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_no_core_unwind_safe,portable_atomic_no_asm,portable_atomic_cfg_target_has_atomic,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_64,portable_atomic_no_atomic_load_store,thumbv6m,armv5te,portable_atomic_target_feature_cmpxchg16b,portable_atomic_target_feature_lse,portable_atomic_nightly,portable_atomic_core_atomic_128,portable_atomic_cmpxchg16b_stdsimd,portable_atomic_cmpxchg16b_dynamic,portable_atomic_lse_dynamic)'
+            rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
+            subcmd=clippy
             ;;
     esac
 fi
@@ -111,9 +114,9 @@ build() {
             *) return 0 ;;
         esac
     fi
-    args+=(${common_args[@]+"${common_args[@]}"} hack build)
+    args+=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
-        x rustup ${common_args[@]+"${common_args[@]}"} target add "${target}" &>/dev/null
+        x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
         case "${target}" in
             *-none* | avr-* | riscv32imc-esp-espidf) args+=(-Z build-std=core) ;;
@@ -130,9 +133,14 @@ build() {
 
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
     case "${target}" in
+        x86_64* | aarch64*) ;;
+        # outline-atomics feature only affects x86_64 and aarch64.
+        *) args+=(--exclude-features "outline-atomics") ;;
+    esac
+    case "${target}" in
         *-none* | avr-* | riscv32imc-esp-espidf)
             args+=(--exclude-features "std,parking_lot")
-            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${common_args[@]+"${common_args[@]}"} --print cfg --target "${target}")
+            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO

@@ -6,6 +6,8 @@
 //
 // Note: Ordering is always SeqCst.
 
+#![allow(clippy::undocumented_unsafe_blocks)] // TODO
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};

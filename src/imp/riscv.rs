@@ -6,6 +6,8 @@
 //
 // Generated asm: https://godbolt.org/z/ojneff8T6
 
+#![allow(clippy::undocumented_unsafe_blocks)] // TODO
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
