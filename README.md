@@ -6,7 +6,7 @@
 [![rustc](https://img.shields.io/badge/rustc-1.34+-blue?style=flat-square&logo=rust)](https://www.rust-lang.org)
 [![build status](https://img.shields.io/github/workflow/status/taiki-e/portable-atomic/CI/main?style=flat-square&logo=github)](https://github.com/taiki-e/portable-atomic/actions)
 
-Portable atomic types.
+Portable atomic types including extensions such as 128-bit atomics, atomic float, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
@@ -73,6 +73,13 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 
   This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
 
+## Related Projects
+
+- [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
+- [atomic-memcpy]: Byte-wise atomic memcpy.
+
+[atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
+[atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [parking_lot]: https://github.com/Amanieu/parking_lot
 [serde]: https://github.com/serde-rs/serde
 
