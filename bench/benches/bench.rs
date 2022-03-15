@@ -1,5 +1,6 @@
 #![warn(unsafe_op_in_unsafe_fn)]
 #![allow(dead_code)]
+#![allow(clippy::only_used_in_recursion)]
 #![feature(aarch64_target_feature, cmpxchg16b_target_feature, stdsimd, core_intrinsics)]
 
 use std::{
