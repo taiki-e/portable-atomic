@@ -1,5 +1,5 @@
 /*!
-Portable atomic types including extensions such as 128-bit atomics, atomic float, etc.
+Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
@@ -319,7 +319,7 @@ atomic instructions or locks will be used.
         impl fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L1378
+                // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L1378
                 fmt::Debug::fmt(&self.load(Ordering::SeqCst), f)
             }
         }
@@ -888,7 +888,7 @@ This type has the same in-memory representation as the underlying floating point
         impl fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L1378
+                // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L1378
                 fmt::Debug::fmt(&self.load(Ordering::SeqCst), f)
             }
         }

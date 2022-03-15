@@ -1,6 +1,6 @@
-// Atomic{I,U}128 implementation for aarch64.
+// Atomic{I,U}128 implementation for AArch64.
 //
-// There are two ways to implement 128-bit atomic operations in aarch64.
+// There are two ways to implement 128-bit atomic operations in AArch64.
 //
 // - LDXP/STXP loop (DW LL/SC)
 // - CASP (DWCAS) added as FEAT_LSE
@@ -16,6 +16,7 @@
 // - Arm Architecture Reference Manual for A-profile architecture
 //   https://developer.arm.com/documentation/ddi0487/latest
 // - progress64 https://github.com/ARM-software/progress64
+// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm(default): https://godbolt.org/z/4nvGW91Mh
 // Generated asm(+lse): https://godbolt.org/z/s7Tc59odP
@@ -48,7 +49,7 @@ union U128 {
 unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
-    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // SAFETY: the caller must guarantee that `src` is valid for both writes and
     // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
     //
     // Refs:
@@ -250,7 +251,7 @@ unsafe fn atomic_compare_exchange(
     #[cfg(portable_atomic_lse_dynamic)]
     #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
     let res = {
-        // Adapted from https://github.com/BurntSushi/memchr/blob/8e1da98fee06d66c13e66c330e3a3dd6ccf0e3a0/src/memchr/x86/mod.rs#L9-L71.
+        // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
         use core::{mem, sync::atomic::AtomicPtr};
         type FnRaw = *mut ();
         type FnTy = unsafe fn(*mut u128, u128, u128, Ordering) -> u128;

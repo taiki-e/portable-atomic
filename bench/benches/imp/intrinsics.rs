@@ -2,6 +2,8 @@
 
 // Atomic{I,U}128 implementation using core::intrinsics.
 //
+// Refs: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs
+//
 // This module is currently only enabled on test and benchmark.
 
 use core::{
@@ -21,7 +23,6 @@ macro_rules! assert_cmpxchg16b {
     };
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2359
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -40,7 +41,6 @@ unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2345
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -59,7 +59,6 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2374
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -79,7 +78,6 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2421
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -115,7 +113,6 @@ unsafe fn atomic_compare_exchange(
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2450
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -151,7 +148,6 @@ unsafe fn atomic_compare_exchange_weak(
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2390
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -171,7 +167,6 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2406
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -191,7 +186,6 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2479
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -211,7 +205,6 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2494
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -231,7 +224,6 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2509
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -251,7 +243,6 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2524
 #[inline]
 #[cfg_attr(
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
@@ -271,7 +262,6 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2540
 /// returns the max value (signed comparison)
 #[inline]
 #[cfg_attr(
@@ -292,7 +282,6 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2556
 /// returns the min value (signed comparison)
 #[inline]
 #[cfg_attr(
@@ -313,7 +302,6 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2572
 /// returns the max value (unsigned comparison)
 #[inline]
 #[cfg_attr(
@@ -334,7 +322,6 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2588
 /// returns the min value (unsigned comparison)
 #[inline]
 #[cfg_attr(

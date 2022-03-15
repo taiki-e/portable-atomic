@@ -1,10 +1,6 @@
 #![cfg_attr(not(test), allow(dead_code))]
 
-use core::{
-    cell::UnsafeCell,
-    ops,
-    sync::atomic::Ordering::{self, AcqRel, Acquire, Relaxed, Release, SeqCst},
-};
+use core::{cell::UnsafeCell, ops, sync::atomic::Ordering};
 
 use crate::hint;
 
@@ -131,42 +127,43 @@ pub(crate) trait AtomicRepr {
 pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 unsafe impl Sync for NoRefUnwindSafe {}
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2334
+// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2334
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
-        Release | Relaxed => Relaxed,
-        SeqCst => SeqCst,
-        Acquire | AcqRel => Acquire,
+        Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
+        Ordering::SeqCst => Ordering::SeqCst,
+        Ordering::Acquire | Ordering::AcqRel => Ordering::Acquire,
         _ => unreachable!("{:?}", order),
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2359
+// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2359
 #[inline]
 pub(crate) fn assert_load_ordering(order: Ordering) {
     match order {
-        Acquire | Relaxed | SeqCst => {}
-        Release => panic!("there is no such thing as a release load"),
-        AcqRel => panic!("there is no such thing as an acquire/release load"),
+        Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
+        Ordering::Release => panic!("there is no such thing as a release load"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire/release load"),
         _ => unreachable!("{:?}", order),
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2345
+// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2345
 #[inline]
 pub(crate) fn assert_store_ordering(order: Ordering) {
     match order {
-        Release | Relaxed | SeqCst => {}
-        Acquire => panic!("there is no such thing as an acquire store"),
-        AcqRel => panic!("there is no such thing as an acquire/release store"),
+        Ordering::Release | Ordering::Relaxed | Ordering::SeqCst => {}
+        Ordering::Acquire => panic!("there is no such thing as an acquire store"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire/release store"),
         _ => unreachable!("{:?}", order),
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L2421
+// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2421
 #[inline]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
+    use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
     #[allow(clippy::unnested_or_patterns)]
     match (success, failure) {
         (Acquire, Acquire)

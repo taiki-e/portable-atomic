@@ -9,7 +9,7 @@ keywords = ["atomic"]
 categories = ["concurrency", "data-structures", "embedded", "no-std"]
 exclude = ["/.*", "/tools"]
 description = """
-Portable atomic types including extensions such as 128-bit atomics, atomic float, etc.
+Portable atomic types including support for 128-bit atomics, atomic float, etc.
 """
 
 [package.metadata.docs.rs]

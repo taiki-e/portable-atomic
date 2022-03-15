@@ -162,8 +162,8 @@ macro_rules! atomic {
                 // perform concurrent write operations.
                 //
                 // Note: If the atomic load involves an atomic write (e.g.
-                // Atomic{I,U}128::load on x86_64/aarch64 that uses CAS), this can
-                // still cause a data race.
+                // 128-bit atomic load on x86_64/aarch64 that uses CAS or LL/SC
+                // loop), this can still cause a data race.
                 // However, according to atomic-memcpy's asm test, there seems
                 // to be no tier 1 or tier 2 platform that generates such code
                 // for a pointer-width relaxed load + acquire fence:

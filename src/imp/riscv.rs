@@ -3,6 +3,7 @@
 // Refs:
 // - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
 //   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
+// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm: https://godbolt.org/z/ojneff8T6
 

@@ -114,7 +114,7 @@ unsafe fn cmpxchg16b(
     #[cfg(portable_atomic_cmpxchg16b_dynamic)]
     #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
     {
-        // Adapted from https://github.com/BurntSushi/memchr/blob/8e1da98fee06d66c13e66c330e3a3dd6ccf0e3a0/src/memchr/x86/mod.rs#L9-L71.
+        // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
         use core::{mem, sync::atomic::AtomicPtr};
         type FnRaw = *mut ();
         type FnTy = unsafe fn(*mut u128, u128, u128, Ordering, Ordering) -> (u128, bool);

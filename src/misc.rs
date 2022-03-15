@@ -41,7 +41,7 @@ impl From<bool> for AtomicBool {
 impl fmt::Debug for AtomicBool {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L1378
+        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L1378
         fmt::Debug::fmt(&self.load(Ordering::SeqCst), f)
     }
 }
@@ -406,7 +406,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L1378
+        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L1378
         fmt::Debug::fmt(&self.load(Ordering::SeqCst), f)
     }
 }
@@ -414,7 +414,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.58.1/library/core/src/sync/atomic.rs#L1378
+        // std atomic types use SeqCst in Debug::fmt: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L1378
         fmt::Pointer::fmt(&self.load(Ordering::SeqCst), f)
     }
 }
