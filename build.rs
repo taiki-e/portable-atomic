@@ -14,7 +14,7 @@ include!("no_atomic.rs");
 
 // rustc +stable -Vv | grep -E '^(commit-date|release)'
 const LATEST_STABLE: Version =
-    Version { minor: 59, nightly: false, commit_date: Date { year: 2022, month: 2, day: 23 } };
+    Version { minor: 59, nightly: false, commit_date: Date::new(2022, 2, 23) };
 
 const PROBE_ATOMIC_128: &str = r#"
 #![no_std]
@@ -24,13 +24,6 @@ fn _probe() {
     let v = core::sync::atomic::AtomicU128::new(0);
     let _ = v.swap(1, core::sync::atomic::Ordering::Relaxed);
 }
-"#;
-const PROBE_AARCH64_TARGET_FEATURE: &str = r#"
-#![no_std]
-#![allow(stable_features)]
-#![feature(aarch64_target_feature)]
-#[target_feature(enable = "lse")]
-unsafe fn _probe() {}
 "#;
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
@@ -100,14 +93,16 @@ fn main() {
     if version.minor < 59 {
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     }
+    // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16).
+    if version.minor >= 61 && (!version.nightly || version.commit_date >= Date::new(2022, 3, 15)) {
+        // TODO: invert cfg once Rust 1.61 became stable.
+        println!("cargo:rustc-cfg=portable_atomic_aarch64_target_feature");
+    }
 
     if version.minor >= 60 || version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_cfg_target_has_atomic");
-        // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (commit-date: 2022-02-10) https://github.com/rust-lang/rust/pull/93824
-        if version.nightly
-            && version.minor <= 60
-            && (version.commit_date < Date { year: 2022, month: 2, day: 10 })
-        {
+        // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11) https://github.com/rust-lang/rust/pull/93824
+        if version.nightly && version.minor <= 60 && version.commit_date < Date::new(2022, 2, 10) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         }
     } else {
@@ -134,9 +129,10 @@ fn main() {
         println!("cargo:rustc-cfg=armv5te");
     }
 
+    // aarch64_target_feature stabilized in Rust 1.61.
     if target.starts_with("aarch64")
         && (version.minor >= 59 || version.nightly)
-        && has_unstable_target_feature("lse", false, &version)
+        && has_target_feature("lse", false, &version, Some(61))
     {
         println!("cargo:rustc-cfg=portable_atomic_target_feature_lse");
     }
@@ -148,7 +144,7 @@ fn main() {
     if may_use_cmpxchg16b {
         // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
         has_cmpxchg16b =
-            has_unstable_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version);
+            has_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version, None);
     }
     if has_cmpxchg16b {
         println!("cargo:rustc-cfg=portable_atomic_target_feature_cmpxchg16b");
@@ -165,13 +161,6 @@ fn main() {
 
         if HAS_ATOMIC_128.contains(&&*target) && probe(PROBE_ATOMIC_128, &target).unwrap_or(false) {
             println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
-        } else if target.starts_with("aarch64")
-            && version.minor >= 60 // is_aarch64_feature_detected! stabilized in Rust 1.60
-            && cfg!(feature = "outline-atomics")
-            && cfg!(feature = "std") // is_aarch64_feature_detected! requires std
-            && probe(PROBE_AARCH64_TARGET_FEATURE, &target).unwrap_or(false)
-        {
-            println!("cargo:rustc-cfg=portable_atomic_lse_dynamic");
         } else if may_use_cmpxchg16b
             && (has_cmpxchg16b || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
             && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
@@ -195,6 +184,12 @@ struct Date {
     year: u16,
     month: u8,
     day: u8,
+}
+
+impl Date {
+    const fn new(year: u16, month: u8, day: u8) -> Self {
+        Self { year, month, day }
+    }
 }
 
 fn rustc_version() -> Option<Version> {
@@ -231,7 +226,7 @@ fn rustc_version() -> Option<Version> {
         return None;
     }
 
-    Some(Version { minor, nightly, commit_date: Date { year, month, day } })
+    Some(Version { minor, nightly, commit_date: Date::new(year, month, day) })
 }
 
 // Adapted from https://github.com/cuviper/autocfg/blob/1.1.0/src/lib.rs#L205-L237 and https://github.com/dtolnay/anyhow/blob/1.0.53/build.rs#L67-L102.
@@ -282,24 +277,26 @@ fn probe(code: &str, target: &str) -> Option<bool> {
     Some(status.success())
 }
 
-fn has_stable_target_feature(name: &str) -> bool {
-    env::var("CARGO_CFG_TARGET_FEATURE").ok().map_or(false, |s| s.split(',').any(|s| s == name))
-}
-
-fn has_unstable_target_feature(
+fn has_target_feature(
     name: &str,
     mut has_target_feature: bool,
     version: &Version,
+    stabilized: Option<u32>,
 ) -> bool {
-    // Currently, it seems that the only way that works on the stable is
+    // HACK: Currently, it seems that the only way that works on the stable is
     // to parse the `-C target-feature` in RUSTFLAGS.
     //
-    // - #[cfg(target_feature = "cmpxchg16b")] doesn't work on stable.
+    // - #[cfg(target_feature = "unstable_target_feature")] doesn't work on stable.
     // - CARGO_CFG_TARGET_FEATURE excludes unstable features on stable.
     //
-    // https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
-    if version.nightly {
-        has_target_feature = has_stable_target_feature(name);
+    // As mentioned in the [RFC2045], unstable target features are also passed to LLVM
+    // (e.g., https://godbolt.org/z/8Eh3z5Wzb), so this hack works properly on stable.
+    //
+    // [RFC2045]: https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
+    if version.nightly || stabilized.map_or(false, |stabilized| version.minor >= stabilized) {
+        has_target_feature = env::var("CARGO_CFG_TARGET_FEATURE")
+            .ok()
+            .map_or(false, |s| s.split(',').any(|s| s == name));
     } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             if flag.starts_with("-C") {
@@ -307,10 +304,10 @@ fn has_unstable_target_feature(
             }
             if flag.starts_with("target-feature=") {
                 flag = &flag["target-feature=".len()..];
-                for s in flag.split(',') {
-                    match (s.as_bytes()[0] as char, &s[1..]) {
-                        ('+', f) if f == name => has_target_feature = true,
-                        ('-', f) if f == name => has_target_feature = false,
+                for s in flag.split(',').filter(|s| !s.is_empty()) {
+                    match (s.as_bytes()[0] as char, &s.as_bytes()[1..]) {
+                        ('+', f) if f == name.as_bytes() => has_target_feature = true,
+                        ('-', f) if f == name.as_bytes() => has_target_feature = false,
                         _ => {}
                     }
                 }

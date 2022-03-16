@@ -125,15 +125,16 @@ unsafe fn _stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
 }
 
 #[cfg(any(
-    test,
     portable_atomic_target_feature_lse,
     target_feature = "lse",
-    portable_atomic_lse_dynamic,
+    all(
+        portable_atomic_aarch64_target_feature,
+        feature = "outline-atomics",
+        // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
+        any(feature = "std", target_os = "linux", target_os = "windows", target_os = "freebsd")
+    ),
 ))]
-#[cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_lse_dynamic),
-    target_feature(enable = "lse")
-)]
+#[cfg_attr(portable_atomic_aarch64_target_feature, target_feature(enable = "lse"))]
 #[inline]
 unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
@@ -244,13 +245,24 @@ unsafe fn atomic_compare_exchange(
     #[cfg(any(portable_atomic_target_feature_lse, target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { _casp(dst, old, new, success) };
-    #[cfg(not(portable_atomic_lse_dynamic))]
+    #[cfg(not(all(
+        portable_atomic_aarch64_target_feature,
+        feature = "outline-atomics",
+        // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
+        any(feature = "std", target_os = "linux", target_os = "windows", target_os = "freebsd")
+    )))]
     #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
-    #[cfg(portable_atomic_lse_dynamic)]
+    #[cfg(all(
+        portable_atomic_aarch64_target_feature,
+        feature = "outline-atomics",
+        // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
+        any(feature = "std", target_os = "linux", target_os = "windows", target_os = "freebsd")
+    ))]
     #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
     let res = {
+        extern crate std;
         // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
         use core::{mem, sync::atomic::AtomicPtr};
         type FnRaw = *mut ();

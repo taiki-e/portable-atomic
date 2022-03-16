@@ -27,7 +27,7 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
   This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as cmpxchg16b (x86_64) and LSE (aarch64).
 
   Note:
-  - Dynamic detection is currently only enabled in nightly, otherwise it works the same as the default.
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64 and in nightly for others, otherwise it works the same as the default.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std` and `parking_lot`).
 
@@ -116,10 +116,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 #![cfg_attr(
     any(all(test, portable_atomic_nightly), portable_atomic_core_atomic_128),
     feature(integer_atomics)
-)]
-#![cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_lse_dynamic),
-    feature(aarch64_target_feature)
 )]
 #![cfg_attr(
     any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_stdsimd),
