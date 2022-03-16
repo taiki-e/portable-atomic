@@ -135,6 +135,8 @@ build() {
     args+=(--target "${target}")
 
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
+
+    args+=(--depth 3)
     case "${target}" in
         x86_64* | aarch64*) ;;
         # outline-atomics feature only affects x86_64 and aarch64.
