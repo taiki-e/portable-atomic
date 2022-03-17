@@ -62,8 +62,8 @@ unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
                 asm!(
                     "ldxp {prev_lo}, {prev_hi}, [{src}]",
                     src = in(reg) src,
-                    prev_lo = lateout(reg) prev_lo,
-                    prev_hi = lateout(reg) prev_hi,
+                    prev_lo = out(reg) prev_lo,
+                    prev_hi = out(reg) prev_hi,
                     options(nostack),
                 );
             }
@@ -71,8 +71,8 @@ unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
                 asm!(
                     "ldaxp {prev_lo}, {prev_hi}, [{src}]",
                     src = in(reg) src,
-                    prev_lo = lateout(reg) prev_lo,
-                    prev_hi = lateout(reg) prev_hi,
+                    prev_lo = out(reg) prev_lo,
+                    prev_hi = out(reg) prev_hi,
                     options(nostack),
                 );
             }
@@ -154,9 +154,10 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
                 asm!(
                     "casp x6, x7, x4, x5, [{dst}]",
                     dst = in(reg) dst,
-                    // Note: `old` and `new` must be allocated to even/odd register pairs.
-                    inlateout("x6") old.pair[0] => prev_lo,
-                    inlateout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
+                    inout("x6") old.pair[0] => prev_lo,
+                    inout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
                     in("x4") new.pair[0],
                     in("x5") new.pair[1],
                     options(nostack),
@@ -166,9 +167,10 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
                 asm!(
                     "caspa x6, x7, x4, x5, [{dst}]",
                     dst = in(reg) dst,
-                    // Note: `old` and `new` must be allocated to even/odd register pairs.
-                    inlateout("x6") old.pair[0] => prev_lo,
-                    inlateout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
+                    inout("x6") old.pair[0] => prev_lo,
+                    inout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
                     in("x4") new.pair[0],
                     in("x5") new.pair[1],
                     options(nostack),
@@ -178,9 +180,10 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
                 asm!(
                     "caspl x6, x7, x4, x5, [{dst}]",
                     dst = in(reg) dst,
-                    // Note: `old` and `new` must be allocated to even/odd register pairs.
-                    inlateout("x6") old.pair[0] => prev_lo,
-                    inlateout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
+                    inout("x6") old.pair[0] => prev_lo,
+                    inout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
                     in("x4") new.pair[0],
                     in("x5") new.pair[1],
                     options(nostack),
@@ -190,9 +193,10 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
                 asm!(
                     "caspal x6, x7, x4, x5, [{dst}]",
                     dst = in(reg) dst,
-                    // Note: `old` and `new` must be allocated to even/odd register pairs.
-                    inlateout("x6") old.pair[0] => prev_lo,
-                    inlateout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
+                    inout("x6") old.pair[0] => prev_lo,
+                    inout("x7") old.pair[1] => prev_hi,
+                    // must be allocated to even/odd register pair
                     in("x4") new.pair[0],
                     in("x5") new.pair[1],
                     options(nostack),

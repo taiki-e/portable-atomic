@@ -6,8 +6,6 @@
 //
 // Note: Ordering is always SeqCst.
 
-#![allow(clippy::undocumented_unsafe_blocks)] // TODO
-
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
@@ -42,6 +40,7 @@ impl AtomicBool {
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
+        // SAFETY: the mutable reference guarantees unique ownership.
         unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
@@ -54,12 +53,16 @@ impl AtomicBool {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         assert_load_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         unsafe { u8::atomic_load(self.v.get()) != 0 }
     }
 
     #[inline]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         assert_store_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         unsafe {
             u8::atomic_store(self.v.get(), val as u8);
         }
@@ -92,7 +95,7 @@ impl<T> AtomicPtr<T> {
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
-        unsafe { &mut *self.p.get() }
+        self.p.get_mut()
     }
 
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -104,6 +107,8 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         assert_load_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
         unsafe { usize::atomic_load(self.p.get() as *mut usize) as *mut T }
     }
@@ -111,6 +116,8 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         assert_store_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
         unsafe {
             usize::atomic_store(self.p.get() as *mut usize, ptr as usize);
@@ -134,6 +141,7 @@ macro_rules! atomic_int {
         }
 
         // Send is implicitly implemented.
+        // SAFETY: any data races are prevented by atomic intrinsics.
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
@@ -146,7 +154,7 @@ macro_rules! atomic_int {
             #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                unsafe { &mut *self.v.get() }
+                self.v.get_mut()
             }
 
             #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -158,12 +166,20 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_load_ordering(order);
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
                 unsafe { $int_type::atomic_load(self.v.get()) }
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_store_ordering(order);
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     $int_type::atomic_store(self.v.get(), val);
                 }
@@ -173,6 +189,9 @@ macro_rules! atomic_int {
         impl AtomicOperations for $int_type {
             #[inline]
             unsafe fn atomic_load(src: *const Self) -> Self {
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: the caller must uphold the safety contract for `atomic_load`.
                 unsafe {
                     let out;
                     #[cfg(not(portable_atomic_no_asm))]
@@ -193,6 +212,9 @@ macro_rules! atomic_int {
 
             #[inline]
             unsafe fn atomic_store(dst: *mut Self, val: Self) {
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: the caller must uphold the safety contract for `atomic_store`.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(

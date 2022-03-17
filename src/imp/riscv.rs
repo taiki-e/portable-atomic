@@ -7,8 +7,6 @@
 //
 // Generated asm: https://godbolt.org/z/ojneff8T6
 
-#![allow(clippy::undocumented_unsafe_blocks)] // TODO
-
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
@@ -31,6 +29,7 @@ impl crate::utils::AtomicRepr for AtomicBool {
 }
 
 // Send is implicitly implemented.
+// SAFETY: any data races are prevented by atomic intrinsics.
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
@@ -43,6 +42,7 @@ impl AtomicBool {
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
+        // SAFETY: the mutable reference guarantees unique ownership.
         unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
@@ -55,12 +55,16 @@ impl AtomicBool {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         assert_load_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         unsafe { u8::atomic_load(self.v.get(), order) != 0 }
     }
 
     #[inline]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         assert_store_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         unsafe {
             u8::atomic_store(self.v.get(), val as u8, order);
         }
@@ -80,6 +84,7 @@ impl<T> crate::utils::AtomicRepr for AtomicPtr<T> {
     }
 }
 
+// SAFETY: any data races are prevented by atomic intrinsics.
 unsafe impl<T> Send for AtomicPtr<T> {}
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
@@ -93,7 +98,7 @@ impl<T> AtomicPtr<T> {
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
-        unsafe { &mut *self.p.get() }
+        self.p.get_mut()
     }
 
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -105,6 +110,8 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         assert_load_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
         unsafe { usize::atomic_load(self.p.get() as *mut usize, order) as *mut T }
     }
@@ -112,6 +119,8 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         assert_store_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
         unsafe {
             usize::atomic_store(self.p.get() as *mut usize, ptr as usize, order);
@@ -135,6 +144,7 @@ macro_rules! atomic_int {
         }
 
         // Send is implicitly implemented.
+        // SAFETY: any data races are prevented by atomic intrinsics.
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
@@ -147,7 +157,7 @@ macro_rules! atomic_int {
             #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                unsafe { &mut *self.v.get() }
+                self.v.get_mut()
             }
 
             #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -159,12 +169,20 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_load_ordering(order);
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
                 unsafe { $int_type::atomic_load(self.v.get(), order) }
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_store_ordering(order);
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     $int_type::atomic_store(self.v.get(), val, order);
                 }
@@ -173,75 +191,74 @@ macro_rules! atomic_int {
 
         impl AtomicOperations for $int_type {
             #[inline]
-            unsafe fn atomic_load_relaxed(src: *const Self) -> Self {
+            unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: the caller must uphold the safety contract for `atomic_load`.
                 unsafe {
                     let out;
-                    asm!(
-                        concat!("l", $asm_suffix, " {out}, 0({src})"),
-                        src = in(reg) src,
-                        out = lateout(reg) out,
-                        options(nostack),
-                    );
-                    out
-                }
-            }
-            #[inline]
-            unsafe fn atomic_load_acquire(src: *const Self) -> Self {
-                unsafe {
-                    let out;
-                    asm!(
-                        concat!("l", $asm_suffix, " {out}, 0({src})"),
-                        "fence r, rw",
-                        src = in(reg) src,
-                        out = lateout(reg) out,
-                        options(nostack),
-                    );
-                    out
-                }
-            }
-            #[inline]
-            unsafe fn atomic_load_seq_cst(src: *const Self) -> Self {
-                unsafe {
-                    let out;
-                    asm!(
-                        "fence rw, rw",
-                        concat!("l", $asm_suffix, " {out}, 0({src})"),
-                        "fence r, rw",
-                        src = in(reg) src,
-                        out = lateout(reg) out,
-                        options(nostack),
-                    );
+                    match order {
+                        Ordering::Relaxed => {
+                            asm!(
+                                concat!("l", $asm_suffix, " {out}, 0({src})"),
+                                src = in(reg) src,
+                                out = lateout(reg) out,
+                                options(nostack),
+                            );
+                        }
+                        Ordering::Acquire => {
+                            asm!(
+                                concat!("l", $asm_suffix, " {out}, 0({src})"),
+                                "fence r, rw",
+                                src = in(reg) src,
+                                out = lateout(reg) out,
+                                options(nostack),
+                            );
+                        }
+                        Ordering::SeqCst => {
+                            asm!(
+                                "fence rw, rw",
+                                concat!("l", $asm_suffix, " {out}, 0({src})"),
+                                "fence r, rw",
+                                src = in(reg) src,
+                                out = lateout(reg) out,
+                                options(nostack),
+                            );
+                        }
+                        _ => unreachable!(),
+                    }
                     out
                 }
             }
 
             #[inline]
-            unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self) {
+            unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
+                // clippy bug that does not recognize safety comments inside macros.
+                #[allow(clippy::undocumented_unsafe_blocks)]
+                // SAFETY: the caller must uphold the safety contract for `atomic_store`.
                 unsafe {
-                    asm!(
-                        concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                        dst = in(reg) dst,
-                        val = in(reg) val,
-                        options(nostack),
-                    );
+                    match order {
+                        Ordering::Relaxed => {
+                            asm!(
+                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                                dst = in(reg) dst,
+                                val = in(reg) val,
+                                options(nostack),
+                            );
+                        }
+                        // Release and SeqCst stores are equivalent.
+                        Ordering::Release | Ordering::SeqCst => {
+                            asm!(
+                                "fence rw, w",
+                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                                dst = in(reg) dst,
+                                val = in(reg) val,
+                                options(nostack),
+                            );
+                        }
+                        _ => unreachable!(),
+                    }
                 }
-            }
-            #[inline]
-            unsafe fn atomic_store_release(dst: *mut Self, val: Self) {
-                unsafe {
-                    asm!(
-                        "fence rw, w",
-                        concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                        dst = in(reg) dst,
-                        val = in(reg) val,
-                        options(nostack),
-                    );
-                }
-            }
-            #[inline]
-            unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self) {
-                // Release store and SeqCst store are equivalent in RISC-V.
-                unsafe { Self::atomic_store_release(dst, val) }
             }
         }
     }
@@ -253,9 +270,9 @@ atomic_int!(i16, AtomicI16, "h");
 atomic_int!(u16, AtomicU16, "h");
 atomic_int!(i32, AtomicI32, "w");
 atomic_int!(u32, AtomicU32, "w");
-#[cfg(target_pointer_width = "64")]
+#[cfg(target_arch = "riscv64")]
 atomic_int!(i64, AtomicI64, "d");
-#[cfg(target_pointer_width = "64")]
+#[cfg(target_arch = "riscv64")]
 atomic_int!(u64, AtomicU64, "d");
 #[cfg(target_pointer_width = "32")]
 atomic_int!(isize, AtomicIsize, "w");
@@ -267,37 +284,8 @@ atomic_int!(isize, AtomicIsize, "d");
 atomic_int!(usize, AtomicUsize, "d");
 
 trait AtomicOperations: Sized {
-    #[inline]
-    unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        unsafe {
-            match order {
-                Ordering::Relaxed => Self::atomic_load_relaxed(src),
-                Ordering::Acquire => Self::atomic_load_acquire(src),
-                Ordering::SeqCst => Self::atomic_load_seq_cst(src),
-                _ => unreachable!(),
-            }
-        }
-    }
-    unsafe fn atomic_load_relaxed(src: *const Self) -> Self;
-    unsafe fn atomic_load_acquire(src: *const Self) -> Self;
-    unsafe fn atomic_load_seq_cst(src: *const Self) -> Self;
-
-    #[inline]
-    unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        unsafe {
-            match order {
-                Ordering::Relaxed => Self::atomic_store_relaxed(dst, val),
-                Ordering::Release => Self::atomic_store_release(dst, val),
-                Ordering::SeqCst => Self::atomic_store_seq_cst(dst, val),
-                _ => unreachable!(),
-            }
-        }
-    }
-    unsafe fn atomic_store_relaxed(dst: *mut Self, val: Self);
-    unsafe fn atomic_store_release(dst: *mut Self, val: Self);
-    unsafe fn atomic_store_seq_cst(dst: *mut Self, val: Self);
+    unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self;
+    unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering);
 }
 
 #[cfg(test)]

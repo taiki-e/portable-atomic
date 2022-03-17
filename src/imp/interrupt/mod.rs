@@ -74,7 +74,6 @@ impl crate::utils::AtomicRepr for AtomicBool {
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
-    /// Creates a new `AtomicBool`.
     #[inline]
     #[must_use]
     pub(crate) const fn new(v: bool) -> Self {
@@ -83,6 +82,7 @@ impl AtomicBool {
 
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
+        // SAFETY: the mutable reference guarantees unique ownership.
         unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
@@ -229,7 +229,7 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
-        unsafe { &mut *self.p.get() }
+        self.p.get_mut()
     }
 
     #[inline]
@@ -331,13 +331,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
-                // SAFETY: This is safe because the mutable reference guarantees that no other
-                // threads are concurrently accessing the atomic data.
-                unsafe {
-                    &mut *self.v.get()
-                }
+                self.v.get_mut()
             }
 
             #[inline]

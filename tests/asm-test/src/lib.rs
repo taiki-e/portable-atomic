@@ -320,10 +320,10 @@ mod cmpxchg16b {
                 "mov rbx, {rbx_tmp}",
                 rbx_tmp = inout(reg) new.pair[0] => _,
                 in("rdi") dst,
-                inlateout("rax") old.pair[0] => prev_lo,
-                inlateout("rdx") old.pair[1] => prev_hi,
+                inout("rax") old.pair[0] => prev_lo,
+                inout("rdx") old.pair[1] => prev_hi,
                 in("rcx") new.pair[1],
-                lateout("r8b") r,
+                out("r8b") r,
                 // Should not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
                 options(nostack),
             );

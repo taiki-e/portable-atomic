@@ -11,6 +11,7 @@ default_targets=(
     msp430-none-elf
     # no atomic load/store (32-bit)
     riscv32i-unknown-none-elf
+    riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
 
     # no atomic CAS (32-bit)
