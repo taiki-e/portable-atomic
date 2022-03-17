@@ -29,6 +29,8 @@ default_targets=(
     aarch64-unknown-none
     # aarch64 no Atomic{I,U}128
     aarch64-pc-windows-msvc
+    # aarch64 always support lse
+    aarch64-apple-darwin
     # aarch64_be
     aarch64_be-unknown-linux-gnu
     # riscv32 with atomic
