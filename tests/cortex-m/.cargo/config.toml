@@ -1,0 +1,26 @@
+# Refs: https://github.com/rust-lang/rust/blob/1.59.0/src/test/run-make/thumb-none-qemu/example/.cargo/config
+
+[target.thumbv6m-none-eabi]
+runner = "qemu-system-arm -cpu cortex-m0 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv7m-none-eabi]
+runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv7em-none-eabi]
+runner = "qemu-system-arm -cpu cortex-m4 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv7em-none-eabihf]
+runner = "qemu-system-arm -cpu cortex-m4 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv8m.base-none-eabi]
+# FIXME: Should be the Cortex-M23, bt Qemu does not currently support it
+runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv8m.main-none-eabi]
+runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.thumbv8m.main-none-eabihf]
+runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+rustflags = ["-C", "link-arg=-Tlink.x"]

@@ -53,13 +53,17 @@ macro_rules! __test_atomic_int_load_store {
             static VAR: $atomic_type = <$atomic_type>::new(10);
             test_load_ordering(|order| VAR.load(order));
             test_store_ordering(|order| VAR.store(10, order));
-            assert_eq!(VAR.load(Ordering::SeqCst), 10);
-            VAR.store(5, Ordering::SeqCst);
-            assert_eq!(VAR.load(Ordering::SeqCst), 5);
-            let a = <$atomic_type>::new(1);
-            assert_eq!(a.load(Ordering::SeqCst), 1);
-            a.store(2, Ordering::SeqCst);
-            assert_eq!(a.load(Ordering::SeqCst), 2);
+            for (load_order, store_order) in load_orderings().iter().copied().zip(store_orderings())
+            {
+                assert_eq!(VAR.load(load_order), 10);
+                VAR.store(5, store_order);
+                assert_eq!(VAR.load(load_order), 5);
+                VAR.store(10, store_order);
+                let a = <$atomic_type>::new(1);
+                assert_eq!(a.load(load_order), 1);
+                a.store(2, store_order);
+                assert_eq!(a.load(load_order), 2);
+            }
         }
     };
     ($atomic_type:ty, $int_type:ident) => {
@@ -192,8 +196,10 @@ macro_rules! __test_atomic_int {
         fn swap() {
             let a = <$atomic_type>::new(5);
             test_swap_ordering(|order| a.swap(5, order));
-            assert_eq!(a.swap(10, Ordering::SeqCst), 5);
-            assert_eq!(a.load(Ordering::SeqCst), 10);
+            for order in swap_orderings() {
+                assert_eq!(a.swap(10, order), 5);
+                assert_eq!(a.swap(5, order), 10);
+            }
         }
         #[test]
         fn compare_exchange() {
@@ -1028,7 +1034,7 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
 
     // Miri's panic handling is slow
     if !cfg!(miri) {
-        for &order in &all_orderings() {
+        for &order in &swap_orderings() {
             let msg = assert_panic(|| f(order, Ordering::AcqRel));
             assert!(
                 msg == "there is no such thing as an acquire/release failure ordering"
@@ -1058,14 +1064,14 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
         }
     }
 }
-pub(crate) fn all_orderings() -> [Ordering; 5] {
+pub(crate) fn swap_orderings() -> [Ordering; 5] {
     [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
 }
 pub(crate) fn rand_swap_ordering() -> Ordering {
-    all_orderings()[fastrand::usize(0..5)]
+    swap_orderings()[fastrand::usize(0..5)]
 }
 pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
-    for &order in &all_orderings() {
+    for &order in &swap_orderings() {
         f(order);
     }
 }

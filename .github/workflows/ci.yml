@@ -169,6 +169,24 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       - run: tools/build.sh
 
+  no-std:
+    strategy:
+      fail-fast: false
+      matrix:
+        rust:
+          - stable
+          - nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          toolchain: ${{ matrix.rust }}
+      - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
+      - run: tools/no-std.sh
+
   msrv:
     runs-on: ubuntu-latest
     steps:
