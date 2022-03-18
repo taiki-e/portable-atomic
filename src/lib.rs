@@ -109,7 +109,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     clippy::inline_always,
     clippy::missing_errors_doc,
     clippy::module_inception,
-    clippy::must_use_candidate,
     clippy::type_complexity
 )]
 // 128-bit atomic
@@ -315,6 +314,7 @@ impl AtomicBool {
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
     #[inline]
+    #[must_use]
     pub fn is_lock_free() -> bool {
         <imp::AtomicBool as crate::utils::AtomicRepr>::is_lock_free()
     }
@@ -328,6 +328,7 @@ impl AtomicBool {
     /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
     /// this type may be lock-free even if the function returns false.
     #[inline]
+    #[must_use]
     pub const fn is_always_lock_free() -> bool {
         <imp::AtomicBool as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
     }
@@ -675,6 +676,7 @@ impl<T> std::panic::RefUnwindSafe for AtomicPtr<T> {}
 impl<T> AtomicPtr<T> {
     /// Creates a new `AtomicPtr`.
     #[inline]
+    #[must_use]
     pub const fn new(p: *mut T) -> Self {
         Self { inner: imp::AtomicPtr::new(p), _marker: PhantomData }
     }
@@ -685,6 +687,7 @@ impl<T> AtomicPtr<T> {
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
     #[inline]
+    #[must_use]
     pub fn is_lock_free() -> bool {
         <imp::AtomicPtr<T> as crate::utils::AtomicRepr>::is_lock_free()
     }
@@ -698,6 +701,7 @@ impl<T> AtomicPtr<T> {
     /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
     /// this type may be lock-free even if the function returns false.
     #[inline]
+    #[must_use]
     pub const fn is_always_lock_free() -> bool {
         <imp::AtomicPtr<T> as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
     }
@@ -962,6 +966,7 @@ atomic instructions or locks will be used.
         impl $atomic_type {
             /// Creates a new atomic integer.
             #[inline]
+            #[must_use]
             pub const fn new(v: $int_type) -> Self {
                 Self { inner: imp::$atomic_type::new(v), _marker: PhantomData }
             }
@@ -972,6 +977,7 @@ atomic instructions or locks will be used.
             /// atomic instructions, global locks for every potentially
             /// concurrent atomic operation will be used.
             #[inline]
+            #[must_use]
             pub fn is_lock_free() -> bool {
                 <imp::$atomic_type as crate::utils::AtomicRepr>::is_lock_free()
             }
@@ -985,6 +991,7 @@ atomic instructions or locks will be used.
             /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
             /// this type may be lock-free even if the function returns false.
             #[inline]
+            #[must_use]
             pub const fn is_always_lock_free() -> bool {
                 <imp::$atomic_type as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
             }
@@ -1534,6 +1541,7 @@ This type has the same in-memory representation as the underlying floating point
         impl $atomic_type {
             /// Creates a new atomic float.
             #[inline]
+            #[must_use]
             pub const fn new(v: $float_type) -> Self {
                 Self { v: core::cell::UnsafeCell::new(v) }
             }
@@ -1544,6 +1552,7 @@ This type has the same in-memory representation as the underlying floating point
             /// atomic instructions, global locks for every potentially
             /// concurrent atomic operation will be used.
             #[inline]
+            #[must_use]
             pub fn is_lock_free() -> bool {
                 crate::$atomic_int_type::is_lock_free()
             }
@@ -1557,6 +1566,7 @@ This type has the same in-memory representation as the underlying floating point
             /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
             /// this type may be lock-free even if the function returns false.
             #[inline]
+            #[must_use]
             pub const fn is_always_lock_free() -> bool {
                 crate::$atomic_int_type::is_always_lock_free()
             }

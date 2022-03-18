@@ -75,7 +75,6 @@ unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
     #[inline]
-    #[must_use]
     pub(crate) const fn new(v: bool) -> Self {
         Self { v: UnsafeCell::new(v as u8) }
     }
