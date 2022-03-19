@@ -1,6 +1,6 @@
 // Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
 
-#[path = "cmpxchg16b_detect.rs"]
+#[path = "detect/cmpxchg16b.rs"]
 mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
