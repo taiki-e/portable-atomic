@@ -406,9 +406,9 @@ mod tests {
     use super::*;
 
     #[cfg(not(target_pointer_width = "64"))]
-    test_atomic_int!(test_atomic_i64, AtomicI64, i64);
+    test_atomic_int!(i64);
     #[cfg(not(target_pointer_width = "64"))]
-    test_atomic_int!(test_atomic_u64, AtomicU64, u64);
-    test_atomic_int!(test_atomic_i128, AtomicI128, i128);
-    test_atomic_int!(test_atomic_u128, AtomicU128, u128);
+    test_atomic_int!(u64);
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 }

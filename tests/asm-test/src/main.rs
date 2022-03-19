@@ -1,3 +1,4 @@
+#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(clippy::single_match)]
 
 use std::{env, path::Path};

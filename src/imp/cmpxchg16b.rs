@@ -536,8 +536,8 @@ mod tests {
     use super::*;
     use crate::utils::AtomicRepr;
 
-    test_atomic_int!(test_atomic_i128, AtomicI128, i128);
-    test_atomic_int!(test_atomic_u128, AtomicU128, u128);
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 
     #[test]
     #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly

@@ -292,18 +292,18 @@ trait AtomicOperations: Sized {
 mod tests {
     use super::*;
 
-    test_atomic_bool_load_store!(test_atomic_bool, AtomicBool);
-    test_atomic_ptr_load_store!(test_atomic_ptr, AtomicPtr<u8>);
-    test_atomic_int_load_store!(test_atomic_i8, AtomicI8, i8);
-    test_atomic_int_load_store!(test_atomic_u8, AtomicU8, u8);
-    test_atomic_int_load_store!(test_atomic_i16, AtomicI16, i16);
-    test_atomic_int_load_store!(test_atomic_u16, AtomicU16, u16);
-    test_atomic_int_load_store!(test_atomic_i32, AtomicI32, i32);
-    test_atomic_int_load_store!(test_atomic_u32, AtomicU32, u32);
+    test_atomic_bool_load_store!();
+    test_atomic_ptr_load_store!();
+    test_atomic_int_load_store!(i8);
+    test_atomic_int_load_store!(u8);
+    test_atomic_int_load_store!(i16);
+    test_atomic_int_load_store!(u16);
+    test_atomic_int_load_store!(i32);
+    test_atomic_int_load_store!(u32);
     #[cfg(target_pointer_width = "64")]
-    test_atomic_int_load_store!(test_atomic_i64, AtomicI64, i64);
+    test_atomic_int_load_store!(i64);
     #[cfg(target_pointer_width = "64")]
-    test_atomic_int_load_store!(test_atomic_u64, AtomicU64, u64);
-    test_atomic_int_load_store!(test_atomic_isize, AtomicIsize, isize);
-    test_atomic_int_load_store!(test_atomic_usize, AtomicUsize, usize);
+    test_atomic_int_load_store!(u64);
+    test_atomic_int_load_store!(isize);
+    test_atomic_int_load_store!(usize);
 }

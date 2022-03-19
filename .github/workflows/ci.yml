@@ -170,20 +170,12 @@ jobs:
       - run: tools/build.sh
 
   no-std:
-    strategy:
-      fail-fast: false
-      matrix:
-        rust:
-          - stable
-          - nightly
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
       - uses: taiki-e/github-actions/install-rust@main
-        with:
-          toolchain: ${{ matrix.rust }}
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
       - run: tools/no-std.sh
 
@@ -197,13 +189,9 @@ jobs:
       # Make sure this crate can be built with MSRV and all later versions.
       # However, this takes time, so for PR, set the version interval.
       # parking_lot feature is excluded because it has a higher MSRV.
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range ..
+      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range ..
         if: github.event_name != 'pull_request'
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --version-range .. --version-step 2
-        if: github.event_name == 'pull_request'
-      - run: cargo hack test -vvv --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range ..
-        if: github.event_name != 'pull_request'
-      - run: cargo hack test -vvv --feature-powerset --manifest-path tests/no-std/Cargo.toml --version-range .. --version-step 2
+      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range .. --version-step 2
         if: github.event_name == 'pull_request'
 
   miri:

@@ -815,111 +815,121 @@ macro_rules! __test_atomic_ptr_pub {
 
 #[allow(unused_macros)] // for riscv
 macro_rules! test_atomic_int_load_store {
-    ($test_module:ident, $atomic_type:ty, $int_type:ident) => {
-        mod $test_module {
-            use super::*;
-            __test_atomic_int_load_store!($atomic_type, $int_type);
+    ($int_type:ident) => {
+        paste::paste! {
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
+            }
         }
     };
 }
 #[allow(unused_macros)] // for riscv
 macro_rules! test_atomic_bool_load_store {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_bool {
             use super::*;
-            __test_atomic_bool_load_store!($atomic_type);
+            __test_atomic_bool_load_store!(AtomicBool);
         }
     };
 }
 #[allow(unused_macros)] // for riscv
 macro_rules! test_atomic_ptr_load_store {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_ptr {
             use super::*;
-            __test_atomic_ptr_load_store!($atomic_type);
+            __test_atomic_ptr_load_store!(AtomicPtr<u8>);
         }
     };
 }
 
 #[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_int_single_thread {
-    ($test_module:ident, $atomic_type:ty, $int_type:ident) => {
-        mod $test_module {
-            use super::*;
-            __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
-            __test_atomic_int!($atomic_type, $int_type, single_thread);
+    ($int_type:ident) => {
+        paste::paste! {
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type, single_thread);
+                __test_atomic_int!([<Atomic $int_type:camel>], $int_type, single_thread);
+            }
         }
     };
 }
 #[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_bool_single_thread {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_bool {
             use super::*;
-            __test_atomic_bool_load_store!($atomic_type, single_thread);
-            __test_atomic_bool!($atomic_type, single_thread);
+            __test_atomic_bool_load_store!(AtomicBool, single_thread);
+            __test_atomic_bool!(AtomicBool, single_thread);
         }
     };
 }
 #[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_ptr_single_thread {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_ptr {
             use super::*;
-            __test_atomic_ptr_load_store!($atomic_type, single_thread);
-            __test_atomic_ptr!($atomic_type, single_thread);
+            __test_atomic_ptr_load_store!(AtomicPtr<u8>, single_thread);
+            __test_atomic_ptr!(AtomicPtr<u8>, single_thread);
         }
     };
 }
 
 macro_rules! test_atomic_int {
-    ($test_module:ident, $atomic_type:ty, $int_type:ident) => {
-        mod $test_module {
-            use super::*;
-            __test_atomic_int_load_store!($atomic_type, $int_type);
-            __test_atomic_int!($atomic_type, $int_type);
+    ($int_type:ident) => {
+        paste::paste! {
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
+            }
         }
     };
 }
 
 macro_rules! test_atomic_int_pub {
-    ($test_module:ident, $atomic_type:ty, $int_type:ident) => {
-        mod $test_module {
-            use super::*;
-            __test_atomic_int_load_store!($atomic_type, $int_type);
-            __test_atomic_int!($atomic_type, $int_type);
-            __test_atomic_int_pub!($atomic_type, $int_type);
+    ($int_type:ident) => {
+        paste::paste! {
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int_pub!([<Atomic $int_type:camel>], $int_type);
+            }
         }
     };
 }
 #[cfg(feature = "float")]
 macro_rules! test_atomic_float_pub {
-    ($test_module:ident, $atomic_type:ty, $float_type:ident) => {
-        mod $test_module {
-            use super::*;
-            __test_atomic_float_load_store!($atomic_type, $float_type);
-            __test_atomic_float!($atomic_type, $float_type);
-            __test_atomic_float_pub!($atomic_type, $float_type);
+    ($float_type:ident) => {
+        paste::paste! {
+            mod [<test_atomic_ $float_type>] {
+                use super::*;
+                __test_atomic_float_load_store!([<Atomic $float_type:camel>], $float_type);
+                __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
+                __test_atomic_float_pub!([<Atomic $float_type:camel>], $float_type);
+            }
         }
     };
 }
 macro_rules! test_atomic_bool_pub {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_bool {
             use super::*;
-            __test_atomic_bool_load_store!($atomic_type);
-            __test_atomic_bool!($atomic_type);
-            __test_atomic_bool_pub!($atomic_type);
+            __test_atomic_bool_load_store!(AtomicBool);
+            __test_atomic_bool!(AtomicBool);
+            __test_atomic_bool_pub!(AtomicBool);
         }
     };
 }
 macro_rules! test_atomic_ptr_pub {
-    ($test_module:ident, $atomic_type:ty) => {
-        mod $test_module {
+    () => {
+        mod test_atomic_bool_ptr {
             use super::*;
-            __test_atomic_ptr_load_store!($atomic_type);
-            __test_atomic_ptr!($atomic_type);
-            __test_atomic_ptr_pub!($atomic_type);
+            __test_atomic_ptr_load_store!(AtomicPtr<u8>);
+            __test_atomic_ptr!(AtomicPtr<u8>);
+            __test_atomic_ptr_pub!(AtomicPtr<u8>);
         }
     };
 }

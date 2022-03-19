@@ -1,4 +1,4 @@
-#![warn(unsafe_op_in_unsafe_fn)]
+#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code)]
 #![allow(clippy::only_used_in_recursion)]
 #![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics)]

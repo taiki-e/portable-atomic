@@ -573,6 +573,6 @@ atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 mod tests {
     use super::*;
 
-    test_atomic_int!(test_atomic_i128, AtomicI128, i128);
-    test_atomic_int!(test_atomic_u128, AtomicU128, u128);
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 }

@@ -566,16 +566,16 @@ atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    test_atomic_bool_single_thread!(test_atomic_bool, AtomicBool);
-    test_atomic_ptr_single_thread!(test_atomic_ptr, AtomicPtr<u8>);
-    test_atomic_int_single_thread!(test_atomic_i8, AtomicI8, i8);
-    test_atomic_int_single_thread!(test_atomic_u8, AtomicU8, u8);
-    test_atomic_int_single_thread!(test_atomic_i16, AtomicI16, i16);
-    test_atomic_int_single_thread!(test_atomic_u16, AtomicU16, u16);
-    test_atomic_int_single_thread!(test_atomic_i32, AtomicI32, i32);
-    test_atomic_int_single_thread!(test_atomic_u32, AtomicU32, u32);
-    test_atomic_int_single_thread!(test_atomic_i64, AtomicI64, i64);
-    test_atomic_int_single_thread!(test_atomic_u64, AtomicU64, u64);
-    test_atomic_int_single_thread!(test_atomic_isize, AtomicIsize, isize);
-    test_atomic_int_single_thread!(test_atomic_usize, AtomicUsize, usize);
+    test_atomic_bool_single_thread!();
+    test_atomic_ptr_single_thread!();
+    test_atomic_int_single_thread!(i8);
+    test_atomic_int_single_thread!(u8);
+    test_atomic_int_single_thread!(i16);
+    test_atomic_int_single_thread!(u16);
+    test_atomic_int_single_thread!(i32);
+    test_atomic_int_single_thread!(u32);
+    test_atomic_int_single_thread!(i64);
+    test_atomic_int_single_thread!(u64);
+    test_atomic_int_single_thread!(isize);
+    test_atomic_int_single_thread!(usize);
 }

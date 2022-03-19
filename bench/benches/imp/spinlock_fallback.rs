@@ -317,14 +317,14 @@ atomic_int!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    test_atomic_int!(test_atomic_i8, AtomicI8, i8);
-    test_atomic_int!(test_atomic_u8, AtomicU8, u8);
-    test_atomic_int!(test_atomic_i16, AtomicI16, i16);
-    test_atomic_int!(test_atomic_u16, AtomicU16, u16);
-    test_atomic_int!(test_atomic_i32, AtomicI32, i32);
-    test_atomic_int!(test_atomic_u32, AtomicU32, u32);
-    test_atomic_int!(test_atomic_i64, AtomicI64, i64);
-    test_atomic_int!(test_atomic_u64, AtomicU64, u64);
-    test_atomic_int!(test_atomic_i128, AtomicI128, i128);
-    test_atomic_int!(test_atomic_u128, AtomicU128, u128);
+    test_atomic_int!(i8);
+    test_atomic_int!(u8);
+    test_atomic_int!(i16);
+    test_atomic_int!(u16);
+    test_atomic_int!(i32);
+    test_atomic_int!(u32);
+    test_atomic_int!(i64);
+    test_atomic_int!(u64);
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 }
