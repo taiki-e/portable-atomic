@@ -69,7 +69,7 @@ mod fallback;
 )]
 #[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(any(test, not(target_has_atomic = "ptr"))))]
 #[cfg(any(
-    thumbv6m,
+    portable_atomic_armv6m,
     target_arch = "avr",
     target_arch = "msp430",
     target_arch = "riscv32",

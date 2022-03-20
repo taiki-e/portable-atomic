@@ -135,7 +135,7 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     all(
         portable_atomic_nightly,
         any(
-            thumbv6m,
+            portable_atomic_armv6m,
             all(target_arch = "riscv32", portable_atomic_no_atomic_load_store),
             target_arch = "aarch64",
             target_arch = "x86_64",
@@ -171,14 +171,14 @@ compile_error!(
     not(portable_atomic_cfg_target_has_atomic),
     cfg(any(
         not(portable_atomic_no_atomic_cas),
-        not(any(thumbv6m, target_arch = "riscv32", target_pointer_width = "16"))
+        not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
     ))
 )]
 #[cfg_attr(
     portable_atomic_cfg_target_has_atomic,
     cfg(any(
         target_has_atomic = "ptr",
-        not(any(thumbv6m, target_arch = "riscv32", target_pointer_width = "16"))
+        not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
     ))
 )]
 compile_error!(
@@ -1377,7 +1377,7 @@ atomic instructions or locks will be used.
                             target_arch = "aarch64",
                             any(portable_atomic_target_feature_lse, target_feature = "lse"),
                         ),
-                        armv5te,
+                        portable_atomic_armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
                         target_arch = "powerpc",
@@ -1444,7 +1444,7 @@ atomic instructions or locks will be used.
                             target_arch = "aarch64",
                             any(portable_atomic_target_feature_lse, target_feature = "lse"),
                         ),
-                        armv5te,
+                        portable_atomic_armv5te,
                         all(target_arch = "mips", target_endian = "little"),
                         all(target_arch = "mips64", target_endian = "little"),
                         target_arch = "powerpc",

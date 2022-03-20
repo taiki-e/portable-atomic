@@ -23,7 +23,7 @@ use super::riscv as atomic;
 #[cfg(target_arch = "arm")]
 use core::sync::atomic;
 
-#[cfg_attr(thumbv6m, path = "thumbv6m.rs")]
+#[cfg_attr(portable_atomic_armv6m, path = "armv6m.rs")]
 #[cfg_attr(target_arch = "avr", path = "avr.rs")]
 #[cfg_attr(target_arch = "msp430", path = "msp430.rs")]
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]

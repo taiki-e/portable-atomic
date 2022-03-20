@@ -122,11 +122,11 @@ fn main() {
     }
 
     if target.starts_with("thumbv6m-") && target.contains("-none") {
-        println!("cargo:rustc-cfg=thumbv6m");
+        println!("cargo:rustc-cfg=portable_atomic_armv6m");
     }
     // #[cfg(not(target_feature = "v6"))] doesn't work on stable.
     if target.starts_with("armv5te-") {
-        println!("cargo:rustc-cfg=armv5te");
+        println!("cargo:rustc-cfg=portable_atomic_armv5te");
     }
 
     // aarch64_target_feature stabilized in Rust 1.61.
