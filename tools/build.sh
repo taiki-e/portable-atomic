@@ -29,6 +29,8 @@ default_targets=(
     aarch64-unknown-none
     # aarch64 no Atomic{I,U}128
     aarch64-pc-windows-msvc
+    # aarch64 has Atomic{I,U}128
+    aarch64-unknown-freebsd
     # aarch64 always support lse
     aarch64-apple-darwin
     # aarch64_be
@@ -125,7 +127,8 @@ build() {
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
         case "${target}" in
-            *-none* | avr-* | riscv32imc-esp-espidf) args+=(-Z build-std=core) ;;
+            # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
+            *-none* | avr-* | riscv32imc-esp-espidf | aarch64-unknown-freebsd) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
@@ -146,7 +149,8 @@ build() {
         *) args+=(--exclude-features "outline-atomics") ;;
     esac
     case "${target}" in
-        *-none* | avr-* | riscv32imc-esp-espidf)
+        # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
+        *-none* | avr-* | riscv32imc-esp-espidf | aarch64-unknown-freebsd)
             args+=(--exclude-features "std,parking_lot")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
