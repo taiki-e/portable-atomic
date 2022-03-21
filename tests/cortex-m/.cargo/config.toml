@@ -1,5 +1,8 @@
 # Refs: https://github.com/rust-lang/rust/blob/1.59.0/src/test/run-make/thumb-none-qemu/example/.cargo/config
 
+[build]
+target-dir = "../../target"
+
 [target.thumbv6m-none-eabi]
 runner = "qemu-system-arm -cpu cortex-m0 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
 

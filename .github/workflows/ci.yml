@@ -100,50 +100,59 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
-
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: |
+          echo "REPORT_TIME=-Z unstable-options --report-time" >>"${GITHUB_ENV}"
+        if: startsWith(matrix.rust, 'nightly')
+      # all features
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-      - run: cargo test -vv --features float,std,serde $DOCTEST_XCOMPILE
-      - run: cargo test -vv --features float,std,serde --release $DOCTEST_XCOMPILE
-      - run: cargo test -vv --features float,std,serde --release $DOCTEST_XCOMPILE
+      # no outline-atomics, no parking_lot
+      - run: cargo test -vv --features float,std,serde $DOCTEST_XCOMPILE -- $REPORT_TIME
+      - run: cargo test -vv --features float,std,serde --release $DOCTEST_XCOMPILE -- $REPORT_TIME
+      - run: cargo test -vv --features float,std,serde --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features
+      # +cmpxchg16b
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
         env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
         env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features
+      # +lse
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
         env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
         env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private
         if: startsWith(matrix.rust, 'nightly')
 
@@ -203,7 +212,7 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@main
         with:
           component: miri
-      - run: cargo miri test --workspace --exclude asm-test --exclude bench --all-features
+      - run: cargo miri test --workspace --exclude asm-test --exclude bench --all-features -- -Z unstable-options --report-time
         env:
           MIRIFLAGS: -Zmiri-check-number-validity -Zmiri-symbolic-alignment-check -Zmiri-tag-raw-pointers -Zmiri-disable-isolation
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
@@ -238,27 +247,39 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
+      # all features
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+      # no outline-atomics, no parking_lot
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --features float,std,serde --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
+      - run: |
+          cargo -Z build-std test -vv --features float,std,serde --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
+      - run: |
+          cargo -Z build-std test -vv --features float,std,serde --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+      # +cmpxchg16b
+      - run: |
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -277,37 +298,35 @@ jobs:
         with:
           component: rust-src
       - uses: taiki-e/install-action@valgrind
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      # all features
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile -- -Z unstable-options --report-time
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile
-        env:
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
-        env:
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      # no outline-atomics, no parking_lot
+      - run: cargo test -vv --features float,std,serde -Z doctest-xcompile -- -Z unstable-options --report-time
+      - run: cargo test -vv --features float,std,serde --release -Z doctest-xcompile -- -Z unstable-options --report-time
+      - run: cargo test -vv --features float,std,serde --release -Z doctest-xcompile -- -Z unstable-options --report-time
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+      # +cmpxchg16b
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile -- -Z unstable-options --report-time
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-
-  cov:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-        with:
-          component: llvm-tools-preview
-      - uses: taiki-e/install-action@cargo-llvm-cov
-      - run: cargo llvm-cov --workspace --exclude asm-test --exclude bench --all-features
-      - run: cargo llvm-cov --workspace --exclude asm-test --exclude bench --all-features --text --no-run --hide-instantiations
-      - run: cargo llvm-cov --workspace --exclude asm-test --exclude bench --all-features --text --no-run
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
 
   codegen:
     runs-on: ubuntu-latest
@@ -389,7 +408,6 @@ jobs:
       - miri
       - san
       - valgrind
-      - cov
       - codegen
       - tidy
       - docs

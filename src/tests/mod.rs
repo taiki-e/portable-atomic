@@ -1,4 +1,4 @@
-#![allow(clippy::wildcard_imports)]
+#![allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 
 #[macro_use]
 pub(crate) mod helper;

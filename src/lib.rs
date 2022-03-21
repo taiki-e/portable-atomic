@@ -95,11 +95,13 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 #![cfg_attr(not(portable_atomic_no_unsafe_op_in_unsafe_fn), warn(unsafe_op_in_unsafe_fn))] // unsafe_op_in_unsafe_fn requires Rust 1.52
 #![cfg_attr(portable_atomic_no_unsafe_op_in_unsafe_fn, allow(unused_unsafe))]
 #![warn(
+    clippy::default_union_representation,
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
     clippy::inline_asm_x86_att_syntax,
     clippy::missing_inline_in_public_items,
     clippy::pedantic,
+    clippy::transmute_undefined_repr,
     clippy::undocumented_unsafe_blocks
 )]
 #![allow(
@@ -1378,16 +1380,18 @@ atomic instructions or locks will be used.
                             any(portable_atomic_target_feature_lse, target_feature = "lse"),
                         ),
                         portable_atomic_armv5te,
-                        all(target_arch = "mips", target_endian = "little"),
-                        all(target_arch = "mips64", target_endian = "little"),
+                        target_arch = "mips",
+                        target_arch = "mips64",
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):
-                        // - aarch64+lse's `AtomicI{8,16}::fetch_{max,min}` (release mode)
+                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
                         // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
                         // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
@@ -1445,8 +1449,8 @@ atomic instructions or locks will be used.
                             any(portable_atomic_target_feature_lse, target_feature = "lse"),
                         ),
                         portable_atomic_armv5te,
-                        all(target_arch = "mips", target_endian = "little"),
-                        all(target_arch = "mips64", target_endian = "little"),
+                        target_arch = "mips",
+                        target_arch = "mips64",
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
@@ -1454,7 +1458,9 @@ atomic instructions or locks will be used.
                         // HACK: the following operations are currently broken (at least on qemu):
                         // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
                         // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
                         // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)

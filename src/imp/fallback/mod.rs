@@ -167,7 +167,7 @@ macro_rules! atomic {
                 // However, according to atomic-memcpy's asm test, there seems
                 // to be no tier 1 or tier 2 platform that generates such code
                 // for a pointer-width relaxed load + acquire fence:
-                // https://github.com/taiki-e/atomic-memcpy/tree/a8e78b99710b3b35ab123c1d3144cb618ae61a57/tests/asm-test/asm
+                // https://github.com/taiki-e/atomic-memcpy/tree/v0.1.3/tests/asm-test/asm
                 unsafe {
                     self.v.get().read()
                 }
