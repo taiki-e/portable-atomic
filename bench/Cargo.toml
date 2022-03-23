@@ -10,9 +10,6 @@ fallback = []
 std = []
 outline-atomics = []
 
-[dependencies]
-parking_lot = { version = ">=0.11, <=0.12", optional = true }
-
 [dev-dependencies]
 atomic = "0.5"
 criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # https://github.com/bheisler/criterion.rs/pull/496 + patches to reduce deps more

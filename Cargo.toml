@@ -39,7 +39,7 @@ fallback = []
 # Note:
 # - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64 and in nightly for other platforms, otherwise it works the same as the default.
 # - If the required target features are enabled at compile-time, the atomic operations are inlined.
-# - This is compatible with no-std (as with all features except `std` and `parking_lot`).
+# - This is compatible with no-std (as with all features except `std`).
 outline-atomics = []
 
 # Provide `AtomicF{32,64}`.
@@ -60,13 +60,6 @@ std = []
 # Note:
 # - The MSRV when this feature enables depends on the MSRV of serde.
 serde = { version = "1.0.103", optional = true, default-features = false }
-
-# Use parking_lot in global locks of fallback implementation.
-#
-# Note:
-# - This is not compatible with no-std.
-# - The MSRV when this feature enables depends on the MSRV of parking_lot.
-parking_lot = { version = ">=0.11, <=0.12", optional = true }
 
 [dev-dependencies]
 crossbeam-utils = "0.8"

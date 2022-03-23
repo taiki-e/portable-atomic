@@ -37,7 +37,7 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
   Note:
   - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64 and in nightly for other platforms, otherwise it works the same as the default.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
-  - This is compatible with no-std (as with all features except `std` and `parking_lot`).
+  - This is compatible with no-std (as with all features except `std`).
 
 - **`float`**<br>
   Provide `AtomicF{32,64}`.
@@ -57,13 +57,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
   Note:
   - The MSRV when this feature enables depends on the MSRV of [serde].
 
-- **`parking_lot`**<br>
-  Use [parking_lot] in global locks of fallback implementation.
-
-  Note:
-  - This is not compatible with no-std.
-  - The MSRV when this feature enables depends on the MSRV of [parking_lot].
-
 ## Optional cfg
 
 - **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
@@ -81,7 +74,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
-[parking_lot]: https://github.com/Amanieu/parking_lot
 [serde]: https://github.com/serde-rs/serde
 
 ## License

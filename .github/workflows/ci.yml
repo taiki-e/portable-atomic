@@ -190,10 +190,9 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       # Make sure this crate can be built with MSRV and all later versions.
       # However, this takes time, so for PR, set the version interval.
-      # parking_lot feature is excluded because it has a higher MSRV.
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range ..
+      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --ignore-private --no-dev-deps --clean-per-version --version-range ..
         if: github.event_name != 'pull_request'
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range .. --version-step 2
+      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --ignore-private --no-dev-deps --clean-per-version --version-range .. --version-step 2
         if: github.event_name == 'pull_request'
 
   miri:

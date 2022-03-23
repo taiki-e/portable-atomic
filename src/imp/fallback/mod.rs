@@ -15,39 +15,11 @@
 // In narrow architectures (pointer width <= 16), the counter is still <= 32-bit and may be
 // vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
 // counter will not be increased that fast.
-#[cfg(any(test, not(feature = "parking_lot")))]
 #[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
 mod seq_lock;
-#[cfg(feature = "parking_lot")]
-#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
-mod seq_lock_parking_lot;
-#[cfg(any(test, not(feature = "parking_lot")))]
 #[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
-mod seq_lock_wide;
-#[cfg(feature = "parking_lot")]
-#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
-mod seq_lock_wide_parking_lot;
-
-#[cfg(all(
-    not(feature = "parking_lot"),
-    any(target_pointer_width = "64", target_pointer_width = "128")
-))]
-use self::seq_lock::imp;
-#[cfg(all(
-    feature = "parking_lot",
-    any(target_pointer_width = "64", target_pointer_width = "128")
-))]
-use self::seq_lock_parking_lot::imp;
-#[cfg(all(
-    not(feature = "parking_lot"),
-    not(any(target_pointer_width = "64", target_pointer_width = "128"))
-))]
-use self::seq_lock_wide::imp;
-#[cfg(all(
-    feature = "parking_lot",
-    not(any(target_pointer_width = "64", target_pointer_width = "128"))
-))]
-use self::seq_lock_wide_parking_lot::imp;
+#[path = "seq_lock_wide.rs"]
+mod seq_lock;
 
 #[cfg(not(target_pointer_width = "64"))]
 #[cfg_attr(
@@ -59,10 +31,10 @@ use self::seq_lock_wide_parking_lot::imp;
     cfg(any(test, not(target_has_atomic = "64")))
 )]
 #[cfg_attr(test, allow(unused_imports))]
-pub(crate) use imp::{AtomicI64, AtomicU64};
+pub(crate) use seq_lock::imp::{AtomicI64, AtomicU64};
 
 #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
 #[cfg_attr(test, allow(unused_imports))]
-pub(crate) use imp::AtomicI128;
+pub(crate) use seq_lock::imp::AtomicI128;
 #[cfg_attr(test, allow(unused_imports))]
-pub(crate) use imp::AtomicU128;
+pub(crate) use seq_lock::imp::AtomicU128;

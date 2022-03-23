@@ -154,7 +154,7 @@ build() {
     case "${target}" in
         # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
         *-none* | avr-* | riscv32imc-esp-espidf | aarch64-unknown-freebsd)
-            args+=(--exclude-features "std,parking_lot")
+            args+=(--exclude-features "std")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
                 case "${target}" in
