@@ -72,10 +72,17 @@ unsafe fn cmpxchg16b(
     success: Ordering,
     failure: Ordering,
 ) -> (u128, bool) {
-    #[inline]
     #[cfg_attr(
         any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic),
         target_feature(enable = "cmpxchg16b")
+    )]
+    #[cfg_attr(
+        any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"),
+        inline
+    )]
+    #[cfg_attr(
+        not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")),
+        inline(never)
     )]
     unsafe fn _cmpxchg16b(
         dst: *mut u128,
@@ -84,25 +91,13 @@ unsafe fn cmpxchg16b(
         success: Ordering,
         failure: Ordering,
     ) -> (u128, bool) {
-        #[cfg(any(
-            all(
-                portable_atomic_cmpxchg16b_stdsimd,
-                any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")
-            ),
-            miri
-        ))]
+        #[cfg(portable_atomic_cmpxchg16b_stdsimd)]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
             (res, res == old)
         }
-        #[cfg(not(any(
-            all(
-                portable_atomic_cmpxchg16b_stdsimd,
-                any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")
-            ),
-            miri
-        )))]
+        #[cfg(not(portable_atomic_cmpxchg16b_stdsimd))]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let _ = (success, failure);
