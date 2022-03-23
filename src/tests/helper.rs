@@ -69,36 +69,40 @@ macro_rules! __test_atomic_int_load_store {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
         use crossbeam_utils::thread;
-        use std::{collections::HashSet, vec::Vec};
+        use std::{collections::BTreeSet, vec::Vec};
         #[test]
         fn stress_load_store() {
             let iterations = if cfg!(miri) { 200 } else { 25_000 };
             let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
             let data1 = (0..iterations).map(|_| fastrand::$int_type(..)).collect::<Vec<_>>();
-            let set = data1.iter().copied().collect::<HashSet<_>>();
+            let set = data1.iter().copied().collect::<BTreeSet<_>>();
             let a = <$atomic_type>::new(data1[fastrand::usize(0..iterations)]);
-            std::eprintln!("threads={}", threads);
-            let now = &std::time::Instant::now();
+            // std::eprintln!("threads={}", threads);
+            // let now = &std::time::Instant::now();
             thread::scope(|s| {
+                let mut handles = Vec::with_capacity(threads * 2);
                 for _ in 0..threads {
-                    s.spawn(|_| {
-                        let now = *now;
+                    handles.push(s.spawn(|_| {
+                        // let now = *now;
                         for i in 0..iterations {
                             a.store(data1[i], rand_store_ordering());
                         }
-                        std::eprintln!("store end={:?}", now.elapsed());
-                    });
-                    s.spawn(|_| {
-                        let now = *now;
+                        // std::eprintln!("store end={:?}", now.elapsed());
+                    }));
+                    handles.push(s.spawn(|_| {
+                        // let now = *now;
                         let mut v = std::vec![0; iterations];
                         for i in 0..iterations {
                             v[i] = a.load(rand_load_ordering());
                         }
-                        std::eprintln!("load end={:?}", now.elapsed());
+                        // std::eprintln!("load end={:?}", now.elapsed());
                         for v in v {
                             assert!(set.contains(&v), "v={}", v);
                         }
-                    });
+                    }));
+                }
+                for handle in handles {
+                    handle.join().unwrap();
                 }
             })
             .unwrap();
@@ -461,32 +465,33 @@ macro_rules! __test_atomic_int {
                 .iter()
                 .flat_map(|v| v.iter().copied())
                 .chain(data2.iter().flat_map(|v| v.iter().copied()))
-                .collect::<HashSet<_>>();
+                .collect::<BTreeSet<_>>();
             let a = &<$atomic_type>::new(data2[0][fastrand::usize(0..iterations)]);
-            std::eprintln!("threads={}", threads);
-            let now = &std::time::Instant::now();
+            // std::eprintln!("threads={}", threads);
+            // let now = &std::time::Instant::now();
             thread::scope(|s| {
+                let mut handles = Vec::with_capacity(threads * 3);
                 for thread in 0..threads {
-                    s.spawn(move |_| {
-                        let now = *now;
+                    handles.push(s.spawn(move |_| {
+                        // let now = *now;
                         for i in 0..iterations {
                             a.store(data1[thread][i], rand_store_ordering());
                         }
-                        std::eprintln!("store end={:?}", now.elapsed());
-                    });
-                    s.spawn(|_| {
-                        let now = *now;
+                        // std::eprintln!("store end={:?}", now.elapsed());
+                    }));
+                    handles.push(s.spawn(|_| {
+                        // let now = *now;
                         let mut v = std::vec![0; iterations];
                         for i in 0..iterations {
                             v[i] = a.load(rand_load_ordering());
                         }
-                        std::eprintln!("load end={:?}", now.elapsed());
+                        // std::eprintln!("load end={:?}", now.elapsed());
                         for v in v {
                             assert!(set.contains(&v), "v={}", v);
                         }
-                    });
-                    s.spawn(move |_| {
-                        let now = *now;
+                    }));
+                    handles.push(s.spawn(move |_| {
+                        // let now = *now;
                         let mut v = std::vec![data2[0][0]; iterations];
                         for i in 0..iterations {
                             let old = if i % 2 == 0 {
@@ -501,11 +506,14 @@ macro_rules! __test_atomic_int {
                                 Err(r) => v[i] = r,
                             }
                         }
-                        std::eprintln!("compare_exchange end={:?}", now.elapsed());
+                        // std::eprintln!("compare_exchange end={:?}", now.elapsed());
                         for v in v {
                             assert!(set.contains(&v), "v={}", v);
                         }
-                    });
+                    }));
+                }
+                for handle in handles {
+                    handle.join().unwrap();
                 }
             })
             .unwrap();

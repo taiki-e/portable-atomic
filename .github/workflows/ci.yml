@@ -29,172 +29,172 @@ defaults:
     shell: bash
 
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - rust: stable
-          - rust: beta
-          - rust: nightly
-          - rust: nightly
-            os: macos-latest
-          - rust: nightly
-            os: windows-latest
-          - rust: stable
-            target: aarch64-unknown-linux-gnu
-          - rust: beta
-            target: aarch64-unknown-linux-gnu
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-          - rust: nightly
-            target: arm-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv5te-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabihf
-          - rust: nightly
-            target: i586-unknown-linux-gnu
-          - rust: nightly
-            target: i686-unknown-linux-gnu
-          - rust: nightly
-            target: mips-unknown-linux-gnu
-            os: ubuntu-18.04
-          - rust: nightly
-            target: mips64-unknown-linux-gnuabi64
-            os: ubuntu-18.04
-          - rust: nightly
-            target: mips64el-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mipsel-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc64-unknown-linux-gnu
-            os: ubuntu-18.04
-          - rust: nightly
-            target: powerpc64le-unknown-linux-gnu
-          - rust: nightly
-            target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
-            target: s390x-unknown-linux-gnu
-          - rust: nightly
-            target: sparc64-unknown-linux-gnu
-            os: ubuntu-18.04
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-        with:
-          toolchain: ${{ matrix.rust }}
-          component: rust-src
-      - uses: taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
-        if: matrix.target != ''
-      - run: |
-          echo "REPORT_TIME=-Z unstable-options --report-time" >>"${GITHUB_ENV}"
-        if: startsWith(matrix.rust, 'nightly')
-      # all features
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-      # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      # +lse
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private
-        if: startsWith(matrix.rust, 'nightly')
+  # test:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - rust: stable
+  #         - rust: beta
+  #         - rust: nightly
+  #         - rust: nightly
+  #           os: macos-latest
+  #         - rust: nightly
+  #           os: windows-latest
+  #         - rust: stable
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: beta
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: arm-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv5te-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv7-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv7-unknown-linux-gnueabihf
+  #         - rust: nightly
+  #           target: i586-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: i686-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mips-unknown-linux-gnu
+  #           os: ubuntu-18.04
+  #         - rust: nightly
+  #           target: mips64-unknown-linux-gnuabi64
+  #           os: ubuntu-18.04
+  #         - rust: nightly
+  #           target: mips64el-unknown-linux-gnuabi64
+  #         - rust: nightly
+  #           target: mipsel-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: powerpc-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: powerpc64-unknown-linux-gnu
+  #           os: ubuntu-18.04
+  #         - rust: nightly
+  #           target: powerpc64le-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: riscv64gc-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: s390x-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: sparc64-unknown-linux-gnu
+  #           os: ubuntu-18.04
+  #         - rust: nightly
+  #           target: thumbv7neon-unknown-linux-gnueabihf
+  #   runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #       with:
+  #         toolchain: ${{ matrix.rust }}
+  #         component: rust-src
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     - uses: taiki-e/install-action@cargo-minimal-versions
+  #     - uses: taiki-e/setup-cross-toolchain-action@v1
+  #       with:
+  #         target: ${{ matrix.target }}
+  #       if: matrix.target != ''
+  #     - run: |
+  #         echo "REPORT_TIME=-Z unstable-options --report-time" >>"${GITHUB_ENV}"
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     # all features
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
+  #       env:
+  #         CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  #         CARGO_PROFILE_RELEASE_LTO: fat
+  #     # +cmpxchg16b
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+  #       if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+  #       if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+  #       env:
+  #         CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  #         CARGO_PROFILE_RELEASE_LTO: fat
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+  #       if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+  #     # +lse
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+  #       if: startsWith(matrix.target, 'aarch64')
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+  #       if: startsWith(matrix.target, 'aarch64')
+  #     - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+  #       env:
+  #         CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  #         CARGO_PROFILE_RELEASE_LTO: fat
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+  #       if: startsWith(matrix.target, 'aarch64')
+  #     - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private
+  #       if: startsWith(matrix.rust, 'nightly')
 
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - rust: stable
-          - rust: beta
-          - rust: nightly
-          # for avr: https://github.com/rust-lang/compiler-builtins/issues/400
-          - rust: nightly-2020-12-26
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-        with:
-          toolchain: ${{ matrix.rust }}
-          component: rust-src
-      - uses: taiki-e/install-action@cargo-hack
-      - run: tools/build.sh
+  # build:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - rust: stable
+  #         - rust: beta
+  #         - rust: nightly
+  #         # for avr: https://github.com/rust-lang/compiler-builtins/issues/400
+  #         - rust: nightly-2020-12-26
+  #   runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #       with:
+  #         toolchain: ${{ matrix.rust }}
+  #         component: rust-src
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     - run: tools/build.sh
 
-  no-std:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-      - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
-      - run: tools/no-std.sh
+  # no-std:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #     - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
+  #     - run: tools/no-std.sh
 
-  msrv:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/install-action@cargo-hack
-      # Make sure this crate can be built with MSRV and all later versions.
-      # However, this takes time, so for PR, set the version interval.
-      # parking_lot feature is excluded because it has a higher MSRV.
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range ..
-        if: github.event_name != 'pull_request'
-      - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range .. --version-step 2
-        if: github.event_name == 'pull_request'
+  # msrv:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     # Make sure this crate can be built with MSRV and all later versions.
+  #     # However, this takes time, so for PR, set the version interval.
+  #     # parking_lot feature is excluded because it has a higher MSRV.
+  #     - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range ..
+  #       if: github.event_name != 'pull_request'
+  #     - run: cargo hack build -vvv --workspace --feature-powerset --depth 3 --optional-deps --exclude-features parking_lot --ignore-private --no-dev-deps --clean-per-version --version-range .. --version-step 2
+  #       if: github.event_name == 'pull_request'
 
   miri:
     runs-on: ubuntu-latest
@@ -299,86 +299,86 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
 
-  codegen:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-      - run: tools/no_atomic.sh
-      - run: git add -N . && git diff --exit-code
-        if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - id: diff
-        run: |
-          git config user.name "Taiki Endo"
-          git config user.email "te316e89@gmail.com"
-          git add -N .
-          if ! git diff --exit-code; then
-              git add .
-              git commit -m "Update no_atomic.rs"
-              echo "::set-output name=success::false"
-          fi
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - uses: taiki-e/create-pull-request@v3
-        with:
-          title: Update no_atomic.rs
-          body: |
-            Auto-generated by [create-pull-request][1]
-            [Please close and immediately reopen this pull request to run CI.][2]
+  # codegen:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     pull-requests: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #     - run: tools/no_atomic.sh
+  #     - run: git add -N . && git diff --exit-code
+  #       if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #     - id: diff
+  #       run: |
+  #         git config user.name "Taiki Endo"
+  #         git config user.email "te316e89@gmail.com"
+  #         git add -N .
+  #         if ! git diff --exit-code; then
+  #             git add .
+  #             git commit -m "Update no_atomic.rs"
+  #             echo "::set-output name=success::false"
+  #         fi
+  #       if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #     - uses: taiki-e/create-pull-request@v3
+  #       with:
+  #         title: Update no_atomic.rs
+  #         body: |
+  #           Auto-generated by [create-pull-request][1]
+  #           [Please close and immediately reopen this pull request to run CI.][2]
 
-            [1]: https://github.com/peter-evans/create-pull-request
-            [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
-          branch: update-no-atomic-rs
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
+  #           [1]: https://github.com/peter-evans/create-pull-request
+  #           [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
+  #         branch: update-no-atomic-rs
+  #       if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
 
-  tidy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-        with:
-          component: clippy,rustfmt
-      - uses: taiki-e/install-action@shellcheck
-      - run: cargo fmt --all --check
-        if: always()
-      - run: cargo clippy --workspace --all-features --all-targets
-        if: always()
-      - run: shellcheck $(git ls-files '*.sh')
-        if: always()
+  # tidy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #       with:
+  #         component: clippy,rustfmt
+  #     - uses: taiki-e/install-action@shellcheck
+  #     - run: cargo fmt --all --check
+  #       if: always()
+  #     - run: cargo clippy --workspace --all-features --all-targets
+  #       if: always()
+  #     - run: shellcheck $(git ls-files '*.sh')
+  #       if: always()
 
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-      - run: cargo doc --workspace --all-features
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
+  # docs:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         persist-credentials: false
+  #     - uses: taiki-e/github-actions/install-rust@main
+  #     - run: cargo doc --workspace --all-features
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
 
-  # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
+  # # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
 
-  ci-success:
-    name: ci
-    if: success()
-    needs:
-      - test
-      - build
-      - msrv
-      - miri
-      - sanitizer
-      - valgrind
-      - codegen
-      - tidy
-      - docs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Mark the job as a success
-        run: exit 0
+  # ci-success:
+  #   name: ci
+  #   if: success()
+  #   needs:
+  #     - test
+  #     - build
+  #     - msrv
+  #     - miri
+  #     - sanitizer
+  #     - valgrind
+  #     - codegen
+  #     - tidy
+  #     - docs
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Mark the job as a success
+  #       run: exit 0
