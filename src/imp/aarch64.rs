@@ -18,17 +18,14 @@
 // - progress64 https://github.com/ARM-software/progress64
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
-// Generated asm(default): https://godbolt.org/z/4nvGW91Mh
-// Generated asm(+lse): https://godbolt.org/z/s7Tc59odP
+// Generated asm(default): https://godbolt.org/z/391vjWcKo
+// Generated asm(+lse): https://godbolt.org/z/3jWf8jxYT
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-use crate::utils::{
-    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering,
-    strongest_failure_ordering,
-};
+use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
 
 /// A 128-bit value represented as a pair of 64-bit values.
 // This type is #[repr(C)], both fields have the same in-memory representation
@@ -46,7 +43,7 @@ union U128 {
 // Section B2.2.1 "Requirements for single-copy atomicity", and
 // Section B2.9 "Synchronization and semaphores" for more.
 #[inline]
-unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
+unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `src` is valid for both writes and
@@ -83,7 +80,7 @@ unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
 }
 
 #[inline]
-unsafe fn _stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
+unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -210,7 +207,7 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
 }
 
 #[inline]
-fn _ldx_ordering(order: Ordering) -> Ordering {
+fn ldx_ordering(order: Ordering) -> Ordering {
     match order {
         Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
         Ordering::SeqCst => Ordering::SeqCst,
@@ -219,7 +216,7 @@ fn _ldx_ordering(order: Ordering) -> Ordering {
     }
 }
 #[inline]
-fn _stx_ordering(order: Ordering) -> Ordering {
+fn stx_ordering(order: Ordering) -> Ordering {
     match order {
         Ordering::Acquire | Ordering::Relaxed => Ordering::Relaxed,
         Ordering::SeqCst => Ordering::SeqCst,
@@ -236,17 +233,6 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     _failure: Ordering,
 ) -> Result<u128, u128> {
-    #[inline]
-    unsafe fn _compare_exchange_ldxp_stxp(
-        dst: *mut u128,
-        old: u128,
-        new: u128,
-        success: Ordering,
-    ) -> u128 {
-        // SAFETY: the caller must uphold the safety contract for `_compare_exchange_ldxp_stxp`.
-        unsafe { atomic_update(dst, success, |x| if x == old { new } else { x }) }
-    }
-
     #[cfg(any(portable_atomic_target_feature_lse, target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { _casp(dst, old, new, success) };
@@ -259,7 +245,7 @@ unsafe fn atomic_compare_exchange(
     )))]
     #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
+    let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
     #[cfg(all(
         portable_atomic_aarch64_target_feature,
         feature = "outline-atomics",
@@ -280,7 +266,7 @@ unsafe fn atomic_compare_exchange(
             let func: FnTy = if std::arch::is_aarch64_feature_detected!("lse") {
                 _casp
             } else {
-                _compare_exchange_ldxp_stxp
+                compare_exchange_ldxp_stxp
             };
             FUNC.store(func as FnRaw, Ordering::Relaxed);
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -308,35 +294,30 @@ unsafe fn atomic_compare_exchange(
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[inline]
-unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+unsafe fn compare_exchange_ldxp_stxp(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    success: Ordering,
+) -> u128 {
+    // SAFETY: the caller must uphold the safety contract for `compare_exchange_ldxp_stxp`.
+    unsafe { atomic_update_ldxp_stxp(dst, success, |x| if x == old { new } else { x }) }
+}
+
+#[inline]
+unsafe fn atomic_update_ldxp_stxp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    #[cfg(any(portable_atomic_target_feature_lse, target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
-        let fail_order = strongest_failure_ordering(order);
-        let mut prev = atomic_load(dst, fail_order);
-        loop {
-            let next = f(prev);
-            let x = _casp(dst, prev, next, order);
-            if prev == x {
-                break;
-            }
-            prev = x;
-        }
-        prev
-    }
-    #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
-    unsafe {
-        let ldx_order = _ldx_ordering(order);
-        let stx_order = _stx_ordering(order);
+        let ldx_order = ldx_ordering(order);
+        let stx_order = stx_ordering(order);
         let mut prev;
         loop {
-            prev = _ldxp(dst, ldx_order);
+            prev = ldxp(dst, ldx_order);
             let next = f(prev);
-            if _stxp(dst, next, stx_order) {
+            if stxp(dst, next, stx_order) {
                 break;
             }
         }
@@ -346,13 +327,8 @@ where
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    let fail_order = strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe {
-        match atomic_compare_exchange(src, 0, 0, order, fail_order) {
-            Ok(v) | Err(v) => v,
-        }
-    }
+    unsafe { compare_exchange_ldxp_stxp(src, 0, 0, order) }
 }
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
@@ -364,37 +340,37 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
-    unsafe { atomic_update(dst, order, |_| val) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |_| val) }
 }
 #[inline]
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_add`.
-    unsafe { atomic_update(dst, order, |x| x.wrapping_add(val)) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x.wrapping_add(val)) }
 }
 #[inline]
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
-    unsafe { atomic_update(dst, order, |x| x.wrapping_sub(val)) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x.wrapping_sub(val)) }
 }
 #[inline]
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_and`.
-    unsafe { atomic_update(dst, order, |x| x & val) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x & val) }
 }
 #[inline]
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
-    unsafe { atomic_update(dst, order, |x| !(x & val)) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| !(x & val)) }
 }
 #[inline]
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_or`.
-    unsafe { atomic_update(dst, order, |x| x | val) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x | val) }
 }
 #[inline]
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
-    unsafe { atomic_update(dst, order, |x| x ^ val) }
+    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x ^ val) }
 }
 
 macro_rules! atomic128 {
@@ -594,7 +570,7 @@ macro_rules! atomic128 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| {
+                    atomic_update_ldxp_stxp(self.v.get().cast(), order, |x| {
                         core::cmp::max(x as $int_type, val) as u128
                     }) as $int_type
                 }
@@ -607,7 +583,7 @@ macro_rules! atomic128 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| {
+                    atomic_update_ldxp_stxp(self.v.get().cast(), order, |x| {
                         core::cmp::min(x as $int_type, val) as u128
                     }) as $int_type
                 }
@@ -625,4 +601,41 @@ mod tests {
 
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+}
+
+#[cfg(test)]
+#[allow(dead_code, clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
+mod no_outline_atomics {
+    use super::*;
+
+    #[inline]
+    unsafe fn atomic_compare_exchange(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+        _failure: Ordering,
+    ) -> Result<u128, u128> {
+        // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+        let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
+        if res == old {
+            Ok(res)
+        } else {
+            Err(res)
+        }
+    }
+
+    // LLVM appears to generate strong CAS for aarch64 128-bit weak CAS,
+    // so we always use strong CAS.
+    use self::atomic_compare_exchange as atomic_compare_exchange_weak;
+
+    atomic128!(AtomicI128, i128);
+    atomic128!(AtomicU128, u128);
+
+    mod tests {
+        use super::*;
+
+        test_atomic_int!(i128);
+        test_atomic_int!(u128);
+    }
 }

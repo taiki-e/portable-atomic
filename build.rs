@@ -155,8 +155,8 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
 
         // `cfg(sanitize = "..")` is not stabilized.
-        let tsan = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default().contains("thread");
-        if tsan {
+        let sanitize = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
+        if sanitize.contains("thread") {
             println!("cargo:rustc-cfg=sanitize_thread");
         }
 
@@ -255,7 +255,8 @@ fn probe(code: &str, target: &str) -> Option<bool> {
         .arg("--crate-type=lib")
         .arg("--out-dir")
         .arg(out_dir)
-        .arg("--emit=llvm-ir");
+        .arg("--emit=llvm-ir")
+        .arg("--cap-lints=warn");
 
     cmd.arg("--target").arg(target);
 

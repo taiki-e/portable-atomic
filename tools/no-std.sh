@@ -56,7 +56,7 @@ run() {
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
-        args+=(-Z build-std=core)
+        args+=(-Z build-std="core,alloc")
     else
         echo "target '${target}' requires nightly compiler"
         return 0

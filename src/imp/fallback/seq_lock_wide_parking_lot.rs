@@ -1,6 +1,9 @@
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/seq_lock_wide.rs.
 // Adjusted to use parking_lot instead of spinlock.
 
+#[path = "imp.rs"]
+pub(super) mod imp;
+
 use core::{
     mem::ManuallyDrop,
     sync::atomic::{self, AtomicUsize, Ordering},
