@@ -72,7 +72,7 @@ macro_rules! __test_atomic_int_load_store {
         use std::{collections::HashSet, vec::Vec};
         #[test]
         fn stress_load_store() {
-            let iterations = if cfg!(miri) { 400 } else { 25_000 };
+            let iterations = if cfg!(miri) { 200 } else { 25_000 };
             let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
             let data1 = (0..iterations).map(|_| fastrand::$int_type(..)).collect::<Vec<_>>();
             let set = data1.iter().copied().collect::<HashSet<_>>();
@@ -449,7 +449,7 @@ macro_rules! __test_atomic_int {
         __test_atomic_int!($atomic_type, $int_type, single_thread);
         #[test]
         fn stress() {
-            let iterations = if cfg!(miri) { 400 } else { 25_000 };
+            let iterations = if cfg!(miri) { 200 } else { 25_000 };
             let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
             let data1 = &(0..threads)
                 .map(|_| (0..iterations).map(|_| fastrand::$int_type(..)).collect::<Vec<_>>())
@@ -1108,15 +1108,7 @@ pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
         f(order);
     }
 
-    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
-        && option_env!("MSAN_OPTIONS").is_some()
-    {
-        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
-        return;
-    }
-
-    // Miri's panic handling is slow
-    if !cfg!(miri) {
+    if !skip_should_panic_test() {
         assert_eq!(
             assert_panic(|| f(Ordering::Release)),
             "there is no such thing as a release load"
@@ -1138,15 +1130,7 @@ pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T)
         f(order);
     }
 
-    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
-        && option_env!("MSAN_OPTIONS").is_some()
-    {
-        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
-        return;
-    }
-
-    // Miri's panic handling is slow
-    if !cfg!(miri) {
+    if !skip_should_panic_test() {
         assert_eq!(
             assert_panic(|| f(Ordering::Acquire)),
             "there is no such thing as an acquire store"
@@ -1181,15 +1165,7 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
         f(success, failure);
     }
 
-    if option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
-        && option_env!("MSAN_OPTIONS").is_some()
-    {
-        // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
-        return;
-    }
-
-    // Miri's panic handling is slow
-    if !cfg!(miri) {
+    if !skip_should_panic_test() {
         for &order in &swap_orderings() {
             let msg = assert_panic(|| f(order, Ordering::AcqRel));
             assert!(
@@ -1227,6 +1203,13 @@ pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
     for &order in &swap_orderings() {
         f(order);
     }
+}
+fn skip_should_panic_test() -> bool {
+    // Miri's panic handling is slow
+    // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
+    cfg!(miri)
+        || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
+            && option_env!("MSAN_OPTIONS").is_some()
 }
 
 #[derive(Debug, Clone, Copy, Default)]

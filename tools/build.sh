@@ -128,7 +128,7 @@ build() {
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
         case "${target}" in
             # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
-            *-none* | avr-* | riscv32imc-esp-espidf | aarch64-unknown-freebsd) args+=(-Z build-std="core,alloc") ;;
+            *-none* | avr-* | *-esp-espidf | aarch64-unknown-freebsd) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
@@ -142,7 +142,10 @@ build() {
 
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
 
-    args+=(--depth 3)
+    args+=(
+        --workspace --ignore-private
+        --no-dev-deps --feature-powerset --depth 3 --optional-deps
+    )
     case "${target}" in
         x86_64* | aarch64*) ;;
         # outline-atomics feature only affects x86_64 and aarch64.
@@ -158,21 +161,21 @@ build() {
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
                         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/assume-single-core "$@"
+                            x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
                         ;;
                 esac
             fi
             ;;
     esac
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
-        x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private "$@"
+        x cargo "${args[@]}" "$@"
     if [[ "${target}" == "x86_64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+cmpxchg16b" \
-            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/cmpxchg16b "$@"
+            x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
     fi
     if [[ "${target}" == "aarch64"* ]]; then
         RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+lse" \
-            x cargo "${args[@]}" --feature-powerset --optional-deps --no-dev-deps --workspace --ignore-private --target-dir target/lse "$@"
+            x cargo "${args[@]}" --target-dir target/lse "$@"
     fi
 }
 
