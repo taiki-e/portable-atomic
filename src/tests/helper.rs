@@ -623,7 +623,74 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 22.0);
             }
         }
-        // TODO: quickcheck
+        mod quickcheck {
+            use super::super::*;
+            use crate::tests::helper::*;
+            ::quickcheck::quickcheck! {
+                fn swap(x: $float_type, y: $float_type) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.swap(y, order), x);
+                        assert_float_op_eq!(a.swap(x, order), y);
+                    }
+                    true
+                }
+                fn fetch_add(x: $float_type, y: $float_type) -> bool {
+                    if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
+                        // https://github.com/rust-lang/rust/issues/72327
+                        // https://github.com/rust-lang/rust/issues/73288
+                        return true;
+                    }
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.fetch_add(y, order), x);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), x + y);
+                        let a = <$atomic_type>::new(y);
+                        assert_float_op_eq!(a.fetch_add(x, order), y);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y + x);
+                    }
+                    true
+                }
+                fn fetch_sub(x: $float_type, y: $float_type) -> bool {
+                    if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
+                        // https://github.com/rust-lang/rust/issues/72327
+                        // https://github.com/rust-lang/rust/issues/73288
+                        return true;
+                    }
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.fetch_sub(y, order), x);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), x - y);
+                        let a = <$atomic_type>::new(y);
+                        assert_float_op_eq!(a.fetch_sub(x, order), y);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y - x);
+                    }
+                    true
+                }
+                fn fetch_max(x: $float_type, y: $float_type) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.fetch_max(y, order), x);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), x.max(y));
+                        let a = <$atomic_type>::new(y);
+                        assert_float_op_eq!(a.fetch_max(x, order), y);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y.max(x));
+                    }
+                    true
+                }
+                fn fetch_min(x: $float_type, y: $float_type) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.fetch_min(y, order), x);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), x.min(y));
+                        let a = <$atomic_type>::new(y);
+                        assert_float_op_eq!(a.fetch_min(x, order), y);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y.min(x));
+                    }
+                    true
+                }
+            }
+        }
     };
     ($atomic_type:ty, $float_type:ident) => {
         __test_atomic_float!($atomic_type, $float_type, single_thread);
@@ -1090,6 +1157,41 @@ macro_rules! test_atomic_ptr_pub {
             __test_atomic_ptr_pub!(AtomicPtr<u8>);
         }
     };
+}
+
+// Asserts that `a` and `b` have performed equivalent operations.
+macro_rules! assert_float_op_eq {
+    ($a:expr, $b:expr $(,)?) => {{
+        // See also:
+        // - https://github.com/rust-lang/unsafe-code-guidelines/issues/237.
+        // - https://github.com/rust-lang/portable-simd/issues/39.
+        let a = $a;
+        let b = $b;
+        if a.is_nan() && b.is_nan() // don't check sign of NaN: https://github.com/rust-lang/rust/issues/55131
+            || a.is_infinite()
+                && b.is_infinite()
+                && a.is_sign_positive() == b.is_sign_positive()
+                && a.is_sign_negative() == b.is_sign_negative()
+        {
+            // ok
+        } else {
+            assert_eq!(a, b);
+        }
+    }};
+}
+
+pub(crate) trait FloatExt: Copy {
+    fn epsilon(&self) -> Self;
+}
+impl FloatExt for f32 {
+    fn epsilon(&self) -> Self {
+        Self::EPSILON
+    }
+}
+impl FloatExt for f64 {
+    fn epsilon(&self) -> Self {
+        Self::EPSILON
+    }
 }
 
 #[track_caller]
