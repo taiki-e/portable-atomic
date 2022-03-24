@@ -1899,6 +1899,32 @@ This type has the same in-memory representation as the underlying floating point
                 .unwrap()
             }
 
+            /// Computes the absolute value of the current value, and sets the
+            /// new value to the result.
+            ///
+            /// Returns the previous value.
+            ///
+            /// `fetch_abs` takes an [`Ordering`] argument which describes the memory ordering
+            /// of this operation. All ordering modes are possible. Note that using
+            /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+            /// using [`Release`] makes the load part [`Relaxed`].
+            #[cfg_attr(
+                not(portable_atomic_cfg_target_has_atomic),
+                cfg(any(
+                    not(portable_atomic_no_atomic_cas),
+                    portable_atomic_unsafe_assume_single_core
+                ))
+            )]
+            #[cfg_attr(
+                portable_atomic_cfg_target_has_atomic,
+                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+            )]
+            #[inline]
+            pub fn fetch_abs(&self, order: Ordering) -> $float_type {
+                const ABS_MASK: $int_type = !0 / 2;
+                $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
+            }
+
             // TODO: Add as_mut_ptr once it is stable on other std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
 

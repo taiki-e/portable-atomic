@@ -623,6 +623,18 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 22.0);
             }
         }
+        #[test]
+        fn fetch_abs() {
+            let a = <$atomic_type>::new(23.0);
+            test_swap_ordering(|order| a.fetch_abs(order));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(-23.0);
+                assert_eq!(a.fetch_abs(order), -23.0);
+                assert_eq!(a.load(Ordering::Relaxed), 23.0);
+                assert_eq!(a.fetch_abs(order), 23.0);
+                assert_eq!(a.load(Ordering::Relaxed), 23.0);
+            }
+        }
         mod quickcheck {
             use super::super::*;
             use crate::tests::helper::*;
@@ -686,6 +698,15 @@ macro_rules! __test_atomic_float {
                         let a = <$atomic_type>::new(y);
                         assert_float_op_eq!(a.fetch_min(x, order), y);
                         assert_float_op_eq!(a.load(Ordering::Relaxed), y.min(x));
+                    }
+                    true
+                }
+                fn fetch_abs(x: $float_type) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.fetch_abs(order), x);
+                        assert_float_op_eq!(a.fetch_abs(order), x.abs());
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), x.abs());
                     }
                     true
                 }
