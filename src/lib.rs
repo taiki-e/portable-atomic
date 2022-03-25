@@ -59,6 +59,8 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 
   This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
 
+  Enabling this cfg for targets that have atomic CAS will result in a compile error.
+
 ## Related Projects
 
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.

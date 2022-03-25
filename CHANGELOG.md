@@ -10,13 +10,17 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Remove `parking_lot` feature to support the use of this crate within global allocators.
+## [0.3.0] - 2022-03-25
 
 - Support 128-bit atomics for s390x (currently nightly-only).
 
 - Add `AtomicF{32,64}::fetch_abs`.
 
 - Add `#[must_use]` to constructors.
+
+- Use 128-bit atomic operation mappings same as LLVM on aarch64.
+
+- Remove `parking_lot` optional feature to allow the use of this crate within global allocators.
 
 ## [0.2.1] - 2022-03-17
 
@@ -54,7 +58,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/taiki-e/portable-atomic/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/taiki-e/portable-atomic/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/taiki-e/portable-atomic/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/taiki-e/portable-atomic/compare/v0.1.3...v0.1.4
