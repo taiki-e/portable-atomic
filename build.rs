@@ -16,38 +16,67 @@ include!("no_atomic.rs");
 const LATEST_STABLE: Version =
     Version { minor: 59, nightly: false, commit_date: Date::new(2022, 2, 23) };
 
+// Probe if unstable features can be compiled with the expected API.
+// This prevents accidental depends on them if the upstream changes its API.
+// This is the same approach used in autocfg, anyhow, etc.
+// for aarch64 and x86_64 macos
 const PROBE_ATOMIC_128: &str = r#"
 #![no_std]
 #![feature(integer_atomics)]
 fn _probe() {
-    let v = core::sync::atomic::AtomicU128::new(0);
-    let _ = v.swap(1, core::sync::atomic::Ordering::Relaxed);
+    let v = core::sync::atomic::AtomicU128::new(0_u128);
+    let _: u128 = v.swap(1_u128, core::sync::atomic::Ordering::Relaxed);
 }
 "#;
-const PROBE_ATOMIC_INTRINSICS: &str = r#"
-#![no_std]
-#![feature(core_intrinsics)]
-unsafe fn _probe(dst: *mut u128) {
-    let _v = core::intrinsics::atomic_load_acq(dst);
-    let _v = core::intrinsics::atomic_store_rel(dst, 0);
-    let _v = core::intrinsics::atomic_cxchg_acq_failrelaxed(dst, 0, 0);
-    let _v = core::intrinsics::atomic_cxchgweak_failacq(dst, 0, 0);
-}
-"#;
+// for x86_64
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
 #![feature(stdsimd, cmpxchg16b_target_feature)]
 #[allow(unused_unsafe)]
 #[target_feature(enable = "cmpxchg16b")]
-unsafe fn _probe(dst: *mut u128) -> u128 {
+unsafe fn _probe(dst: *mut u128) {
     unsafe {
-        core::arch::x86_64::cmpxchg16b(
+        let _: u128 = core::arch::x86_64::cmpxchg16b(
             dst,
             0_u128,
             0_u128,
             core::sync::atomic::Ordering::Relaxed,
             core::sync::atomic::Ordering::Relaxed,
-        )
+        );
+    }
+}
+"#;
+// for s390x
+const PROBE_ATOMIC_INTRINSICS: &str = r#"
+#![no_std]
+#![feature(core_intrinsics)]
+#[allow(unused_unsafe)]
+unsafe fn _probe(dst: *mut u128) {
+    unsafe {
+        let _: u128 = core::intrinsics::atomic_load_acq(dst);
+        let _: u128 = core::intrinsics::atomic_load_relaxed(dst);
+        let _: u128 = core::intrinsics::atomic_load(dst);
+        let _: () = core::intrinsics::atomic_store_rel(dst, 0_u128);
+        let _: () = core::intrinsics::atomic_store_relaxed(dst, 0_u128);
+        let _: () = core::intrinsics::atomic_store(dst, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acq(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_rel(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acqrel(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_relaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acq_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acqrel_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchg_failacq(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acq(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_rel(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acqrel(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_relaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acq_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acqrel_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_failrelaxed(dst, 0_u128, 0_u128);
+        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_failacq(dst, 0_u128, 0_u128);
     }
 }
 "#;
