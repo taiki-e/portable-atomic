@@ -10,7 +10,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 ## 128-bit atomics support (AtomicI128,AtomicU128)
 
-Native 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 and aarch64 at Rust 1.59+, and on s390x at only nightly, otherwise the fallback implementation is used.
 
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
@@ -113,6 +113,10 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 #![cfg_attr(
     any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_stdsimd),
     feature(stdsimd, cmpxchg16b_target_feature)
+)]
+#![cfg_attr(
+    any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128),
+    feature(core_intrinsics)
 )]
 // cfg(cfg_target_has_atomic) on old nightly
 // This feature has not been changed since the change in nightly-2019-10-14
@@ -2026,6 +2030,7 @@ atomic_int!(AtomicU64, u64, 8);
     not(feature = "fallback"),
     cfg(any(
         portable_atomic_core_atomic_128,
+        portable_atomic_s390x_atomic_128,
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -2056,6 +2061,7 @@ atomic_int!(AtomicI128, i128, 16);
     not(feature = "fallback"),
     cfg(any(
         portable_atomic_core_atomic_128,
+        portable_atomic_s390x_atomic_128,
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),

@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Remove `parking_lot` feature to support the use of this crate within global allocators.
 
+- Support 128-bit atomics for s390x (currently nightly-only).
+
 - Add `AtomicF{32,64}::fetch_abs`.
 
 - Add `#[must_use]` to constructors.

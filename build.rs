@@ -18,16 +18,24 @@ const LATEST_STABLE: Version =
 
 const PROBE_ATOMIC_128: &str = r#"
 #![no_std]
-#![allow(stable_features)]
 #![feature(integer_atomics)]
 fn _probe() {
     let v = core::sync::atomic::AtomicU128::new(0);
     let _ = v.swap(1, core::sync::atomic::Ordering::Relaxed);
 }
 "#;
+const PROBE_ATOMIC_INTRINSICS: &str = r#"
+#![no_std]
+#![feature(core_intrinsics)]
+unsafe fn _probe(dst: *mut u128) {
+    let _v = core::intrinsics::atomic_load_acq(dst);
+    let _v = core::intrinsics::atomic_store_rel(dst, 0);
+    let _v = core::intrinsics::atomic_cxchg_acq_failrelaxed(dst, 0, 0);
+    let _v = core::intrinsics::atomic_cxchgweak_failacq(dst, 0, 0);
+}
+"#;
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
-#![allow(stable_features)]
 #![feature(stdsimd, cmpxchg16b_target_feature)]
 #[allow(unused_unsafe)]
 #[target_feature(enable = "cmpxchg16b")]
@@ -58,14 +66,18 @@ fn main() {
             return;
         }
     };
-    // HACK: If --target is specified, rustflags is not applied to the build
-    // script itself, so the build script will not be rerun when these are changed.
-    println!("cargo:rerun-if-env-changed=RUSTFLAGS");
-    println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
-    println!(
-        "cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS",
-        target.to_uppercase().replace('-', "_").replace('.', "_")
-    );
+    let aarch64 = target.starts_with("aarch64");
+    let x86_64 = target.starts_with("x86_64");
+    if aarch64 || x86_64 {
+        // HACK: If --target is specified, rustflags is not applied to the build
+        // script itself, so the build script will not be rerun when these are changed.
+        println!("cargo:rerun-if-env-changed=RUSTFLAGS");
+        println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
+        println!(
+            "cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS",
+            target.to_uppercase().replace('-', "_").replace('.', "_")
+        );
+    }
 
     let version = match rustc_version() {
         Some(version) => version,
@@ -131,7 +143,7 @@ fn main() {
 
     // aarch64_target_feature stabilized in Rust 1.61.
     // aarch64 macos always support lse: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
-    if target.starts_with("aarch64")
+    if aarch64
         && (version.minor >= 59 || version.nightly)
         && has_target_feature("lse", target == "aarch64-apple-darwin", &version, Some(61))
     {
@@ -139,8 +151,7 @@ fn main() {
     }
 
     // cmpxchg16b is available via asm (1.59+) or stdsimd (nightly).
-    let may_use_cmpxchg16b =
-        target.starts_with("x86_64") && (version.minor >= 59 || version.nightly);
+    let may_use_cmpxchg16b = x86_64 && (version.minor >= 59 || version.nightly);
     let mut has_cmpxchg16b = false;
     if may_use_cmpxchg16b {
         // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
@@ -160,16 +171,25 @@ fn main() {
             println!("cargo:rustc-cfg=sanitize_thread");
         }
 
-        if HAS_ATOMIC_128.contains(&&*target) && probe(PROBE_ATOMIC_128, &target).unwrap_or(false) {
-            println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
-        } else if may_use_cmpxchg16b
-            && (has_cmpxchg16b || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
-            && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
-        {
-            println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
-            if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
-                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
+        if aarch64 || x86_64 {
+            if HAS_ATOMIC_128.contains(&&*target)
+                && probe(PROBE_ATOMIC_128, &target).unwrap_or(false)
+            {
+                println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
+            } else if may_use_cmpxchg16b
+                && (has_cmpxchg16b
+                    || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
+                && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
+            {
+                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
+                if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
+                    println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
+                }
             }
+        } else if target.starts_with("s390x")
+            && probe(PROBE_ATOMIC_INTRINSICS, &target).unwrap_or(false)
+        {
+            println!("cargo:rustc-cfg=portable_atomic_s390x_atomic_128");
         }
     }
 }

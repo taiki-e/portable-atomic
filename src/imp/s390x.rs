@@ -1,8 +1,10 @@
-// Atomic{I,U}128 implementation using core::intrinsics.
+// Atomic{I,U}128 implementation for s390x using core::intrinsics.
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs
+// s390x supports 128-bit atomic load/store/cmpxchg:
+// https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
 //
-// This module is currently only enabled on test and benchmark.
+// Note that LLVM currently generates libcalls for other operations:
+// https://godbolt.org/z/6E6fchxvP
 
 use core::{
     cell::UnsafeCell,
@@ -10,24 +12,13 @@ use core::{
     sync::atomic::Ordering::{self, AcqRel, Acquire, Relaxed, Release, SeqCst},
 };
 
-use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
-
-macro_rules! assert_cmpxchg16b {
-    () => {
-        #[cfg(all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")))]
-        {
-            assert!(std::is_x86_feature_detected!("cmpxchg16b"));
-        }
-    };
-}
+use crate::utils::{
+    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering,
+    strongest_failure_ordering,
+};
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
-    assert_load_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
         match order {
@@ -40,12 +31,7 @@ unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    assert_store_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
         match order {
@@ -58,29 +44,6 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
-unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_xchg_acq(dst, val),
-            Release => intrinsics::atomic_xchg_rel(dst, val),
-            AcqRel => intrinsics::atomic_xchg_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_xchg_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xchg(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-}
-
-#[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_compare_exchange(
     dst: *mut u128,
     old: u128,
@@ -88,7 +51,6 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
-    assert_compare_exchange_ordering(success, failure);
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let (val, ok) = unsafe {
         match (success, failure) {
@@ -112,10 +74,6 @@ unsafe fn atomic_compare_exchange(
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_compare_exchange_weak(
     dst: *mut u128,
     old: u128,
@@ -123,7 +81,6 @@ unsafe fn atomic_compare_exchange_weak(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
-    assert_compare_exchange_ordering(success, failure);
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange_weak`.
     let (val, ok) = unsafe {
         match (success, failure) {
@@ -147,201 +104,123 @@ unsafe fn atomic_compare_exchange_weak(
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
+unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let failure = strongest_failure_ordering(order);
+    let mut old = val;
+    let new = val;
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => old = x,
+        }
+    }
+}
+
+#[inline]
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_xadd_acq(dst, val),
-            Release => intrinsics::atomic_xadd_rel(dst, val),
-            AcqRel => intrinsics::atomic_xadd_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_xadd_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xadd(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x.wrapping_add(val);
+            }
         }
     }
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_xsub_acq(dst, val),
-            Release => intrinsics::atomic_xsub_rel(dst, val),
-            AcqRel => intrinsics::atomic_xsub_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_xsub_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xsub(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = val;
+    let mut new = 0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x.wrapping_sub(val);
+            }
         }
     }
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_and`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_and_acq(dst, val),
-            Release => intrinsics::atomic_and_rel(dst, val),
-            AcqRel => intrinsics::atomic_and_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_and_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_and(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = 0;
+    let mut new = 0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x & val;
+            }
         }
     }
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_nand`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_nand_acq(dst, val),
-            Release => intrinsics::atomic_nand_rel(dst, val),
-            AcqRel => intrinsics::atomic_nand_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_nand_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_nand(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = 0;
+    let mut new = !0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = !(x & val);
+            }
         }
     }
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_or`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_or_acq(dst, val),
-            Release => intrinsics::atomic_or_rel(dst, val),
-            AcqRel => intrinsics::atomic_or_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_or_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_or(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x | val;
+            }
         }
     }
 }
 
 #[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_xor`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_xor_acq(dst, val),
-            Release => intrinsics::atomic_xor_rel(dst, val),
-            AcqRel => intrinsics::atomic_xor_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_xor_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xor(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-}
-
-/// returns the max value (signed comparison)
-#[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
-unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_max`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_max_acq(dst, val),
-            Release => intrinsics::atomic_max_rel(dst, val),
-            AcqRel => intrinsics::atomic_max_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_max_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_max(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-}
-
-/// returns the min value (signed comparison)
-#[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
-unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_min`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_min_acq(dst, val),
-            Release => intrinsics::atomic_min_rel(dst, val),
-            AcqRel => intrinsics::atomic_min_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_min_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_min(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-}
-
-/// returns the max value (unsigned comparison)
-#[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
-unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_umax`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_umax_acq(dst, val),
-            Release => intrinsics::atomic_umax_rel(dst, val),
-            AcqRel => intrinsics::atomic_umax_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_umax_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_umax(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-}
-
-/// returns the min value (unsigned comparison)
-#[inline]
-#[cfg_attr(
-    all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
-    target_feature(enable = "cmpxchg16b")
-)]
-unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_umin`
-    unsafe {
-        match order {
-            Acquire => intrinsics::atomic_umin_acq(dst, val),
-            Release => intrinsics::atomic_umin_rel(dst, val),
-            AcqRel => intrinsics::atomic_umin_acqrel(dst, val),
-            Relaxed => intrinsics::atomic_umin_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_umin(dst, val),
-            _ => unreachable!("{:?}", order),
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x ^ val;
+            }
         }
     }
 }
 
 macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    ($atomic_type:ident, $int_type:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -377,7 +256,7 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
+                assert_load_ordering(order);
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -389,7 +268,7 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_cmpxchg16b!();
+                assert_store_ordering(order);
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -401,7 +280,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -419,7 +297,7 @@ macro_rules! atomic128 {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                assert_cmpxchg16b!();
+                assert_compare_exchange_ordering(success, failure);
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -446,7 +324,7 @@ macro_rules! atomic128 {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                assert_cmpxchg16b!();
+                assert_compare_exchange_ordering(success, failure);
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -467,7 +345,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -479,7 +356,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -491,7 +367,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -503,7 +378,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -515,7 +389,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -527,7 +400,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
                 // clippy bug that does not recognize safety comments inside macros.
                 #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -539,33 +411,41 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    $atomic_max(self.v.get(), val, order)
+                let mut old = $int_type::MIN;
+                let mut new = val;
+                let failure = strongest_failure_ordering(order);
+                loop {
+                    match self.compare_exchange_weak(old, new, order, failure) {
+                        Ok(old) => return old,
+                        Err(x) => {
+                            old = x;
+                            new = core::cmp::max(x, val);
+                        }
+                    }
                 }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    $atomic_min(self.v.get(), val, order)
+                let mut old = $int_type::MAX;
+                let mut new = val;
+                let failure = strongest_failure_ordering(order);
+                loop {
+                    match self.compare_exchange_weak(old, new, order, failure) {
+                        Ok(old) => return old,
+                        Err(x) => {
+                            old = x;
+                            new = core::cmp::min(x, val);
+                        }
+                    }
                 }
             }
         }
     };
 }
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(AtomicI128, i128);
+atomic128!(AtomicU128, u128);
 
 #[cfg(test)]
 mod tests {

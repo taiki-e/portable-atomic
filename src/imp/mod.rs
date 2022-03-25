@@ -20,6 +20,10 @@ mod aarch64;
 #[cfg(target_arch = "x86_64")]
 mod cmpxchg16b;
 
+#[cfg(any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128))]
+#[cfg(target_arch = "s390x")]
+mod s390x;
+
 #[cfg(target_arch = "msp430")]
 mod msp430;
 
@@ -39,6 +43,7 @@ mod riscv;
     test,
     not(any(
         portable_atomic_core_atomic_128,
+        portable_atomic_s390x_atomic_128,
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -211,10 +216,14 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     target_arch = "x86_64",
 ))]
 pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
+// s390x
+#[cfg(portable_atomic_s390x_atomic_128)]
+pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
 #[cfg(not(any(
     portable_atomic_core_atomic_128,
+    portable_atomic_s390x_atomic_128,
     all(
         not(portable_atomic_core_atomic_128),
         any(not(portable_atomic_no_asm), portable_atomic_nightly),

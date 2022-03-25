@@ -30,9 +30,14 @@ mod aarch64;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/cmpxchg16b.rs"]
 mod cmpxchg16b_stdsimd;
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64", /* target_arch = "s390x" */))]
 #[allow(dead_code, unused_imports)]
 #[path = "imp/intrinsics.rs"]
 mod intrinsics;
+#[cfg(target_arch = "s390x")]
+#[allow(dead_code, unused_imports)]
+#[path = "../../src/imp/s390x.rs"]
+mod s390x;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
@@ -74,6 +79,8 @@ impl_atomic_u128!(intrinsics::AtomicU128);
 impl_atomic_u128!(cmpxchg16b_stdsimd::AtomicU128);
 #[cfg(target_arch = "aarch64")]
 impl_atomic_u128!(aarch64::AtomicU128);
+#[cfg(target_arch = "s390x")]
+impl_atomic_u128!(s390x::AtomicU128);
 impl_atomic_u128!(seqlock_fallback::AtomicU128);
 impl_atomic_u128!(spinlock_fallback::AtomicU128);
 impl_atomic_u128!(atomic::Atomic<u128>);
@@ -193,6 +200,8 @@ benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128);
 benches!(bench_portable_atomic_cmpxchg16b_stdsimd, cmpxchg16b_stdsimd::AtomicU128);
 #[cfg(target_arch = "aarch64")]
 benches!(bench_portable_atomic_aarch64, aarch64::AtomicU128);
+#[cfg(target_arch = "s390x")]
+benches!(bench_portable_atomic_s390x, s390x::AtomicU128);
 benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128);
 benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128);
 benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u128>);
@@ -202,6 +211,8 @@ benches!(bench_atomic_rs, atomic::Atomic<u128>);
 use bench_portable_atomic_aarch64 as arch;
 #[cfg(target_arch = "x86_64")]
 use bench_portable_atomic_cmpxchg16b_stdsimd as arch;
+#[cfg(target_arch = "s390x")]
+use bench_portable_atomic_s390x as arch;
 
 criterion_group!(
     benches,

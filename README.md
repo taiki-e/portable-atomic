@@ -18,7 +18,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 ## 128-bit atomics support (AtomicI128,AtomicU128)
 
-Native 128-bit atomic operations are only available for x86_64 and aarch64 at Rust 1.59+, otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 and aarch64 at Rust 1.59+, and on s390x at only nightly, otherwise the fallback implementation is used.
 
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
