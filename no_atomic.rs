@@ -86,7 +86,6 @@ const HAS_ATOMIC_128: &[&str] = &[
     "aarch64-unknown-linux-musl",
     "aarch64-unknown-netbsd",
     "aarch64-unknown-none",
-    "aarch64-unknown-none-hermitkernel",
     "aarch64-unknown-none-softfloat",
     "aarch64-unknown-openbsd",
     "aarch64-unknown-redox",
