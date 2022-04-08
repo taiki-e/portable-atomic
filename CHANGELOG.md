@@ -12,7 +12,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.3.0] - 2022-03-25
 
-- Support 128-bit atomics for s390x (currently nightly-only).
+- Support native 128-bit atomic operations for s390x (currently nightly-only).
 
 - Add `AtomicF{32,64}::fetch_abs`.
 
@@ -38,7 +38,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.1.4] - 2022-03-02
 
-- Support 128-bit atomics for aarch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))
+- Support native 128-bit atomic operations for aarch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))
 
 ## [0.1.3] - 2022-02-28
 
