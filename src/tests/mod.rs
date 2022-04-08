@@ -41,7 +41,9 @@ extern "C" {
     fn _atomic_u32_ffi_safety(_: AtomicU32);
     fn _atomic_i64_ffi_safety(_: AtomicI64);
     fn _atomic_u64_ffi_safety(_: AtomicU64);
-    // TODO: https://github.com/rust-lang/unsafe-code-guidelines/issues/119
+    // TODO:
+    // https://github.com/rust-lang/unsafe-code-guidelines/issues/119
+    // https://github.com/rust-lang/rust/issues/54341
     // fn _atomic_i128_ffi_safety(_: AtomicI128);
     // fn _atomic_u128_ffi_safety(_: AtomicU128);
 }
