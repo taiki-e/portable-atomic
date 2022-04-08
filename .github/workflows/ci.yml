@@ -339,7 +339,7 @@ jobs:
               echo "::set-output name=success::false"
           fi
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - uses: taiki-e/create-pull-request@v3
+      - uses: taiki-e/create-pull-request@v4
         with:
           title: Update no_atomic.rs
           body: |
