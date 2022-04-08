@@ -23,8 +23,8 @@ use portable_atomic::{AtomicF32, AtomicF64};
 /// - `riscv32imc-unknown-none-elf`
 /// - `thumbv4t-none-eabi`
 /// - `thumbv6m-none-eabi`
-#[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(not(portable_atomic_no_atomic_cas)))]
-#[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(target_has_atomic = "ptr"))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 #[macro_export]
 macro_rules! cfg_target_has_atomic {
     ($($tt:tt)*) => {
@@ -32,8 +32,8 @@ macro_rules! cfg_target_has_atomic {
     };
 }
 /// `#[cfg(target_has_atomic = "ptr")]` for stable Rust.
-#[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(portable_atomic_no_atomic_cas))]
-#[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(not(target_has_atomic = "ptr")))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[macro_export]
 macro_rules! cfg_target_has_atomic {
     ($($tt:tt)*) => {};

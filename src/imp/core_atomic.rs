@@ -26,9 +26,9 @@ atomic!(AtomicBool, AtomicIsize, AtomicUsize);
 atomic!(AtomicI8, AtomicI16, AtomicU8, AtomicU16);
 #[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
 atomic!(AtomicI32, AtomicU32);
-#[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(not(portable_atomic_no_atomic_64)))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
 #[cfg_attr(
-    portable_atomic_cfg_target_has_atomic,
+    not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(target_has_atomic = "64", target_pointer_width = "64")) // cfg(target_has_atomic_load_store = "64")
 )]
 atomic!(AtomicI64, AtomicU64);

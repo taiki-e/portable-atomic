@@ -168,14 +168,14 @@ compile_error!(
 
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(
-    not(portable_atomic_cfg_target_has_atomic),
+    portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         not(portable_atomic_no_atomic_cas),
         not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
     ))
 )]
 #[cfg_attr(
-    portable_atomic_cfg_target_has_atomic,
+    not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "ptr",
         not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
@@ -387,11 +387,11 @@ impl AtomicBool {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -413,11 +413,11 @@ impl AtomicBool {
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
     /// and must be equivalent to or weaker than the success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -448,11 +448,11 @@ impl AtomicBool {
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
     /// and must be equivalent to or weaker than the success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -479,11 +479,11 @@ impl AtomicBool {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -503,11 +503,11 @@ impl AtomicBool {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -527,11 +527,11 @@ impl AtomicBool {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -551,11 +551,11 @@ impl AtomicBool {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -587,11 +587,11 @@ impl AtomicBool {
     /// [`Acquire`] or [`Relaxed`] and must be equivalent to or weaker than the
     /// success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -760,11 +760,11 @@ impl<T> AtomicPtr<T> {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -786,11 +786,11 @@ impl<T> AtomicPtr<T> {
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
     /// and must be equivalent to or weaker than the success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -821,11 +821,11 @@ impl<T> AtomicPtr<T> {
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
     /// and must be equivalent to or weaker than the success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -861,11 +861,11 @@ impl<T> AtomicPtr<T> {
     /// [`Acquire`] or [`Relaxed`] and must be equivalent to or weaker than the
     /// success ordering.
     #[cfg_attr(
-        not(portable_atomic_cfg_target_has_atomic),
+        portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
     )]
     #[cfg_attr(
-        portable_atomic_cfg_target_has_atomic,
+        not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
     )]
     #[inline]
@@ -1050,14 +1050,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1081,14 +1081,14 @@ atomic instructions or locks will be used.
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1120,14 +1120,14 @@ atomic instructions or locks will be used.
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1151,14 +1151,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1175,14 +1175,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1202,14 +1202,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1229,14 +1229,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1256,14 +1256,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1283,14 +1283,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1316,14 +1316,14 @@ atomic instructions or locks will be used.
             /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1358,14 +1358,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1427,14 +1427,14 @@ atomic instructions or locks will be used.
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1635,14 +1635,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1666,14 +1666,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1713,14 +1713,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1752,14 +1752,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1779,14 +1779,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1815,14 +1815,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
             /// and must be equivalent to or weaker than the success ordering.
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1857,14 +1857,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1887,14 +1887,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1915,14 +1915,14 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[cfg_attr(
-                not(portable_atomic_cfg_target_has_atomic),
+                portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core
                 ))
             )]
             #[cfg_attr(
-                portable_atomic_cfg_target_has_atomic,
+                not(portable_atomic_no_cfg_target_has_atomic),
                 cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
             )]
             #[inline]
@@ -1990,7 +1990,7 @@ atomic_int!(AtomicU32, u32, 4);
 
 // cfg(any(target_has_atomic = "ptr", target_has_atomic_load_store = "64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
 #[cfg_attr(
-    not(portable_atomic_cfg_target_has_atomic),
+    portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
@@ -1999,7 +1999,7 @@ atomic_int!(AtomicU32, u32, 4);
     ))
 )]
 #[cfg_attr(
-    portable_atomic_cfg_target_has_atomic,
+    not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
@@ -2009,7 +2009,7 @@ atomic_int!(AtomicU32, u32, 4);
 )]
 atomic_int!(AtomicI64, i64, 8);
 #[cfg_attr(
-    not(portable_atomic_cfg_target_has_atomic),
+    portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
@@ -2018,7 +2018,7 @@ atomic_int!(AtomicI64, i64, 8);
     ))
 )]
 #[cfg_attr(
-    portable_atomic_cfg_target_has_atomic,
+    not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
@@ -2051,11 +2051,11 @@ atomic_int!(AtomicU64, u64, 8);
     ))
 )]
 #[cfg_attr(
-    all(feature = "fallback", not(portable_atomic_cfg_target_has_atomic)),
+    all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
     cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
 )]
 #[cfg_attr(
-    all(feature = "fallback", portable_atomic_cfg_target_has_atomic),
+    all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
     cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
 )]
 atomic_int!(AtomicI128, i128, 16);
@@ -2082,11 +2082,11 @@ atomic_int!(AtomicI128, i128, 16);
     ))
 )]
 #[cfg_attr(
-    all(feature = "fallback", not(portable_atomic_cfg_target_has_atomic)),
+    all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
     cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
 )]
 #[cfg_attr(
-    all(feature = "fallback", portable_atomic_cfg_target_has_atomic),
+    all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
     cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
 )]
 atomic_int!(AtomicU128, u128, 16);

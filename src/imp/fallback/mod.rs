@@ -23,11 +23,11 @@ mod seq_lock;
 
 #[cfg(not(target_pointer_width = "64"))]
 #[cfg_attr(
-    not(portable_atomic_cfg_target_has_atomic),
+    portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_64))
 )]
 #[cfg_attr(
-    portable_atomic_cfg_target_has_atomic,
+    not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
 #[cfg_attr(test, allow(unused_imports))]

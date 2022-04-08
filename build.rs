@@ -14,7 +14,7 @@ include!("no_atomic.rs");
 
 // rustc +stable -Vv | grep -E '^(commit-date|release)'
 const LATEST_STABLE: Version =
-    Version { minor: 59, nightly: false, commit_date: Date::new(2022, 2, 23) };
+    Version { minor: 60, nightly: false, commit_date: Date::new(2022, 4, 4) };
 
 // Probe if unstable features can be compiled with the expected API.
 // This prevents accidental depends on them if the upstream changes its API.
@@ -141,13 +141,11 @@ fn main() {
     }
 
     if version.minor >= 60 || version.nightly {
-        println!("cargo:rustc-cfg=portable_atomic_cfg_target_has_atomic");
         // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11) https://github.com/rust-lang/rust/pull/93824
         if version.nightly && version.minor <= 60 && version.commit_date < Date::new(2022, 2, 10) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         }
     } else {
-        // TODO: invert portable_atomic_cfg_target_has_atomic once Rust 1.60 became stable.
         println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
         if NO_ATOMIC_CAS.contains(&&*target) {
             println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
