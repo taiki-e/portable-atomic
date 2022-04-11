@@ -70,6 +70,13 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
+- **`--cfg portable_atomic_unsafe_libcalls`**<br>
+  Use atomic builtins.
+
+  https://llvm.org/docs/Atomics.html#libcalls-atomic
+
+  Note: This cfg is `unsafe`.
+
 ## Related Projects
 
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.

@@ -107,6 +107,12 @@ mod fallback;
 mod interrupt;
 
 // -----------------------------------------------------------------------------
+// Custom fallback implementations
+
+#[cfg(any(test, portable_atomic_unsafe_libcalls))]
+mod libcalls;
+
+// -----------------------------------------------------------------------------
 
 // Atomic{Isize,Usize,Bool,Ptr}, Atomic{I,U}{8,16}
 #[cfg_attr(

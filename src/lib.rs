@@ -84,6 +84,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     )
 ))]
 #![warn(
+    improper_ctypes_definitions,
+    improper_ctypes,
     missing_debug_implementations,
     missing_docs,
     rust_2018_idioms,
@@ -196,6 +198,15 @@ compile_error!(
 compile_error!(
     "cfg(portable_atomic_unsafe_assume_single_core) does not compatible with this target; \
      if you need cfg(portable_atomic_unsafe_assume_single_core) support for this target, \
+     please submit an issue at <https://github.com/taiki-e/portable-atomic>"
+);
+
+#[cfg(portable_atomic_unsafe_libcalls)]
+#[cfg_attr(not(portable_atomic_cfg_target_has_atomic), cfg(not(portable_atomic_no_atomic_cas)))]
+#[cfg_attr(portable_atomic_cfg_target_has_atomic, cfg(target_has_atomic = "ptr",))]
+compile_error!(
+    "cfg(portable_atomic_unsafe_libcalls) does not compatible with this target; \
+     if you need cfg(portable_atomic_unsafe_libcalls) support for this target, \
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
