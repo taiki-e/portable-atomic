@@ -115,26 +115,6 @@ unsafe fn cmpxchg16b(
     #[cfg(portable_atomic_cmpxchg16b_dynamic)]
     #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
     {
-        // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
-        use core::{mem, sync::atomic::AtomicPtr};
-        type FnRaw = *mut ();
-        type FnTy = unsafe fn(*mut u128, u128, u128, Ordering, Ordering) -> (u128, bool);
-        static FUNC: AtomicPtr<()> = AtomicPtr::new(detect as FnRaw);
-        #[cold]
-        unsafe fn detect(
-            dst: *mut u128,
-            old: u128,
-            new: u128,
-            success: Ordering,
-            failure: Ordering,
-        ) -> (u128, bool) {
-            let func: FnTy = if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback };
-            FUNC.store(func as FnRaw, Ordering::Relaxed);
-            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-            // reads, 16-byte aligned, that there are no different kinds of concurrent accesses,
-            // and we’ve checked if cmpxchg16b is available,
-            unsafe { func(dst, old, new, success, failure) }
-        }
         #[cold]
         unsafe fn _fallback(
             dst: *mut u128,
@@ -154,12 +134,11 @@ unsafe fn cmpxchg16b(
                 }
             }
         }
-        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
-        // the caller must guarantee that `dst` is valid for both writes and
+        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
         unsafe {
-            let func = FUNC.load(Ordering::Relaxed);
-            mem::transmute::<FnRaw, FnTy>(func)(dst, old, new, success, failure)
+            ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering) -> (u128, bool)
+                = if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback })
         }
     }
 }

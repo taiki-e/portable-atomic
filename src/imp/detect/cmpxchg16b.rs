@@ -35,20 +35,6 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     }
     #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
     {
-        // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
-        use core::{
-            mem,
-            sync::atomic::{AtomicPtr, Ordering},
-        };
-        type FnRaw = *mut ();
-        type FnTy = fn() -> bool;
-        static FUNC: AtomicPtr<()> = AtomicPtr::new(detect as FnRaw);
-        #[cold]
-        fn detect() -> bool {
-            let func: FnTy = if _has_cmpxchg16b() { t } else { f };
-            FUNC.store(func as FnRaw, Ordering::Relaxed);
-            func()
-        }
         fn t() -> bool {
             true
         }
@@ -56,11 +42,7 @@ pub(crate) fn has_cmpxchg16b() -> bool {
         fn f() -> bool {
             false
         }
-        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
-        unsafe {
-            let func = FUNC.load(Ordering::Relaxed);
-            mem::transmute::<FnRaw, FnTy>(func)()
-        }
+        ifunc!(fn() -> bool = if _has_cmpxchg16b() { t } else { f })
     }
 }
 

@@ -119,6 +119,48 @@ macro_rules! serde_impls {
     };
 }
 
+// Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
+#[allow(unused_macros)]
+macro_rules! ifunc {
+    // if the functions are unsafe, this macro is also unsafe.
+    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) -> $ret_ty:ty = $if_block:expr) => {{
+        type FnRaw = *mut ();
+        type FnTy = unsafe fn($($arg_ty),*) -> $ret_ty;
+        static FUNC: core::sync::atomic::AtomicPtr<()>
+            = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
+        #[cold]
+        unsafe fn detect($($arg_pat: $arg_ty),*) -> $ret_ty {
+            let func: FnTy = $if_block;
+            FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe { func($($arg_pat),*) }
+        }
+        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
+        // the caller must uphold the remaining safety contract.
+        // (To force the caller to use unsafe block for this macro, do not use
+        // unsafe block here.)
+        let func = FUNC.load(core::sync::atomic::Ordering::Relaxed);
+        core::mem::transmute::<FnRaw, FnTy>(func)($($arg_pat),*)
+    }};
+    (fn($($arg_pat:ident: $arg_ty:ty),*) -> $ret_ty:ty = $if_block:expr) => {{
+        type FnRaw = *mut ();
+        type FnTy = fn($($arg_ty),*) -> $ret_ty;
+        static FUNC: core::sync::atomic::AtomicPtr<()>
+            = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
+        #[cold]
+        fn detect($($arg_pat: $arg_ty),*) -> $ret_ty {
+            let func: FnTy = $if_block;
+            FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
+            func($($arg_pat),*)
+        }
+        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
+        let func = unsafe {
+            core::mem::transmute::<FnRaw, FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
+        };
+        func($($arg_pat),*)
+    }};
+}
+
 pub(crate) trait AtomicRepr {
     const IS_ALWAYS_LOCK_FREE: bool;
     fn is_lock_free() -> bool;
