@@ -127,8 +127,7 @@ build() {
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
         case "${target}" in
-            # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
-            *-none* | avr-* | *-esp-espidf | aarch64-unknown-freebsd) args+=(-Z build-std="core,alloc") ;;
+            *-none* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
@@ -152,8 +151,7 @@ build() {
         *) args+=(--exclude-features "outline-atomics") ;;
     esac
     case "${target}" in
-        # TODO: aarch64 freebsd https://github.com/rust-lang/stdarch/issues/1289
-        *-none* | avr-* | riscv32imc-esp-espidf | aarch64-unknown-freebsd)
+        *-none* | avr-* | riscv32imc-esp-espidf)
             args+=(--exclude-features "std")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
