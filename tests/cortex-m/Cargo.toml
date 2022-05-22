@@ -5,11 +5,12 @@ edition = "2021"
 publish = false
 
 [workspace]
+resolver = "2"
 
 [dependencies]
 portable-atomic = { path = "../.." }
 
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
-cortex-m-semihosting = "0.3"
+cortex-m-semihosting = "0.5"
 paste = "1"
