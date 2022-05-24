@@ -124,9 +124,9 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
 #[cfg(any(
     portable_atomic_target_feature_lse,
     target_feature = "lse",
-    portable_atomic_aarch64_target_feature,
+    not(portable_atomic_no_aarch64_target_feature),
 ))]
-#[cfg_attr(portable_atomic_aarch64_target_feature, target_feature(enable = "lse"))]
+#[cfg_attr(not(portable_atomic_no_aarch64_target_feature), target_feature(enable = "lse"))]
 #[inline]
 unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
@@ -231,7 +231,7 @@ unsafe fn atomic_compare_exchange(
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { _casp(dst, old, new, success) };
     #[cfg(not(all(
-        portable_atomic_aarch64_target_feature,
+        not(portable_atomic_no_aarch64_target_feature),
         feature = "outline-atomics",
         // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
         // Note: aarch64 freebsd is tier 3, so std may not be available.
@@ -241,7 +241,7 @@ unsafe fn atomic_compare_exchange(
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
     #[cfg(all(
-        portable_atomic_aarch64_target_feature,
+        not(portable_atomic_no_aarch64_target_feature),
         feature = "outline-atomics",
         // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
         // Note: aarch64 freebsd is tier 3, so std may not be available.

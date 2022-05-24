@@ -14,7 +14,7 @@ include!("no_atomic.rs");
 
 // rustc +stable -Vv | grep -E '^(commit-date|release)'
 const LATEST_STABLE: Version =
-    Version { minor: 60, nightly: false, commit_date: Date::new(2022, 4, 4) };
+    Version { minor: 61, nightly: false, commit_date: Date::new(2022, 5, 18) };
 
 // Probe if unstable features can be compiled with the expected API.
 // This prevents accidental depends on them if the upstream changes its API.
@@ -136,8 +136,8 @@ fn main() {
     }
     // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16).
     if version.minor >= 61 && (!version.nightly || version.commit_date >= Date::new(2022, 3, 15)) {
-        // TODO: invert cfg once Rust 1.61 became stable.
-        println!("cargo:rustc-cfg=portable_atomic_aarch64_target_feature");
+    } else {
+        println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
     }
 
     if version.minor >= 60 || version.nightly {
@@ -336,7 +336,7 @@ fn has_target_feature(
     // to parse the `-C target-feature` in RUSTFLAGS.
     //
     // - #[cfg(target_feature = "unstable_target_feature")] doesn't work on stable.
-    // - CARGO_CFG_TARGET_FEATURE excludes unstable features on stable.
+    // - CARGO_CFG_TARGET_FEATURE excludes unstable target features on stable.
     //
     // As mentioned in the [RFC2045], unstable target features are also passed to LLVM
     // (e.g., https://godbolt.org/z/8Eh3z5Wzb), so this hack works properly on stable.
