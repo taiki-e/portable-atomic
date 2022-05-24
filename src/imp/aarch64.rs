@@ -368,7 +368,7 @@ macro_rules! atomic128 {
         }
 
         // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic intrinsics.
+        // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {

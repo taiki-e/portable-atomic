@@ -1532,6 +1532,7 @@ This type has the same in-memory representation as the underlying floating point
         }
 
         // Send is implicitly implemented.
+        // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
 
         // UnwindSafe is implicitly implemented.

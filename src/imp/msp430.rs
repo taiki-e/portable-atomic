@@ -28,6 +28,7 @@ impl crate::utils::AtomicRepr for AtomicBool {
 }
 
 // Send is implicitly implemented.
+// SAFETY: any data races are prevented by atomic operations.
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
@@ -82,7 +83,9 @@ impl<T> crate::utils::AtomicRepr for AtomicPtr<T> {
     }
 }
 
+// SAFETY: any data races are prevented by atomic operations.
 unsafe impl<T> Send for AtomicPtr<T> {}
+// SAFETY: any data races are prevented by atomic operations.
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
 impl<T> AtomicPtr<T> {
@@ -141,7 +144,7 @@ macro_rules! atomic_int {
         }
 
         // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic intrinsics.
+        // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
