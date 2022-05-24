@@ -112,16 +112,14 @@ build() {
     local target="$1"
     shift
     args=()
+    target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         echo "target '${target}' not available on ${rustc_version}"
         return 0
     fi
     if [[ "${target}" == "avr-"* ]]; then
-        # https://github.com/rust-lang/compiler-builtins/issues/400
-        case "${rustc_version}" in
-            1.4* | 1.50.* | 1.51.*) ;;
-            *) return 0 ;;
-        esac
+        # https://github.com/rust-lang/rust/issues/88252
+        target_rustflags="${target_rustflags} -C opt-level=s"
     fi
     args+=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
@@ -159,21 +157,21 @@ build() {
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
-                        RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} --cfg portable_atomic_unsafe_assume_single_core" \
+                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                             x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
                         ;;
                 esac
             fi
             ;;
     esac
-    RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
+    RUSTFLAGS="${target_rustflags}" \
         x cargo "${args[@]}" "$@"
     if [[ "${target}" == "x86_64"* ]]; then
-        RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+cmpxchg16b" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
             x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
     fi
     if [[ "${target}" == "aarch64"* ]]; then
-        RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-} -C target-feature=+lse" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
             x cargo "${args[@]}" --target-dir target/lse "$@"
     fi
 }
