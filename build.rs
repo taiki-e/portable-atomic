@@ -100,6 +100,10 @@ fn main() {
     if aarch64 || x86_64 {
         // HACK: If --target is specified, rustflags is not applied to the build
         // script itself, so the build script will not be rerun when these are changed.
+        //
+        // Ideally, the build script should be rebuilt when CARGO_ENCODED_RUSTFLAGS
+        // is changed, but since it is an environment variable set by cargo,
+        // as of 1.62.0-nightly, it is not useful to specify it as rerun-if-env-changed.
         println!("cargo:rerun-if-env-changed=RUSTFLAGS");
         println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
         println!(
@@ -111,7 +115,11 @@ fn main() {
     let version = match rustc_version() {
         Some(version) => version,
         None => {
-            println!("cargo:warning={}: unable to determine rustc version", env!("CARGO_PKG_NAME"));
+            println!(
+                "cargo:warning={}: unable to determine rustc version; assuming rustc 1.{}",
+                env!("CARGO_PKG_NAME"),
+                LATEST_STABLE.minor
+            );
             LATEST_STABLE
         }
     };
@@ -169,12 +177,12 @@ fn main() {
     }
 
     // aarch64_target_feature stabilized in Rust 1.61.
-    // aarch64 macos always support lse: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
+    // aarch64 macos always support lse because it is armv8.6: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
     if aarch64
         && (version.minor >= 59 || version.nightly)
         && has_target_feature("lse", target == "aarch64-apple-darwin", &version, Some(61))
     {
-        println!("cargo:rustc-cfg=portable_atomic_target_feature_lse");
+        println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse\"");
     }
 
     // cmpxchg16b is available via asm (1.59+) or stdsimd (nightly).
@@ -186,7 +194,7 @@ fn main() {
             has_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version, None);
     }
     if has_cmpxchg16b {
-        println!("cargo:rustc-cfg=portable_atomic_target_feature_cmpxchg16b");
+        println!("cargo:rustc-cfg=portable_atomic_target_feature=\"cmpxchg16b\"");
     }
 
     if version.nightly {
@@ -332,8 +340,8 @@ fn has_target_feature(
     version: &Version,
     stabilized: Option<u32>,
 ) -> bool {
-    // HACK: Currently, it seems that the only way that works on the stable is
-    // to parse the `-C target-feature` in RUSTFLAGS.
+    // HACK: Currently, it seems that the only way to handle unstable target
+    // features on the stable is to parse the `-C target-feature` in RUSTFLAGS.
     //
     // - #[cfg(target_feature = "unstable_target_feature")] doesn't work on stable.
     // - CARGO_CFG_TARGET_FEATURE excludes unstable target features on stable.
@@ -354,6 +362,8 @@ fn has_target_feature(
             if flag.starts_with("target-feature=") {
                 flag = &flag["target-feature=".len()..];
                 for s in flag.split(',').filter(|s| !s.is_empty()) {
+                    // TODO: Handles cases where a specific target feature
+                    // implicitly enables another target feature.
                     match (s.as_bytes()[0] as char, &s.as_bytes()[1..]) {
                         ('+', f) if f == name.as_bytes() => has_target_feature = true,
                         ('-', f) if f == name.as_bytes() => has_target_feature = false,

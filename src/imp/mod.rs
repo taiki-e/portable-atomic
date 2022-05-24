@@ -13,8 +13,8 @@ mod aarch64;
 #[cfg(any(test, not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(any(
-    portable_atomic_target_feature_cmpxchg16b,
     target_feature = "cmpxchg16b",
+    portable_atomic_target_feature = "cmpxchg16b",
     portable_atomic_cmpxchg16b_dynamic
 ))]
 #[cfg(target_arch = "x86_64")]
@@ -47,7 +47,7 @@ mod riscv;
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"),
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
             target_arch = "x86_64",
         ),
         all(
@@ -206,8 +206,8 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     not(portable_atomic_core_atomic_128),
     any(not(portable_atomic_no_asm), portable_atomic_nightly),
     any(
-        portable_atomic_target_feature_cmpxchg16b,
         target_feature = "cmpxchg16b",
+        portable_atomic_target_feature = "cmpxchg16b",
         portable_atomic_cmpxchg16b_dynamic
     ),
     target_arch = "x86_64",
@@ -230,8 +230,8 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         not(portable_atomic_core_atomic_128),
         any(not(portable_atomic_no_asm), portable_atomic_nightly),
         any(
-            portable_atomic_target_feature_cmpxchg16b,
             target_feature = "cmpxchg16b",
+            portable_atomic_target_feature = "cmpxchg16b",
             portable_atomic_cmpxchg16b_dynamic
         ),
         target_arch = "x86_64",

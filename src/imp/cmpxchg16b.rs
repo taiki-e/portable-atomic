@@ -77,11 +77,11 @@ unsafe fn cmpxchg16b(
         target_feature(enable = "cmpxchg16b")
     )]
     #[cfg_attr(
-        any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"),
+        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
         inline
     )]
     #[cfg_attr(
-        not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")),
+        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
         inline(never)
     )]
     unsafe fn _cmpxchg16b(
@@ -105,7 +105,7 @@ unsafe fn cmpxchg16b(
         }
     }
 
-    #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     {
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
@@ -113,7 +113,7 @@ unsafe fn cmpxchg16b(
         unsafe { _cmpxchg16b(dst, old, new, success, failure) }
     }
     #[cfg(portable_atomic_cmpxchg16b_dynamic)]
-    #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
+    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     {
         #[cold]
         unsafe fn _fallback(
@@ -305,8 +305,10 @@ macro_rules! atomic128 {
         }
 
         impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool =
-                cfg!(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"));
+            const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(
+                target_feature = "cmpxchg16b",
+                portable_atomic_target_feature = "cmpxchg16b",
+            ));
             #[inline]
             fn is_lock_free() -> bool {
                 detect::has_cmpxchg16b()
@@ -489,7 +491,7 @@ mod tests {
         assert!(AtomicU128::is_lock_free());
     }
 
-    #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     mod quickcheck {
         use crate::tests::helper::Align16;
 

@@ -122,8 +122,8 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
 }
 
 #[cfg(any(
-    portable_atomic_target_feature_lse,
     target_feature = "lse",
+    portable_atomic_target_feature = "lse",
     not(portable_atomic_no_aarch64_target_feature),
 ))]
 #[cfg_attr(not(portable_atomic_no_aarch64_target_feature), target_feature(enable = "lse"))]
@@ -227,7 +227,7 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     _failure: Ordering,
 ) -> Result<u128, u128> {
-    #[cfg(any(portable_atomic_target_feature_lse, target_feature = "lse"))]
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { _casp(dst, old, new, success) };
     #[cfg(not(all(
@@ -237,7 +237,7 @@ unsafe fn atomic_compare_exchange(
         // Note: aarch64 freebsd is tier 3, so std may not be available.
         any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
     )))]
-    #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
     #[cfg(all(
@@ -247,7 +247,7 @@ unsafe fn atomic_compare_exchange(
         // Note: aarch64 freebsd is tier 3, so std may not be available.
         any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
     ))]
-    #[cfg(not(any(portable_atomic_target_feature_lse, target_feature = "lse")))]
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let res = {
         extern crate std;
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and

@@ -1381,7 +1381,7 @@ atomic instructions or locks will be used.
                     #[cfg(any(
                         all(
                             target_arch = "aarch64",
-                            any(portable_atomic_target_feature_lse, target_feature = "lse"),
+                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
                         portable_atomic_armv5te,
                         target_arch = "mips",
@@ -1450,7 +1450,7 @@ atomic instructions or locks will be used.
                     #[cfg(any(
                         all(
                             target_arch = "aarch64",
-                            any(portable_atomic_target_feature_lse, target_feature = "lse"),
+                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
                         portable_atomic_armv5te,
                         target_arch = "mips",
@@ -2041,8 +2041,8 @@ atomic_int!(AtomicU64, u64, 8);
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(
-                portable_atomic_target_feature_cmpxchg16b,
                 target_feature = "cmpxchg16b",
+                portable_atomic_target_feature = "cmpxchg16b",
                 portable_atomic_cmpxchg16b_dynamic
             ),
             target_arch = "x86_64",
@@ -2072,8 +2072,8 @@ atomic_int!(AtomicI128, i128, 16);
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(
-                portable_atomic_target_feature_cmpxchg16b,
                 target_feature = "cmpxchg16b",
+                portable_atomic_target_feature = "cmpxchg16b",
                 portable_atomic_cmpxchg16b_dynamic
             ),
             target_arch = "x86_64",

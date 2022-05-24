@@ -28,12 +28,12 @@ fn _has_cmpxchg16b() -> bool {
 
 #[inline]
 pub(crate) fn has_cmpxchg16b() -> bool {
-    #[cfg(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b"))]
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     {
         // cmpxchg16b is statically available.
         true
     }
-    #[cfg(not(any(portable_atomic_target_feature_cmpxchg16b, target_feature = "cmpxchg16b")))]
+    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     {
         fn t() -> bool {
             true
