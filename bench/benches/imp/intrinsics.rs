@@ -378,37 +378,25 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_load(self.v.get().cast(), order) as $int_type
-                }
+                unsafe { atomic_load(self.v.get().cast(), order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_store(self.v.get().cast(), val as u128, order)
-                }
+                unsafe { atomic_store(self.v.get().cast(), val as u128, order) }
             }
 
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_swap(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_swap(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -420,8 +408,6 @@ macro_rules! atomic128 {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -447,8 +433,6 @@ macro_rules! atomic128 {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -468,97 +452,65 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_add(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_sub(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_and(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_nand(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_or(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_xor(self.v.get().cast(), val as u128, order) as $int_type
-                }
+                unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    $atomic_max(self.v.get(), val, order)
-                }
+                unsafe { $atomic_max(self.v.get(), val, order) }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 assert_cmpxchg16b!();
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    $atomic_min(self.v.get(), val, order)
-                }
+                unsafe { $atomic_min(self.v.get(), val, order) }
             }
         }
     };

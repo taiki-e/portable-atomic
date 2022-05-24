@@ -45,12 +45,8 @@ macro_rules! atomic {
                 static_assert!($atomic_type::LEN > 1);
                 static_assert!(mem::size_of::<$int_type>() % mem::size_of::<usize>() == 0);
 
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: the caller must uphold the safety contract for `chunks`.
-                unsafe {
-                    &*(self.v.get() as *const $int_type as *const [AtomicUsize; Self::LEN])
-                }
+                unsafe { &*(self.v.get() as *const $int_type as *const [AtomicUsize; Self::LEN]) }
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
@@ -59,8 +55,6 @@ macro_rules! atomic {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
                 let mut dst = [0_usize; Self::LEN];
                 for i in 0..Self::LEN {
-                    // clippy bug that does not recognize safety comments inside macros.
-                    #[allow(clippy::undocumented_unsafe_blocks)]
                     // SAFETY:
                     // - There are no threads that perform non-atomic concurrent write operations.
                     // - There is no writer that updates the value using atomic operations of different granularity.
@@ -83,18 +77,12 @@ macro_rules! atomic {
                         dst[i] = self.chunks()[i].load(Ordering::Relaxed);
                     }
                 }
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: integers are plain old datatypes so we can always transmute to them.
-                unsafe {
-                    mem::transmute::<[usize; Self::LEN], $int_type>(dst)
-                }
+                unsafe { mem::transmute::<[usize; Self::LEN], $int_type>(dst) }
             }
 
             #[inline]
             fn read(&self, _guard: &SeqLockWriteGuard) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY:
                 // - The guard guarantees that we hold the lock to write.
                 // - The raw pointer is valid because we got it from a reference.
@@ -110,20 +98,14 @@ macro_rules! atomic {
                 // to be no tier 1 or tier 2 platform that generates such code
                 // for a pointer-width relaxed load + acquire fence:
                 // https://github.com/taiki-e/atomic-memcpy/tree/v0.1.3/tests/asm-test/asm
-                unsafe {
-                    self.v.get().read()
-                }
+                unsafe { self.v.get().read() }
             }
 
             #[inline]
             fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard) {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
                 let val = unsafe { mem::transmute::<$int_type, [usize; Self::LEN]>(val) };
                 for i in 0..Self::LEN {
-                    // clippy bug that does not recognize safety comments inside macros.
-                    #[allow(clippy::undocumented_unsafe_blocks)]
                     // SAFETY:
                     // - The guard guarantees that we hold the lock to write.
                     // - There are no threads that perform non-atomic concurrent read or write operations.
@@ -158,13 +140,9 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: This is safe because the mutable reference guarantees that no other
                 // threads are concurrently accessing the atomic data.
-                unsafe {
-                    &mut *self.v.get()
-                }
+                unsafe { &mut *self.v.get() }
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]

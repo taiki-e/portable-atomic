@@ -170,8 +170,6 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_load_ordering(order);
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $int_type::atomic_load(self.v.get(), order) }
@@ -180,8 +178,6 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_store_ordering(order);
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -193,8 +189,6 @@ macro_rules! atomic_int {
         impl AtomicOperations for $int_type {
             #[inline]
             unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: the caller must uphold the safety contract for `atomic_load`.
                 unsafe {
                     let out;
@@ -234,8 +228,6 @@ macro_rules! atomic_int {
 
             #[inline]
             unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering) {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: the caller must uphold the safety contract for `atomic_store`.
                 unsafe {
                     match order {

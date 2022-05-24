@@ -99,13 +99,9 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: This is safe because the mutable reference guarantees that no other
                 // threads are concurrently accessing the atomic data.
-                unsafe {
-                    &mut *self.v.get()
-                }
+                unsafe { &mut *self.v.get() }
             }
 
             #[inline]
@@ -116,8 +112,6 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_load_ordering(order);
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -129,8 +123,6 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_store_ordering(order);
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -141,8 +133,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -160,8 +150,6 @@ macro_rules! atomic_int {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 assert_compare_exchange_ordering(success, failure);
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -189,8 +177,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -203,8 +189,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -217,8 +201,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -231,8 +213,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -245,8 +225,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -259,8 +237,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -273,8 +249,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -287,8 +261,6 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {

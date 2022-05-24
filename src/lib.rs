@@ -1582,13 +1582,9 @@ This type has the same in-memory representation as the underlying floating point
             /// concurrently accessing the atomic data.
             #[inline]
             pub fn get_mut(&mut self) -> &mut $float_type {
-                // clippy bug that does not recognize safety comments inside macros.
-                #[allow(clippy::undocumented_unsafe_blocks)]
                 // SAFETY: This is safe because the mutable reference guarantees that no other
                 // threads are concurrently accessing the atomic data.
-                unsafe {
-                    &mut *self.v.get()
-                }
+                unsafe { &mut *self.v.get() }
             }
 
             // TODO: Add from_mut once it is stable on other std atomic types.
@@ -1942,13 +1938,9 @@ See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
 portability of this operation (there are almost no issues)."),
                 #[inline]
                 pub fn as_bits(&self) -> &crate::$atomic_int_type {
-                    // clippy bug that does not recognize safety comments inside macros.
-                    #[allow(clippy::undocumented_unsafe_blocks)]
                     // SAFETY: $atomic_type and $atomic_int_type have the same layout,
                     // and there is no concurrent access to the value that does not go through this method.
-                    unsafe {
-                        &*(self as *const $atomic_type as *const crate::$atomic_int_type)
-                    }
+                    unsafe { &*(self as *const $atomic_type as *const crate::$atomic_int_type) }
                 }
             }
         }
