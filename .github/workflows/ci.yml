@@ -103,6 +103,7 @@ jobs:
       - run: |
           echo "REPORT_TIME=-Z unstable-options --report-time" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly')
+
       # all features
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
@@ -110,6 +111,7 @@ jobs:
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+
       # +cmpxchg16b
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
         env:
@@ -128,6 +130,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+
       # +lse
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
         env:
@@ -146,6 +149,8 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
+      # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
+
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private
         if: startsWith(matrix.rust, 'nightly')
 

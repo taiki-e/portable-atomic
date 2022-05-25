@@ -173,6 +173,8 @@ build() {
     if [[ "${target}" == "aarch64"* ]]; then
         RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
             x cargo "${args[@]}" --target-dir target/lse "$@"
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
+            x cargo "${args[@]}" --target-dir target/lse2 "$@" -vvv
     fi
 }
 
