@@ -1,14 +1,20 @@
 // Atomic{I,U}128 implementation for AArch64.
 //
-// There are two ways to implement 128-bit atomic operations in AArch64.
+// There are a few ways to implement 128-bit atomic operations in AArch64.
 //
 // - LDXP/STXP loop (DW LL/SC)
-// - CASP (DWCAS) added as FEAT_LSE
+// - CASP (DWCAS) added as FEAT_LSE (armv8.1-a)
+// - LDP/STP (DW load/store) if FEAT_LSE2 (armv8.4-a) is available
 //
-// If the `outline-atomics` feature is not enabled, we always use CASP if
-// FEAT_LSE is enabled at compile-time, otherwise, always use LDXP/STXP loop.
+// If the `outline-atomics` feature is not enabled, we use CASP if
+// FEAT_LSE is enabled at compile-time, otherwise, use LDXP/STXP loop.
 // If the `outline-atomics` feature is enabled, we use CASP for
 // compare_exchange(_weak) if FEAT_LSE is available at run-time.
+// If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
+//
+// Note: As of rustc nightly-2022-04-30, -C target-feature=+lse2 does not
+// implicitly enable lse. Also, target_feature "lse2" is not available on rustc side:
+// https://github.com/rust-lang/rust/blob/d201c812d40932509b2b5307c0b20c1ce78d21da/compiler/rustc_codegen_ssa/src/target_features.rs#L45
 //
 // Refs:
 // - ARM Compiler armasm User Guide
@@ -20,6 +26,7 @@
 //
 // Generated asm(default): https://godbolt.org/z/391vjWcKo
 // Generated asm(+lse): https://godbolt.org/z/3jWf8jxYT
+// Generated asm(+lse,+lse2): https://godbolt.org/z/MKozsM3fT
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -132,8 +139,8 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations.
-    // cfg guarantee that the CPU supports casp*.
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE.
     //
     // Refs:
     // - https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL
@@ -200,6 +207,98 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     }
 }
 
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+#[inline]
+unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
+    debug_assert!(src as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for reads,
+    // 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE2.
+    unsafe {
+        let (prev_lo, prev_hi);
+        match order {
+            Ordering::Relaxed => {
+                asm!(
+                    "ldp {prev_lo}, {prev_hi}, [{src}]",
+                    src = in(reg) src,
+                    prev_lo = lateout(reg) prev_lo,
+                    prev_hi = lateout(reg) prev_hi,
+                    options(nostack),
+                );
+            }
+            Ordering::Acquire => {
+                asm!(
+                    "ldp {prev_lo}, {prev_hi}, [{src}]",
+                    "dmb ishld",
+                    src = in(reg) src,
+                    prev_lo = lateout(reg) prev_lo,
+                    prev_hi = lateout(reg) prev_hi,
+                    options(nostack),
+                );
+            }
+            Ordering::SeqCst => {
+                asm!(
+                    "ldp {prev_lo}, {prev_hi}, [{src}]",
+                    "dmb ish",
+                    src = in(reg) src,
+                    prev_lo = lateout(reg) prev_lo,
+                    prev_hi = lateout(reg) prev_hi,
+                    options(nostack),
+                );
+            }
+            _ => unreachable!("{:?}", order),
+        }
+        U128 { pair: [prev_lo, prev_hi] }.u128
+    }
+}
+
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+#[inline]
+unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for writes,
+    // 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE2.
+    unsafe {
+        let val = U128 { u128: val };
+        match order {
+            Ordering::Relaxed => {
+                asm!(
+                    "stp {val_lo}, {val_hi}, [{dst}]",
+                    dst = in(reg) dst,
+                    val_lo = in(reg) val.pair[0],
+                    val_hi = in(reg) val.pair[1],
+                    options(nostack),
+                );
+            }
+            Ordering::Release => {
+                asm!(
+                    "dmb ish",
+                    "stp {val_lo}, {val_hi}, [{dst}]",
+                    dst = in(reg) dst,
+                    val_lo = in(reg) val.pair[0],
+                    val_hi = in(reg) val.pair[1],
+                    options(nostack),
+                );
+            }
+            Ordering::SeqCst => {
+                asm!(
+                    "dmb ish",
+                    "stp {val_lo}, {val_hi}, [{dst}]",
+                    "dmb ish",
+                    dst = in(reg) dst,
+                    val_lo = in(reg) val.pair[0],
+                    val_hi = in(reg) val.pair[1],
+                    options(nostack),
+                );
+            }
+            _ => unreachable!("{:?}", order),
+        }
+    }
+}
+
 #[inline]
 fn ldx_ordering(order: Ordering) -> Ordering {
     match order {
@@ -229,6 +328,7 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
     let res = unsafe { _casp(dst, old, new, success) };
     #[cfg(not(all(
         not(portable_atomic_no_aarch64_target_feature),
@@ -239,7 +339,7 @@ unsafe fn atomic_compare_exchange(
     )))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
+    let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
     #[cfg(all(
         not(portable_atomic_no_aarch64_target_feature),
         feature = "outline-atomics",
@@ -251,13 +351,14 @@ unsafe fn atomic_compare_exchange(
     let res = {
         extern crate std;
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-        // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+        // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+        // and we've checked if FEAT_LSE is available.
         unsafe {
             ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128
             = if std::arch::is_aarch64_feature_detected!("lse") {
                 _casp
             } else {
-                compare_exchange_ldxp_stxp
+                _compare_exchange_ldxp_stxp
             })
         }
     };
@@ -273,7 +374,7 @@ unsafe fn atomic_compare_exchange(
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[inline]
-unsafe fn compare_exchange_ldxp_stxp(
+unsafe fn _compare_exchange_ldxp_stxp(
     dst: *mut u128,
     old: u128,
     new: u128,
@@ -306,16 +407,33 @@ where
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe { compare_exchange_ldxp_stxp(src, 0, 0, order) }
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    unsafe {
+        _ldp(src, order)
+    }
+    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        _compare_exchange_ldxp_stxp(src, 0, 0, order)
+    }
 }
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    unsafe {
+        _stp(dst, val, order);
+    }
+    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
         atomic_swap(dst, val, order);
     }
 }
+
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
@@ -552,7 +670,7 @@ mod no_outline_atomics {
         _failure: Ordering,
     ) -> Result<u128, u128> {
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-        let res = unsafe { compare_exchange_ldxp_stxp(dst, old, new, success) };
+        let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
         if res == old {
             Ok(res)
         } else {
