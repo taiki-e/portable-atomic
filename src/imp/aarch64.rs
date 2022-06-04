@@ -12,9 +12,9 @@
 // compare_exchange(_weak) if FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
-// Note: As of rustc nightly-2022-04-30, -C target-feature=+lse2 does not
+// Note: As of rustc 1.61.0, -C target-feature=+lse2 does not
 // implicitly enable lse. Also, target_feature "lse2" is not available on rustc side:
-// https://github.com/rust-lang/rust/blob/d201c812d40932509b2b5307c0b20c1ce78d21da/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+// https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
 //
 // Refs:
 // - ARM Compiler armasm User Guide
@@ -24,9 +24,10 @@
 // - progress64 https://github.com/ARM-software/progress64
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
-// Generated asm(default): https://godbolt.org/z/391vjWcKo
-// Generated asm(+lse): https://godbolt.org/z/3jWf8jxYT
-// Generated asm(+lse,+lse2): https://godbolt.org/z/MKozsM3fT
+// Generated asm:
+// - aarch64 https://godbolt.org/z/391vjWcKo
+// - aarch64 (+lse) https://godbolt.org/z/3jWf8jxYT
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/MKozsM3fT
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

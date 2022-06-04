@@ -170,7 +170,7 @@ pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}
 
-// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2334
+// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2541
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
@@ -181,7 +181,7 @@ pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2359
+// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2566
 #[inline]
 pub(crate) fn assert_load_ordering(order: Ordering) {
     match order {
@@ -192,7 +192,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2345
+// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2552
 #[inline]
 pub(crate) fn assert_store_ordering(order: Ordering) {
     match order {
@@ -203,7 +203,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs#L2421
+// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2628
 #[inline]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
     use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};

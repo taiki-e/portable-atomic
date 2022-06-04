@@ -176,14 +176,14 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_armv5te");
     }
 
-    // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
+    // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
     if aarch64 && (version.minor >= 59 || version.nightly) {
         // aarch64_target_feature stabilized in Rust 1.61.
         if has_target_feature("lse", target == "aarch64-apple-darwin", &version, Some(61), true) {
             println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse\"");
         }
-        // As of rustc nightly-2022-04-30, target_feature "lse2" is not available on rustc side:
-        // https://github.com/rust-lang/rust/blob/d201c812d40932509b2b5307c0b20c1ce78d21da/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+        // As of rustc 1.61.0, target_feature "lse2" is not available on rustc side:
+        // https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
         if has_target_feature("lse2", target == "aarch64-apple-darwin", &version, None, false) {
             println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse2\"");
         }
@@ -193,7 +193,7 @@ fn main() {
     let may_use_cmpxchg16b = x86_64 && (version.minor >= 59 || version.nightly);
     let mut has_cmpxchg16b = false;
     if may_use_cmpxchg16b {
-        // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.59.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
+        // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
         has_cmpxchg16b =
             has_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version, None, true);
     }
