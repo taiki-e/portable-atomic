@@ -98,12 +98,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     clippy::transmute_undefined_repr,
     clippy::undocumented_unsafe_blocks
 )]
-// allow unused_macro_rules because macros with rules used only on specific
-// platforms do not interoperate well with this lint.
-// allowing unknown_lints is also needed because unused_macro_rules was added in Rust 1.62.
-// unused_macro_rules is allowed in Rust 1.63, but backport is not done yet.
-// see also https://github.com/rust-lang/rust/pull/97032
-#![allow(unknown_lints, unused_macro_rules)]
 #![allow(
     clippy::cast_lossless,
     clippy::doc_markdown,
