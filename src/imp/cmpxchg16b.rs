@@ -91,13 +91,14 @@ unsafe fn cmpxchg16b(
         success: Ordering,
         failure: Ordering,
     ) -> (u128, bool) {
-        #[cfg(portable_atomic_cmpxchg16b_stdsimd)]
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(any(portable_atomic_cmpxchg16b_stdsimd, miri, sanitize_thread))]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
             (res, res == old)
         }
-        #[cfg(not(portable_atomic_cmpxchg16b_stdsimd))]
+        #[cfg(not(any(portable_atomic_cmpxchg16b_stdsimd, miri, sanitize_thread)))]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let _ = (success, failure);

@@ -113,7 +113,15 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     feature(integer_atomics)
 )]
 #![cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_stdsimd),
+    all(
+        target_arch = "x86_64",
+        any(
+            all(test, portable_atomic_nightly),
+            portable_atomic_cmpxchg16b_stdsimd,
+            miri,
+            sanitize_thread
+        )
+    ),
     feature(stdsimd, cmpxchg16b_target_feature)
 )]
 #![cfg_attr(
