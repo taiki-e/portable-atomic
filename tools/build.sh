@@ -83,7 +83,9 @@ rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 subcmd=build
+nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+    nightly=1
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     case "${rustc_version}" in
         # -Z check-cfg requires 1.63.0-nightly
@@ -93,12 +95,12 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
             # shellcheck disable=SC2207
             build_script_cfg=($(grep -E 'cargo:rustc-cfg=' build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort | uniq))
             check_cfg="-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,$(IFS=',' && echo "${build_script_cfg[*]}"))"
-            echo "base rustflags='${check_cfg}'"
             rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
             subcmd=clippy
             ;;
     esac
 fi
+echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
 
 x() {
     local cmd="$1"
@@ -111,8 +113,8 @@ x() {
 build() {
     local target="$1"
     shift
-    args=()
-    target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
+    local args=()
+    local target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         echo "target '${target}' not available on ${rustc_version}"
         return 0
@@ -124,7 +126,7 @@ build() {
     args+=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
-    elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+    elif [[ -n "${nightly}" ]]; then
         case "${target}" in
             *-none* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
@@ -174,7 +176,7 @@ build() {
         RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
             x cargo "${args[@]}" --target-dir target/lse "$@"
         RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
-            x cargo "${args[@]}" --target-dir target/lse2 "$@" -vvv
+            x cargo "${args[@]}" --target-dir target/lse2 "$@"
     fi
 }
 

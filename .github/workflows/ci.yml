@@ -104,7 +104,6 @@ jobs:
           echo "REPORT_TIME=-Z unstable-options --report-time" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly')
 
-      # all features
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
@@ -113,17 +112,17 @@ jobs:
           CARGO_PROFILE_RELEASE_LTO: fat
 
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -132,17 +131,17 @@ jobs:
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
 
       # +lse
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- $REPORT_TIME
+      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE -- $REPORT_TIME
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -164,7 +163,7 @@ jobs:
           - rust: nightly
           # for avr: https://github.com/rust-lang/compiler-builtins/issues/400
           - rust: nightly-2020-12-26
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -244,7 +243,6 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
-      # all features
       - run: |
           cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" -- -Z unstable-options --report-time
       - run: |
@@ -289,7 +287,7 @@ jobs:
         with:
           component: rust-src
       - uses: taiki-e/install-action@valgrind
-      # all features
+      # -Z doctest-xcompile is needed to apply CARGO_TARGET_*_RUNNER to doctest.
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile -- -Z unstable-options --report-time
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind

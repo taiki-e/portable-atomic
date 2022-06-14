@@ -32,7 +32,9 @@ fi
 rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+    nightly=1
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
 fi
 
@@ -47,7 +49,7 @@ x() {
 run() {
     local target="$1"
     shift
-    args=()
+    local args=()
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         echo "target '${target}' not available on ${rustc_version}"
         return 0
@@ -55,13 +57,14 @@ run() {
     args+=(${pre_args[@]+"${pre_args[@]}"} run)
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
-    elif [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+    elif [[ -n "${nightly}" ]]; then
         args+=(-Z build-std="core,alloc")
     else
         echo "target '${target}' requires nightly compiler"
         return 0
     fi
     args+=(--target "${target}")
+
     case "${target}" in
         thumbv6m*)
             (

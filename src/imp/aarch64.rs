@@ -124,7 +124,7 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
             _ => unreachable!("{:?}", order),
         }
         // 0 if the store was successful, 1 if no store was performed
-        debug_assert!(r == 0 || r == 1);
+        debug_assert!(r == 0 || r == 1, "r={}", r);
         r == 0
     }
 }

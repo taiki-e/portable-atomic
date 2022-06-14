@@ -16,7 +16,6 @@ test_task:
   setup_script:
     - rustup toolchain add nightly --component rust-src && rustup default nightly
   test_script:
-    # all features
     - cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -- -Z unstable-options --report-time
     - cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -- -Z unstable-options --report-time
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
@@ -53,7 +52,7 @@ valgrind_task:
       cd ..
       rm -rf valgrind
   test_script:
-    # all features
+    # -Z doctest-xcompile is needed to apply CARGO_TARGET_*_RUNNER to doctest.
     - cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile -- -Z unstable-options --report-time
     - cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
