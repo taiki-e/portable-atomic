@@ -77,6 +77,7 @@ const HAS_ATOMIC_128: &[&str] = &[
     "aarch64-apple-ios-macabi",
     "aarch64-apple-ios-sim",
     "aarch64-apple-tvos",
+    "aarch64-apple-watchos-sim",
     "aarch64-fuchsia",
     "aarch64-kmc-solid_asp3",
     "aarch64-linux-android",
