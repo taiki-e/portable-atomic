@@ -32,5 +32,3 @@ atomic!(AtomicI32, AtomicU32);
     cfg(any(target_has_atomic = "64", target_pointer_width = "64")) // cfg(target_has_atomic_load_store = "64")
 )]
 atomic!(AtomicI64, AtomicU64);
-#[cfg(portable_atomic_core_atomic_128)]
-atomic!(AtomicI128, AtomicU128);

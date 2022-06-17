@@ -19,15 +19,6 @@ const LATEST_STABLE: Version =
 // Probe if unstable features can be compiled with the expected API.
 // This prevents accidental depends on them if the upstream changes its API.
 // This is the same approach used in autocfg, anyhow, etc.
-// for aarch64 and x86_64 macos
-const PROBE_ATOMIC_128: &str = r#"
-#![no_std]
-#![feature(integer_atomics)]
-fn _probe() {
-    let v = core::sync::atomic::AtomicU128::new(0_u128);
-    let _: u128 = v.swap(1_u128, core::sync::atomic::Ordering::Relaxed);
-}
-"#;
 // for x86_64
 const PROBE_CMPXCHG16B: &str = r#"
 #![no_std]
@@ -172,11 +163,8 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_armv5te");
     }
 
-    let aarch64 = target.starts_with("aarch64");
-    let x86_64 = target.starts_with("x86_64");
-
     // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
-    if aarch64 && (version.minor >= 59 || version.nightly) {
+    if target.starts_with("aarch64") && (version.minor >= 59 || version.nightly) {
         // aarch64_target_feature stabilized in Rust 1.61.
         if has_target_feature("lse", target == "aarch64-apple-darwin", &version, Some(61), true) {
             println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse\"");
@@ -189,7 +177,8 @@ fn main() {
     }
 
     // cmpxchg16b is available via asm (1.59+) or stdsimd (nightly).
-    let may_use_cmpxchg16b = x86_64 && (version.minor >= 59 || version.nightly);
+    let may_use_cmpxchg16b =
+        target.starts_with("x86_64") && (version.minor >= 59 || version.nightly);
     let mut has_cmpxchg16b = false;
     if may_use_cmpxchg16b {
         // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
@@ -209,20 +198,13 @@ fn main() {
             println!("cargo:rustc-cfg=sanitize_thread");
         }
 
-        if aarch64 || x86_64 {
-            if HAS_ATOMIC_128.contains(&&*target)
-                && probe(PROBE_ATOMIC_128, &target).unwrap_or(false)
-            {
-                println!("cargo:rustc-cfg=portable_atomic_core_atomic_128");
-            } else if may_use_cmpxchg16b
-                && (has_cmpxchg16b
-                    || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
-                && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
-            {
-                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
-                if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
-                    println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
-                }
+        if may_use_cmpxchg16b
+            && (has_cmpxchg16b || cfg!(feature = "fallback") && cfg!(feature = "outline-atomics"))
+            && probe(PROBE_CMPXCHG16B, &target).unwrap_or(false)
+        {
+            println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_stdsimd");
+            if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
+                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
             }
         } else if target.starts_with("s390x")
             && probe(PROBE_ATOMIC_INTRINSICS, &target).unwrap_or(false)

@@ -109,10 +109,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 )]
 // 128-bit atomic
 #![cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_core_atomic_128),
-    feature(integer_atomics)
-)]
-#![cfg_attr(
     all(
         target_arch = "x86_64",
         any(
@@ -2036,15 +2032,9 @@ atomic_int!(AtomicU64, u64, 8);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        portable_atomic_core_atomic_128,
         portable_atomic_s390x_atomic_128,
+        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            not(portable_atomic_core_atomic_128),
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            target_arch = "aarch64"
-        ),
-        all(
-            not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(
                 target_feature = "cmpxchg16b",
@@ -2072,15 +2062,9 @@ atomic_int!(AtomicI128, i128, 16);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        portable_atomic_core_atomic_128,
         portable_atomic_s390x_atomic_128,
+        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            not(portable_atomic_core_atomic_128),
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            target_arch = "aarch64"
-        ),
-        all(
-            not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(
                 target_feature = "cmpxchg16b",

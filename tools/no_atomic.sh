@@ -13,7 +13,6 @@ file="no_atomic.rs"
 no_atomic_cas=()
 no_atomic_64=()
 no_atomic=()
-has_atomic_128=()
 for target in $(rustc --print target-list); do
     target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
     res=$(jq <<<"${target_spec}" -r 'select(."atomic-cas" == false)')
@@ -32,8 +31,7 @@ for target in $(rustc --print target-list); do
             no_atomic_64+=("${target}")
             no_atomic+=("${target}")
             ;;
-        64) ;;
-        128) has_atomic_128+=("${target}") ;;
+        64 | 128) ;;
         # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
         *) echo "${target}" && exit 1 ;;
     esac
@@ -62,14 +60,6 @@ cat >>"${file}" <<EOF
 const NO_ATOMIC: &[&str] = &[
 EOF
 for target in "${no_atomic[@]}"; do
-    echo "    \"${target}\"," >>"${file}"
-done
-cat >>"${file}" <<EOF
-];
-
-const HAS_ATOMIC_128: &[&str] = &[
-EOF
-for target in "${has_atomic_128[@]}"; do
     echo "    \"${target}\"," >>"${file}"
 done
 cat >>"${file}" <<EOF
