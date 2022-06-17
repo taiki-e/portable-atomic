@@ -33,7 +33,7 @@ mod arch;
 mod arch;
 #[cfg(target_arch = "x86_64")]
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/atomic128/cmpxchg16b.rs"]
+#[path = "../../src/imp/atomic128/x86_64.rs"]
 mod arch;
 #[cfg(target_arch = "s390x")]
 #[allow(dead_code, unused_imports)]

@@ -19,8 +19,8 @@ mod aarch64;
     portable_atomic_cmpxchg16b_dynamic
 ))]
 #[cfg(target_arch = "x86_64")]
-#[path = "atomic128/cmpxchg16b.rs"]
-mod cmpxchg16b;
+#[path = "atomic128/x86_64.rs"]
+mod x86_64;
 
 #[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(any(target_endian = "little", portable_atomic_pwr8))]
@@ -226,7 +226,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     ),
     target_arch = "x86_64",
 ))]
-pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
+pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 // powerpc64
 #[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(any(target_endian = "little", portable_atomic_pwr8))]
