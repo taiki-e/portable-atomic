@@ -185,28 +185,119 @@ unsafe fn atomic_compare_exchange(
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[inline]
-unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
-where
-    F: FnMut(u128) -> u128,
-{
+unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     let failure = strongest_failure_ordering(order);
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
-    unsafe {
-        let mut old = atomic_load(dst, failure);
-        loop {
-            let next = f(old);
-            match atomic_compare_exchange_weak(dst, old, next, order, failure) {
-                Ok(x) => return x,
-                Err(x) => old = x,
+    let mut old = val;
+    let new = val;
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => old = x,
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x.wrapping_add(val);
             }
         }
     }
 }
 
 #[inline]
-unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
-    unsafe { atomic_update(dst, order, |_| val) }
+unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = val;
+    let mut new = 0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x.wrapping_sub(val);
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = 0;
+    let mut new = 0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x & val;
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = 0;
+    let mut new = !0;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = !(x & val);
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x | val;
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = 0;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = x ^ val;
+            }
+        }
+    }
 }
 
 macro_rules! atomic128 {
@@ -324,77 +415,79 @@ macro_rules! atomic128 {
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| x.wrapping_add(val as u128))
-                        as $int_type
-                }
+                unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| x.wrapping_sub(val as u128))
-                        as $int_type
-                }
+                unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| x & val as u128) as $int_type
-                }
+                unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| !(x & val as u128)) as $int_type
-                }
+                unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| x | val as u128) as $int_type
-                }
+                unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| x ^ val as u128) as $int_type
-                }
+                unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| {
-                        core::cmp::max(x as $int_type, val) as u128
-                    }) as $int_type
+                let dst = self.v.get().cast();
+                let mut old = $int_type::MIN as u128;
+                let mut new = val as u128;
+                let failure = strongest_failure_ordering(order);
+                loop {
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+                        Ok(old) => return old as $int_type,
+                        Err(x) => {
+                            old = x;
+                            new = core::cmp::max(x as $int_type, val) as u128;
+                        }
+                    }
                 }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| {
-                        core::cmp::min(x as $int_type, val) as u128
-                    }) as $int_type
+                let dst = self.v.get().cast();
+                let mut old = $int_type::MAX as u128;
+                let mut new = val as u128;
+                let failure = strongest_failure_ordering(order);
+                loop {
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+                        Ok(old) => return old as $int_type,
+                        Err(x) => {
+                            old = x;
+                            new = core::cmp::min(x as $int_type, val) as u128;
+                        }
+                    }
                 }
             }
         }
