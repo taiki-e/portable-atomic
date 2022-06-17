@@ -25,15 +25,15 @@ mod tests {
 
 #[cfg(target_arch = "aarch64")]
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/aarch64.rs"]
+#[path = "../../src/imp/atomic128/aarch64.rs"]
 mod arch;
 #[cfg(target_arch = "x86_64")]
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/cmpxchg16b.rs"]
+#[path = "../../src/imp/atomic128/cmpxchg16b.rs"]
 mod arch;
 #[cfg(target_arch = "s390x")]
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/s390x.rs"]
+#[path = "../../src/imp/atomic128/s390x.rs"]
 mod arch;
 #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 #[allow(dead_code, unused_imports)]

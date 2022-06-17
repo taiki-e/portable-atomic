@@ -8,6 +8,7 @@ mod core_atomic;
 #[cfg(any(test, not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "aarch64")]
+#[path = "atomic128/aarch64.rs"]
 mod aarch64;
 
 #[cfg(any(test, not(portable_atomic_core_atomic_128)))]
@@ -18,10 +19,12 @@ mod aarch64;
     portable_atomic_cmpxchg16b_dynamic
 ))]
 #[cfg(target_arch = "x86_64")]
+#[path = "atomic128/cmpxchg16b.rs"]
 mod cmpxchg16b;
 
 #[cfg(any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128))]
 #[cfg(target_arch = "s390x")]
+#[path = "atomic128/s390x.rs"]
 mod s390x;
 
 #[cfg(target_arch = "msp430")]
@@ -47,14 +50,14 @@ mod riscv;
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-            target_arch = "x86_64",
+            target_arch = "aarch64"
         ),
         all(
             not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            target_arch = "aarch64"
-        )
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+            target_arch = "x86_64",
+        ),
     ))
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]

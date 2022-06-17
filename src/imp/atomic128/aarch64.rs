@@ -25,15 +25,15 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/391vjWcKo
-// - aarch64 (+lse) https://godbolt.org/z/3jWf8jxYT
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/MKozsM3fT
+// - aarch64 https://godbolt.org/z/s8jb3K1aj
+// - aarch64 (+lse) https://godbolt.org/z/4hvWj9eME
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/5d3jsfPM8
+
+include!("macros.rs");
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
-
-use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
+use core::sync::atomic::Ordering;
 
 /// A 128-bit value represented as a pair of 64-bit values.
 // This type is #[repr(C)], both fields have the same in-memory representation
@@ -41,7 +41,7 @@ use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, asser
 #[derive(Clone, Copy)]
 #[repr(C)]
 union U128 {
-    u128: u128,
+    whole: u128,
     pair: [u64; 2],
 }
 
@@ -83,7 +83,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
             }
             _ => unreachable!("{:?}", order),
         }
-        U128 { pair: [prev_lo, prev_hi] }.u128
+        U128 { pair: [prev_lo, prev_hi] }.whole
     }
 }
 
@@ -99,7 +99,7 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     // - STLXP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STLXP
     unsafe {
         let r: i32;
-        let val = U128 { u128: val };
+        let val = U128 { whole: val };
         match order {
             Ordering::Relaxed => {
                 asm!(
@@ -146,8 +146,8 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     // Refs:
     // - https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL
     unsafe {
-        let old = U128 { u128: old };
-        let new = U128 { u128: new };
+        let old = U128 { whole: old };
+        let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         match order {
             Ordering::Relaxed => {
@@ -204,7 +204,7 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
             }
             _ => unreachable!("{:?}", order),
         }
-        U128 { pair: [prev_lo, prev_hi] }.u128
+        U128 { pair: [prev_lo, prev_hi] }.whole
     }
 }
 
@@ -250,7 +250,7 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
             }
             _ => unreachable!("{:?}", order),
         }
-        U128 { pair: [prev_lo, prev_hi] }.u128
+        U128 { pair: [prev_lo, prev_hi] }.whole
     }
 }
 
@@ -263,7 +263,7 @@ unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
     // 16-byte aligned, that there are no concurrent non-atomic operations,
     // and the CPU supports FEAT_LSE2.
     unsafe {
-        let val = U128 { u128: val };
+        let val = U128 { whole: val };
         match order {
             Ordering::Relaxed => {
                 asm!(
@@ -382,11 +382,12 @@ unsafe fn _compare_exchange_ldxp_stxp(
     success: Ordering,
 ) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `compare_exchange_ldxp_stxp`.
-    unsafe { atomic_update_ldxp_stxp(dst, success, |x| if x == old { new } else { x }) }
+    unsafe { atomic_update(dst, success, |x| if x == old { new } else { x }) }
 }
 
+// Note: closure should not panic.
 #[inline]
-unsafe fn atomic_update_ldxp_stxp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
@@ -420,6 +421,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         _compare_exchange_ldxp_stxp(src, 0, 0, order)
     }
 }
+
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
@@ -438,212 +440,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |_| val) }
-}
-#[inline]
-unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x.wrapping_add(val)) }
-}
-#[inline]
-unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x.wrapping_sub(val)) }
-}
-#[inline]
-unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_and`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x & val) }
-}
-#[inline]
-unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| !(x & val)) }
-}
-#[inline]
-unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_or`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x | val) }
-}
-#[inline]
-unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
-    unsafe { atomic_update_ldxp_stxp(dst, order, |x| x ^ val) }
-}
-
-macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident) => {
-        #[repr(C, align(16))]
-        pub(crate) struct $atomic_type {
-            v: UnsafeCell<$int_type>,
-        }
-
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = true;
-            #[inline]
-            fn is_lock_free() -> bool {
-                true
-            }
-        }
-
-        // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic operations.
-        unsafe impl Sync for $atomic_type {}
-
-        impl $atomic_type {
-            #[inline]
-            pub(crate) const fn new(v: $int_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
-            }
-
-            #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                self.v.get_mut()
-            }
-
-            #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.v.into_inner()
-            }
-
-            #[inline]
-            pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_load(self.v.get().cast(), order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_store(self.v.get().cast(), val as u128, order) }
-            }
-
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_swap(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    match atomic_compare_exchange(
-                        self.v.get().cast(),
-                        current as u128,
-                        new as u128,
-                        success,
-                        failure,
-                    ) {
-                        Ok(v) => Ok(v as $int_type),
-                        Err(v) => Err(v as $int_type),
-                    }
-                }
-            }
-
-            #[inline]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    match atomic_compare_exchange_weak(
-                        self.v.get().cast(),
-                        current as u128,
-                        new as u128,
-                        success,
-                        failure,
-                    ) {
-                        Ok(v) => Ok(v as $int_type),
-                        Err(v) => Err(v as $int_type),
-                    }
-                }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update_ldxp_stxp(self.v.get().cast(), order, |x| {
-                        core::cmp::max(x as $int_type, val) as u128
-                    }) as $int_type
-                }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update_ldxp_stxp(self.v.get().cast(), order, |x| {
-                        core::cmp::min(x as $int_type, val) as u128
-                    }) as $int_type
-                }
-            }
-        }
-    };
+    unsafe { atomic_update(dst, order, |_| val) }
 }
 
 atomic128!(AtomicI128, i128);
