@@ -22,6 +22,12 @@ mod aarch64;
 #[path = "atomic128/cmpxchg16b.rs"]
 mod cmpxchg16b;
 
+#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(any(target_endian = "little", portable_atomic_pwr8))]
+#[cfg(target_arch = "powerpc64")]
+#[path = "atomic128/powerpc64.rs"]
+mod powerpc64;
+
 #[cfg(any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128))]
 #[cfg(target_arch = "s390x")]
 #[path = "atomic128/s390x.rs"]
@@ -57,6 +63,11 @@ mod riscv;
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
             target_arch = "x86_64",
+        ),
+        all(
+            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(target_endian = "little", portable_atomic_pwr8),
+            target_arch = "powerpc64"
         ),
     ))
 ))]
@@ -216,6 +227,11 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     target_arch = "x86_64",
 ))]
 pub(crate) use self::cmpxchg16b::{AtomicI128, AtomicU128};
+// powerpc64
+#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(any(target_endian = "little", portable_atomic_pwr8))]
+#[cfg(target_arch = "powerpc64")]
+pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
 // s390x
 #[cfg(portable_atomic_s390x_atomic_128)]
 pub(crate) use self::s390x::{AtomicI128, AtomicU128};
@@ -238,6 +254,11 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
             portable_atomic_cmpxchg16b_dynamic
         ),
         target_arch = "x86_64",
+    ),
+    all(
+        all(not(portable_atomic_no_asm), portable_atomic_nightly),
+        any(target_endian = "little", portable_atomic_pwr8),
+        target_arch = "powerpc64"
     ),
 )))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]

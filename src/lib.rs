@@ -10,7 +10,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 ## 128-bit atomics support (AtomicI128,AtomicU128)
 
-Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), and s390x (nightly only), otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (le or pwr8+, nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
 
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
@@ -135,20 +135,24 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
 // asm
 #![cfg_attr(
-    all(any(target_arch = "avr", target_arch = "msp430"), not(portable_atomic_no_asm)),
+    all(
+        portable_atomic_nightly,
+        not(portable_atomic_no_asm),
+        any(target_arch = "avr", target_arch = "msp430", target_arch = "powerpc64"),
+    ),
     feature(asm_experimental_arch)
 )]
 // asm on old nightly
 #![cfg_attr(
     all(
         portable_atomic_nightly,
+        portable_atomic_no_asm,
         any(
             portable_atomic_armv6m,
             all(target_arch = "riscv32", portable_atomic_no_atomic_load_store),
             target_arch = "aarch64",
             target_arch = "x86_64",
         ),
-        portable_atomic_no_asm,
     ),
     feature(asm)
 )]
@@ -2049,6 +2053,11 @@ atomic_int!(AtomicU64, u64, 8);
             ),
             target_arch = "x86_64",
         ),
+        all(
+            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(target_endian = "little", portable_atomic_pwr8),
+            target_arch = "powerpc64"
+        ),
     ))
 )]
 #[cfg_attr(
@@ -2079,6 +2088,11 @@ atomic_int!(AtomicI128, i128, 16);
                 portable_atomic_cmpxchg16b_dynamic
             ),
             target_arch = "x86_64",
+        ),
+        all(
+            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(target_endian = "little", portable_atomic_pwr8),
+            target_arch = "powerpc64"
         ),
     ))
 )]

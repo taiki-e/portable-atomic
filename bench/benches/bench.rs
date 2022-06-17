@@ -1,7 +1,7 @@
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
 #![allow(clippy::only_used_in_recursion)]
-#![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics)]
+#![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics, asm_experimental_arch)]
 
 use std::{
     hint,
@@ -26,6 +26,10 @@ mod tests {
 #[cfg(target_arch = "aarch64")]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/aarch64.rs"]
+mod arch;
+#[cfg(target_arch = "powerpc64")]
+#[allow(dead_code, unused_imports)]
+#[path = "../../src/imp/atomic128/powerpc64.rs"]
 mod arch;
 #[cfg(target_arch = "x86_64")]
 #[allow(dead_code, unused_imports)]
