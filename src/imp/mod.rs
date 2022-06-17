@@ -5,13 +5,11 @@
 #[cfg(not(portable_atomic_no_atomic_load_store))]
 mod core_atomic;
 
-#[cfg(any(test, not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "aarch64")]
 #[path = "atomic128/aarch64.rs"]
 mod aarch64;
 
-#[cfg(any(test, not(portable_atomic_core_atomic_128)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(any(
     target_feature = "cmpxchg16b",
@@ -51,15 +49,9 @@ mod riscv;
 #[cfg(any(
     test,
     not(any(
-        portable_atomic_core_atomic_128,
         portable_atomic_s390x_atomic_128,
+        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            not(portable_atomic_core_atomic_128),
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            target_arch = "aarch64"
-        ),
-        all(
-            not(portable_atomic_core_atomic_128),
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
             target_arch = "x86_64",
@@ -206,18 +198,14 @@ pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 
 // Atomic{I,U}128
-#[cfg(portable_atomic_core_atomic_128)]
-pub(crate) use self::core_atomic::{AtomicI128, AtomicU128};
 // aarch64 stable
 #[cfg(all(
-    not(portable_atomic_core_atomic_128),
     any(not(portable_atomic_no_asm), portable_atomic_nightly),
     target_arch = "aarch64"
 ))]
 pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has cmpxchg16b => use cmpxchg16b
 #[cfg(all(
-    not(portable_atomic_core_atomic_128),
     any(not(portable_atomic_no_asm), portable_atomic_nightly),
     any(
         target_feature = "cmpxchg16b",
@@ -238,15 +226,9 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
 #[cfg(not(any(
-    portable_atomic_core_atomic_128,
     portable_atomic_s390x_atomic_128,
+    all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
     all(
-        not(portable_atomic_core_atomic_128),
-        any(not(portable_atomic_no_asm), portable_atomic_nightly),
-        target_arch = "aarch64"
-    ),
-    all(
-        not(portable_atomic_core_atomic_128),
         any(not(portable_atomic_no_asm), portable_atomic_nightly),
         any(
             target_feature = "cmpxchg16b",
