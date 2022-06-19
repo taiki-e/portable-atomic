@@ -29,10 +29,22 @@ test_task:
 
 valgrind_task:
   env:
-    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
     TARGET: aarch64-unknown-linux-gnu
   arm_container:
     image: rust:latest
+  matrix:
+    - name: valgrind (memcheck)
+      env:
+        CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind                    -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+    - name: valgrind (helgrind)
+      env:
+        CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind --tool=helgrind    -v --error-exitcode=1 --error-limit=no --sim-hints=deactivate-pthread-stack-cache-via-hack
+    - name: valgrind (drd)
+      env:
+        CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind --tool=drd         -v --error-exitcode=1 --error-limit=no
+    # - name: valgrind (sgcheck)
+    #   env:
+    #     CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind --tool=exp-sgcheck -v --error-exitcode=1 --error-limit=no
   setup_script:
     - rustup toolchain add nightly --component rust-src && rustup default nightly
     # libc6-dbg is needed to run Valgrind

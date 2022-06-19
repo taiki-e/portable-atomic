@@ -272,8 +272,17 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
 
   valgrind:
-    env:
-      CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+    strategy:
+      fail-fast: false
+      matrix:
+        tool:
+          - memcheck
+          # https://valgrind.org/docs/manual/hg-manual.html
+          - helgrind
+          # https://valgrind.org/docs/manual/drd-manual.html
+          - drd
+          # # https://valgrind.org/docs/manual/sg-manual.html
+          # - sgcheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -283,6 +292,18 @@ jobs:
         with:
           component: rust-src
       - uses: taiki-e/install-action@valgrind
+      - run: |
+          echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=valgrind                    -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes" >>"${GITHUB_ENV}"
+        if: matrix.tool == 'memcheck'
+      - run: |
+          echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=valgrind --tool=helgrind    -v --error-exitcode=1 --error-limit=no --ignore-thread-creation=yes --sim-hints=no-nptl-pthread-stackcache" >>"${GITHUB_ENV}"
+        if: matrix.tool == 'helgrind'
+      - run: |
+          echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=valgrind --tool=drd         -v --error-exitcode=1 --error-limit=no --ignore-thread-creation=yes --check-stack-var=yes" >>"${GITHUB_ENV}"
+        if: matrix.tool == 'drd'
+      - run: |
+          echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=valgrind --tool=exp-sgcheck -v --error-exitcode=1 --error-limit=no" >>"${GITHUB_ENV}"
+        if: matrix.tool == 'sgcheck'
       # all features
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile -- -Z unstable-options --report-time

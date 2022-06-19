@@ -1218,6 +1218,9 @@ fn skip_should_panic_test() -> bool {
     cfg!(miri)
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
             && option_env!("MSAN_OPTIONS").is_some()
+        || option_env!("CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER")
+            .or(option_env!("CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER"))
+            .map_or(false, |v| v.contains("--tool=helgrind") || v.contains("--tool=drd"))
 }
 
 #[derive(Debug, Clone, Copy, Default)]
