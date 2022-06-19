@@ -9,6 +9,7 @@ env:
   RUSTUP_MAX_RETRIES: '10'
 
 test_task:
+  name: test (aarch64-unknown-linux-gnu)
   env:
     TARGET: aarch64-unknown-linux-gnu
   arm_container:
@@ -28,6 +29,7 @@ test_task:
     # TODO: lse2 is not available on Graviton2 (armv8.2-a)
 
 valgrind_task:
+  name: valgrind (aarch64-unknown-linux-gnu)
   env:
     CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
     RUSTDOCFLAGS: -D warnings --cfg valgrind
