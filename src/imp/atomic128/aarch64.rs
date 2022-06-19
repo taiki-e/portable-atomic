@@ -50,7 +50,7 @@ union U128 {
 // See Arm Architecture Reference Manual for A-profile architecture
 // Section B2.2.1 "Requirements for single-copy atomicity", and
 // Section B2.9 "Synchronization and semaphores" for more.
-#[inline]
+#[inline(always)]
 unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
@@ -87,7 +87,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
-#[inline]
+#[inline(always)]
 unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     debug_assert!(dst as usize % 16 == 0);
 
@@ -391,6 +391,8 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
+    debug_assert!(dst as usize % 16 == 0);
+
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
         let ldx_order = ldx_ordering(order);
