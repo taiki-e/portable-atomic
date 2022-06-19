@@ -10,6 +10,7 @@ use super::*;
 
 test_atomic_bool_pub!();
 test_atomic_ptr_pub!();
+
 test_atomic_int_pub!(isize);
 test_atomic_int_pub!(usize);
 test_atomic_int_pub!(i8);
@@ -20,8 +21,26 @@ test_atomic_int_pub!(i32);
 test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
+
+#[cfg_attr(
+    all(target_arch = "powerpc64", any(target_endian = "little", portable_atomic_pwr8)),
+    cfg(not(qemu))
+)]
 test_atomic_int_pub!(i128);
+#[cfg_attr(
+    all(target_arch = "powerpc64", any(target_endian = "little", portable_atomic_pwr8)),
+    cfg(not(qemu))
+)]
 test_atomic_int_pub!(u128);
+#[cfg(qemu)]
+#[cfg(target_arch = "powerpc64")]
+#[cfg(any(target_endian = "little", portable_atomic_pwr8))]
+test_atomic_int_load_store_pub!(i128);
+#[cfg(qemu)]
+#[cfg(target_arch = "powerpc64")]
+#[cfg(any(target_endian = "little", portable_atomic_pwr8))]
+test_atomic_int_load_store_pub!(u128);
+
 #[cfg(feature = "float")]
 test_atomic_float_pub!(f32);
 #[cfg(feature = "float")]

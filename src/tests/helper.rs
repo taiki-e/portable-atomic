@@ -1012,9 +1012,20 @@ macro_rules! __test_atomic_ptr {
     };
 }
 
-macro_rules! __test_atomic_int_pub {
+macro_rules! __test_atomic_int_load_store_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
+        #[test]
+        fn impls() {
+            let a = <$atomic_type>::default();
+            let b = <$atomic_type>::from(0);
+            assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
+            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+        }
+    };
+}
+macro_rules! __test_atomic_int_pub {
+    ($atomic_type:ty, $int_type:ident) => {
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7);
@@ -1023,13 +1034,6 @@ macro_rules! __test_atomic_int_pub {
             assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), Ok(7));
             assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), Ok(8));
             assert_eq!(a.load(Ordering::SeqCst), 9);
-        }
-        #[test]
-        fn impls() {
-            let a = <$atomic_type>::default();
-            let b = <$atomic_type>::from(0);
-            assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
-            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
         }
     };
 }
@@ -1201,7 +1205,21 @@ macro_rules! test_atomic_int_pub {
                 use super::*;
                 __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int_load_store_pub!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int_pub!([<Atomic $int_type:camel>], $int_type);
+            }
+        }
+    };
+}
+#[allow(unused_macros)]
+macro_rules! test_atomic_int_load_store_pub {
+    ($int_type:ident) => {
+        paste::paste! {
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int_load_store_pub!([<Atomic $int_type:camel>], $int_type);
             }
         }
     };

@@ -100,6 +100,9 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
+      - run: |
+          echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
+        if: startsWith(matrix.target, 'powerpc64')
 
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
       - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
