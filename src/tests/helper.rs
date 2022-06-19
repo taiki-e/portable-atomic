@@ -69,7 +69,7 @@ macro_rules! __test_atomic_int_load_store {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
         use crossbeam_utils::thread;
-        use std::{collections::HashSet, vec::Vec};
+        use std::{collections::HashSet, vec, vec::Vec};
         #[test]
         fn stress_load_store() {
             let iterations = if cfg!(miri) {
@@ -96,7 +96,7 @@ macro_rules! __test_atomic_int_load_store {
                     });
                     s.spawn(|_| {
                         let now = *now;
-                        let mut v = std::vec![0; iterations];
+                        let mut v = vec![0; iterations];
                         for i in 0..iterations {
                             v[i] = a.load(rand_load_ordering());
                         }
@@ -491,7 +491,7 @@ macro_rules! __test_atomic_int {
                     } else {
                         s.spawn(|_| {
                             let now = *now;
-                            let mut v = std::vec![data2[0][0]; iterations];
+                            let mut v = vec![0; iterations];
                             for i in 0..iterations {
                                 v[i] = a.load(rand_load_ordering());
                             }
@@ -503,7 +503,7 @@ macro_rules! __test_atomic_int {
                     }
                     s.spawn(move |_| {
                         let now = *now;
-                        let mut v = std::vec![data2[0][0]; iterations];
+                        let mut v = vec![0; iterations];
                         for i in 0..iterations {
                             v[i] = a.swap(data2[thread][i], rand_swap_ordering());
                         }
@@ -551,7 +551,7 @@ macro_rules! __test_atomic_int {
                     });
                     s.spawn(|_| {
                         let now = *now;
-                        let mut v = std::vec![data2[0][0]; iterations];
+                        let mut v = vec![data2[0][0]; iterations];
                         for i in 0..iterations {
                             v[i] = a.load(rand_load_ordering());
                         }
@@ -562,7 +562,7 @@ macro_rules! __test_atomic_int {
                     });
                     s.spawn(move |_| {
                         let now = *now;
-                        let mut v = std::vec![data2[0][0]; iterations];
+                        let mut v = vec![data2[0][0]; iterations];
                         for i in 0..iterations {
                             let old = if i % 2 == 0 {
                                 fastrand::$int_type(..)
