@@ -144,24 +144,125 @@ unsafe fn cmpxchg16b(
     }
 }
 
+// VMOVDQA is atomic on on Intel CPU with AVX.
+// See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
+//
+// Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+// https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+#[cfg(target_feature = "sse")]
+#[target_feature(enable = "avx")]
+#[inline]
+unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
+    debug_assert!(src as usize % 16 == 0);
+    // SAFETY: the caller must uphold the safety contract for `_atomic_load_vmovdqa`.
+    unsafe {
+        let out: core::arch::x86_64::__m128;
+        asm!(
+            "vmovdqa {out}, xmmword ptr [{src}]",
+            src = in(reg) src,
+            out = out(xmm_reg) out,
+        );
+        core::mem::transmute(out)
+    }
+}
+#[cfg(target_feature = "sse")]
+#[target_feature(enable = "avx")]
+#[inline]
+unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, _order: Ordering) {
+    debug_assert!(dst as usize % 16 == 0);
+    // SAFETY: the caller must uphold the safety contract for `_atomic_store_vmovdqa`.
+    unsafe {
+        let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
+        asm!(
+            "vmovdqa xmmword ptr [{dst}], {val}",
+            // TODO: GCC always uses mfence here, so the current implementation
+            // follows that behavior. However, probably only SeqCst store
+            // actually requires mfence.
+            "mfence",
+            dst = in(reg) dst,
+            val = in(xmm_reg) val,
+        );
+    }
+}
+
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    let fail_order = strongest_failure_ordering(order);
+    #[inline]
+    unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
+        let fail_order = strongest_failure_ordering(order);
+        // SAFETY: the caller must uphold the safety contract for `_atomic_load_cmpxchg16b`.
+        unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+    }
+
+    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(
+        not(feature = "outline-atomics"),
+        not(target_feature = "sse"),
+        miri,
+        sanitize_thread
+    ))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+    unsafe {
+        _atomic_load_cmpxchg16b(src, order)
+    }
+    #[cfg(not(any(
+        not(feature = "outline-atomics"),
+        not(target_feature = "sse"),
+        miri,
+        sanitize_thread
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128 =
+        // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+        if detect::has_cmpxchg16b() && detect::is_intel_and_has_avx() {
+            _atomic_load_vmovdqa
+        } else {
+            _atomic_load_cmpxchg16b
+        })
+    }
 }
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    let failure = strongest_failure_ordering(order);
-    let mut old = val;
-    let new = val;
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(_) => return,
-            Err(x) => old = x,
+    #[inline]
+    unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) {
+        // SAFETY: the caller must uphold the safety contract for `_atomic_store_cmpxchg16b`.
+        unsafe {
+            atomic_swap(dst, val, order);
         }
+    }
+
+    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(
+        not(feature = "outline-atomics"),
+        not(target_feature = "sse"),
+        miri,
+        sanitize_thread
+    ))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        _atomic_store_cmpxchg16b(dst, val, order);
+    }
+    #[cfg(not(any(
+        not(feature = "outline-atomics"),
+        not(target_feature = "sse"),
+        miri,
+        sanitize_thread
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> () =
+        // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+        if detect::has_cmpxchg16b() && detect::is_intel_and_has_avx() {
+            _atomic_store_vmovdqa
+        } else {
+            _atomic_store_cmpxchg16b
+        });
     }
 }
 

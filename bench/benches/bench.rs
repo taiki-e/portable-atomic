@@ -147,6 +147,28 @@ fn bench_concurrent_load_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     .unwrap();
     a
 }
+fn bench_concurrent_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
+    let a = black_box(A::new(T::from(1)));
+    let barrier = Barrier::new(THREADS * 2);
+    thread::scope(|s| {
+        for _ in 0..THREADS {
+            s.spawn(|_| {
+                barrier.wait();
+                for i in 0..N {
+                    a.store(T::from(i));
+                }
+            });
+            s.spawn(|_| {
+                barrier.wait();
+                for i in (0..N).rev() {
+                    a.store(T::from(i));
+                }
+            });
+        }
+    })
+    .unwrap();
+    a
+}
 fn bench_concurrent_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     let a = black_box(A::new(T::from(1)));
     let barrier = Barrier::new(THREADS * 2);
@@ -164,6 +186,46 @@ fn bench_concurrent_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
                     let _ = black_box(a.swap(T::from(i)));
                 }
             });
+        }
+    })
+    .unwrap();
+    a
+}
+fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
+    let a = black_box(A::new(T::from(1)));
+    let barrier = Barrier::new(THREADS * 2);
+    thread::scope(|s| {
+        for i in 0..THREADS {
+            if i % 2 == 0 {
+                s.spawn(|_| {
+                    barrier.wait();
+                    for i in 0..N {
+                        a.store(T::from(i));
+                    }
+                });
+            } else {
+                s.spawn(|_| {
+                    barrier.wait();
+                    for i in (0..N).rev() {
+                        a.store(T::from(i));
+                    }
+                });
+            }
+            if i % 2 == 0 {
+                s.spawn(|_| {
+                    barrier.wait();
+                    for i in (0..N).rev() {
+                        a.swap(T::from(i));
+                    }
+                });
+            } else {
+                s.spawn(|_| {
+                    barrier.wait();
+                    for i in 0..N {
+                        a.swap(T::from(i));
+                    }
+                });
+            }
         }
     })
     .unwrap();
@@ -190,8 +252,14 @@ macro_rules! benches {
             g.bench_function("u128_concurrent_load_store", |b| {
                 b.iter(bench_concurrent_load_store::<A, u128>);
             });
+            g.bench_function("u128_concurrent_store", |b| {
+                b.iter(bench_concurrent_store::<A, u128>);
+            });
             g.bench_function("u128_concurrent_swap", |b| {
                 b.iter(bench_concurrent_swap::<A, u128>);
+            });
+            g.bench_function("u128_concurrent_store_swap", |b| {
+                b.iter(bench_concurrent_store_swap::<A, u128>);
             });
         }
     };
@@ -206,11 +274,11 @@ benches!(bench_atomic_rs, atomic::Atomic<u128>);
 
 criterion_group!(
     benches,
-    bench_portable_atomic_seqlock_fallback,
-    bench_atomic_cell,
     bench_portable_atomic_arch,
-    // bench_portable_atomic_intrinsics,
+    bench_portable_atomic_intrinsics,
+    bench_portable_atomic_seqlock_fallback,
     bench_portable_atomic_spinlock_fallback,
+    bench_atomic_cell,
     bench_atomic_rs
 );
 criterion_main!(benches);
