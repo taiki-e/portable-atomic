@@ -453,8 +453,71 @@ macro_rules! __test_atomic_int {
     };
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int!($atomic_type, $int_type, single_thread);
+
         #[test]
-        fn stress() {
+        fn stress_swap() {
+            let iterations = if cfg!(miri) {
+                100
+            } else if cfg!(valgrind) && cfg!(debug_assertions) {
+                5_000
+            } else {
+                25_000
+            };
+            let threads = if cfg!(debug_assertions) { 2 } else { fastrand::usize(2..=8) };
+            let data1 = &(0..threads)
+                .map(|_| (0..iterations).map(|_| fastrand::$int_type(..)).collect::<Vec<_>>())
+                .collect::<Vec<_>>();
+            let data2 = &(0..threads)
+                .map(|_| (0..iterations).map(|_| fastrand::$int_type(..)).collect::<Vec<_>>())
+                .collect::<Vec<_>>();
+            let set = &data1
+                .iter()
+                .flat_map(|v| v.iter().copied())
+                .chain(data2.iter().flat_map(|v| v.iter().copied()))
+                .collect::<HashSet<_>>();
+            let a = &<$atomic_type>::new(data2[0][fastrand::usize(0..iterations)]);
+            std::eprintln!("threads={}", threads);
+            let now = &std::time::Instant::now();
+            thread::scope(|s| {
+                for thread in 0..threads {
+                    if thread % 2 == 0 {
+                        s.spawn(move |_| {
+                            let now = *now;
+                            for i in 0..iterations {
+                                a.store(data1[thread][i], rand_store_ordering());
+                            }
+                            std::eprintln!("store end={:?}", now.elapsed());
+                        });
+                    } else {
+                        s.spawn(|_| {
+                            let now = *now;
+                            let mut v = std::vec![data2[0][0]; iterations];
+                            for i in 0..iterations {
+                                v[i] = a.load(rand_load_ordering());
+                            }
+                            std::eprintln!("load end={:?}", now.elapsed());
+                            for v in v {
+                                assert!(set.contains(&v), "v={}", v);
+                            }
+                        });
+                    }
+                    s.spawn(move |_| {
+                        let now = *now;
+                        let mut v = std::vec![data2[0][0]; iterations];
+                        for i in 0..iterations {
+                            v[i] = a.swap(data2[thread][i], rand_swap_ordering());
+                        }
+                        std::eprintln!("swap end={:?}", now.elapsed());
+                        for v in v {
+                            assert!(set.contains(&v), "v={}", v);
+                        }
+                    });
+                }
+            })
+            .unwrap();
+        }
+        #[test]
+        fn stress_compare_exchange() {
             let iterations = if cfg!(miri) {
                 100
             } else if cfg!(valgrind) && cfg!(debug_assertions) {
@@ -488,7 +551,7 @@ macro_rules! __test_atomic_int {
                     });
                     s.spawn(|_| {
                         let now = *now;
-                        let mut v = std::vec![0; iterations];
+                        let mut v = std::vec![data2[0][0]; iterations];
                         for i in 0..iterations {
                             v[i] = a.load(rand_load_ordering());
                         }
@@ -1333,6 +1396,9 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
 }
 pub(crate) fn swap_orderings() -> [Ordering; 5] {
     [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
+}
+pub(crate) fn rand_swap_ordering() -> Ordering {
+    swap_orderings()[fastrand::usize(0..swap_orderings().len())]
 }
 pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &swap_orderings() {
