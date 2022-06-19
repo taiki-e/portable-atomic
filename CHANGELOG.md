@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.2] - 2022-06-19
+
 - Optimize x86_64 128-bit atomic load/store on Intel CPU with AVX. ([#16](https://github.com/taiki-e/portable-atomic/pull/16))
 
 - Support native 128-bit atomic operations for powerpc64 (le or pwr8+, currently nightly-only).
@@ -70,7 +72,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/taiki-e/portable-atomic/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/taiki-e/portable-atomic/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/taiki-e/portable-atomic/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/taiki-e/portable-atomic/compare/v0.2.0...v0.2.1
