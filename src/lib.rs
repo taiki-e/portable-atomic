@@ -2045,7 +2045,11 @@ atomic_int!(AtomicU64, u64, 8);
         ),
         all(
             all(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(target_endian = "little", portable_atomic_pwr8),
+            any(
+                target_endian = "little",
+                target_feature = "quadword-atomics",
+                portable_atomic_target_feature = "quadword-atomics"
+            ),
             target_arch = "powerpc64"
         ),
     ))
@@ -2075,7 +2079,11 @@ atomic_int!(AtomicI128, i128, 16);
         ),
         all(
             all(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(target_endian = "little", portable_atomic_pwr8),
+            any(
+                target_endian = "little",
+                target_feature = "quadword-atomics",
+                portable_atomic_target_feature = "quadword-atomics"
+            ),
             target_arch = "powerpc64"
         ),
     ))

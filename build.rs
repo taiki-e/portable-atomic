@@ -215,7 +215,11 @@ fn main() {
             if let Some(cpu) = target_cpu() {
                 // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
                 match &*cpu {
-                    "pwr8" | "pwr9" | "pwr10" => println!("cargo:rustc-cfg=portable_atomic_pwr8"),
+                    "pwr8" | "pwr9" | "pwr10" => {
+                        println!(
+                            "cargo:rustc-cfg=portable_atomic_target_feature=\"quadword-atomics\""
+                        );
+                    }
                     _ => {}
                 }
             }
