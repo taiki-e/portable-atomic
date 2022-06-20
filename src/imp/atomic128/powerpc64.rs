@@ -128,7 +128,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     // (atomic) store r4-r5 pair to dst
                     $release,
                     "stq %r4, 0({dst})",
-                    dst = inout(reg) dst => _,
+                    dst = in(reg) dst,
                     out("r0") _,
                     // lq loads value into even/odd pair of specified register and subsequent register.
                     // We cannot use r1 and r2, so starting with r4.
