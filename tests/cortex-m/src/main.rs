@@ -36,83 +36,103 @@ macro_rules! __test_atomic {
         }
         compare_exchange();
         fn compare_exchange() {
-            let a = <$atomic_type>::new(5);
-            assert_eq!(a.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed), Ok(5));
-            assert_eq!(a.load(Ordering::Relaxed), 10);
-            assert_eq!(a.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire), Err(10));
-            assert_eq!(a.load(Ordering::Relaxed), 10);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(5);
+                assert_eq!(a.compare_exchange(5, 10, success, failure), Ok(5));
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+                assert_eq!(a.compare_exchange(6, 12, success, failure), Err(10));
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+            }
         }
         compare_exchange_weak();
         fn compare_exchange_weak() {
-            let a = <$atomic_type>::new(4);
-            assert_eq!(a.compare_exchange_weak(6, 8, Ordering::SeqCst, Ordering::Acquire), Err(4));
-            let mut old = a.load(Ordering::Relaxed);
-            loop {
-                let new = old * 2;
-                match a.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(x) => old = x,
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(4);
+                assert_eq!(a.compare_exchange_weak(6, 8, success, failure), Err(4));
+                let mut old = a.load(Ordering::Relaxed);
+                loop {
+                    let new = old * 2;
+                    match a.compare_exchange_weak(old, new, success, failure) {
+                        Ok(_) => break,
+                        Err(x) => old = x,
+                    }
                 }
+                assert_eq!(a.load(Ordering::Relaxed), 8);
             }
-            assert_eq!(a.load(Ordering::Relaxed), 8);
         }
         fetch_add();
         fn fetch_add() {
-            let a = <$atomic_type>::new(0);
-            assert_eq!(a.fetch_add(10, Ordering::SeqCst), 0);
-            assert_eq!(a.load(Ordering::SeqCst), 10);
-            let a = <$atomic_type>::new($int_type::MAX);
-            assert_eq!(a.fetch_add(1, Ordering::SeqCst), $int_type::MAX);
-            assert_eq!(a.load(Ordering::SeqCst), $int_type::MAX.wrapping_add(1));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(0);
+                assert_eq!(a.fetch_add(10, order), 0);
+                assert_eq!(a.load(Ordering::SeqCst), 10);
+                let a = <$atomic_type>::new($int_type::MAX);
+                assert_eq!(a.fetch_add(1, order), $int_type::MAX);
+                assert_eq!(a.load(Ordering::SeqCst), $int_type::MAX.wrapping_add(1));
+            }
         }
         fetch_sub();
         fn fetch_sub() {
-            let a = <$atomic_type>::new(20);
-            assert_eq!(a.fetch_sub(10, Ordering::SeqCst), 20);
-            assert_eq!(a.load(Ordering::SeqCst), 10);
-            let a = <$atomic_type>::new($int_type::MIN);
-            assert_eq!(a.fetch_sub(1, Ordering::SeqCst), $int_type::MIN);
-            assert_eq!(a.load(Ordering::SeqCst), $int_type::MIN.wrapping_sub(1));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(20);
+                assert_eq!(a.fetch_sub(10, order), 20);
+                assert_eq!(a.load(Ordering::SeqCst), 10);
+                let a = <$atomic_type>::new($int_type::MIN);
+                assert_eq!(a.fetch_sub(1, order), $int_type::MIN);
+                assert_eq!(a.load(Ordering::SeqCst), $int_type::MIN.wrapping_sub(1));
+            }
         }
         fetch_and();
         fn fetch_and() {
-            let a = <$atomic_type>::new(0b101101);
-            assert_eq!(a.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
-            assert_eq!(a.load(Ordering::SeqCst), 0b100001);
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(0b101101);
+                assert_eq!(a.fetch_and(0b110011, order), 0b101101);
+                assert_eq!(a.load(Ordering::SeqCst), 0b100001);
+            }
         }
         fetch_nand();
         fn fetch_nand() {
-            let a = <$atomic_type>::new(0x13);
-            assert_eq!(a.fetch_nand(0x31, Ordering::SeqCst), 0x13);
-            assert_eq!(a.load(Ordering::SeqCst), !(0x13 & 0x31));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(0x13);
+                assert_eq!(a.fetch_nand(0x31, order), 0x13);
+                assert_eq!(a.load(Ordering::SeqCst), !(0x13 & 0x31));
+            }
         }
         fetch_or();
         fn fetch_or() {
-            let a = <$atomic_type>::new(0b101101);
-            assert_eq!(a.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
-            assert_eq!(a.load(Ordering::SeqCst), 0b111111);
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(0b101101);
+                assert_eq!(a.fetch_or(0b110011, order), 0b101101);
+                assert_eq!(a.load(Ordering::SeqCst), 0b111111);
+            }
         }
         fetch_xor();
         fn fetch_xor() {
-            let a = <$atomic_type>::new(0b101101);
-            assert_eq!(a.fetch_xor(0b110011, Ordering::SeqCst), 0b101101);
-            assert_eq!(a.load(Ordering::SeqCst), 0b011110);
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(0b101101);
+                assert_eq!(a.fetch_xor(0b110011, order), 0b101101);
+                assert_eq!(a.load(Ordering::SeqCst), 0b011110);
+            }
         }
         fetch_max();
         fn fetch_max() {
-            let a = <$atomic_type>::new(23);
-            assert_eq!(a.fetch_max(22, Ordering::SeqCst), 23);
-            assert_eq!(a.load(Ordering::SeqCst), 23);
-            assert_eq!(a.fetch_max(24, Ordering::SeqCst), 23);
-            assert_eq!(a.load(Ordering::SeqCst), 24);
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(23);
+                assert_eq!(a.fetch_max(22, order), 23);
+                assert_eq!(a.load(Ordering::SeqCst), 23);
+                assert_eq!(a.fetch_max(24, order), 23);
+                assert_eq!(a.load(Ordering::SeqCst), 24);
+            }
         }
         fetch_min();
         fn fetch_min() {
-            let a = <$atomic_type>::new(23);
-            assert_eq!(a.fetch_min(24, Ordering::SeqCst), 23);
-            assert_eq!(a.load(Ordering::SeqCst), 23);
-            assert_eq!(a.fetch_min(22, Ordering::SeqCst), 23);
-            assert_eq!(a.load(Ordering::SeqCst), 22);
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(23);
+                assert_eq!(a.fetch_min(24, order), 23);
+                assert_eq!(a.load(Ordering::SeqCst), 23);
+                assert_eq!(a.fetch_min(22, order), 23);
+                assert_eq!(a.load(Ordering::SeqCst), 22);
+            }
         }
     };
 }
@@ -125,6 +145,25 @@ fn store_orderings() -> [Ordering; 3] {
 }
 fn swap_orderings() -> [Ordering; 5] {
     [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
+}
+fn compare_exchange_orderings() -> [(Ordering, Ordering); 15] {
+    [
+        (Ordering::Relaxed, Ordering::Relaxed),
+        (Ordering::Relaxed, Ordering::Acquire),
+        (Ordering::Relaxed, Ordering::SeqCst),
+        (Ordering::Acquire, Ordering::Relaxed),
+        (Ordering::Acquire, Ordering::Acquire),
+        (Ordering::Acquire, Ordering::SeqCst),
+        (Ordering::Release, Ordering::Relaxed),
+        (Ordering::Release, Ordering::Acquire),
+        (Ordering::Release, Ordering::SeqCst),
+        (Ordering::AcqRel, Ordering::Relaxed),
+        (Ordering::AcqRel, Ordering::Acquire),
+        (Ordering::AcqRel, Ordering::SeqCst),
+        (Ordering::SeqCst, Ordering::Relaxed),
+        (Ordering::SeqCst, Ordering::Acquire),
+        (Ordering::SeqCst, Ordering::SeqCst),
+    ]
 }
 
 #[entry]

@@ -419,8 +419,7 @@ impl AtomicBool {
     /// `failure` describes the required ordering for the load operation that takes place when
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-    /// and must be equivalent to or weaker than the success ordering.
+    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -454,8 +453,7 @@ impl AtomicBool {
     /// `failure` describes the required ordering for the load operation that takes place when
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-    /// and must be equivalent to or weaker than the success ordering.
+    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -593,8 +591,7 @@ impl AtomicBool {
     /// Using [`Acquire`] as success ordering makes the store part of this
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
-    /// [`Acquire`] or [`Relaxed`] and must be equivalent to or weaker than the
-    /// success ordering.
+    /// [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -792,8 +789,7 @@ impl<T> AtomicPtr<T> {
     /// `failure` describes the required ordering for the load operation that takes place when
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-    /// and must be equivalent to or weaker than the success ordering.
+    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -827,8 +823,7 @@ impl<T> AtomicPtr<T> {
     /// `failure` describes the required ordering for the load operation that takes place when
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-    /// and must be equivalent to or weaker than the success ordering.
+    /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -867,8 +862,7 @@ impl<T> AtomicPtr<T> {
     /// Using [`Acquire`] as success ordering makes the store part of this
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
-    /// [`Acquire`] or [`Relaxed`] and must be equivalent to or weaker than the
-    /// success ordering.
+    /// [`Acquire`] or [`Relaxed`].
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -1087,8 +1081,7 @@ atomic instructions or locks will be used.
             /// `failure` describes the required ordering for the load operation that takes place when
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -1126,8 +1119,7 @@ atomic instructions or locks will be used.
             /// `failure` describes the required ordering for the load operation that takes place when
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -1322,8 +1314,7 @@ atomic instructions or locks will be used.
             ///
             /// Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the final successful load
-            /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -1585,8 +1576,7 @@ This type has the same in-memory representation as the underlying floating point
             /// `failure` describes the required ordering for the load operation that takes place when
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -1632,8 +1622,7 @@ This type has the same in-memory representation as the underlying floating point
             /// `failure` describes the required ordering for the load operation that takes place when
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -1734,8 +1723,7 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the final successful load
-            /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`]
-            /// and must be equivalent to or weaker than the success ordering.
+            /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(

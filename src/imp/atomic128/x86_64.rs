@@ -154,6 +154,7 @@ unsafe fn cmpxchg16b(
 #[inline]
 unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
+
     // SAFETY: the caller must uphold the safety contract for `_atomic_load_vmovdqa`.
     unsafe {
         let out: core::arch::x86_64::__m128;
@@ -170,6 +171,7 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
 #[inline]
 unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, _order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
+
     // SAFETY: the caller must uphold the safety contract for `_atomic_store_vmovdqa`.
     unsafe {
         let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
@@ -274,6 +276,7 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
+    let success = crate::utils::upgrade_success_ordering(success, failure);
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let (res, ok) = unsafe { cmpxchg16b(dst, old, new, success, failure) };
     if ok {

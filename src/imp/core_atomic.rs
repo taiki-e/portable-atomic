@@ -1,4 +1,7 @@
 // Wrap the standard library's atomic types in newtype.
+//
+// This is not a reexport, because we want to backport changes like
+// https://github.com/rust-lang/rust/pull/98383 to old compilers.
 
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
@@ -24,6 +27,34 @@ impl AtomicBool {
     #[inline]
     pub(crate) fn into_inner(self) -> bool {
         self.inner.into_inner()
+    }
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+    #[inline]
+    pub(crate) fn compare_exchange(
+        &self,
+        current: bool,
+        new: bool,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<bool, bool> {
+        // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        self.inner.compare_exchange(current, new, success, failure)
+    }
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+    #[inline]
+    pub(crate) fn compare_exchange_weak(
+        &self,
+        current: bool,
+        new: bool,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<bool, bool> {
+        // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        self.inner.compare_exchange_weak(current, new, success, failure)
     }
 }
 impl core::ops::Deref for AtomicBool {
@@ -60,6 +91,34 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn into_inner(self) -> *mut T {
         self.inner.into_inner()
+    }
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+    #[inline]
+    pub(crate) fn compare_exchange(
+        &self,
+        current: *mut T,
+        new: *mut T,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<*mut T, *mut T> {
+        // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        self.inner.compare_exchange(current, new, success, failure)
+    }
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+    #[inline]
+    pub(crate) fn compare_exchange_weak(
+        &self,
+        current: *mut T,
+        new: *mut T,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<*mut T, *mut T> {
+        // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        self.inner.compare_exchange_weak(current, new, success, failure)
     }
 }
 impl<T> core::ops::Deref for AtomicPtr<T> {
@@ -98,6 +157,46 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn into_inner(self) -> $int_type {
                 self.inner.into_inner()
+            }
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(not(portable_atomic_no_atomic_cas))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(target_has_atomic = "ptr")
+            )]
+            #[inline]
+            pub(crate) fn compare_exchange(
+                &self,
+                current: $int_type,
+                new: $int_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$int_type, $int_type> {
+                // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+                let success = crate::utils::upgrade_success_ordering(success, failure);
+                self.inner.compare_exchange(current, new, success, failure)
+            }
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(not(portable_atomic_no_atomic_cas))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(target_has_atomic = "ptr")
+            )]
+            #[inline]
+            pub(crate) fn compare_exchange_weak(
+                &self,
+                current: $int_type,
+                new: $int_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$int_type, $int_type> {
+                // TODO: add cfg once https://github.com/rust-lang/rust/pull/98383 merged.
+                let success = crate::utils::upgrade_success_ordering(success, failure);
+                self.inner.compare_exchange_weak(current, new, success, failure)
             }
             #[cfg(portable_atomic_no_atomic_min_max)]
             #[cfg_attr(
