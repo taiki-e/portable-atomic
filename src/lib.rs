@@ -8,7 +8,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr) (optional, [single-core only](#optional-cfg))
 
-## 128-bit atomics support (AtomicI128,AtomicU128)
+## 128-bit atomics support
 
 Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (le or pwr8+, nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
 
