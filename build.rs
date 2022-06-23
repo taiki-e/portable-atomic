@@ -131,13 +131,15 @@ fn main() {
 
     // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
     if target.starts_with("aarch64") && (version.minor >= 59 || version.nightly) {
+        // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
+        let is_aarch64_macos = target == "aarch64-apple-darwin";
         // aarch64_target_feature stabilized in Rust 1.61.
-        if has_target_feature("lse", target == "aarch64-apple-darwin", &version, Some(61), true) {
+        if has_target_feature("lse", is_aarch64_macos, &version, Some(61), true) {
             println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse\"");
         }
         // As of rustc 1.61.0, target_feature "lse2" is not available on rustc side:
         // https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
-        if has_target_feature("lse2", target == "aarch64-apple-darwin", &version, None, false) {
+        if has_target_feature("lse2", is_aarch64_macos, &version, None, false) {
             println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse2\"");
         }
     }
@@ -148,11 +150,11 @@ fn main() {
     let mut has_cmpxchg16b = false;
     if may_use_cmpxchg16b {
         // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
-        has_cmpxchg16b =
-            has_target_feature("cmpxchg16b", target == "x86_64-apple-darwin", &version, None, true);
-    }
-    if has_cmpxchg16b {
-        println!("cargo:rustc-cfg=portable_atomic_target_feature=\"cmpxchg16b\"");
+        let is_x86_64_macos = target == "x86_64-apple-darwin";
+        has_cmpxchg16b = has_target_feature("cmpxchg16b", is_x86_64_macos, &version, None, true);
+        if has_cmpxchg16b {
+            println!("cargo:rustc-cfg=portable_atomic_target_feature=\"cmpxchg16b\"");
+        }
     }
 
     if version.nightly {
