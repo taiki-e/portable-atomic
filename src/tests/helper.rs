@@ -236,10 +236,13 @@ macro_rules! __test_atomic_int {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(5, 5, success, failure)
             });
-            assert_eq!(a.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed), Ok(5));
-            assert_eq!(a.load(Ordering::Relaxed), 10);
-            assert_eq!(a.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire), Err(10));
-            assert_eq!(a.load(Ordering::Relaxed), 10);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(5);
+                assert_eq!(a.compare_exchange(5, 10, success, failure), Ok(5));
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+                assert_eq!(a.compare_exchange(6, 12, success, failure), Err(10));
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+            }
         }
         #[test]
         fn compare_exchange_weak() {
@@ -247,16 +250,19 @@ macro_rules! __test_atomic_int {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4, 4, success, failure)
             });
-            assert_eq!(a.compare_exchange_weak(6, 8, Ordering::SeqCst, Ordering::Acquire), Err(4));
-            let mut old = a.load(Ordering::Relaxed);
-            loop {
-                let new = old * 2;
-                match a.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(x) => old = x,
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(4);
+                assert_eq!(a.compare_exchange_weak(6, 8, success, failure), Err(4));
+                let mut old = a.load(Ordering::Relaxed);
+                loop {
+                    let new = old * 2;
+                    match a.compare_exchange_weak(old, new, success, failure) {
+                        Ok(_) => break,
+                        Err(x) => old = x,
+                    }
                 }
+                assert_eq!(a.load(Ordering::Relaxed), 8);
             }
-            assert_eq!(a.load(Ordering::Relaxed), 8);
         }
         #[test]
         fn fetch_add() {
@@ -605,16 +611,13 @@ macro_rules! __test_atomic_float {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(5.0, 5.0, success, failure)
             });
-            assert_eq!(
-                a.compare_exchange(5.0, 10.0, Ordering::Acquire, Ordering::Relaxed),
-                Ok(5.0),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), 10.0);
-            assert_eq!(
-                a.compare_exchange(6.0, 12.0, Ordering::SeqCst, Ordering::Acquire),
-                Err(10.0),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), 10.0);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(5.0);
+                assert_eq!(a.compare_exchange(5.0, 10.0, success, failure), Ok(5.0));
+                assert_eq!(a.load(Ordering::Relaxed), 10.0);
+                assert_eq!(a.compare_exchange(6.0, 12.0, success, failure), Err(10.0));
+                assert_eq!(a.load(Ordering::Relaxed), 10.0);
+            }
         }
         #[test]
         fn compare_exchange_weak() {
@@ -622,19 +625,19 @@ macro_rules! __test_atomic_float {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4.0, 4.0, success, failure)
             });
-            assert_eq!(
-                a.compare_exchange_weak(6.0, 8.0, Ordering::SeqCst, Ordering::Acquire),
-                Err(4.0),
-            );
-            let mut old = a.load(Ordering::Relaxed);
-            loop {
-                let new = old * 2.0;
-                match a.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(x) => old = x,
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(4.0);
+                assert_eq!(a.compare_exchange_weak(6.0, 8.0, success, failure), Err(4.0));
+                let mut old = a.load(Ordering::Relaxed);
+                loop {
+                    let new = old * 2.0;
+                    match a.compare_exchange_weak(old, new, success, failure) {
+                        Ok(_) => break,
+                        Err(x) => old = x,
+                    }
                 }
+                assert_eq!(a.load(Ordering::Relaxed), 8.0);
             }
-            assert_eq!(a.load(Ordering::Relaxed), 8.0);
         }
         #[test]
         fn fetch_add() {
@@ -798,16 +801,13 @@ macro_rules! __test_atomic_bool {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(true, true, success, failure)
             });
-            assert_eq!(
-                a.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed),
-                Ok(true),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), false);
-            assert_eq!(
-                a.compare_exchange(true, true, Ordering::SeqCst, Ordering::Acquire),
-                Err(false),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), false);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(true);
+                assert_eq!(a.compare_exchange(true, false, success, failure), Ok(true));
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                assert_eq!(a.compare_exchange(true, true, success, failure), Err(false));
+                assert_eq!(a.load(Ordering::Relaxed), false);
+            }
         }
         #[test]
         fn compare_exchange_weak() {
@@ -815,19 +815,19 @@ macro_rules! __test_atomic_bool {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(false, false, success, failure)
             });
-            assert_eq!(
-                a.compare_exchange_weak(true, true, Ordering::SeqCst, Ordering::Acquire),
-                Err(false),
-            );
-            let mut old = a.load(Ordering::Relaxed);
-            let new = true;
-            loop {
-                match a.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(x) => old = x,
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.compare_exchange_weak(true, true, success, failure), Err(false));
+                let mut old = a.load(Ordering::Relaxed);
+                let new = true;
+                loop {
+                    match a.compare_exchange_weak(old, new, success, failure) {
+                        Ok(_) => break,
+                        Err(x) => old = x,
+                    }
                 }
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
-            assert_eq!(a.load(Ordering::Relaxed), true);
         }
         #[test]
         fn fetch_and() {
@@ -968,22 +968,20 @@ macro_rules! __test_atomic_ptr {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(ptr::null_mut(), ptr::null_mut(), success, failure)
             });
-            let x = &mut 1;
-            assert_eq!(
-                a.compare_exchange(ptr::null_mut(), x, Ordering::Acquire, Ordering::Relaxed),
-                Ok(ptr::null_mut()),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), x as _);
-            assert_eq!(
-                a.compare_exchange(
-                    ptr::null_mut(),
-                    ptr::null_mut(),
-                    Ordering::SeqCst,
-                    Ordering::Acquire
-                ),
-                Err(x as _),
-            );
-            assert_eq!(a.load(Ordering::Relaxed), x as _);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(ptr::null_mut());
+                let x = &mut 1;
+                assert_eq!(
+                    a.compare_exchange(ptr::null_mut(), x, success, failure),
+                    Ok(ptr::null_mut()),
+                );
+                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(
+                    a.compare_exchange(ptr::null_mut(), ptr::null_mut(), success, failure),
+                    Err(x as _),
+                );
+                assert_eq!(a.load(Ordering::Relaxed), x as _);
+            }
         }
         #[test]
         fn compare_exchange_weak() {
@@ -991,19 +989,19 @@ macro_rules! __test_atomic_ptr {
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(ptr::null_mut(), ptr::null_mut(), success, failure)
             });
-            let x = &mut 1;
-            assert_eq!(
-                a.compare_exchange_weak(x, x, Ordering::SeqCst, Ordering::Acquire),
-                Err(ptr::null_mut()),
-            );
-            let mut old = a.load(Ordering::Relaxed);
-            loop {
-                match a.compare_exchange_weak(old, x, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(x) => old = x,
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(ptr::null_mut());
+                let x = &mut 1;
+                assert_eq!(a.compare_exchange_weak(x, x, success, failure), Err(ptr::null_mut()));
+                let mut old = a.load(Ordering::Relaxed);
+                loop {
+                    match a.compare_exchange_weak(old, x, success, failure) {
+                        Ok(_) => break,
+                        Err(x) => old = x,
+                    }
                 }
+                assert_eq!(a.load(Ordering::Relaxed), x as _);
             }
-            assert_eq!(a.load(Ordering::Relaxed), x as _);
         }
     };
     ($atomic_type:ty) => {
@@ -1030,10 +1028,13 @@ macro_rules! __test_atomic_int_pub {
         fn fetch_update() {
             let a = <$atomic_type>::new(7);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None), Err(7));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), Ok(7));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), Ok(8));
-            assert_eq!(a.load(Ordering::SeqCst), 9);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(7);
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
+                assert_eq!(a.load(Ordering::SeqCst), 9);
+            }
         }
     };
 }
@@ -1044,16 +1045,13 @@ macro_rules! __test_atomic_float_pub {
         fn fetch_update() {
             let a = <$atomic_type>::new(7.0);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None), Err(7.0));
-            assert_eq!(
-                a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1.0)),
-                Ok(7.0)
-            );
-            assert_eq!(
-                a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1.0)),
-                Ok(8.0)
-            );
-            assert_eq!(a.load(Ordering::SeqCst), 9.0);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(7.0);
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7.0));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1.0)), Ok(7.0));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1.0)), Ok(8.0));
+                assert_eq!(a.load(Ordering::SeqCst), 9.0);
+            }
         }
         #[test]
         fn impls() {
@@ -1071,10 +1069,13 @@ macro_rules! __test_atomic_bool_pub {
         fn fetch_update() {
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None), Err(false));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(!x)), Ok(false));
-            assert_eq!(a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(!x)), Ok(true));
-            assert_eq!(a.load(Ordering::SeqCst), false);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(false));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(!x)), Ok(false));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(!x)), Ok(true));
+                assert_eq!(a.load(Ordering::SeqCst), false);
+            }
         }
         #[test]
         fn impls() {
@@ -1092,17 +1093,15 @@ macro_rules! __test_atomic_ptr_pub {
         fn fetch_update() {
             let a = <$atomic_type>::new(ptr::null_mut());
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
-            assert_eq!(
-                a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None),
-                Err(ptr::null_mut())
-            );
-            assert_eq!(
-                a.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| Some(
-                    &a as *const _ as *mut _
-                )),
-                Ok(ptr::null_mut())
-            );
-            assert_eq!(a.load(Ordering::SeqCst), &a as *const _ as *mut _);
+            for (success, failure) in compare_exchange_orderings() {
+                let a = <$atomic_type>::new(ptr::null_mut());
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(ptr::null_mut()));
+                assert_eq!(
+                    a.fetch_update(success, failure, |_| Some(&a as *const _ as *mut _)),
+                    Ok(ptr::null_mut())
+                );
+                assert_eq!(a.load(Ordering::SeqCst), &a as *const _ as *mut _);
+            }
         }
         #[test]
         fn impls() {
@@ -1262,6 +1261,7 @@ macro_rules! test_atomic_ptr_pub {
 }
 
 // Asserts that `a` and `b` have performed equivalent operations.
+#[cfg(feature = "float")]
 macro_rules! assert_float_op_eq {
     ($a:expr, $b:expr $(,)?) => {{
         // See also:
@@ -1317,7 +1317,7 @@ pub(crate) fn load_orderings() -> [Ordering; 3] {
     [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst]
 }
 pub(crate) fn rand_load_ordering() -> Ordering {
-    load_orderings()[fastrand::usize(0..3)]
+    load_orderings()[fastrand::usize(0..load_orderings().len())]
 }
 pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &load_orderings() {
@@ -1339,7 +1339,7 @@ pub(crate) fn store_orderings() -> [Ordering; 3] {
     [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst]
 }
 pub(crate) fn rand_store_ordering() -> Ordering {
-    store_orderings()[fastrand::usize(0..3)]
+    store_orderings()[fastrand::usize(0..store_orderings().len())]
 }
 pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) {
     for &order in &store_orderings() {
@@ -1357,22 +1357,27 @@ pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T)
         );
     }
 }
-pub(crate) fn compare_exchange_orderings() -> [(Ordering, Ordering); 9] {
-    // https://github.com/rust-lang/rust/blob/1.61.0/library/core/tests/atomic.rs#L199
+pub(crate) fn compare_exchange_orderings() -> [(Ordering, Ordering); 15] {
     [
         (Ordering::Relaxed, Ordering::Relaxed),
+        (Ordering::Relaxed, Ordering::Acquire),
+        (Ordering::Relaxed, Ordering::SeqCst),
         (Ordering::Acquire, Ordering::Relaxed),
-        (Ordering::Release, Ordering::Relaxed),
-        (Ordering::AcqRel, Ordering::Relaxed),
-        (Ordering::SeqCst, Ordering::Relaxed),
         (Ordering::Acquire, Ordering::Acquire),
+        (Ordering::Acquire, Ordering::SeqCst),
+        (Ordering::Release, Ordering::Relaxed),
+        (Ordering::Release, Ordering::Acquire),
+        (Ordering::Release, Ordering::SeqCst),
+        (Ordering::AcqRel, Ordering::Relaxed),
         (Ordering::AcqRel, Ordering::Acquire),
+        (Ordering::AcqRel, Ordering::SeqCst),
+        (Ordering::SeqCst, Ordering::Relaxed),
         (Ordering::SeqCst, Ordering::Acquire),
         (Ordering::SeqCst, Ordering::SeqCst),
     ]
 }
 pub(crate) fn rand_compare_exchange_ordering() -> (Ordering, Ordering) {
-    compare_exchange_orderings()[fastrand::usize(0..9)]
+    compare_exchange_orderings()[fastrand::usize(0..compare_exchange_orderings().len())]
 }
 pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
     f: impl Fn(Ordering, Ordering) -> T,
@@ -1396,18 +1401,6 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
                     || msg == "there is no such thing as a release load",
                 "{}",
                 msg
-            );
-        }
-        for &(success, failure) in &[
-            (Ordering::Relaxed, Ordering::SeqCst),
-            (Ordering::Relaxed, Ordering::Acquire),
-            (Ordering::Acquire, Ordering::SeqCst),
-            (Ordering::Release, Ordering::SeqCst),
-            (Ordering::AcqRel, Ordering::SeqCst),
-        ] {
-            assert_eq!(
-                assert_panic(|| f(success, failure)),
-                "a failure ordering can't be stronger than a success ordering"
             );
         }
     }

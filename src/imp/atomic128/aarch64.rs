@@ -325,8 +325,10 @@ unsafe fn atomic_compare_exchange(
     old: u128,
     new: u128,
     success: Ordering,
-    _failure: Ordering,
+    failure: Ordering,
 ) -> Result<u128, u128> {
+    let success = crate::utils::upgrade_success_ordering(success, failure);
+
     #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     // cfg guarantee that the CPU supports FEAT_LSE.

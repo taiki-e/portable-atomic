@@ -198,24 +198,34 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2628
+// https://github.com/rust-lang/rust/pull/98383
 #[inline]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
-    use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
-    #[allow(clippy::unnested_or_patterns)]
+    match success {
+        Ordering::AcqRel
+        | Ordering::Acquire
+        | Ordering::Relaxed
+        | Ordering::Release
+        | Ordering::SeqCst => {}
+        _ => unreachable!("{:?}", success),
+    }
+    match failure {
+        Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
+        Ordering::Release => panic!("there is no such thing as a release failure ordering"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire/release failure ordering"),
+        _ => unreachable!("{:?}", failure),
+    }
+}
+
+// https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0418r2.html
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> Ordering {
     match (success, failure) {
-        (Acquire, Acquire)
-        | (Release, Relaxed)
-        | (AcqRel, Acquire)
-        | (Relaxed, Relaxed)
-        | (SeqCst, SeqCst)
-        | (Acquire, Relaxed)
-        | (AcqRel, Relaxed)
-        | (SeqCst, Relaxed)
-        | (SeqCst, Acquire) => {}
-        (_, AcqRel) => panic!("there is no such thing as an acquire/release failure ordering"),
-        (_, Release) => panic!("there is no such thing as a release failure ordering"),
-        _ => panic!("a failure ordering can't be stronger than a success ordering"),
+        (Ordering::Relaxed, Ordering::Acquire) => Ordering::Acquire,
+        (Ordering::Release, Ordering::Acquire) => Ordering::AcqRel,
+        (_, Ordering::SeqCst) => Ordering::SeqCst,
+        _ => success,
     }
 }
 

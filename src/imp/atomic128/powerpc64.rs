@@ -153,8 +153,11 @@ unsafe fn atomic_compare_exchange(
     old: u128,
     new: u128,
     success: Ordering,
-    _failure: Ordering,
+    failure: Ordering,
 ) -> Result<u128, u128> {
+    debug_assert!(dst as usize % 16 == 0);
+    let success = crate::utils::upgrade_success_ordering(success, failure);
+
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe {
         let old = U128 { whole: old };
