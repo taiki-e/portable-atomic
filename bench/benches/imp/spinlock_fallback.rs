@@ -2,6 +2,9 @@
 //
 // This implementation uses spinlock for global locks.
 //
+// Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
+// type and the value type must be the same.
+//
 // This module is currently only enabled on test and benchmark.
 
 use core::{

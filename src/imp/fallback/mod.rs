@@ -5,6 +5,9 @@
 // This is basically based on global locks in crossbeam-utils's `AtomicCell`,
 // but seqlock is implemented in a way that does not depend on UB
 // (see comments in optimistic_read method in atomic! macro for details).
+//
+// Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
+// type and the value type must be the same.
 
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
 // around.
