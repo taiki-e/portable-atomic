@@ -20,7 +20,6 @@ targets = ["x86_64-unknown-linux-gnu"]
 [workspace]
 members = [
     "bench",
-    "tests/asm-test",
     "tests/no-std",
 ]
 

@@ -1,9 +1,0 @@
-asm_test::atomic_u8_load::relaxed:
- mov     al, byte, ptr, [rdi]
- ret
-asm_test::atomic_u8_load::acquire:
- mov     al, byte, ptr, [rdi]
- ret
-asm_test::atomic_u8_load::seq_cst:
- mov     al, byte, ptr, [rdi]
- ret

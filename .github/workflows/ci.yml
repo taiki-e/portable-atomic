@@ -104,25 +104,25 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'powerpc64')
 
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
 
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -131,17 +131,17 @@ jobs:
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
 
       # +lse
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -151,15 +151,15 @@ jobs:
       # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
 
       # pwr8
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features $DOCTEST_XCOMPILE
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $DOCTEST_XCOMPILE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -224,7 +224,7 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@main
         with:
           component: miri
-      - run: cargo miri test --workspace --exclude asm-test --exclude bench --all-features
+      - run: cargo miri test --workspace --exclude bench --all-features
         env:
           # disable preemption due to https://github.com/rust-lang/rust/issues/55005
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation -Zmiri-preemption-rate=0
@@ -261,30 +261,30 @@ jobs:
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
         if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
       # +cmpxchg16b
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude asm-test --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
+          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')"
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -305,30 +305,30 @@ jobs:
           component: rust-src
       - uses: taiki-e/install-action@valgrind
       # -Z doctest-xcompile is needed to apply CARGO_TARGET_*_RUNNER to doctest.
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features -Z doctest-xcompile
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features -Z doctest-xcompile
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude asm-test --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat

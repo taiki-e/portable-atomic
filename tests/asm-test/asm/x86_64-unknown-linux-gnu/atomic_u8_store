@@ -1,9 +1,0 @@
-asm_test::atomic_u8_store::relaxed:
- mov     byte, ptr, [rdi], sil
- ret
-asm_test::atomic_u8_store::release:
- mov     byte, ptr, [rdi], sil
- ret
-asm_test::atomic_u8_store::seq_cst:
- xchg    byte, ptr, [rdi], sil
- ret
