@@ -30,7 +30,7 @@ mod x86_64;
 #[path = "atomic128/powerpc64.rs"]
 mod powerpc64;
 
-#[cfg(any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128))]
+#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "s390x")]
 #[path = "atomic128/s390x.rs"]
 mod s390x;
@@ -53,7 +53,6 @@ mod riscv;
 #[cfg(any(
     test,
     not(any(
-        portable_atomic_s390x_atomic_128,
         all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -69,6 +68,7 @@ mod riscv;
             ),
             target_arch = "powerpc64"
         ),
+        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
     ))
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -233,12 +233,12 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 #[cfg(target_arch = "powerpc64")]
 pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
 // s390x
-#[cfg(portable_atomic_s390x_atomic_128)]
+#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(target_arch = "s390x")]
 pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
 #[cfg(not(any(
-    portable_atomic_s390x_atomic_128,
     all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
     all(
         any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -258,6 +258,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         ),
         target_arch = "powerpc64"
     ),
+    all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
 )))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]

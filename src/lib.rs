@@ -120,10 +120,6 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     ),
     feature(stdsimd, cmpxchg16b_target_feature)
 )]
-#![cfg_attr(
-    any(all(test, portable_atomic_nightly), portable_atomic_s390x_atomic_128),
-    feature(core_intrinsics)
-)]
 // cfg(cfg_target_has_atomic) on old nightly
 // This feature has not been changed since the change in nightly-2019-10-14
 // until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
@@ -134,7 +130,12 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
     all(
         portable_atomic_nightly,
         not(portable_atomic_no_asm),
-        any(target_arch = "avr", target_arch = "msp430", target_arch = "powerpc64"),
+        any(
+            target_arch = "avr",
+            target_arch = "msp430",
+            target_arch = "powerpc64",
+            target_arch = "s390x",
+        ),
     ),
     feature(asm_experimental_arch)
 )]
@@ -2032,7 +2033,6 @@ atomic_int!(AtomicU64, u64, 8);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        portable_atomic_s390x_atomic_128,
         all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -2052,6 +2052,7 @@ atomic_int!(AtomicU64, u64, 8);
             ),
             target_arch = "powerpc64"
         ),
+        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(
@@ -2066,7 +2067,6 @@ atomic_int!(AtomicI128, i128, 16);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        portable_atomic_s390x_atomic_128,
         all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_nightly),
@@ -2086,6 +2086,7 @@ atomic_int!(AtomicI128, i128, 16);
             ),
             target_arch = "powerpc64"
         ),
+        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(

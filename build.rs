@@ -37,40 +37,6 @@ unsafe fn _probe(dst: *mut u128) {
     }
 }
 "#;
-// for s390x
-const PROBE_ATOMIC_INTRINSICS: &str = r#"
-#![no_std]
-#![feature(core_intrinsics)]
-#[allow(unused_unsafe)]
-unsafe fn _probe(dst: *mut u128) {
-    unsafe {
-        let _: u128 = core::intrinsics::atomic_load_acq(dst);
-        let _: u128 = core::intrinsics::atomic_load_relaxed(dst);
-        let _: u128 = core::intrinsics::atomic_load(dst);
-        let _: () = core::intrinsics::atomic_store_rel(dst, 0_u128);
-        let _: () = core::intrinsics::atomic_store_relaxed(dst, 0_u128);
-        let _: () = core::intrinsics::atomic_store(dst, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acq(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_rel(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acqrel(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_relaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acq_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_acqrel_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchg_failacq(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acq(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_rel(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acqrel(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_relaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acq_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_acqrel_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_failrelaxed(dst, 0_u128, 0_u128);
-        let _: (u128, bool) = core::intrinsics::atomic_cxchgweak_failacq(dst, 0_u128, 0_u128);
-    }
-}
-"#;
 
 fn main() {
     println!("cargo:rerun-if-changed=no_atomic.rs");
@@ -206,10 +172,6 @@ fn main() {
             if cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
             }
-        } else if target.starts_with("s390x")
-            && probe(PROBE_ATOMIC_INTRINSICS, &target).unwrap_or(false)
-        {
-            println!("cargo:rustc-cfg=portable_atomic_s390x_atomic_128");
         } else if target.starts_with("powerpc64-") {
             // Only check powerpc64 (be) -- powerpc64le is pwr8+ https://github.com/llvm/llvm-project/blob/2ba5d820e2b0e5016ec706e324060a329f9a83a3/llvm/lib/Target/PowerPC/PPC.td#L652
             if let Some(cpu) = target_cpu() {
