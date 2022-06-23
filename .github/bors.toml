@@ -1,1 +1,5 @@
-status = ["ci"]
+status = [
+    "ci",
+    "test (aarch64-unknown-linux-gnu)",
+    "valgrind (aarch64-unknown-linux-gnu)",
+]

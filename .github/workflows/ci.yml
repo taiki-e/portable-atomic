@@ -403,7 +403,7 @@ jobs:
 
   ci-success:
     name: ci
-    if: success()
+    if: github.event_name == 'push' && success()
     needs:
       - test
       - build
