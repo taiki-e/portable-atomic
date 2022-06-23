@@ -1,34 +1,264 @@
-// Re-exports of the standard library's atomic types.
+// Wrap the standard library's atomic types in newtype.
 
-macro_rules! atomic {
-    ($($atomic_type:ident),*) => {$(
-        pub(crate) use core::sync::atomic::$atomic_type;
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = true;
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+use core::sync::atomic::Ordering;
+
+#[repr(transparent)]
+pub(crate) struct AtomicBool {
+    inner: core::sync::atomic::AtomicBool,
+}
+impl AtomicBool {
+    #[inline]
+    pub(crate) const fn new(v: bool) -> Self {
+        Self { inner: core::sync::atomic::AtomicBool::new(v) }
+    }
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        true
+    }
+    #[inline]
+    pub(crate) fn into_inner(self) -> bool {
+        self.inner.into_inner()
+    }
+}
+impl core::ops::Deref for AtomicBool {
+    type Target = core::sync::atomic::AtomicBool;
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+impl core::ops::DerefMut for AtomicBool {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+#[repr(transparent)]
+pub(crate) struct AtomicPtr<T> {
+    inner: core::sync::atomic::AtomicPtr<T>,
+}
+impl<T> AtomicPtr<T> {
+    #[inline]
+    pub(crate) const fn new(v: *mut T) -> Self {
+        Self { inner: core::sync::atomic::AtomicPtr::new(v) }
+    }
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        true
+    }
+    #[inline]
+    pub(crate) fn into_inner(self) -> *mut T {
+        self.inner.into_inner()
+    }
+}
+impl<T> core::ops::Deref for AtomicPtr<T> {
+    type Target = core::sync::atomic::AtomicPtr<T>;
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+impl<T> core::ops::DerefMut for AtomicPtr<T> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+macro_rules! atomic_int {
+    ($($atomic_type:ident($int_type:ident)),*) => {$(
+        #[repr(transparent)]
+        pub(crate) struct $atomic_type {
+            inner: core::sync::atomic::$atomic_type,
+        }
+        impl $atomic_type {
             #[inline]
-            fn is_lock_free() -> bool {
+            pub(crate) const fn new(v: $int_type) -> Self {
+                Self { inner: core::sync::atomic::$atomic_type::new(v) }
+            }
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::is_always_lock_free()
+            }
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
                 true
+            }
+            #[inline]
+            pub(crate) fn into_inner(self) -> $int_type {
+                self.inner.into_inner()
+            }
+            #[cfg(portable_atomic_no_atomic_min_max)]
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(not(portable_atomic_no_atomic_cas))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(target_has_atomic = "ptr")
+            )]
+            #[inline]
+            fn fetch_update<F>(
+                &self,
+                set_order: Ordering,
+                fetch_order: Ordering,
+                mut f: F,
+            ) -> Result<$int_type, $int_type>
+            where
+                F: FnMut($int_type) -> Option<$int_type>,
+            {
+                let mut prev = self.load(fetch_order);
+                while let Some(next) = f(prev) {
+                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
+                        x @ Ok(_) => return x,
+                        Err(next_prev) => prev = next_prev,
+                    }
+                }
+                Err(prev)
+            }
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(not(portable_atomic_no_atomic_cas))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(target_has_atomic = "ptr")
+            )]
+            #[inline]
+            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
+                #[cfg(not(portable_atomic_no_atomic_min_max))]
+                {
+                    #[cfg(any(
+                        all(
+                            target_arch = "aarch64",
+                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+                        ),
+                        portable_atomic_armv5te,
+                        target_arch = "mips",
+                        target_arch = "mips64",
+                        target_arch = "powerpc",
+                        target_arch = "powerpc64",
+                    ))]
+                    {
+                        // HACK: the following operations are currently broken (at least on qemu):
+                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
+                        // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
+                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
+                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
+                        // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
+                        if core::mem::size_of::<$int_type>() <= 2 {
+                            return self
+                                .fetch_update(
+                                    order,
+                                    crate::utils::strongest_failure_ordering(order),
+                                    |x| Some(core::cmp::max(x, val)),
+                                )
+                                .unwrap();
+                        }
+                    }
+                    self.inner.fetch_max(val, order)
+                }
+                #[cfg(portable_atomic_no_atomic_min_max)]
+                {
+                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
+                        Some(core::cmp::max(x, val))
+                    })
+                    .unwrap()
+                }
+            }
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(not(portable_atomic_no_atomic_cas))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(target_has_atomic = "ptr")
+            )]
+            #[inline]
+            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
+                #[cfg(not(portable_atomic_no_atomic_min_max))]
+                {
+                    #[cfg(any(
+                        all(
+                            target_arch = "aarch64",
+                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+                        ),
+                        portable_atomic_armv5te,
+                        target_arch = "mips",
+                        target_arch = "mips64",
+                        target_arch = "powerpc",
+                        target_arch = "powerpc64",
+                    ))]
+                    {
+                        // HACK: the following operations are currently broken (at least on qemu):
+                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
+                        // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
+                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
+                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
+                        // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
+                        if core::mem::size_of::<$int_type>() <= 2 {
+                            return self
+                                .fetch_update(
+                                    order,
+                                    crate::utils::strongest_failure_ordering(order),
+                                    |x| Some(core::cmp::min(x, val)),
+                                )
+                                .unwrap();
+                        }
+                    }
+                    self.inner.fetch_min(val, order)
+                }
+                #[cfg(portable_atomic_no_atomic_min_max)]
+                {
+                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
+                        Some(core::cmp::min(x, val))
+                    })
+                    .unwrap()
+                }
+            }
+        }
+        impl core::ops::Deref for $atomic_type {
+            type Target = core::sync::atomic::$atomic_type;
+            #[inline]
+            fn deref(&self) -> &Self::Target {
+                &self.inner
+            }
+        }
+        impl core::ops::DerefMut for $atomic_type {
+            #[inline]
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.inner
             }
         }
     )*};
 }
 
-pub(crate) use core::sync::atomic::AtomicPtr;
-impl<T> crate::utils::AtomicRepr for AtomicPtr<T> {
-    const IS_ALWAYS_LOCK_FREE: bool = true;
-    #[inline]
-    fn is_lock_free() -> bool {
-        true
-    }
-}
-
-atomic!(AtomicBool, AtomicIsize, AtomicUsize);
-atomic!(AtomicI8, AtomicI16, AtomicU8, AtomicU16);
+atomic_int!(AtomicIsize(isize), AtomicUsize(usize));
+atomic_int!(AtomicI8(i8), AtomicI16(i16), AtomicU8(u8), AtomicU16(u16));
 #[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
-atomic!(AtomicI32, AtomicU32);
+atomic_int!(AtomicI32(i32), AtomicU32(u32));
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(target_has_atomic = "64", target_pointer_width = "64")) // cfg(target_has_atomic_load_store = "64")
 )]
-atomic!(AtomicI64, AtomicU64);
+atomic_int!(AtomicI64(i64), AtomicU64(u64));

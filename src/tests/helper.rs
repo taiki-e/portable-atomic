@@ -13,6 +13,16 @@ macro_rules! __test_atomic_common {
             assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
             assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }
+        #[test]
+        fn is_lock_free() {
+            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
+            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
+            let is_lock_free = <$atomic_type>::is_lock_free();
+            if IS_ALWAYS_LOCK_FREE {
+                // If is_always_lock_free is true, then is_lock_free must always be true.
+                assert!(is_lock_free);
+            }
+        }
     };
 }
 macro_rules! __test_atomic_pub_common {
@@ -23,16 +33,6 @@ macro_rules! __test_atomic_pub_common {
             static_assertions::assert_impl_all!($atomic_type: std::panic::RefUnwindSafe);
             #[cfg(all(portable_atomic_no_core_unwind_safe, not(feature = "std")))]
             static_assertions::assert_not_impl_all!($atomic_type: std::panic::RefUnwindSafe);
-        }
-        #[test]
-        fn is_lock_free() {
-            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
-            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
-            let is_lock_free = <$atomic_type>::is_lock_free();
-            if IS_ALWAYS_LOCK_FREE {
-                // If is_always_lock_free is true, then is_lock_free must always be true.
-                assert!(is_lock_free);
-            }
         }
     };
 }

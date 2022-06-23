@@ -161,11 +161,6 @@ macro_rules! ifunc {
     }};
 }
 
-pub(crate) trait AtomicRepr {
-    const IS_ALWAYS_LOCK_FREE: bool;
-    fn is_lock_free() -> bool;
-}
-
 pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}

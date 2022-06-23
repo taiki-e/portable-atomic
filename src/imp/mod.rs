@@ -3,6 +3,7 @@
 
 // cfg(target_has_atomic_load_store = "ptr")
 #[cfg(not(portable_atomic_no_atomic_load_store))]
+#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
 mod core_atomic;
 
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]

@@ -118,14 +118,6 @@ macro_rules! atomic {
             }
         }
 
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = false;
-            #[inline]
-            fn is_lock_free() -> bool {
-                false
-            }
-        }
-
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by the lock and atomic operation.
         unsafe impl Sync for $atomic_type {}
@@ -135,6 +127,17 @@ macro_rules! atomic {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
+            }
+
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::is_always_lock_free()
+            }
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
+                false
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
@@ -280,7 +283,6 @@ macro_rules! atomic {
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
-            #[cfg(any(test, not(portable_atomic_no_atomic_min_max)))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -290,7 +292,6 @@ macro_rules! atomic {
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
-            #[cfg(any(test, not(portable_atomic_no_atomic_min_max)))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();

@@ -347,14 +347,6 @@ macro_rules! atomic128 {
             v: UnsafeCell<$int_type>,
         }
 
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = true;
-            #[inline]
-            fn is_lock_free() -> bool {
-                true
-            }
-        }
-
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by atomic intrinsics.
         unsafe impl Sync for $atomic_type {}
@@ -363,6 +355,15 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
+            }
+
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::is_always_lock_free()
+            }
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
+                true
             }
 
             #[inline]

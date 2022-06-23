@@ -12,19 +12,9 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 use crate::utils::{assert_load_ordering, assert_store_ordering};
 
-const IS_ALWAYS_LOCK_FREE: bool = true;
-
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     v: UnsafeCell<u8>,
-}
-
-impl crate::utils::AtomicRepr for AtomicBool {
-    const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-    #[inline]
-    fn is_lock_free() -> bool {
-        IS_ALWAYS_LOCK_FREE
-    }
 }
 
 // Send is implicitly implemented.
@@ -36,6 +26,17 @@ impl AtomicBool {
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
         Self { v: UnsafeCell::new(v as u8) }
+    }
+
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        true
     }
 
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -75,14 +76,6 @@ pub(crate) struct AtomicPtr<T> {
     p: UnsafeCell<*mut T>,
 }
 
-impl<T> crate::utils::AtomicRepr for AtomicPtr<T> {
-    const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-    #[inline]
-    fn is_lock_free() -> bool {
-        IS_ALWAYS_LOCK_FREE
-    }
-}
-
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl<T> Send for AtomicPtr<T> {}
 // SAFETY: any data races are prevented by atomic operations.
@@ -93,6 +86,17 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) const fn new(p: *mut T) -> Self {
         Self { p: UnsafeCell::new(p) }
+    }
+
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        true
     }
 
     #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
@@ -135,14 +139,6 @@ macro_rules! atomic_int {
             v: UnsafeCell<$int_type>,
         }
 
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-            #[inline]
-            fn is_lock_free() -> bool {
-                IS_ALWAYS_LOCK_FREE
-            }
-        }
-
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
@@ -152,6 +148,17 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
+            }
+
+            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::is_always_lock_free()
+            }
+            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
+                true
             }
 
             #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]

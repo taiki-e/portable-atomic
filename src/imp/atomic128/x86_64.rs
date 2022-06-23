@@ -408,17 +408,6 @@ macro_rules! atomic128 {
             v: UnsafeCell<$int_type>,
         }
 
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(
-                target_feature = "cmpxchg16b",
-                portable_atomic_target_feature = "cmpxchg16b",
-            ));
-            #[inline]
-            fn is_lock_free() -> bool {
-                detect::has_cmpxchg16b()
-            }
-        }
-
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
@@ -427,6 +416,18 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
+            }
+
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                detect::has_cmpxchg16b()
+            }
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
+                cfg!(any(
+                    target_feature = "cmpxchg16b",
+                    portable_atomic_target_feature = "cmpxchg16b",
+                ))
             }
 
             #[inline]
@@ -602,7 +603,6 @@ atomic128!(AtomicU128, u128);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::AtomicRepr;
 
     test_atomic_int!(i128);
     test_atomic_int!(u128);

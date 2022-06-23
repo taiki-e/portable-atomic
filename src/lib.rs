@@ -325,7 +325,7 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub fn is_lock_free() -> bool {
-        <imp::AtomicBool as crate::utils::AtomicRepr>::is_lock_free()
+        imp::AtomicBool::is_lock_free()
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -339,7 +339,7 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
-        <imp::AtomicBool as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
+        imp::AtomicBool::is_always_lock_free()
     }
 
     /// Returns a mutable reference to the underlying [`bool`].
@@ -698,7 +698,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[must_use]
     pub fn is_lock_free() -> bool {
-        <imp::AtomicPtr<T> as crate::utils::AtomicRepr>::is_lock_free()
+        <imp::AtomicPtr<T>>::is_lock_free()
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -712,7 +712,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
-        <imp::AtomicPtr<T> as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
+        <imp::AtomicPtr<T>>::is_always_lock_free()
     }
 
     /// Returns a mutable reference to the underlying pointer.
@@ -988,7 +988,7 @@ atomic instructions or locks will be used.
             #[inline]
             #[must_use]
             pub fn is_lock_free() -> bool {
-                <imp::$atomic_type as crate::utils::AtomicRepr>::is_lock_free()
+                <imp::$atomic_type>::is_lock_free()
             }
 
             /// Returns `true` if operations on values of this type are lock-free.
@@ -1002,7 +1002,7 @@ atomic instructions or locks will be used.
             #[inline]
             #[must_use]
             pub const fn is_always_lock_free() -> bool {
-                <imp::$atomic_type as crate::utils::AtomicRepr>::IS_ALWAYS_LOCK_FREE
+                <imp::$atomic_type>::is_always_lock_free()
             }
 
             /// Returns a mutable reference to the underlying integer.
@@ -1379,49 +1379,7 @@ atomic instructions or locks will be used.
             )]
             #[inline]
             pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                #[cfg(not(portable_atomic_no_atomic_min_max))]
-                {
-                    #[cfg(any(
-                        all(
-                            target_arch = "aarch64",
-                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-                        ),
-                        portable_atomic_armv5te,
-                        target_arch = "mips",
-                        target_arch = "mips64",
-                        target_arch = "powerpc",
-                        target_arch = "powerpc64",
-                    ))]
-                    {
-                        // HACK: the following operations are currently broken (at least on qemu):
-                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
-                        // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
-                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
-                        // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
-                        if core::mem::size_of::<$int_type>() <= 2 {
-                            return self
-                                .fetch_update(
-                                    order,
-                                    crate::utils::strongest_failure_ordering(order),
-                                    |x| Some(core::cmp::max(x, val)),
-                                )
-                                .unwrap();
-                        }
-                    }
-                    self.inner.fetch_max(val, order)
-                }
-                #[cfg(portable_atomic_no_atomic_min_max)]
-                {
-                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                        Some(core::cmp::max(x, val))
-                    })
-                    .unwrap()
-                }
+                self.inner.fetch_max(val, order)
             }
 
             /// Minimum with the current value.
@@ -1448,49 +1406,7 @@ atomic instructions or locks will be used.
             )]
             #[inline]
             pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                #[cfg(not(portable_atomic_no_atomic_min_max))]
-                {
-                    #[cfg(any(
-                        all(
-                            target_arch = "aarch64",
-                            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-                        ),
-                        portable_atomic_armv5te,
-                        target_arch = "mips",
-                        target_arch = "mips64",
-                        target_arch = "powerpc",
-                        target_arch = "powerpc64",
-                    ))]
-                    {
-                        // HACK: the following operations are currently broken (at least on qemu):
-                        // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
-                        // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
-                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
-                        // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
-                        if core::mem::size_of::<$int_type>() <= 2 {
-                            return self
-                                .fetch_update(
-                                    order,
-                                    crate::utils::strongest_failure_ordering(order),
-                                    |x| Some(core::cmp::min(x, val)),
-                                )
-                                .unwrap();
-                        }
-                    }
-                    self.inner.fetch_min(val, order)
-                }
-                #[cfg(portable_atomic_no_atomic_min_max)]
-                {
-                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                        Some(core::cmp::min(x, val))
-                    })
-                    .unwrap()
-                }
+                self.inner.fetch_min(val, order)
             }
 
             // TODO: Add as_mut_ptr once it is stable on other std atomic types.

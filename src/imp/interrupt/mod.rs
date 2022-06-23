@@ -62,14 +62,6 @@ pub(crate) struct AtomicBool {
     v: UnsafeCell<u8>,
 }
 
-impl crate::utils::AtomicRepr for AtomicBool {
-    const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-    #[inline]
-    fn is_lock_free() -> bool {
-        IS_ALWAYS_LOCK_FREE
-    }
-}
-
 // Send is implicitly implemented.
 unsafe impl Sync for AtomicBool {}
 
@@ -77,6 +69,15 @@ impl AtomicBool {
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
         Self { v: UnsafeCell::new(v as u8) }
+    }
+
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        IS_ALWAYS_LOCK_FREE
     }
 
     #[inline]
@@ -209,14 +210,6 @@ pub(crate) struct AtomicPtr<T> {
     p: UnsafeCell<*mut T>,
 }
 
-impl<T> crate::utils::AtomicRepr for AtomicPtr<T> {
-    const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-    #[inline]
-    fn is_lock_free() -> bool {
-        IS_ALWAYS_LOCK_FREE
-    }
-}
-
 unsafe impl<T> Send for AtomicPtr<T> {}
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
@@ -224,6 +217,15 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) const fn new(p: *mut T) -> Self {
         Self { p: UnsafeCell::new(p) }
+    }
+
+    #[inline]
+    pub(crate) fn is_lock_free() -> bool {
+        Self::is_always_lock_free()
+    }
+    #[inline]
+    pub(crate) const fn is_always_lock_free() -> bool {
+        IS_ALWAYS_LOCK_FREE
     }
 
     #[inline]
@@ -311,14 +313,6 @@ macro_rules! atomic_int {
             v: UnsafeCell<$int_type>,
         }
 
-        impl crate::utils::AtomicRepr for $atomic_type {
-            const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-            #[inline]
-            fn is_lock_free() -> bool {
-                IS_ALWAYS_LOCK_FREE
-            }
-        }
-
         // Send is implicitly implemented.
         unsafe impl Sync for $atomic_type {}
 
@@ -326,6 +320,15 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
+            }
+
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::is_always_lock_free()
+            }
+            #[inline]
+            pub(crate) const fn is_always_lock_free() -> bool {
+                IS_ALWAYS_LOCK_FREE
             }
 
             #[inline]
