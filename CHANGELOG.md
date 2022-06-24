@@ -10,7 +10,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Allow CAS failure ordering stronger than success ordering.
+- Allow CAS failure ordering stronger than success ordering. ([#17](https://github.com/taiki-e/portable-atomic/pull/17))
 
 ## [0.3.2] - 2022-06-19
 
