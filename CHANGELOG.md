@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.3] - 2022-06-24
+
 - Allow CAS failure ordering stronger than success ordering. ([#17](https://github.com/taiki-e/portable-atomic/pull/17))
 
 ## [0.3.2] - 2022-06-19
@@ -74,7 +76,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/taiki-e/portable-atomic/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/taiki-e/portable-atomic/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/taiki-e/portable-atomic/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/taiki-e/portable-atomic/compare/v0.2.1...v0.3.0
