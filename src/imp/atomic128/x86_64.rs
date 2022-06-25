@@ -169,21 +169,31 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]
 #[inline]
-unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, _order: Ordering) {
+unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract for `_atomic_store_vmovdqa`.
     unsafe {
         let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
-        asm!(
-            "vmovdqa xmmword ptr [{dst}], {val}",
-            // TODO: GCC always uses mfence here, so the current implementation
-            // follows that behavior. However, probably only SeqCst store
-            // actually requires mfence.
-            "mfence",
-            dst = in(reg) dst,
-            val = in(xmm_reg) val,
-        );
+        match order {
+            Ordering::Relaxed | Ordering::Release => {
+                asm!(
+                    "vmovdqa xmmword ptr [{dst}], {val}",
+                    dst = in(reg) dst,
+                    val = in(xmm_reg) val,
+                );
+            }
+            Ordering::SeqCst => {
+                asm!(
+                    "vmovdqa xmmword ptr [{dst}], {val}",
+                    "mfence",
+                    dst = in(reg) dst,
+                    val = in(xmm_reg) val,
+                );
+            }
+            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/M5s3fj46o
+            _ => unreachable_unchecked!("{:?}", order),
+        }
     }
 }
 

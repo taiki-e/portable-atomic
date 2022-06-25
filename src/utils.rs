@@ -84,6 +84,29 @@ macro_rules! static_assert_layout {
     };
 }
 
+/// Informs the compiler that this point in the code is not reachable, enabling
+/// further optimizations.
+///
+/// In release mode, this macro calls `core::hint::unreachable_unchecked`.
+/// In debug mode, this macro calls `unreachable!` just in case.
+///
+/// # Safety
+///
+/// Reaching this function is completely undefined behavior.
+#[allow(unused_macros)]
+macro_rules! unreachable_unchecked {
+    ($($tt:tt)*) => {
+        if cfg!(debug_assertions) {
+            unreachable!($($tt)*);
+        } else {
+            // SAFETY: the caller must uphold the safety contract for `unreachable_unchecked`.
+            // (To force the caller to use unsafe block for this macro, do not use
+            // unsafe block here.)
+            core::hint::unreachable_unchecked()
+        }
+    };
+}
+
 macro_rules! doc_comment {
     ($doc:expr, $($tt:tt)*) => {
         #[doc = $doc]
