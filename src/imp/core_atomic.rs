@@ -260,6 +260,7 @@ macro_rules! atomic_int {
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
+                        // See also https://github.com/taiki-e/portable-atomic/issues/2
                         if core::mem::size_of::<$int_type>() <= 2 {
                             return self
                                 .fetch_update(
@@ -314,6 +315,7 @@ macro_rules! atomic_int {
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
+                        // See also https://github.com/taiki-e/portable-atomic/issues/2
                         if core::mem::size_of::<$int_type>() <= 2 {
                             return self
                                 .fetch_update(

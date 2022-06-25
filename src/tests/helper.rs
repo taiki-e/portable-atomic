@@ -366,6 +366,31 @@ macro_rules! __test_atomic_int {
                     }
                     true
                 }
+                fn quickcheck_compare_exchange(x: $int_type, y: $int_type) -> bool {
+                    #[cfg(portable_atomic_armv5te)]
+                    {
+                        // HACK: the following operations are currently broken (at least on qemu):
+                        // - armv5te's `Atomic{I,U}{8,16}::compare_exchange`
+                        // See also https://github.com/taiki-e/portable-atomic/issues/2
+                        if core::mem::size_of::<$int_type>() <= 2 {
+                            return true;
+                        }
+                    }
+                    let z = loop {
+                        let z = fastrand::$int_type(..);
+                        if z != y {
+                            break z;
+                        }
+                    };
+                    for (success, failure) in compare_exchange_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.compare_exchange(x, y, success, failure).unwrap(), x);
+                        assert_eq!(a.load(Ordering::Relaxed), y);
+                        assert_eq!(a.compare_exchange(z, x, success, failure).unwrap_err(), y);
+                        assert_eq!(a.load(Ordering::Relaxed), y);
+                    }
+                    true
+                }
                 fn fetch_add(x: $int_type, y: $int_type) -> bool {
                     for order in swap_orderings() {
                         let a = <$atomic_type>::new(x);
@@ -713,6 +738,25 @@ macro_rules! __test_atomic_float {
                     }
                     true
                 }
+                fn quickcheck_compare_exchange(x: $float_type, y: $float_type) -> bool {
+                    let z = loop {
+                        let z = fastrand::$float_type();
+                        if z != y {
+                            break z;
+                        }
+                    };
+                    for (success, failure) in compare_exchange_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_float_op_eq!(a.compare_exchange(x, y, success, failure).unwrap(), x);
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y);
+                        assert_float_op_eq!(
+                            a.compare_exchange(z, x, success, failure).unwrap_err(),
+                            y,
+                        );
+                        assert_float_op_eq!(a.load(Ordering::Relaxed), y);
+                    }
+                    true
+                }
                 fn fetch_add(x: $float_type, y: $float_type) -> bool {
                     if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
                         // https://github.com/rust-lang/rust/issues/72327
@@ -898,6 +942,25 @@ macro_rules! __test_atomic_bool {
             use super::super::*;
             use crate::tests::helper::*;
             ::quickcheck::quickcheck! {
+                fn swap(x: bool, y: bool) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.swap(y, order), x);
+                        assert_eq!(a.swap(x, order), y);
+                    }
+                    true
+                }
+                fn quickcheck_compare_exchange(x: bool, y: bool) -> bool {
+                    let z = !y;
+                    for (success, failure) in compare_exchange_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.compare_exchange(x, y, success, failure).unwrap(), x);
+                        assert_eq!(a.load(Ordering::Relaxed), y);
+                        assert_eq!(a.compare_exchange(z, x, success, failure).unwrap_err(), y);
+                        assert_eq!(a.load(Ordering::Relaxed), y);
+                    }
+                    true
+                }
                 fn fetch_and(x: bool, y: bool) -> bool {
                     for order in swap_orderings() {
                         let a = <$atomic_type>::new(x);
