@@ -123,13 +123,13 @@ macro_rules! serde_impls {
 #[allow(unused_macros)]
 macro_rules! ifunc {
     // if the functions are unsafe, this macro is also unsafe.
-    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) -> $ret_ty:ty = $if_block:expr) => {{
+    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?; $if_block:expr) => {{
         type FnRaw = *mut ();
-        type FnTy = unsafe fn($($arg_ty),*) -> $ret_ty;
+        type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
             = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
         #[cold]
-        unsafe fn detect($($arg_pat: $arg_ty),*) -> $ret_ty {
+        unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
             let func: FnTy = $if_block;
             FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
             // SAFETY: the caller must uphold the safety contract.
@@ -142,13 +142,13 @@ macro_rules! ifunc {
         let func = FUNC.load(core::sync::atomic::Ordering::Relaxed);
         core::mem::transmute::<FnRaw, FnTy>(func)($($arg_pat),*)
     }};
-    (fn($($arg_pat:ident: $arg_ty:ty),*) -> $ret_ty:ty = $if_block:expr) => {{
+    (fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?; $if_block:expr) => {{
         type FnRaw = *mut ();
-        type FnTy = fn($($arg_ty),*) -> $ret_ty;
+        type FnTy = fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
             = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
         #[cold]
-        fn detect($($arg_pat: $arg_ty),*) -> $ret_ty {
+        fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
             let func: FnTy = $if_block;
             FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
             func($($arg_pat),*)
