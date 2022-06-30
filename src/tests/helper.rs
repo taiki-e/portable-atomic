@@ -1392,9 +1392,12 @@ pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
             assert_panic(|| f(Ordering::Release)),
             "there is no such thing as a release load"
         );
-        assert_eq!(
-            assert_panic(|| f(Ordering::AcqRel)),
-            "there is no such thing as an acquire/release load"
+        let msg = assert_panic(|| f(Ordering::AcqRel));
+        assert!(
+            msg == "there is no such thing as an acquire-release load"
+                || msg == "there is no such thing as an acquire/release load",
+            "{}",
+            msg
         );
     }
 }
@@ -1414,10 +1417,11 @@ pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T)
             assert_panic(|| f(Ordering::Acquire)),
             "there is no such thing as an acquire store"
         );
-        assert_eq!(
-            assert_panic(|| f(Ordering::AcqRel)),
-            "there is no such thing as an acquire/release store"
-        );
+        assert!(matches!(
+            &*assert_panic(|| f(Ordering::AcqRel)),
+            "there is no such thing as an acquire-release store"
+                | "there is no such thing as an acquire/release store"
+        ));
     }
 }
 pub(crate) fn compare_exchange_orderings() -> [(Ordering, Ordering); 15] {
@@ -1453,7 +1457,9 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
         for &order in &swap_orderings() {
             let msg = assert_panic(|| f(order, Ordering::AcqRel));
             assert!(
-                msg == "there is no such thing as an acquire/release failure ordering"
+                msg == "there is no such thing as an acquire-release failure ordering"
+                    || msg == "there is no such thing as an acquire-release load"
+                    || msg == "there is no such thing as an acquire/release failure ordering"
                     || msg == "there is no such thing as an acquire/release load",
                 "{}",
                 msg

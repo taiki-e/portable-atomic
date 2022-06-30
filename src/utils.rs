@@ -199,29 +199,30 @@ pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2566
+// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2624
 #[inline]
 pub(crate) fn assert_load_ordering(order: Ordering) {
     match order {
         Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Release => panic!("there is no such thing as a release load"),
-        Ordering::AcqRel => panic!("there is no such thing as an acquire/release load"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire-release load"),
         _ => unreachable!("{:?}", order),
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.61.0/library/core/src/sync/atomic.rs#L2552
+// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2610
 #[inline]
 pub(crate) fn assert_store_ordering(order: Ordering) {
     match order {
         Ordering::Release | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Acquire => panic!("there is no such thing as an acquire store"),
-        Ordering::AcqRel => panic!("there is no such thing as an acquire/release store"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire-release store"),
         _ => unreachable!("{:?}", order),
     }
 }
 
 // https://github.com/rust-lang/rust/pull/98383
+// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2686
 #[inline]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
     match success {
@@ -235,7 +236,7 @@ pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Order
     match failure {
         Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Release => panic!("there is no such thing as a release failure ordering"),
-        Ordering::AcqRel => panic!("there is no such thing as an acquire/release failure ordering"),
+        Ordering::AcqRel => panic!("there is no such thing as an acquire-release failure ordering"),
         _ => unreachable!("{:?}", failure),
     }
 }
