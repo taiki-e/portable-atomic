@@ -226,8 +226,7 @@ jobs:
           component: miri
       - run: cargo miri test --workspace --exclude bench --all-features
         env:
-          # disable preemption due to https://github.com/rust-lang/rust/issues/55005
-          MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation -Zmiri-preemption-rate=0
+          MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
 
   san:
