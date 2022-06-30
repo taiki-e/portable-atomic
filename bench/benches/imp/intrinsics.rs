@@ -1,6 +1,6 @@
 // Atomic{I,U}128 implementation using core::intrinsics.
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.59.0/library/core/src/sync/atomic.rs
+// Refs: https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs
 //
 // This module is currently only enabled on test and benchmark.
 
@@ -31,9 +31,9 @@ unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_load_acq(dst),
+            Acquire => intrinsics::atomic_load_acquire(dst),
             Relaxed => intrinsics::atomic_load_relaxed(dst),
-            SeqCst => intrinsics::atomic_load(dst),
+            SeqCst => intrinsics::atomic_load_seqcst(dst),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -49,9 +49,9 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
         match order {
-            Release => intrinsics::atomic_store_rel(dst, val),
+            Release => intrinsics::atomic_store_release(dst, val),
             Relaxed => intrinsics::atomic_store_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_store(dst, val),
+            SeqCst => intrinsics::atomic_store_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -66,11 +66,11 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_xchg_acq(dst, val),
-            Release => intrinsics::atomic_xchg_rel(dst, val),
+            Acquire => intrinsics::atomic_xchg_acquire(dst, val),
+            Release => intrinsics::atomic_xchg_release(dst, val),
             AcqRel => intrinsics::atomic_xchg_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xchg_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xchg(dst, val),
+            SeqCst => intrinsics::atomic_xchg_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -92,15 +92,21 @@ unsafe fn atomic_compare_exchange(
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let (val, ok) = unsafe {
         match (success, failure) {
-            (Acquire, Acquire) => intrinsics::atomic_cxchg_acq(dst, old, new),
-            (Release, Relaxed) => intrinsics::atomic_cxchg_rel(dst, old, new),
-            (AcqRel, Acquire) => intrinsics::atomic_cxchg_acqrel(dst, old, new),
-            (Relaxed, Relaxed) => intrinsics::atomic_cxchg_relaxed(dst, old, new),
-            (SeqCst, SeqCst) => intrinsics::atomic_cxchg(dst, old, new),
-            (Acquire, Relaxed) => intrinsics::atomic_cxchg_acq_failrelaxed(dst, old, new),
-            (AcqRel, Relaxed) => intrinsics::atomic_cxchg_acqrel_failrelaxed(dst, old, new),
-            (SeqCst, Relaxed) => intrinsics::atomic_cxchg_failrelaxed(dst, old, new),
-            (SeqCst, Acquire) => intrinsics::atomic_cxchg_failacq(dst, old, new),
+            (Relaxed, Relaxed) => intrinsics::atomic_cxchg_relaxed_relaxed(dst, old, new),
+            (Relaxed, Acquire) => intrinsics::atomic_cxchg_relaxed_acquire(dst, old, new),
+            (Relaxed, SeqCst) => intrinsics::atomic_cxchg_relaxed_seqcst(dst, old, new),
+            (Acquire, Relaxed) => intrinsics::atomic_cxchg_acquire_relaxed(dst, old, new),
+            (Acquire, Acquire) => intrinsics::atomic_cxchg_acquire_acquire(dst, old, new),
+            (Acquire, SeqCst) => intrinsics::atomic_cxchg_acquire_seqcst(dst, old, new),
+            (Release, Relaxed) => intrinsics::atomic_cxchg_release_relaxed(dst, old, new),
+            (Release, Acquire) => intrinsics::atomic_cxchg_release_acquire(dst, old, new),
+            (Release, SeqCst) => intrinsics::atomic_cxchg_release_seqcst(dst, old, new),
+            (AcqRel, Relaxed) => intrinsics::atomic_cxchg_acqrel_relaxed(dst, old, new),
+            (AcqRel, Acquire) => intrinsics::atomic_cxchg_acqrel_acquire(dst, old, new),
+            (AcqRel, SeqCst) => intrinsics::atomic_cxchg_acqrel_seqcst(dst, old, new),
+            (SeqCst, Relaxed) => intrinsics::atomic_cxchg_seqcst_relaxed(dst, old, new),
+            (SeqCst, Acquire) => intrinsics::atomic_cxchg_seqcst_acquire(dst, old, new),
+            (SeqCst, SeqCst) => intrinsics::atomic_cxchg_seqcst_seqcst(dst, old, new),
             _ => unreachable!("{:?}, {:?}", success, failure),
         }
     };
@@ -127,15 +133,21 @@ unsafe fn atomic_compare_exchange_weak(
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange_weak`.
     let (val, ok) = unsafe {
         match (success, failure) {
-            (Acquire, Acquire) => intrinsics::atomic_cxchgweak_acq(dst, old, new),
-            (Release, Relaxed) => intrinsics::atomic_cxchgweak_rel(dst, old, new),
-            (AcqRel, Acquire) => intrinsics::atomic_cxchgweak_acqrel(dst, old, new),
-            (Relaxed, Relaxed) => intrinsics::atomic_cxchgweak_relaxed(dst, old, new),
-            (SeqCst, SeqCst) => intrinsics::atomic_cxchgweak(dst, old, new),
-            (Acquire, Relaxed) => intrinsics::atomic_cxchgweak_acq_failrelaxed(dst, old, new),
-            (AcqRel, Relaxed) => intrinsics::atomic_cxchgweak_acqrel_failrelaxed(dst, old, new),
-            (SeqCst, Relaxed) => intrinsics::atomic_cxchgweak_failrelaxed(dst, old, new),
-            (SeqCst, Acquire) => intrinsics::atomic_cxchgweak_failacq(dst, old, new),
+            (Relaxed, Relaxed) => intrinsics::atomic_cxchgweak_relaxed_relaxed(dst, old, new),
+            (Relaxed, Acquire) => intrinsics::atomic_cxchgweak_relaxed_acquire(dst, old, new),
+            (Relaxed, SeqCst) => intrinsics::atomic_cxchgweak_relaxed_seqcst(dst, old, new),
+            (Acquire, Relaxed) => intrinsics::atomic_cxchgweak_acquire_relaxed(dst, old, new),
+            (Acquire, Acquire) => intrinsics::atomic_cxchgweak_acquire_acquire(dst, old, new),
+            (Acquire, SeqCst) => intrinsics::atomic_cxchgweak_acquire_seqcst(dst, old, new),
+            (Release, Relaxed) => intrinsics::atomic_cxchgweak_release_relaxed(dst, old, new),
+            (Release, Acquire) => intrinsics::atomic_cxchgweak_release_acquire(dst, old, new),
+            (Release, SeqCst) => intrinsics::atomic_cxchgweak_release_seqcst(dst, old, new),
+            (AcqRel, Relaxed) => intrinsics::atomic_cxchgweak_acqrel_relaxed(dst, old, new),
+            (AcqRel, Acquire) => intrinsics::atomic_cxchgweak_acqrel_acquire(dst, old, new),
+            (AcqRel, SeqCst) => intrinsics::atomic_cxchgweak_acqrel_seqcst(dst, old, new),
+            (SeqCst, Relaxed) => intrinsics::atomic_cxchgweak_seqcst_relaxed(dst, old, new),
+            (SeqCst, Acquire) => intrinsics::atomic_cxchgweak_seqcst_acquire(dst, old, new),
+            (SeqCst, SeqCst) => intrinsics::atomic_cxchgweak_seqcst_seqcst(dst, old, new),
             _ => unreachable!("{:?}, {:?}", success, failure),
         }
     };
@@ -155,11 +167,11 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_add`.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_xadd_acq(dst, val),
-            Release => intrinsics::atomic_xadd_rel(dst, val),
+            Acquire => intrinsics::atomic_xadd_acquire(dst, val),
+            Release => intrinsics::atomic_xadd_release(dst, val),
             AcqRel => intrinsics::atomic_xadd_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xadd_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xadd(dst, val),
+            SeqCst => intrinsics::atomic_xadd_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -174,11 +186,11 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_xsub_acq(dst, val),
-            Release => intrinsics::atomic_xsub_rel(dst, val),
+            Acquire => intrinsics::atomic_xsub_acquire(dst, val),
+            Release => intrinsics::atomic_xsub_release(dst, val),
             AcqRel => intrinsics::atomic_xsub_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xsub_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xsub(dst, val),
+            SeqCst => intrinsics::atomic_xsub_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -193,11 +205,11 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_and`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_and_acq(dst, val),
-            Release => intrinsics::atomic_and_rel(dst, val),
+            Acquire => intrinsics::atomic_and_acquire(dst, val),
+            Release => intrinsics::atomic_and_release(dst, val),
             AcqRel => intrinsics::atomic_and_acqrel(dst, val),
             Relaxed => intrinsics::atomic_and_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_and(dst, val),
+            SeqCst => intrinsics::atomic_and_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -212,11 +224,11 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_nand`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_nand_acq(dst, val),
-            Release => intrinsics::atomic_nand_rel(dst, val),
+            Acquire => intrinsics::atomic_nand_acquire(dst, val),
+            Release => intrinsics::atomic_nand_release(dst, val),
             AcqRel => intrinsics::atomic_nand_acqrel(dst, val),
             Relaxed => intrinsics::atomic_nand_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_nand(dst, val),
+            SeqCst => intrinsics::atomic_nand_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -231,11 +243,11 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_or`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_or_acq(dst, val),
-            Release => intrinsics::atomic_or_rel(dst, val),
+            Acquire => intrinsics::atomic_or_acquire(dst, val),
+            Release => intrinsics::atomic_or_release(dst, val),
             AcqRel => intrinsics::atomic_or_acqrel(dst, val),
             Relaxed => intrinsics::atomic_or_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_or(dst, val),
+            SeqCst => intrinsics::atomic_or_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -250,11 +262,11 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_xor`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_xor_acq(dst, val),
-            Release => intrinsics::atomic_xor_rel(dst, val),
+            Acquire => intrinsics::atomic_xor_acquire(dst, val),
+            Release => intrinsics::atomic_xor_release(dst, val),
             AcqRel => intrinsics::atomic_xor_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xor_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_xor(dst, val),
+            SeqCst => intrinsics::atomic_xor_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -270,11 +282,11 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_max`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_max_acq(dst, val),
-            Release => intrinsics::atomic_max_rel(dst, val),
+            Acquire => intrinsics::atomic_max_acquire(dst, val),
+            Release => intrinsics::atomic_max_release(dst, val),
             AcqRel => intrinsics::atomic_max_acqrel(dst, val),
             Relaxed => intrinsics::atomic_max_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_max(dst, val),
+            SeqCst => intrinsics::atomic_max_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -290,11 +302,11 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_min`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_min_acq(dst, val),
-            Release => intrinsics::atomic_min_rel(dst, val),
+            Acquire => intrinsics::atomic_min_acquire(dst, val),
+            Release => intrinsics::atomic_min_release(dst, val),
             AcqRel => intrinsics::atomic_min_acqrel(dst, val),
             Relaxed => intrinsics::atomic_min_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_min(dst, val),
+            SeqCst => intrinsics::atomic_min_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -310,11 +322,11 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_umax`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_umax_acq(dst, val),
-            Release => intrinsics::atomic_umax_rel(dst, val),
+            Acquire => intrinsics::atomic_umax_acquire(dst, val),
+            Release => intrinsics::atomic_umax_release(dst, val),
             AcqRel => intrinsics::atomic_umax_acqrel(dst, val),
             Relaxed => intrinsics::atomic_umax_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_umax(dst, val),
+            SeqCst => intrinsics::atomic_umax_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -330,11 +342,11 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_umin`
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_umin_acq(dst, val),
-            Release => intrinsics::atomic_umin_rel(dst, val),
+            Acquire => intrinsics::atomic_umin_acquire(dst, val),
+            Release => intrinsics::atomic_umin_release(dst, val),
             AcqRel => intrinsics::atomic_umin_acqrel(dst, val),
             Relaxed => intrinsics::atomic_umin_relaxed(dst, val),
-            SeqCst => intrinsics::atomic_umin(dst, val),
+            SeqCst => intrinsics::atomic_umin_seqcst(dst, val),
             _ => unreachable!("{:?}", order),
         }
     }
