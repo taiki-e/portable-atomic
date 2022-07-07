@@ -225,7 +225,7 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
                     src = in(reg) src,
                     prev_lo = lateout(reg) prev_lo,
                     prev_hi = lateout(reg) prev_hi,
-                    options(nostack),
+                    options(nostack, readonly),
                 );
             }
             Ordering::Acquire => {

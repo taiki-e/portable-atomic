@@ -205,7 +205,7 @@ macro_rules! atomic_int {
                                 concat!("l", $asm_suffix, " {out}, 0({src})"),
                                 src = in(reg) src,
                                 out = lateout(reg) out,
-                                options(nostack),
+                                options(nostack, readonly),
                             );
                         }
                         Ordering::Acquire => {

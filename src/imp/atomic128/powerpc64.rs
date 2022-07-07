@@ -65,7 +65,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     // We cannot use r1 and r2, so starting with r4.
                     out("r4") out_hi,
                     out("r5") out_lo,
-                    options(nostack),
+                    options(nostack, readonly),
                 );
             }
             Ordering::Acquire => {
