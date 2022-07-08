@@ -79,8 +79,8 @@ macro_rules! static_assert_layout {
         static_assert_layout!($atomic_type, usize, 4);
         #[cfg(target_pointer_width = "64")]
         static_assert_layout!($atomic_type, usize, 8);
-        #[cfg(target_pointer_width = "128")]
-        static_assert_layout!($atomic_type, usize, 16);
+        // #[cfg(target_pointer_width = "128")]
+        // static_assert_layout!($atomic_type, usize, 16);
     };
 }
 

@@ -635,7 +635,7 @@ impl AtomicBool {
 #[cfg_attr(target_pointer_width = "16", repr(C, align(2)))]
 #[cfg_attr(target_pointer_width = "32", repr(C, align(4)))]
 #[cfg_attr(target_pointer_width = "64", repr(C, align(8)))]
-#[cfg_attr(target_pointer_width = "128", repr(C, align(16)))]
+// #[cfg_attr(target_pointer_width = "128", repr(C, align(16)))]
 pub struct AtomicPtr<T> {
     inner: imp::AtomicPtr<T>,
     // Prevent RefUnwindSafe from being propagated from the std atomic type.
@@ -1877,10 +1877,10 @@ atomic_int!(AtomicUsize, usize, 4);
 atomic_int!(AtomicIsize, isize, 8);
 #[cfg(target_pointer_width = "64")]
 atomic_int!(AtomicUsize, usize, 8);
-#[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicIsize, isize, 16);
-#[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicUsize, usize, 16);
+// #[cfg(target_pointer_width = "128")]
+// atomic_int!(AtomicIsize, isize, 16);
+// #[cfg(target_pointer_width = "128")]
+// atomic_int!(AtomicUsize, usize, 16);
 
 atomic_int!(AtomicI8, i8, 1);
 atomic_int!(AtomicU8, u8, 1);
