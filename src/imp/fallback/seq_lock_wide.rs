@@ -36,7 +36,7 @@ impl SeqLock {
     #[inline]
     pub(crate) fn optimistic_read(&self) -> Option<(usize, usize)> {
         // The acquire loads from `state_hi` and `state_lo` synchronize with the release stores in
-        // `SeqLockWriteGuard::drop`.
+        // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
         //
         // As a consequence, we can make sure that (1) all writes within the era of `state_hi - 1`
         // happens before now; and therefore, (2) if `state_lo` is even, all writes within the
@@ -57,7 +57,7 @@ impl SeqLock {
     #[inline]
     pub(crate) fn validate_read(&self, stamp: (usize, usize)) -> bool {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
-        // section of `(a, b)`, then the critical section's write of 1 to state_lo should be
+        // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
         // visible.
         atomic::fence(Ordering::Acquire);
 

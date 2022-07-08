@@ -351,7 +351,7 @@ impl AtomicBool {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut once it is stable on other std atomic types.
+    // TODO: Add from_mut once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
     /// Consumes the atomic and returns the contained value.
@@ -570,7 +570,9 @@ impl AtomicBool {
         self.inner.fetch_xor(val, order)
     }
 
-    // TODO: Add as_mut_ptr once it is stable on other std atomic types.
+    // TODO: Add fetch_not once it is stable on std atomic types.
+    // https://github.com/rust-lang/rust/issues/98485
+    // TODO: Add as_mut_ptr once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/66893
 
     /// Fetches the value, and applies a function to it that returns an optional
@@ -721,7 +723,7 @@ impl<T> AtomicPtr<T> {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut once it is stable on other std atomic types.
+    // TODO: Add from_mut once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
     /// Consumes the atomic and returns the contained value.
@@ -890,6 +892,9 @@ impl<T> AtomicPtr<T> {
         }
         Err(prev)
     }
+
+    // TODO: add fetch_ptr_add, fetch_ptr_sub, fetch_byte_add, fetch_byte_sub, fetch_or, fetch_and, fetch_xor
+    // https://github.com/rust-lang/rust/pull/96935
 }
 
 macro_rules! atomic_int {
@@ -1008,7 +1013,7 @@ atomic instructions or locks will be used.
                 self.inner.get_mut()
             }
 
-            // TODO: Add from_mut once it is stable on other std atomic types.
+            // TODO: Add from_mut once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
             /// Consumes the atomic and returns the contained value.
@@ -1400,7 +1405,7 @@ atomic instructions or locks will be used.
                 self.inner.fetch_min(val, order)
             }
 
-            // TODO: Add as_mut_ptr once it is stable on other std atomic types.
+            // TODO: Add as_mut_ptr once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
         }
     };
@@ -1503,7 +1508,7 @@ This type has the same in-memory representation as the underlying floating point
                 unsafe { &mut *self.v.get() }
             }
 
-            // TODO: Add from_mut once it is stable on other std atomic types.
+            // TODO: Add from_mut once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
             /// Consumes the atomic and returns the contained value.
@@ -1841,7 +1846,7 @@ This type has the same in-memory representation as the underlying floating point
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
             }
 
-            // TODO: Add as_mut_ptr once it is stable on other std atomic types.
+            // TODO: Add as_mut_ptr once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
 
             doc_comment! {
