@@ -90,10 +90,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
-          component: rust-src
+          components: rust-src
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
       - uses: taiki-e/setup-cross-toolchain-action@v1
@@ -184,10 +184,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
-          component: rust-src
+          components: rust-src
       - uses: taiki-e/install-action@cargo-hack
       - run: tools/build.sh
 
@@ -197,7 +197,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
       - run: tools/no-std.sh
 
@@ -221,9 +221,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
-        with:
-          component: miri
+      - uses: dtolnay/rust-toolchain@miri
       - run: cargo miri test --workspace --exclude bench --all-features
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation
@@ -242,9 +240,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          component: rust-src
+          components: rust-src
       - run: |
           echo "ASAN_OPTIONS=detect_stack_use_after_return=1" >>"${GITHUB_ENV}"
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
@@ -299,9 +297,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          component: rust-src
+          components: rust-src
       - uses: taiki-e/install-action@valgrind
       # -Z doctest-xcompile is needed to apply CARGO_TARGET_*_RUNNER to doctest.
       - run: cargo test -vv --workspace --exclude bench --all-features -Z doctest-xcompile
@@ -343,7 +341,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
       - run: tools/no_atomic.sh
       - run: git add -N . && git diff --exit-code
         if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -376,9 +374,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          component: clippy,rustfmt
+          components: clippy,rustfmt
       - uses: taiki-e/install-action@shellcheck
       - run: cargo fmt --all --check
         if: always()
@@ -393,7 +391,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - uses: taiki-e/github-actions/install-rust@main
+      - uses: dtolnay/rust-toolchain@nightly
       - run: cargo doc --workspace --all-features
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
