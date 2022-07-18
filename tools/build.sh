@@ -142,7 +142,7 @@ build() {
         --no-dev-deps --feature-powerset --depth 3 --optional-deps
     )
     case "${target}" in
-        x86_64* | aarch64*) ;;
+        x86_64* | aarch64* | arm64*) ;;
         # outline-atomics feature only affects x86_64 and aarch64.
         *) args+=(--exclude-features "outline-atomics") ;;
     esac
@@ -163,20 +163,22 @@ build() {
     esac
     RUSTFLAGS="${target_rustflags}" \
         x cargo "${args[@]}" "$@"
-    if [[ "${target}" == "x86_64"* ]]; then
-        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
-            x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
-    fi
-    if [[ "${target}" == "aarch64"* ]]; then
-        RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
-            x cargo "${args[@]}" --target-dir target/lse "$@"
-        RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
-            x cargo "${args[@]}" --target-dir target/lse2 "$@"
-    fi
-    if [[ "${target}" == "powerpc64-"* ]]; then
-        RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
-            x cargo "${args[@]}" --target-dir target/pwr8 "$@"
-    fi
+    case "${target}" in
+        x86_64*)
+            RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
+                x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+            ;;
+        aarch64* | arm64*)
+            RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
+                x cargo "${args[@]}" --target-dir target/lse "$@"
+            RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
+                x cargo "${args[@]}" --target-dir target/lse2 "$@"
+            ;;
+        powerpc64-*)
+            RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
+                x cargo "${args[@]}" --target-dir target/pwr8 "$@"
+            ;;
+    esac
 }
 
 for target in "${targets[@]}"; do

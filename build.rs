@@ -129,8 +129,9 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_armv5te");
     }
 
-    // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
-    if target.starts_with("aarch64") && (version.minor >= 59 || version.nightly) {
+    if (target.starts_with("aarch64") || target.starts_with("arm64"))
+        && (version.minor >= 59 || version.nightly)
+    {
         // aarch64 macos always support lse and lse2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
         let is_aarch64_macos = target == "aarch64-apple-darwin";
         // aarch64_target_feature stabilized in Rust 1.61.
