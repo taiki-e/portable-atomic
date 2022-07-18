@@ -14,7 +14,7 @@ include!("no_atomic.rs");
 
 // rustc +stable -Vv | grep -E '^(commit-date|release)'
 const LATEST_STABLE: Version =
-    Version { minor: 61, nightly: false, commit_date: Date::new(2022, 5, 18) };
+    Version { minor: 62, nightly: false, commit_date: Date::new(2022, 6, 27) };
 
 // Probe if unstable features can be compiled with the expected API.
 // This prevents accidental depends on them if the upstream changes its API.
@@ -99,6 +99,11 @@ fn main() {
     if version.minor >= 61 && (!version.nightly || version.commit_date >= Date::new(2022, 3, 15)) {
     } else {
         println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
+    }
+    // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
+    if version.minor >= 64 && (!version.nightly || version.commit_date >= Date::new(2022, 7, 18)) {
+        // TODO: invert cfg once Rust 1.64 became stable.
+        println!("cargo:rustc-cfg=portable_atomic_core_stronger_failure_ordering");
     }
 
     if version.minor >= 60 || version.nightly {
