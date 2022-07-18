@@ -9,7 +9,7 @@ macro_rules! __test_atomic_common {
         }
         #[test]
         fn alignment() {
-            // https://github.com/rust-lang/rust/blob/1.61.0/library/core/tests/atomic.rs#L165
+            // https://github.com/rust-lang/rust/blob/1.62.0/library/core/tests/atomic.rs#L165
             assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
             assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }

@@ -12,9 +12,9 @@
 // compare_exchange(_weak) if FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
-// Note: As of rustc 1.61.0, -C target-feature=+lse2 does not
+// Note: As of rustc 1.62.0, -C target-feature=+lse2 does not
 // implicitly enable lse. Also, target_feature "lse2" is not available on rustc side:
-// https://github.com/rust-lang/rust/blob/1.61.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+// https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
 //
 // Refs:
 // - ARM Compiler armasm User Guide
@@ -336,7 +336,7 @@ unsafe fn atomic_compare_exchange(
     #[cfg(not(all(
         not(portable_atomic_no_aarch64_target_feature),
         feature = "outline-atomics",
-        // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
+        // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
         // Note: aarch64 freebsd is tier 3, so std may not be available.
         any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
     )))]
@@ -346,7 +346,7 @@ unsafe fn atomic_compare_exchange(
     #[cfg(all(
         not(portable_atomic_no_aarch64_target_feature),
         feature = "outline-atomics",
-        // https://github.com/rust-lang/stdarch/blob/bcbe010614f398ec86f3a9274d22e33e5f2ee60b/crates/std_detect/src/detect/mod.rs
+        // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
         // Note: aarch64 freebsd is tier 3, so std may not be available.
         any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
     ))]
