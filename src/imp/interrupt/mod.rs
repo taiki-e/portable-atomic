@@ -16,12 +16,12 @@
 // CAS together with atomic load/store. The load/store will not be
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
+#[cfg(portable_atomic_armv6m)]
+use super::arm as atomic;
 #[cfg(target_arch = "msp430")]
 use super::msp430 as atomic;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 use super::riscv as atomic;
-#[cfg(target_arch = "arm")]
-use core::sync::atomic;
 
 #[cfg_attr(portable_atomic_armv6m, path = "armv6m.rs")]
 #[cfg_attr(target_arch = "avr", path = "avr.rs")]
