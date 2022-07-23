@@ -109,16 +109,15 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
 )]
 // 128-bit atomic
 #![cfg_attr(
+    all(target_arch = "x86_64", any(all(test, portable_atomic_nightly), miri, sanitize_thread)),
+    feature(stdsimd)
+)]
+#![cfg_attr(
     all(
         target_arch = "x86_64",
-        any(
-            all(test, portable_atomic_nightly),
-            portable_atomic_cmpxchg16b_stdsimd,
-            miri,
-            sanitize_thread
-        )
+        any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic)
     ),
-    feature(stdsimd, cmpxchg16b_target_feature)
+    feature(cmpxchg16b_target_feature)
 )]
 // cfg(cfg_target_has_atomic) on old nightly
 // This feature has not been changed since the change in nightly-2019-10-14
