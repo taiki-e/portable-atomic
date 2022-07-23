@@ -150,11 +150,18 @@ fn main() {
             // #[cfg(target_feature = "v7")] and others don't work on stable.
             // armv7-unknown-linux-gnueabihf
             //    ^^
-            let mut arch =
-                target.strip_prefix("arm").or_else(|| target.strip_prefix("thumb")).unwrap();
-            arch = arch.split_once('-').unwrap().0;
-            arch = arch.split_once('.').unwrap_or((arch, "")).0; // ignore .base/.main suffix
-            arch = arch.strip_prefix("eb").unwrap_or(arch); // ignore endianness
+            let mut arch = if target.starts_with("arm") {
+                &target["arm".len()..]
+            } else if target.starts_with("thumb") {
+                &target["thumb".len()..]
+            } else {
+                unreachable!()
+            };
+            arch = arch.split('-').next().unwrap();
+            arch = arch.split('.').next().unwrap(); // ignore .base/.main suffix
+            if arch.starts_with("eb") {
+                arch = &target["eb".len()..]; // ignore endianness
+            }
             let mut known = true;
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
             match arch {
