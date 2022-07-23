@@ -100,6 +100,16 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
             ;;
     esac
 fi
+has_asm=''
+case "${rustc_version}" in
+    # asm requires 1.59
+    1.[0-4]* | 1.5[0-8].*)
+        if [[ -n "${nightly}" ]]; then
+            has_asm='1'
+        fi
+        ;;
+    *) has_asm='1' ;;
+esac
 echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
 
 x() {
@@ -150,7 +160,7 @@ build() {
         *-none* | avr-* | riscv32imc-esp-espidf)
             args+=(--exclude-features "std")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
-            if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
+            if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
