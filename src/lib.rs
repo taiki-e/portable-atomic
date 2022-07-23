@@ -14,6 +14,8 @@ Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (
 
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
+See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
+
 ## Optional features
 
 - **`fallback`** *(enabled by default)*<br>
@@ -27,9 +29,11 @@ On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxc
   This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as cmpxchg16b (x86_64) and LSE (aarch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64 and in nightly for other platforms, otherwise it works the same as the default.
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.58+ (avx) or nightly (cmpxchg16b) for x86_64, and in nightly for other platforms, otherwise it works the same as the default.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
+
+  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
 
 - **`float`**<br>
   Provide `AtomicF{32,64}`.

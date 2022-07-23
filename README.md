@@ -41,6 +41,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
 
+  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
+
 - **`float`**<br>
   Provide `AtomicF{32,64}`.
   Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
@@ -55,9 +57,6 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
-
-  Note:
-  - The MSRV when this feature enables depends on the MSRV of [serde].
 
 ## Optional cfg
 
