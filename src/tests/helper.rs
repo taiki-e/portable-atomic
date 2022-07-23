@@ -367,7 +367,10 @@ macro_rules! __test_atomic_int {
                     true
                 }
                 fn quickcheck_compare_exchange(x: $int_type, y: $int_type) -> bool {
-                    #[cfg(portable_atomic_armv5te)]
+                    #[cfg(all(
+                        target_arch = "arm",
+                        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                    ))]
                     {
                         // HACK: the following operations are currently broken (at least on qemu):
                         // - armv5te's `Atomic{I,U}{8,16}::compare_exchange`

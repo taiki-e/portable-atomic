@@ -243,7 +243,10 @@ macro_rules! atomic_int {
                             target_arch = "aarch64",
                             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
-                        portable_atomic_armv5te,
+                        all(
+                            target_arch = "arm",
+                            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                        ),
                         target_arch = "mips",
                         target_arch = "mips64",
                         target_arch = "powerpc",
@@ -298,7 +301,10 @@ macro_rules! atomic_int {
                             target_arch = "aarch64",
                             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
-                        portable_atomic_armv5te,
+                        all(
+                            target_arch = "arm",
+                            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                        ),
                         target_arch = "mips",
                         target_arch = "mips64",
                         target_arch = "powerpc",

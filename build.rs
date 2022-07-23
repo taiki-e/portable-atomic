@@ -124,7 +124,7 @@ fn main() {
             // x86_64 macos always support cmpxchg16b: https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
             let is_x86_64_macos = target == "x86_64-apple-darwin";
             if has_target_feature("cmpxchg16b", is_x86_64_macos, &version, None, true) {
-                println!("cargo:rustc-cfg=portable_atomic_target_feature=\"cmpxchg16b\"");
+                target_feature("cmpxchg16b");
             }
             if version.nightly && cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
@@ -135,21 +135,51 @@ fn main() {
             let is_aarch64_macos = target == "aarch64-apple-darwin";
             // aarch64_target_feature stabilized in Rust 1.61.
             if has_target_feature("lse", is_aarch64_macos, &version, Some(61), true) {
-                println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse\"");
+                target_feature("lse");
             }
             // As of rustc 1.62.0, target_feature "lse2" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
             if has_target_feature("lse2", is_aarch64_macos, &version, None, false) {
-                println!("cargo:rustc-cfg=portable_atomic_target_feature=\"lse2\"");
+                target_feature("lse2");
             }
         }
         "arm" => {
             if target.starts_with("thumbv6m-") && target.contains("-none") {
                 println!("cargo:rustc-cfg=portable_atomic_armv6m");
             }
-            // #[cfg(not(target_feature = "v6"))] doesn't work on stable.
-            if target.starts_with("armv5te-") {
-                println!("cargo:rustc-cfg=portable_atomic_armv5te");
+            // #[cfg(target_feature = "v7")] and others don't work on stable.
+            // armv7-unknown-linux-gnueabihf
+            //    ^^
+            let mut arch =
+                target.strip_prefix("arm").or_else(|| target.strip_prefix("thumb")).unwrap();
+            arch = arch.split_once('-').unwrap().0;
+            arch = arch.split_once('.').unwrap_or((arch, "")).0; // ignore .base/.main suffix
+            arch = arch.strip_prefix("eb").unwrap_or(arch); // ignore endianness
+            let mut known = true;
+            // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
+            match arch {
+                "v7" | "v7a" | "v7neon" | "v7s" | "v7k" => target_feature("aclass"),
+                "v6m" | "v7em" | "v7m" | "v8m" => target_feature("mclass"),
+                "v7r" => target_feature("rclass"),
+                // arm-linux-androideabi is v5te
+                // https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
+                _ if target == "arm-linux-androideabi" => arch = "v5te",
+                // v6 targets other than v6m don't have *class target feature.
+                "" | "v6" | "v6k" => arch = "v6",
+                // Other targets don't have *class target feature.
+                "v4t" | "v5te" => {}
+                _ => {
+                    known = false;
+                    println!(
+                        "cargo:warning={}: unrecognized arm target: {}",
+                        env!("CARGO_PKG_NAME"),
+                        target
+                    );
+                }
+            }
+            if known && (arch.starts_with("v6") || arch.starts_with("v7") || arch.starts_with("v8"))
+            {
+                target_feature("v6");
             }
         }
         "powerpc64" => {
@@ -159,9 +189,7 @@ fn main() {
                     // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
                     match &*cpu {
                         "pwr8" | "pwr9" | "pwr10" => {
-                            println!(
-                                "cargo:rustc-cfg=portable_atomic_target_feature=\"quadword-atomics\""
-                            );
+                            target_feature("quadword-atomics");
                         }
                         _ => {}
                     }
@@ -170,6 +198,10 @@ fn main() {
         }
         _ => {}
     }
+}
+
+fn target_feature(name: &str) {
+    println!("cargo:rustc-cfg=portable_atomic_target_feature=\"{}\"", name);
 }
 
 fn has_target_feature(
