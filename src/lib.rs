@@ -315,6 +315,15 @@ serde_impls!(AtomicBool);
 
 impl AtomicBool {
     /// Creates a new `AtomicBool`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicBool;
+    ///
+    /// let atomic_true = AtomicBool::new(true);
+    /// let atomic_false = AtomicBool::new(false);
+    /// ```
     #[inline]
     #[must_use]
     pub const fn new(v: bool) -> Self {
@@ -350,18 +359,38 @@ impl AtomicBool {
     ///
     /// This is safe because the mutable reference guarantees that no other threads are
     /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let mut some_bool = AtomicBool::new(true);
+    /// assert_eq!(*some_bool.get_mut(), true);
+    /// *some_bool.get_mut() = false;
+    /// assert_eq!(some_bool.load(Ordering::SeqCst), false);
+    /// ```
     #[inline]
     pub fn get_mut(&mut self) -> &mut bool {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
     /// Consumes the atomic and returns the contained value.
     ///
     /// This is safe because passing `self` by value guarantees that no other threads are
     /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicBool;
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    /// assert_eq!(some_bool.into_inner(), true);
+    /// ```
     #[inline]
     pub fn into_inner(self) -> bool {
         self.inner.into_inner()
@@ -375,6 +404,16 @@ impl AtomicBool {
     /// # Panics
     ///
     /// Panics if `order` is [`Release`] or [`AcqRel`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    ///
+    /// assert_eq!(some_bool.load(Ordering::Relaxed), true);
+    /// ```
     #[inline]
     pub fn load(&self, order: Ordering) -> bool {
         self.inner.load(order)
@@ -388,6 +427,17 @@ impl AtomicBool {
     /// # Panics
     ///
     /// Panics if `order` is [`Acquire`] or [`AcqRel`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    ///
+    /// some_bool.store(false, Ordering::Relaxed);
+    /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
+    /// ```
     #[inline]
     pub fn store(&self, val: bool, order: Ordering) {
         self.inner.store(val, order);
@@ -399,6 +449,17 @@ impl AtomicBool {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    ///
+    /// assert_eq!(some_bool.swap(false, Ordering::Relaxed), true);
+    /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -424,6 +485,26 @@ impl AtomicBool {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let some_bool = AtomicBool::new(true);
+    ///
+    /// assert_eq!(
+    ///     some_bool.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed),
+    ///     Ok(true)
+    /// );
+    /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
+    ///
+    /// assert_eq!(
+    ///     some_bool.compare_exchange(true, true, Ordering::SeqCst, Ordering::Acquire),
+    ///     Err(false)
+    /// );
+    /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -458,6 +539,23 @@ impl AtomicBool {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let val = AtomicBool::new(false);
+    ///
+    /// let new = true;
+    /// let mut old = val.load(Ordering::Relaxed);
+    /// loop {
+    ///     match val.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
+    ///         Ok(_) => break,
+    ///         Err(x) => old = x,
+    ///     }
+    /// }
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -489,6 +587,24 @@ impl AtomicBool {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_and(false, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_and(true, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_and(false, Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -513,6 +629,25 @@ impl AtomicBool {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_nand(false, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_nand(true, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst) as usize, 0);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_nand(false, Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -537,6 +672,24 @@ impl AtomicBool {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_or(false, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_or(true, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_or(false, Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -561,6 +714,24 @@ impl AtomicBool {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_xor(false, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_xor(true, Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_xor(false, Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -598,6 +769,18 @@ impl AtomicBool {
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
     /// [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let x = AtomicBool::new(false);
+    /// assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None), Err(false));
+    /// assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(!x)), Ok(false));
+    /// assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(!x)), Ok(true));
+    /// assert_eq!(x.load(Ordering::SeqCst), false);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -687,6 +870,15 @@ impl<T> std::panic::RefUnwindSafe for AtomicPtr<T> {}
 
 impl<T> AtomicPtr<T> {
     /// Creates a new `AtomicPtr`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicPtr;
+    ///
+    /// let ptr = &mut 5;
+    /// let atomic_ptr = AtomicPtr::new(ptr);
+    /// ```
     #[inline]
     #[must_use]
     pub const fn new(p: *mut T) -> Self {
@@ -722,18 +914,40 @@ impl<T> AtomicPtr<T> {
     ///
     /// This is safe because the mutable reference guarantees that no other threads are
     /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let mut data = 10;
+    /// let mut atomic_ptr = AtomicPtr::new(&mut data);
+    /// let mut other_data = 5;
+    /// *atomic_ptr.get_mut() = &mut other_data;
+    /// assert_eq!(unsafe { *atomic_ptr.load(Ordering::SeqCst) }, 5);
+    /// ```
     #[inline]
     pub fn get_mut(&mut self) -> &mut *mut T {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
     /// Consumes the atomic and returns the contained value.
     ///
     /// This is safe because passing `self` by value guarantees that no other threads are
     /// concurrently accessing the atomic data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicPtr;
+    ///
+    /// let mut data = 5;
+    /// let atomic_ptr = AtomicPtr::new(&mut data);
+    /// assert_eq!(unsafe { *atomic_ptr.into_inner() }, 5);
+    /// ```
     #[inline]
     pub fn into_inner(self) -> *mut T {
         self.inner.into_inner()
@@ -747,6 +961,17 @@ impl<T> AtomicPtr<T> {
     /// # Panics
     ///
     /// Panics if `order` is [`Release`] or [`AcqRel`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let ptr = &mut 5;
+    /// let some_ptr = AtomicPtr::new(ptr);
+    ///
+    /// let value = some_ptr.load(Ordering::Relaxed);
+    /// ```
     #[inline]
     pub fn load(&self, order: Ordering) -> *mut T {
         self.inner.load(order)
@@ -760,6 +985,19 @@ impl<T> AtomicPtr<T> {
     /// # Panics
     ///
     /// Panics if `order` is [`Acquire`] or [`AcqRel`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let ptr = &mut 5;
+    /// let some_ptr = AtomicPtr::new(ptr);
+    ///
+    /// let other_ptr = &mut 10;
+    ///
+    /// some_ptr.store(other_ptr, Ordering::Relaxed);
+    /// ```
     #[inline]
     pub fn store(&self, ptr: *mut T, order: Ordering) {
         self.inner.store(ptr, order);
@@ -771,6 +1009,19 @@ impl<T> AtomicPtr<T> {
     /// of this operation. All ordering modes are possible. Note that using
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let ptr = &mut 5;
+    /// let some_ptr = AtomicPtr::new(ptr);
+    ///
+    /// let other_ptr = &mut 10;
+    ///
+    /// let value = some_ptr.swap(other_ptr, Ordering::Relaxed);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -796,6 +1047,19 @@ impl<T> AtomicPtr<T> {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let ptr = &mut 5;
+    /// let some_ptr = AtomicPtr::new(ptr);
+    ///
+    /// let other_ptr = &mut 10;
+    ///
+    /// let value = some_ptr.compare_exchange(ptr, other_ptr, Ordering::SeqCst, Ordering::Relaxed);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -830,6 +1094,23 @@ impl<T> AtomicPtr<T> {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let some_ptr = AtomicPtr::new(&mut 5);
+    ///
+    /// let new = &mut 10;
+    /// let mut old = some_ptr.load(Ordering::Relaxed);
+    /// loop {
+    ///     match some_ptr.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
+    ///         Ok(_) => break,
+    ///         Err(x) => old = x,
+    ///     }
+    /// }
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -869,6 +1150,27 @@ impl<T> AtomicPtr<T> {
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
     /// [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let ptr: *mut _ = &mut 5;
+    /// let some_ptr = AtomicPtr::new(ptr);
+    ///
+    /// let new: *mut _ = &mut 10;
+    /// assert_eq!(some_ptr.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |_| None), Err(ptr));
+    /// let result = some_ptr.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| {
+    ///     if x == ptr {
+    ///         Some(new)
+    ///     } else {
+    ///         None
+    ///     }
+    /// });
+    /// assert_eq!(result, Ok(ptr));
+    /// assert_eq!(some_ptr.load(Ordering::SeqCst), new);
+    /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
@@ -1017,7 +1319,7 @@ atomic instructions or locks will be used.
                 self.inner.get_mut()
             }
 
-            // TODO: Add from_mut once it is stable on std atomic types.
+            // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
             /// Consumes the atomic and returns the contained value.
