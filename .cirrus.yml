@@ -8,7 +8,7 @@ env:
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
 
-test_task:
+aarch64_linux_task:
   name: test (aarch64-unknown-linux-gnu)
   env:
     TARGET: aarch64-unknown-linux-gnu
@@ -27,6 +27,21 @@ test_task:
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
     # TODO: lse2 is not available on Graviton2 (armv8.2-a)
+
+aarch64_macos_task:
+  name: test (aarch64-apple-darwin)
+  env:
+    TARGET: aarch64-apple-darwin
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
+  setup_script:
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+  test_script:
+    - source $HOME/.cargo/env
+    - cargo test -vv --workspace --exclude bench --all-features
+    - cargo test -vv --workspace --exclude bench --all-features --release
+    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
 
 valgrind_task:
   name: valgrind (aarch64-unknown-linux-gnu)
