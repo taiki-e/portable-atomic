@@ -205,7 +205,7 @@ macro_rules! atomic_int {
                                 concat!("l", $asm_suffix, " {out}, 0({src})"),
                                 src = in(reg) src,
                                 out = lateout(reg) out,
-                                options(nostack, readonly),
+                                options(nostack, preserves_flags, readonly),
                             );
                         }
                         Ordering::Acquire => {
@@ -214,7 +214,7 @@ macro_rules! atomic_int {
                                 "fence r, rw",
                                 src = in(reg) src,
                                 out = lateout(reg) out,
-                                options(nostack),
+                                options(nostack, preserves_flags),
                             );
                         }
                         Ordering::SeqCst => {
@@ -224,7 +224,7 @@ macro_rules! atomic_int {
                                 "fence r, rw",
                                 src = in(reg) src,
                                 out = lateout(reg) out,
-                                options(nostack),
+                                options(nostack, preserves_flags),
                             );
                         }
                         _ => unreachable!(),
@@ -243,7 +243,7 @@ macro_rules! atomic_int {
                                 concat!("s", $asm_suffix, " {val}, 0({dst})"),
                                 dst = in(reg) dst,
                                 val = in(reg) val,
-                                options(nostack),
+                                options(nostack, preserves_flags),
                             );
                         }
                         // Release and SeqCst stores are equivalent.
@@ -253,7 +253,7 @@ macro_rules! atomic_int {
                                 concat!("s", $asm_suffix, " {val}, 0({dst})"),
                                 dst = in(reg) dst,
                                 val = in(reg) val,
-                                options(nostack),
+                                options(nostack, preserves_flags),
                             );
                         }
                         _ => unreachable!(),
