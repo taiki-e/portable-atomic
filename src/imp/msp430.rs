@@ -203,7 +203,7 @@ macro_rules! atomic_int {
                         concat!("mov", $asm_suffix, " @{src}, {out}"),
                         src = in(reg) src,
                         out = lateout(reg) out,
-                        options(nostack),
+                        options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
@@ -223,7 +223,7 @@ macro_rules! atomic_int {
                         concat!("mov", $asm_suffix, " {val}, 0({dst})"),
                         dst = in(reg) dst,
                         val = in(reg) val,
-                        options(nostack),
+                        options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
