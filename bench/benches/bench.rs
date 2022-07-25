@@ -60,6 +60,7 @@ trait AtomicInt<T: Copy>: Sized + Send + Sync {
     fn load(&self) -> T;
     fn store(&self, val: T);
     fn swap(&self, val: T) -> T;
+    fn fetch_add(&self, val: T) -> T;
 }
 macro_rules! impl_atomic_u128 {
     ($atomic_u128:path) => {
@@ -75,6 +76,9 @@ macro_rules! impl_atomic_u128 {
             }
             fn swap(&self, val: u128) -> u128 {
                 self.swap(val, Ordering::AcqRel)
+            }
+            fn fetch_add(&self, val: u128) -> u128 {
+                self.fetch_add(val, Ordering::AcqRel)
             }
         }
     };
@@ -97,6 +101,9 @@ impl AtomicInt<u128> for crossbeam_utils::atomic::AtomicCell<u128> {
     }
     fn swap(&self, val: u128) -> u128 {
         self.swap(val)
+    }
+    fn fetch_add(&self, val: u128) -> u128 {
+        self.fetch_add(val)
     }
 }
 
@@ -244,6 +251,16 @@ macro_rules! benches {
             g.bench_function("u128_store", |b| {
                 let a = A::new(black_box(1));
                 b.iter(|| AtomicInt::<u128>::store(&a, black_box(2)));
+                black_box(a);
+            });
+            g.bench_function("u128_swap", |b| {
+                let a = A::new(black_box(1));
+                b.iter(|| AtomicInt::<u128>::swap(&a, black_box(2)));
+                black_box(a);
+            });
+            g.bench_function("u128_fetch_add", |b| {
+                let a = A::new(black_box(1));
+                b.iter(|| AtomicInt::<u128>::fetch_add(&a, black_box(2)));
                 black_box(a);
             });
             g.bench_function("u128_concurrent_load", |b| {

@@ -14,8 +14,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/rW4rWaefM
-// - powerpc64le https://godbolt.org/z/c9b65TWz7
+// - powerpc64 (pwr8) https://godbolt.org/z/orPeo3dMv
+// - powerpc64le https://godbolt.org/z/75rd9G5xT
 
 use core::{arch::asm, sync::atomic::Ordering};
 

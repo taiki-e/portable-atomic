@@ -11,7 +11,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/n5eW6q1sq
+// - s390x https://godbolt.org/z/T7735W4rT
 
 include!("macros.rs");
 

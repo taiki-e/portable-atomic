@@ -35,6 +35,10 @@ default_targets=(
     aarch64-apple-darwin
     # aarch64_be
     aarch64_be-unknown-linux-gnu
+    # aarch64 ILP32 ABI
+    aarch64-unknown-linux-gnu_ilp32
+    # aarch64 ILP32 ABI big endian
+    aarch64_be-unknown-linux-gnu_ilp32
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
