@@ -10,6 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix build failure due to the existence of the `specs` directory.
+- Documentation improvements.
+- Optimize inline assemblies on x86_64, riscv, and msp430.
+
 ## [0.3.5] - 2022-07-23
 
 - Provide thumbv6m atomic load/store which is planned to be removed from the standard library in [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595). ([#18](https://github.com/taiki-e/portable-atomic/pull/18))
