@@ -39,14 +39,6 @@ mod s390x;
 #[cfg(target_arch = "msp430")]
 mod msp430;
 
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
-#[cfg(portable_atomic_armv6m)]
-mod arm;
-#[cfg(not(any(not(portable_atomic_no_asm), portable_atomic_nightly)))]
-#[cfg(portable_atomic_armv6m)]
-#[path = "core_atomic.rs"]
-mod arm;
-
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
@@ -132,12 +124,6 @@ mod interrupt;
 pub(crate) use self::core_atomic::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
-// armv6m
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
-#[cfg(portable_atomic_armv6m)]
-pub(crate) use self::arm::{
-    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
-};
 // msp430
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(target_arch = "msp430")]
@@ -189,10 +175,6 @@ pub(crate) use self::interrupt::{
     ))
 )]
 pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
-// armv6m
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
-#[cfg(portable_atomic_armv6m)]
-pub(crate) use self::arm::{AtomicI32, AtomicU32};
 // riscv32 without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(target_arch = "riscv32")]

@@ -13,9 +13,7 @@ file="no_atomic.rs"
 
 no_atomic_cas=()
 no_atomic_64=()
-no_atomic=(
-    "thumbv6m-none-eabi" # https://github.com/rust-lang/rust/pull/99595
-)
+no_atomic=()
 for target in $(rustc --print target-list); do
     target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
     res=$(jq <<<"${target_spec}" -r 'select(."atomic-cas" == false)')
