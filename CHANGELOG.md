@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.6] - 2022-07-26
+
 - Fix build failure due to the existence of the `specs` directory.
 - Documentation improvements.
 - Optimize inline assemblies on x86_64, riscv, and msp430.
@@ -88,7 +90,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.5...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.6...HEAD
+[0.3.6]: https://github.com/taiki-e/portable-atomic/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/taiki-e/portable-atomic/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/taiki-e/portable-atomic/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/taiki-e/portable-atomic/compare/v0.3.2...v0.3.3
