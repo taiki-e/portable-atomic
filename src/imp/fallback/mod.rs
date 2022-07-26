@@ -18,9 +18,9 @@
 // In narrow architectures (pointer width <= 16), the counter is still <= 32-bit and may be
 // vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
 // counter will not be increased that fast.
-#[cfg(any(target_pointer_width = "64", /* target_pointer_width = "128" */))]
+#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
 mod seq_lock;
-#[cfg(not(any(target_pointer_width = "64", /* target_pointer_width = "128" */)))]
+#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
 #[path = "seq_lock_wide.rs"]
 mod seq_lock;
 
