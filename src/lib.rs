@@ -335,6 +335,14 @@ impl AtomicBool {
     /// If the compiler or the platform doesn't support the necessary
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicBool;
+    ///
+    /// let is_lock_free = AtomicBool::is_lock_free();
+    /// ```
     #[inline]
     #[must_use]
     pub fn is_lock_free() -> bool {
@@ -349,6 +357,14 @@ impl AtomicBool {
     ///
     /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
     /// this type may be lock-free even if the function returns false.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicBool;
+    ///
+    /// const IS_ALWAYS_LOCK_FREE: bool = AtomicBool::is_always_lock_free();
+    /// ```
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
@@ -890,6 +906,14 @@ impl<T> AtomicPtr<T> {
     /// If the compiler or the platform doesn't support the necessary
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicPtr;
+    ///
+    /// let is_lock_free = AtomicPtr::<()>::is_lock_free();
+    /// ```
     #[inline]
     #[must_use]
     pub fn is_lock_free() -> bool {
@@ -904,6 +928,14 @@ impl<T> AtomicPtr<T> {
     ///
     /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
     /// this type may be lock-free even if the function returns false.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::AtomicPtr;
+    ///
+    /// const IS_ALWAYS_LOCK_FREE: bool = AtomicPtr::<()>::is_always_lock_free();
+    /// ```
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
@@ -1297,29 +1329,49 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
                 }
             }
 
-            /// Returns `true` if operations on values of this type are lock-free.
-            ///
-            /// If the compiler or the platform doesn't support the necessary
-            /// atomic instructions, global locks for every potentially
-            /// concurrent atomic operation will be used.
-            #[inline]
-            #[must_use]
-            pub fn is_lock_free() -> bool {
-                <imp::$atomic_type>::is_lock_free()
+            doc_comment! {
+                concat!("Returns `true` if operations on values of this type are lock-free.
+
+If the compiler or the platform doesn't support the necessary
+atomic instructions, global locks for every potentially
+concurrent atomic operation will be used.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+let is_lock_free = ", stringify!($atomic_type), "::is_lock_free();
+```"),
+                #[inline]
+                #[must_use]
+                pub fn is_lock_free() -> bool {
+                    <imp::$atomic_type>::is_lock_free()
+                }
             }
 
-            /// Returns `true` if operations on values of this type are lock-free.
-            ///
-            /// If the compiler or the platform doesn't support the necessary
-            /// atomic instructions, global locks for every potentially
-            /// concurrent atomic operation will be used.
-            ///
-            /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
-            /// this type may be lock-free even if the function returns false.
-            #[inline]
-            #[must_use]
-            pub const fn is_always_lock_free() -> bool {
-                <imp::$atomic_type>::is_always_lock_free()
+            doc_comment! {
+                concat!("Returns `true` if operations on values of this type are lock-free.
+
+If the compiler or the platform doesn't support the necessary
+atomic instructions, global locks for every potentially
+concurrent atomic operation will be used.
+
+**Note:** If the atomic operation relies on dynamic CPU feature detection,
+this type may be lock-free even if the function returns false.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock_free();
+```"),
+                #[inline]
+                #[must_use]
+                pub const fn is_always_lock_free() -> bool {
+                    <imp::$atomic_type>::is_always_lock_free()
+                }
             }
 
             doc_comment! {
