@@ -13,10 +13,14 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 ## [0.3.6] - 2022-07-26
 
 - Fix build failure due to the existence of the `specs` directory.
+
 - Documentation improvements.
+
 - Optimize inline assemblies on x86_64, riscv, and msp430.
 
 ## [0.3.5] - 2022-07-23
+
+**Note:** This release has been yanked due to a bug fixed in 0.3.6.
 
 - Provide thumbv6m atomic load/store which is planned to be removed from the standard library in [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595). ([#18](https://github.com/taiki-e/portable-atomic/pull/18))
 
@@ -78,15 +82,21 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.1.2] - 2022-02-26
 
+**Note:** This release has been yanked due to a bug fixed in 0.1.3.
+
 - Add `parking_lot` feature to use parking_lot in global locks of fallback implementation.
 
 - Fix bug in cmpxchg16b support. ([#5](https://github.com/taiki-e/portable-atomic/pull/5))
 
 ## [0.1.1] - 2022-02-25
 
+**Note:** This release has been yanked due to a bug fixed in 0.1.3.
+
 - Fix doc cfg on `Atomic{I,U}128`.
 
 ## [0.1.0] - 2022-02-24
+
+**Note:** This release has been yanked due to a bug fixed in 0.1.3.
 
 Initial release
 
