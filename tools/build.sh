@@ -25,6 +25,9 @@ default_targets=(
     thumbv7m-none-eabi
     # no-std 64-bit
     x86_64-unknown-none
+    # TODO
+    # # x86_64 X32 ABI
+    # x86_64-unknown-linux-gnux32
     # no-std 64-bit has Atomic{I,U}128
     aarch64-unknown-none
     # aarch64 no Atomic{I,U}128

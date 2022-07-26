@@ -1,4 +1,7 @@
 // Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
+//
+// Generated asm:
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/1caG8hfeh
 
 #[path = "cpuid.rs"]
 mod detect;
@@ -12,6 +15,21 @@ use crate::utils::{
     strongest_failure_ordering,
 };
 
+#[cfg(target_feature = "sse")]
+#[cfg(target_pointer_width = "32")]
+macro_rules! ptr_modifier {
+    () => {
+        ":e"
+    };
+}
+#[cfg(target_feature = "sse")]
+#[cfg(target_pointer_width = "64")]
+macro_rules! ptr_modifier {
+    () => {
+        ""
+    };
+}
+
 /// A 128-bit value represented as a pair of 64-bit values.
 // This type is #[repr(C)], both fields have the same in-memory representation
 // and are plain old datatypes, so access to the fields is always safe.
@@ -19,7 +37,14 @@ use crate::utils::{
 #[repr(C)]
 union U128 {
     whole: u128,
-    pair: [u64; 2],
+    pair: Pair,
+}
+
+#[derive(Clone, Copy)]
+#[repr(C, align(16))]
+struct Pair {
+    lo: u64,
+    hi: u64,
 }
 
 #[inline]
@@ -38,29 +63,35 @@ unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     // otherwise it is cleared. Other flags are unaffected.
     //
     // Refs: https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b
-    //
-    // Generated asm: https://godbolt.org/z/xK3odG94j
     unsafe {
         let r: u8;
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
-        asm!(
-            // rbx is reserved by LLVM
-            "xchg {rbx_tmp}, rbx",
-            "lock cmpxchg16b xmmword ptr [rdi]",
-            "sete r8b",
-            "mov rbx, {rbx_tmp}",
-            rbx_tmp = inout(reg) new.pair[0] => _,
-            in("rdi") dst,
-            inout("rax") old.pair[0] => prev_lo,
-            inout("rdx") old.pair[1] => prev_hi,
-            in("rcx") new.pair[1],
-            out("r8b") r,
-            // Should not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
-            options(nostack),
-        );
-        (U128 { pair: [prev_lo, prev_hi] }.whole, r != 0)
+        macro_rules! cmpxchg16b {
+            ($rdi:tt) => {
+                asm!(
+                    // rbx is reserved by LLVM
+                    "xchg {rbx_tmp}, rbx",
+                    concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                    "sete r8b",
+                    "mov rbx, {rbx_tmp}",
+                    rbx_tmp = inout(reg) new.pair.lo => _,
+                    in("rdi") dst,
+                    inout("rax") old.pair.lo => prev_lo,
+                    inout("rdx") old.pair.hi => prev_hi,
+                    in("rcx") new.pair.hi,
+                    out("r8b") r,
+                    // Do not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
+                    options(nostack),
+                )
+            };
+        }
+        #[cfg(target_pointer_width = "32")]
+        cmpxchg16b!("edi");
+        #[cfg(target_pointer_width = "64")]
+        cmpxchg16b!("rdi");
+        (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r != 0)
     }
 }
 
@@ -138,14 +169,19 @@ unsafe fn cmpxchg16b(
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
         unsafe {
-            ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering) -> (u128, bool);
-            if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback })
+            ifunc!(
+                unsafe fn(
+                    dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
+                ) -> (u128, bool);
+                if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback })
         }
     }
 }
 
 // VMOVDQA is atomic on on Intel CPU with AVX.
 // See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
+//
+// Refs: https://www.felixcloutier.com/x86/movdqa:vmovdqa32:vmovdqa64
 //
 // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
 // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
@@ -159,9 +195,10 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
     unsafe {
         let out: core::arch::x86_64::__m128;
         asm!(
-            "vmovdqa {out}, xmmword ptr [{src}]",
+            concat!("vmovdqa {out}, xmmword ptr [{src", ptr_modifier!(), "}]"),
             src = in(reg) src,
             out = out(xmm_reg) out,
+            options(nostack, preserves_flags),
         );
         core::mem::transmute(out)
     }
@@ -178,17 +215,19 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
         match order {
             Ordering::Relaxed | Ordering::Release => {
                 asm!(
-                    "vmovdqa xmmword ptr [{dst}], {val}",
+                    concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
                     dst = in(reg) dst,
                     val = in(xmm_reg) val,
+                    options(nostack, preserves_flags),
                 );
             }
             Ordering::SeqCst => {
                 asm!(
-                    "vmovdqa xmmword ptr [{dst}], {val}",
+                    concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
                     "mfence",
                     dst = in(reg) dst,
                     val = in(xmm_reg) val,
+                    options(nostack, preserves_flags),
                 );
             }
             // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/M5s3fj46o
@@ -414,8 +453,78 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
+#[inline]
+unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    let mut old = i128::MIN as u128;
+    let mut new = val as u128;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_max`.
+        match unsafe { atomic_compare_exchange(dst.cast(), old, new, order, failure) } {
+            Ok(old) => return old as i128,
+            Err(x) => {
+                old = x;
+                new = core::cmp::max(x as i128, val) as u128;
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = u128::MIN;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = core::cmp::max(x, val);
+            }
+        }
+    }
+}
+
+#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
+#[inline]
+unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    let mut old = i128::MAX as u128;
+    let mut new = val as u128;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_min`.
+        match unsafe { atomic_compare_exchange(dst.cast(), old, new, order, failure) } {
+            Ok(old) => return old as i128,
+            Err(x) => {
+                old = x;
+                new = core::cmp::min(x as i128, val) as u128;
+            }
+        }
+    }
+}
+
+#[inline]
+unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    let mut old = u128::MAX;
+    let mut new = val;
+    let failure = strongest_failure_ordering(order);
+    loop {
+        // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
+        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
+            Ok(old) => return old,
+            Err(x) => {
+                old = x;
+                new = core::cmp::min(x, val);
+            }
+        }
+    }
+}
+
 macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident) => {
+    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -570,47 +679,23 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                let dst = self.v.get().cast();
-                let mut old = $int_type::MIN as u128;
-                let mut new = val as u128;
-                let failure = strongest_failure_ordering(order);
-                loop {
-                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                    // pointer passed in is valid because we got it from a reference.
-                    match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-                        Ok(old) => return old as $int_type,
-                        Err(x) => {
-                            old = x;
-                            new = core::cmp::max(x as $int_type, val) as u128;
-                        }
-                    }
-                }
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { $atomic_max(self.v.get(), val, order) }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                let dst = self.v.get().cast();
-                let mut old = $int_type::MAX as u128;
-                let mut new = val as u128;
-                let failure = strongest_failure_ordering(order);
-                loop {
-                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                    // pointer passed in is valid because we got it from a reference.
-                    match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-                        Ok(old) => return old as $int_type,
-                        Err(x) => {
-                            old = x;
-                            new = core::cmp::min(x as $int_type, val) as u128;
-                        }
-                    }
-                }
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { $atomic_min(self.v.get(), val, order) }
             }
         }
     };
 }
 
-atomic128!(AtomicI128, i128);
-atomic128!(AtomicU128, u128);
+atomic128!(AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
