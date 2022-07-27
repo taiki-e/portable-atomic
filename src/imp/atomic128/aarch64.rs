@@ -25,9 +25,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/x6qMff94K
-// - aarch64 (+lse) https://godbolt.org/z/9MsnrhEKr
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/orhr74bqT
+// - aarch64 https://godbolt.org/z/9vne9GPKe
+// - aarch64 (+lse) https://godbolt.org/z/odMW1rYWe
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/Yxfqz75x5
 
 include!("macros.rs");
 
@@ -71,7 +71,7 @@ struct Pair {
 // Section B2.2.1 "Requirements for single-copy atomicity", and
 // Section B2.9 "Synchronization and semaphores" for more.
 #[inline(always)]
-unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
+unsafe fn _ldxp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `src` is valid for both writes and
@@ -108,7 +108,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
 }
 
 #[inline(always)]
-unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
+unsafe fn _stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -196,14 +196,15 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+// If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
+// otherwise it is two single-copy atomic reads.
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[inline]
 unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
-    // 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE2.
+    // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
     // - LDP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/LDP
@@ -231,14 +232,15 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+// If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
+// otherwise it is two single-copy atomic writes.
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[inline]
 unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
-    // 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE2.
+    // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
     // - STP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STP
@@ -267,7 +269,7 @@ unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
 }
 
 #[inline]
-fn ldx_ordering(order: Ordering) -> Ordering {
+fn _ldx_ordering(order: Ordering) -> Ordering {
     match order {
         Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
         Ordering::SeqCst => Ordering::SeqCst,
@@ -276,7 +278,7 @@ fn ldx_ordering(order: Ordering) -> Ordering {
     }
 }
 #[inline]
-fn stx_ordering(order: Ordering) -> Ordering {
+fn _stx_ordering(order: Ordering) -> Ordering {
     match order {
         Ordering::Acquire | Ordering::Relaxed => Ordering::Relaxed,
         Ordering::SeqCst => Ordering::SeqCst,
@@ -356,27 +358,64 @@ unsafe fn _compare_exchange_ldxp_stxp(
     unsafe { atomic_update(dst, success, |x| if x == old { new } else { x }) }
 }
 
+// TODO: On aws graviton2, casp is much faster than ldxp/stxp,
+// but it doesn't seem to be true on mac m1.
+#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+use _atomic_update_casp as atomic_update;
+#[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+use _atomic_update_ldxp_stxp as atomic_update;
+
 // Note: closure should not panic.
 #[inline]
-unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+unsafe fn _atomic_update_ldxp_stxp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_update_ldxp_stxp`.
     unsafe {
-        let ldx_order = ldx_ordering(order);
-        let stx_order = stx_ordering(order);
+        let ldx_order = _ldx_ordering(order);
+        let stx_order = _stx_ordering(order);
         let mut prev;
         loop {
-            prev = ldxp(dst, ldx_order);
+            prev = _ldxp(dst, ldx_order);
             let next = f(prev);
-            if stxp(dst, next, stx_order) {
+            if _stxp(dst, next, stx_order) {
                 break;
             }
         }
         prev
+    }
+}
+
+#[cfg(any(
+    target_feature = "lse",
+    portable_atomic_target_feature = "lse",
+    not(portable_atomic_no_aarch64_target_feature),
+))]
+#[cfg_attr(not(portable_atomic_no_aarch64_target_feature), target_feature(enable = "lse"))]
+#[inline]
+unsafe fn _atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+where
+    F: FnMut(u128) -> u128,
+{
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract for `_atomic_update_casp`.
+    unsafe {
+        // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+        // This is not single-copy atomic reads, but this is ok because subsequent
+        // CAS will check for consistency.
+        let mut old = _ldp(dst, Ordering::Relaxed);
+        loop {
+            let next = f(old);
+            let x = _casp(dst, old, next, order);
+            if x == old {
+                return x;
+            }
+            old = x;
+        }
     }
 }
 
@@ -388,6 +427,14 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         // cfg guarantee that the CPU supports FEAT_LSE2.
         () => unsafe { _ldp(src, order) },
+        // TODO: On aws graviton2, casp is much faster than ldxp/stxp,
+        // but it doesn't seem to be true on mac m1.
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        () => unsafe { _casp(src, 0, 0, order) },
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe { _compare_exchange_ldxp_stxp(src, 0, 0, order) },
