@@ -295,40 +295,43 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     let success = crate::utils::upgrade_success_ordering(success, failure);
 
-    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    // cfg guarantee that the CPU supports FEAT_LSE.
-    let res = unsafe { _casp(dst, old, new, success) };
-    #[cfg(not(all(
-        not(portable_atomic_no_aarch64_target_feature),
-        feature = "outline-atomics",
-        // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
-        // Note: aarch64 freebsd is tier 3, so std may not be available.
-        any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
-    )))]
-    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
-    #[cfg(all(
-        not(portable_atomic_no_aarch64_target_feature),
-        feature = "outline-atomics",
-        // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
-        // Note: aarch64 freebsd is tier 3, so std may not be available.
-        any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
-    ))]
-    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-    let res = {
-        extern crate std;
-        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-        // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-        // and we've checked if FEAT_LSE is available.
-        unsafe {
-            ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128;
-            if std::arch::is_aarch64_feature_detected!("lse") {
-                _casp
-            } else {
-                _compare_exchange_ldxp_stxp
-            })
+    #[deny(unreachable_patterns)]
+    let res = match () {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        () => unsafe { _casp(dst, old, new, success) },
+        #[cfg(not(all(
+            not(portable_atomic_no_aarch64_target_feature),
+            feature = "outline-atomics",
+            // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
+            // Note: aarch64 freebsd is tier 3, so std may not be available.
+            any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
+        )))]
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+        () => unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) },
+        #[cfg(all(
+            not(portable_atomic_no_aarch64_target_feature),
+            feature = "outline-atomics",
+            // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
+            // Note: aarch64 freebsd is tier 3, so std may not be available.
+            any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
+        ))]
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+        () => {
+            extern crate std;
+            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+            // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+            // and we've checked if FEAT_LSE is available.
+            unsafe {
+                ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128;
+                if std::arch::is_aarch64_feature_detected!("lse") {
+                    _casp
+                } else {
+                    _compare_exchange_ldxp_stxp
+                })
+            }
         }
     };
     if res == old {
@@ -379,31 +382,31 @@ where
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    // cfg guarantee that the CPU supports FEAT_LSE2.
-    unsafe {
-        _ldp(src, order)
-    }
-    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe {
-        _compare_exchange_ldxp_stxp(src, 0, 0, order)
+    #[deny(unreachable_patterns)]
+    match () {
+        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE2.
+        () => unsafe { _ldp(src, order) },
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        () => unsafe { _compare_exchange_ldxp_stxp(src, 0, 0, order) },
     }
 }
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-    // cfg guarantee that the CPU supports FEAT_LSE2.
-    unsafe {
-        _stp(dst, val, order);
-    }
-    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-    unsafe {
-        atomic_swap(dst, val, order);
+    #[deny(unreachable_patterns)]
+    match () {
+        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+        // cfg guarantee that the CPU supports FEAT_LSE2.
+        () => unsafe { _stp(dst, val, order) },
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+        () => unsafe {
+            atomic_swap(dst, val, order);
+        },
     }
 }
 

@@ -94,28 +94,26 @@ impl AtomicBool {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         assert_load_ordering(order);
-        #[cfg(not(target_arch = "avr"))]
-        {
-            unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) }
-        }
-        #[cfg(target_arch = "avr")]
-        {
-            with(|| unsafe { self.v.get().read() != 0 })
+        #[deny(unreachable_patterns)]
+        match () {
+            #[cfg(not(target_arch = "avr"))]
+            () => unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) },
+            #[cfg(target_arch = "avr")]
+            () => with(|| unsafe { self.v.get().read() != 0 }),
         }
     }
 
     #[inline]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         assert_store_ordering(order);
-        #[cfg(not(target_arch = "avr"))]
-        {
-            unsafe {
+        #[deny(unreachable_patterns)]
+        match () {
+            #[cfg(not(target_arch = "avr"))]
+            () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
-            }
-        }
-        #[cfg(target_arch = "avr")]
-        {
-            with(|| unsafe { self.v.get().write(val as u8) });
+            },
+            #[cfg(target_arch = "avr")]
+            () => with(|| unsafe { self.v.get().write(val as u8) }),
         }
     }
 
@@ -241,28 +239,26 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         assert_load_ordering(order);
-        #[cfg(not(target_arch = "avr"))]
-        {
-            unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) }
-        }
-        #[cfg(target_arch = "avr")]
-        {
-            with(|| unsafe { self.p.get().read() })
+        #[deny(unreachable_patterns)]
+        match () {
+            #[cfg(not(target_arch = "avr"))]
+            () => unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) },
+            #[cfg(target_arch = "avr")]
+            () => with(|| unsafe { self.p.get().read() }),
         }
     }
 
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         assert_store_ordering(order);
-        #[cfg(not(target_arch = "avr"))]
-        {
-            unsafe {
+        #[deny(unreachable_patterns)]
+        match () {
+            #[cfg(not(target_arch = "avr"))]
+            () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
-            }
-        }
-        #[cfg(target_arch = "avr")]
-        {
-            with(|| unsafe { self.p.get().write(ptr) });
+            },
+            #[cfg(target_arch = "avr")]
+            () => with(|| unsafe { self.p.get().write(ptr) }),
         }
     }
 
@@ -349,28 +345,28 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 assert_load_ordering(order);
-                #[cfg(not(target_arch = "avr"))]
-                {
-                    unsafe { (*(self as *const Self as *const atomic::$atomic_type)).load(order) }
-                }
-                #[cfg(target_arch = "avr")]
-                {
-                    with(|| unsafe { self.v.get().read() })
+                #[deny(unreachable_patterns)]
+                match () {
+                    #[cfg(not(target_arch = "avr"))]
+                    () => unsafe {
+                        (*(self as *const Self as *const atomic::$atomic_type)).load(order)
+                    },
+                    #[cfg(target_arch = "avr")]
+                    () => with(|| unsafe { self.v.get().read() }),
                 }
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 assert_store_ordering(order);
-                #[cfg(not(target_arch = "avr"))]
-                {
-                    unsafe {
+                #[deny(unreachable_patterns)]
+                match () {
+                    #[cfg(not(target_arch = "avr"))]
+                    () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
-                    }
-                }
-                #[cfg(target_arch = "avr")]
-                {
-                    with(|| unsafe { self.v.get().write(val) });
+                    },
+                    #[cfg(target_arch = "avr")]
+                    () => with(|| unsafe { self.v.get().write(val) }),
                 }
             }
         }
