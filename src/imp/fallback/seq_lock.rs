@@ -5,10 +5,20 @@ pub(super) mod imp;
 
 use core::{
     mem::ManuallyDrop,
-    sync::atomic::{self, AtomicUsize, Ordering},
+    sync::atomic::{self, Ordering},
 };
 
 use crate::utils::Backoff;
+
+// See mod.rs for details.
+#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+use core::sync::atomic::AtomicU64 as AtomicStamp;
+#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+use core::sync::atomic::AtomicUsize as AtomicStamp;
+#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+pub(crate) type Stamp = usize;
+#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+pub(crate) type Stamp = u64;
 
 /// A simple stamped lock.
 pub(crate) struct SeqLock {
@@ -16,12 +26,12 @@ pub(crate) struct SeqLock {
     ///
     /// All bits except the least significant one hold the current stamp. When locked, the state
     /// equals 1 and doesn't contain a valid stamp.
-    state: AtomicUsize,
+    state: AtomicStamp,
 }
 
 impl SeqLock {
     pub(crate) const fn new() -> Self {
-        Self { state: AtomicUsize::new(0) }
+        Self { state: AtomicStamp::new(0) }
     }
 
     /// If not locked, returns the current stamp.
@@ -29,7 +39,7 @@ impl SeqLock {
     /// This method should be called before optimistic reads.
     #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
     #[inline]
-    pub(crate) fn optimistic_read(&self) -> Option<usize> {
+    pub(crate) fn optimistic_read(&self) -> Option<Stamp> {
         let state = self.state.load(Ordering::Acquire);
         if state == 1 {
             None
@@ -44,7 +54,7 @@ impl SeqLock {
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
     #[inline]
-    pub(crate) fn validate_read(&self, stamp: usize) -> bool {
+    pub(crate) fn validate_read(&self, stamp: Stamp) -> bool {
         atomic::fence(Ordering::Acquire);
         self.state.load(Ordering::Relaxed) == stamp
     }
@@ -76,7 +86,7 @@ pub(crate) struct SeqLockWriteGuard {
     lock: &'static SeqLock,
 
     /// The stamp before locking.
-    state: usize,
+    state: Stamp,
 }
 
 impl SeqLockWriteGuard {
