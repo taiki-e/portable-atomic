@@ -439,7 +439,7 @@ mod tests {
 #[cfg(not(any(miri, sanitize_thread)))]
 #[cfg(test)]
 #[allow(dead_code, clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
-mod no_outline_atomics {
+mod tests_no_outline_atomics {
     use super::*;
 
     #[inline]

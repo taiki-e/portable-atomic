@@ -483,3 +483,109 @@ mod tests {
         }
     }
 }
+
+#[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
+#[cfg(test)]
+mod tests_no_cmpxchg16b {
+    use super::*;
+
+    #[inline(never)]
+    unsafe fn cmpxchg16b(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+        failure: Ordering,
+    ) -> (u128, bool) {
+        #[allow(clippy::cast_ptr_alignment)]
+        unsafe {
+            match (*(dst as *const super::super::fallback::AtomicU128))
+                .compare_exchange(old, new, success, failure)
+            {
+                Ok(v) => (v, true),
+                Err(v) => (v, false),
+            }
+        }
+    }
+    #[inline]
+    unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
+        debug_assert!(src as usize % 16 == 0);
+
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(any(miri, sanitize_thread))]
+        unsafe {
+            atomic_load(src, Ordering::Relaxed)
+        }
+        #[cfg(not(any(miri, sanitize_thread)))]
+        unsafe {
+            super::byte_wise_atomic_load(src)
+        }
+    }
+
+    #[inline(never)]
+    unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+        let fail_order = strongest_failure_ordering(order);
+        unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+    }
+
+    #[inline(never)]
+    unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+        unsafe {
+            atomic_swap(dst, val, order);
+        }
+    }
+
+    #[inline]
+    unsafe fn atomic_compare_exchange(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<u128, u128> {
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        let (res, ok) = unsafe { cmpxchg16b(dst, old, new, success, failure) };
+        if ok {
+            Ok(res)
+        } else {
+            Err(res)
+        }
+    }
+
+    use atomic_compare_exchange as atomic_compare_exchange_weak;
+
+    #[inline]
+    unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+    where
+        F: FnMut(u128) -> u128,
+    {
+        let failure = strongest_failure_ordering(order);
+        unsafe {
+            let mut old = byte_wise_atomic_load(dst);
+            loop {
+                let next = f(old);
+                match atomic_compare_exchange_weak(dst, old, next, order, failure) {
+                    Ok(x) => return x,
+                    Err(x) => old = x,
+                }
+            }
+        }
+    }
+
+    #[inline]
+    unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+        unsafe { atomic_update(dst, order, |_| val) }
+    }
+
+    #[inline]
+    const fn is_always_lock_free() -> bool {
+        false
+    }
+    use is_always_lock_free as is_lock_free;
+
+    atomic128!(AtomicI128, i128);
+    atomic128!(AtomicU128, u128);
+
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
+}
