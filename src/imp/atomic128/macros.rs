@@ -17,11 +17,11 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
-                Self::is_always_lock_free()
+                is_lock_free()
             }
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
-                true
+                is_always_lock_free()
             }
 
             #[inline]

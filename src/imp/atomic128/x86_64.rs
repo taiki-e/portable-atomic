@@ -1,28 +1,25 @@
 // Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/1caG8hfeh
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/34fj6M3EK
+
+include!("macros.rs");
 
 #[path = "cpuid.rs"]
 mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
-use crate::utils::{
-    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering,
-    strongest_failure_ordering,
-};
+use crate::utils::strongest_failure_ordering;
 
-#[cfg(target_feature = "sse")]
 #[cfg(target_pointer_width = "32")]
 macro_rules! ptr_modifier {
     () => {
         ":e"
     };
 }
-#[cfg(target_feature = "sse")]
 #[cfg(target_pointer_width = "64")]
 macro_rules! ptr_modifier {
     () => {
@@ -179,6 +176,36 @@ unsafe fn cmpxchg16b(
                     if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback })
             }
         }
+    }
+}
+
+// 128-bit atomic load by two 64-bit atomic loads.
+//
+// This is based on the code generated for the first load in DW RMWs by LLVM,
+// but it is interesting that they generate code that does mixed-sized atomic access.
+#[inline]
+unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
+    debug_assert!(src as usize % 16 == 0);
+
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(miri, sanitize_thread))]
+    // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
+    unsafe {
+        atomic_load(src, Ordering::Relaxed)
+    }
+    #[cfg(not(any(miri, sanitize_thread)))]
+    // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
+    unsafe {
+        let (prev_lo, prev_hi);
+        asm!(
+            concat!("mov {prev_lo}, qword ptr [{src", ptr_modifier!(), "}]"),
+            concat!("mov {prev_hi}, qword ptr [{src", ptr_modifier!(), "} + 8]"),
+            src = in(reg) src,
+            prev_lo = out(reg) prev_lo,
+            prev_hi = out(reg) prev_hi,
+            options(nostack, preserves_flags, readonly),
+        );
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
 
@@ -344,364 +371,55 @@ unsafe fn atomic_compare_exchange(
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[inline]
+unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+where
+    F: FnMut(u128) -> u128,
+{
+    let failure = strongest_failure_ordering(order);
+    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    unsafe {
+        // This is based on the code generated for the first load in DW RMWs by LLVM,
+        // but it is interesting that they generate code that does mixed-sized atomic access.
+        //
+        // This is not single-copy atomic reads, but this is ok because subsequent
+        // CAS will check for consistency.
+        //
+        // byte_wise_atomic_load works the same way as seqlock's byte-wise atomic memcpy,
+        // so it works well even when CAS calls global lock-based fallback.
+        //
+        // Note that the C++20 memory model does not allow mixed-sized atomic access,
+        // so we must use inline assembly for all 128-bit atomic operations
+        // (i.e., core::arch::x86_64::cmpxchg16b cannot be used).
+        // Since fallback's byte-wise atomic memcpy is per 64-bit,
+        // we can use the standard library's atomic types in fallback.
+        let mut old = byte_wise_atomic_load(dst);
+        loop {
+            let next = f(old);
+            match atomic_compare_exchange_weak(dst, old, next, order, failure) {
+                Ok(x) => return x,
+                Err(x) => old = x,
+            }
+        }
+    }
+}
+
+#[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let failure = strongest_failure_ordering(order);
-    let mut old = val;
-    let new = val;
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => old = x,
-        }
-    }
+    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    unsafe { atomic_update(dst, order, |_| val) }
 }
 
 #[inline]
-unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = 0;
-    let mut new = val;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_add`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = x.wrapping_add(val);
-            }
-        }
-    }
+fn is_lock_free() -> bool {
+    detect::has_cmpxchg16b()
 }
-
 #[inline]
-unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = val;
-    let mut new = 0;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = x.wrapping_sub(val);
-            }
-        }
-    }
+const fn is_always_lock_free() -> bool {
+    cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b",))
 }
 
-#[inline]
-unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = 0;
-    let mut new = 0;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_and`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = x & val;
-            }
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = 0;
-    let mut new = !0;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = !(x & val);
-            }
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = 0;
-    let mut new = val;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_or`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = x | val;
-            }
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = 0;
-    let mut new = val;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = x ^ val;
-            }
-        }
-    }
-}
-
-#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
-#[inline]
-unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    let mut old = i128::MIN as u128;
-    let mut new = val as u128;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_max`.
-        match unsafe { atomic_compare_exchange(dst.cast(), old, new, order, failure) } {
-            Ok(old) => return old as i128,
-            Err(x) => {
-                old = x;
-                new = core::cmp::max(x as i128, val) as u128;
-            }
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = u128::MIN;
-    let mut new = val;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = core::cmp::max(x, val);
-            }
-        }
-    }
-}
-
-#[allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
-#[inline]
-unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    let mut old = i128::MAX as u128;
-    let mut new = val as u128;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_min`.
-        match unsafe { atomic_compare_exchange(dst.cast(), old, new, order, failure) } {
-            Ok(old) => return old as i128,
-            Err(x) => {
-                old = x;
-                new = core::cmp::min(x as i128, val) as u128;
-            }
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    let mut old = u128::MAX;
-    let mut new = val;
-    let failure = strongest_failure_ordering(order);
-    loop {
-        // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
-        match unsafe { atomic_compare_exchange(dst, old, new, order, failure) } {
-            Ok(old) => return old,
-            Err(x) => {
-                old = x;
-                new = core::cmp::min(x, val);
-            }
-        }
-    }
-}
-
-macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        #[repr(C, align(16))]
-        pub(crate) struct $atomic_type {
-            v: UnsafeCell<$int_type>,
-        }
-
-        // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic operations.
-        unsafe impl Sync for $atomic_type {}
-
-        impl $atomic_type {
-            #[inline]
-            pub(crate) const fn new(v: $int_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
-            }
-
-            #[inline]
-            pub(crate) fn is_lock_free() -> bool {
-                detect::has_cmpxchg16b()
-            }
-            #[inline]
-            pub(crate) const fn is_always_lock_free() -> bool {
-                cfg!(any(
-                    target_feature = "cmpxchg16b",
-                    portable_atomic_target_feature = "cmpxchg16b",
-                ))
-            }
-
-            #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                self.v.get_mut()
-            }
-
-            #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.v.into_inner()
-            }
-
-            #[inline]
-            pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_load(self.v.get().cast(), order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_store(self.v.get().cast(), val as u128, order) }
-            }
-
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_swap(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    match atomic_compare_exchange(
-                        self.v.get().cast(),
-                        current as u128,
-                        new as u128,
-                        success,
-                        failure,
-                    ) {
-                        Ok(v) => Ok(v as $int_type),
-                        Err(v) => Err(v as $int_type),
-                    }
-                }
-            }
-
-            #[inline]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    match atomic_compare_exchange_weak(
-                        self.v.get().cast(),
-                        current as u128,
-                        new as u128,
-                        success,
-                        failure,
-                    ) {
-                        Ok(v) => Ok(v as $int_type),
-                        Err(v) => Err(v as $int_type),
-                    }
-                }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { $atomic_max(self.v.get(), val, order) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { $atomic_min(self.v.get(), val, order) }
-            }
-        }
-    };
-}
-
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(AtomicI128, i128);
+atomic128!(AtomicU128, u128);
 
 #[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
@@ -721,9 +439,10 @@ mod tests {
 
     #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     mod quickcheck {
-        use crate::tests::helper::Align16;
+        use core::cell::UnsafeCell;
 
         use super::super::*;
+        use crate::tests::helper::Align16;
 
         ::quickcheck::quickcheck! {
             #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
@@ -763,4 +482,110 @@ mod tests {
             }
         }
     }
+}
+
+#[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
+#[cfg(test)]
+mod tests_no_cmpxchg16b {
+    use super::*;
+
+    #[inline(never)]
+    unsafe fn cmpxchg16b(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+        failure: Ordering,
+    ) -> (u128, bool) {
+        #[allow(clippy::cast_ptr_alignment)]
+        unsafe {
+            match (*(dst as *const super::super::fallback::AtomicU128))
+                .compare_exchange(old, new, success, failure)
+            {
+                Ok(v) => (v, true),
+                Err(v) => (v, false),
+            }
+        }
+    }
+    #[inline]
+    unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
+        debug_assert!(src as usize % 16 == 0);
+
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(any(miri, sanitize_thread))]
+        unsafe {
+            atomic_load(src, Ordering::Relaxed)
+        }
+        #[cfg(not(any(miri, sanitize_thread)))]
+        unsafe {
+            super::byte_wise_atomic_load(src)
+        }
+    }
+
+    #[inline(never)]
+    unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+        let fail_order = strongest_failure_ordering(order);
+        unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+    }
+
+    #[inline(never)]
+    unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+        unsafe {
+            atomic_swap(dst, val, order);
+        }
+    }
+
+    #[inline]
+    unsafe fn atomic_compare_exchange(
+        dst: *mut u128,
+        old: u128,
+        new: u128,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<u128, u128> {
+        let success = crate::utils::upgrade_success_ordering(success, failure);
+        let (res, ok) = unsafe { cmpxchg16b(dst, old, new, success, failure) };
+        if ok {
+            Ok(res)
+        } else {
+            Err(res)
+        }
+    }
+
+    use atomic_compare_exchange as atomic_compare_exchange_weak;
+
+    #[inline]
+    unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+    where
+        F: FnMut(u128) -> u128,
+    {
+        let failure = strongest_failure_ordering(order);
+        unsafe {
+            let mut old = byte_wise_atomic_load(dst);
+            loop {
+                let next = f(old);
+                match atomic_compare_exchange_weak(dst, old, next, order, failure) {
+                    Ok(x) => return x,
+                    Err(x) => old = x,
+                }
+            }
+        }
+    }
+
+    #[inline]
+    unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+        unsafe { atomic_update(dst, order, |_| val) }
+    }
+
+    #[inline]
+    const fn is_always_lock_free() -> bool {
+        false
+    }
+    use is_always_lock_free as is_lock_free;
+
+    atomic128!(AtomicI128, i128);
+    atomic128!(AtomicU128, u128);
+
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 }

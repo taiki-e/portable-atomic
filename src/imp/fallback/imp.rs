@@ -1,11 +1,18 @@
-use core::{
-    cell::UnsafeCell,
-    mem,
-    sync::atomic::{AtomicUsize, Ordering},
-};
+use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use super::{SeqLock, SeqLockWriteGuard};
 use crate::utils::{assert_compare_exchange_ordering, CachePadded};
+
+// aarch64 and x86_64 have ABI with 32-bit pointer width (x86_64 X32 ABI, aarch64 ILP32 ABI).
+// On those targets, AtomicU64 is fast, so use it to reduce chunks of byte-wise atomic memcpy.
+#[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
+use core::sync::atomic::AtomicU64 as AtomicChunk;
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+use core::sync::atomic::AtomicUsize as AtomicChunk;
+#[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
+type Chunk = u64;
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+type Chunk = usize;
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]
@@ -38,22 +45,22 @@ macro_rules! atomic {
         }
 
         impl $atomic_type {
-            const LEN: usize = mem::size_of::<$int_type>() / mem::size_of::<usize>();
+            const LEN: usize = mem::size_of::<$int_type>() / mem::size_of::<Chunk>();
 
             #[inline]
-            unsafe fn chunks(&self) -> &[AtomicUsize; Self::LEN] {
+            unsafe fn chunks(&self) -> &[AtomicChunk; Self::LEN] {
                 static_assert!($atomic_type::LEN > 1);
-                static_assert!(mem::size_of::<$int_type>() % mem::size_of::<usize>() == 0);
+                static_assert!(mem::size_of::<$int_type>() % mem::size_of::<Chunk>() == 0);
 
                 // SAFETY: the caller must uphold the safety contract for `chunks`.
-                unsafe { &*(self.v.get() as *const $int_type as *const [AtomicUsize; Self::LEN]) }
+                unsafe { &*(self.v.get() as *const $int_type as *const [AtomicChunk; Self::LEN]) }
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
-                let mut dst = [0_usize; Self::LEN];
+                let mut dst: [Chunk; Self::LEN] = [0; Self::LEN];
                 for i in 0..Self::LEN {
                     // SAFETY:
                     // - There are no threads that perform non-atomic concurrent write operations.
@@ -78,7 +85,7 @@ macro_rules! atomic {
                     }
                 }
                 // SAFETY: integers are plain old datatypes so we can always transmute to them.
-                unsafe { mem::transmute::<[usize; Self::LEN], $int_type>(dst) }
+                unsafe { mem::transmute::<[Chunk; Self::LEN], $int_type>(dst) }
             }
 
             #[inline]
@@ -104,7 +111,7 @@ macro_rules! atomic {
             #[inline]
             fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard) {
                 // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
-                let val = unsafe { mem::transmute::<$int_type, [usize; Self::LEN]>(val) };
+                let val = unsafe { mem::transmute::<$int_type, [Chunk; Self::LEN]>(val) };
                 for i in 0..Self::LEN {
                     // SAFETY:
                     // - The guard guarantees that we hold the lock to write.
