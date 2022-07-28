@@ -416,6 +416,12 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     unsafe { atomic_update(dst, order, |_| val) }
 }
 
+#[inline]
+const fn is_always_lock_free() -> bool {
+    true
+}
+use is_always_lock_free as is_lock_free;
+
 atomic128!(AtomicI128, i128);
 atomic128!(AtomicU128, u128);
 
