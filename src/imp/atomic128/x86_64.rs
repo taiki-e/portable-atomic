@@ -298,11 +298,14 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe {
             ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128;
-            // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
-            if detect::has_cmpxchg16b() && detect::is_intel_and_has_avx() {
-                _atomic_load_vmovdqa
-            } else {
-                _atomic_load_cmpxchg16b
+            {
+                // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+                let cpuid = detect::cpuid();
+                if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
+                    _atomic_load_vmovdqa
+                } else {
+                    _atomic_load_cmpxchg16b
+                }
             })
         },
     }
@@ -340,11 +343,14 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe {
             ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering);
-            // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
-            if detect::has_cmpxchg16b() && detect::is_intel_and_has_avx() {
-                _atomic_store_vmovdqa
-            } else {
-                _atomic_store_cmpxchg16b
+            {
+                // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+                let cpuid = detect::cpuid();
+                if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
+                    _atomic_store_vmovdqa
+                } else {
+                    _atomic_store_cmpxchg16b
+                }
             });
         },
     }

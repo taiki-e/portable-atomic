@@ -11,7 +11,7 @@ use core::{
 };
 
 #[derive(Clone, Copy)]
-struct CpuInfo(u32);
+pub(crate) struct CpuInfo(u32);
 
 impl CpuInfo {
     const INIT: u32 = 0;
@@ -25,6 +25,27 @@ impl CpuInfo {
     #[inline]
     fn test(self, bit: u32) -> bool {
         test(self.0, bit)
+    }
+
+    #[allow(clippy::unused_self)]
+    #[inline]
+    pub(crate) fn has_cmpxchg16b(self) -> bool {
+        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
+        {
+            // cmpxchg16b is statically available.
+            true
+        }
+        #[cfg(not(any(
+            target_feature = "cmpxchg16b",
+            portable_atomic_target_feature = "cmpxchg16b"
+        )))]
+        {
+            self.test(CpuInfo::HAS_CMPXCHG16B)
+        }
+    }
+    #[inline]
+    pub(crate) fn is_intel_and_has_avx(self) -> bool {
+        self.test(CpuInfo::IS_INTEL_AND_HAS_AVX)
     }
 }
 
@@ -92,7 +113,7 @@ fn _cpuid(info: &mut CpuInfo) {
 }
 
 #[inline]
-fn cpuid() -> CpuInfo {
+pub(crate) fn cpuid() -> CpuInfo {
     static CACHE: AtomicU32 = AtomicU32::new(0);
     let mut info = CpuInfo(CACHE.load(Ordering::Relaxed));
     if info.0 != 0 {
@@ -103,6 +124,8 @@ fn cpuid() -> CpuInfo {
     info
 }
 
+/// Equivalent to `cpuid().has_cmpxchg16b()`, but avoids calling `cpuid()`
+/// if cmpxchg16b is statically available.
 #[inline]
 pub(crate) fn has_cmpxchg16b() -> bool {
     #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
@@ -112,13 +135,8 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     }
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     {
-        cpuid().test(CpuInfo::HAS_CMPXCHG16B)
+        cpuid().has_cmpxchg16b()
     }
-}
-
-#[inline]
-pub(crate) fn is_intel_and_has_avx() -> bool {
-    cpuid().test(CpuInfo::IS_INTEL_AND_HAS_AVX)
 }
 
 #[allow(clippy::undocumented_unsafe_blocks)]
@@ -153,7 +171,7 @@ mod tests {
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), has_cmpxchg16b());
         if unsafe { _vendor_id() } == *b"GenuineIntel" {
-            assert_eq!(std::is_x86_feature_detected!("avx"), is_intel_and_has_avx());
+            assert_eq!(std::is_x86_feature_detected!("avx"), cpuid().is_intel_and_has_avx());
         }
     }
 }
