@@ -19,12 +19,14 @@
 // vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
 // counter will not be increased that fast.
 //
-// aarch64 and x86_64 have ABI with 32-bit pointer width (x86_64 X32 ABI, aarch64 ILP32 ABI).
-// On those targets, AtomicU64 is fast, so use it to implement normal sequence lock.
+// Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
+// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
+// so use it to implement normal sequence lock.
 #[cfg(any(
     target_pointer_width = "64",
     target_pointer_width = "128",
     target_arch = "aarch64",
+    target_arch = "mips64",
     target_arch = "x86_64",
 ))]
 mod seq_lock;
@@ -32,6 +34,7 @@ mod seq_lock;
     target_pointer_width = "64",
     target_pointer_width = "128",
     target_arch = "aarch64",
+    target_arch = "mips64",
     target_arch = "x86_64",
 )))]
 #[path = "seq_lock_wide.rs"]
