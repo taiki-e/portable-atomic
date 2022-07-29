@@ -394,10 +394,10 @@ where
         // so it works well even when CAS calls global lock-based fallback.
         //
         // Note that the C++20 memory model does not allow mixed-sized atomic access,
-        // so we must use inline assembly for all 128-bit atomic operations
-        // (i.e., core::arch::x86_64::cmpxchg16b cannot be used).
-        // Since fallback's byte-wise atomic memcpy is per 64-bit,
-        // we can use the standard library's atomic types in fallback.
+        // so we must use inline assembly to implement this. (i.e., byte-wise atomic
+        // based on standard library's atomic types cannot be used here).
+        // Since fallback's byte-wise atomic memcpy is per 64-bit on x86_64,
+        // it's okay to use it together with this.
         let mut old = byte_wise_atomic_load(dst);
         loop {
             let next = f(old);
