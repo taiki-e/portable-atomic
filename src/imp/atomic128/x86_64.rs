@@ -44,7 +44,7 @@ struct Pair {
     hi: u64,
 }
 
-#[inline]
+#[inline(always)]
 unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     debug_assert!(dst as usize % 16 == 0);
 
