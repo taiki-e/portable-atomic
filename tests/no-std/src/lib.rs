@@ -67,7 +67,10 @@ cfg_target_has_atomic! {
         val.store(10, Ordering::SeqCst);
         assert_eq!(val.swap(15, Ordering::SeqCst), 10);
         assert_eq!(val.compare_exchange(15, 20, Ordering::SeqCst, Ordering::SeqCst).unwrap(), 15);
-        assert!(val.compare_exchange_weak(15, 20, Ordering::SeqCst, Ordering::SeqCst).is_err());
+        assert_eq!(
+            val.compare_exchange_weak(15, 20, Ordering::SeqCst, Ordering::SeqCst).unwrap_err(),
+            20,
+        );
         assert_eq!(val.fetch_add(5, Ordering::SeqCst), 20);
         assert_eq!(val.fetch_sub(5, Ordering::SeqCst), 25);
         assert_eq!(val.load(Ordering::SeqCst), 20);
