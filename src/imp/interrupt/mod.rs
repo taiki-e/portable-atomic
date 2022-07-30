@@ -204,6 +204,7 @@ impl AtomicBool {
 #[cfg_attr(target_pointer_width = "16", repr(C, align(2)))]
 #[cfg_attr(target_pointer_width = "32", repr(C, align(4)))]
 #[cfg_attr(target_pointer_width = "64", repr(C, align(8)))]
+#[cfg_attr(target_pointer_width = "128", repr(C, align(16)))]
 pub(crate) struct AtomicPtr<T> {
     p: UnsafeCell<*mut T>,
 }
@@ -524,6 +525,10 @@ atomic_int!(load_store_atomic, AtomicUsize, usize, 4);
 atomic_int!(load_store_atomic, AtomicIsize, isize, 8);
 #[cfg(target_pointer_width = "64")]
 atomic_int!(load_store_atomic, AtomicUsize, usize, 8);
+#[cfg(target_pointer_width = "128")]
+atomic_int!(load_store_atomic, AtomicIsize, isize, 16);
+#[cfg(target_pointer_width = "128")]
+atomic_int!(load_store_atomic, AtomicUsize, usize, 16);
 
 atomic_int!(load_store_atomic, AtomicI8, i8, 1);
 atomic_int!(load_store_atomic, AtomicU8, u8, 1);

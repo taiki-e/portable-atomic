@@ -130,9 +130,9 @@ pub(crate) use self::core_atomic::{
 pub(crate) use self::msp430::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
-// riscv32 without A-extension
+// riscv without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
-#[cfg(target_arch = "riscv32")]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::riscv::{
@@ -175,9 +175,9 @@ pub(crate) use self::interrupt::{
     ))
 )]
 pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
-// riscv32 without A-extension
+// riscv without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
-#[cfg(target_arch = "riscv32")]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::riscv::{AtomicI32, AtomicU32};

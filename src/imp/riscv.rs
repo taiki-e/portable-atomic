@@ -300,9 +300,9 @@ mod tests {
     test_atomic_int_load_store!(u16);
     test_atomic_int_load_store!(i32);
     test_atomic_int_load_store!(u32);
-    #[cfg(target_pointer_width = "64")]
+    #[cfg(target_arch = "riscv64")]
     test_atomic_int_load_store!(i64);
-    #[cfg(target_pointer_width = "64")]
+    #[cfg(target_arch = "riscv64")]
     test_atomic_int_load_store!(u64);
     test_atomic_int_load_store!(isize);
     test_atomic_int_load_store!(usize);

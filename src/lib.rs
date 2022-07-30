@@ -150,7 +150,10 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
         portable_atomic_no_asm,
         any(
             portable_atomic_armv6m,
-            all(target_arch = "riscv32", portable_atomic_no_atomic_load_store),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                portable_atomic_no_atomic_load_store
+            ),
             target_arch = "aarch64",
             target_arch = "x86_64",
         ),
@@ -184,14 +187,22 @@ compile_error!(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         not(portable_atomic_no_atomic_cas),
-        not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
+        not(any(
+            portable_atomic_armv6m,
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            target_pointer_width = "16"
+        ))
     ))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "ptr",
-        not(any(portable_atomic_armv6m, target_arch = "riscv32", target_pointer_width = "16"))
+        not(any(
+            portable_atomic_armv6m,
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            target_pointer_width = "16"
+        ))
     ))
 )]
 compile_error!(
@@ -2492,7 +2503,7 @@ atomic_int!(AtomicU8, u8, 1);
 atomic_int!(AtomicI16, i16, 2);
 atomic_int!(AtomicU16, u16, 2);
 
-// cfg(any(target_has_atomic_load_store = "32", target_arch = "riscv32", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
+// cfg(any(target_has_atomic_load_store = "32", target_arch = "riscv32", target_arch = "riscv64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
 #[cfg(any(
     not(target_pointer_width = "16"),
     all(feature = "fallback", portable_atomic_unsafe_assume_single_core)

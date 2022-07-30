@@ -163,7 +163,7 @@ build() {
         *) args+=(--exclude-features "outline-atomics") ;;
     esac
     case "${target}" in
-        *-none* | avr-* | riscv32imc-esp-espidf)
+        *-none* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
             cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
