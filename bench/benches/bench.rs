@@ -6,10 +6,10 @@
 use std::{
     hint,
     sync::{atomic::Ordering, Barrier},
+    thread,
 };
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use crossbeam_utils::thread;
 
 #[macro_use]
 #[allow(dead_code, unused_macros)]
@@ -112,15 +112,14 @@ fn bench_concurrent_load<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     let barrier = Barrier::new(THREADS);
     thread::scope(|s| {
         for _ in 0..THREADS {
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for _ in 0..N {
                     let _ = black_box(a.load());
                 }
             });
         }
-    })
-    .unwrap();
+    });
     a
 }
 fn bench_concurrent_load_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
@@ -128,21 +127,21 @@ fn bench_concurrent_load_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     let barrier = Barrier::new(THREADS * 2);
     thread::scope(|s| {
         for i in 0..THREADS {
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for _ in 0..N {
                     let _ = black_box(a.load());
                 }
             });
             if i % 2 == 0 {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in 0..N {
                         a.store(T::from(i));
                     }
                 });
             } else {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in (0..N).rev() {
                         a.store(T::from(i));
@@ -150,8 +149,7 @@ fn bench_concurrent_load_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
                 });
             }
         }
-    })
-    .unwrap();
+    });
     a
 }
 fn bench_concurrent_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
@@ -159,21 +157,20 @@ fn bench_concurrent_store<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     let barrier = Barrier::new(THREADS * 2);
     thread::scope(|s| {
         for _ in 0..THREADS {
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for i in 0..N {
                     a.store(T::from(i));
                 }
             });
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for i in (0..N).rev() {
                     a.store(T::from(i));
                 }
             });
         }
-    })
-    .unwrap();
+    });
     a
 }
 fn bench_concurrent_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
@@ -181,21 +178,20 @@ fn bench_concurrent_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     let barrier = Barrier::new(THREADS * 2);
     thread::scope(|s| {
         for _ in 0..THREADS {
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for i in 0..N {
                     let _ = black_box(a.swap(T::from(i)));
                 }
             });
-            s.spawn(|_| {
+            s.spawn(|| {
                 barrier.wait();
                 for i in (0..N).rev() {
                     let _ = black_box(a.swap(T::from(i)));
                 }
             });
         }
-    })
-    .unwrap();
+    });
     a
 }
 fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
@@ -204,14 +200,14 @@ fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     thread::scope(|s| {
         for i in 0..THREADS {
             if i % 2 == 0 {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in 0..N {
                         a.store(T::from(i));
                     }
                 });
             } else {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in (0..N).rev() {
                         a.store(T::from(i));
@@ -219,14 +215,14 @@ fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
                 });
             }
             if i % 2 == 0 {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in (0..N).rev() {
                         a.swap(T::from(i));
                     }
                 });
             } else {
-                s.spawn(|_| {
+                s.spawn(|| {
                     barrier.wait();
                     for i in 0..N {
                         a.swap(T::from(i));
@@ -234,8 +230,7 @@ fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
                 });
             }
         }
-    })
-    .unwrap();
+    });
     a
 }
 
