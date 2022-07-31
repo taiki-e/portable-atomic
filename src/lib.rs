@@ -7,6 +7,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr) (optional, [single-core only](#optional-cfg))
+- Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/nightly/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
 ## 128-bit atomics support
@@ -165,6 +166,11 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
+)]
+// miri only
+#![cfg_attr(
+    all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr),
+    feature(strict_provenance_atomic_ptr)
 )]
 // docs only
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -1242,8 +1248,407 @@ impl<T> AtomicPtr<T> {
         Err(prev)
     }
 
-    // TODO: add fetch_ptr_add, fetch_ptr_sub, fetch_byte_add, fetch_byte_sub, fetch_or, fetch_and, fetch_xor
-    // https://github.com/rust-lang/rust/pull/96935
+    /// Offsets the pointer's address by adding `val` (in units of `T`),
+    /// returning the previous pointer.
+    ///
+    /// This is equivalent to using [`wrapping_add`] to atomically perform the
+    /// equivalent of `ptr = ptr.wrapping_add(val);`.
+    ///
+    /// This method operates in units of `T`, which means that it cannot be used
+    /// to offset the pointer by an amount which is not a multiple of
+    /// `size_of::<T>()`. This can sometimes be inconvenient, as you may want to
+    /// work with a deliberately misaligned pointer. In such cases, you may use
+    /// the [`fetch_byte_add`](Self::fetch_byte_add) method instead.
+    ///
+    /// `fetch_ptr_add` takes an [`Ordering`] argument which describes the
+    /// memory ordering of this operation. All ordering modes are possible. Note
+    /// that using [`Acquire`] makes the store part of this operation
+    /// [`Relaxed`], and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// [`wrapping_add`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.wrapping_add
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+    /// assert_eq!(atom.fetch_ptr_add(1, Ordering::Relaxed).addr(), 0);
+    /// // Note: units of `size_of::<i64>()`.
+    /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 8);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
+        self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
+    }
+
+    /// Offsets the pointer's address by subtracting `val` (in units of `T`),
+    /// returning the previous pointer.
+    ///
+    /// This is equivalent to using [`wrapping_sub`] to atomically perform the
+    /// equivalent of `ptr = ptr.wrapping_sub(val);`.
+    ///
+    /// This method operates in units of `T`, which means that it cannot be used
+    /// to offset the pointer by an amount which is not a multiple of
+    /// `size_of::<T>()`. This can sometimes be inconvenient, as you may want to
+    /// work with a deliberately misaligned pointer. In such cases, you may use
+    /// the [`fetch_byte_sub`](Self::fetch_byte_sub) method instead.
+    ///
+    /// `fetch_ptr_sub` takes an [`Ordering`] argument which describes the memory
+    /// ordering of this operation. All ordering modes are possible. Note that
+    /// using [`Acquire`] makes the store part of this operation [`Relaxed`],
+    /// and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// [`wrapping_sub`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.wrapping_sub
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    ///
+    /// let array = [1i32, 2i32];
+    /// let atom = AtomicPtr::new(array.as_ptr().wrapping_add(1) as *mut _);
+    ///
+    /// assert!(core::ptr::eq(atom.fetch_ptr_sub(1, Ordering::Relaxed), &array[1],));
+    /// assert!(core::ptr::eq(atom.load(Ordering::Relaxed), &array[0]));
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
+        self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
+    }
+
+    /// Offsets the pointer's address by adding `val` *bytes*, returning the
+    /// previous pointer.
+    ///
+    /// This is equivalent to using [`wrapping_add`] and [`cast`] to atomically
+    /// perform `ptr = ptr.cast::<u8>().wrapping_add(val).cast::<T>()`.
+    ///
+    /// `fetch_byte_add` takes an [`Ordering`] argument which describes the
+    /// memory ordering of this operation. All ordering modes are possible. Note
+    /// that using [`Acquire`] makes the store part of this operation
+    /// [`Relaxed`], and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// [`wrapping_add`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.wrapping_add
+    /// [`cast`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.cast
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+    /// assert_eq!(atom.fetch_byte_add(1, Ordering::Relaxed).addr(), 0);
+    /// // Note: in units of bytes, not `size_of::<i64>()`.
+    /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 1);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        {
+            self.inner.fetch_byte_add(val, order)
+        }
+        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        {
+            self.as_atomic_usize().fetch_add(val, order) as *mut T
+        }
+    }
+
+    /// Offsets the pointer's address by subtracting `val` *bytes*, returning the
+    /// previous pointer.
+    ///
+    /// This is equivalent to using [`wrapping_sub`] and [`cast`] to atomically
+    /// perform `ptr = ptr.cast::<u8>().wrapping_sub(val).cast::<T>()`.
+    ///
+    /// `fetch_byte_sub` takes an [`Ordering`] argument which describes the
+    /// memory ordering of this operation. All ordering modes are possible. Note
+    /// that using [`Acquire`] makes the store part of this operation
+    /// [`Relaxed`], and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// [`wrapping_sub`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.wrapping_sub
+    /// [`cast`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.cast
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let atom = AtomicPtr::<i64>::new(sptr::invalid_mut(1));
+    /// assert_eq!(atom.fetch_byte_sub(1, Ordering::Relaxed).addr(), 1);
+    /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 0);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        {
+            self.inner.fetch_byte_sub(val, order)
+        }
+        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        {
+            self.as_atomic_usize().fetch_sub(val, order) as *mut T
+        }
+    }
+
+    /// Performs a bitwise "or" operation on the address of the current pointer,
+    /// and the argument `val`, and stores a pointer with provenance of the
+    /// current pointer and the resulting address.
+    ///
+    /// This is equivalent equivalent to using [`map_addr`] to atomically
+    /// perform `ptr = ptr.map_addr(|a| a | val)`. This can be used in tagged
+    /// pointer schemes to atomically set tag bits.
+    ///
+    /// **Caveat**: This operation returns the previous value. To compute the
+    /// stored value without losing provenance, you may use [`map_addr`]. For
+    /// example: `a.fetch_or(val).map_addr(|a| a | val)`.
+    ///
+    /// `fetch_or` takes an [`Ordering`] argument which describes the memory
+    /// ordering of this operation. All ordering modes are possible. Note that
+    /// using [`Acquire`] makes the store part of this operation [`Relaxed`],
+    /// and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This API and its claimed semantics are part of the Strict Provenance
+    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// details.
+    ///
+    /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    ///
+    /// let atom = AtomicPtr::<i64>::new(pointer);
+    /// // Tag the bottom bit of the pointer.
+    /// assert_eq!(atom.fetch_or(1, Ordering::Relaxed).addr() & 1, 0);
+    /// // Extract and untag.
+    /// let tagged = atom.load(Ordering::Relaxed);
+    /// assert_eq!(tagged.addr() & 1, 1);
+    /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        {
+            self.inner.fetch_or(val, order)
+        }
+        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        {
+            self.as_atomic_usize().fetch_or(val, order) as *mut T
+        }
+    }
+
+    /// Performs a bitwise "and" operation on the address of the current
+    /// pointer, and the argument `val`, and stores a pointer with provenance of
+    /// the current pointer and the resulting address.
+    ///
+    /// This is equivalent equivalent to using [`map_addr`] to atomically
+    /// perform `ptr = ptr.map_addr(|a| a & val)`. This can be used in tagged
+    /// pointer schemes to atomically unset tag bits.
+    ///
+    /// **Caveat**: This operation returns the previous value. To compute the
+    /// stored value without losing provenance, you may use [`map_addr`]. For
+    /// example: `a.fetch_and(val).map_addr(|a| a & val)`.
+    ///
+    /// `fetch_and` takes an [`Ordering`] argument which describes the memory
+    /// ordering of this operation. All ordering modes are possible. Note that
+    /// using [`Acquire`] makes the store part of this operation [`Relaxed`],
+    /// and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This API and its claimed semantics are part of the Strict Provenance
+    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// details.
+    ///
+    /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    /// // A tagged pointer
+    /// let atom = AtomicPtr::<i64>::new(pointer.map_addr(|a| a | 1));
+    /// assert_eq!(atom.fetch_or(1, Ordering::Relaxed).addr() & 1, 1);
+    /// // Untag, and extract the previously tagged pointer.
+    /// let untagged = atom.fetch_and(!1, Ordering::Relaxed).map_addr(|a| a & !1);
+    /// assert_eq!(untagged, pointer);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        {
+            self.inner.fetch_and(val, order)
+        }
+        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        {
+            self.as_atomic_usize().fetch_and(val, order) as *mut T
+        }
+    }
+
+    /// Performs a bitwise "xor" operation on the address of the current
+    /// pointer, and the argument `val`, and stores a pointer with provenance of
+    /// the current pointer and the resulting address.
+    ///
+    /// This is equivalent equivalent to using [`map_addr`] to atomically
+    /// perform `ptr = ptr.map_addr(|a| a ^ val)`. This can be used in tagged
+    /// pointer schemes to atomically toggle tag bits.
+    ///
+    /// **Caveat**: This operation returns the previous value. To compute the
+    /// stored value without losing provenance, you may use [`map_addr`]. For
+    /// example: `a.fetch_xor(val).map_addr(|a| a ^ val)`.
+    ///
+    /// `fetch_xor` takes an [`Ordering`] argument which describes the memory
+    /// ordering of this operation. All ordering modes are possible. Note that
+    /// using [`Acquire`] makes the store part of this operation [`Relaxed`],
+    /// and using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This API and its claimed semantics are part of the Strict Provenance
+    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// details.
+    ///
+    /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    /// let atom = AtomicPtr::<i64>::new(pointer);
+    ///
+    /// // Toggle a tag bit on the pointer.
+    /// atom.fetch_xor(1, Ordering::Relaxed);
+    /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
+    /// ```
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        {
+            self.inner.fetch_xor(val, order)
+        }
+        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        {
+            self.as_atomic_usize().fetch_xor(val, order) as *mut T
+        }
+    }
+
+    #[cfg(not(miri))]
+    #[inline]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    fn as_atomic_usize(&self) -> &AtomicUsize {
+        let [] = [(); core::mem::size_of::<AtomicPtr<()>>() - core::mem::size_of::<AtomicUsize>()];
+        let [] =
+            [(); core::mem::align_of::<AtomicPtr<()>>() - core::mem::align_of::<AtomicUsize>()];
+        // SAFETY: AtomicPtr and AtomicUsize have the same layout,
+        // and both access data in the same way.
+        unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
+    }
 }
 
 macro_rules! atomic_int {

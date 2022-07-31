@@ -10,6 +10,15 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Provide stable equivalent of [`#![feature(strict_provenance_atomic_ptr)]`](https://github.com/rust-lang/rust/issues/99108).
+
+  - `AtomicPtr::fetch_ptr_{add,sub}`
+  - `AtomicPtr::fetch_byte_{add,sub}`
+  - `AtomicPtr::fetch_{or,and,xor}`
+
+  These APIs are compatible with strict-provenance on `cfg(miri)`. Otherwise, they are compatible with permissive-provenance.
+  Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized, these APIs will be strict-provenance compatible in all cases from the version in which it is stabilized.
+
 ## [0.3.6] - 2022-07-26
 
 - Fix build failure due to the existence of the `specs` directory.
