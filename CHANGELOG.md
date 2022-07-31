@@ -27,6 +27,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Optimize x86_64 outline-atomics.
 
+- Optimize inline assemblies on ARM and AArch64.
+
 - Revert [thumbv6m atomic load/store changes made in 0.3.5](https://github.com/taiki-e/portable-atomic/pull/18). This is because [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595) has been reverted, so this is no longer needed.
 
 ## [0.3.6] - 2022-07-26
