@@ -13,6 +13,8 @@ default_targets=(
     riscv32i-unknown-none-elf
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
+    # no atomic load/store (64-bit)
+    riscv64i-unknown-none-elf
 
     # no atomic CAS (32-bit)
     thumbv4t-none-eabi
@@ -129,12 +131,18 @@ x() {
 build() {
     local target="$1"
     shift
-    local args=("${base_args[@]}" --target "${target}")
+    local args=("${base_args[@]}")
     local target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
-        echo "target '${target}' not available on ${rustc_version}"
-        return 0
+        if [[ ! -f "target-specs/${target}.json" ]]; then
+            echo "target '${target}' not available on ${rustc_version}"
+            return 0
+        fi
+        target_flags=(--target "$(pwd)/target-specs/${target}.json")
+    else
+        target_flags=(--target "${target}")
     fi
+    args+=("${target_flags[@]}")
     if [[ "${target}" == "avr-"* ]]; then
         # https://github.com/rust-lang/rust/issues/88252
         target_rustflags="${target_rustflags} -C opt-level=s"
@@ -165,7 +173,7 @@ build() {
     case "${target}" in
         *-none* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
-            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg --target "${target}")
+            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO
