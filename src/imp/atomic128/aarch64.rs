@@ -89,7 +89,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
                     src = in(reg) src,
                     prev_lo = out(reg) prev_lo,
                     prev_hi = out(reg) prev_hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             Ordering::Acquire | Ordering::SeqCst => {
@@ -98,7 +98,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
                     src = in(reg) src,
                     prev_lo = out(reg) prev_lo,
                     prev_hi = out(reg) prev_hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             _ => unreachable!("{:?}", order),
@@ -128,7 +128,7 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
                     r = out(reg) r,
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             Ordering::Release | Ordering::SeqCst => {
@@ -138,7 +138,7 @@ unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
                     r = out(reg) r,
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             _ => unreachable!("{:?}", order),
@@ -180,7 +180,7 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
                     // must be allocated to even/odd register pair
                     in("x4") new.pair.lo,
                     in("x5") new.pair.hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
@@ -217,7 +217,7 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
                     src = in(reg) src,
                     prev_hi = lateout(reg) prev_hi,
                     prev_lo = lateout(reg) prev_lo,
-                    options(nostack $(, $readonly)?),
+                    options(nostack, preserves_flags $(, $readonly)?),
                 )
             };
         }
@@ -253,7 +253,7 @@ unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
                     dst = in(reg) dst,
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
