@@ -112,6 +112,11 @@ fn main() {
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
 
+        // https://github.com/rust-lang/rust/pull/96935 merged in Rust 1.64 (nightly-2022-07-07).
+        if version.probe(64, 2022, 7, 6) {
+            println!("cargo:rustc-cfg=portable_atomic_unstable_strict_provenance_atomic_ptr");
+        }
+
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
         if sanitize.contains("thread") {

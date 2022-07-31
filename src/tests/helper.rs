@@ -1155,6 +1155,7 @@ macro_rules! __test_atomic_bool_pub {
 macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
+        use sptr::Strict;
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(ptr::null_mut());
@@ -1176,6 +1177,87 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
             assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
+        }
+        // https://github.com/rust-lang/rust/blob/76822a28780a9a93be04409e52c5df21663aab97/library/core/tests/atomic.rs#L130-L213
+        #[test]
+        fn ptr_add_null() {
+            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst).addr(), 0);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 8);
+
+            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst).addr(), 8);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 9);
+
+            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst).addr(), 9);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 1);
+
+            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst).addr(), 1);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0);
+        }
+        #[test]
+        fn ptr_add_data() {
+            let num = 0i64;
+            let n = &num as *const i64 as *mut _;
+            let atom = AtomicPtr::<i64>::new(n);
+            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst), n);
+            assert_eq!(atom.load(Ordering::SeqCst), n.wrapping_add(1));
+
+            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst), n.wrapping_add(1));
+            assert_eq!(atom.load(Ordering::SeqCst), n);
+            let bytes_from_n = |b| n.cast::<u8>().wrapping_add(b).cast::<i64>();
+
+            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst), n);
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(1));
+
+            assert_eq!(atom.fetch_byte_add(5, Ordering::SeqCst), bytes_from_n(1));
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(6));
+
+            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst), bytes_from_n(6));
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(5));
+
+            assert_eq!(atom.fetch_byte_sub(5, Ordering::SeqCst), bytes_from_n(5));
+            assert_eq!(atom.load(Ordering::SeqCst), n);
+        }
+        #[test]
+        fn ptr_bitops() {
+            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst).addr(), 0);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0111);
+
+            assert_eq!(atom.fetch_and(0b1101, Ordering::SeqCst).addr(), 0b0111);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0101);
+
+            assert_eq!(atom.fetch_xor(0b1111, Ordering::SeqCst).addr(), 0b0101);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b1010);
+        }
+        #[test]
+        fn ptr_bitops_tagging() {
+            const MASK_TAG: usize = 0b1111;
+            const MASK_PTR: usize = !MASK_TAG;
+
+            #[repr(align(16))]
+            struct Tagme(u128);
+
+            let tagme = Tagme(1000);
+            let ptr = &tagme as *const Tagme as *mut Tagme;
+            let atom: AtomicPtr<Tagme> = AtomicPtr::new(ptr);
+
+            assert_eq!(ptr.addr() & MASK_TAG, 0);
+
+            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst), ptr);
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b111));
+
+            assert_eq!(
+                atom.fetch_and(MASK_PTR | 0b0010, Ordering::SeqCst),
+                ptr.map_addr(|a| a | 0b111)
+            );
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
+
+            assert_eq!(atom.fetch_xor(0b1011, Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
+
+            assert_eq!(atom.fetch_and(MASK_PTR, Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
+            assert_eq!(atom.load(Ordering::SeqCst), ptr);
         }
     };
 }
@@ -1317,6 +1399,7 @@ macro_rules! test_atomic_bool_pub {
 macro_rules! test_atomic_ptr_pub {
     () => {
         #[allow(clippy::undocumented_unsafe_blocks)]
+        #[allow(unstable_name_collisions)]
         mod test_atomic_bool_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
