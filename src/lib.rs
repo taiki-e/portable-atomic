@@ -7,7 +7,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr) (optional, [single-core only](#optional-cfg))
-- Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108).
+- Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/nightly/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
 ## 128-bit atomics support
@@ -778,8 +778,44 @@ impl AtomicBool {
         self.inner.fetch_xor(val, order)
     }
 
-    // TODO: Add fetch_not once it is stable on std atomic types.
-    // https://github.com/rust-lang/rust/issues/98485
+    /// Logical "not" with a boolean value.
+    ///
+    /// Performs a logical "not" operation on the current value, and sets
+    /// the new value to the result.
+    ///
+    /// Returns the previous value.
+    ///
+    /// `fetch_not` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    #[inline]
+    pub fn fetch_not(&self, order: Ordering) -> bool {
+        self.fetch_xor(true, order)
+    }
+
     // TODO: Add as_mut_ptr once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/66893
 

@@ -19,6 +19,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
   These APIs are compatible with strict-provenance on `cfg(miri)`. Otherwise, they are compatible with permissive-provenance.
   Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized, these APIs will be strict-provenance compatible in all cases from the version in which it is stabilized.
 
+- Provide stable equivalent of [`#![feature(atomic_bool_fetch_not)]`](https://github.com/rust-lang/rust/issues/98485). ([#24](https://github.com/taiki-e/portable-atomic/pull/24))
+
+  - `AtomicBool::fetch_not`
+
 - Optimize x86_64 128-bit RMWs. ([#22](https://github.com/taiki-e/portable-atomic/pull/22))
 
 - Optimize x86_64 outline-atomics.
