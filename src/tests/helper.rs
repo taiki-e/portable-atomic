@@ -941,6 +941,19 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
+        #[test]
+        fn fetch_not() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| a.fetch_not(order));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(true);
+                assert_eq!(a.fetch_not(order), true);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_not(order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+            }
+        }
         mod quickcheck {
             use super::super::*;
             use crate::tests::helper::*;
@@ -1005,6 +1018,17 @@ macro_rules! __test_atomic_bool {
                         let a = <$atomic_type>::new(y);
                         assert_eq!(a.fetch_xor(x, order), y);
                         assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                    }
+                    true
+                }
+                fn fetch_not(x: bool, y: bool) -> bool {
+                    for order in swap_orderings() {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_not(order), x);
+                        assert_eq!(a.load(Ordering::Relaxed), !x);
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_not(order), y);
+                        assert_eq!(a.load(Ordering::Relaxed), !y);
                     }
                     true
                 }
