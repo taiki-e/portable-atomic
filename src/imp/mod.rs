@@ -88,7 +88,7 @@ mod fallback;
 
 // On avr, we always use critical section based fallback implementation.
 // avr can be safely assumed to be single-core, so this is sound.
-// <https://github.com/llvm/llvm-project/blob/llvmorg-14.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1080>
+// https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 #[cfg(any(test, portable_atomic_unsafe_assume_single_core, target_arch = "avr"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(

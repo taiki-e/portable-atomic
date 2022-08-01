@@ -196,7 +196,7 @@ fn main() {
         }
         "powerpc64" => {
             if version.nightly && target.starts_with("powerpc64-") {
-                // Only check powerpc64 (be) -- powerpc64le is pwr8+ https://github.com/llvm/llvm-project/blob/2ba5d820e2b0e5016ec706e324060a329f9a83a3/llvm/lib/Target/PowerPC/PPC.td#L652
+                // Only check powerpc64 (be) -- powerpc64le is pwr8+ https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L652
                 if let Some(cpu) = target_cpu() {
                     // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
                     match &*cpu {
