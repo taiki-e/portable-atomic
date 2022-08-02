@@ -59,6 +59,9 @@ fn main() {
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
     // for non-cargo build systems that don't run the build script.
+    if version.minor < 36 {
+        println!("cargo:rustc-cfg=portable_atomic_no_alloc");
+    }
     // underscore_const_names stabilized in Rust 1.37 (nightly-2019-06-18): https://github.com/rust-lang/rust/pull/61347
     if !version.probe(37, 2019, 6, 17) {
         println!("cargo:rustc-cfg=portable_atomic_no_underscore_consts");
@@ -78,6 +81,10 @@ fn main() {
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     if !version.probe(59, 2021, 12, 15) {
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
+    }
+    // const_fn_trait_bound stabilized in Rust 1.61 (nightly-2022-03-08): https://github.com/rust-lang/rust/pull/93827
+    if !version.probe(61, 2022, 3, 7) {
+        println!("cargo:rustc-cfg=portable_atomic_no_const_fn_trait_bound");
     }
     // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621
     if !version.probe(61, 2022, 3, 15) {

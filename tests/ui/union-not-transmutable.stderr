@@ -1,0 +1,21 @@
+error[E0277]: the trait bound `B: Transmutable` is not satisfied
+   --> tests/ui/union-not-transmutable.rs:7:9
+    |
+7   |     f1: B,
+    |         ^ the trait `Transmutable` is not implemented for `B`
+    |
+    = help: the following other types implement trait `Transmutable`:
+              &T
+              *const T
+              *mut T
+              NonNull<T>
+              NonZeroI128
+              NonZeroI16
+              NonZeroI32
+              NonZeroI64
+            and 263 others
+note: required by a bound in `is_transmutable`
+   --> src/lib.rs
+    |
+    |     pub fn is_transmutable<T: crate::Transmutable>() {}
+    |                               ^^^^^^^^^^^^^^^^^^^ required by this bound in `is_transmutable`

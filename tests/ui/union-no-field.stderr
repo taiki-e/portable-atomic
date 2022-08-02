@@ -1,0 +1,11 @@
+error: #[derive(Atomicable)] may not be used on union with no field
+ --> tests/ui/union-no-field.rs:6:7
+  |
+6 | union A {}
+  |       ^
+
+error: unions cannot have zero fields
+ --> tests/ui/union-no-field.rs:6:1
+  |
+6 | union A {}
+  | ^^^^^^^^^^
