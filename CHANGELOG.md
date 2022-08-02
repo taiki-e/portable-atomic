@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.8] - 2022-08-02
+
 - Make aarch64 and s390x 128-bit atomics compatible with Miri and ThreadSanitizer.
 
 ## [0.3.7] - 2022-07-31
@@ -125,7 +127,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.7...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.8...HEAD
+[0.3.8]: https://github.com/taiki-e/portable-atomic/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/taiki-e/portable-atomic/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/taiki-e/portable-atomic/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/taiki-e/portable-atomic/compare/v0.3.4...v0.3.5
