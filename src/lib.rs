@@ -1688,7 +1688,7 @@ impl<T> AtomicPtr<T> {
         }
     }
 
-    #[cfg(not(miri))]
+    #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
