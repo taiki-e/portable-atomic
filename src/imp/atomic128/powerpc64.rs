@@ -156,7 +156,7 @@ unsafe fn atomic_compare_exchange(
     failure: Ordering,
 ) -> Result<u128, u128> {
     debug_assert!(dst as usize % 16 == 0);
-    let success = crate::utils::upgrade_success_ordering(success, failure);
+    let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe {
@@ -199,13 +199,13 @@ unsafe fn atomic_compare_exchange(
                 )
             };
         }
-        match success {
+        match order {
             Ordering::Relaxed => atomic_compare_exchange!("", ""),
             Ordering::Acquire => atomic_compare_exchange!("lwsync", ""),
             Ordering::Release => atomic_compare_exchange!("", "lwsync"),
             Ordering::AcqRel => atomic_compare_exchange!("lwsync", "lwsync"),
             Ordering::SeqCst => atomic_compare_exchange!("lwsync", "sync"),
-            _ => unreachable!("{:?}", success),
+            _ => unreachable!("{:?}, {:?}", success, failure),
         }
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };

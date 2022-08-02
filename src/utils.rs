@@ -90,6 +90,10 @@ macro_rules! static_assert_layout {
 /// In release mode, this macro calls `core::hint::unreachable_unchecked`.
 /// In debug mode, this macro calls `unreachable!` just in case.
 ///
+/// Note: When using `unreachable!`, the compiler cannot eliminate the
+/// unreachable branch in some compiler versions, even if the only pattern not
+/// covered is `#[non_exhaustive]`: <https://godbolt.org/z/zeMM91d4E>
+///
 /// # Safety
 ///
 /// Reaching this function is completely undefined behavior.
@@ -231,13 +235,13 @@ pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Order
         | Ordering::Relaxed
         | Ordering::Release
         | Ordering::SeqCst => {}
-        _ => unreachable!("{:?}", success),
+        _ => unreachable!("{:?}, {:?}", success, failure),
     }
     match failure {
         Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Release => panic!("there is no such thing as a release failure ordering"),
         Ordering::AcqRel => panic!("there is no such thing as an acquire-release failure ordering"),
-        _ => unreachable!("{:?}", failure),
+        _ => unreachable!("{:?}, {:?}", success, failure),
     }
 }
 

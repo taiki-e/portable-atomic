@@ -227,7 +227,7 @@ macro_rules! atomic_int {
                                 options(nostack, preserves_flags),
                             );
                         }
-                        _ => unreachable!(),
+                        _ => unreachable!("{:?}", order),
                     }
                     out
                 }
@@ -256,7 +256,7 @@ macro_rules! atomic_int {
                                 options(nostack, preserves_flags),
                             );
                         }
-                        _ => unreachable!(),
+                        _ => unreachable!("{:?}", order),
                     }
                 }
             }
