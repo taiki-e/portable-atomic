@@ -101,6 +101,8 @@ jobs:
           components: rust-src
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
+      - uses: dtolnay/install@cargo-expand
+        if: startsWith(matrix.rust, 'nightly') && matrix.target == '' && matrix.os == ''
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}

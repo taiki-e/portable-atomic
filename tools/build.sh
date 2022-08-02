@@ -162,8 +162,8 @@ build() {
     # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
 
     args+=(
-        --workspace --ignore-private
-        --no-dev-deps --feature-powerset --depth 3 --optional-deps
+        --workspace --ignore-private --exclude portable-atomic-derive
+        --no-dev-deps --feature-powerset --depth 3 --optional-deps --exclude-features "portable-atomic-derive"
     )
     case "${target}" in
         x86_64* | aarch64* | arm64*) ;;

@@ -1,0 +1,5 @@
+error: portable-atomic: union with multiple fields must be #[repr(C)]
+ --> tests/ui/union-invalid.rs:5:11
+  |
+5 |     union A {
+  |           ^

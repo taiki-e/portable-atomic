@@ -1,10 +1,10 @@
 /*!
-Portable atomic types including support for 128-bit atomics, atomic float, etc.
+Portable atomic types including support for 128-bit atomics, atomic float, generic atomic type, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
-<!-- - Provide generic `Atomic<T>` type. (optional) -->
+- Provide generic `Atomic<T>` type. (optional)
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (riscv without A-extension, msp430, avr)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, riscv without A-extension, msp430, avr) (optional, [single-core only](#optional-cfg))
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
@@ -17,6 +17,13 @@ Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
 See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
+
+## Generic Atomic\<T> type
+
+- Support for various operations on `Copy` types and support for swap and store on non-`Copy` types.
+- Support for primitives, immutable references, function pointers, `NonNull`, `NoneZero`, etc.
+- Support for user-defined structs and enums, including those with multiple fields and padding. (via `#[derive(Atomicable)]`)
+- Support for user-defined unions. (via `#[derive(Atomicable)]`)
 
 ## Optional features
 
@@ -41,19 +48,23 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   Provide `AtomicF{32,64}`.
   Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 
-<!-- TODO
 - **`generic`**<br>
   Provides generic `Atomic<T>` type.
--->
+
+  Note:
+  - This implicitly enables the `fallback` feature.
+
+- **`alloc`**<br>
+  Use `alloc`.
 
 - **`std`**<br>
   Use `std`.
 
+  Note:
+  - This implicitly enables the `alloc` feature.
+
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
-
-  Note:
-  - The MSRV when this feature enables depends on the MSRV of [serde].
 
 ## Optional cfg
 
@@ -246,6 +257,61 @@ mod tests;
 
 #[doc(no_inline)]
 pub use core::sync::atomic::{compiler_fence, fence, Ordering};
+
+#[cfg(feature = "generic")]
+#[cfg_attr(docsrs, doc(cfg(feature = "generic")))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub mod generic;
+#[cfg(feature = "generic")]
+#[cfg_attr(docsrs, doc(cfg(feature = "generic")))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub use crate::generic::*;
+
+#[cfg(feature = "derive")]
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(docsrs, doc(cfg(all(feature = "generic", feature = "derive"))))]
+pub use portable_atomic_derive::Atomicable;
+
+// Not public API.
+#[doc(hidden)]
+#[cfg(feature = "derive")]
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub mod __private {
+    pub use core::mem::{size_of, transmute};
+    #[doc(hidden)]
+    #[allow(clippy::missing_inline_in_public_items)]
+    pub fn is_transmutable<T: crate::Transmutable>() {}
+}
 
 mod imp;
 

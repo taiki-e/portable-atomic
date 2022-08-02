@@ -1,0 +1,5 @@
+error: #[derive(Atomicable)] may not be used on enum with no variant
+ --> tests/ui/enum-invalid.rs:5:10
+  |
+5 |     enum A {}
+  |          ^

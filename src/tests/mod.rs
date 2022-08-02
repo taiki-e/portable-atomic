@@ -3,6 +3,8 @@
 #[macro_use]
 pub(crate) mod helper;
 
+#[cfg(feature = "generic")]
+mod generic;
 #[cfg(feature = "serde")]
 mod serde;
 

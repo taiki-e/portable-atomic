@@ -1,0 +1,11 @@
+error: #[derive(Atomicable)] may not be used on struct with no field
+ --> tests/ui/struct-invalid.rs:5:12
+  |
+5 |     struct A {}
+  |            ^
+
+error: repr must be must specified
+  --> tests/ui/struct-invalid.rs:12:12
+   |
+12 |     struct A {
+   |            ^
