@@ -86,7 +86,7 @@ fn main() {
     // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
     if version.probe(64, 2022, 7, 18) {
         // TODO: invert cfg once Rust 1.64 became stable.
-        println!("cargo:rustc-cfg=portable_atomic_core_stronger_failure_ordering");
+        println!("cargo:rustc-cfg=portable_atomic_stronger_failure_ordering");
     }
 
     // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824
@@ -112,6 +112,10 @@ fn main() {
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
 
+        // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
+        if version.probe(64, 2022, 6, 29) {
+            println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");
+        }
         // https://github.com/rust-lang/rust/pull/96935 merged in Rust 1.64 (nightly-2022-07-07).
         if version.probe(64, 2022, 7, 6) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_strict_provenance_atomic_ptr");
@@ -120,7 +124,7 @@ fn main() {
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
         if sanitize.contains("thread") {
-            println!("cargo:rustc-cfg=sanitize_thread");
+            println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
     }
 

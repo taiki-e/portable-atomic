@@ -5,7 +5,7 @@
 // Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
 // type and the value type must be the same.
 //
-// This module is currently only enabled on test and benchmark.
+// This module is currently only enabled on benchmark.
 
 use core::{
     cell::UnsafeCell,

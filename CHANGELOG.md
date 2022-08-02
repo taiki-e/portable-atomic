@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Make aarch64 and s390x 128-bit atomics compatible with Miri and ThreadSanitizer.
+
 ## [0.3.7] - 2022-07-31
 
 - Provide stable equivalent of [`#![feature(strict_provenance_atomic_ptr)]`](https://github.com/rust-lang/rust/issues/99108). ([#23](https://github.com/taiki-e/portable-atomic/pull/23))

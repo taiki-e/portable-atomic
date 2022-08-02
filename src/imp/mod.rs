@@ -13,6 +13,15 @@
 #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
 mod core_atomic;
 
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
+#[cfg(target_arch = "aarch64")]
+#[path = "atomic128/intrinsics.rs"]
+mod aarch64;
+#[cfg(not(all(
+    any(miri, portable_atomic_sanitize_thread),
+    portable_atomic_new_atomic_intrinsics
+)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
 #[cfg(target_arch = "aarch64")]
 #[path = "atomic128/aarch64.rs"]

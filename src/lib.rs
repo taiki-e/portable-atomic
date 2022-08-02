@@ -115,10 +115,6 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 )]
 // 128-bit atomic
 #![cfg_attr(
-    all(target_arch = "x86_64", any(all(test, portable_atomic_nightly), miri, sanitize_thread)),
-    feature(stdsimd)
-)]
-#![cfg_attr(
     all(
         target_arch = "x86_64",
         any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic)
@@ -166,6 +162,21 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
+)]
+// miri or tsan only
+#![cfg_attr(
+    all(
+        any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
+        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread)
+    ),
+    feature(core_intrinsics)
+)]
+#![cfg_attr(
+    all(
+        target_arch = "x86_64",
+        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread)
+    ),
+    feature(stdsimd)
 )]
 // miri only
 #![cfg_attr(

@@ -425,8 +425,6 @@ use is_always_lock_free as is_lock_free;
 atomic128!(AtomicI128, i128);
 atomic128!(AtomicU128, u128);
 
-// Miri and Sanitizer do not support inline assembly.
-#[cfg(not(any(miri, sanitize_thread)))]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -435,8 +433,6 @@ mod tests {
     test_atomic_int!(u128);
 }
 
-// Miri and Sanitizer do not support inline assembly.
-#[cfg(not(any(miri, sanitize_thread)))]
 #[cfg(test)]
 #[allow(dead_code, clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 mod tests_no_outline_atomics {

@@ -38,7 +38,7 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+        #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange(current, new, success, failure)
     }
@@ -52,7 +52,7 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+        #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange_weak(current, new, success, failure)
     }
@@ -102,7 +102,7 @@ impl<T> AtomicPtr<T> {
         success: Ordering,
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
-        #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+        #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange(current, new, success, failure)
     }
@@ -116,7 +116,7 @@ impl<T> AtomicPtr<T> {
         success: Ordering,
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
-        #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+        #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange_weak(current, new, success, failure)
     }
@@ -174,7 +174,7 @@ macro_rules! atomic_int {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+                #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange(current, new, success, failure)
             }
@@ -194,7 +194,7 @@ macro_rules! atomic_int {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                #[cfg(any(not(portable_atomic_core_stronger_failure_ordering), miri))]
+                #[cfg(any(not(portable_atomic_stronger_failure_ordering), miri))]
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }

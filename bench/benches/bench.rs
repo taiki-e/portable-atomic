@@ -41,7 +41,7 @@ mod arch;
 mod arch;
 #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 #[allow(dead_code, unused_imports)]
-#[path = "imp/intrinsics.rs"]
+#[path = "../../src/imp/atomic128/intrinsics.rs"]
 mod intrinsics;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/fallback/mod.rs"]

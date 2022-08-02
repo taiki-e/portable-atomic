@@ -15,7 +15,12 @@
 
 include!("macros.rs");
 
-use core::{arch::asm, sync::atomic::Ordering};
+#[cfg(not(all(
+    any(miri, portable_atomic_sanitize_thread),
+    portable_atomic_new_atomic_intrinsics
+)))]
+use core::arch::asm;
+use core::sync::atomic::Ordering;
 
 use crate::utils::strongest_failure_ordering;
 
@@ -37,11 +42,27 @@ struct Pair {
 }
 
 #[inline]
-unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
+unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
+        match order {
+            Ordering::Acquire => core::intrinsics::atomic_load_acquire(src),
+            Ordering::Relaxed => core::intrinsics::atomic_load_relaxed(src),
+            Ordering::SeqCst => core::intrinsics::atomic_load_seqcst(src),
+            _ => unreachable!("{:?}", order),
+        }
+    }
+    #[cfg(not(all(
+        any(miri, portable_atomic_sanitize_thread),
+        portable_atomic_new_atomic_intrinsics
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        let _ = order;
         let (out_hi, out_lo);
         // atomic load is always SeqCst.
         asm!(
@@ -61,6 +82,21 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        match order {
+            Ordering::Release => core::intrinsics::atomic_store_release(dst, val),
+            Ordering::Relaxed => core::intrinsics::atomic_store_relaxed(dst, val),
+            Ordering::SeqCst => core::intrinsics::atomic_store_seqcst(dst, val),
+            _ => unreachable!("{:?}", order),
+        }
+    }
+    #[cfg(not(all(
+        any(miri, portable_atomic_sanitize_thread),
+        portable_atomic_new_atomic_intrinsics
+    )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
         let val = U128 { whole: val };
@@ -99,13 +135,43 @@ unsafe fn atomic_compare_exchange(
     dst: *mut u128,
     old: u128,
     new: u128,
-    _success: Ordering,
-    _failure: Ordering,
+    success: Ordering,
+    failure: Ordering,
 ) -> Result<u128, u128> {
     debug_assert!(dst as usize % 16 == 0);
 
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe {
+        use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
+        match (success, failure) {
+            (Relaxed, Relaxed) => core::intrinsics::atomic_cxchg_relaxed_relaxed(dst, old, new),
+            (Relaxed, Acquire) => core::intrinsics::atomic_cxchg_relaxed_acquire(dst, old, new),
+            (Relaxed, SeqCst) => core::intrinsics::atomic_cxchg_relaxed_seqcst(dst, old, new),
+            (Acquire, Relaxed) => core::intrinsics::atomic_cxchg_acquire_relaxed(dst, old, new),
+            (Acquire, Acquire) => core::intrinsics::atomic_cxchg_acquire_acquire(dst, old, new),
+            (Acquire, SeqCst) => core::intrinsics::atomic_cxchg_acquire_seqcst(dst, old, new),
+            (Release, Relaxed) => core::intrinsics::atomic_cxchg_release_relaxed(dst, old, new),
+            (Release, Acquire) => core::intrinsics::atomic_cxchg_release_acquire(dst, old, new),
+            (Release, SeqCst) => core::intrinsics::atomic_cxchg_release_seqcst(dst, old, new),
+            (AcqRel, Relaxed) => core::intrinsics::atomic_cxchg_acqrel_relaxed(dst, old, new),
+            (AcqRel, Acquire) => core::intrinsics::atomic_cxchg_acqrel_acquire(dst, old, new),
+            (AcqRel, SeqCst) => core::intrinsics::atomic_cxchg_acqrel_seqcst(dst, old, new),
+            (SeqCst, Relaxed) => core::intrinsics::atomic_cxchg_seqcst_relaxed(dst, old, new),
+            (SeqCst, Acquire) => core::intrinsics::atomic_cxchg_seqcst_acquire(dst, old, new),
+            (SeqCst, SeqCst) => core::intrinsics::atomic_cxchg_seqcst_seqcst(dst, old, new),
+            _ => unreachable!("{:?}, {:?}", success, failure),
+        }
+        .0
+    };
+    #[cfg(not(all(
+        any(miri, portable_atomic_sanitize_thread),
+        portable_atomic_new_atomic_intrinsics
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    let res = unsafe {
+        let _ = (success, failure);
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (prev_hi, prev_lo);

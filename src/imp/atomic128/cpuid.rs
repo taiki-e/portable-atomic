@@ -1,7 +1,12 @@
 // Adapted from https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/os/x86.rs.
 
 #![cfg_attr(
-    any(not(feature = "outline-atomics"), not(target_feature = "sse"), miri, sanitize_thread),
+    any(
+        not(feature = "outline-atomics"),
+        not(target_feature = "sse"),
+        miri,
+        portable_atomic_sanitize_thread
+    ),
     allow(dead_code)
 )]
 

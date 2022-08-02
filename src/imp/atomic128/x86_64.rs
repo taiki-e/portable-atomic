@@ -120,13 +120,13 @@ unsafe fn cmpxchg16b(
         failure: Ordering,
     ) -> (u128, bool) {
         // Miri and Sanitizer do not support inline assembly.
-        #[cfg(any(miri, sanitize_thread))]
+        #[cfg(any(miri, portable_atomic_sanitize_thread))]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
             (res, res == old)
         }
-        #[cfg(not(any(miri, sanitize_thread)))]
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
         // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
         unsafe {
             let _ = (success, failure);
@@ -188,12 +188,12 @@ unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // Miri and Sanitizer do not support inline assembly.
-    #[cfg(any(miri, sanitize_thread))]
+    #[cfg(any(miri, portable_atomic_sanitize_thread))]
     // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
     unsafe {
         atomic_load(src, Ordering::Relaxed)
     }
-    #[cfg(not(any(miri, sanitize_thread)))]
+    #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
     // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
     unsafe {
         let (prev_lo, prev_hi);
@@ -285,7 +285,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             not(feature = "outline-atomics"),
             not(target_feature = "sse"),
             miri,
-            sanitize_thread
+            portable_atomic_sanitize_thread
         ))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe { _atomic_load_cmpxchg16b(src, order) },
@@ -293,7 +293,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             not(feature = "outline-atomics"),
             not(target_feature = "sse"),
             miri,
-            sanitize_thread
+            portable_atomic_sanitize_thread
         )))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe {
@@ -330,7 +330,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             not(feature = "outline-atomics"),
             not(target_feature = "sse"),
             miri,
-            sanitize_thread
+            portable_atomic_sanitize_thread
         ))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe { _atomic_store_cmpxchg16b(dst, val, order) },
@@ -338,7 +338,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             not(feature = "outline-atomics"),
             not(target_feature = "sse"),
             miri,
-            sanitize_thread
+            portable_atomic_sanitize_thread
         )))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe {
@@ -452,7 +452,7 @@ mod tests {
 
         ::quickcheck::quickcheck! {
             #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
-            #[cfg_attr(sanitize_thread, ignore)] // TSan doesn't know the semantics of the asm synchronization instructions.
+            #[cfg_attr(portable_atomic_sanitize_thread, ignore)] // TSan doesn't know the semantics of the asm synchronization instructions.
             fn test(x: u128, y: u128, z: u128) -> bool {
                 assert!(std::is_x86_feature_detected!("cmpxchg16b"));
                 unsafe {
@@ -518,11 +518,11 @@ mod tests_no_cmpxchg16b {
         debug_assert!(src as usize % 16 == 0);
 
         // Miri and Sanitizer do not support inline assembly.
-        #[cfg(any(miri, sanitize_thread))]
+        #[cfg(any(miri, portable_atomic_sanitize_thread))]
         unsafe {
             atomic_load(src, Ordering::Relaxed)
         }
-        #[cfg(not(any(miri, sanitize_thread)))]
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
         unsafe {
             super::byte_wise_atomic_load(src)
         }

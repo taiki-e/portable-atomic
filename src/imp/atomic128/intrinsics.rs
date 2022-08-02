@@ -2,7 +2,12 @@
 //
 // Refs: https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs
 //
-// This module is currently only enabled on test and benchmark.
+// On aarch64, this module is currently only enabled on Miri and Sanitizer which
+// do not support inline assembly.
+// On x86_64, this module is currently only enabled on benchmark.
+//
+// Note that we cannot use this module on s390x because LLVM currently generates
+// libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/6E6fchxvP
 
 use core::{
     cell::UnsafeCell,
@@ -12,6 +17,7 @@ use core::{
 
 use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
 
+// On x86_64, this module is only enabled on benchmark.
 macro_rules! assert_cmpxchg16b {
     () => {
         #[cfg(all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")))]
@@ -26,14 +32,14 @@ macro_rules! assert_cmpxchg16b {
     all(target_arch = "x86_64", not(target_feature = "cmpxchg16b")),
     target_feature(enable = "cmpxchg16b")
 )]
-unsafe fn atomic_load(dst: *mut u128, order: Ordering) -> u128 {
+unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     assert_load_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_load_acquire(dst),
-            Relaxed => intrinsics::atomic_load_relaxed(dst),
-            SeqCst => intrinsics::atomic_load_seqcst(dst),
+            Acquire => intrinsics::atomic_load_acquire(src),
+            Relaxed => intrinsics::atomic_load_relaxed(src),
+            SeqCst => intrinsics::atomic_load_seqcst(src),
             _ => unreachable!("{:?}", order),
         }
     }
