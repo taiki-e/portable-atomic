@@ -1,7 +1,8 @@
 // Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/34fj6M3EK
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/jKfr85ne6
+// - x86_64 (+cmpxchg16b,+avx,intel_cpu) https://godbolt.org/z/59x67z7bP
 
 include!("macros.rs");
 
@@ -282,7 +283,10 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
         // Miri and Sanitizer do not support inline assembly.
         #[cfg(any(
-            not(feature = "outline-atomics"),
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -290,11 +294,27 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe { _atomic_load_cmpxchg16b(src, order) },
         #[cfg(not(any(
-            not(feature = "outline-atomics"),
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
         )))]
+        #[cfg(all(portable_atomic_intel_cpu, target_feature = "avx"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        () => unsafe { _atomic_load_vmovdqa(src, order) },
+        #[cfg(not(any(
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
+            not(target_feature = "sse"),
+            miri,
+            portable_atomic_sanitize_thread
+        )))]
+        #[cfg(not(all(portable_atomic_intel_cpu, target_feature = "avx")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe {
             ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128;
@@ -327,7 +347,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
         // Miri and Sanitizer do not support inline assembly.
         #[cfg(any(
-            not(feature = "outline-atomics"),
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -335,11 +358,27 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe { _atomic_store_cmpxchg16b(dst, val, order) },
         #[cfg(not(any(
-            not(feature = "outline-atomics"),
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
         )))]
+        #[cfg(all(portable_atomic_intel_cpu, target_feature = "avx"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+        () => unsafe { _atomic_store_vmovdqa(dst, val, order) },
+        #[cfg(not(any(
+            all(
+                not(feature = "outline-atomics"),
+                not(all(portable_atomic_intel_cpu, target_feature = "avx"))
+            ),
+            not(target_feature = "sse"),
+            miri,
+            portable_atomic_sanitize_thread
+        )))]
+        #[cfg(not(all(portable_atomic_intel_cpu, target_feature = "avx")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe {
             ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering);

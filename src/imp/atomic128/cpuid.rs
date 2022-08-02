@@ -4,8 +4,9 @@
     any(
         not(feature = "outline-atomics"),
         not(target_feature = "sse"),
+        portable_atomic_intel_cpu,
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     ),
     allow(dead_code)
 )]
