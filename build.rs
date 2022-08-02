@@ -122,7 +122,7 @@ fn main() {
         }
 
         // `cfg(sanitize = "..")` is not stabilized.
-        let sanitize = std::env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
+        let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
         if sanitize.contains("thread") {
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
