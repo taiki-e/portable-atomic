@@ -301,9 +301,11 @@ use crate::utils::NoRefUnwindSafe;
 ///
 /// This type has the same in-memory representation as a [`bool`].
 ///
-/// If the compiler or the platform supports atomic loads and stores of `u8`,
+/// If the compiler and the platform support atomic loads and stores of `u8`,
 /// this type is a wrapper for the standard library's
-/// [`AtomicBool`](core::sync::atomic::AtomicBool).
+/// [`AtomicBool`](core::sync::atomic::AtomicBool). If the platform supports it
+/// but the compiler does not, atomic operations are implemented using inline
+/// assembly.
 // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
 // will show clearer docs.
 #[repr(C, align(1))]
@@ -900,9 +902,11 @@ impl AtomicBool {
 ///
 /// This type has the same in-memory representation as a `*mut T`.
 ///
-/// If the compiler or the platform supports atomic loads and stores of pointers,
+/// If the compiler and the platform support atomic loads and stores of pointers,
 /// this type is a wrapper for the standard library's
-/// [`AtomicPtr`](core::sync::atomic::AtomicPtr).
+/// [`AtomicPtr`](core::sync::atomic::AtomicPtr). If the platform supports it
+/// but the compiler does not, atomic operations are implemented using inline
+/// assembly.
 // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
 // will show clearer docs.
 #[cfg_attr(target_pointer_width = "16", repr(C, align(2)))]
@@ -1729,9 +1733,10 @@ macro_rules! atomic_int {
 This type has the same in-memory representation as the underlying integer type,
 [`", stringify!($int_type), "`].
 
-If the compiler or the platform supports atomic loads and stores of [`", stringify!($int_type),
+If the compiler and the platform support atomic loads and stores of [`", stringify!($int_type),
 "`], this type is a wrapper for the standard library's `", stringify!($atomic_type),
-"`, otherwise synchronizes using global locks.
+"`. If the platform supports it but the compiler does not, atomic operations are implemented using
+inline assembly. Otherwise synchronizes using global locks.
 You can call [`", stringify!($atomic_type), "::is_lock_free()`] to check whether
 atomic instructions or locks will be used.
 "
