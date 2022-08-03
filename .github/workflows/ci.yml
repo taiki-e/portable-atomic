@@ -49,7 +49,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
-            os: ubuntu-18.04
+            os: ubuntu-22.04
           - rust: nightly
             target: arm-unknown-linux-gnueabi
           - rust: nightly
@@ -64,10 +64,10 @@ jobs:
             target: i686-unknown-linux-gnu
           - rust: nightly
             target: mips-unknown-linux-gnu
-            os: ubuntu-18.04
+            os: ubuntu-22.04
           - rust: nightly
             target: mips64-unknown-linux-gnuabi64
-            os: ubuntu-18.04
+            os: ubuntu-22.04
           - rust: nightly
             target: mips64el-unknown-linux-gnuabi64
           - rust: nightly
@@ -76,7 +76,7 @@ jobs:
             target: powerpc-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
-            os: ubuntu-18.04
+            os: ubuntu-22.04
           - rust: nightly
             target: powerpc64le-unknown-linux-gnu
           - rust: nightly
@@ -87,7 +87,7 @@ jobs:
             target: s390x-unknown-linux-gnu
           - rust: nightly
             target: sparc64-unknown-linux-gnu
-            os: ubuntu-18.04
+            os: ubuntu-22.04
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
@@ -208,7 +208,7 @@ jobs:
       - run: tools/build.sh
 
   no-std:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # QEMU 6.2
     steps:
       - uses: actions/checkout@v3
         with:
