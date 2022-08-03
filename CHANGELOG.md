@@ -12,7 +12,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.3.9] - 2022-08-03
 
-- Fix build error on old Miri
+- Fix build error on old Miri.
 
 - Documentation improvements.
 
