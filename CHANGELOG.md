@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.10] - 2022-08-03
+
 - Optimize aarch64 128-bit load when the `lse` target feature is enabled at compile-time. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
 
 ## [0.3.9] - 2022-08-03
@@ -137,7 +139,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.9...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.10...HEAD
+[0.3.10]: https://github.com/taiki-e/portable-atomic/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/taiki-e/portable-atomic/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/taiki-e/portable-atomic/compare/v0.3.7...v0.3.8
 [0.3.7]: https://github.com/taiki-e/portable-atomic/compare/v0.3.6...v0.3.7
