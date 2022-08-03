@@ -12,7 +12,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.3.10] - 2022-08-03
 
-- Optimize aarch64 128-bit load when the `lse` target feature is enabled at compile-time. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
+- Optimize AArch64 128-bit atomic load when the `lse` target feature is enabled at compile-time. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
 
 ## [0.3.9] - 2022-08-03
 
@@ -22,7 +22,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.3.8] - 2022-08-02
 
-- Make aarch64 and s390x 128-bit atomics compatible with Miri and ThreadSanitizer.
+- Make AArch64 and s390x 128-bit atomics compatible with Miri and ThreadSanitizer.
 
 ## [0.3.7] - 2022-07-31
 
@@ -53,7 +53,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Documentation improvements.
 
-- Optimize inline assemblies on x86_64, riscv, and msp430.
+- Optimize inline assemblies on x86_64, RISC-V, and MSP430.
 
 ## [0.3.5] - 2022-07-23
 
@@ -61,7 +61,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Provide thumbv6m atomic load/store which is planned to be removed from the standard library in [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595). ([#18](https://github.com/taiki-e/portable-atomic/pull/18))
 
-- Optimize inline assemblies on aarch64, riscv, and powerpc64.
+- Optimize inline assemblies on AArch64, RISC-V, and powerpc64.
 
 ## [0.3.4] - 2022-06-25
 
@@ -93,13 +93,13 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Add `#[must_use]` to constructors.
 
-- Use 128-bit atomic operation mappings same as LLVM on aarch64.
+- Use 128-bit atomic operation mappings same as LLVM on AArch64.
 
 - Remove `parking_lot` optional feature to allow the use of this crate within global allocators.
 
 ## [0.2.1] - 2022-03-17
 
-- Implement aarch64 outline-atomics.
+- Implement AArch64 outline-atomics.
 
 ## [0.2.0] - 2022-03-10
 
@@ -113,11 +113,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.1.4] - 2022-03-02
 
-- Support native 128-bit atomic operations for aarch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))
+- Support native 128-bit atomic operations for AArch64 at Rust 1.59+. This was previously supported only on nightly. ([#6](https://github.com/taiki-e/portable-atomic/pull/6))
 
 ## [0.1.3] - 2022-02-28
 
-- Fix inline assembly for riscv without A-extension.
+- Fix inline assembly for RISC-V without A-extension.
 
 ## [0.1.2] - 2022-02-26
 

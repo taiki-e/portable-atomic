@@ -95,8 +95,8 @@ mod fallback;
 // -----------------------------------------------------------------------------
 // Critical section based fallback implementations
 
-// On avr, we always use critical section based fallback implementation.
-// avr can be safely assumed to be single-core, so this is sound.
+// On AVR, we always use critical section based fallback implementation.
+// AVR can be safely assumed to be single-core, so this is sound.
 // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 #[cfg(any(test, portable_atomic_unsafe_assume_single_core, target_arch = "avr"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
@@ -144,13 +144,13 @@ mod interrupt;
 pub(crate) use self::core_atomic::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
-// msp430
+// MSP430
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(target_arch = "msp430")]
 pub(crate) use self::msp430::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
-// riscv without A-extension
+// RISC-V without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
@@ -199,7 +199,7 @@ pub(crate) use self::interrupt::{
     ))
 )]
 pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
-// riscv without A-extension
+// RISC-V without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
@@ -230,7 +230,7 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
     ))
 )]
 pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
-// riscv without A-extension
+// RISC-V without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(target_arch = "riscv64")]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]

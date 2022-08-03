@@ -1274,7 +1274,7 @@ macro_rules! __test_atomic_ptr_pub {
     };
 }
 
-#[allow(unused_macros)] // for riscv
+#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_int_load_store {
     ($int_type:ident) => {
         paste::paste! {
@@ -1291,7 +1291,7 @@ macro_rules! test_atomic_int_load_store {
         }
     };
 }
-#[allow(unused_macros)] // for riscv
+#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_bool_load_store {
     () => {
         #[allow(
@@ -1306,7 +1306,7 @@ macro_rules! test_atomic_bool_load_store {
         }
     };
 }
-#[allow(unused_macros)] // for riscv
+#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_ptr_load_store {
     () => {
         #[allow(

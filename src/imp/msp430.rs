@@ -1,4 +1,4 @@
-// Atomic load/store implementation on msp430.
+// Atomic load/store implementation on MSP430.
 //
 // Adapted from https://github.com/pftbest/msp430-atomic.
 // Including https://github.com/pftbest/msp430-atomic/pull/4 for a compile error fix.
