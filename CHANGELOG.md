@@ -10,7 +10,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Optimize aarch64 128-bit load. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
+- Optimize aarch64 128-bit load when the `lse` target feature is enabled at compile-time. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
 
 ## [0.3.9] - 2022-08-03
 
@@ -58,6 +58,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 **Note:** This release has been yanked due to a bug fixed in 0.3.6.
 
 - Provide thumbv6m atomic load/store which is planned to be removed from the standard library in [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595). ([#18](https://github.com/taiki-e/portable-atomic/pull/18))
+
+- Optimize inline assemblies on aarch64, riscv, and powerpc64.
 
 ## [0.3.4] - 2022-06-25
 
