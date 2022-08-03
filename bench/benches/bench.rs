@@ -233,6 +233,27 @@ fn bench_concurrent_store_swap<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
     });
     a
 }
+fn bench_concurrent_fetch_add<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
+    let a = black_box(A::new(T::from(1)));
+    let barrier = Barrier::new(THREADS * 2);
+    thread::scope(|s| {
+        for _ in 0..THREADS {
+            s.spawn(|| {
+                barrier.wait();
+                for i in 0..N {
+                    let _ = black_box(a.fetch_add(T::from(i)));
+                }
+            });
+            s.spawn(|| {
+                barrier.wait();
+                for i in (0..N).rev() {
+                    let _ = black_box(a.fetch_add(T::from(i)));
+                }
+            });
+        }
+    });
+    a
+}
 
 macro_rules! benches {
     ($name:ident, $atomic_u128:path) => {
@@ -272,6 +293,9 @@ macro_rules! benches {
             });
             g.bench_function("u128_concurrent_store_swap", |b| {
                 b.iter(bench_concurrent_store_swap::<A, u128>);
+            });
+            g.bench_function("u128_concurrent_fetch_add", |b| {
+                b.iter(bench_concurrent_fetch_add::<A, u128>);
             });
         }
     };
