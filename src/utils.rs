@@ -92,7 +92,7 @@ macro_rules! static_assert_layout {
 ///
 /// Note: When using `unreachable!`, the compiler cannot eliminate the
 /// unreachable branch in some compiler versions, even if the only pattern not
-/// covered is `#[non_exhaustive]`: <https://godbolt.org/z/zeMM91d4E>
+/// covered is `#[non_exhaustive]`: <https://godbolt.org/z/68MnGa4o5>
 ///
 /// # Safety
 ///
