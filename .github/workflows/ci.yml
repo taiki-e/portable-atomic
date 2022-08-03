@@ -319,33 +319,31 @@ jobs:
         with:
           components: rust-src
       - uses: taiki-e/install-action@valgrind
-      # -Z doctest-xcompile is needed to apply CARGO_TARGET_*_RUNNER to doctest.
-      - run: cargo test -vv --workspace --exclude bench --all-features -Z doctest-xcompile
+      # doctests on Valgrind are very slow
+      - run: cargo test -vv --workspace --exclude bench --all-features --tests
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile --tests
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude bench --all-features -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --tests
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release -Z doctest-xcompile --tests
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
