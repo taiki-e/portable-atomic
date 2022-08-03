@@ -10,6 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix build error on old Miri
+
+- Documentation improvements.
+
 ## [0.3.8] - 2022-08-02
 
 - Make aarch64 and s390x 128-bit atomics compatible with Miri and ThreadSanitizer.
