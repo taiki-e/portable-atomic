@@ -95,14 +95,21 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(not(portable_atomic_no_unsafe_op_in_unsafe_fn), warn(unsafe_op_in_unsafe_fn))] // unsafe_op_in_unsafe_fn requires Rust 1.52
 #![cfg_attr(portable_atomic_no_unsafe_op_in_unsafe_fn, allow(unused_unsafe))]
 #![warn(
-    clippy::default_union_representation,
+    clippy::pedantic,
+    // lints for public library
+    clippy::alloc_instead_of_core,
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core,
+    // lints that help writing unsafe code
+    clippy::default_union_representation,
+    clippy::trailing_empty_array,
+    clippy::transmute_undefined_repr,
+    clippy::undocumented_unsafe_blocks,
+    // misc
     clippy::inline_asm_x86_att_syntax,
     clippy::missing_inline_in_public_items,
-    clippy::pedantic,
-    clippy::transmute_undefined_repr,
-    clippy::undocumented_unsafe_blocks
 )]
 #![allow(
     clippy::cast_lossless,
