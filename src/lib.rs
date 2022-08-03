@@ -1440,7 +1440,7 @@ impl<T> AtomicPtr<T> {
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
         {
             self.inner.fetch_byte_add(val, order)
@@ -1491,7 +1491,7 @@ impl<T> AtomicPtr<T> {
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
         {
             self.inner.fetch_byte_sub(val, order)
@@ -1557,7 +1557,7 @@ impl<T> AtomicPtr<T> {
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
         {
             self.inner.fetch_or(val, order)
@@ -1621,7 +1621,7 @@ impl<T> AtomicPtr<T> {
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
         {
             self.inner.fetch_and(val, order)
@@ -1684,7 +1684,7 @@ impl<T> AtomicPtr<T> {
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the　version in which it is stabilized.
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
         {
             self.inner.fetch_xor(val, order)
