@@ -25,9 +25,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/x6qMff94K
-// - aarch64 (+lse) https://godbolt.org/z/9MsnrhEKr
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/orhr74bqT
+// - aarch64 https://godbolt.org/z/85YK7K7Ye
+// - aarch64 (+lse) https://godbolt.org/z/neWhfadn4
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/nGazzqx9e
 
 include!("macros.rs");
 
@@ -196,14 +196,16 @@ unsafe fn _casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
     }
 }
 
+// If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
+// otherwise it is two single-copy atomic reads.
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
 #[inline]
 unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
-    // 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE2.
+    // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
     // - LDP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/LDP
@@ -231,14 +233,16 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
+// If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
+// otherwise it is two single-copy atomic writes.
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
 #[inline]
 unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
-    // 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE2.
+    // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
     // - STP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STP
@@ -388,6 +392,12 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         // cfg guarantee that the CPU supports FEAT_LSE2.
         () => unsafe { _ldp(src, order) },
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        () => unsafe { _casp(src, 0, 0, order) },
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe { _compare_exchange_ldxp_stxp(src, 0, 0, order) },

@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Optimize aarch64 128-bit load. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))
+
 ## [0.3.9] - 2022-08-03
 
 - Fix build error on old Miri.
