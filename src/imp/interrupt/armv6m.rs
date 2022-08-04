@@ -15,7 +15,7 @@ pub(super) fn is_enabled() -> bool {
 #[inline]
 pub(super) fn disable() {
     unsafe {
-        // Do not use `nomem` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
+        // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!("cpsid i", options(nostack, preserves_flags));
     }
 }
@@ -23,7 +23,7 @@ pub(super) fn disable() {
 #[inline]
 pub(super) unsafe fn enable() {
     unsafe {
-        // Do not use `nomem` because prevent preceding memory accesses from being reordered after interrupts are enabled.
+        // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         asm!("cpsie i", options(nostack, preserves_flags));
     }
 }
