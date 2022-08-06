@@ -37,7 +37,7 @@ impl CpuInfo {
     pub(crate) fn has_cmpxchg16b(self) -> bool {
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         {
-            // cmpxchg16b is statically available.
+            // CMPXCHG16B is statically available.
             true
         }
         #[cfg(not(any(
@@ -130,12 +130,12 @@ pub(crate) fn cpuid() -> CpuInfo {
 }
 
 /// Equivalent to `cpuid().has_cmpxchg16b()`, but avoids calling `cpuid()`
-/// if cmpxchg16b is statically available.
+/// if CMPXCHG16B is statically available.
 #[inline]
 pub(crate) fn has_cmpxchg16b() -> bool {
     #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     {
-        // cmpxchg16b is statically available.
+        // CMPXCHG16B is statically available.
         true
     }
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]

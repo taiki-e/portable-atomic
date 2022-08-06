@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation for x86_64 using cmpxchg16b (DWCAS).
+// Atomic{I,U}128 implementation for x86_64 using CMPXCHG16B (DWCAS).
 //
 // Generated asm:
 // - x86_64 (+cmpxchg16b) https://godbolt.org/z/34fj6M3EK
@@ -49,8 +49,8 @@ unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned (required by cmpxchg16b), that there are no
-    // concurrent non-atomic operations, and that the CPU supports cmpxchg16b.
+    // reads, 16-byte aligned (required by CMPXCHG16B), that there are no
+    // concurrent non-atomic operations, and that the CPU supports CMPXCHG16B.
     //
     // If the value at `dst` (destination operand) and rdx:rax are equal, the
     // 128-bit value in rcx:rbx is stored in the `dst`, otherwise the value at
@@ -79,7 +79,7 @@ unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
                     inout("rdx") old.pair.hi => prev_hi,
                     in("rcx") new.pair.hi,
                     out("r8b") r,
-                    // Do not use `preserves_flags` because cmpxchg16b modifies the ZF flag.
+                    // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
                 )
             };
@@ -139,7 +139,7 @@ unsafe fn cmpxchg16b(
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-        // and cfg guarantees that cmpxchg16b is statically available.
+        // and cfg guarantees that CMPXCHG16B is statically available.
         () => unsafe { _cmpxchg16b(dst, old, new, success, failure) },
         #[cfg(portable_atomic_cmpxchg16b_dynamic)]
         #[cfg(not(any(
@@ -299,7 +299,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         () => unsafe {
             ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128;
             {
-                // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+                // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::cpuid();
                 if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
                     _atomic_load_vmovdqa
@@ -344,7 +344,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         () => unsafe {
             ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering);
             {
-                // Check cmpxchg16b anyway to prevent mixing atomic and non-atomic access.
+                // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::cpuid();
                 if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
                     _atomic_store_vmovdqa

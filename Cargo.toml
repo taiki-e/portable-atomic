@@ -33,7 +33,7 @@ fallback = []
 
 # Enable run-time CPU feature detection.
 #
-# This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as cmpxchg16b (x86_64) and LSE (aarch64).
+# This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
 #
 # Note:
 # - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64 and in nightly for other platforms, otherwise it works the same as the default.

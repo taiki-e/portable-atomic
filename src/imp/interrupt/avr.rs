@@ -19,8 +19,8 @@ pub(super) fn is_enabled() -> bool {
 pub(super) fn disable() {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
-        // Do not use `preserves_flags` because cli modifies the I bit of the status register (SREG).
-        // Refs: https://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
+        // Do not use `preserves_flags` because CLI modifies the I bit of the status register (SREG).
+        // Refs: https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf#page=58
         #[cfg(not(portable_atomic_no_asm))]
         asm!("cli", options(nostack));
         #[cfg(portable_atomic_no_asm)]
@@ -32,8 +32,8 @@ pub(super) fn disable() {
 pub(super) unsafe fn enable() {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-        // Do not use `preserves_flags` because sei modifies the I bit of the status register (SREG).
-        // Refs: https://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
+        // Do not use `preserves_flags` because SEI modifies the I bit of the status register (SREG).
+        // Refs: https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf#page=127
         #[cfg(not(portable_atomic_no_asm))]
         asm!("sei", options(nostack));
         #[cfg(portable_atomic_no_asm)]

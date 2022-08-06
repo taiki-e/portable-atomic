@@ -13,7 +13,7 @@
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
 // Note: As of rustc 1.62.0, -C target-feature=+lse2 does not
-// implicitly enable lse. Also, target_feature "lse2" is not available on rustc side:
+// implicitly enable target_feature "lse". Also, target_feature "lse2" is not available on rustc side:
 // https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
 //
 // Refs:
@@ -65,8 +65,9 @@ struct Pair {
     hi: u64,
 }
 
-// Note: ldxp (by itself) does not guarantee atomicity; to complete an atomic
-// operation (even load/store), a corresponding stxp must succeed.
+/// Load-Exclusive pair.
+// Note: Load-Exclusive pair (by itself) does not guarantee atomicity; to complete an atomic
+// operation (even load/store), a corresponding Store-Exclusive pair must succeed.
 // See Arm Architecture Reference Manual for A-profile architecture
 // Section B2.2.1 "Requirements for single-copy atomicity", and
 // Section B2.9 "Synchronization and semaphores" for more.
@@ -107,6 +108,7 @@ unsafe fn ldxp(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
+/// Store-Exclusive pair.
 #[inline(always)]
 unsafe fn stxp(dst: *mut u128, val: u128, order: Ordering) -> bool {
     debug_assert!(dst as usize % 16 == 0);

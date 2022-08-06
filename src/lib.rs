@@ -28,10 +28,10 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 - **`outline-atomics`**<br>
   Enable run-time CPU feature detection.
 
-  This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as cmpxchg16b (x86_64) and LSE (aarch64).
+  This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.58+ (avx) or nightly (cmpxchg16b) for x86_64, and in nightly for other platforms, otherwise it works the same as the default.
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.58+ (AVX) or nightly (CMPXCHG16B) for x86_64, and in nightly for other platforms, otherwise it works the same as the default.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
 

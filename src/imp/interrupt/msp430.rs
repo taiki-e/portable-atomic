@@ -19,7 +19,7 @@ pub(super) fn is_enabled() -> bool {
 pub(super) fn disable() {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
-        // Do not use `preserves_flags` because dint modifies the GIE (global interrupt enable) bit of the status register.
+        // Do not use `preserves_flags` because DINT modifies the GIE (global interrupt enable) bit of the status register.
         // Refs: http://mspgcc.sourceforge.net/manual/x951.html
         #[cfg(not(portable_atomic_no_asm))]
         asm!("dint {{ nop", options(nostack));
@@ -32,7 +32,7 @@ pub(super) fn disable() {
 pub(super) unsafe fn enable() {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-        // Do not use `preserves_flags` because eint modifies the GIE (global interrupt enable) bit of the status register.
+        // Do not use `preserves_flags` because EINT modifies the GIE (global interrupt enable) bit of the status register.
         // Refs: http://mspgcc.sourceforge.net/manual/x951.html
         #[cfg(not(portable_atomic_no_asm))]
         asm!("nop {{ eint {{ nop", options(nostack));
