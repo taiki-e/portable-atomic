@@ -10,8 +10,6 @@
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-use crate::utils::{assert_load_ordering, assert_store_ordering};
-
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     v: UnsafeCell<u8>,
@@ -54,7 +52,7 @@ impl AtomicBool {
 
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> bool {
-        assert_load_ordering(order);
+        crate::utils::assert_load_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         unsafe { u8::atomic_load(self.v.get()) != 0 }
@@ -62,7 +60,7 @@ impl AtomicBool {
 
     #[inline]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
-        assert_store_ordering(order);
+        crate::utils::assert_store_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         unsafe {
@@ -113,7 +111,7 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
-        assert_load_ordering(order);
+        crate::utils::assert_load_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
@@ -122,7 +120,7 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
-        assert_store_ordering(order);
+        crate::utils::assert_store_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
@@ -175,7 +173,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
+                crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $int_type::atomic_load(self.v.get()) }
@@ -183,7 +181,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
+                crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {

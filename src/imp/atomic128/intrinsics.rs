@@ -15,8 +15,6 @@ use core::{
     sync::atomic::Ordering::{self, AcqRel, Acquire, Relaxed, Release, SeqCst},
 };
 
-use crate::utils::{assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering};
-
 // On x86_64, this module is only enabled on benchmark.
 macro_rules! assert_cmpxchg16b {
     () => {
@@ -33,7 +31,7 @@ macro_rules! assert_cmpxchg16b {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    assert_load_ordering(order);
+    crate::utils::assert_load_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
         match order {
@@ -51,7 +49,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    assert_store_ordering(order);
+    crate::utils::assert_store_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
         match order {
@@ -94,7 +92,7 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
-    assert_compare_exchange_ordering(success, failure);
+    crate::utils::assert_compare_exchange_ordering(success, failure);
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let (val, ok) = unsafe {
         match (success, failure) {
@@ -135,7 +133,7 @@ unsafe fn atomic_compare_exchange_weak(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
-    assert_compare_exchange_ordering(success, failure);
+    crate::utils::assert_compare_exchange_ordering(success, failure);
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange_weak`.
     let (val, ok) = unsafe {
         match (success, failure) {

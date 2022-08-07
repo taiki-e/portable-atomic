@@ -31,8 +31,6 @@ mod arch;
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-use crate::utils::{assert_load_ordering, assert_store_ordering};
-
 const IS_ALWAYS_LOCK_FREE: bool = false;
 
 #[inline]
@@ -93,7 +91,7 @@ impl AtomicBool {
 
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> bool {
-        assert_load_ordering(order);
+        crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
@@ -105,7 +103,7 @@ impl AtomicBool {
 
     #[inline]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
-        assert_store_ordering(order);
+        crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
@@ -239,7 +237,7 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
-        assert_load_ordering(order);
+        crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
@@ -251,7 +249,7 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
-        assert_store_ordering(order);
+        crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
@@ -345,7 +343,7 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
+                crate::utils::assert_load_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
                     #[cfg(not(target_arch = "avr"))]
@@ -359,7 +357,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
+                crate::utils::assert_store_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
                     #[cfg(not(target_arch = "avr"))]
@@ -378,13 +376,13 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
+                crate::utils::assert_load_ordering(order);
                 with(|| unsafe { self.v.get().read() })
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
+                crate::utils::assert_store_ordering(order);
                 with(|| unsafe { self.v.get().write(val) });
             }
         }

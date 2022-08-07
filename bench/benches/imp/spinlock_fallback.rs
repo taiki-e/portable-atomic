@@ -12,10 +12,7 @@ use core::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use crate::utils::{
-    assert_compare_exchange_ordering, assert_load_ordering, assert_store_ordering, Backoff,
-    CachePadded,
-};
+use crate::utils::{Backoff, CachePadded};
 
 struct Spinlock {
     state: AtomicUsize,
@@ -115,7 +112,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                assert_load_ordering(order);
+                crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -126,7 +123,7 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                assert_store_ordering(order);
+                crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -153,7 +150,7 @@ macro_rules! atomic_int {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
+                crate::utils::assert_compare_exchange_ordering(success, failure);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {

@@ -12,8 +12,6 @@ mod detect;
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
-use crate::utils::strongest_failure_ordering;
-
 #[cfg(target_pointer_width = "32")]
 macro_rules! ptr_modifier {
     () => {
@@ -271,7 +269,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     #[inline]
     unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
-        let fail_order = strongest_failure_ordering(order);
+        let fail_order = crate::utils::strongest_failure_ordering(order);
         // SAFETY: the caller must uphold the safety contract for `_atomic_load_cmpxchg16b`.
         unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
     }
@@ -381,7 +379,7 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    let failure = strongest_failure_ordering(order);
+    let failure = crate::utils::strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
         // This is based on the code generated for the first load in DW RMWs by LLVM,
@@ -530,7 +528,7 @@ mod tests_no_cmpxchg16b {
 
     #[inline(never)]
     unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-        let fail_order = strongest_failure_ordering(order);
+        let fail_order = crate::utils::strongest_failure_ordering(order);
         unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
     }
 
@@ -565,7 +563,7 @@ mod tests_no_cmpxchg16b {
     where
         F: FnMut(u128) -> u128,
     {
-        let failure = strongest_failure_ordering(order);
+        let failure = crate::utils::strongest_failure_ordering(order);
         unsafe {
             let mut old = byte_wise_atomic_load(dst);
             loop {

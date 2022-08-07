@@ -22,8 +22,6 @@ include!("macros.rs");
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
-use crate::utils::strongest_failure_ordering;
-
 /// A 128-bit value represented as a pair of 64-bit values.
 // This type is #[repr(C)], both fields have the same in-memory representation
 // and are plain old datatypes, so access to the fields is always safe.
@@ -204,7 +202,7 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    let failure = strongest_failure_ordering(order);
+    let failure = crate::utils::strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
         let mut old = atomic_load(dst, failure);

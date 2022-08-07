@@ -1,7 +1,7 @@
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use super::{SeqLock, SeqLockWriteGuard};
-use crate::utils::{assert_compare_exchange_ordering, CachePadded};
+use crate::utils::CachePadded;
 
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
@@ -210,7 +210,7 @@ macro_rules! atomic {
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
-                assert_compare_exchange_ordering(success, failure);
+                crate::utils::assert_compare_exchange_ordering(success, failure);
                 let guard = lock(self.v.get() as usize).write();
                 let result = self.read(&guard);
                 if result == current {
