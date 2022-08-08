@@ -67,13 +67,18 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
+  ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM and multi-core systems.
+
+  Feel free to submit an issue if your target is not supported yet.
+
 ## Related Projects
 
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
 
-[atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
+[#26]: https://github.com/taiki-e/portable-atomic/issues/26
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
+[atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [serde]: https://github.com/serde-rs/serde
 */
 
