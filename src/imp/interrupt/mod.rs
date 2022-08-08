@@ -6,9 +6,6 @@
 // - If the user explicitly declares the target to be single-core using an unsafe cfg.
 // - If the target can be safely assumed to be single-core.
 
-#![cfg_attr(test, allow(dead_code))] // TODO
-#![allow(clippy::undocumented_unsafe_blocks)] // TODO
-
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts.
 //
@@ -61,6 +58,9 @@ pub(crate) struct AtomicBool {
 }
 
 // Send is implicitly implemented.
+// SAFETY: any data races are prevented by disabling interrupts or
+// atomic intrinsics (see module-level comments) and the raw pointer is
+// valid because we got it from a reference.
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
@@ -95,8 +95,14 @@ impl AtomicBool {
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
+            // SAFETY: any data races are prevented by atomic intrinsics (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) },
             #[cfg(target_arch = "avr")]
+            // SAFETY: any data races are prevented by disabling interrupts (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => with(|| unsafe { self.v.get().read() != 0 }),
         }
     }
@@ -107,10 +113,16 @@ impl AtomicBool {
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
+            // SAFETY: any data races are prevented by atomic intrinsics (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
             },
             #[cfg(target_arch = "avr")]
+            // SAFETY: any data races are prevented by disabling interrupts (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => with(|| unsafe { self.v.get().write(val as u8) }),
         }
     }
@@ -118,6 +130,9 @@ impl AtomicBool {
     #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn swap(&self, val: bool, _order: Ordering) -> bool {
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe { self.v.get().replace(val as u8) != 0 })
     }
 
@@ -131,6 +146,9 @@ impl AtomicBool {
         failure: Ordering,
     ) -> Result<bool, bool> {
         crate::utils::assert_compare_exchange_ordering(success, failure);
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe {
             let result = self.v.get().read();
             if result == current as u8 {
@@ -157,6 +175,9 @@ impl AtomicBool {
     #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_and(&self, val: bool, _order: Ordering) -> bool {
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe {
             let result = self.v.get().read();
             self.v.get().write(result & val as u8);
@@ -181,6 +202,9 @@ impl AtomicBool {
     #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_or(&self, val: bool, _order: Ordering) -> bool {
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe {
             let result = self.v.get().read();
             self.v.get().write(result | val as u8);
@@ -191,6 +215,9 @@ impl AtomicBool {
     #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_xor(&self, val: bool, _order: Ordering) -> bool {
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe {
             let result = self.v.get().read();
             self.v.get().write(result ^ val as u8);
@@ -207,7 +234,13 @@ pub(crate) struct AtomicPtr<T> {
     p: UnsafeCell<*mut T>,
 }
 
+// SAFETY: any data races are prevented by disabling interrupts or
+// atomic intrinsics (see module-level comments) and the raw pointer is
+// valid because we got it from a reference.
 unsafe impl<T> Send for AtomicPtr<T> {}
+// SAFETY: any data races are prevented by disabling interrupts or
+// atomic intrinsics (see module-level comments) and the raw pointer is
+// valid because we got it from a reference.
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
 impl<T> AtomicPtr<T> {
@@ -241,8 +274,14 @@ impl<T> AtomicPtr<T> {
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
+            // SAFETY: any data races are prevented by atomic intrinsics (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) },
             #[cfg(target_arch = "avr")]
+            // SAFETY: any data races are prevented by disabling interrupts (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => with(|| unsafe { self.p.get().read() }),
         }
     }
@@ -253,10 +292,16 @@ impl<T> AtomicPtr<T> {
         #[deny(unreachable_patterns)]
         match () {
             #[cfg(not(target_arch = "avr"))]
+            // SAFETY: any data races are prevented by atomic intrinsics (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
             },
             #[cfg(target_arch = "avr")]
+            // SAFETY: any data races are prevented by disabling interrupts (see
+            // module-level comments) and the raw pointer is valid because we got it
+            // from a reference.
             () => with(|| unsafe { self.p.get().write(ptr) }),
         }
     }
@@ -264,6 +309,9 @@ impl<T> AtomicPtr<T> {
     #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn swap(&self, ptr: *mut T, _order: Ordering) -> *mut T {
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe { self.p.get().replace(ptr) })
     }
 
@@ -277,6 +325,9 @@ impl<T> AtomicPtr<T> {
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
         crate::utils::assert_compare_exchange_ordering(success, failure);
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
         with(|| unsafe {
             let result = self.p.get().read();
             if result == current {
@@ -309,6 +360,9 @@ macro_rules! atomic_int {
         }
 
         // Send is implicitly implemented.
+        // SAFETY: any data races are prevented by disabling interrupts or
+        // atomic intrinsics (see module-level comments) and the raw pointer is
+        // valid because we got it from a reference.
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
@@ -347,10 +401,16 @@ macro_rules! atomic_int {
                 #[deny(unreachable_patterns)]
                 match () {
                     #[cfg(not(target_arch = "avr"))]
+                    // SAFETY: any data races are prevented by atomic intrinsics (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).load(order)
                     },
                     #[cfg(target_arch = "avr")]
+                    // SAFETY: any data races are prevented by disabling interrupts (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
                     () => with(|| unsafe { self.v.get().read() }),
                 }
             }
@@ -361,10 +421,16 @@ macro_rules! atomic_int {
                 #[deny(unreachable_patterns)]
                 match () {
                     #[cfg(not(target_arch = "avr"))]
+                    // SAFETY: any data races are prevented by atomic intrinsics (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
                     },
                     #[cfg(target_arch = "avr")]
+                    // SAFETY: any data races are prevented by disabling interrupts (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
                     () => with(|| unsafe { self.v.get().write(val) }),
                 }
             }
@@ -377,12 +443,18 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe { self.v.get().read() })
             }
 
             #[inline]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe { self.v.get().write(val) });
             }
         }
@@ -392,6 +464,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe { self.v.get().replace(val) })
             }
 
@@ -405,6 +480,9 @@ macro_rules! atomic_int {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     if result == current {
@@ -431,6 +509,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(result.wrapping_add(val));
@@ -441,6 +522,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(result.wrapping_sub(val));
@@ -451,6 +535,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(result & val);
@@ -461,6 +548,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(!(result & val));
@@ -471,6 +561,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(result | val);
@@ -481,6 +574,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(result ^ val);
@@ -491,6 +587,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(core::cmp::max(result, val));
@@ -501,6 +600,9 @@ macro_rules! atomic_int {
             #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(core::cmp::min(result, val));
