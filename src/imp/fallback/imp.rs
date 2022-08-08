@@ -217,10 +217,9 @@ macro_rules! atomic {
                     self.write(new, &guard);
                     Ok(result)
                 } else {
-                    let val = self.read(&guard);
                     // The value hasn't been changed. Drop the guard without incrementing the stamp.
                     guard.abort();
-                    Err(val)
+                    Err(result)
                 }
             }
 
