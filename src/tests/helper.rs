@@ -1,3 +1,5 @@
+#![allow(unused_macros)]
+
 use core::{ops, sync::atomic::Ordering};
 
 macro_rules! __test_atomic_common {
@@ -340,6 +342,11 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 23);
                 assert_eq!(a.fetch_max(24, order), 23);
                 assert_eq!(a.load(Ordering::Relaxed), 24);
+                let a = <$atomic_type>::new(0);
+                assert_eq!(a.fetch_max(1, order), 0);
+                assert_eq!(a.load(Ordering::Relaxed), 1);
+                assert_eq!(a.fetch_max(0, order), 1);
+                assert_eq!(a.load(Ordering::Relaxed), 1);
             }
         }
         #[test]
@@ -352,6 +359,11 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 23);
                 assert_eq!(a.fetch_min(22, order), 23);
                 assert_eq!(a.load(Ordering::Relaxed), 22);
+                let a = <$atomic_type>::new(1);
+                assert_eq!(a.fetch_min(0, order), 1);
+                assert_eq!(a.load(Ordering::Relaxed), 0);
+                assert_eq!(a.fetch_min(1, order), 0);
+                assert_eq!(a.load(Ordering::Relaxed), 0);
             }
         }
         ::quickcheck::quickcheck! {
@@ -933,19 +945,6 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
-        #[test]
-        fn fetch_not() {
-            let a = <$atomic_type>::new(true);
-            test_swap_ordering(|order| a.fetch_not(order));
-            for order in swap_orderings() {
-                let a = <$atomic_type>::new(true);
-                assert_eq!(a.fetch_not(order), true);
-                assert_eq!(a.load(Ordering::Relaxed), false);
-                let a = <$atomic_type>::new(false);
-                assert_eq!(a.fetch_not(order), false);
-                assert_eq!(a.load(Ordering::Relaxed), true);
-            }
-        }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: bool, y: bool) -> bool {
                 for order in swap_orderings() {
@@ -1007,17 +1006,6 @@ macro_rules! __test_atomic_bool {
                     let a = <$atomic_type>::new(y);
                     assert_eq!(a.fetch_xor(x, order), y);
                     assert_eq!(a.load(Ordering::Relaxed), y ^ x);
-                }
-                true
-            }
-            fn quickcheck_fetch_not(x: bool, y: bool) -> bool {
-                for order in swap_orderings() {
-                    let a = <$atomic_type>::new(x);
-                    assert_eq!(a.fetch_not(order), x);
-                    assert_eq!(a.load(Ordering::Relaxed), !x);
-                    let a = <$atomic_type>::new(y);
-                    assert_eq!(a.fetch_not(order), y);
-                    assert_eq!(a.load(Ordering::Relaxed), !y);
                 }
                 true
             }
@@ -1144,6 +1132,19 @@ macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
         #[test]
+        fn fetch_not() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| a.fetch_not(order));
+            for order in swap_orderings() {
+                let a = <$atomic_type>::new(true);
+                assert_eq!(a.fetch_not(order), true);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_not(order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+            }
+        }
+        #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
@@ -1161,6 +1162,19 @@ macro_rules! __test_atomic_bool_pub {
             let b = <$atomic_type>::from(false);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+        }
+        ::quickcheck::quickcheck! {
+            fn quickcheck_fetch_not(x: bool, y: bool) -> bool {
+                for order in swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_not(order), x);
+                    assert_eq!(a.load(Ordering::Relaxed), !x);
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_not(order), y);
+                    assert_eq!(a.load(Ordering::Relaxed), !y);
+                }
+                true
+            }
         }
     };
 }
@@ -1274,7 +1288,6 @@ macro_rules! __test_atomic_ptr_pub {
     };
 }
 
-#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_int_load_store {
     ($int_type:ident) => {
         paste::paste! {
@@ -1291,7 +1304,6 @@ macro_rules! test_atomic_int_load_store {
         }
     };
 }
-#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_bool_load_store {
     () => {
         #[allow(
@@ -1306,7 +1318,6 @@ macro_rules! test_atomic_bool_load_store {
         }
     };
 }
-#[allow(unused_macros)] // for RISC-V
 macro_rules! test_atomic_ptr_load_store {
     () => {
         #[allow(
@@ -1322,7 +1333,6 @@ macro_rules! test_atomic_ptr_load_store {
     };
 }
 
-#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_int_single_thread {
     ($int_type:ident) => {
         paste::paste! {
@@ -1340,7 +1350,6 @@ macro_rules! test_atomic_int_single_thread {
         }
     };
 }
-#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_bool_single_thread {
     () => {
         #[allow(
@@ -1356,7 +1365,6 @@ macro_rules! test_atomic_bool_single_thread {
         }
     };
 }
-#[allow(unused_macros)] // for interrupt module
 macro_rules! test_atomic_ptr_single_thread {
     () => {
         #[allow(
@@ -1390,6 +1398,37 @@ macro_rules! test_atomic_int {
         }
     };
 }
+macro_rules! test_atomic_bool {
+    () => {
+        #[allow(
+            clippy::alloc_instead_of_core,
+            clippy::std_instead_of_alloc,
+            clippy::std_instead_of_core,
+            clippy::undocumented_unsafe_blocks
+        )]
+        mod test_atomic_bool {
+            use super::*;
+            __test_atomic_bool_load_store!(AtomicBool);
+            __test_atomic_bool!(AtomicBool);
+        }
+    };
+}
+macro_rules! test_atomic_ptr {
+    () => {
+        #[allow(
+            clippy::alloc_instead_of_core,
+            clippy::std_instead_of_alloc,
+            clippy::std_instead_of_core,
+            clippy::undocumented_unsafe_blocks
+        )]
+        #[allow(unstable_name_collisions)]
+        mod test_atomic_bool_ptr {
+            use super::*;
+            __test_atomic_ptr_load_store!(AtomicPtr<u8>);
+            __test_atomic_ptr!(AtomicPtr<u8>);
+        }
+    };
+}
 
 macro_rules! test_atomic_int_pub {
     ($int_type:ident) => {
@@ -1410,7 +1449,6 @@ macro_rules! test_atomic_int_pub {
         }
     };
 }
-#[allow(unused_macros)]
 macro_rules! test_atomic_int_load_store_pub {
     ($int_type:ident) => {
         paste::paste! {

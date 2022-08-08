@@ -1,4 +1,4 @@
-#![cfg_attr(not(test), allow(dead_code))]
+#![cfg_attr(not(all(test, feature = "float")), allow(dead_code, unused_macros))]
 
 use core::{cell::UnsafeCell, ops, sync::atomic::Ordering};
 
