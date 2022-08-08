@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Support atomic CAS on no-std pre-v6 ARM targets (e.g., thumbv4t-none-eabi) under `--cfg portable_atomic_arm_swp_lock`.
+
 ## [0.3.10] - 2022-08-03
 
 - Optimize AArch64 128-bit atomic load when the `lse` target feature is enabled at compile-time. ([#20](https://github.com/taiki-e/portable-atomic/pull/20))

@@ -6,7 +6,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) (optional, [single-core only](#optional-cfg))
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, thumbv4t, RISC-V without A-extension, MSP430, AVR) ([optional](#optional-cfg))
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
@@ -70,6 +70,13 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM and multi-core systems.
 
   Feel free to submit an issue if your target is not supported yet.
+
+- **`--cfg portable_atomic_arm_swp_lock`**<br>
+  Use global lock using `SWP` instruction on pre-v6 ARM targets where atomic CAS is not available in the standard library.
+
+  Enabling this cfg for targets that have atomic CAS will result in a compile error.
+
+  Supported platforms: pre-v6 ARM (thumbv4t, armv4t, etc.)
 
 ## Related Projects
 
@@ -138,6 +145,14 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 // until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
 // nightly, which is older than nightly-2022-02-11.
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
+#![cfg_attr(
+    all(
+        target_arch = "arm",
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+        any(test, all(portable_atomic_arm_swp_lock, not(target_os = "linux")))
+    ),
+    feature(isa_attribute)
+)]
 // asm
 #![cfg_attr(
     all(
@@ -159,6 +174,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
         portable_atomic_no_asm,
         any(
             portable_atomic_armv6m,
+            portable_atomic_arm_swp_lock,
             all(
                 any(target_arch = "riscv32", target_arch = "riscv64"),
                 not(target_has_atomic = "ptr")
@@ -526,11 +542,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
@@ -571,11 +595,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -622,11 +654,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -671,11 +711,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
@@ -714,11 +762,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
@@ -756,11 +812,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
@@ -798,11 +862,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
@@ -836,11 +908,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_not(&self, order: Ordering) -> bool {
@@ -883,11 +963,19 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_update<F>(
@@ -1142,11 +1230,19 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
@@ -1180,11 +1276,19 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -1231,11 +1335,19 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -1291,11 +1403,19 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[inline]
     pub fn fetch_update<F>(
@@ -1351,11 +1471,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -1394,11 +1522,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -1433,11 +1569,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1484,11 +1628,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1550,11 +1702,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1614,11 +1774,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1677,11 +1845,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1704,11 +1880,19 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_arm_swp_lock
+        ))
     )]
     fn as_atomic_usize(&self) -> &AtomicUsize {
         let [] = [(); core::mem::size_of::<AtomicPtr<()>>() - core::mem::size_of::<AtomicUsize>()];
@@ -1976,12 +2160,17 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2028,12 +2217,17 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2085,12 +2279,17 @@ loop {
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2128,12 +2327,17 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2164,12 +2368,17 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2203,12 +2412,17 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2242,12 +2456,17 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2281,12 +2500,17 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2320,12 +2544,17 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2366,12 +2595,17 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_update<F>(
@@ -2431,12 +2665,17 @@ assert!(max_foo == 42);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2483,12 +2722,17 @@ assert_eq!(min_foo, 12);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_arm_swp_lock
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2997,7 +3241,10 @@ atomic_int!(AtomicU32, u32, 4);
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
         target_pointer_width = "64",
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        all(
+            feature = "fallback",
+            any(portable_atomic_unsafe_assume_single_core, portable_atomic_arm_swp_lock)
+        )
     ))
 )]
 #[cfg_attr(
@@ -3006,7 +3253,10 @@ atomic_int!(AtomicU32, u32, 4);
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
         target_pointer_width = "64",
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        all(
+            feature = "fallback",
+            any(portable_atomic_unsafe_assume_single_core, portable_atomic_arm_swp_lock)
+        )
     ))
 )]
 atomic_int!(AtomicI64, i64, 8);
@@ -3016,7 +3266,10 @@ atomic_int!(AtomicI64, i64, 8);
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
         target_pointer_width = "64",
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        all(
+            feature = "fallback",
+            any(portable_atomic_unsafe_assume_single_core, portable_atomic_arm_swp_lock)
+        )
     ))
 )]
 #[cfg_attr(
@@ -3025,7 +3278,10 @@ atomic_int!(AtomicI64, i64, 8);
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
         target_pointer_width = "64",
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        all(
+            feature = "fallback",
+            any(portable_atomic_unsafe_assume_single_core, portable_atomic_arm_swp_lock)
+        )
     ))
 )]
 atomic_int!(AtomicU64, u64, 8);
@@ -3057,11 +3313,19 @@ atomic_int!(AtomicU64, u64, 8);
 )]
 #[cfg_attr(
     all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        not(portable_atomic_no_atomic_cas),
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_arm_swp_lock
+    ))
 )]
 #[cfg_attr(
     all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
-    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        target_has_atomic = "ptr",
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_arm_swp_lock
+    ))
 )]
 atomic_int!(AtomicI128, i128, 16);
 #[cfg_attr(
@@ -3091,10 +3355,18 @@ atomic_int!(AtomicI128, i128, 16);
 )]
 #[cfg_attr(
     all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        not(portable_atomic_no_atomic_cas),
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_arm_swp_lock
+    ))
 )]
 #[cfg_attr(
     all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
-    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        target_has_atomic = "ptr",
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_arm_swp_lock
+    ))
 )]
 atomic_int!(AtomicU128, u128, 16);

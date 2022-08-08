@@ -10,7 +10,13 @@
         not(target_has_atomic = "ptr")
     )))
 )]
-#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(
+    test,
+    not(any(
+        portable_atomic_unsafe_assume_single_core,
+        all(portable_atomic_arm_swp_lock, not(target_os = "linux"))
+    ))
+))]
 mod core_atomic;
 
 // Miri and Sanitizer do not support inline assembly.
@@ -92,6 +98,13 @@ mod riscv;
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 mod fallback;
 
+#[cfg(any(test, all(portable_atomic_arm_swp_lock, not(target_os = "linux"))))]
+#[cfg(all(
+    target_arch = "arm",
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+mod arm_swp_lock;
+
 // -----------------------------------------------------------------------------
 // Critical section based fallback implementations
 
@@ -123,7 +136,8 @@ mod interrupt;
         not(portable_atomic_no_atomic_cas),
         all(
             not(portable_atomic_no_atomic_load_store),
-            not(portable_atomic_unsafe_assume_single_core)
+            not(portable_atomic_unsafe_assume_single_core),
+            not(all(portable_atomic_arm_swp_lock, not(target_os = "linux"))),
         )
     ))
 )]
@@ -134,6 +148,7 @@ mod interrupt;
         all(
             not(portable_atomic_no_atomic_load_store),
             not(portable_atomic_unsafe_assume_single_core),
+            not(all(portable_atomic_arm_swp_lock, not(target_os = "linux"))),
             not(all(
                 any(target_arch = "riscv32", target_arch = "riscv64"),
                 not(target_has_atomic = "ptr")
@@ -171,6 +186,16 @@ pub(crate) use self::riscv::{
 pub(crate) use self::interrupt::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
+// pre-v6 ARM & portable_atomic_arm_swp_lock => arm_swp_lock
+#[cfg(all(
+    portable_atomic_arm_swp_lock,
+    not(target_os = "linux"),
+    target_arch = "arm",
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+pub(crate) use self::arm_swp_lock::{
+    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
+};
 
 // Atomic{I,U}32
 #[cfg(not(target_pointer_width = "16"))]
@@ -180,7 +205,8 @@ pub(crate) use self::interrupt::{
         not(portable_atomic_no_atomic_cas),
         all(
             not(portable_atomic_no_atomic_load_store),
-            not(portable_atomic_unsafe_assume_single_core)
+            not(portable_atomic_unsafe_assume_single_core),
+            not(all(portable_atomic_arm_swp_lock, not(target_os = "linux"))),
         )
     ))
 )]
@@ -191,6 +217,7 @@ pub(crate) use self::interrupt::{
         all(
             not(portable_atomic_no_atomic_load_store),
             not(portable_atomic_unsafe_assume_single_core),
+            not(all(portable_atomic_arm_swp_lock, not(target_os = "linux"))),
             not(all(
                 any(target_arch = "riscv32", target_arch = "riscv64"),
                 not(target_has_atomic = "ptr")
@@ -211,6 +238,14 @@ pub(crate) use self::riscv::{AtomicI32, AtomicU32};
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
+// pre-v6 ARM & portable_atomic_arm_swp_lock => arm_swp_lock
+#[cfg(all(
+    portable_atomic_arm_swp_lock,
+    not(target_os = "linux"),
+    target_arch = "arm",
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+pub(crate) use self::arm_swp_lock::{AtomicI32, AtomicU32};
 
 // Atomic{I,U}64
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
@@ -249,6 +284,15 @@ pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
+// pre-v6 ARM & portable_atomic_arm_swp_lock => arm_swp_lock
+#[cfg(feature = "fallback")]
+#[cfg(all(
+    portable_atomic_arm_swp_lock,
+    not(target_os = "linux"),
+    target_arch = "arm",
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+pub(crate) use self::arm_swp_lock::{AtomicI64, AtomicU64};
 
 // Atomic{I,U}128
 // aarch64 stable
@@ -314,3 +358,12 @@ pub(crate) use self::fallback::{AtomicI128, AtomicU128};
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI128, AtomicU128};
+// pre-v6 ARM & portable_atomic_arm_swp_lock => arm_swp_lock
+#[cfg(feature = "fallback")]
+#[cfg(all(
+    portable_atomic_arm_swp_lock,
+    not(target_os = "linux"),
+    target_arch = "arm",
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+pub(crate) use self::arm_swp_lock::{AtomicI128, AtomicU128};
