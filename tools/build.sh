@@ -165,6 +165,10 @@ build() {
         --workspace --ignore-private
         --no-dev-deps --feature-powerset --depth 3 --optional-deps
     )
+    case "${rustc_version}" in
+        # cargo bug: https://github.com/rust-lang/cargo/issues/10954
+        1.4[5-9].* | 1.50.*) args+=(--exclude-features "serde") ;;
+    esac
     case "${target}" in
         x86_64* | aarch64* | arm64*) ;;
         # outline-atomics feature only affects x86_64 and aarch64.
