@@ -30,7 +30,7 @@
 use super::msp430 as atomic;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 use super::riscv as atomic;
-#[cfg(target_arch = "arm")]
+#[cfg(portable_atomic_armv6m)]
 use core::sync::atomic;
 
 #[cfg_attr(portable_atomic_armv6m, path = "armv6m.rs")]
@@ -48,19 +48,14 @@ fn with<F, R>(f: F) -> R
 where
     F: FnOnce() -> R,
 {
-    // Get current interrupt state
-    let interrupts_enabled = arch::is_enabled();
-
-    // Disable interrupts
-    arch::disable();
+    // Get current interrupt state and disable interrupts
+    let state = arch::disable();
 
     let r = f();
 
     // Restore interrupt state
-    if interrupts_enabled {
-        // SAFETY: we've checked that interrupts were enabled before disabling interrupts.
-        unsafe { arch::enable() }
-    }
+    // SAFETY: the state was retrieved by the previous `disable`.
+    unsafe { arch::restore(state) }
 
     r
 }

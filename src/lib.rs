@@ -161,9 +161,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
         portable_atomic_nightly,
         portable_atomic_no_asm,
         any(
-            portable_atomic_armv6m,
             all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"),
                 not(target_has_atomic = "ptr")
             ),
             target_arch = "aarch64",
@@ -219,6 +218,7 @@ compile_error!(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         not(portable_atomic_no_atomic_cas),
+        not(target_os = "none"),
         not(any(
             portable_atomic_armv6m,
             all(
@@ -233,6 +233,7 @@ compile_error!(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "ptr",
+        not(target_os = "none"),
         not(any(
             portable_atomic_armv6m,
             all(
