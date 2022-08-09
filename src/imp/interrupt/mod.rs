@@ -1,10 +1,23 @@
 // Critical section based fallback implementations
 //
-// Since critical session-based fallback is not sound on multi-core systems,
-// this module will only be enabled in one of the following cases:
+// Critical session (disabling interrupts) based fallback is not sound on multi-core systems.
+// Also, this uses privileged instructions to disable interrupts, so it usually
+// doesn't work on unprivileged mode. Using this fallback in an environment where privileged
+// instructions are not available is also usually considered **unsound**,
+// although the details are system-dependent.
 //
-// - If the user explicitly declares the target to be single-core using an unsafe cfg.
-// - If the target can be safely assumed to be single-core.
+// Therefore, this implementation will only be enabled in one of the following cases:
+//
+// - When the user explicitly declares that the system is single-core and that
+//   privileged instructions are available using an unsafe cfg.
+// - When we can safely assume that the system is single-core and that
+//   privileged instructions are available on the system.
+//
+// AVR, which is single core[^avr1] and LLVM also generates code that disables
+// interrupts [^avr2] in atomic ops by default, is considered the latter.
+//
+// [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
+// [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts.

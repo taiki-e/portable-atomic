@@ -59,9 +59,12 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
 - **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
   Assume that the target is single-core.
-  When this cfg is enabled, this crate provides atomic CAS for targets where atomic CAS is not available in the standard library.
+  When this cfg is enabled, this crate provides atomic CAS for targets where atomic CAS is not available in the standard library by disabling interrupts.
 
-  Note: This cfg is `unsafe`, and enabling this cfg for multi-core systems is **unsound**.
+  This cfg is `unsafe`, and note the following safety requirements:
+  - Enabling this cfg for multi-core systems is always **unsound**.
+  - This uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
+    Enabling this cfg in an environment where privileged instructions are not available is also usually considered **unsound**, although the details are system-dependent.
 
   This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
 
