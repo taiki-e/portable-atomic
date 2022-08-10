@@ -206,7 +206,7 @@ pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::riscv::{AtomicI32, AtomicU32};
 // no core Atomic{I,U}32 & no CAS & assume single core => critical section based fallback
-#[cfg(any(target_pointer_width = "32", target_pointer_width = "64", feature = "fallback"))]
+#[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
@@ -219,7 +219,7 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
     cfg(any(
         target_has_atomic = "64",
         all(
-            target_pointer_width = "64",
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
             not(portable_atomic_no_atomic_load_store),
             not(portable_atomic_unsafe_assume_single_core),
             not(all(
@@ -244,7 +244,10 @@ pub(crate) use self::riscv::{AtomicI64, AtomicU64};
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 // no core Atomic{I,U}64 & no CAS & assume single core => critical section based fallback
-#[cfg(any(target_pointer_width = "64", feature = "fallback"))]
+#[cfg(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    feature = "fallback"
+))]
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]

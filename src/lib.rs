@@ -3000,7 +3000,7 @@ atomic_int!(AtomicU32, u32, 4);
     cfg(any(
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
-        target_pointer_width = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
     ))
 )]
@@ -3009,7 +3009,7 @@ atomic_int!(AtomicU32, u32, 4);
     cfg(any(
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
-        target_pointer_width = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
     ))
 )]
@@ -3019,7 +3019,7 @@ atomic_int!(AtomicI64, i64, 8);
     cfg(any(
         all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
         not(portable_atomic_no_atomic_64),
-        target_pointer_width = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
     ))
 )]
@@ -3028,7 +3028,7 @@ atomic_int!(AtomicI64, i64, 8);
     cfg(any(
         all(feature = "fallback", target_has_atomic = "ptr"),
         target_has_atomic = "64",
-        target_pointer_width = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
     ))
 )]

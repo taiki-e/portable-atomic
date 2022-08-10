@@ -310,14 +310,14 @@ macro_rules! atomic {
     };
 }
 
-#[cfg(not(target_pointer_width = "64"))]
+#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
 atomic!(AtomicI64, i64, 8);
-#[cfg(not(target_pointer_width = "64"))]
+#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
@@ -333,9 +333,9 @@ atomic!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    #[cfg(not(target_pointer_width = "64"))]
+    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
     test_atomic_int!(i64);
-    #[cfg(not(target_pointer_width = "64"))]
+    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);

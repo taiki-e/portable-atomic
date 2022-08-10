@@ -11,13 +11,13 @@ use core::{
 use crate::utils::Backoff;
 
 // See mod.rs for details.
-#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 use core::sync::atomic::AtomicU64 as AtomicStamp;
-#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+#[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
 use core::sync::atomic::AtomicUsize as AtomicStamp;
-#[cfg(any(target_pointer_width = "64", target_pointer_width = "128"))]
+#[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
 pub(crate) type Stamp = usize;
-#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "128")))]
+#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 pub(crate) type Stamp = u64;
 
 /// A simple stamped lock.

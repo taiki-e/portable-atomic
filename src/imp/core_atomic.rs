@@ -366,6 +366,9 @@ atomic_int!(AtomicI32(i32), AtomicU32(u32));
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(target_has_atomic = "64", target_pointer_width = "64")) // cfg(target_has_atomic_load_store = "64")
+    cfg(any(
+        target_has_atomic = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+    )) // cfg(target_has_atomic_load_store = "64")
 )]
 atomic_int!(AtomicI64(i64), AtomicU64(u64));
