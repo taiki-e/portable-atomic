@@ -6,7 +6,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) (optional, [single-core only](#optional-cfg))
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) ([optional](#optional-cfg))
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
@@ -70,9 +70,37 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
-  ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM and multi-core systems.
+  ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM.
+
+  For multi-core systems or unsupported targets, consider using `--cfg portable_atomic_unsafe_atomic_builtins` or `--cfg portable_atomic_unsafe_atomic_builtins_N`.
 
   Feel free to submit an issue if your target is not supported yet.
+
+- **`--cfg portable_atomic_unsafe_atomic_builtins`**<br>
+  Use [`__atomic_*` builtins](https://llvm.org/docs/Atomics.html#libcalls-atomic).
+
+  Combine this with custom atomic logic and you can support CAS on multi-core systems where atomic CAS is not available in the standard library.
+
+  Note: This cfg is `unsafe`.
+
+  This cfg enables pointer-width and smaller atomic types.
+
+  To enable atomic types grater than pointer-width, you need to enable `--cfg portable_atomic_unsafe_atomic_builtins_N` cfgs.
+
+- **`--cfg portable_atomic_unsafe_atomic_builtins_N`**<br>
+  Similar to `--cfg portable_atomic_unsafe_atomic_builtins`, but also enables the specified size and smaller atomic types if the pointer width is smaller than the specified size.
+
+  For example, when `--cfg portable_atomic_unsafe_atomic_builtins_4` is enabled:
+  - On 64-bit platform, `Atomic{I,U}{64,32,16,8}` will be enabled.
+  - On 32-bit and 16-bit platform, `Atomic{I,U}{32,16,8}` will be enabled.
+
+  `N` is in bytes and must be 4, 8, or 16. In other words, there are three valid patterns:
+
+  ```text
+  --cfg portable_atomic_unsafe_atomic_builtins_4
+  --cfg portable_atomic_unsafe_atomic_builtins_8
+  --cfg portable_atomic_unsafe_atomic_builtins_16
+  ```
 
 ## Related Projects
 
@@ -94,6 +122,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     )
 ))]
 #![warn(
+    improper_ctypes_definitions,
+    improper_ctypes,
     missing_debug_implementations,
     missing_docs,
     rust_2018_idioms,
@@ -250,6 +280,18 @@ compile_error!(
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
+#[cfg(miri)]
+#[cfg(any(
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+))]
+compile_error!(
+    "cfg(portable_atomic_unsafe_atomic_builtins) and cfg(portable_atomic_unsafe_atomic_builtins_N) \
+     do not compatible with Miri"
+);
+
 #[cfg(any(test, feature = "std"))]
 extern crate std;
 
@@ -263,7 +305,31 @@ mod tests;
 #[doc(no_inline)]
 pub use core::sync::atomic::{compiler_fence, fence, Ordering};
 
+#[cfg(not(any(
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+)))]
 mod imp;
+
+// *_atomic_builtins* cfg overwrites all existing implementations.
+#[cfg(any(
+    test,
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+))]
+#[path = "imp/libcalls.rs"]
+mod libcalls;
+#[cfg(any(
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+))]
+use libcalls as imp;
 
 pub mod hint {
     //! Re-export of the [`core::hint`] module.
@@ -530,11 +596,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[inline]
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
@@ -575,11 +655,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -626,11 +720,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -675,11 +783,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16,
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
@@ -718,11 +840,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
@@ -760,11 +896,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
@@ -802,11 +952,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
@@ -840,11 +1004,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_not(&self, order: Ordering) -> bool {
@@ -887,11 +1065,25 @@ impl AtomicBool {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_update<F>(
@@ -1146,11 +1338,25 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
@@ -1184,11 +1390,25 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -1235,11 +1455,25 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -1295,11 +1529,25 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[inline]
     pub fn fetch_update<F>(
@@ -1355,11 +1603,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -1398,11 +1660,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -1437,11 +1713,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1488,11 +1778,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1554,11 +1858,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1618,11 +1936,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1681,11 +2013,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -1708,11 +2054,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     #[cfg_attr(
         not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_atomic_builtins,
+            portable_atomic_unsafe_atomic_builtins_4,
+            portable_atomic_unsafe_atomic_builtins_8,
+            portable_atomic_unsafe_atomic_builtins_16
+        ))
     )]
     fn as_atomic_usize(&self) -> &AtomicUsize {
         let [] = [(); core::mem::size_of::<AtomicPtr<()>>() - core::mem::size_of::<AtomicUsize>()];
@@ -1761,9 +2121,9 @@ atomic instructions or locks will be used.
             // will show clearer docs.
             #[repr(C, align($align))]
             pub struct $atomic_type {
-                inner: imp::$atomic_type,
+                inner: crate::imp::$atomic_type,
                 // Prevent RefUnwindSafe from being propagated from the std atomic type.
-                _marker: PhantomData<NoRefUnwindSafe>,
+                _marker: core::marker::PhantomData<crate::utils::NoRefUnwindSafe>,
             }
         }
 
@@ -1783,11 +2143,11 @@ atomic instructions or locks will be used.
             }
         }
 
-        impl fmt::Debug for $atomic_type {
+        impl core::fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
-                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
+                core::fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
 
@@ -1815,7 +2175,10 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
                 #[inline]
                 #[must_use]
                 pub const fn new(v: $int_type) -> Self {
-                    Self { inner: imp::$atomic_type::new(v), _marker: PhantomData }
+                    Self {
+                        inner: crate::imp::$atomic_type::new(v),
+                        _marker: core::marker::PhantomData,
+                    }
                 }
             }
 
@@ -1836,7 +2199,7 @@ let is_lock_free = ", stringify!($atomic_type), "::is_lock_free();
                 #[inline]
                 #[must_use]
                 pub fn is_lock_free() -> bool {
-                    <imp::$atomic_type>::is_lock_free()
+                    <crate::imp::$atomic_type>::is_lock_free()
                 }
             }
 
@@ -1860,7 +2223,7 @@ const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock
                 #[inline]
                 #[must_use]
                 pub const fn is_always_lock_free() -> bool {
-                    <imp::$atomic_type>::is_always_lock_free()
+                    <crate::imp::$atomic_type>::is_always_lock_free()
                 }
             }
 
@@ -1980,12 +2343,23 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2032,12 +2406,23 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2089,12 +2474,23 @@ loop {
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2132,12 +2528,23 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2168,12 +2575,23 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2207,12 +2625,23 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2246,12 +2675,23 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2285,12 +2725,23 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2324,12 +2775,23 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2370,12 +2832,23 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_update<F>(
@@ -2435,12 +2908,23 @@ assert!(max_foo == 42);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2487,12 +2971,23 @@ assert_eq!(min_foo, 12);
                     portable_atomic_no_cfg_target_has_atomic,
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
                     ))
                 )]
                 #[cfg_attr(
                     not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        portable_atomic_unsafe_atomic_builtins,
+                        portable_atomic_unsafe_atomic_builtins_4,
+                        portable_atomic_unsafe_atomic_builtins_8,
+                        portable_atomic_unsafe_atomic_builtins_16
+                    ))
                 )]
                 #[inline]
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -2539,11 +3034,11 @@ This type has the same in-memory representation as the underlying floating point
             }
         }
 
-        impl fmt::Debug for $atomic_type {
+        impl core::fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
-                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
+                core::fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
 
@@ -2651,12 +3146,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -2681,12 +3187,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2727,12 +3244,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
@@ -2766,12 +3294,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -2793,12 +3332,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -2828,12 +3378,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_update<F>(
@@ -2870,12 +3431,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -2900,12 +3472,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -2928,12 +3511,23 @@ This type has the same in-memory representation as the underlying floating point
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
                 ))
             )]
             #[cfg_attr(
                 not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_atomic_builtins,
+                    portable_atomic_unsafe_atomic_builtins_4,
+                    portable_atomic_unsafe_atomic_builtins_8,
+                    portable_atomic_unsafe_atomic_builtins_16
+                ))
             )]
             #[inline]
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
@@ -2982,123 +3576,200 @@ atomic_int!(AtomicU8, u8, 1);
 atomic_int!(AtomicI16, i16, 2);
 atomic_int!(AtomicU16, u16, 2);
 
-// cfg(any(target_has_atomic_load_store = "32", target_arch = "riscv32", target_arch = "riscv64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
-#[cfg(any(
-    not(target_pointer_width = "16"),
-    all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-))]
-atomic_int!(AtomicI32, i32, 4);
-#[cfg(any(
-    not(target_pointer_width = "16"),
-    all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-))]
-atomic_int!(AtomicU32, u32, 4);
+pub use imp_::*;
+#[cfg(not(any(
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+)))]
+mod imp_ {
+    use core::sync::atomic::Ordering;
+    #[cfg(doc)]
+    use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
 
-// cfg(any(target_has_atomic = "ptr", target_has_atomic_load_store = "64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
-        not(portable_atomic_no_atomic_64),
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    // cfg(any(target_has_atomic_load_store = "32", target_arch = "riscv32", target_arch = "riscv64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
+    #[cfg(any(
+        not(target_pointer_width = "16"),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-    ))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        all(feature = "fallback", target_has_atomic = "ptr"),
-        target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    ))]
+    atomic_int!(AtomicI32, i32, 4);
+    #[cfg(any(
+        not(target_pointer_width = "16"),
         all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-    ))
-)]
-atomic_int!(AtomicI64, i64, 8);
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
-        not(portable_atomic_no_atomic_64),
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-    ))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        all(feature = "fallback", target_has_atomic = "ptr"),
-        target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-        all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
-    ))
-)]
-atomic_int!(AtomicU64, u64, 8);
+    ))]
+    atomic_int!(AtomicU32, u32, 4);
 
-#[cfg_attr(
-    not(feature = "fallback"),
-    cfg(any(
-        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
-        all(
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(
-                target_feature = "cmpxchg16b",
-                portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_cmpxchg16b_dynamic
+    // cfg(any(target_has_atomic = "ptr", target_has_atomic_load_store = "64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
+            not(portable_atomic_no_atomic_64),
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(feature = "fallback", target_has_atomic = "ptr"),
+            target_has_atomic = "64",
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        ))
+    )]
+    atomic_int!(AtomicI64, i64, 8);
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(feature = "fallback", not(portable_atomic_no_atomic_cas)),
+            not(portable_atomic_no_atomic_64),
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(feature = "fallback", target_has_atomic = "ptr"),
+            target_has_atomic = "64",
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            all(feature = "fallback", portable_atomic_unsafe_assume_single_core)
+        ))
+    )]
+    atomic_int!(AtomicU64, u64, 8);
+
+    #[cfg_attr(
+        not(feature = "fallback"),
+        cfg(any(
+            all(
+                any(not(portable_atomic_no_asm), portable_atomic_nightly),
+                target_arch = "aarch64"
             ),
-            target_arch = "x86_64",
-        ),
-        all(
-            all(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(
-                target_endian = "little",
-                target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
+            all(
+                any(not(portable_atomic_no_asm), portable_atomic_nightly),
+                any(
+                    target_feature = "cmpxchg16b",
+                    portable_atomic_target_feature = "cmpxchg16b",
+                    portable_atomic_cmpxchg16b_dynamic
+                ),
+                target_arch = "x86_64",
             ),
-            target_arch = "powerpc64"
-        ),
-        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
-    ))
-)]
-#[cfg_attr(
-    all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
-)]
-#[cfg_attr(
-    all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
-    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
-)]
-atomic_int!(AtomicI128, i128, 16);
-#[cfg_attr(
-    not(feature = "fallback"),
-    cfg(any(
-        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
-        all(
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(
-                target_feature = "cmpxchg16b",
-                portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_cmpxchg16b_dynamic
+            all(
+                all(not(portable_atomic_no_asm), portable_atomic_nightly),
+                any(
+                    target_endian = "little",
+                    target_feature = "quadword-atomics",
+                    portable_atomic_target_feature = "quadword-atomics"
+                ),
+                target_arch = "powerpc64"
             ),
-            target_arch = "x86_64",
-        ),
-        all(
-            all(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(
-                target_endian = "little",
-                target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
+            all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+        ))
+    )]
+    #[cfg_attr(
+        all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    atomic_int!(AtomicI128, i128, 16);
+    #[cfg_attr(
+        not(feature = "fallback"),
+        cfg(any(
+            all(
+                any(not(portable_atomic_no_asm), portable_atomic_nightly),
+                target_arch = "aarch64"
             ),
-            target_arch = "powerpc64"
-        ),
-        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
-    ))
-)]
-#[cfg_attr(
-    all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
-)]
-#[cfg_attr(
-    all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
-    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
-)]
-atomic_int!(AtomicU128, u128, 16);
+            all(
+                any(not(portable_atomic_no_asm), portable_atomic_nightly),
+                any(
+                    target_feature = "cmpxchg16b",
+                    portable_atomic_target_feature = "cmpxchg16b",
+                    portable_atomic_cmpxchg16b_dynamic
+                ),
+                target_arch = "x86_64",
+            ),
+            all(
+                all(not(portable_atomic_no_asm), portable_atomic_nightly),
+                any(
+                    target_endian = "little",
+                    target_feature = "quadword-atomics",
+                    portable_atomic_target_feature = "quadword-atomics"
+                ),
+                target_arch = "powerpc64"
+            ),
+            all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+        ))
+    )]
+    #[cfg_attr(
+        all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+    )]
+    #[cfg_attr(
+        all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
+        cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+    )]
+    atomic_int!(AtomicU128, u128, 16);
+}
+#[cfg(any(
+    portable_atomic_unsafe_atomic_builtins,
+    portable_atomic_unsafe_atomic_builtins_4,
+    portable_atomic_unsafe_atomic_builtins_8,
+    portable_atomic_unsafe_atomic_builtins_16,
+))]
+mod imp_ {
+    use core::sync::atomic::Ordering;
+    #[cfg(doc)]
+    use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
+
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_4,
+        portable_atomic_unsafe_atomic_builtins_8,
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(target_pointer_width = "16")
+    ))]
+    atomic_int!(AtomicI32, i32, 4);
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_4,
+        portable_atomic_unsafe_atomic_builtins_8,
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(target_pointer_width = "16")
+    ))]
+    atomic_int!(AtomicU32, u32, 4);
+
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_8,
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+    ))]
+    atomic_int!(AtomicI64, i64, 8);
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_8,
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+    ))]
+    atomic_int!(AtomicU64, u64, 8);
+
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(any(
+            target_pointer_width = "16",
+            target_pointer_width = "32",
+            target_pointer_width = "64"
+        ))
+    ))]
+    atomic_int!(AtomicI128, i128, 16);
+    #[cfg(any(
+        portable_atomic_unsafe_atomic_builtins_16,
+        not(any(
+            target_pointer_width = "16",
+            target_pointer_width = "32",
+            target_pointer_width = "64"
+        ))
+    ))]
+    atomic_int!(AtomicU128, u128, 16);
+}
