@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) (optional, [single-core only](#optional-cfg))
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) ([optional](#optional-cfg))
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
@@ -78,9 +78,37 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
-  ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM and multi-core systems.
+  ARMv6-M (thumbv6m), RISC-V without A-extension, MSP430, and AVR are currently supported. See [#26] for support of no-std pre-v6 ARM.
+
+  For multi-core systems or unsupported targets, consider using `--cfg portable_atomic_unsafe_atomic_builtins` or `--cfg portable_atomic_unsafe_atomic_builtins_N`.
 
   Feel free to submit an issue if your target is not supported yet.
+
+- **`--cfg portable_atomic_unsafe_atomic_builtins`**<br>
+  Use [`__atomic_*` builtins](https://llvm.org/docs/Atomics.html#libcalls-atomic).
+
+  Combine this with custom atomic logic and you can support CAS on multi-core systems where atomic CAS is not available in the standard library.
+
+  Note: This cfg is `unsafe`.
+
+  This cfg enables pointer-width and smaller atomic types.
+
+  To enable atomic types grater than pointer-width, you need to enable `--cfg portable_atomic_unsafe_atomic_builtins_N` cfgs.
+
+- **`--cfg portable_atomic_unsafe_atomic_builtins_N`**<br>
+  Similar to `--cfg portable_atomic_unsafe_atomic_builtins`, but also enables the specified size and smaller atomic types if the pointer width is smaller than the specified size.
+
+  For example, when `--cfg portable_atomic_unsafe_atomic_builtins_4` is enabled:
+  - On 64-bit platform, `Atomic{I,U}{64,32,16,8}` will be enabled.
+  - On 32-bit and 16-bit platform, `Atomic{I,U}{32,16,8}` will be enabled.
+
+  `N` is in bytes and must be 4, 8, or 16. In other words, there are three valid patterns:
+
+  ```text
+  --cfg portable_atomic_unsafe_atomic_builtins_4
+  --cfg portable_atomic_unsafe_atomic_builtins_8
+  --cfg portable_atomic_unsafe_atomic_builtins_16
+  ```
 
 ## Related Projects
 

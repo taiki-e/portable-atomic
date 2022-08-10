@@ -102,7 +102,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
             # TODO: handle key-value cfg from build script as --check-cfg=values(name, "value1", "value2", ... "valueN")
             # shellcheck disable=SC2207
             build_script_cfg=($(grep -E 'cargo:rustc-cfg=' build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort | uniq))
-            check_cfg="-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,$(IFS=',' && echo "${build_script_cfg[*]}")) --check-cfg=values(target_pointer_width,\"128\")"
+            check_cfg="-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,portable_atomic_unsafe_atomic_builtins,portable_atomic_unsafe_atomic_builtins_4,portable_atomic_unsafe_atomic_builtins_8,portable_atomic_unsafe_atomic_builtins_16,$(IFS=',' && echo "${build_script_cfg[*]}")) --check-cfg=values(target_pointer_width,\"128\")"
             rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
             base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
             ;;
