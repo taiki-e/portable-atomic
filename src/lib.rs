@@ -218,7 +218,6 @@ compile_error!(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         not(portable_atomic_no_atomic_cas),
-        not(target_os = "none"),
         not(any(
             portable_atomic_armv6m,
             all(
@@ -233,7 +232,6 @@ compile_error!(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "ptr",
-        not(target_os = "none"),
         not(any(
             portable_atomic_armv6m,
             all(
