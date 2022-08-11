@@ -130,7 +130,7 @@ fn main() {
 
     match &*target_arch {
         "x86_64" => {
-            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
+            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
             let is_x86_64_macos = target == "x86_64-apple-darwin";
             if has_target_feature("cmpxchg16b", is_x86_64_macos, &version, None, true) {
                 target_feature("cmpxchg16b");
@@ -140,14 +140,14 @@ fn main() {
             }
         }
         "aarch64" => {
-            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
+            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
             let is_aarch64_macos = target == "aarch64-apple-darwin";
             // aarch64_target_feature stabilized in Rust 1.61.
             if has_target_feature("lse", is_aarch64_macos, &version, Some(61), true) {
                 target_feature("lse");
             }
-            // As of rustc 1.62.0, target_feature "lse2" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+            // As of rustc 1.63, target_feature "lse2" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
             if has_target_feature("lse2", is_aarch64_macos, &version, None, false) {
                 target_feature("lse2");
             }
@@ -178,7 +178,7 @@ fn main() {
                 "v6m" | "v7em" | "v7m" | "v8m" => target_feature("mclass"),
                 "v7r" => target_feature("rclass"),
                 // arm-linux-androideabi is v5te
-                // https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
+                // https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => arch = "v5te",
                 // v6 targets other than v6m don't have *class target feature.
                 "" | "v6" | "v6k" => arch = "v6",

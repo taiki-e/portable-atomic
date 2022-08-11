@@ -350,7 +350,7 @@ impl From<bool> for AtomicBool {
 impl fmt::Debug for AtomicBool {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L1527
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -953,7 +953,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L1527
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -961,7 +961,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L1527
         fmt::Pointer::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -1784,7 +1784,7 @@ atomic instructions or locks will be used.
         impl fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L1527
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
@@ -2540,7 +2540,7 @@ This type has the same in-memory representation as the underlying floating point
         impl fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/b2c9872c6c2c60c905e16bce0801934b86d15f95/library/core/src/sync/atomic.rs#L1520
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L1527
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }

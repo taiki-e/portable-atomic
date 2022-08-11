@@ -12,9 +12,9 @@
 // compare_exchange(_weak) if FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
-// Note: As of rustc 1.62.0, -C target-feature=+lse2 does not
+// Note: As of rustc 1.63, -C target-feature=+lse2 does not
 // implicitly enable target_feature "lse". Also, target_feature "lse2" is not available on rustc side:
-// https://github.com/rust-lang/rust/blob/1.62.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+// https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
 //
 // Refs:
 // - ARM Compiler armasm User Guide

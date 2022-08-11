@@ -192,7 +192,7 @@ pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}
 
-// https://github.com/rust-lang/rust/blob/1.62.0/library/core/src/sync/atomic.rs#L2556
+// https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L2563
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
