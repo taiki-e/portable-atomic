@@ -91,8 +91,8 @@ aarch64_linux_valgrind_task:
 #     memory: 12G
 #   setup_script:
 #     - rustup toolchain add nightly && rustup default nightly
-#   test_script:
-#     - cargo bench -vv --manifest-path bench/Cargo.toml
+#   bench_script:
+#     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics" cargo bench -vv --manifest-path bench/Cargo.toml
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
 # aarch64_macos_bench_task:
@@ -103,7 +103,7 @@ aarch64_linux_valgrind_task:
 #     image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
 #   setup_script:
 #     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
-#   test_script:
+#   bench_script:
 #     - sysctl -a | grep machdep.cpu
 #     - source $HOME/.cargo/env
 #     - cargo bench -vv --manifest-path bench/Cargo.toml

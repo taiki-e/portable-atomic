@@ -60,6 +60,7 @@ trait AtomicInt<T: Copy>: Sized + Send + Sync {
     fn load(&self) -> T;
     fn store(&self, val: T);
     fn swap(&self, val: T) -> T;
+    fn compare_exchange(&self, old: u128, new: u128) -> u128;
     fn fetch_add(&self, val: T) -> T;
 }
 macro_rules! impl_atomic_u128 {
@@ -76,6 +77,10 @@ macro_rules! impl_atomic_u128 {
             }
             fn swap(&self, val: u128) -> u128 {
                 self.swap(val, Ordering::AcqRel)
+            }
+            fn compare_exchange(&self, old: u128, new: u128) -> u128 {
+                self.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire)
+                    .unwrap_or_else(|x| x)
             }
             fn fetch_add(&self, val: u128) -> u128 {
                 self.fetch_add(val, Ordering::AcqRel)
@@ -101,6 +106,9 @@ impl AtomicInt<u128> for crossbeam_utils::atomic::AtomicCell<u128> {
     }
     fn swap(&self, val: u128) -> u128 {
         self.swap(val)
+    }
+    fn compare_exchange(&self, old: u128, new: u128) -> u128 {
+        self.compare_exchange(old, new).unwrap_or_else(|x| x)
     }
     fn fetch_add(&self, val: u128) -> u128 {
         self.fetch_add(val)
@@ -272,6 +280,16 @@ macro_rules! benches {
             g.bench_function("u128_swap", |b| {
                 let a = A::new(black_box(1));
                 b.iter(|| AtomicInt::<u128>::swap(&a, black_box(2)));
+                black_box(a);
+            });
+            g.bench_function("u128_compare_exchange_success", |b| {
+                let a = A::new(black_box(1));
+                b.iter(|| AtomicInt::<u128>::compare_exchange(&a, black_box(1), black_box(2)));
+                black_box(a);
+            });
+            g.bench_function("u128_compare_exchange_fail", |b| {
+                let a = A::new(black_box(1));
+                b.iter(|| AtomicInt::<u128>::compare_exchange(&a, black_box(2), black_box(3)));
                 black_box(a);
             });
             g.bench_function("u128_fetch_add", |b| {
