@@ -291,7 +291,7 @@ mod version {
     }
 
     impl Version {
-        pub(crate) const LATEST: Self = Self::stable(62);
+        pub(crate) const LATEST: Self = Self::stable(63);
 
         const fn stable(minor: u32) -> Self {
             Self { minor, nightly: false, commit_date: Date::new(0, 0, 0) }
