@@ -25,6 +25,7 @@ pub(super) fn disable() -> WasEnabled {
         #[cfg(portable_atomic_no_asm)]
         llvm_asm!("cli" ::: "memory" : "volatile");
     }
+    // I (Global Interrupt Enable) bit (1 << 7)
     WasEnabled(sreg & 0x80 != 0)
 }
 

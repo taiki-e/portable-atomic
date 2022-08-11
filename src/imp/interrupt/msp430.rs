@@ -25,7 +25,8 @@ pub(super) fn disable() -> WasEnabled {
         #[cfg(portable_atomic_no_asm)]
         llvm_asm!("dint { nop" ::: "memory" : "volatile");
     }
-    WasEnabled(r & (1 << 3) != 0)
+    // GIE (global interrupt enable) bit (1 << 3)
+    WasEnabled(r & 0x8 != 0)
 }
 
 /// Restores the previous interrupt state.

@@ -21,6 +21,7 @@ pub(super) fn disable() -> WasEnabled {
             options(nostack, preserves_flags),
         );
     }
+    // MIE (Machine Interrupt Enable) bit (1 << 3)
     WasEnabled(r & 0x8 != 0)
 }
 

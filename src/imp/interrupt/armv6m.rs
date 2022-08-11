@@ -21,7 +21,7 @@ pub(super) fn disable() -> WasEnabled {
             options(nostack, preserves_flags),
         );
     }
-    WasEnabled(r & (1 << 0) == 0)
+    WasEnabled(r & 0x1 == 0)
 }
 
 /// Restores the previous interrupt state.
