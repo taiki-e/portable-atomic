@@ -1,4 +1,4 @@
-#[cfg(any(target_arch = "aarch64", target_arch = "s390x", target_arch = "x86_64"))]
+#[cfg(any(target_arch = "s390x", target_arch = "x86_64"))]
 macro_rules! atomic128 {
     ($atomic_type:ident, $int_type:ident) => {
         #[repr(C, align(16))]
@@ -198,7 +198,7 @@ macro_rules! atomic128 {
     };
 }
 
-#[cfg(any(target_arch = "powerpc64"))]
+#[cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 macro_rules! atomic128 {
     ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]

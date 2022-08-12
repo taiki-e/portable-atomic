@@ -8,6 +8,11 @@
 // powerpc64le is pwr8+ https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L652
 // See also https://github.com/rust-lang/rust/issues/59932
 //
+// Note that we do not separate LL and SC into separate functions, but handle
+// them within a single asm block. This is because it is theoretically possible
+// for the compiler to insert operations that might clear the reservation between
+// LL and SC. See aarch64.rs for details.
+//
 // Refs:
 // - Power ISA https://openpowerfoundation.org/specifications/isa
 // - AIX Assembler language reference https://www.ibm.com/docs/en/aix/7.3?topic=aix-assembler-language-reference
