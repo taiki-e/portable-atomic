@@ -37,7 +37,7 @@ mod aarch64;
 #[path = "atomic128/x86_64.rs"]
 mod x86_64;
 
-#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(any(
     target_endian = "little",
     target_feature = "quadword-atomics",
@@ -47,7 +47,7 @@ mod x86_64;
 #[path = "atomic128/powerpc64.rs"]
 mod powerpc64;
 
-#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(target_arch = "s390x")]
 #[path = "atomic128/s390x.rs"]
 mod s390x;
@@ -77,7 +77,7 @@ mod riscv;
             target_arch = "x86_64",
         ),
         all(
-            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            portable_atomic_asm_experimental_arch,
             any(
                 target_endian = "little",
                 target_feature = "quadword-atomics",
@@ -85,7 +85,7 @@ mod riscv;
             ),
             target_arch = "powerpc64"
         ),
-        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
     ))
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -275,7 +275,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 ))]
 pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 // powerpc64
-#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(any(
     target_endian = "little",
     target_feature = "quadword-atomics",
@@ -284,7 +284,7 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 #[cfg(target_arch = "powerpc64")]
 pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
 // s390x
-#[cfg(all(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(target_arch = "s390x")]
 pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
@@ -301,7 +301,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         target_arch = "x86_64",
     ),
     all(
-        all(not(portable_atomic_no_asm), portable_atomic_nightly),
+        portable_atomic_asm_experimental_arch,
         any(
             target_endian = "little",
             target_feature = "quadword-atomics",
@@ -309,7 +309,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         ),
         target_arch = "powerpc64"
     ),
-    all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+    all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
 )))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]

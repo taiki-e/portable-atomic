@@ -76,7 +76,8 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");
     }
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
-    if !version.probe(59, 2021, 12, 15) {
+    let no_asm = !version.probe(59, 2021, 12, 15);
+    if no_asm {
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     }
     // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621
@@ -91,7 +92,10 @@ fn main() {
 
     // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824
     if !version.probe(60, 2022, 2, 10) {
-        if version.nightly {
+        if version.nightly && is_allowed_feature("cfg_target_has_atomic") {
+            // This feature has not been changed since the change in nightly-2019-10-14
+            // until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
+            // nightly, which is older than nightly-2022-02-11.
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         } else {
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
@@ -126,6 +130,13 @@ fn main() {
         if sanitize.contains("thread") {
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
+
+        if !no_asm
+            && (target_arch == "powerpc64" || target_arch == "s390x")
+            && is_allowed_feature("asm_experimental_arch")
+        {
+            println!("cargo:rustc-cfg=portable_atomic_asm_experimental_arch");
+        }
     }
 
     match &*target_arch {
@@ -135,7 +146,11 @@ fn main() {
             if has_target_feature("cmpxchg16b", is_x86_64_macos, &version, None, true) {
                 target_feature("cmpxchg16b");
             }
-            if version.nightly && cfg!(feature = "fallback") && cfg!(feature = "outline-atomics") {
+            if version.nightly
+                && cfg!(feature = "fallback")
+                && cfg!(feature = "outline-atomics")
+                && is_allowed_feature("cmpxchg16b_target_feature")
+            {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
             }
         }
@@ -279,6 +294,22 @@ fn target_cpu() -> Option<String> {
         }
     }
     cpu.map(str::to_owned)
+}
+
+fn is_allowed_feature(name: &str) -> bool {
+    if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+        for mut flag in rustflags.to_string_lossy().split('\x1f') {
+            if flag.starts_with("-Z") {
+                flag = &flag["-Z".len()..];
+            }
+            if flag.starts_with("allow-features=") {
+                flag = &flag["allow-features=".len()..];
+                return flag.split(',').any(|allowed| allowed == name);
+            }
+        }
+    }
+    // allowed by default
+    true
 }
 
 mod version {

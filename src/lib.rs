@@ -128,20 +128,29 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     clippy::module_inception,
     clippy::type_complexity
 )]
-// 128-bit atomic
+// x86_64 128-bit atomic (fallback + dynamic detection only)
+// we use cfg set by build script to determine whether this feature is available or not.
 #![cfg_attr(
     all(
+        portable_atomic_nightly,
         target_arch = "x86_64",
-        any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic)
+        any(
+            test,
+            all(
+                portable_atomic_cmpxchg16b_dynamic,
+                not(any(
+                    target_feature = "cmpxchg16b",
+                    portable_atomic_target_feature = "cmpxchg16b",
+                ))
+            )
+        )
     ),
     feature(cmpxchg16b_target_feature)
 )]
-// cfg(cfg_target_has_atomic) on old nightly
-// This feature has not been changed since the change in nightly-2019-10-14
-// until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
-// nightly, which is older than nightly-2022-02-11.
-#![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
-// asm
+// asm_experimental_arch
+// AVR and MSP430 are tier 3 platforms and require nightly anyway.
+// On tier 2 platforms (powerpc64 and s390x), we use cfg set by build script to
+// determine whether this feature is available or not.
 #![cfg_attr(
     all(
         portable_atomic_nightly,
@@ -149,12 +158,25 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
         any(
             target_arch = "avr",
             target_arch = "msp430",
-            target_arch = "powerpc64",
-            target_arch = "s390x",
+            all(
+                portable_atomic_asm_experimental_arch,
+                target_arch = "powerpc64",
+                any(
+                    target_endian = "little",
+                    target_feature = "quadword-atomics",
+                    portable_atomic_target_feature = "quadword-atomics"
+                )
+            ),
+            all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
         ),
     ),
     feature(asm_experimental_arch)
 )]
+// Old nightly only
+// These features are already stable or have already been removed from compilers,
+// and can safely be enabled for old nightly as long as version detection works.
+// cfg(cfg_target_has_atomic) on old nightly
+#![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
 // asm on old nightly
 #![cfg_attr(
     all(
@@ -172,12 +194,13 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     feature(asm)
 )]
 // llvm_asm on old nightly
-// TODO: remove use of llvm_asm when https://github.com/rust-lang/compiler-builtins/issues/400 fixed.
 #![cfg_attr(
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
 )]
-// miri or tsan only
+// Miri and/or Sanitizer only
+// They do not support inline assembly, so we need to use unstable features instead of it.
+// Since they require nightly compilers anyway, we can use the unstable features.
 #![cfg_attr(
     all(
         any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
@@ -192,12 +215,11 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     ),
     feature(stdsimd)
 )]
-// miri only
 #![cfg_attr(
     all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr),
     feature(strict_provenance_atomic_ptr)
 )]
-// docs only
+// docs.rs only
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 // There are currently no 8-bit, 128-bit, or higher builtin targets.
@@ -3046,7 +3068,7 @@ atomic_int!(AtomicU64, u64, 8);
             target_arch = "x86_64",
         ),
         all(
-            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            portable_atomic_asm_experimental_arch,
             any(
                 target_endian = "little",
                 target_feature = "quadword-atomics",
@@ -3054,7 +3076,7 @@ atomic_int!(AtomicU64, u64, 8);
             ),
             target_arch = "powerpc64"
         ),
-        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(
@@ -3080,7 +3102,7 @@ atomic_int!(AtomicI128, i128, 16);
             target_arch = "x86_64",
         ),
         all(
-            all(not(portable_atomic_no_asm), portable_atomic_nightly),
+            portable_atomic_asm_experimental_arch,
             any(
                 target_endian = "little",
                 target_feature = "quadword-atomics",
@@ -3088,7 +3110,7 @@ atomic_int!(AtomicI128, i128, 16);
             ),
             target_arch = "powerpc64"
         ),
-        all(all(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "s390x"),
+        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(

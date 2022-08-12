@@ -1,7 +1,7 @@
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
 #![allow(clippy::only_used_in_recursion)]
-#![feature(cmpxchg16b_target_feature, stdsimd, core_intrinsics, asm_experimental_arch)]
+#![feature(asm_experimental_arch, cmpxchg16b_target_feature, core_intrinsics, stdsimd)]
 
 use std::{
     hint,
