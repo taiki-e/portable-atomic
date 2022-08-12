@@ -98,10 +98,12 @@ mod fallback;
 // On AVR, we always use critical section based fallback implementation.
 // AVR can be safely assumed to be single-core, so this is sound.
 // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
+// MSP430 as well.
 #[cfg(any(
     all(test, target_os = "none"),
     portable_atomic_unsafe_assume_single_core,
-    target_arch = "avr"
+    target_arch = "avr",
+    target_arch = "msp430",
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(
@@ -147,12 +149,6 @@ mod interrupt;
 pub(crate) use self::core_atomic::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
-// MSP430
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
-#[cfg(target_arch = "msp430")]
-pub(crate) use self::msp430::{
-    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
-};
 // RISC-V without A-extension
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
@@ -162,15 +158,13 @@ pub(crate) use self::riscv::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
 // no core Atomic{Isize,Usize,Bool,Ptr}/Atomic{I,U}{8,16} & assume single core => critical section based fallback
-#[cfg(any(portable_atomic_unsafe_assume_single_core, target_arch = "avr"))]
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(portable_atomic_no_atomic_cas, target_arch = "avr"))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(not(target_has_atomic = "ptr"), target_arch = "avr"))
-)]
+#[cfg(any(
+    portable_atomic_unsafe_assume_single_core,
+    target_arch = "avr",
+    target_arch = "msp430"
+))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
@@ -210,7 +204,11 @@ pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
 pub(crate) use self::riscv::{AtomicI32, AtomicU32};
 // no core Atomic{I,U}32 & no CAS & assume single core => critical section based fallback
 #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg(any(
+    portable_atomic_unsafe_assume_single_core,
+    target_arch = "avr",
+    target_arch = "msp430"
+))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
@@ -251,7 +249,11 @@ pub(crate) use self::fallback::{AtomicI64, AtomicU64};
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     feature = "fallback"
 ))]
-#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg(any(
+    portable_atomic_unsafe_assume_single_core,
+    target_arch = "avr",
+    target_arch = "msp430"
+))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
@@ -316,7 +318,11 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 pub(crate) use self::fallback::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & no CAS & assume_single_core => critical section based fallback
 #[cfg(feature = "fallback")]
-#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg(any(
+    portable_atomic_unsafe_assume_single_core,
+    target_arch = "avr",
+    target_arch = "msp430"
+))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{AtomicI128, AtomicU128};

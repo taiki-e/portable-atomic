@@ -10,6 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Always provide atomic CAS for MSP430 and AVR.
+
+  This previously required unsafe cfg `portable_atomic_unsafe_assume_single_core`, but since all MSP430 and AVR are single-core, we can safely provide atomic CAS based on disabling interrupts.
+
 - Support `fence` and `compiler_fence` on MSP430.
 
 - Update safety requirements for unsafe cfg `portable_atomic_unsafe_assume_single_core` to mention use of privileged instructions to disable interrupts.

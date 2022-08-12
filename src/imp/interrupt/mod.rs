@@ -15,6 +15,7 @@
 //
 // AVR, which is single core[^avr1] and LLVM also generates code that disables
 // interrupts [^avr2] in atomic ops by default, is considered the latter.
+// MSP430 as well.
 //
 // [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 // [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
@@ -138,7 +139,6 @@ impl AtomicBool {
         }
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn swap(&self, val: bool, _order: Ordering) -> bool {
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -147,7 +147,6 @@ impl AtomicBool {
         with(|| unsafe { self.v.get().replace(val as u8) != 0 })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn compare_exchange(
         &self,
@@ -171,7 +170,6 @@ impl AtomicBool {
         })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn compare_exchange_weak(
         &self,
@@ -183,7 +181,6 @@ impl AtomicBool {
         self.compare_exchange(current, new, success, failure)
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_and(&self, val: bool, _order: Ordering) -> bool {
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -196,7 +193,6 @@ impl AtomicBool {
         })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
         if val {
@@ -210,7 +206,6 @@ impl AtomicBool {
         }
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_or(&self, val: bool, _order: Ordering) -> bool {
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -223,7 +218,6 @@ impl AtomicBool {
         })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn fetch_xor(&self, val: bool, _order: Ordering) -> bool {
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -317,7 +311,6 @@ impl<T> AtomicPtr<T> {
         }
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn swap(&self, ptr: *mut T, _order: Ordering) -> *mut T {
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -326,7 +319,6 @@ impl<T> AtomicPtr<T> {
         with(|| unsafe { self.p.get().replace(ptr) })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn compare_exchange(
         &self,
@@ -350,7 +342,6 @@ impl<T> AtomicPtr<T> {
         })
     }
 
-    #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
     #[inline]
     pub(crate) fn compare_exchange_weak(
         &self,
@@ -472,7 +463,6 @@ macro_rules! atomic_int {
     };
     (cas, $atomic_type:ident, $int_type:ident, $align:expr) => {
         impl $atomic_type {
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -481,7 +471,6 @@ macro_rules! atomic_int {
                 with(|| unsafe { self.v.get().replace(val) })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn compare_exchange(
                 &self,
@@ -505,7 +494,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn compare_exchange_weak(
                 &self,
@@ -517,7 +505,6 @@ macro_rules! atomic_int {
                 self.compare_exchange(current, new, success, failure)
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -530,7 +517,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -543,7 +529,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -556,7 +541,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -569,7 +553,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -582,7 +565,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -595,7 +577,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -608,7 +589,6 @@ macro_rules! atomic_int {
                 })
             }
 
-            #[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -647,34 +627,30 @@ atomic_int!(load_store_atomic, AtomicI16, i16, 2);
 atomic_int!(load_store_atomic, AtomicU16, u16, 2);
 
 #[cfg(not(target_pointer_width = "16"))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicI32, i32, 4);
 #[cfg(not(target_pointer_width = "16"))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicU32, u32, 4);
 #[cfg(target_pointer_width = "16")]
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicI32, i32, 4);
 #[cfg(target_pointer_width = "16")]
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicU32, u32, 4);
 
 #[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicI64, i64, 8);
 #[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-#[cfg(any(test, portable_atomic_unsafe_assume_single_core))]
 atomic_int!(load_store_atomic, AtomicU64, u64, 8);
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicI64, i64, 8);
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicU64, u64, 8);
 
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicI128, i128, 16);
-#[cfg(any(test, all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))]
+#[cfg(any(test, feature = "fallback"))]
 atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
 
 #[cfg(test)]

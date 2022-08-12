@@ -162,6 +162,10 @@ build() {
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
         case "${target}" in
+            avr-* | msp430-*) # always single-core
+                RUSTFLAGS="${target_rustflags}" \
+                    x cargo "${args[@]}" --manifest-path tests/api-test/Cargo.toml "$@"
+                ;;
             bpf* | thumbv4t-*) ;; # TODO
             *)
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
@@ -191,6 +195,7 @@ build() {
             args+=(--exclude-features "std")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
+                    avr-* | msp430-*) ;;  # always single-core
                     bpf* | thumbv4t-*) ;; # TODO
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
