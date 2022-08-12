@@ -26,8 +26,8 @@ pub(super) fn disable() -> WasEnabled {
 
 /// Restores the previous interrupt state.
 #[inline]
-pub(super) unsafe fn restore(was_enabled: WasEnabled) {
-    if was_enabled.0 {
+pub(super) unsafe fn restore(WasEnabled(was_enabled): WasEnabled) {
+    if was_enabled {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {
