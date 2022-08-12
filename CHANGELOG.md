@@ -14,6 +14,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Update safety requirements for unsafe cfg `portable_atomic_unsafe_assume_single_core` to mention use of privileged instructions to disable interrupts.
 
+- Atomic operations based on disabling interrupts on single-core systems are now considered lock-free.
+
+  The previous behavior was inconsistent because we consider the pre-v6 ARM Linux's atomic operations provided in a similar way by the Linux kernel to be lock-free.
+
 - Respect `-Zallow-features`
 
 ## [0.3.10] - 2022-08-03
