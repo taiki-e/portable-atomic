@@ -159,7 +159,19 @@ build() {
         return 0
     fi
 
-    # x cargo "${args[@]}" --manifest-path tests/no-std/Cargo.toml "$@"
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
+    if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
+        case "${target}" in
+            bpf* | thumbv4t-*) ;; # TODO
+            *)
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                    x cargo "${args[@]}" --manifest-path tests/api-test/Cargo.toml "$@"
+                ;;
+        esac
+    else
+        RUSTFLAGS="${target_rustflags}" \
+            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+    fi
 
     args+=(
         --workspace --ignore-private
@@ -177,7 +189,6 @@ build() {
     case "${target}" in
         *-none* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
-            cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
                     bpf* | thumbv4t-*) ;; # TODO

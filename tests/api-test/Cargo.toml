@@ -1,0 +1,17 @@
+[package]
+name = "api-test"
+version = "0.0.0"
+edition = "2018"
+publish = false
+
+[lib]
+doctest = false
+doc = false
+
+[features]
+float = ["portable-atomic/float"]
+
+[dependencies]
+portable-atomic = { path = "../.." }
+
+paste = "1"
