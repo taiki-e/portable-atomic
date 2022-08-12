@@ -13,17 +13,21 @@ pub(super) fn disable() -> WasEnabled {
     // SAFETY: reading the status register (SREG) and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        #[cfg(not(portable_atomic_no_asm))]
-        asm!("in {},0x3F", out(reg) sreg, options(nomem, nostack, preserves_flags));
-        #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("in $0,0x3F" :"=r"(sreg) ::: "volatile");
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Do not use `preserves_flags` because CLI modifies the I bit of the status register (SREG).
         // Refs: https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf#page=58
         #[cfg(not(portable_atomic_no_asm))]
-        asm!("cli", options(nostack));
+        asm!(
+            "in {0}, 0x3F",
+            "cli",
+            out(reg) sreg,
+            options(nostack),
+        );
         #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("cli" ::: "memory" : "volatile");
+        {
+            llvm_asm!("in $0,0x3F" :"=r"(sreg) ::: "volatile");
+            llvm_asm!("cli" ::: "memory" : "volatile");
+        }
     }
     // I (Global Interrupt Enable) bit (1 << 7)
     WasEnabled(sreg & 0x80 != 0)

@@ -13,17 +13,21 @@ pub(super) fn disable() -> WasEnabled {
     // SAFETY: reading the status register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        #[cfg(not(portable_atomic_no_asm))]
-        asm!("mov R2, {0}", out(reg) r, options(nomem, nostack, preserves_flags));
-        #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("mov R2, $0" : "=r"(r) ::: "volatile");
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Do not use `preserves_flags` because DINT modifies the GIE (global interrupt enable) bit of the status register.
         // Refs: http://mspgcc.sourceforge.net/manual/x951.html
         #[cfg(not(portable_atomic_no_asm))]
-        asm!("dint {{ nop", options(nostack));
+        asm!(
+            "mov R2, {0}",
+            "dint {{ nop",
+            out(reg) r,
+            options(nostack),
+        );
         #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("dint { nop" ::: "memory" : "volatile");
+        {
+            llvm_asm!("mov R2, $0" : "=r"(r) ::: "volatile");
+            llvm_asm!("dint { nop" ::: "memory" : "volatile");
+        }
     }
     // GIE (global interrupt enable) bit (1 << 3)
     WasEnabled(r & 0x8 != 0)
