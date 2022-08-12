@@ -55,31 +55,31 @@ pub(crate) struct AtomicBool {
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
         Self { v: UnsafeCell::new(v as u8) }
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
         Self::is_always_lock_free()
     }
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) const fn is_always_lock_free() -> bool {
         true
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
         // SAFETY: the mutable reference guarantees unique ownership.
         unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn into_inner(self) -> bool {
         self.v.into_inner() != 0
@@ -115,30 +115,30 @@ unsafe impl<T> Send for AtomicPtr<T> {}
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
 impl<T> AtomicPtr<T> {
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) const fn new(p: *mut T) -> Self {
         Self { p: UnsafeCell::new(p) }
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
         Self::is_always_lock_free()
     }
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) const fn is_always_lock_free() -> bool {
         true
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
         self.p.get_mut()
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[cfg(test)]
     #[inline]
     pub(crate) fn into_inner(self) -> *mut T {
         self.p.into_inner()
@@ -177,30 +177,30 @@ macro_rules! atomic_int {
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[cfg(test)]
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[cfg(test)]
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
                 Self::is_always_lock_free()
             }
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[cfg(test)]
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
                 true
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[cfg(test)]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
                 self.v.get_mut()
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[cfg(test)]
             #[inline]
             pub(crate) fn into_inner(self) -> $int_type {
                  self.v.into_inner()
