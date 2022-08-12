@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.11] - 2022-08-12
+
 - Always provide atomic CAS for MSP430 and AVR. ([#31](https://github.com/taiki-e/portable-atomic/pull/31))
 
   This previously required unsafe cfg `portable_atomic_unsafe_assume_single_core`, but since all MSP430 and AVR are single-core, we can safely provide atomic CAS based on disabling interrupts.
@@ -153,7 +155,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.10...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.11...HEAD
+[0.3.11]: https://github.com/taiki-e/portable-atomic/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/taiki-e/portable-atomic/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/taiki-e/portable-atomic/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/taiki-e/portable-atomic/compare/v0.3.7...v0.3.8
