@@ -16,9 +16,7 @@ use portable_atomic::{
 use portable_atomic::{AtomicF32, AtomicF64};
 
 pub fn all() {
-    #[cfg(not(target_arch = "msp430"))]
     atomic::fence(Ordering::SeqCst);
-    #[cfg(not(target_arch = "msp430"))]
     atomic::compiler_fence(Ordering::SeqCst);
     hint::spin_loop();
 

@@ -7,6 +7,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, RISC-V without A-extension, MSP430, AVR) (optional, [single-core only](#optional-cfg))
+- Provide equivalents on the target that the standard library's atomic-related APIs cause LLVM errors. (fence/compiler_fence on MSP430)
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
@@ -126,6 +127,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     clippy::inline_always,
     clippy::missing_errors_doc,
     clippy::module_inception,
+    clippy::single_match,
     clippy::type_complexity
 )]
 // x86_64 128-bit atomic (fallback + dynamic detection only)
@@ -281,7 +283,14 @@ mod utils;
 mod tests;
 
 #[doc(no_inline)]
-pub use core::sync::atomic::{compiler_fence, fence, Ordering};
+pub use core::sync::atomic::Ordering;
+
+#[doc(no_inline)]
+// LLVM doesn't support fence/compiler_fence for MSP430.
+#[cfg(not(target_arch = "msp430"))]
+pub use core::sync::atomic::{compiler_fence, fence};
+#[cfg(target_arch = "msp430")]
+pub use imp::msp430::{compiler_fence, fence};
 
 mod imp;
 

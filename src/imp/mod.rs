@@ -53,7 +53,7 @@ mod powerpc64;
 mod s390x;
 
 #[cfg(target_arch = "msp430")]
-mod msp430;
+pub(crate) mod msp430;
 
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(

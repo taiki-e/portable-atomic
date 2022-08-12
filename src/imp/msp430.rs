@@ -10,6 +10,41 @@
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
+/// An atomic fence.
+///
+/// # Panics
+///
+/// Panics if `order` is [`Relaxed`](Ordering::Relaxed).
+#[inline]
+pub fn fence(order: Ordering) {
+    match order {
+        Ordering::Relaxed => panic!("there is no such thing as a relaxed fence"),
+        // MSP430 is single-core and a compiler fence works as an atomic fence.
+        _ => compiler_fence(order),
+    }
+}
+
+/// A compiler memory fence.
+///
+/// # Panics
+///
+/// Panics if `order` is [`Relaxed`](Ordering::Relaxed).
+#[inline]
+pub fn compiler_fence(order: Ordering) {
+    match order {
+        Ordering::Relaxed => panic!("there is no such thing as a relaxed compiler fence"),
+        _ => {}
+    }
+    // SAFETY: using an empty asm is safe.
+    unsafe {
+        // Do not use `nomem` and `readonly` because prevent preceding and subsequent memory accesses from being reordered.
+        #[cfg(not(portable_atomic_no_asm))]
+        asm!("", options(nostack, preserves_flags));
+        #[cfg(portable_atomic_no_asm)]
+        llvm_asm!("" ::: "memory" : "volatile");
+    }
+}
+
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     v: UnsafeCell<u8>,
