@@ -225,6 +225,19 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn assert_swap_ordering(order: Ordering) {
+    match order {
+        Ordering::AcqRel
+        | Ordering::Acquire
+        | Ordering::Relaxed
+        | Ordering::Release
+        | Ordering::SeqCst => {}
+        _ => unreachable!("{:?}", order),
+    }
+}
+
 // https://github.com/rust-lang/rust/pull/98383
 // https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2686
 #[inline]

@@ -1,7 +1,10 @@
 // Atomic{I,U}128 implementation for x86_64 using CMPXCHG16B (DWCAS).
 //
+// Refs:
+// - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
+//
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/34fj6M3EK
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/qPEzE8xzb
 
 include!("macros.rs");
 
@@ -36,7 +39,7 @@ union U128 {
 }
 
 #[derive(Clone, Copy)]
-#[repr(C, align(16))]
+#[repr(C)]
 struct Pair {
     lo: u64,
     hi: u64,

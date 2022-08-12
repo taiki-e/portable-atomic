@@ -7,11 +7,11 @@
 // https://godbolt.org/z/6E6fchxvP
 //
 // Refs:
-// - https://www.ibm.com/support/pages/zarchitecture-reference-summary
+// - z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/T7735W4rT
+// - s390x https://godbolt.org/z/Yq8nfKreh
 
 include!("macros.rs");
 
@@ -33,7 +33,7 @@ union U128 {
 }
 
 #[derive(Clone, Copy)]
-#[repr(C, align(16))]
+#[repr(C)]
 struct Pair {
     hi: u64,
     lo: u64,
@@ -64,10 +64,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         let (out_hi, out_lo);
         // atomic load is always SeqCst.
         asm!(
-            // (atomic) load from src to r0-r1 pair
             "lpq %r0, 0({src})",
             src = in(reg) src,
-            // must be allocated to even/odd register pair
+            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             out("r0") out_hi,
             out("r1") out_lo,
             options(nostack),
@@ -102,10 +101,9 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             // Relaxed and Release stores are equivalent.
             Ordering::Relaxed | Ordering::Release => {
                 asm!(
-                    // (atomic) store r0-r1 pair to dst
                     "stpq %r0, 0({dst})",
                     dst = in(reg) dst,
-                    // must be allocated to even/odd register pair
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     in("r0") val.pair.hi,
                     in("r1") val.pair.lo,
                     options(nostack),
@@ -113,11 +111,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             }
             Ordering::SeqCst => {
                 asm!(
-                    // (atomic) store r0-r1 pair to dst
                     "stpq %r0, 0({dst})",
                     "bcr 15, %r0",
                     dst = in(reg) dst,
-                    // must be allocated to even/odd register pair
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     in("r0") val.pair.hi,
                     in("r1") val.pair.lo,
                     options(nostack),
@@ -175,13 +172,11 @@ unsafe fn atomic_compare_exchange(
         let (prev_hi, prev_lo);
         // atomic compare_exchange is always SeqCst.
         asm!(
-            // (atomic) compare and exchange
             "cdsg %r0, %r12, 0({dst})",
             dst = in(reg) dst,
-            // must be allocated to even/odd register pair
+            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             inout("r0") old.pair.hi => prev_hi,
             inout("r1") old.pair.lo => prev_lo,
-            // must be allocated to even/odd register pair
             in("r12") new.pair.hi,
             in("r13") new.pair.lo,
             options(nostack),
