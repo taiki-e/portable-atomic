@@ -10,11 +10,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Always provide atomic CAS for MSP430 and AVR.
+- Always provide atomic CAS for MSP430 and AVR. ([#31](https://github.com/taiki-e/portable-atomic/pull/31))
 
   This previously required unsafe cfg `portable_atomic_unsafe_assume_single_core`, but since all MSP430 and AVR are single-core, we can safely provide atomic CAS based on disabling interrupts.
 
-- Support `fence` and `compiler_fence` on MSP430.
+- Support `fence` and `compiler_fence` on MSP430. (On MSP430, the standard library's fences are currently unavailable due to LLVM errors.)
 
 - Update safety requirements for unsafe cfg `portable_atomic_unsafe_assume_single_core` to mention use of privileged instructions to disable interrupts.
 
@@ -22,7 +22,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   The previous behavior was inconsistent because we consider the pre-v6 ARM Linux's atomic operations provided in a similar way by the Linux kernel to be lock-free.
 
-- Respect `-Zallow-features`
+- Respect `-Zallow-features`.
 
 ## [0.3.10] - 2022-08-03
 
