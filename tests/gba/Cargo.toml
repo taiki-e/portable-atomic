@@ -1,0 +1,20 @@
+[package]
+name = "gba-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+portable-atomic = { path = "../.." }
+
+gba = "0.5"
+paste = "1"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
