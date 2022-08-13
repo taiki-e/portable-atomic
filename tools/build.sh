@@ -258,6 +258,9 @@ build() {
         x86_64*)
             RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
                 x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+            # Sandy Bridge (the first Intel chip that introduced AVX)
+            RUSTFLAGS="${target_rustflags} -C target-cpu=sandybridge" \
+                x cargo "${args[@]}" --target-dir target/sandybridge "$@" -vv
             ;;
         aarch64* | arm64*)
             RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \

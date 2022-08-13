@@ -139,6 +139,26 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
 
+      # Sandy Bridge (the first Intel chip that introduced AVX)
+      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+      # LTO + doctests is very slow on some platforms
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge
+        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+
       # +lse
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:
@@ -353,6 +373,7 @@ jobs:
         with:
           components: rust-src
       - uses: taiki-e/install-action@valgrind
+
       # doctests on Valgrind are very slow
       - run: cargo test -vv --workspace --exclude bench --all-features --tests
         env:
@@ -368,6 +389,7 @@ jobs:
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
+
       # +cmpxchg16b
       - run: cargo test -vv --workspace --exclude bench --all-features --tests
         env:
@@ -383,6 +405,22 @@ jobs:
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
+
+      # Sandy Bridge (the first Intel chip that introduced AVX)
+      - run: cargo test -vv --workspace --exclude bench --all-features --tests
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge --cfg valgrind
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge --cfg valgrind
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge --cfg valgrind
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge --cfg valgrind
+      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge --cfg valgrind
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge --cfg valgrind
 
   codegen:
     runs-on: ubuntu-latest
