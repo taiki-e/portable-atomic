@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Support atomic CAS on no-std pre-v6 ARM targets (e.g., thumbv4t-none-eabi) under unsafe cfg `portable_atomic_unsafe_assume_single_core`. ([#28](https://github.com/taiki-e/portable-atomic/pull/28))
+
 ## [0.3.11] - 2022-08-12
 
 - Always provide atomic CAS for MSP430 and AVR. ([#31](https://github.com/taiki-e/portable-atomic/pull/31))
