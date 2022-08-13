@@ -105,11 +105,9 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
-      - run: |
-          echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
+      - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
-      - run: |
-          echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+      - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
 
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
@@ -387,6 +385,17 @@ jobs:
           branch: update-no-atomic-rs
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo doc --workspace --all-features --document-private-items
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
+
   tidy:
     runs-on: ubuntu-latest
     steps:
@@ -397,39 +406,22 @@ jobs:
         with:
           components: clippy,rustfmt
       - uses: taiki-e/install-action@shellcheck
+      - run: pip3 install yq
       - run: cargo fmt --all --check
         if: always()
       - run: cargo clippy --workspace --all-features --all-targets
         if: always()
       - run: shellcheck $(git ls-files '*.sh')
         if: always()
-
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo doc --workspace --all-features
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg docsrs
+      - run: tools/check-workflow.sh
+        if: always()
 
   # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
 
   ci-success:
     name: ci
     if: github.event_name == 'push' && success()
-    needs:
-      - test
-      - build
-      - msrv
-      - miri
-      - san
-      - valgrind
-      - codegen
-      - tidy
-      - docs
+    needs: [test, build, no-std, msrv, miri, san, valgrind, codegen, docs, tidy] # tidy:needs
     runs-on: ubuntu-latest
     steps:
       - name: Mark the job as a success
