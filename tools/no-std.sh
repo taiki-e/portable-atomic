@@ -6,6 +6,9 @@ cd "$(dirname "$0")"/..
 trap -- 'exit 0' SIGINT
 
 default_targets=(
+    # TODO: find a way to exit from mGBA with exit code 0 (and disable video?).
+    # # armv4t
+    # thumbv4t-none-eabi
     # armv6-m
     thumbv6m-none-eabi
     # armv7-m
@@ -66,6 +69,15 @@ run() {
     args+=(--target "${target}")
 
     case "${target}" in
+        thumbv4t* | armv4t*)
+            (
+                cd tests/gba
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
+                    x cargo "${args[@]}" "$@"
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
+                    x cargo "${args[@]}" --release "$@"
+            )
+            ;;
         thumbv6m*)
             (
                 cd tests/cortex-m
