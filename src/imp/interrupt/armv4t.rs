@@ -18,11 +18,11 @@ pub(super) fn disable() -> State {
         asm!(
             "mrs {0}, cpsr",
             // We disable only IRQs. See also https://github.com/taiki-e/portable-atomic/pull/28#issuecomment-1214146912.
-            "orr {1}, {0}, 0x80",
+            "orr {1}, {0}, 0x80", // I (IRQ mask) bit (1 << 7)
             "msr cpsr_c, {1}",
             out(reg) cpsr,
             out(reg) _,
-            options(nostack),
+            options(nostack, preserves_flags),
         );
     }
     State(cpsr)
@@ -35,10 +35,6 @@ pub(super) unsafe fn restore(State(prev): State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-        asm!(
-            "msr cpsr_c, {0}",
-            in(reg) prev,
-            options(nostack),
-        );
+        asm!("msr cpsr_c, {0}", in(reg) prev, options(nostack));
     }
 }
