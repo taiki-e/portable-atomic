@@ -6,6 +6,8 @@
     clippy::wildcard_imports
 )]
 
+use builtin_hack as _;
+
 #[macro_use]
 pub(crate) mod helper;
 

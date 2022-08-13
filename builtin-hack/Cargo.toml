@@ -1,0 +1,15 @@
+[package]
+name = "builtin-hack"
+version = "0.1.0"
+edition = "2018"
+rust-version = "1.34" # Prevent clippy from suggesting a code that requires a new version to build.rs.
+
+# [workspace]
+# resolver = "2"
+
+[lib]
+test = false
+
+[features]
+
+[dependencies]

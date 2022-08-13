@@ -21,6 +21,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 members = [
     "bench",
     "tests/no-std",
+    "./builtin-hack",
 ]
 
 [features]
@@ -69,3 +70,4 @@ serde = { version = "1", features = ["derive"] }
 serde_test = "1"
 sptr = "0.3"
 static_assertions = "1"
+builtin-hack = { path = "./builtin-hack" }
