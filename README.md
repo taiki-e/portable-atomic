@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR) (optional and [single-core only](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR) ([optional and single-core only](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
 - Provide equivalents on the target that the standard library's atomic-related APIs cause LLVM errors. (fence/compiler_fence on MSP430)
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
@@ -81,7 +81,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
-  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t), RISC-V without A-extension are currently supported. See [#26] for support of multi-core systems.
+  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t), RISC-V without A-extension are currently supported. See [#33] for support of multi-core systems.
 
   Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this cfg.
 
@@ -92,7 +92,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
 
-[#26]: https://github.com/taiki-e/portable-atomic/issues/26
+[#33]: https://github.com/taiki-e/portable-atomic/issues/33
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [serde]: https://github.com/serde-rs/serde
