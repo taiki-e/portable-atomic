@@ -19,8 +19,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/vnzz73o46
-// - powerpc64le https://godbolt.org/z/xrzEsfcs5
+// - powerpc64 (pwr8) https://godbolt.org/z/4q4hMEesG
+// - powerpc64le https://godbolt.org/z/qaG5qK31x
 
 include!("macros.rs");
 

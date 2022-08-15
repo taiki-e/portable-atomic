@@ -139,6 +139,9 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
 
+        if version.llvm >= 15 {
+            println!("cargo:rustc-cfg=portable_atomic_llvm15");
+        }
         if !no_asm
             && (target_arch == "powerpc64" || target_arch == "s390x")
             && is_allowed_feature("asm_experimental_arch")
@@ -327,13 +330,14 @@ mod version {
         pub(crate) minor: u32,
         pub(crate) nightly: bool,
         commit_date: Date,
+        pub(crate) llvm: u32,
     }
 
     impl Version {
         pub(crate) const LATEST: Self = Self::stable(63);
 
         const fn stable(minor: u32) -> Self {
-            Self { minor, nightly: false, commit_date: Date::new(0, 0, 0) }
+            Self { minor, nightly: false, commit_date: Date::new(0, 0, 0), llvm: 0 }
         }
 
         pub(crate) fn probe(&self, minor: u32, year: u16, month: u8, day: u8) -> bool {
@@ -378,6 +382,18 @@ mod version {
         let nightly = channel == "nightly" || channel == "dev";
 
         if nightly {
+            let llvm_major = (|| {
+                let version = output
+                    .lines()
+                    .find(|line| line.starts_with("LLVM version: "))
+                    .map(|line| &line["LLVM version: ".len()..])?;
+                let mut digits = version.splitn(3, '.');
+                let major = digits.next()?.parse::<u32>().ok()?;
+                let _minor = digits.next()?.parse::<u32>().ok()?;
+                let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
+                Some(major)
+            })();
+
             let mut commit_date = output
                 .lines()
                 .find(|line| line.starts_with("commit-date: "))
@@ -389,7 +405,12 @@ mod version {
             if month > 12 || day > 31 {
                 return None;
             }
-            Some(Version { minor, nightly, commit_date: Date::new(year, month, day) })
+            Some(Version {
+                minor,
+                nightly,
+                commit_date: Date::new(year, month, day),
+                llvm: llvm_major.unwrap_or(0),
+            })
         } else {
             Some(Version::stable(minor))
         }

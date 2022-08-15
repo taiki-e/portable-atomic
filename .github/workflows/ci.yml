@@ -231,13 +231,23 @@ jobs:
         if: github.event_name == 'pull_request'
 
   miri:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - '' # x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - powerpc64le-unknown-linux-gnu
+          - s390x-unknown-linux-gnu
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@miri
-      - run: cargo miri test --workspace --exclude bench --all-features
+      - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+        if: matrix.target != ''
+      - run: cargo miri test --workspace --exclude bench --all-features $TARGET
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout

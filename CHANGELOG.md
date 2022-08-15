@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Use track_caller when debug assertions are enabled on Rust 1.46+.
 
+- Make powerpc64 128-bit atomics compatible with Miri and ThreadSanitizer on LLVM 15+.
+
 - Document that 128-bit atomics are compatible with Miri and ThreadSanitizer on recent nightly.
 
 ## [0.3.12] - 2022-08-13

@@ -2,10 +2,9 @@
 //
 // Refs: https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs
 //
-// On aarch64, this module is currently only enabled on Miri and ThreadSanitizer
-// which do not support inline assembly.
+// On aarch64 and powerpc64, this module is currently only enabled on Miri and ThreadSanitizer
+// which do not support inline assembly. (Note: on powerpc64, it requires LLVM 15+)
 // On x86_64, this module is currently only enabled on benchmark.
-// TODO: on powerpc64 and LLVM 15+, use this module for Miri and ThreadSanitizer.
 //
 // Note that we cannot use this module on s390x because LLVM currently generates
 // libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/6E6fchxvP
@@ -277,6 +276,26 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
+#[cfg(target_arch = "powerpc64")]
+#[inline]
+unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+where
+    F: FnMut(u128) -> u128,
+{
+    let failure = crate::utils::strongest_failure_ordering(order);
+    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    unsafe {
+        let mut old = atomic_load(dst, failure);
+        loop {
+            let next = f(old);
+            match atomic_compare_exchange_weak(dst, old, next, order, failure) {
+                Ok(x) => return x,
+                Err(x) => old = x,
+            }
+        }
+    }
+}
+
 /// returns the max value (signed comparison)
 #[inline]
 #[cfg_attr(
@@ -284,6 +303,13 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
+    #[cfg(target_arch = "powerpc64")]
+    // SAFETY: the caller must uphold the safety contract for `atomic_max`
+    unsafe {
+        atomic_update(dst.cast(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
+    }
+    #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_max`
     unsafe {
         match order {
@@ -304,6 +330,13 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
+    #[cfg(target_arch = "powerpc64")]
+    // SAFETY: the caller must uphold the safety contract for `atomic_min`
+    unsafe {
+        atomic_update(dst.cast(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
+    }
+    #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_min`
     unsafe {
         match order {
@@ -324,6 +357,13 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
+    #[cfg(target_arch = "powerpc64")]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umax`
+    unsafe {
+        atomic_update(dst, order, |x| core::cmp::max(x, val))
+    }
+    #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_umax`
     unsafe {
         match order {
@@ -344,6 +384,13 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
+    #[cfg(target_arch = "powerpc64")]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umin`
+    unsafe {
+        atomic_update(dst, order, |x| core::cmp::min(x, val))
+    }
+    #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract for `atomic_umin`
     unsafe {
         match order {
