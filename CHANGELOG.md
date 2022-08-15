@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.13] - 2022-08-15
+
 - Use track_caller when debug assertions are enabled on Rust 1.46+.
 
 - Make powerpc64 128-bit atomics compatible with Miri and ThreadSanitizer on LLVM 15+.
@@ -165,7 +167,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.12...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.13...HEAD
+[0.3.13]: https://github.com/taiki-e/portable-atomic/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/taiki-e/portable-atomic/compare/v0.3.11...v0.3.12
 [0.3.11]: https://github.com/taiki-e/portable-atomic/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/taiki-e/portable-atomic/compare/v0.3.9...v0.3.10
