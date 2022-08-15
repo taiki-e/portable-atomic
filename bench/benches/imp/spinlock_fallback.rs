@@ -100,8 +100,8 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                // SAFETY: This is safe because the mutable reference guarantees that no other
-                // threads are concurrently accessing the atomic data.
+                // SAFETY: the mutable reference guarantees unique ownership.
+                // (UnsafeCell::get_mut requires Rust 1.50)
                 unsafe { &mut *self.v.get() }
             }
 

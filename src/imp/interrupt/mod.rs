@@ -298,7 +298,9 @@ impl<T> AtomicPtr<T> {
 
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
-        self.p.get_mut()
+        // SAFETY: the mutable reference guarantees unique ownership.
+        // (UnsafeCell::get_mut requires Rust 1.50)
+        unsafe { &mut *self.p.get() }
     }
 
     #[inline]
@@ -441,7 +443,9 @@ macro_rules! atomic_int {
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                self.v.get_mut()
+                // SAFETY: the mutable reference guarantees unique ownership.
+                // (UnsafeCell::get_mut requires Rust 1.50)
+                unsafe { &mut *self.v.get() }
             }
 
             #[inline]
