@@ -535,6 +535,7 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), true);
     /// ```
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn load(&self, order: Ordering) -> bool {
         self.inner.load(order)
     }
@@ -559,6 +560,7 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn store(&self, val: bool, order: Ordering) {
         self.inner.store(val, order);
     }
@@ -616,6 +618,10 @@ impl AtomicBool {
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     ///
+    /// # Panics
+    ///
+    /// Panics if `failure` is [`Release`], [`AcqRel`].
+    ///
     /// # Examples
     ///
     /// ```
@@ -655,6 +661,7 @@ impl AtomicBool {
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn compare_exchange(
         &self,
         current: bool,
@@ -679,6 +686,10 @@ impl AtomicBool {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if `failure` is [`Release`], [`AcqRel`].
     ///
     /// # Examples
     ///
@@ -716,6 +727,7 @@ impl AtomicBool {
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn compare_exchange_weak(
         &self,
         current: bool,
@@ -1006,6 +1018,10 @@ impl AtomicBool {
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
     /// [`Acquire`] or [`Relaxed`].
     ///
+    /// # Panics
+    ///
+    /// Panics if `fetch_order` is [`Release`], [`AcqRel`].
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1036,6 +1052,7 @@ impl AtomicBool {
         ))
     )]
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn fetch_update<F>(
         &self,
         set_order: Ordering,
@@ -1237,6 +1254,7 @@ impl<T> AtomicPtr<T> {
     /// let value = some_ptr.load(Ordering::Relaxed);
     /// ```
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn load(&self, order: Ordering) -> *mut T {
         self.inner.load(order)
     }
@@ -1263,6 +1281,7 @@ impl<T> AtomicPtr<T> {
     /// some_ptr.store(other_ptr, Ordering::Relaxed);
     /// ```
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn store(&self, ptr: *mut T, order: Ordering) {
         self.inner.store(ptr, order);
     }
@@ -1322,6 +1341,10 @@ impl<T> AtomicPtr<T> {
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
     ///
+    /// # Panics
+    ///
+    /// Panics if `failure` is [`Release`], [`AcqRel`].
+    ///
     /// # Examples
     ///
     /// ```
@@ -1354,6 +1377,7 @@ impl<T> AtomicPtr<T> {
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn compare_exchange(
         &self,
         current: *mut T,
@@ -1378,6 +1402,10 @@ impl<T> AtomicPtr<T> {
     /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
     /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
     /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if `failure` is [`Release`], [`AcqRel`].
     ///
     /// # Examples
     ///
@@ -1415,6 +1443,7 @@ impl<T> AtomicPtr<T> {
     )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn compare_exchange_weak(
         &self,
         current: *mut T,
@@ -1444,6 +1473,10 @@ impl<T> AtomicPtr<T> {
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
     /// [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if `fetch_order` is [`Release`], [`AcqRel`].
     ///
     /// # Examples
     ///
@@ -1484,6 +1517,7 @@ impl<T> AtomicPtr<T> {
         ))
     )]
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn fetch_update<F>(
         &self,
         set_order: Ordering,
@@ -2190,6 +2224,10 @@ let some_var = ", stringify!($atomic_type), "::new(5);
 assert_eq!(some_var.load(Ordering::Relaxed), 5);
 ```"),
                 #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
                 pub fn load(&self, order: Ordering) -> $int_type {
                     self.inner.load(order)
                 }
@@ -2216,6 +2254,10 @@ some_var.store(10, Ordering::Relaxed);
 assert_eq!(some_var.load(Ordering::Relaxed), 10);
 ```"),
                 #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
                 pub fn store(&self, val: $int_type, order: Ordering) {
                     self.inner.store(val, order)
                 }
@@ -2278,6 +2320,10 @@ the comparison fails. Using [`Acquire`] as success ordering makes the store part
 of this operation [`Relaxed`], and using [`Release`] makes the successful load
 [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
 
+# Panics
+
+Panics if `failure` is [`Release`], [`AcqRel`].
+
 # Examples
 
 ```
@@ -2317,6 +2363,10 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
                 pub fn compare_exchange(
                     &self,
                     current: $int_type,
@@ -2344,6 +2394,10 @@ read-modify-write operation that takes place if the comparison with `current` su
 the comparison fails. Using [`Acquire`] as success ordering makes the store part
 of this operation [`Relaxed`], and using [`Release`] makes the successful load
 [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+
+# Panics
+
+Panics if `failure` is [`Release`], [`AcqRel`].
 
 # Examples
 
@@ -2381,6 +2435,10 @@ loop {
                 )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
                 pub fn compare_exchange_weak(
                     &self,
                     current: $int_type,
@@ -2680,6 +2738,10 @@ Using [`Acquire`] as success ordering makes the store part
 of this operation [`Relaxed`], and using [`Release`] makes the final successful load
 [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
 
+# Panics
+
+Panics if `fetch_order` is [`Release`], [`AcqRel`].
+
 # Examples
 
 ```rust
@@ -2710,6 +2772,10 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     ))
                 )]
                 #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
                 pub fn fetch_update<F>(
                     &self,
                     set_order: Ordering,
@@ -2970,6 +3036,7 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `order` is [`Release`] or [`AcqRel`].
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn load(&self, order: Ordering) -> $float_type {
                 $float_type::from_bits(self.as_bits().load(order))
             }
@@ -2983,6 +3050,7 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `order` is [`Acquire`] or [`AcqRel`].
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn store(&self, val: $float_type, order: Ordering) {
                 self.as_bits().store(val.to_bits(), order)
             }
@@ -3030,6 +3098,10 @@ This type has the same in-memory representation as the underlying floating point
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+            ///
+            /// # Panics
+            ///
+            /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -3050,6 +3122,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn compare_exchange(
                 &self,
                 current: $float_type,
@@ -3083,6 +3156,10 @@ This type has the same in-memory representation as the underlying floating point
             /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
             /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+            ///
+            /// # Panics
+            ///
+            /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -3103,6 +3180,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn compare_exchange_weak(
                 &self,
                 current: $float_type,
@@ -3205,6 +3283,10 @@ This type has the same in-memory representation as the underlying floating point
             /// Using [`Acquire`] as success ordering makes the store part
             /// of this operation [`Relaxed`], and using [`Release`] makes the final successful load
             /// [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+            ///
+            /// # Panics
+            ///
+            /// Panics if `fetch_order` is [`Release`], [`AcqRel`].
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
@@ -3224,6 +3306,7 @@ This type has the same in-memory representation as the underlying floating point
                 ))
             )]
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn fetch_update<F>(
                 &self,
                 set_order: Ordering,

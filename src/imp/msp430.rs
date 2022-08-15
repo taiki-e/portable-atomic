@@ -16,6 +16,7 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 ///
 /// Panics if `order` is [`Relaxed`](Ordering::Relaxed).
 #[inline]
+#[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub fn fence(order: Ordering) {
     match order {
         Ordering::Relaxed => panic!("there is no such thing as a relaxed fence"),
@@ -30,6 +31,7 @@ pub fn fence(order: Ordering) {
 ///
 /// Panics if `order` is [`Relaxed`](Ordering::Relaxed).
 #[inline]
+#[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub fn compiler_fence(order: Ordering) {
     match order {
         Ordering::Relaxed => panic!("there is no such thing as a relaxed compiler fence"),
@@ -86,6 +88,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         crate::utils::assert_load_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -94,6 +97,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -147,6 +151,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -156,6 +161,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -211,6 +217,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -219,6 +226,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw

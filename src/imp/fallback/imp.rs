@@ -164,6 +164,7 @@ macro_rules! atomic {
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 let lock = lock(self.v.get() as usize);
@@ -187,6 +188,7 @@ macro_rules! atomic {
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 let guard = lock(self.v.get() as usize).write();
@@ -203,6 +205,7 @@ macro_rules! atomic {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $int_type,
@@ -225,6 +228,7 @@ macro_rules! atomic {
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $int_type,

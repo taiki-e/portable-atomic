@@ -67,6 +67,10 @@ fn main() {
     if !version.probe(45, 2020, 5, 29) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_min_max");
     }
+    // track_caller stabilized in Rust 1.46 (nightly-2020-07-02): https://github.com/rust-lang/rust/pull/72445
+    if !version.probe(46, 2020, 7, 1) {
+        println!("cargo:rustc-cfg=portable_atomic_no_track_caller");
+    }
     // unsafe_op_in_unsafe_fn stabilized in Rust 1.52 (nightly-2021-03-11): https://github.com/rust-lang/rust/pull/79208
     if !version.probe(52, 2021, 3, 10) {
         println!("cargo:rustc-cfg=portable_atomic_no_unsafe_op_in_unsafe_fn");

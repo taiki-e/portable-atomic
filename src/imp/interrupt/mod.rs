@@ -111,6 +111,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
@@ -141,6 +142,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
@@ -181,6 +183,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn compare_exchange(
         &self,
         current: bool,
@@ -204,6 +207,7 @@ impl AtomicBool {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn compare_exchange_weak(
         &self,
         current: bool,
@@ -309,6 +313,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
@@ -339,6 +344,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
@@ -379,6 +385,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn compare_exchange(
         &self,
         current: *mut T,
@@ -402,6 +409,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn compare_exchange_weak(
         &self,
         current: *mut T,
@@ -459,6 +467,7 @@ macro_rules! atomic_int {
         atomic_int!(cas, $atomic_type, $int_type, $align);
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 #[deny(unreachable_patterns)]
@@ -497,6 +506,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 #[deny(unreachable_patterns)]
@@ -540,6 +550,7 @@ macro_rules! atomic_int {
         atomic_int!(cas, $atomic_type, $int_type, $align);
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -549,6 +560,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -569,6 +581,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $int_type,
@@ -592,6 +605,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $int_type,

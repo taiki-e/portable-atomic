@@ -111,6 +111,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by the lock and the raw
@@ -122,6 +123,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by the lock and the raw
@@ -143,6 +145,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $int_type,
@@ -166,6 +169,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $int_type,
