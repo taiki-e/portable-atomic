@@ -25,6 +25,8 @@ Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (
 
 On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
 
+They are usually implemented using inline assembly, and when using Miri or ThreadSanitizer that do not support inline assembly, core intrinsics are used instead of inline assembly if possible.
+
 See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
 
 ## Optional features

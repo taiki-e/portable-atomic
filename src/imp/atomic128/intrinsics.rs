@@ -2,9 +2,10 @@
 //
 // Refs: https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs
 //
-// On aarch64, this module is currently only enabled on Miri and Sanitizer which
-// do not support inline assembly.
+// On aarch64, this module is currently only enabled on Miri and ThreadSanitizer
+// which do not support inline assembly.
 // On x86_64, this module is currently only enabled on benchmark.
+// TODO: on powerpc64 and LLVM 15+, use this module for Miri and ThreadSanitizer.
 //
 // Note that we cannot use this module on s390x because LLVM currently generates
 // libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/6E6fchxvP

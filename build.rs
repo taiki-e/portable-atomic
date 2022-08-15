@@ -132,6 +132,10 @@ fn main() {
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
         if sanitize.contains("thread") {
+            // Most kinds of sanitizers are not compatible with asm
+            // (https://github.com/google/sanitizers/issues/192),
+            // but it seems that ThreadSanitizer is the only one that can cause
+            // false positives in our code.
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
 
