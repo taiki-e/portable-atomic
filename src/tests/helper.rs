@@ -70,8 +70,7 @@ macro_rules! __test_atomic_int_load_store {
     };
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
-        use crossbeam_utils::thread;
-        use std::{collections::HashSet, vec, vec::Vec};
+        use std::{collections::HashSet, thread, vec, vec::Vec};
         #[test]
         fn stress_load_store() {
             let iterations = if cfg!(miri) {
@@ -89,14 +88,14 @@ macro_rules! __test_atomic_int_load_store {
             let now = &std::time::Instant::now();
             thread::scope(|s| {
                 for _ in 0..threads {
-                    s.spawn(|_| {
+                    s.spawn(|| {
                         let now = *now;
                         for i in 0..iterations {
                             a.store(data1[i], rand_store_ordering());
                         }
                         std::eprintln!("store end={:?}", now.elapsed());
                     });
-                    s.spawn(|_| {
+                    s.spawn(|| {
                         let now = *now;
                         let mut v = vec![0; iterations];
                         for i in 0..iterations {
@@ -108,8 +107,7 @@ macro_rules! __test_atomic_int_load_store {
                         }
                     });
                 }
-            })
-            .unwrap();
+            });
         }
     };
 }
@@ -523,7 +521,7 @@ macro_rules! __test_atomic_int {
             thread::scope(|s| {
                 for thread in 0..threads {
                     if thread % 2 == 0 {
-                        s.spawn(move |_| {
+                        s.spawn(move || {
                             let now = *now;
                             for i in 0..iterations {
                                 a.store(data1[thread][i], rand_store_ordering());
@@ -531,7 +529,7 @@ macro_rules! __test_atomic_int {
                             std::eprintln!("store end={:?}", now.elapsed());
                         });
                     } else {
-                        s.spawn(|_| {
+                        s.spawn(|| {
                             let now = *now;
                             let mut v = vec![0; iterations];
                             for i in 0..iterations {
@@ -543,7 +541,7 @@ macro_rules! __test_atomic_int {
                             }
                         });
                     }
-                    s.spawn(move |_| {
+                    s.spawn(move || {
                         let now = *now;
                         let mut v = vec![0; iterations];
                         for i in 0..iterations {
@@ -555,8 +553,7 @@ macro_rules! __test_atomic_int {
                         }
                     });
                 }
-            })
-            .unwrap();
+            });
         }
         #[test]
         fn stress_compare_exchange() {
@@ -584,14 +581,14 @@ macro_rules! __test_atomic_int {
             let now = &std::time::Instant::now();
             thread::scope(|s| {
                 for thread in 0..threads {
-                    s.spawn(move |_| {
+                    s.spawn(move || {
                         let now = *now;
                         for i in 0..iterations {
                             a.store(data1[thread][i], rand_store_ordering());
                         }
                         std::eprintln!("store end={:?}", now.elapsed());
                     });
-                    s.spawn(|_| {
+                    s.spawn(|| {
                         let now = *now;
                         let mut v = vec![data2[0][0]; iterations];
                         for i in 0..iterations {
@@ -602,7 +599,7 @@ macro_rules! __test_atomic_int {
                             assert!(set.contains(&v), "v={}", v);
                         }
                     });
-                    s.spawn(move |_| {
+                    s.spawn(move || {
                         let now = *now;
                         let mut v = vec![data2[0][0]; iterations];
                         for i in 0..iterations {
@@ -624,8 +621,7 @@ macro_rules! __test_atomic_int {
                         }
                     });
                 }
-            })
-            .unwrap();
+            });
         }
     };
 }
