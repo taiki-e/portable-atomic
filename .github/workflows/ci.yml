@@ -212,7 +212,10 @@ jobs:
         with:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@nightly
-      - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y qemu-system-arm
+      - run: |
+          sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y \
+            binutils-arm-none-eabi \
+            qemu-system-arm
       - run: tools/no-std.sh
 
   msrv:

@@ -6,9 +6,8 @@ cd "$(dirname "$0")"/..
 trap -- 'exit 0' SIGINT
 
 default_targets=(
-    # TODO: find a way to exit from mGBA with exit code 0 (and disable video?).
-    # # armv4t
-    # thumbv4t-none-eabi
+    # armv4t
+    thumbv4t-none-eabi
     # armv6-m
     thumbv6m-none-eabi
     # armv7-m
@@ -57,7 +56,17 @@ run() {
         echo "target '${target}' not available on ${rustc_version}"
         return 0
     fi
-    args+=(${pre_args[@]+"${pre_args[@]}"} run)
+    case "${target}" in
+        thumbv4t* | armv4t*)
+            # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
+            if type -P mgba; then
+                args+=(${pre_args[@]+"${pre_args[@]}"} run)
+            else
+                args+=(${pre_args[@]+"${pre_args[@]}"} build)
+            fi
+            ;;
+        *) args+=(${pre_args[@]+"${pre_args[@]}"} run) ;;
+    esac
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
@@ -72,9 +81,9 @@ run() {
         thumbv4t* | armv4t*)
             (
                 cd tests/gba
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+atomics-32" \
                     x cargo "${args[@]}" "$@"
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+atomics-32" \
                     x cargo "${args[@]}" --release "$@"
             )
             ;;

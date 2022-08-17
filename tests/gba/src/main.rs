@@ -12,51 +12,6 @@ use core::{ptr, sync::atomic::Ordering};
 use gba::{fatal, warning};
 use portable_atomic::*;
 
-use core::{ffi::c_int, mem};
-
-// Refs: https://gcc.gnu.org/wiki/Atomic/GCCMM/LIbrary
-const MEMORY_ORDER_RELAXED: c_int = 0;
-const MEMORY_ORDER_CONSUME: c_int = 1;
-const MEMORY_ORDER_ACQUIRE: c_int = 2;
-// const MEMORY_ORDER_RELEASE: c_int = 3;
-// const MEMORY_ORDER_ACQ_REL: c_int = 4;
-// const MEMORY_ORDER_SEQ_CST: c_int = 5;
-
-#[inline]
-fn c_load_ordering(order: c_int) -> Ordering {
-    match order {
-        MEMORY_ORDER_RELAXED => Ordering::Relaxed,
-        MEMORY_ORDER_CONSUME | MEMORY_ORDER_ACQUIRE => Ordering::Acquire,
-        _ => Ordering::SeqCst,
-    }
-}
-
-struct FFIPanicGuard;
-impl Drop for FFIPanicGuard {
-    fn drop(&mut self) {
-        core::intrinsics::abort();
-    }
-}
-macro_rules! atomic_load {
-    ($name:ident, $int_ty:ty, $atomic_ty:ident) => {
-        #[no_mangle]
-        #[cfg_attr(all(not(windows), not(target_vendor = "apple")), linkage = "weak")]
-        pub unsafe extern "C" fn $name(dst: *mut $int_ty, ordering: c_int) -> $int_ty {
-            unsafe {
-                let guard = FFIPanicGuard;
-                let res = mem::transmute(
-                    (*dst.cast::<portable_atomic::$atomic_ty>()).load(c_load_ordering(ordering)),
-                );
-                mem::forget(guard);
-                res
-            }
-        }
-    };
-}
-atomic_load!(__atomic_load_1, u8, AtomicU8);
-atomic_load!(__atomic_load_2, u16, AtomicU16);
-atomic_load!(__atomic_load_4, u32, AtomicU32);
-
 #[no_mangle]
 fn main() -> ! {
     macro_rules! test_atomic {
