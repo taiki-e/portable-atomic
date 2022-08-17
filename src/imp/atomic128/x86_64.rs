@@ -4,7 +4,7 @@
 // - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/qPEzE8xzb
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/7M3q31oTc
 
 include!("macros.rs");
 

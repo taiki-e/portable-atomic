@@ -5,7 +5,7 @@
 //   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
-// Generated asm: https://godbolt.org/z/ojneff8T6
+// Generated asm: https://godbolt.org/z/oKf14hWa7
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
