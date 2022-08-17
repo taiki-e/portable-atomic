@@ -26,6 +26,7 @@ pub(crate) struct SeqLock {
 }
 
 impl SeqLock {
+    #[inline]
     pub(crate) const fn new() -> Self {
         Self { state_hi: AtomicUsize::new(0), state_lo: AtomicUsize::new(0) }
     }
@@ -80,7 +81,7 @@ impl SeqLock {
 
     /// Grabs the lock for writing.
     #[inline]
-    pub(crate) fn write(&'static self) -> SeqLockWriteGuard {
+    pub(crate) fn write(&self) -> SeqLockWriteGuard<'_> {
         let mut backoff = Backoff::new();
         loop {
             let previous = self.state_lo.swap(1, Ordering::Acquire);
@@ -102,15 +103,15 @@ impl SeqLock {
 
 /// An RAII guard that releases the lock and increments the stamp when dropped.
 #[must_use]
-pub(crate) struct SeqLockWriteGuard {
+pub(crate) struct SeqLockWriteGuard<'a> {
     /// The parent lock.
-    lock: &'static SeqLock,
+    lock: &'a SeqLock,
 
     /// The stamp before locking.
     state_lo: usize,
 }
 
-impl SeqLockWriteGuard {
+impl SeqLockWriteGuard<'_> {
     /// Releases the lock without incrementing the stamp.
     #[inline]
     pub(crate) fn abort(self) {
@@ -125,7 +126,7 @@ impl SeqLockWriteGuard {
     }
 }
 
-impl Drop for SeqLockWriteGuard {
+impl Drop for SeqLockWriteGuard<'_> {
     #[inline]
     fn drop(&mut self) {
         let state_lo = self.state_lo.wrapping_add(2);
@@ -150,14 +151,27 @@ mod tests {
     use super::SeqLock;
 
     #[test]
-    fn test_abort() {
-        static LK: SeqLock = SeqLock::new();
-        let before = LK.optimistic_read().unwrap();
+    fn smoke() {
+        let lock = SeqLock::new();
+        let before = lock.optimistic_read().unwrap();
+        assert!(lock.validate_read(before));
         {
-            let guard = LK.write();
+            let _guard = lock.write();
+        }
+        assert!(!lock.validate_read(before));
+        let after = lock.optimistic_read().unwrap();
+        assert_ne!(before, after);
+    }
+
+    #[test]
+    fn test_abort() {
+        let lock = SeqLock::new();
+        let before = lock.optimistic_read().unwrap();
+        {
+            let guard = lock.write();
             guard.abort();
         }
-        let after = LK.optimistic_read().unwrap();
+        let after = lock.optimistic_read().unwrap();
         assert_eq!(before, after, "aborted write does not update the stamp");
     }
 }

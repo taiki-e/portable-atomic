@@ -342,6 +342,7 @@ pub(crate) struct CachePadded<T> {
 }
 
 impl<T> CachePadded<T> {
+    #[inline]
     pub(crate) const fn new(value: T) -> Self {
         Self { value }
     }

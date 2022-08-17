@@ -90,7 +90,7 @@ macro_rules! atomic {
             }
 
             #[inline]
-            fn read(&self, _guard: &SeqLockWriteGuard) -> $int_type {
+            fn read(&self, _guard: &SeqLockWriteGuard<'static>) -> $int_type {
                 // SAFETY:
                 // - The guard guarantees that we hold the lock to write.
                 // - The raw pointer is valid because we got it from a reference.
@@ -110,7 +110,7 @@ macro_rules! atomic {
             }
 
             #[inline]
-            fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard) {
+            fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard<'static>) {
                 // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
                 let val = unsafe { mem::transmute::<$int_type, [Chunk; Self::LEN]>(val) };
                 for i in 0..Self::LEN {

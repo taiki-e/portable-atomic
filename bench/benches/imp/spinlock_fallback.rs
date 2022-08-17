@@ -19,12 +19,13 @@ struct Spinlock {
 }
 
 impl Spinlock {
+    #[inline]
     const fn new() -> Self {
         Self { state: AtomicUsize::new(0) }
     }
 
     #[inline]
-    fn lock(&'static self) -> SpinlockGuard {
+    fn lock(&self) -> SpinlockGuard<'_> {
         let mut backoff = Backoff::new();
         loop {
             if self.state.compare_exchange_weak(0, 1, Ordering::Acquire, Ordering::Relaxed).is_ok()
@@ -40,12 +41,12 @@ impl Spinlock {
 }
 
 #[must_use]
-struct SpinlockGuard {
+struct SpinlockGuard<'a> {
     /// The parent lock.
-    lock: &'static Spinlock,
+    lock: &'a Spinlock,
 }
 
-impl Drop for SpinlockGuard {
+impl Drop for SpinlockGuard<'_> {
     #[inline]
     fn drop(&mut self) {
         self.lock.state.store(0, Ordering::Release);
@@ -54,7 +55,7 @@ impl Drop for SpinlockGuard {
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]
-fn lock(addr: usize) -> SpinlockGuard {
+fn lock(addr: usize) -> SpinlockGuard<'static> {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
     const LEN: usize = 67;

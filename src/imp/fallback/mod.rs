@@ -17,7 +17,7 @@
 // counter will not be increased that fast.
 //
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
-// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
+// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock.
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
