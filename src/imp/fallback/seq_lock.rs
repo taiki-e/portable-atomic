@@ -1,7 +1,7 @@
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/seq_lock.rs.
 
 #[path = "imp.rs"]
-pub(super) mod imp;
+pub(crate) mod imp;
 
 use core::{
     mem::ManuallyDrop,

@@ -1,4 +1,4 @@
-use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
+use core::{cell::UnsafeCell, marker::PhantomData, mem, sync::atomic::Ordering};
 
 use super::{SeqLock, SeqLockWriteGuard};
 use crate::utils::CachePadded;
@@ -18,7 +18,7 @@ type Chunk = usize;
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]
 #[must_use]
-fn lock(addr: usize) -> &'static SeqLock {
+pub(crate) fn global_lock(addr: usize) -> &'static SeqLock {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
     //
@@ -41,28 +41,32 @@ fn lock(addr: usize) -> &'static SeqLock {
 macro_rules! atomic {
     ($atomic_type:ident, $int_type:ident, $align:expr) => {
         #[repr(C, align($align))]
-        pub(crate) struct $atomic_type {
+        pub(crate) struct $atomic_type<FallbackStrategy = crate::fallback::GlobalLock> {
             v: UnsafeCell<$int_type>,
+            lock: FallbackStrategy,
         }
 
         impl $atomic_type {
             const LEN: usize = mem::size_of::<$int_type>() / mem::size_of::<Chunk>();
-
+        }
+        impl<FallbackStrategy: crate::fallback::LockStrategy> $atomic_type<FallbackStrategy> {
             #[inline]
-            unsafe fn chunks(&self) -> &[AtomicChunk; Self::LEN] {
+            unsafe fn chunks(&self) -> &[AtomicChunk; $atomic_type::LEN] {
                 static_assert!($atomic_type::LEN > 1);
                 static_assert!(mem::size_of::<$int_type>() % mem::size_of::<Chunk>() == 0);
 
                 // SAFETY: the caller must uphold the safety contract for `chunks`.
-                unsafe { &*(self.v.get() as *const $int_type as *const [AtomicChunk; Self::LEN]) }
+                unsafe {
+                    &*(self.v.get() as *const $int_type as *const [AtomicChunk; $atomic_type::LEN])
+                }
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
-                let mut dst: [Chunk; Self::LEN] = [0; Self::LEN];
-                for i in 0..Self::LEN {
+                let mut dst: [Chunk; $atomic_type::LEN] = [0; $atomic_type::LEN];
+                for i in 0..$atomic_type::LEN {
                     // SAFETY:
                     // - There are no threads that perform non-atomic concurrent write operations.
                     // - There is no writer that updates the value using atomic operations of different granularity.
@@ -86,11 +90,11 @@ macro_rules! atomic {
                     }
                 }
                 // SAFETY: integers are plain old datatypes so we can always transmute to them.
-                unsafe { mem::transmute::<[Chunk; Self::LEN], $int_type>(dst) }
+                unsafe { mem::transmute::<[Chunk; $atomic_type::LEN], $int_type>(dst) }
             }
 
             #[inline]
-            fn read(&self, _guard: &SeqLockWriteGuard<'static>) -> $int_type {
+            fn read(&self, _guard: &SeqLockWriteGuard<'_>) -> $int_type {
                 // SAFETY:
                 // - The guard guarantees that we hold the lock to write.
                 // - The raw pointer is valid because we got it from a reference.
@@ -110,10 +114,10 @@ macro_rules! atomic {
             }
 
             #[inline]
-            fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard<'static>) {
+            fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard<'_>) {
                 // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
-                let val = unsafe { mem::transmute::<$int_type, [Chunk; Self::LEN]>(val) };
-                for i in 0..Self::LEN {
+                let val = unsafe { mem::transmute::<$int_type, [Chunk; $atomic_type::LEN]>(val) };
+                for i in 0..$atomic_type::LEN {
                     // SAFETY:
                     // - The guard guarantees that we hold the lock to write.
                     // - There are no threads that perform non-atomic concurrent read or write operations.
@@ -128,23 +132,44 @@ macro_rules! atomic {
 
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by the lock and atomic operation.
-        unsafe impl Sync for $atomic_type {}
+        unsafe impl<FallbackStrategy: crate::fallback::LockStrategy> Sync
+            for $atomic_type<FallbackStrategy>
+        {
+        }
 
         impl $atomic_type {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
+                Self { v: UnsafeCell::new(v), lock: crate::fallback::GlobalLock(PhantomData) }
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
-            pub(crate) fn is_lock_free() -> bool {
-                Self::is_always_lock_free()
+            pub(crate) const fn is_always_lock_free() -> bool {
+                false
             }
+        }
+        impl $atomic_type<crate::fallback::LocalLock> {
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) const fn new(v: $int_type) -> Self {
+                Self {
+                    v: UnsafeCell::new(v),
+                    lock: crate::fallback::LocalLock { lock: SeqLock::new(), _priv: () },
+                }
+            }
+
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
+                false
+            }
+        }
+        impl<FallbackStrategy: crate::fallback::LockStrategy> $atomic_type<FallbackStrategy> {
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
                 false
             }
 
@@ -167,7 +192,7 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                let lock = lock(self.v.get() as usize);
+                let lock = self.lock.lock(self.v.get() as usize).lock;
 
                 // Try doing an optimistic read first.
                 if let Some(stamp) = lock.optimistic_read() {
@@ -191,14 +216,14 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 self.write(val, &guard)
             }
 
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(val, &guard);
                 result
@@ -214,7 +239,7 @@ macro_rules! atomic {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 if result == current {
                     self.write(new, &guard);
@@ -242,7 +267,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(result.wrapping_add(val), &guard);
                 result
@@ -251,7 +276,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(result.wrapping_sub(val), &guard);
                 result
@@ -260,7 +285,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(result & val, &guard);
                 result
@@ -269,7 +294,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(!(result & val), &guard);
                 result
@@ -278,7 +303,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(result | val, &guard);
                 result
@@ -287,7 +312,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(result ^ val, &guard);
                 result
@@ -296,7 +321,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(core::cmp::max(result, val), &guard);
                 result
@@ -305,7 +330,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = lock(self.v.get() as usize).write();
+                let guard = self.lock.lock(self.v.get() as usize).lock.write();
                 let result = self.read(&guard);
                 self.write(core::cmp::min(result, val), &guard);
                 result
@@ -343,4 +368,16 @@ mod tests {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+}
+
+#[cfg(test)]
+mod tests_local_lock {
+    use super::*;
+
+    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+    test_atomic_int!(no_size_check, i64, [crate::fallback::LocalLock]);
+    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+    test_atomic_int!(no_size_check, u64, [crate::fallback::LocalLock]);
+    test_atomic_int!(no_size_check, i128, [crate::fallback::LocalLock]);
+    test_atomic_int!(no_size_check, u128, [crate::fallback::LocalLock]);
 }

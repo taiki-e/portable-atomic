@@ -102,7 +102,7 @@ mod riscv;
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-mod fallback;
+pub(crate) mod fallback;
 
 // -----------------------------------------------------------------------------
 // Critical section based fallback implementations

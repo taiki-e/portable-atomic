@@ -319,6 +319,9 @@ pub use imp::msp430::{compiler_fence, fence};
 
 mod imp;
 
+#[cfg(feature = "fallback")]
+pub mod fallback;
+
 pub mod hint {
     //! Re-export of the [`core::hint`] module.
     //!

@@ -3,17 +3,11 @@
 use core::{ops, sync::atomic::Ordering};
 
 macro_rules! __test_atomic_common {
-    ($atomic_type:ty, $value_type:ty) => {
+    ([no_size_check], $atomic_type:ty, $value_type:ty) => {
         #[test]
         fn assert_auto_traits() {
             fn _assert<T: Send + Sync + Unpin + std::panic::UnwindSafe>() {}
             _assert::<$atomic_type>();
-        }
-        #[test]
-        fn alignment() {
-            // https://github.com/rust-lang/rust/blob/1.63.0/library/core/tests/atomic.rs#L165
-            assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
-            assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }
         #[test]
         fn is_lock_free() {
@@ -24,6 +18,20 @@ macro_rules! __test_atomic_common {
                 // If is_always_lock_free is true, then is_lock_free must always be true.
                 assert!(is_lock_free);
             }
+        }
+        #[test]
+        fn alignment1() {
+            assert!(core::mem::align_of::<$atomic_type>() >= core::mem::size_of::<$value_type>());
+            assert!(core::mem::size_of::<$atomic_type>() >= core::mem::size_of::<$value_type>());
+        }
+    };
+    ([], $atomic_type:ty, $value_type:ty) => {
+        __test_atomic_common!([no_size_check], $atomic_type, $value_type);
+        #[test]
+        fn alignment2() {
+            // https://github.com/rust-lang/rust/blob/1.63.0/library/core/tests/atomic.rs#L165
+            assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
+            assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }
     };
 }
@@ -40,8 +48,8 @@ macro_rules! __test_atomic_pub_common {
 }
 
 macro_rules! __test_atomic_int_load_store {
-    ($atomic_type:ty, $int_type:ident, single_thread) => {
-        __test_atomic_common!($atomic_type, $int_type);
+    ([$($test_args:tt)*], $atomic_type:ty, $int_type:ident, single_thread) => {
+        __test_atomic_common!([$($test_args)*], $atomic_type, $int_type);
         use crate::tests::helper::*;
         #[test]
         fn accessor() {
@@ -68,8 +76,8 @@ macro_rules! __test_atomic_int_load_store {
             }
         }
     };
-    ($atomic_type:ty, $int_type:ident) => {
-        __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
+    ([$($test_args:tt)*], $atomic_type:ty, $int_type:ident) => {
+        __test_atomic_int_load_store!([$($test_args)*], $atomic_type, $int_type, single_thread);
         use std::{collections::HashSet, thread, vec, vec::Vec};
         #[test]
         fn stress_load_store() {
@@ -113,7 +121,7 @@ macro_rules! __test_atomic_int_load_store {
 }
 macro_rules! __test_atomic_float_load_store {
     ($atomic_type:ty, $float_type:ident, single_thread) => {
-        __test_atomic_common!($atomic_type, $float_type);
+        __test_atomic_common!([], $atomic_type, $float_type);
         use crate::tests::helper::*;
         #[test]
         fn accessor() {
@@ -147,7 +155,7 @@ macro_rules! __test_atomic_float_load_store {
 }
 macro_rules! __test_atomic_bool_load_store {
     ($atomic_type:ty, single_thread) => {
-        __test_atomic_common!($atomic_type, bool);
+        __test_atomic_common!([], $atomic_type, bool);
         use crate::tests::helper::*;
         #[test]
         fn accessor() {
@@ -181,7 +189,7 @@ macro_rules! __test_atomic_bool_load_store {
 }
 macro_rules! __test_atomic_ptr_load_store {
     ($atomic_type:ty, single_thread) => {
-        __test_atomic_common!($atomic_type, *mut u8);
+        __test_atomic_common!([], $atomic_type, *mut u8);
         use crate::tests::helper::*;
         use std::ptr;
         #[test]
@@ -1378,7 +1386,7 @@ macro_rules! test_atomic_ptr_single_thread {
 }
 
 macro_rules! test_atomic_int {
-    ($int_type:ident) => {
+    (no_size_check, $int_type:ident $(, [$($generics:tt)*])?) => {
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,
@@ -1388,8 +1396,23 @@ macro_rules! test_atomic_int {
             )]
             mod [<test_atomic_ $int_type>] {
                 use super::*;
-                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
-                __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int_load_store!([no_size_check], [<Atomic $int_type:camel>] $(<$($generics)*>)?, $int_type);
+                __test_atomic_int!([<Atomic $int_type:camel>] $(<$($generics)*>)?, $int_type);
+            }
+        }
+    };
+    ($int_type:ident $(, [$($generics:tt)*])?) => {
+        paste::paste! {
+            #[allow(
+                clippy::alloc_instead_of_core,
+                clippy::std_instead_of_alloc,
+                clippy::std_instead_of_core,
+                clippy::undocumented_unsafe_blocks
+            )]
+            mod [<test_atomic_ $int_type>] {
+                use super::*;
+                __test_atomic_int_load_store!([], [<Atomic $int_type:camel>] $(<$($generics)*>)?, $int_type);
+                __test_atomic_int!([<Atomic $int_type:camel>] $(<$($generics)*>)?, $int_type);
             }
         }
     };
@@ -1437,7 +1460,7 @@ macro_rules! test_atomic_int_pub {
             )]
             mod [<test_atomic_ $int_type>] {
                 use super::*;
-                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
+                __test_atomic_int_load_store!([], [<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int_load_store_pub!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int_pub!([<Atomic $int_type:camel>], $int_type);

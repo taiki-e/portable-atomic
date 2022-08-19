@@ -25,7 +25,7 @@
     target_arch = "mips64",
     target_arch = "x86_64",
 ))]
-mod seq_lock;
+pub(crate) mod seq_lock;
 #[cfg(not(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     target_arch = "aarch64",
@@ -33,7 +33,7 @@ mod seq_lock;
     target_arch = "x86_64",
 )))]
 #[path = "seq_lock_wide.rs"]
-mod seq_lock;
+pub(crate) mod seq_lock;
 
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg_attr(
