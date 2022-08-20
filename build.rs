@@ -153,8 +153,8 @@ fn main() {
     match &*target_arch {
         "x86_64" => {
             // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
-            let is_x86_64_macos = target == "x86_64-apple-darwin";
-            if has_target_feature("cmpxchg16b", is_x86_64_macos, &version, None, true) {
+            let has_cmpxchg16b = target == "x86_64-apple-darwin";
+            if has_target_feature("cmpxchg16b", has_cmpxchg16b, &version, None, true) {
                 target_feature("cmpxchg16b");
             }
             if version.nightly
@@ -185,56 +185,71 @@ fn main() {
             // #[cfg(target_feature = "v7")] and others don't work on stable.
             // armv7-unknown-linux-gnueabihf
             //    ^^
-            let mut arch = if target.starts_with("arm") {
+            let mut subarch = if target.starts_with("arm") {
                 &target["arm".len()..]
             } else if target.starts_with("thumb") {
                 &target["thumb".len()..]
             } else {
                 unreachable!()
             };
-            arch = arch.split('-').next().unwrap();
-            arch = arch.split('.').next().unwrap(); // ignore .base/.main suffix
-            if arch.starts_with("eb") {
-                arch = &target["eb".len()..]; // ignore endianness
+            subarch = subarch.split('-').next().unwrap();
+            subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
+            if subarch.starts_with("eb") {
+                subarch = &target["eb".len()..]; // ignore endianness
             }
             let mut known = true;
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
-            match arch {
+            match subarch {
                 "v7" | "v7a" | "v7neon" | "v7s" | "v7k" => target_feature("aclass"),
                 "v6m" | "v7em" | "v7m" | "v8m" => target_feature("mclass"),
                 "v7r" => target_feature("rclass"),
                 // arm-linux-androideabi is v5te
                 // https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
-                _ if target == "arm-linux-androideabi" => arch = "v5te",
+                _ if target == "arm-linux-androideabi" => subarch = "v5te",
                 // v6 targets other than v6m don't have *class target feature.
-                "" | "v6" | "v6k" => arch = "v6",
+                "" | "v6" | "v6k" => subarch = "v6",
                 // Other targets don't have *class target feature.
                 "v4t" | "v5te" => {}
                 _ => {
                     known = false;
                     println!(
-                        "cargo:warning={}: unrecognized arm target: {}",
+                        "cargo:warning={}: unrecognized arm subarch: {}",
                         env!("CARGO_PKG_NAME"),
                         target
                     );
                 }
             }
-            if known && (arch.starts_with("v6") || arch.starts_with("v7") || arch.starts_with("v8"))
+            if known
+                && (subarch.starts_with("v6")
+                    || subarch.starts_with("v7")
+                    || subarch.starts_with("v8"))
             {
                 target_feature("v6");
             }
         }
         "powerpc64" => {
-            if version.nightly && target.starts_with("powerpc64-") {
-                // Only check powerpc64 (be) -- powerpc64le is pwr8+ https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L652
+            if version.nightly {
+                // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L652
+                // See also https://github.com/rust-lang/rust/issues/59932
+                let mut has_quadword_atomics = target.starts_with("powerpc64le-"); // lqarx and stqcx.
                 if let Some(cpu) = target_cpu() {
-                    // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-                    match &*cpu {
-                        "pwr8" | "pwr9" | "pwr10" => {
-                            target_feature("quadword-atomics");
+                    if cpu.starts_with("pwr") {
+                        let cpu_version = &cpu["pwr".len()..];
+                        if let Ok(cpu_version) = cpu_version.parse::<u32>() {
+                            // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
+                            has_quadword_atomics = cpu_version >= 8;
                         }
-                        _ => {}
                     }
+                }
+                has_quadword_atomics = has_target_feature(
+                    "quadword-atomics",
+                    has_quadword_atomics,
+                    &version,
+                    None,
+                    false,
+                );
+                if has_quadword_atomics {
+                    target_feature("quadword-atomics");
                 }
             }
         }

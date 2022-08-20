@@ -159,6 +159,26 @@ jobs:
         if: startsWith(matrix.target, 'aarch64')
       # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
 
+      # pwr7
+      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+        if: startsWith(matrix.target, 'powerpc64le-')
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+        if: startsWith(matrix.target, 'powerpc64le-')
+      # LTO + doctests is very slow on some platforms
+      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+        env:
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_LTO: fat
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+        if: startsWith(matrix.target, 'powerpc64le-')
+
       # pwr8
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:

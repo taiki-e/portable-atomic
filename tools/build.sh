@@ -222,6 +222,10 @@ build() {
             RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
                 x cargo "${args[@]}" --target-dir target/pwr8 "$@"
             ;;
+        powerpc64le-*)
+            RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
+                x cargo "${args[@]}" --target-dir target/pwr7 "$@"
+            ;;
     esac
 }
 

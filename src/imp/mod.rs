@@ -41,7 +41,6 @@ mod x86_64;
 #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm15))]
 #[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(any(
-    target_endian = "little",
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
 ))]
@@ -51,7 +50,6 @@ mod powerpc64;
 #[cfg(not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm15)))]
 #[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(any(
-    target_endian = "little",
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
 ))]
@@ -91,7 +89,6 @@ mod riscv;
         all(
             portable_atomic_asm_experimental_arch,
             any(
-                target_endian = "little",
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
@@ -295,7 +292,6 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 // powerpc64
 #[cfg(portable_atomic_asm_experimental_arch)]
 #[cfg(any(
-    target_endian = "little",
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
 ))]
@@ -321,7 +317,6 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
     all(
         portable_atomic_asm_experimental_arch,
         any(
-            target_endian = "little",
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
         ),

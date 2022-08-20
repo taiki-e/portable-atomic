@@ -170,7 +170,6 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
                 portable_atomic_asm_experimental_arch,
                 target_arch = "powerpc64",
                 any(
-                    target_endian = "little",
                     target_feature = "quadword-atomics",
                     portable_atomic_target_feature = "quadword-atomics"
                 )
@@ -3565,7 +3564,6 @@ atomic_int!(AtomicU64, u64, 8);
         all(
             portable_atomic_asm_experimental_arch,
             any(
-                target_endian = "little",
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
@@ -3609,7 +3607,6 @@ atomic_int!(AtomicI128, i128, 16);
         all(
             portable_atomic_asm_experimental_arch,
             any(
-                target_endian = "little",
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
