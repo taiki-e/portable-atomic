@@ -14,7 +14,7 @@ use portable_atomic::*;
 
 #[no_mangle]
 fn main() -> ! {
-    macro_rules! test_atomic {
+    macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
@@ -22,6 +22,19 @@ fn main() -> ! {
                 }
                 warning!("test test_atomic_{} ...", stringify!($int_type));
                 [<test_atomic_ $int_type>]();
+                warning!(" ok");
+            }
+        };
+    }
+    #[cfg(feature = "float")]
+    macro_rules! test_atomic_float {
+        ($float_type:ident) => {
+            paste::paste! {
+                fn [<test_atomic_ $float_type>]() {
+                    __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
+                }
+                warning!("test test_atomic_{} ...", stringify!($float_type));
+                [<test_atomic_ $float_type>]();
                 warning!(" ok");
             }
         };
@@ -46,24 +59,27 @@ fn main() -> ! {
             warning!(" ok");
         };
     }
-    // TODO: AtomicF{32,64}
 
     warning!("starting tests...");
 
     test_atomic_bool!();
     test_atomic_ptr!();
-    test_atomic!(isize);
-    test_atomic!(usize);
-    test_atomic!(i8);
-    test_atomic!(u8);
-    test_atomic!(i16);
-    test_atomic!(u16);
-    test_atomic!(i32);
-    test_atomic!(u32);
-    test_atomic!(i64);
-    test_atomic!(u64);
-    test_atomic!(i128);
-    test_atomic!(u128);
+    test_atomic_int!(isize);
+    test_atomic_int!(usize);
+    test_atomic_int!(i8);
+    test_atomic_int!(u8);
+    test_atomic_int!(i16);
+    test_atomic_int!(u16);
+    test_atomic_int!(i32);
+    test_atomic_int!(u32);
+    test_atomic_int!(i64);
+    test_atomic_int!(u64);
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f32);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f64);
 
     warning!("all tests passed");
 

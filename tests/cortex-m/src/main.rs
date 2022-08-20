@@ -32,6 +32,19 @@ fn main() -> ! {
             }
         };
     }
+    #[cfg(feature = "float")]
+    macro_rules! test_atomic_float {
+        ($float_type:ident) => {
+            paste::paste! {
+                fn [<test_atomic_ $float_type>]() {
+                    __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
+                }
+                let _ = write!(hstdout, "test test_atomic_{} ...", stringify!($float_type));
+                [<test_atomic_ $float_type>]();
+                let _ = writeln!(hstdout, " ok");
+            }
+        };
+    }
     macro_rules! test_atomic_bool {
         () => {
             fn test_atomic_bool() {
@@ -52,7 +65,6 @@ fn main() -> ! {
             let _ = writeln!(hstdout, " ok");
         };
     }
-    // TODO: AtomicF{32,64}
 
     test_atomic_bool!();
     test_atomic_ptr!();
@@ -68,6 +80,10 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f32);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f64);
 
     loop {
         semihosting::debug::exit(semihosting::debug::EXIT_SUCCESS);

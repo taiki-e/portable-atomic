@@ -11,9 +11,9 @@ default_targets=(
     # armv6-m
     thumbv6m-none-eabi
     # armv7-m
+    thumbv7m-none-eabi
     thumbv7em-none-eabi
     thumbv7em-none-eabihf
-    thumbv7m-none-eabi
     # armv8-m
     thumbv8m.base-none-eabi
     thumbv8m.main-none-eabi
@@ -51,39 +51,45 @@ x() {
 run() {
     local target="$1"
     shift
-    local args=()
+    local args=(${pre_args[@]+"${pre_args[@]}"})
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
-        echo "target '${target}' not available on ${rustc_version}"
-        return 0
+        if [[ ! -f "target-specs/${target}.json" ]]; then
+            echo "target '${target}' not available on ${rustc_version}"
+            return 0
+        fi
+        target_flags=(--target "$(pwd)/target-specs/${target}.json")
+    else
+        target_flags=(--target "${target}")
     fi
+    subcmd=run
     case "${target}" in
         thumbv4t* | armv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
-            if type -P mgba; then
-                args+=(${pre_args[@]+"${pre_args[@]}"} run)
-            else
-                args+=(${pre_args[@]+"${pre_args[@]}"} build)
+            if ! type -P mgba; then
+                subcmd=build
             fi
             ;;
-        *) args+=(${pre_args[@]+"${pre_args[@]}"} run) ;;
     esac
+    args+=(hack "${subcmd}" "${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
-        args+=(-Z build-std="core,alloc")
+        args+=(-Z build-std="core,panic_abort")
     else
         echo "target '${target}' requires nightly compiler"
         return 0
     fi
-    args+=(--target "${target}")
+
+    args+=(--feature-powerset)
+    args+=(--exclude-features=float) # TODO
 
     case "${target}" in
         thumbv4t* | armv4t*)
             (
                 cd tests/gba
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+atomics-32" \
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
                     x cargo "${args[@]}" "$@"
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+atomics-32" \
+                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
                     x cargo "${args[@]}" --release "$@"
             )
             ;;

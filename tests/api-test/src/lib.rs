@@ -30,6 +30,17 @@ pub fn all() {
             }
         };
     }
+    #[cfg(feature = "float")]
+    macro_rules! test_atomic_float {
+        ($float_type:ident) => {
+            paste::paste! {
+                fn [<test_atomic_ $float_type>]() {
+                    __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
+                }
+                [<test_atomic_ $float_type>]();
+            }
+        };
+    }
     macro_rules! test_atomic_bool {
         () => {
             fn test_atomic_bool() {
@@ -46,7 +57,6 @@ pub fn all() {
             test_atomic_ptr();
         };
     }
-    // TODO: AtomicF{32,64}
 
     test_atomic_bool!();
     test_atomic_ptr!();
@@ -62,6 +72,10 @@ pub fn all() {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f32);
+    #[cfg(feature = "float")]
+    test_atomic_float!(f64);
 }
 
 #[cfg(test)]

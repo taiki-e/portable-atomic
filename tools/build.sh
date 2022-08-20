@@ -164,12 +164,12 @@ build() {
         case "${target}" in
             avr-* | msp430-*) # always single-core
                 RUSTFLAGS="${target_rustflags}" \
-                    x cargo "${args[@]}" --manifest-path tests/api-test/Cargo.toml "$@"
+                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                 ;;
             bpf*) ;; # TODO
             *)
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                    x cargo "${args[@]}" --manifest-path tests/api-test/Cargo.toml "$@"
+                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                 ;;
         esac
     else
