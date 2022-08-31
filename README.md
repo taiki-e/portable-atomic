@@ -19,6 +19,25 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide stable equivalents of the standard library atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 
+## Usage
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+portable-atomic = "0.3"
+```
+
+The default features are mainly for users who use atomics larger than the pointer width.
+If you don't need them, disabling the default features may reduce code size and compile time slightly.
+
+```toml
+[dependencies]
+portable-atomic = { version = "0.3", default-features = false }
+```
+
+*Compiler support: requires rustc 1.34+*
+
 ## 128-bit atomics support
 
 Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (le or pwr8+, nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
