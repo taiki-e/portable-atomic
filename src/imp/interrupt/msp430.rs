@@ -3,6 +3,8 @@
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 
+pub(super) use super::super::msp430 as atomic;
+
 #[derive(Clone, Copy)]
 pub(super) struct WasEnabled(bool);
 

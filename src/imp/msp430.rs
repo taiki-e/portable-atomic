@@ -288,7 +288,7 @@ atomic_int!(u16, AtomicU16, ".w");
 atomic_int!(isize, AtomicIsize, ".w");
 atomic_int!(usize, AtomicUsize, ".w");
 
-trait AtomicOperations {
+trait AtomicOperations: Sized {
     unsafe fn atomic_load(src: *const Self) -> Self;
     unsafe fn atomic_store(dst: *mut Self, val: Self);
 }

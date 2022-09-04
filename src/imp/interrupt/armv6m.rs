@@ -3,6 +3,8 @@
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 
+pub(super) use core::sync::atomic;
+
 #[derive(Clone, Copy)]
 pub(super) struct WasEnabled(bool);
 
