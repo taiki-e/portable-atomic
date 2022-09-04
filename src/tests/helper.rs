@@ -1673,10 +1673,8 @@ pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
 }
 fn skip_should_panic_test() -> bool {
     // Miri's panic handling is slow
-    // Valgrind sometimes reports memory leaks in panic handling (false positive?)
     // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
     cfg!(miri)
-        || cfg!(valgrind)
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
             && option_env!("MSAN_OPTIONS").is_some()
 }
