@@ -27,14 +27,8 @@
 // CAS together with atomic load/store. The load/store will not be
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
-#[cfg(target_arch = "msp430")]
-use super::msp430 as atomic;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-use super::riscv as atomic;
-// On pre-v6 ARM, we cannot use core::sync::atomic here because they call the
-// `__sync_*` builtins for non-relaxed loads and stores.
-#[cfg(portable_atomic_armv6m)]
-use core::sync::atomic;
+#[cfg(not(target_arch = "avr"))]
+use arch::atomic;
 
 #[cfg_attr(portable_atomic_armv6m, path = "armv6m.rs")]
 #[cfg_attr(
@@ -116,24 +110,12 @@ impl AtomicBool {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            )))]
+            #[cfg(not(target_arch = "avr"))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) },
-            #[cfg(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            ))]
+            #[cfg(target_arch = "avr")]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -147,26 +129,14 @@ impl AtomicBool {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            )))]
+            #[cfg(not(target_arch = "avr"))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
             },
-            #[cfg(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            ))]
+            #[cfg(target_arch = "avr")]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -318,24 +288,12 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            )))]
+            #[cfg(not(target_arch = "avr"))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) },
-            #[cfg(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            ))]
+            #[cfg(target_arch = "avr")]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -349,26 +307,14 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            )))]
+            #[cfg(not(target_arch = "avr"))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
             },
-            #[cfg(any(
-                target_arch = "avr",
-                all(
-                    target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-                )
-            ))]
+            #[cfg(target_arch = "avr")]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -472,32 +418,14 @@ macro_rules! atomic_int {
                 crate::utils::assert_load_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
-                    #[cfg(not(any(
-                        target_arch = "avr",
-                        all(
-                            target_arch = "arm",
-                            not(any(
-                                target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
-                            ))
-                        )
-                    )))]
+                    #[cfg(not(target_arch = "avr"))]
                     // SAFETY: any data races are prevented by atomic intrinsics (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).load(order)
                     },
-                    #[cfg(any(
-                        target_arch = "avr",
-                        all(
-                            target_arch = "arm",
-                            not(any(
-                                target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
-                            ))
-                        )
-                    ))]
+                    #[cfg(target_arch = "avr")]
                     // SAFETY: any data races are prevented by disabling interrupts (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
@@ -511,32 +439,14 @@ macro_rules! atomic_int {
                 crate::utils::assert_store_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
-                    #[cfg(not(any(
-                        target_arch = "avr",
-                        all(
-                            target_arch = "arm",
-                            not(any(
-                                target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
-                            ))
-                        )
-                    )))]
+                    #[cfg(not(target_arch = "avr"))]
                     // SAFETY: any data races are prevented by atomic intrinsics (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
                     },
-                    #[cfg(any(
-                        target_arch = "avr",
-                        all(
-                            target_arch = "arm",
-                            not(any(
-                                target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
-                            ))
-                        )
-                    ))]
+                    #[cfg(target_arch = "avr")]
                     // SAFETY: any data races are prevented by disabling interrupts (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
