@@ -154,6 +154,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     clippy::inline_always,
     clippy::missing_errors_doc,
     clippy::module_inception,
+    clippy::similar_names,
     clippy::single_match,
     clippy::type_complexity
 )]

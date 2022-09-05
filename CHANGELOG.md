@@ -10,6 +10,9 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Implement workaround for upstream cpuid bug ([rust-lang/rust#101346](https://github.com/rust-lang/rust/issues/101346)).
+  It is not clear if our use cases are affected, but we implement this just in case.
+
 ## [0.3.14] - 2022-09-04
 
 - Optimize atomic load/store on no-std pre-v6 ARM when `portable_atomic_unsafe_assume_single_core` cfg is used. ([#36](https://github.com/taiki-e/portable-atomic/pull/36))

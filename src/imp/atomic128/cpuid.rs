@@ -1,4 +1,4 @@
-// Adapted from https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/os/x86.rs.
+// Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(
     any(
@@ -10,8 +10,10 @@
     allow(dead_code)
 )]
 
+#[cfg(not(portable_atomic_no_asm))]
+use core::arch::asm;
 use core::{
-    arch::x86_64::{CpuidResult, __cpuid},
+    arch::x86_64::CpuidResult,
     sync::atomic::{AtomicU32, Ordering},
 };
 
@@ -61,6 +63,36 @@ fn set(x: u32, bit: u32) -> u32 {
 #[inline]
 fn test(x: u32, bit: u32) -> bool {
     x & (1 << bit) != 0
+}
+
+// Workaround for https://github.com/rust-lang/rust/issues/101346
+// It is not clear if our use cases are affected, but we implement this just in case.
+//
+// Refs:
+// - https://www.felixcloutier.com/x86/cpuid
+// - https://en.wikipedia.org/wiki/CPUID
+// - https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/core_arch/src/x86/cpuid.rs
+#[inline]
+unsafe fn __cpuid(leaf: u32) -> CpuidResult {
+    let eax;
+    let mut ebx;
+    let ecx;
+    let edx;
+    // SAFETY: the caller must guarantee that CPU supports `cpuid`.
+    unsafe {
+        asm!(
+            // rbx is reserved by LLVM
+            "mov {ebx_tmp:r}, rbx",
+            "cpuid",
+            "xchg {ebx_tmp:r}, rbx",
+            ebx_tmp = out(reg) ebx,
+            inout("eax") leaf => eax,
+            inout("ecx") 0 => ecx,
+            out("edx") edx,
+            options(nostack, preserves_flags),
+        );
+    }
+    CpuidResult { eax, ebx, ecx, edx }
 }
 
 #[inline]
