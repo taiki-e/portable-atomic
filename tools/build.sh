@@ -75,6 +75,19 @@ default_targets=(
     sparc64-unknown-linux-gnu
     thumbv7neon-unknown-linux-gnueabihf
 )
+known_cfgs=(
+    docsrs
+    portable_atomic_unsafe_assume_single_core
+)
+
+x() {
+    local cmd="$1"
+    shift
+    (
+        set -x
+        "${cmd}" "$@"
+    )
+}
 
 pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
@@ -101,13 +114,15 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         *)
             # TODO: handle key-value cfg from build script as --check-cfg=values(name, "value1", "value2", ... "valueN")
             # shellcheck disable=SC2207
-            build_script_cfg=($(grep -E 'cargo:rustc-cfg=' build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort | uniq))
-            check_cfg="-Z unstable-options --check-cfg=names(docsrs,portable_atomic_unsafe_assume_single_core,$(IFS=',' && echo "${build_script_cfg[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
+            known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort | uniq))
+            check_cfg="-Z unstable-options --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
             rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
             base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
             ;;
     esac
 fi
+echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
+
 has_asm=''
 case "${rustc_version}" in
     # asm requires 1.59
@@ -118,16 +133,7 @@ case "${rustc_version}" in
         ;;
     *) has_asm='1' ;;
 esac
-echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
 
-x() {
-    local cmd="$1"
-    shift
-    (
-        set -x
-        "${cmd}" "$@"
-    )
-}
 build() {
     local target="$1"
     shift
@@ -135,7 +141,7 @@ build() {
     local target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
-            echo "target '${target}' not available on ${rustc_version}"
+            echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
             return 0
         fi
         target_flags=(--target "$(pwd)/target-specs/${target}.json")
@@ -143,48 +149,64 @@ build() {
         target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
-    if [[ "${target}" == "avr-"* ]]; then
-        # https://github.com/rust-lang/rust/issues/88252
-        target_rustflags="${target_rustflags} -C opt-level=s"
-    fi
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         case "${target}" in
-            *-none* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
+            *-none* | avr-* | *-esp-espidf) args+=(-Z build-std="core") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
-        echo "target '${target}' requires nightly compiler"
+        echo "target '${target}' requires nightly compiler (skipped all checks)"
+        return 0
+    fi
+    if [[ "${target}" == "avr-"* ]]; then
+        # https://github.com/rust-lang/rust/issues/88252
+        target_rustflags="${target_rustflags} -C opt-level=s"
+    fi
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
+    has_atomic_cas='1'
+    if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
+        has_atomic_cas=''
+    fi
+    if [[ "${target}" == "riscv"* ]] && [[ -z "${has_atomic_cas}" ]] && [[ -z "${has_asm}" ]]; then
+        # RISC-V without A-extension requires asm to implement atomics.
+        echo "target '${target}' requires asm to implement atomics (skipped all checks)"
         return 0
     fi
 
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
-    if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
-        case "${target}" in
-            avr-* | msp430-*) # always single-core
+    case "${rustc_version}" in
+        # paste! on statements requires 1.45
+        1.[0-3]* | 1.4[0-4].*) ;;
+        *)
+            if [[ -n "${has_atomic_cas}" ]]; then
                 RUSTFLAGS="${target_rustflags}" \
                     x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                ;;
-            bpf*) ;; # TODO
-            *)
-                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                ;;
-        esac
-    else
-        RUSTFLAGS="${target_rustflags}" \
-            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-    fi
+            else
+                # target without CAS requires asm to implement CAS.
+                if [[ -n "${has_asm}" ]]; then
+                    case "${target}" in
+                        avr-* | msp430-*) # always single-core
+                            RUSTFLAGS="${target_rustflags}" \
+                                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            ;;
+                        bpf*) ;; # TODO
+                        *)
+                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            ;;
+                    esac
+                else
+                    echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
+                fi
+            fi
+            ;;
+    esac
 
     args+=(
         --workspace --ignore-private
         --no-dev-deps --feature-powerset --depth 3 --optional-deps
     )
-    case "${rustc_version}" in
-        # cargo bug: https://github.com/rust-lang/cargo/issues/10954
-        1.4[5-9].* | 1.50.*) args+=(--exclude-features "serde") ;;
-    esac
     case "${target}" in
         x86_64* | aarch64* | arm64*) ;;
         # outline-atomics feature only affects x86_64 and aarch64.
@@ -195,8 +217,8 @@ build() {
             args+=(--exclude-features "std")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
-                    avr-* | msp430-*) ;;  # always single-core
-                    bpf*) ;; # TODO
+                    avr-* | msp430-*) ;; # always single-core
+                    bpf*) ;;             # TODO
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                             x cargo "${args[@]}" --target-dir target/assume-single-core "$@"

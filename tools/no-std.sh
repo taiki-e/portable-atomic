@@ -20,6 +20,19 @@ default_targets=(
     thumbv8m.main-none-eabihf
 )
 
+x() {
+    local cmd="$1"
+    shift
+    (
+        set -x
+        "${cmd}" "$@"
+    )
+}
+bail() {
+    echo "error: $*" >&2
+    exit 1
+}
+
 pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
     pre_args+=("$1")
@@ -40,21 +53,13 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
 fi
 
-x() {
-    local cmd="$1"
-    shift
-    (
-        set -x
-        "${cmd}" "$@"
-    )
-}
 run() {
     local target="$1"
     shift
     local args=(${pre_args[@]+"${pre_args[@]}"})
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
-            echo "target '${target}' not available on ${rustc_version}"
+            echo "target '${target}' not available on ${rustc_version} (skipped)"
             return 0
         fi
         target_flags=(--target "$(pwd)/target-specs/${target}.json")
@@ -76,7 +81,7 @@ run() {
     elif [[ -n "${nightly}" ]]; then
         args+=(-Z build-std="core,panic_abort")
     else
-        echo "target '${target}' requires nightly compiler"
+        echo "target '${target}' requires nightly compiler (skipped)"
         return 0
     fi
 
@@ -111,10 +116,7 @@ run() {
                     x cargo "${args[@]}" --release "$@"
             )
             ;;
-        *)
-            echo "unrecognized target '${target}'"
-            exit 1
-            ;;
+        *) bail "unrecognized target '${target}'" ;;
     esac
 }
 
