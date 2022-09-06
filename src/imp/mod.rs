@@ -106,7 +106,7 @@ mod fallback;
 
 // On AVR, we always use critical section based fallback implementation.
 // AVR can be safely assumed to be single-core, so this is sound.
-// https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
+// https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 // MSP430 as well.
 #[cfg(any(
     all(test, target_os = "none"),

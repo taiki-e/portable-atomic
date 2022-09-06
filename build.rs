@@ -229,7 +229,7 @@ fn main() {
         }
         "powerpc64" => {
             if version.nightly {
-                // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L652
+                // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
                 // See also https://github.com/rust-lang/rust/issues/59932
                 let mut has_quadword_atomics = target.starts_with("powerpc64le-"); // lqarx and stqcx.
                 if let Some(cpu) = target_cpu() {
