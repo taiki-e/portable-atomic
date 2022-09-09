@@ -10,8 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Implement workaround for upstream cpuid bug ([rust-lang/rust#101346](https://github.com/rust-lang/rust/issues/101346)).
-  It is not clear if our use cases are affected, but we implement this just in case.
+- Implement workaround for std cpuid bug due to LLVM bug ([rust-lang/rust#101346](https://github.com/rust-lang/rust/issues/101346), [llvm/llvm-project#57550](https://github.com/llvm/llvm-project/issues/57550)).
+
+  - Our use case is likely not affected, but we implement this just in case.
+  - We've confirmed that the uses of inline assembly in this crate are not affected by this LLVM bug.
 
 ## [0.3.14] - 2022-09-04
 
