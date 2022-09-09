@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.15] - 2022-09-09
+
 - Implement workaround for std cpuid bug due to LLVM bug ([rust-lang/rust#101346](https://github.com/rust-lang/rust/issues/101346), [llvm/llvm-project#57550](https://github.com/llvm/llvm-project/issues/57550)).
 
   - Our use case is likely not affected, but we implement this just in case.
@@ -178,7 +180,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.14...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...HEAD
+[0.3.15]: https://github.com/taiki-e/portable-atomic/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/taiki-e/portable-atomic/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/taiki-e/portable-atomic/compare/v0.3.12...v0.3.13
 [0.3.12]: https://github.com/taiki-e/portable-atomic/compare/v0.3.11...v0.3.12
