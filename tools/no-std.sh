@@ -70,7 +70,7 @@ run() {
     case "${target}" in
         thumbv4t* | armv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
-            if ! type -P mgba; then
+            if ! type -P mgba &>/dev/null; then
                 subcmd=build
             fi
             ;;

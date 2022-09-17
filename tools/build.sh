@@ -144,9 +144,9 @@ build() {
             echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
             return 0
         fi
-        target_flags=(--target "$(pwd)/target-specs/${target}.json")
+        local target_flags=(--target "$(pwd)/target-specs/${target}.json")
     else
-        target_flags=(--target "${target}")
+        local target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
