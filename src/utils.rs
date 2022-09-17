@@ -2,8 +2,6 @@
 
 use core::{cell::UnsafeCell, ops, sync::atomic::Ordering};
 
-use crate::hint;
-
 #[cfg(not(portable_atomic_no_underscore_consts))]
 macro_rules! static_assert {
     ($cond:expr $(,)?) => {
@@ -384,13 +382,15 @@ impl Backoff {
     pub(crate) fn snooze(&mut self) {
         if self.step <= SPIN_LIMIT {
             for _ in 0..1 << self.step {
-                hint::spin_loop();
+                #[allow(deprecated)]
+                core::sync::atomic::spin_loop_hint();
             }
             self.step += 1;
         } else {
             #[cfg(not(feature = "std"))]
             for _ in 0..1 << self.step {
-                hint::spin_loop();
+                #[allow(deprecated)]
+                core::sync::atomic::spin_loop_hint();
             }
 
             #[cfg(feature = "std")]

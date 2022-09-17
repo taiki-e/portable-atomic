@@ -4,7 +4,6 @@
 #![feature(asm_experimental_arch, cmpxchg16b_target_feature, core_intrinsics, stdsimd)]
 
 use std::{
-    hint,
     sync::{atomic::Ordering, Barrier},
     thread,
 };
