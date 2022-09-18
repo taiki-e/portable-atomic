@@ -48,3 +48,6 @@ Synchronization primitives built with portable-atomic.
     clippy::type_complexity
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+
+mod arc;
+pub use arc::{Arc, Weak};
