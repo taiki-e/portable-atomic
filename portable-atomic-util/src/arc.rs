@@ -19,7 +19,21 @@ use core::{
     ptr::{self, NonNull},
 };
 
-const MAX_REFCOUNT: usize = (isize::MAX as usize) - 1;
+const MAX_REFCOUNT: usize = (core::isize::MAX as usize) - 1;
+
+#[cfg(not(portable_atomic_sanitize_thread))]
+macro_rules! acquire {
+    ($x:expr) => {{
+        portable_atomic::fence(Acquire);
+    }};
+}
+
+#[cfg(portable_atomic_sanitize_thread)]
+macro_rules! acquire {
+    ($x:expr) => {{
+        ($x).load(Acquire);
+    }};
+}
 
 /// The inner heap allocation of an `Arc`.
 #[repr(C)]
@@ -219,7 +233,7 @@ impl<T: ?Sized> Arc<T> {
     fn is_unique(&self) -> bool {
         // "Lock" the weak counter so it can't be increased if we turn out to be the only
         // strong reference.
-        if self.inner().weak().compare_exchange(1, usize::MAX, Acquire, Relaxed).is_ok() {
+        if self.inner().weak().compare_exchange(1, core::usize::MAX, Acquire, Relaxed).is_ok() {
             // There are no outside weak references, so we can check the strong count.
             let strong = self.inner().strong().load(Acquire);
 
@@ -290,7 +304,7 @@ impl<T> Arc<T> {
         }
 
         // Otherwise, we can safely unwrap the value.
-        portable_atomic::fence(Acquire);
+        acquire!(this.inner().strong());
 
         // SAFETY: These operations are valid since we hold the only reference.
         unsafe {
@@ -403,7 +417,7 @@ impl<T: ?Sized> Arc<T> {
 
         loop {
             // The weak counter may be "locked", so spin and reload if it is.
-            if cur == usize::MAX {
+            if cur == core::usize::MAX {
                 portable_atomic::hint::spin_loop();
                 cur = this.inner().weak().load(Relaxed);
                 continue;
@@ -435,7 +449,7 @@ impl<T: ?Sized> Arc<T> {
     #[must_use]
     pub fn weak_count(this: &Self) -> usize {
         match this.inner().weak().load(Acquire) {
-            usize::MAX => 0,
+            core::usize::MAX => 0,
             cnt => cnt - 1,
         }
     }
@@ -592,7 +606,7 @@ impl<T: ?Sized> Drop for Arc<T> {
         }
 
         // Ensure we're synchronized with other threads.
-        portable_atomic::fence(Acquire);
+        acquire!(self.inner().strong());
 
         // Drop the value and deallocate.
         //
@@ -731,7 +745,7 @@ impl<T> Weak<T> {
     pub fn new() -> Self {
         Self {
             // SAFETY: usize::MAX != 0, so this is always valid
-            shared: unsafe { NonNull::new_unchecked(strict::invalid(usize::MAX)) },
+            shared: unsafe { NonNull::new_unchecked(strict::invalid(core::usize::MAX)) },
         }
     }
 }
@@ -747,7 +761,7 @@ impl<T: ?Sized> Drop for Weak<T> {
         // Try to get access to the inner shared pointer.
         if let Some(inner) = self.inner() {
             if inner.weak.fetch_sub(1, Release) == 1 {
-                portable_atomic::fence(Acquire);
+                acquire!(inner.weak);
 
                 // Deallocate the memory.
                 //
@@ -771,7 +785,7 @@ fn abort() -> ! {
 }
 
 fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
-    strict::addr(ptr as *mut ()) == usize::MAX
+    strict::addr(ptr as *mut ()) == core::usize::MAX
 }
 
 /// Emulate strict provenance.
