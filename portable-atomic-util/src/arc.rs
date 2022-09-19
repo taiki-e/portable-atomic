@@ -780,6 +780,8 @@ fn abort() -> ! {
             panic!();
         }
     }
+    
+    let _abort = Abort;
 
     panic!("abort")
 }
