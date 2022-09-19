@@ -4,21 +4,18 @@ use core::{ops, sync::atomic::Ordering};
 
 macro_rules! __test_atomic_common {
     ($atomic_type:ty, $value_type:ty) => {
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn assert_auto_traits() {
             fn _assert<T: Send + Sync + Unpin + core::panic::UnwindSafe>() {}
             _assert::<$atomic_type>();
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn alignment() {
             // https://github.com/rust-lang/rust/blob/1.63.0/library/core/tests/atomic.rs#L165
             assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
             assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn is_lock_free() {
             const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
             assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
@@ -32,8 +29,7 @@ macro_rules! __test_atomic_common {
 }
 macro_rules! __test_atomic_pub_common {
     ($atomic_type:ty, $value_type:ty) => {
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn assert_ref_unwind_safe() {
             #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]
             static_assertions::assert_impl_all!($atomic_type: core::panic::RefUnwindSafe);
@@ -47,16 +43,14 @@ macro_rules! __test_atomic_int_load_store {
     ($atomic_type:ty, $int_type:ident, single_thread) => {
         __test_atomic_common!($atomic_type, $int_type);
         use crate::tests::helper::*;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn accessor() {
             let mut a = <$atomic_type>::new(10);
             assert_eq!(*a.get_mut(), 10);
             *a.get_mut() = 5;
             assert_eq!(a.into_inner(), 5);
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(10);
             test_load_ordering(|order| VAR.load(order));
@@ -81,8 +75,7 @@ macro_rules! __test_atomic_int_load_store {
         #[cfg(not(target_os = "none"))]
         use std::{collections::HashSet, vec, vec::Vec};
         #[cfg(not(target_os = "none"))]
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn stress_load_store() {
             let iterations = if cfg!(miri) {
                 100
@@ -127,16 +120,14 @@ macro_rules! __test_atomic_float_load_store {
     ($atomic_type:ty, $float_type:ident, single_thread) => {
         __test_atomic_common!($atomic_type, $float_type);
         use crate::tests::helper::*;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn accessor() {
             let mut a = <$atomic_type>::new(10.0);
             assert_eq!(*a.get_mut(), 10.0);
             *a.get_mut() = 5.0;
             assert_eq!(a.into_inner(), 5.0);
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(10.0);
             test_load_ordering(|order| VAR.load(order));
@@ -163,16 +154,14 @@ macro_rules! __test_atomic_bool_load_store {
     ($atomic_type:ty, single_thread) => {
         __test_atomic_common!($atomic_type, bool);
         use crate::tests::helper::*;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn accessor() {
             let mut a = <$atomic_type>::new(false);
             assert_eq!(*a.get_mut(), false);
             *a.get_mut() = true;
             assert_eq!(a.into_inner(), true);
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(false);
             test_load_ordering(|order| VAR.load(order));
@@ -200,8 +189,7 @@ macro_rules! __test_atomic_ptr_load_store {
         __test_atomic_common!($atomic_type, *mut u8);
         use crate::tests::helper::*;
         use core::ptr;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn accessor() {
             let mut v = 1;
             let mut a = <$atomic_type>::new(ptr::null_mut());
@@ -209,8 +197,7 @@ macro_rules! __test_atomic_ptr_load_store {
             *a.get_mut() = &mut v;
             assert!(!a.into_inner().is_null());
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(ptr::null_mut());
             test_load_ordering(|order| VAR.load(order));
@@ -239,8 +226,7 @@ macro_rules! __test_atomic_ptr_load_store {
 macro_rules! __test_atomic_int {
     ($atomic_type:ty, $int_type:ident, single_thread) => {
         use core::$int_type;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn swap() {
             let a = <$atomic_type>::new(5);
             test_swap_ordering(|order| a.swap(5, order));
@@ -249,8 +235,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.swap(5, order), 10);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange() {
             let a = <$atomic_type>::new(5);
             test_compare_exchange_ordering(|success, failure| {
@@ -264,8 +249,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 10);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange_weak() {
             let a = <$atomic_type>::new(4);
             test_compare_exchange_ordering(|success, failure| {
@@ -285,8 +269,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 8);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_add() {
             let a = <$atomic_type>::new(0);
             test_swap_ordering(|order| a.fetch_add(0, order));
@@ -299,8 +282,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), $int_type::MAX.wrapping_add(1));
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_sub() {
             let a = <$atomic_type>::new(20);
             test_swap_ordering(|order| a.fetch_sub(0, order));
@@ -313,8 +295,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), $int_type::MIN.wrapping_sub(1));
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_and() {
             let a = <$atomic_type>::new(0b101101);
             test_swap_ordering(|order| a.fetch_and(0b101101, order));
@@ -324,8 +305,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b100001);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_nand() {
             let a = <$atomic_type>::new(0x13);
             test_swap_ordering(|order| a.fetch_nand(0x31, order));
@@ -335,8 +315,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), !(0x13 & 0x31));
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_or() {
             let a = <$atomic_type>::new(0b101101);
             test_swap_ordering(|order| a.fetch_or(0, order));
@@ -346,8 +325,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b111111);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_xor() {
             let a = <$atomic_type>::new(0b101101);
             test_swap_ordering(|order| a.fetch_xor(0, order));
@@ -357,8 +335,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b011110);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_max() {
             let a = <$atomic_type>::new(23);
             test_swap_ordering(|order| a.fetch_max(23, order));
@@ -375,8 +352,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 1);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_min() {
             let a = <$atomic_type>::new(23);
             test_swap_ordering(|order| a.fetch_min(23, order));
@@ -525,8 +501,7 @@ macro_rules! __test_atomic_int {
         __test_atomic_int!($atomic_type, $int_type, single_thread);
 
         #[cfg(not(target_os = "none"))]
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn stress_swap() {
             let iterations = if cfg!(miri) {
                 100
@@ -589,8 +564,7 @@ macro_rules! __test_atomic_int {
             .unwrap();
         }
         #[cfg(not(target_os = "none"))]
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn stress_compare_exchange() {
             let iterations = if cfg!(miri) {
                 100
@@ -664,8 +638,7 @@ macro_rules! __test_atomic_int {
 macro_rules! __test_atomic_float {
     ($atomic_type:ty, $float_type:ident, single_thread) => {
         use core::$float_type;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn swap() {
             let a = <$atomic_type>::new(5.0);
             test_swap_ordering(|order| a.swap(5.0, order));
@@ -674,8 +647,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.swap(5.0, order), 10.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange() {
             let a = <$atomic_type>::new(5.0);
             test_compare_exchange_ordering(|success, failure| {
@@ -689,8 +661,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 10.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange_weak() {
             let a = <$atomic_type>::new(4.0);
             test_compare_exchange_ordering(|success, failure| {
@@ -710,8 +681,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 8.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_add() {
             let a = <$atomic_type>::new(0.0);
             test_swap_ordering(|order| a.fetch_add(0.0, order));
@@ -724,8 +694,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), $float_type::MAX + 1.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_sub() {
             let a = <$atomic_type>::new(20.0);
             test_swap_ordering(|order| a.fetch_sub(0.0, order));
@@ -738,8 +707,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), $float_type::MIN - 1.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_max() {
             let a = <$atomic_type>::new(23.0);
             test_swap_ordering(|order| a.fetch_max(23.0, order));
@@ -751,8 +719,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 24.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_min() {
             let a = <$atomic_type>::new(23.0);
             test_swap_ordering(|order| a.fetch_min(23.0, order));
@@ -764,8 +731,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 22.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_abs() {
             let a = <$atomic_type>::new(23.0);
             test_swap_ordering(|order| a.fetch_abs(order));
@@ -878,8 +844,7 @@ macro_rules! __test_atomic_float {
 }
 macro_rules! __test_atomic_bool {
     ($atomic_type:ty, single_thread) => {
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn swap() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| a.swap(true, order));
@@ -888,8 +853,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.swap(true, order), false);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange() {
             let a = <$atomic_type>::new(true);
             test_compare_exchange_ordering(|success, failure| {
@@ -903,8 +867,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange_weak() {
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|success, failure| {
@@ -924,8 +887,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_and() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_and(true, order), true));
@@ -941,8 +903,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_nand() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_nand(false, order), true));
@@ -959,8 +920,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_or() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_or(false, order), true));
@@ -976,8 +936,7 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_xor() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_xor(false, order), true));
@@ -1067,8 +1026,7 @@ macro_rules! __test_atomic_bool {
 }
 macro_rules! __test_atomic_ptr {
     ($atomic_type:ty, single_thread) => {
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn swap() {
             let a = <$atomic_type>::new(ptr::null_mut());
             test_swap_ordering(|order| a.swap(ptr::null_mut(), order));
@@ -1078,8 +1036,7 @@ macro_rules! __test_atomic_ptr {
                 assert_eq!(a.swap(ptr::null_mut(), order), x as _);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange() {
             let a = <$atomic_type>::new(ptr::null_mut());
             test_compare_exchange_ordering(|success, failure| {
@@ -1100,8 +1057,7 @@ macro_rules! __test_atomic_ptr {
                 assert_eq!(a.load(Ordering::Relaxed), x as _);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn compare_exchange_weak() {
             let a = <$atomic_type>::new(ptr::null_mut());
             test_compare_exchange_ordering(|success, failure| {
@@ -1131,8 +1087,7 @@ macro_rules! __test_atomic_ptr {
 macro_rules! __test_atomic_int_load_store_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn impls() {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0);
@@ -1144,8 +1099,7 @@ macro_rules! __test_atomic_int_load_store_pub {
 }
 macro_rules! __test_atomic_int_pub {
     ($atomic_type:ty, $int_type:ident) => {
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
@@ -1162,8 +1116,7 @@ macro_rules! __test_atomic_int_pub {
 macro_rules! __test_atomic_float_pub {
     ($atomic_type:ty, $float_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $float_type);
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7.0);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
@@ -1175,8 +1128,7 @@ macro_rules! __test_atomic_float_pub {
                 assert_eq!(a.load(Ordering::SeqCst), 9.0);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn impls() {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0.0);
@@ -1188,8 +1140,7 @@ macro_rules! __test_atomic_float_pub {
 macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_not() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| a.fetch_not(order));
@@ -1202,8 +1153,7 @@ macro_rules! __test_atomic_bool_pub {
                 assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_update() {
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
@@ -1215,8 +1165,7 @@ macro_rules! __test_atomic_bool_pub {
                 assert_eq!(a.load(Ordering::SeqCst), false);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn impls() {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(false);
@@ -1244,8 +1193,7 @@ macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
         use sptr::Strict;
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn fetch_update() {
             let a = <$atomic_type>::new(ptr::null_mut());
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
@@ -1259,8 +1207,7 @@ macro_rules! __test_atomic_ptr_pub {
                 assert_eq!(a.load(Ordering::SeqCst), &a as *const _ as *mut _);
             }
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn impls() {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(ptr::null_mut());
@@ -1271,8 +1218,7 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
         }
         // https://github.com/rust-lang/rust/blob/76822a28780a9a93be04409e52c5df21663aab97/library/core/tests/atomic.rs#L130-L213
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn ptr_add_null() {
             let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
             assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst).addr(), 0);
@@ -1287,8 +1233,7 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst).addr(), 1);
             assert_eq!(atom.load(Ordering::SeqCst).addr(), 0);
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn ptr_add_data() {
             let num = 0i64;
             let n = &num as *const i64 as *mut _;
@@ -1312,8 +1257,7 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(atom.fetch_byte_sub(5, Ordering::SeqCst), bytes_from_n(5));
             assert_eq!(atom.load(Ordering::SeqCst), n);
         }
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[no_std_test_helper::test]
         fn ptr_bitops() {
             let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
             assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst).addr(), 0);
@@ -1325,9 +1269,11 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(atom.fetch_xor(0b1111, Ordering::SeqCst).addr(), 0b0101);
             assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b1010);
         }
-        #[cfg(not(all(any(target_arch = "riscv64"), target_os = "none")))]
-        #[cfg_attr(target_os = "none", test_case)]
-        #[cfg_attr(not(target_os = "none"), test)]
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            target_os = "none"
+        )))]
+        #[no_std_test_helper::test]
         fn ptr_bitops_tagging() {
             const MASK_TAG: usize = 0b1111;
             const MASK_PTR: usize = !MASK_TAG;
@@ -1484,7 +1430,7 @@ macro_rules! test_atomic_ptr {
             clippy::undocumented_unsafe_blocks
         )]
         #[allow(unstable_name_collisions)]
-        mod test_atomic_bool_ptr {
+        mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
             __test_atomic_ptr!(AtomicPtr<u8>);
@@ -1567,7 +1513,7 @@ macro_rules! test_atomic_ptr_pub {
             clippy::undocumented_unsafe_blocks
         )]
         #[allow(unstable_name_collisions)]
-        mod test_atomic_bool_ptr {
+        mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
             __test_atomic_ptr!(AtomicPtr<u8>);
