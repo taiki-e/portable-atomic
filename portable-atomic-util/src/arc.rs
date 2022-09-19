@@ -477,7 +477,7 @@ impl<T: ?Sized> Arc<T> {
     /// // SAFETY: The pointer is valid.
     /// let five2 = unsafe { Arc::from_raw(five_ptr) };
     /// assert_eq!(*five2, 5);
-    /// 
+    ///
     /// // SAFETY: Since the refcount is incremented, we can get another.
     /// let five3 = unsafe { Arc::from_raw(five_ptr) };
     /// assert_eq!(*five3, 5);

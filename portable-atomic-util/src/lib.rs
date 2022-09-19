@@ -49,5 +49,7 @@ Synchronization primitives built with portable-atomic.
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+#[cfg(not(portable_atomic_no_alloc))]
 mod arc;
+#[cfg(not(portable_atomic_no_alloc))]
 pub use arc::{Arc, Weak};
