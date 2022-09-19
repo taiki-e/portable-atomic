@@ -5,6 +5,8 @@
 #![cfg_attr(all(test, target_os = "none"), reexport_test_harness_main = "test_main")]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 
+extern crate alloc;
+
 #[cfg(all(test, target_os = "none"))]
 no_std_test_helper::test_harness_main!(test_main);
 

@@ -318,7 +318,9 @@ compile_error!(
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
-#[cfg(any(test, feature = "std"))]
+#[cfg(test)]
+extern crate alloc;
+#[cfg(any(all(test, not(target_os = "none")), feature = "std"))]
 extern crate std;
 
 #[macro_use]

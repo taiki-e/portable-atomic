@@ -20,4 +20,14 @@ SECTIONS
     .rodata : { *(.rodata*) }
 
     PROVIDE(_stack = . + 1M);
+    . = . + 1M;
+
+    .heap :
+	{
+		PROVIDE(_heap_start = .);
+		*(.heap)
+                . = . + 8192;
+		. = ALIGN(4);
+		PROVIDE(_heap_end = .);
+	}
 }

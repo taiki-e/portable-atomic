@@ -14,7 +14,10 @@ macro_rules! test_harness_main {
         #[cfg(test)]
         #[no_mangle]
         pub unsafe extern "C" fn _start(_hartid: usize, fdt_address: usize) -> ! {
-            unsafe { $crate::__private::arch::init(fdt_address) }
+            unsafe {
+                $crate::__private::arch::init(fdt_address);
+                $crate::__private::arch::alloc_init();
+            }
             $test_main();
             $crate::exit(0)
         }
@@ -29,6 +32,12 @@ pub unsafe fn init(fdt_address: usize) {
         UART_HANDLE.store(find_compatible(fdt, "ns16550a").cast(), Ordering::Release);
         EXIT_HANDLE.store(find_compatible(fdt, "sifive,test0").cast(), Ordering::Release);
     }
+}
+
+#[inline(always)]
+pub unsafe fn alloc_init() {
+    #[cfg(feature = "alloc")]
+    crate::alloc::init();
 }
 
 fn find_compatible(fdt: &fdt::Fdt<'_>, with: &str) -> *mut () {
@@ -62,5 +71,21 @@ impl fmt::Write for Uart {
             unsafe { self.0.as_ptr().write_volatile(b) }
         }
         Ok(())
+    }
+}
+
+pub(crate) mod interrupt {
+    pub(crate) type State = riscv::register::sstatus::Sstatus;
+    #[inline(always)]
+    pub(crate) fn disable() -> State {
+        let status = riscv::register::sstatus::read();
+        unsafe { riscv::register::sstatus::clear_sie() }
+        status
+    }
+    #[inline(always)]
+    pub(crate) unsafe fn restore(status: State) {
+        if status.sie() {
+            unsafe { riscv::register::sstatus::set_sie() }
+        }
     }
 }

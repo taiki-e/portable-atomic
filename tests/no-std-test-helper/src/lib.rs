@@ -1,5 +1,6 @@
 #![no_std]
 #![cfg_attr(target_os = "none", feature(panic_info_message))]
+#![cfg_attr(feature = "alloc", feature(alloc_error_handler))]
 
 #[cfg(not(target_os = "none"))]
 pub use core::prelude::v1::test;
@@ -16,6 +17,10 @@ pub use api::*;
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]
 #[cfg_attr(all(target_arch = "arm", target_feature = "mclass"), path = "cortex-m.rs")]
 mod arch;
+
+#[cfg(target_os = "none")]
+#[cfg(feature = "alloc")]
+mod alloc;
 
 // Not public API.
 #[doc(hidden)]

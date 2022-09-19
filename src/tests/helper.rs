@@ -1092,8 +1092,7 @@ macro_rules! __test_atomic_int_load_store_pub {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
-            #[cfg(not(target_os = "none"))]
-            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(alloc::format!("{:?}", a), alloc::format!("{:?}", a.load(Ordering::SeqCst)));
         }
     };
 }
@@ -1133,7 +1132,7 @@ macro_rules! __test_atomic_float_pub {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0.0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
-            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(alloc::format!("{:?}", a), alloc::format!("{:?}", a.load(Ordering::SeqCst)));
         }
     };
 }
@@ -1170,8 +1169,7 @@ macro_rules! __test_atomic_bool_pub {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(false);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
-            #[cfg(not(target_os = "none"))]
-            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(alloc::format!("{:?}", a), alloc::format!("{:?}", a.load(Ordering::SeqCst)));
         }
         #[cfg(not(target_os = "none"))]
         ::quickcheck::quickcheck! {
@@ -1212,10 +1210,8 @@ macro_rules! __test_atomic_ptr_pub {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(ptr::null_mut());
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
-            #[cfg(not(target_os = "none"))]
-            assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
-            #[cfg(not(target_os = "none"))]
-            assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
+            assert_eq!(alloc::format!("{:?}", a), alloc::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(alloc::format!("{:p}", a), alloc::format!("{:p}", a.load(Ordering::SeqCst)));
         }
         // https://github.com/rust-lang/rust/blob/76822a28780a9a93be04409e52c5df21663aab97/library/core/tests/atomic.rs#L130-L213
         #[no_std_test_helper::test]
