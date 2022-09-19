@@ -1,0 +1,11 @@
+[build]
+target-dir = "../../target"
+
+[target.'cfg(all(target_arch = "riscv32", target_os = "none"))']
+runner = "qemu-system-riscv32 -M virt -serial stdio -display none -kernel"
+
+[target.'cfg(all(target_arch = "riscv64", target_os = "none"))']
+runner = "qemu-system-riscv64 -M virt -serial stdio -display none -kernel"
+
+[target.'cfg(all(any(target_arch = "riscv32", target_arch = "riscv64"), target_os = "none"))']
+rustflags = ["-C", "link-arg=-Tlink.ld"]

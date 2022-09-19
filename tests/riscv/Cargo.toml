@@ -1,5 +1,5 @@
 [package]
-name = "cortex-m-test"
+name = "riscv-test"
 version = "0.0.0"
 edition = "2021"
 publish = false
@@ -13,6 +13,5 @@ float = ["portable-atomic/float"]
 [dependencies]
 portable-atomic = { path = "../.." }
 
-cortex-m-rt = "0.7"
-cortex-m-semihosting = "0.5"
+fdt = "0.1"
 paste = "1"

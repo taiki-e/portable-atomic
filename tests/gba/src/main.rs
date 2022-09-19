@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(linkage, core_intrinsics)]
+#![feature(panic_info_message)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -89,5 +89,13 @@ fn main() -> ! {
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    fatal!("{}", info)
+    if let Some(s) = info.message() {
+        if let Some(l) = info.location() {
+            fatal!("panicked at '{:?}', {}", s, l);
+        } else {
+            fatal!("panicked at '{:?}' (no location info)", s);
+        }
+    } else {
+        fatal!("panic occurred (no message)");
+    }
 }
