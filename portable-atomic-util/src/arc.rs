@@ -79,6 +79,8 @@ impl<T: ?Sized> Shared<T> {
 ///         assert_eq!(*five, 5);
 ///     });
 /// }
+/// # // Sleep to give MIRI time to catch up.
+/// # std::thread::sleep(std::time::Duration::from_secs(3));
 /// ```
 pub struct Arc<T: ?Sized> {
     /// The inner heap allocation.
@@ -109,6 +111,8 @@ pub struct Arc<T: ?Sized> {
 ///     let five = weak_five.upgrade().unwrap();
 ///     assert_eq!(*five, 5);
 /// });
+/// # // Sleep to give MIRI time to catch up.
+/// # std::thread::sleep(std::time::Duration::from_secs(3));
 /// ```
 pub struct Weak<T: ?Sized> {
     /// The inner heap allocation.
@@ -473,6 +477,10 @@ impl<T: ?Sized> Arc<T> {
     /// // SAFETY: The pointer is valid.
     /// let five2 = unsafe { Arc::from_raw(five_ptr) };
     /// assert_eq!(*five2, 5);
+    /// 
+    /// // SAFETY: Since the refcount is incremented, we can get another.
+    /// let five3 = unsafe { Arc::from_raw(five_ptr) };
+    /// assert_eq!(*five3, 5);
     /// ```
     pub unsafe fn increment_strong_count(ptr: *const T) {
         // Retain Arc, but don't touch refcount by wrapping in ManuallyDrop
@@ -579,7 +587,7 @@ impl<T: ?Sized> Deref for Arc<T> {
 impl<T: ?Sized> Drop for Arc<T> {
     fn drop(&mut self) {
         // Decrement the strong refcount.
-        if self.inner().strong().fetch_sub(1, Relaxed) != 1 {
+        if self.inner().strong().fetch_sub(1, Release) != 1 {
             return;
         }
 
@@ -739,6 +747,8 @@ impl<T: ?Sized> Drop for Weak<T> {
         // Try to get access to the inner shared pointer.
         if let Some(inner) = self.inner() {
             if inner.weak.fetch_sub(1, Release) == 1 {
+                portable_atomic::fence(Acquire);
+
                 // Deallocate the memory.
                 //
                 // SAFETY: We know that the weak count is 0, so we can deallocate.
@@ -749,24 +759,15 @@ impl<T: ?Sized> Drop for Weak<T> {
 }
 
 fn abort() -> ! {
-    #[cfg(feature = "std")]
-    {
-        extern crate std;
-        std::process::abort()
-    }
+    struct Abort;
 
-    #[cfg(not(feature = "std"))]
-    {
-        struct Abort;
-
-        impl Drop for Abort {
-            fn drop(&mut self) {
-                panic!();
-            }
+    impl Drop for Abort {
+        fn drop(&mut self) {
+            panic!();
         }
-
-        panic!("abort")
     }
+
+    panic!("abort")
 }
 
 fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {

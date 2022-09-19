@@ -204,7 +204,7 @@ build() {
     esac
 
     args+=(
-        --workspace --ignore-private
+        --ignore-private
         --no-dev-deps --feature-powerset --depth 3 --optional-deps
     )
     case "${target}" in
