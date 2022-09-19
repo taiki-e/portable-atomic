@@ -1,7 +1,23 @@
 // Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en#CIHJBHJA
+//
+// Generated asm:
+// - armv5te https://godbolt.org/z/GMa9c5esb
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
+
+#[cfg(not(portable_atomic_disable_fiq))]
+macro_rules! if_disable_fiq {
+    ($tt:tt) => {
+        ""
+    };
+}
+#[cfg(portable_atomic_disable_fiq)]
+macro_rules! if_disable_fiq {
+    ($tt:tt) => {
+        $tt
+    };
+}
 
 #[derive(Clone, Copy)]
 pub(super) struct State(u32);
@@ -16,12 +32,13 @@ pub(super) fn disable() -> State {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(
-            "mrs {0}, cpsr",
-            // We disable only IRQs. See also https://github.com/taiki-e/portable-atomic/pull/28#issuecomment-1214146912.
-            "orr {1}, {0}, 0x80", // I (IRQ mask) bit (1 << 7)
-            "msr cpsr_c, {1}",
-            out(reg) cpsr,
-            out(reg) _,
+            "mrs {prev}, cpsr",
+            "orr {new}, {prev}, 0x80", // I (IRQ mask) bit (1 << 7)
+            // We disable only IRQs by default. See also https://github.com/taiki-e/portable-atomic/pull/28#issuecomment-1214146912.
+            if_disable_fiq!("orr {new}, {new}, 0x40"), // F (FIQ mask) bit (1 << 6)
+            "msr cpsr_c, {new}",
+            prev = out(reg) cpsr,
+            new = out(reg) _,
             options(nostack, preserves_flags),
         );
     }
