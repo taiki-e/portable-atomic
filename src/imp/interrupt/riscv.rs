@@ -1,9 +1,47 @@
-// Based on asm generated for functions of interrupt module of https://github.com/rust-embedded/riscv.
+// Refs:
+// - https://five-embeddev.com/riscv-isa-manual/latest/machine.html#machine-status-registers-mstatus-and-mstatush
+// - https://five-embeddev.com/riscv-isa-manual/latest/supervisor.html#sstatus
+//
+// Generated asm:
+// riscv64gc https://godbolt.org/z/757nrWfKd
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 
 pub(super) use super::super::riscv as atomic;
+
+// Status register
+#[cfg(not(portable_atomic_s_mode))]
+macro_rules! status {
+    () => {
+        "mstatus"
+    };
+}
+#[cfg(portable_atomic_s_mode)]
+macro_rules! status {
+    () => {
+        "sstatus"
+    };
+}
+
+// MIE (Machine Interrupt Enable) bit (1 << 3)
+#[cfg(not(portable_atomic_s_mode))]
+const MASK: usize = 0x8;
+#[cfg(not(portable_atomic_s_mode))]
+macro_rules! mask {
+    () => {
+        "0x8"
+    };
+}
+// SIE (Supervisor Interrupt Enable) bit (1 << 1)
+#[cfg(portable_atomic_s_mode)]
+const MASK: usize = 0x2;
+#[cfg(portable_atomic_s_mode)]
+macro_rules! mask {
+    () => {
+        "0x2"
+    };
+}
 
 #[derive(Clone, Copy)]
 pub(super) struct WasEnabled(bool);
@@ -17,14 +55,13 @@ pub(super) fn disable() -> WasEnabled {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(
-            "csrr {0}, mstatus",
-            "csrci mstatus, 0x8",
+            concat!("csrr {0}, ", status!()),
+            concat!("csrci ", status!(), ", ", mask!()),
             out(reg) r,
             options(nostack, preserves_flags),
         );
     }
-    // MIE (Machine Interrupt Enable) bit (1 << 3)
-    WasEnabled(r & 0x8 != 0)
+    WasEnabled(r & MASK != 0)
 }
 
 /// Restores the previous interrupt state.
@@ -35,7 +72,7 @@ pub(super) unsafe fn restore(WasEnabled(was_enabled): WasEnabled) {
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-            asm!("csrsi mstatus, 0x8", options(nostack, preserves_flags));
+            asm!(concat!("csrsi ", status!(), ", ", mask!()), options(nostack, preserves_flags));
         }
     }
 }

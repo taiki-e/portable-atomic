@@ -78,6 +78,7 @@ default_targets=(
 known_cfgs=(
     docsrs
     portable_atomic_unsafe_assume_single_core
+    portable_atomic_s_mode
 )
 
 x() {
@@ -194,6 +195,12 @@ build() {
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            case "${target}" in
+                                riscv*)
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                        x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                    ;;
+                            esac
                             ;;
                     esac
                 else
@@ -222,6 +229,12 @@ build() {
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                             x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
+                        case "${target}" in
+                            riscv*)
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                    x cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
+                                ;;
+                        esac
                         ;;
                 esac
             fi
