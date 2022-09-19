@@ -94,17 +94,18 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   This cfg is `unsafe`, and note the following safety requirements:
   - Enabling this cfg for multi-core systems is always **unsound**.
   - This uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
-    Enabling this cfg in an environment where privileged instructions are not available is also usually considered **unsound**, although the details are system-dependent.
-  - On pre-v6 ARM, this currently disables only IRQs.
-    Enabling this cfg in an environment where FIQs must also be disabled is also considered **unsound**.
+    Enabling this cfg in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
+    The following are known cases:
+    - On pre-v6 ARM, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to pass the `--cfg portable_atomic_disable_fiq` together.
+    - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you pass the `--cfg portable_atomic_s_mode` together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
 
   This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
-
-  Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
   ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension are currently supported. See [#33] for support of multi-core systems.
 
   Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this cfg.
+
+  Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
   Feel free to submit an issue if your target is not supported yet.
 
