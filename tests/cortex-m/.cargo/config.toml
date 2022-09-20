@@ -25,5 +25,5 @@ runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semih
 [target.thumbv8m.main-none-eabihf]
 runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
 
-[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+[target.'cfg(all(target_arch = "arm", target_os = "none", target_feature = "mclass"))']
 rustflags = ["-C", "link-arg=-Tlink.x"]

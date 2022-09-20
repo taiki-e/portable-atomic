@@ -22,6 +22,8 @@ members = [
     "bench",
     "portable-atomic-util",
     "tests/api-test",
+    "tests/no-std-test-helper",
+    "tests/no-std-test-helper-macro",
 ]
 
 [features]
@@ -65,6 +67,7 @@ serde = { version = "1.0.103", optional = true, default-features = false }
 paste = "1"
 sptr = "0.3"
 static_assertions = "1"
+no-std-test-helper = { path = "tests/no-std-test-helper" }
 
 [target.'cfg(not(target_os = "none"))'.dev-dependencies]
 crossbeam-utils = "0.8"
@@ -72,6 +75,3 @@ fastrand = "1"
 quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
 serde = { version = "1", features = ["derive"] }
 serde_test = "1"
-
-[target.'cfg(all(any(target_arch = "riscv32", target_arch = "riscv64"), target_os = "none"))'.dev-dependencies]
-fdt = "0.1"

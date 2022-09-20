@@ -87,14 +87,16 @@ run() {
             ;;
     esac
     args+=(hack "${subcmd}" "${target_flags[@]}")
+    build_std=()
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
-        args+=(-Z build-std="core,panic_abort")
+        build_std+=(-Z build-std="core,panic_abort")
     else
         echo "target '${target}' requires nightly compiler (skipped)"
         return 0
     fi
+    args+=(${build_std[@]+"${build_std[@]}"})
 
     args+=(--feature-powerset)
     case "${target}" in
@@ -123,6 +125,8 @@ run() {
             ;;
         thumb*)
             (
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
+                    x cargo test -Z features=all --test test --release ${build_std[@]+"${build_std[@]}"} "${target_flags[@]}"
                 cd tests/cortex-m
                 RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
                     x cargo "${args[@]}" "$@"
@@ -132,6 +136,8 @@ run() {
             ;;
         riscv*)
             (
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Ttests/riscv/link.ld" \
+                    x cargo test -Z features=all --test test --release ${build_std[@]+"${build_std[@]}"} "${target_flags[@]}"
                 cd tests/riscv
                 # TODO
                 # RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.ld" \

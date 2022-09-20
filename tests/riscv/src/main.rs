@@ -130,16 +130,13 @@ mod semihosting {
 
     use portable_atomic::AtomicPtr;
 
+    #[inline(always)]
     pub unsafe fn init(fdt_address: usize) {
         unsafe {
             let fdt = &fdt::Fdt::from_ptr(fdt_address as _).unwrap();
             EXIT_HANDLE.store(find_compatible(fdt, "sifive,test0").cast(), Ordering::Release);
             UART_HANDLE.store(find_compatible(fdt, "ns16550a").cast(), Ordering::Release);
         }
-
-        println!("fdt_address={:x}", fdt_address);
-        println!("uart_addr={:p}", UART_HANDLE.load(Ordering::Acquire));
-        println!("exit_addr={:p}", EXIT_HANDLE.load(Ordering::Acquire));
     }
 
     fn find_compatible(fdt: &fdt::Fdt<'_>, with: &str) -> *mut () {
