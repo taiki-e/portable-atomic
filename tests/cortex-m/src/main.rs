@@ -7,28 +7,40 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::{fmt::Write, panic::PanicInfo, ptr, sync::atomic::Ordering};
+use core::{ptr, sync::atomic::Ordering};
 
-use cortex_m::asm;
 use cortex_m_rt::entry;
 use cortex_m_semihosting as semihosting;
 use portable_atomic::*;
 
+macro_rules! print {
+    ($($tt:tt)*) => {
+        if let Ok(mut hstdout) = semihosting::hio::hstdout() {
+            use core::fmt::Write;
+            let _ = write!(hstdout, $($tt)*);
+        }
+    };
+}
+macro_rules! println {
+    ($($tt:tt)*) => {
+        if let Ok(mut hstdout) = semihosting::hio::hstdout() {
+            use core::fmt::Write;
+            let _ = writeln!(hstdout, $($tt)*);
+        }
+    };
+}
+
 #[entry]
 fn main() -> ! {
-    asm::nop();
-
-    let mut hstdout = semihosting::hio::hstdout().unwrap();
-
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!($int_type, [<Atomic $int_type:camel>]);
                 }
-                let _ = write!(hstdout, "test test_atomic_{} ...", stringify!($int_type));
+                print!("test test_atomic_{} ... ", stringify!($int_type));
                 [<test_atomic_ $int_type>]();
-                let _ = writeln!(hstdout, " ok");
+                println!("ok");
             }
         };
     }
@@ -39,9 +51,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
                 }
-                let _ = write!(hstdout, "test test_atomic_{} ...", stringify!($float_type));
+                print!("test test_atomic_{} ... ", stringify!($float_type));
                 [<test_atomic_ $float_type>]();
-                let _ = writeln!(hstdout, " ok");
+                println!("ok");
             }
         };
     }
@@ -50,9 +62,9 @@ fn main() -> ! {
             fn test_atomic_bool() {
                 __test_atomic_bool!(AtomicBool);
             }
-            let _ = write!(hstdout, "test test_atomic_bool ...");
+            print!("test test_atomic_bool ... ");
             test_atomic_bool();
-            let _ = writeln!(hstdout, " ok");
+            println!("ok");
         };
     }
     macro_rules! test_atomic_ptr {
@@ -60,9 +72,9 @@ fn main() -> ! {
             fn test_atomic_ptr() {
                 __test_atomic_ptr!(AtomicPtr<u8>);
             }
-            let _ = write!(hstdout, "test test_atomic_ptr ...");
+            print!("test test_atomic_ptr ... ");
             test_atomic_ptr();
-            let _ = writeln!(hstdout, " ok");
+            println!("ok");
         };
     }
 
@@ -92,17 +104,15 @@ fn main() -> ! {
 
 #[inline(never)]
 #[panic_handler]
-fn panic(info: &PanicInfo<'_>) -> ! {
-    if let Ok(mut hstdout) = semihosting::hio::hstdout() {
-        if let Some(s) = info.message() {
-            if let Some(l) = info.location() {
-                let _ = writeln!(hstdout, "panicked at '{:?}', {}", s, l);
-            } else {
-                let _ = writeln!(hstdout, "panicked at '{:?}' (no location info)", s);
-            }
+fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
+    if let Some(s) = info.message() {
+        if let Some(l) = info.location() {
+            println!("panicked at '{:?}', {}", s, l);
         } else {
-            let _ = writeln!(hstdout, "panic occurred (no message)");
+            println!("panicked at '{:?}' (no location info)", s);
         }
+    } else {
+        println!("panic occurred (no message)");
     }
 
     loop {

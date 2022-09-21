@@ -57,6 +57,7 @@ run() {
     local target="$1"
     shift
     local args=(${pre_args[@]+"${pre_args[@]}"})
+    local target_rustflags="${RUSTFLAGS:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             echo "target '${target}' not available on ${rustc_version} (skipped)"
@@ -86,33 +87,33 @@ run() {
     fi
 
     args+=(--feature-powerset)
-    args+=(--exclude-features=float) # TODO
+    case "${target}" in
+        thumb* | arm*)
+            args+=(--exclude-features=float) # TODO
+            ;;
+    esac
+    case "${target}" in
+        thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
+            target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core"
+            ;;
+    esac
 
     case "${target}" in
         thumbv4t* | armv4t*)
             (
                 cd tests/gba
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
                     x cargo "${args[@]}" "$@"
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlinker.ld --cfg portable_atomic_unsafe_assume_single_core" \
-                    x cargo "${args[@]}" --release "$@"
-            )
-            ;;
-        thumbv6m*)
-            (
-                cd tests/cortex-m
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlink.x --cfg portable_atomic_unsafe_assume_single_core" \
-                    x cargo "${args[@]}" "$@"
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlink.x --cfg portable_atomic_unsafe_assume_single_core" \
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
                     x cargo "${args[@]}" --release "$@"
             )
             ;;
         thumb*)
             (
                 cd tests/cortex-m
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlink.x" \
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
                     x cargo "${args[@]}" "$@"
-                RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Tlink.x" \
+                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
                     x cargo "${args[@]}" --release "$@"
             )
             ;;
