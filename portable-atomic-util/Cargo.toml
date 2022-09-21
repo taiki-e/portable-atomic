@@ -15,7 +15,7 @@ Synchronization primitives built with portable-atomic.
 targets = ["x86_64-unknown-linux-gnu"]
 
 [features]
-default = ["std"]
+default = []
 std = ["alloc"]
 alloc = []
 
