@@ -80,7 +80,7 @@ run() {
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
-        args+=(-Z build-std="core,panic_abort")
+        args+=(-Z build-std="core")
     else
         echo "target '${target}' requires nightly compiler (skipped)"
         return 0

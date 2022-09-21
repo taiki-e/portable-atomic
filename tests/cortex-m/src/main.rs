@@ -16,7 +16,7 @@ use portable_atomic::*;
 macro_rules! print {
     ($($tt:tt)*) => {
         if let Ok(mut hstdout) = semihosting::hio::hstdout() {
-            use core::fmt::Write;
+            use core::fmt::Write as _;
             let _ = write!(hstdout, $($tt)*);
         }
     };
@@ -24,7 +24,7 @@ macro_rules! print {
 macro_rules! println {
     ($($tt:tt)*) => {
         if let Ok(mut hstdout) = semihosting::hio::hstdout() {
-            use core::fmt::Write;
+            use core::fmt::Write as _;
             let _ = writeln!(hstdout, $($tt)*);
         }
     };
