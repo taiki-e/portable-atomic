@@ -20,4 +20,4 @@ std = ["alloc"]
 alloc = []
 
 [dependencies]
-portable-atomic = { version = "=0.3.15", default-features = false }
+portable-atomic = { version = "=0.3.15", path = "..", default-features = false }
