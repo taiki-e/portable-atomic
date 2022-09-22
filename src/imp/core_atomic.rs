@@ -50,7 +50,7 @@ impl AtomicBool {
         failure: Ordering,
     ) -> Result<bool, bool> {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(not(portable_atomic_stronger_failure_ordering))]
+        #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange(current, new, success, failure)
     }
@@ -66,7 +66,7 @@ impl AtomicBool {
         failure: Ordering,
     ) -> Result<bool, bool> {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(not(portable_atomic_stronger_failure_ordering))]
+        #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange_weak(current, new, success, failure)
     }
@@ -130,7 +130,7 @@ impl<T> AtomicPtr<T> {
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(not(portable_atomic_stronger_failure_ordering))]
+        #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange(current, new, success, failure)
     }
@@ -146,7 +146,7 @@ impl<T> AtomicPtr<T> {
         failure: Ordering,
     ) -> Result<*mut T, *mut T> {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(not(portable_atomic_stronger_failure_ordering))]
+        #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         self.inner.compare_exchange_weak(current, new, success, failure)
     }
@@ -218,7 +218,7 @@ macro_rules! atomic_int {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-                #[cfg(not(portable_atomic_stronger_failure_ordering))]
+                #[cfg(portable_atomic_no_stronger_failure_ordering)]
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange(current, new, success, failure)
             }
@@ -240,7 +240,7 @@ macro_rules! atomic_int {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-                #[cfg(not(portable_atomic_stronger_failure_ordering))]
+                #[cfg(portable_atomic_no_stronger_failure_ordering)]
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }

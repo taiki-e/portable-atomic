@@ -27,7 +27,8 @@ fn main() {
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
     // for non-cargo build systems that don't run the build script.
-    if version.minor < 36 {
+    // alloc stabilized in Rust 1.36 (nightly-2019-04-15)  https://github.com/rust-lang/rust/pull/59675
+    if !version.probe(36, 2019, 4, 14) {
         println!("cargo:rustc-cfg=portable_atomic_no_alloc");
     }
     // raw_ref_macros stabilized in Rust 1.51 (nightly-2021-01-31) https://github.com/rust-lang/rust/pull/80886

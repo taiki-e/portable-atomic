@@ -93,9 +93,8 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
     }
     // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
-    if version.probe(64, 2022, 7, 18) {
-        // TODO: invert cfg once Rust 1.64 became stable.
-        println!("cargo:rustc-cfg=portable_atomic_stronger_failure_ordering");
+    if !version.probe(64, 2022, 7, 18) {
+        println!("cargo:rustc-cfg=portable_atomic_no_stronger_failure_ordering");
     }
 
     // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824

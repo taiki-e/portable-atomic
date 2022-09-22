@@ -8,14 +8,18 @@ pub(crate) struct Version {
 }
 
 impl Version {
-    pub(crate) const LATEST: Self = Self::stable(63);
+    pub(crate) const LATEST: Self = Self::stable(64);
 
     const fn stable(minor: u32) -> Self {
         Self { minor, nightly: false, commit_date: Date::new(0, 0, 0), llvm: 0 }
     }
 
     pub(crate) fn probe(&self, minor: u32, year: u16, month: u8, day: u8) -> bool {
-        self.minor >= minor && (!self.nightly || self.commit_date >= Date::new(year, month, day))
+        if self.nightly {
+            self.minor > minor || self.commit_date >= Date::new(year, month, day)
+        } else {
+            self.minor >= minor
+        }
     }
 }
 
