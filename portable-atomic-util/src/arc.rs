@@ -764,9 +764,10 @@ impl<T: ?Sized> Drop for Weak<T> {
                 acquire!(inner.weak);
 
                 // Deallocate the memory.
-                //
+                let ptr = self.shared.as_ptr() as *mut Shared<mem::ManuallyDrop<T>>;
                 // SAFETY: We know that the weak count is 0, so we can deallocate.
-                drop(unsafe { Box::<Shared<T>>::from_raw(self.shared.as_ptr()) });
+                // Using ManuallyDrop here prevents T from being dropped twice.
+                mem::drop(unsafe { Box::from_raw(ptr) });
             }
         }
     }
