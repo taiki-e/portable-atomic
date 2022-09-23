@@ -222,6 +222,9 @@ build() {
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                             x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
+                        # portable-atomic-util uses atomic CAS, so doesn't work on
+                        # this target without portable_atomic_unsafe_assume_single_core cfg.
+                        args+=(--exclude portable-atomic-util)
                         ;;
                 esac
             fi
