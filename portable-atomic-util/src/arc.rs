@@ -1,7 +1,5 @@
 //! An implementation of the standard library's `Arc` type using `portable-atomic`.
 
-extern crate alloc;
-
 use portable_atomic::{
     AtomicUsize,
     Ordering::{Acquire, Relaxed, Release},
