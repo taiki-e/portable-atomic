@@ -47,3 +47,4 @@ Synchronization primitives built with portable-atomic.
     clippy::single_match,
     clippy::type_complexity
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
