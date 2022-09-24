@@ -218,7 +218,7 @@ build() {
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
                     avr-* | msp430-*) ;; # always single-core
-                    bpf*) ;;             # TODO
+                    bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                             x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
