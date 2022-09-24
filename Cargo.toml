@@ -9,7 +9,7 @@ keywords = ["atomic"]
 categories = ["concurrency", "data-structures", "embedded", "hardware-support", "no-std"]
 exclude = ["/.*", "/tools", "/target-specs"]
 description = """
-Portable atomic types including support for 128-bit atomics, atomic float, etc.
+Portable atomic types including support for 128-bit atomics, atomic float, generic atomic type, etc.
 """
 
 [package.metadata.docs.rs]
@@ -21,6 +21,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 members = [
     "bench",
     "portable-atomic-util",
+    "portable-atomic-derive",
     "tests/api-test",
 ]
 
@@ -45,10 +46,6 @@ outline-atomics = []
 # Provide `AtomicF{32,64}`.
 # Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 float = []
-
-# TODO
-# # Provides generic `atomic<t>` type.
-# generic = []
 
 # Use `std`.
 std = []

@@ -1,0 +1,5 @@
+error[E0080]: evaluation of constant value failed
+ --> tests/ui/struct-large.rs:4:10
+  |
+4 | #[atomic(u8)]
+  |          ^^ attempt to compute `1_usize - 2_usize`, which would overflow

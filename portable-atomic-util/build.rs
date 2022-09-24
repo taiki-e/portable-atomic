@@ -39,6 +39,10 @@ fn main() {
     if !version.probe(52, 2021, 3, 10) {
         println!("cargo:rustc-cfg=portable_atomic_no_unsafe_op_in_unsafe_fn");
     }
+    // const_fn_trait_bound stabilized in Rust 1.61 (nightly-2022-03-08): https://github.com/rust-lang/rust/pull/93827
+    if !version.probe(61, 2022, 3, 7) {
+        println!("cargo:rustc-cfg=portable_atomic_no_const_fn_trait_bound");
+    }
 
     if version.nightly {
         // `cfg(sanitize = "..")` is not stabilized.

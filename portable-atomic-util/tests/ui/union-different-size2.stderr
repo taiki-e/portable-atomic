@@ -1,0 +1,7 @@
+error[E0527]: pattern requires 0 elements but array has 1
+ --> tests/ui/union-different-size2.rs:3:23
+  |
+3 | #[derive(Clone, Copy, Atomicable)]
+  |                       ^^^^^^^^^^ expected 1 element
+  |
+  = note: this error originates in the derive macro `Atomicable` (in Nightly builds, run with -Z macro-backtrace for more info)

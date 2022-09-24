@@ -49,6 +49,9 @@ Synchronization primitives built with portable-atomic.
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+#[cfg(any(test, feature = "std"))]
+extern crate std;
+
 #[cfg(all(feature = "alloc", not(portable_atomic_no_alloc)))]
 extern crate alloc;
 #[cfg(all(feature = "std", portable_atomic_no_alloc))]
@@ -59,3 +62,56 @@ extern crate std as alloc;
 mod arc;
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
 pub use arc::{Arc, Weak};
+
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub mod generic;
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub use crate::generic::*;
+
+#[cfg(feature = "derive")]
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(docsrs, doc(cfg(all(feature = "generic", feature = "derive"))))]
+pub use portable_atomic_derive::Atomicable;
+
+// Not public API.
+#[doc(hidden)]
+#[cfg(feature = "derive")]
+#[cfg(feature = "generic")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(not(portable_atomic_no_atomic_cas), portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(target_has_atomic = "ptr", portable_atomic_unsafe_assume_single_core))
+)]
+pub mod __private {
+    pub use core::mem::{size_of, transmute};
+    #[doc(hidden)]
+    #[allow(clippy::missing_inline_in_public_items)]
+    pub fn is_transmutable<T: crate::Transmutable>() {}
+}

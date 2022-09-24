@@ -1,0 +1,7 @@
+error[E0080]: evaluation of constant value failed
+ --> tests/ui/union-different-size1.rs:3:23
+  |
+3 | #[derive(Clone, Copy, Atomicable)]
+  |                       ^^^^^^^^^^ attempt to compute `1_usize - 2_usize`, which would overflow
+  |
+  = note: this error originates in the derive macro `Atomicable` (in Nightly builds, run with -Z macro-backtrace for more info)

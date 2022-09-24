@@ -7,12 +7,12 @@
 [![build status](https://img.shields.io/github/workflow/status/taiki-e/portable-atomic/CI/main?style=flat-square&logo=github)](https://github.com/taiki-e/portable-atomic/actions)
 [![build status](https://img.shields.io/cirrus/github/taiki-e/portable-atomic/main?style=flat-square&logo=cirrusci)](https://cirrus-ci.com/github/taiki-e/portable-atomic)
 
-Portable atomic types including support for 128-bit atomics, atomic float, etc.
+Portable atomic types including support for 128-bit atomics, atomic float, generic atomic type, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. (optional)
-<!-- - Provide generic `Atomic<T>` type. (optional) -->
+- Provide generic `Atomic<T>` type. (optional)
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR) ([optional and single-core only](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
@@ -48,6 +48,13 @@ They are usually implemented using inline assembly, and when using Miri or Threa
 
 See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
 
+## Generic Atomic\<T> type
+
+- Support for various operations on `Copy` types and support for swap and store on non-`Copy` types.
+- Support for primitives, immutable references, function pointers, `NonNull`, `NoneZero`, etc.
+- Support for user-defined structs and enums, including those with multiple fields and padding. (via `#[derive(Atomicable)]`)
+- Support for user-defined unions. (via `#[derive(Atomicable)]`)
+
 ## Optional features
 
 - **`fallback`** *(enabled by default)*<br>
@@ -71,13 +78,20 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   Provide `AtomicF{32,64}`.
   Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 
-<!-- TODO
 - **`generic`**<br>
   Provides generic `Atomic<T>` type.
--->
+
+  Note:
+  - This implicitly enables the `fallback` feature.
+
+- **`alloc`**<br>
+  Use `alloc`.
 
 - **`std`**<br>
   Use `std`.
+
+  Note:
+  - This implicitly enables the `alloc` feature.
 
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.

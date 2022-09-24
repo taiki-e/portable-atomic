@@ -18,8 +18,27 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [features]
 default = []
+
+# Use `std`.
+#
+# Note:
+# - This implicitly enables the `alloc` feature.
 std = ["alloc"]
+
+# Use `alloc`.
 alloc = []
+
+# Provides generic `Atomic<T>` type.
+generic = ["portable-atomic/fallback"]
+
+# Provide derive(Atomicable).
+derive = ["portable-atomic-derive"]
 
 [dependencies]
 portable-atomic = { version = "=0.3.15", path = "..", default-features = false }
+portable-atomic-derive = { version = "=0.3.15", path = "../portable-atomic-derive", optional = true }
+
+[dev-dependencies]
+macrotest = "1.0.9"
+rustversion = "1"
+trybuild = "1"
