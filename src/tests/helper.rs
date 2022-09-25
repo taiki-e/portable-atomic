@@ -1081,6 +1081,10 @@ macro_rules! __test_atomic_int_load_store_pub {
         __test_atomic_pub_common!($atomic_type, $int_type);
         #[test]
         fn impls() {
+            #[cfg(portable_atomic_unstable)]
+            static _D: $atomic_type = <$atomic_type>::default();
+            #[cfg(portable_atomic_unstable)]
+            static _F: $atomic_type = <$atomic_type>::from(1);
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));

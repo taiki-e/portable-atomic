@@ -1,6 +1,7 @@
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, /* unsafe_op_in_unsafe_fn */)]
 #![allow(unused_imports)]
+#![cfg_attr(portable_atomic_unstable, feature(const_trait_impl))]
 
 #[macro_use]
 mod helper;

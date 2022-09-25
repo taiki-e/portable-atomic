@@ -237,6 +237,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
 )]
+// super unstable (requires explicit portable_atomic_unstable cfg)
+#![cfg_attr(portable_atomic_unstable, feature(const_trait_impl))]
 // Miri and/or ThreadSanitizer only
 // They do not support inline assembly, so we need to use unstable features instead of it.
 // Since they require nightly compilers anyway, we can use the unstable features.
@@ -407,19 +409,23 @@ pub struct AtomicBool {
 
 static_assert_layout!(AtomicBool, bool);
 
-impl Default for AtomicBool {
-    /// Creates an `AtomicBool` initialized to `false`.
-    #[inline]
-    fn default() -> Self {
-        Self::new(false)
+const_impl! {
+    impl const Default for AtomicBool {
+        /// Creates an `AtomicBool` initialized to `false`.
+        #[inline]
+        fn default() -> Self {
+            Self::new(false)
+        }
     }
 }
 
-impl From<bool> for AtomicBool {
-    /// Converts a `bool` into an `AtomicBool`.
-    #[inline]
-    fn from(b: bool) -> Self {
-        Self::new(b)
+const_impl! {
+    impl const From<bool> for AtomicBool {
+        /// Converts a `bool` into an `AtomicBool`.
+        #[inline]
+        fn from(b: bool) -> Self {
+            Self::new(b)
+        }
     }
 }
 
@@ -1118,18 +1124,22 @@ pub struct AtomicPtr<T> {
 
 static_assert_layout!(AtomicPtr<()>, *mut ());
 
-impl<T> Default for AtomicPtr<T> {
-    /// Creates a null `AtomicPtr<T>`.
-    #[inline]
-    fn default() -> Self {
-        Self::new(ptr::null_mut())
+const_impl! {
+    impl[T] const Default for AtomicPtr<T> {
+        /// Creates a null `AtomicPtr<T>`.
+        #[inline]
+        fn default() -> Self {
+            Self::new(ptr::null_mut())
+        }
     }
 }
 
-impl<T> From<*mut T> for AtomicPtr<T> {
-    #[inline]
-    fn from(p: *mut T) -> Self {
-        Self::new(p)
+const_impl! {
+    impl[T] const From<*mut T> for AtomicPtr<T> {
+        #[inline]
+        fn from(p: *mut T) -> Self {
+            Self::new(p)
+        }
     }
 }
 
@@ -2087,17 +2097,21 @@ atomic instructions or locks will be used.
 
         static_assert_layout!($atomic_type, $int_type);
 
-        impl Default for $atomic_type {
-            #[inline]
-            fn default() -> Self {
-                Self::new($int_type::default())
+        const_impl! {
+            impl const Default for $atomic_type {
+                #[inline]
+                fn default() -> Self {
+                    Self::new(0)
+                }
             }
         }
 
-        impl From<$int_type> for $atomic_type {
-            #[inline]
-            fn from(v: $int_type) -> Self {
-                Self::new(v)
+        const_impl! {
+            impl const From<$int_type> for $atomic_type {
+                #[inline]
+                fn from(v: $int_type) -> Self {
+                    Self::new(v)
+                }
             }
         }
 
@@ -2959,17 +2973,21 @@ This type has the same in-memory representation as the underlying floating point
 
         static_assert_layout!($atomic_type, $float_type);
 
-        impl Default for $atomic_type {
-            #[inline]
-            fn default() -> Self {
-                Self::new($float_type::default())
+        const_impl! {
+            impl const Default for $atomic_type {
+                #[inline]
+                fn default() -> Self {
+                    Self::new(0.0)
+                }
             }
         }
 
-        impl From<$float_type> for $atomic_type {
-            #[inline]
-            fn from(v: $float_type) -> Self {
-                Self::new(v)
+        const_impl! {
+            impl const From<$float_type> for $atomic_type {
+                #[inline]
+                fn from(v: $float_type) -> Self {
+                    Self::new(v)
+                }
             }
         }
 

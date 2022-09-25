@@ -8,6 +8,10 @@ macro_rules! __test_atomic_int {
             const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
             assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
             let _is_always_lock_free: bool = <$atomic_type>::is_lock_free();
+            #[cfg(portable_atomic_unstable)]
+            static _D: $atomic_type = <$atomic_type>::default();
+            #[cfg(portable_atomic_unstable)]
+            static _F: $atomic_type = <$atomic_type>::from(1);
 
             let mut val = <$atomic_type>::new(5);
             *val.get_mut() = 10;

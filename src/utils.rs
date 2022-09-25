@@ -116,6 +116,19 @@ macro_rules! doc_comment {
     };
 }
 
+#[cfg(not(portable_atomic_unstable))]
+macro_rules! const_impl {
+    (impl $([$($generics:tt)*])? const $($rest:tt)*) => {
+        impl $(<$($generics)*>)? $($rest)*
+    };
+}
+#[cfg(portable_atomic_unstable)]
+macro_rules! const_impl {
+    (impl $([$($generics:tt)*])? const $($rest:tt)*) => {
+        impl $(<$($generics)*>)? const $($rest)*
+    };
+}
+
 macro_rules! serde_impls {
     ($atomic_type:ident) => {
         #[cfg(feature = "serde")]

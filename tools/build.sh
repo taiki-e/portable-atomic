@@ -77,6 +77,7 @@ default_targets=(
 )
 known_cfgs=(
     docsrs
+    portable_atomic_unstable
     portable_atomic_unsafe_assume_single_core
 )
 
