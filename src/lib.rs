@@ -147,6 +147,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     clippy::missing_inline_in_public_items,
 )]
 #![allow(
+    clippy::box_default,
     clippy::cast_lossless,
     clippy::doc_markdown,
     clippy::float_cmp,
