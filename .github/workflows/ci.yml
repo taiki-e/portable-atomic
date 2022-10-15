@@ -405,7 +405,7 @@ jobs:
           if ! git diff --exit-code; then
               git add .
               git commit -m "Update no_atomic.rs"
-              echo "::set-output name=success::false"
+              echo "success=false" >>"${GITHUB_OUTPUT}"
           fi
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
       - uses: taiki-e/create-pull-request@v4
