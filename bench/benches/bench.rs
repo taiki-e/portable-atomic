@@ -4,11 +4,12 @@
 #![feature(asm_experimental_arch, cmpxchg16b_target_feature, core_intrinsics, stdsimd)]
 
 use std::{
+    hint::black_box,
     sync::{atomic::Ordering, Barrier},
     thread,
 };
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 
 #[macro_use]
 #[allow(dead_code, unused_macros)]
