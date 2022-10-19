@@ -1,4 +1,7 @@
 // Adapted from https://github.com/rust-embedded/cortex-m.
+//
+// Generated asm:
+// - armv6-m https://godbolt.org/z/oMjd4h3Tr
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -6,11 +9,11 @@ use core::arch::asm;
 pub(super) use core::sync::atomic;
 
 #[derive(Clone, Copy)]
-pub(super) struct WasEnabled(bool);
+pub(super) struct State(u32);
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
-pub(super) fn disable() -> WasEnabled {
+pub(super) fn disable() -> State {
     let r: u32;
     // SAFETY: reading the priority mask register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
@@ -23,13 +26,13 @@ pub(super) fn disable() -> WasEnabled {
             options(nostack, preserves_flags),
         );
     }
-    WasEnabled(r & 0x1 == 0)
+    State(r)
 }
 
 /// Restores the previous interrupt state.
 #[inline]
-pub(super) unsafe fn restore(WasEnabled(was_enabled): WasEnabled) {
-    if was_enabled {
+pub(super) unsafe fn restore(State(r): State) {
+    if r & 0x1 == 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {
