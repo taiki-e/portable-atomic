@@ -6,16 +6,18 @@
 bench/                  -- simple benchmarks
 build.rs                -- build script
 no_atomic.rs            -- definitions of statics used by build script (auto-generated)
+portable-atomic-util/   -- crate that defines synchronization primitives built with portable-atomic
 src/imp/atomic128/      -- 128-bit atomic implementation (mainly by asm)
 src/imp/core_atomic.rs  -- wrapper for core::sync::atomic types
 src/imp/fallback/       -- fallback implementation based on global locks
+src/imp/float.rs        -- atomic float implementation based on atomic integer
 src/imp/interrupt/      -- fallback implementation based on disabling interrupts (for no-std)
 src/imp/msp430.rs       -- atomic implementation for MSP430 (by asm)
 src/imp/riscv.rs        -- atomic implementation for RISC-V without A-extension (by asm)
 src/lib.rs              -- definitions of public APIs
 src/tests/              -- unit tests and test helpers
 src/utils.rs            -- common code
-target-specs/           -- specs of custom targets
+target-specs/           -- specs of custom targets for tests
 tests/api-test/         -- API check
 tests/cortex-m/         -- tests for cortex-m (thumbv*m)
 tests/gba/              -- tests for gba (thumbv4t)

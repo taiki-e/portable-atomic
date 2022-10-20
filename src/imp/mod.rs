@@ -133,6 +133,12 @@ mod fallback;
 mod interrupt;
 
 // -----------------------------------------------------------------------------
+// Atomic float implementations
+
+#[cfg(feature = "float")]
+pub(crate) mod float;
+
+// -----------------------------------------------------------------------------
 
 // Atomic{Isize,Usize,Bool,Ptr}, Atomic{I,U}{8,16}
 #[cfg_attr(

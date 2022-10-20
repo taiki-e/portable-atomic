@@ -2983,9 +2983,11 @@ This type has the same in-memory representation as the underlying floating point
 "
             ),
             #[cfg_attr(docsrs, doc(cfg(feature = "float")))]
+            // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
+            // will show clearer docs.
             #[repr(C, align($align))]
             pub struct $atomic_type {
-                v: core::cell::UnsafeCell<$float_type>,
+                inner: imp::float::$atomic_type,
             }
         }
 
@@ -3030,7 +3032,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[must_use]
             pub const fn new(v: $float_type) -> Self {
-                Self { v: core::cell::UnsafeCell::new(v) }
+                Self { inner: imp::float::$atomic_type::new(v) }
             }
 
             /// Returns `true` if operations on values of this type are lock-free.
@@ -3041,7 +3043,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[must_use]
             pub fn is_lock_free() -> bool {
-                crate::$atomic_int_type::is_lock_free()
+                <imp::float::$atomic_type>::is_lock_free()
             }
 
             /// Returns `true` if operations on values of this type are lock-free.
@@ -3055,7 +3057,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[must_use]
             pub const fn is_always_lock_free() -> bool {
-                crate::$atomic_int_type::is_always_lock_free()
+                <imp::float::$atomic_type>::is_always_lock_free()
             }
 
             /// Returns a mutable reference to the underlying float.
@@ -3064,9 +3066,7 @@ This type has the same in-memory representation as the underlying floating point
             /// concurrently accessing the atomic data.
             #[inline]
             pub fn get_mut(&mut self) -> &mut $float_type {
-                // SAFETY: the mutable reference guarantees unique ownership.
-                // (UnsafeCell::get_mut requires Rust 1.50)
-                unsafe { &mut *self.v.get() }
+                self.inner.get_mut()
             }
 
             // TODO: Add from_mut once it is stable on std atomic types.
@@ -3078,7 +3078,7 @@ This type has the same in-memory representation as the underlying floating point
             /// concurrently accessing the atomic data.
             #[inline]
             pub fn into_inner(self) -> $float_type {
-                self.v.into_inner()
+                self.inner.into_inner()
             }
 
             /// Loads a value from the atomic float.
@@ -3092,7 +3092,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn load(&self, order: Ordering) -> $float_type {
-                $float_type::from_bits(self.as_bits().load(order))
+                self.inner.load(order)
             }
 
             /// Stores a value into the atomic float.
@@ -3106,7 +3106,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn store(&self, val: $float_type, order: Ordering) {
-                self.as_bits().store(val.to_bits(), order)
+                self.inner.store(val, order)
             }
 
             /// Stores a value into the atomic float, returning the previous value.
@@ -3135,7 +3135,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
-                $float_type::from_bits(self.as_bits().swap(val.to_bits(), order))
+                self.inner.swap(val, order)
             }
 
             /// Stores a value into the atomic float if the current value is the same as
@@ -3184,15 +3184,7 @@ This type has the same in-memory representation as the underlying floating point
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$float_type, $float_type> {
-                match self.as_bits().compare_exchange(
-                    current.to_bits(),
-                    new.to_bits(),
-                    success,
-                    failure,
-                ) {
-                    Ok(v) => Ok($float_type::from_bits(v)),
-                    Err(v) => Err($float_type::from_bits(v)),
-                }
+                self.inner.compare_exchange(current, new, success, failure)
             }
 
             /// Stores a value into the atomic float if the current value is the same as
@@ -3242,15 +3234,7 @@ This type has the same in-memory representation as the underlying floating point
                 success: Ordering,
                 failure: Ordering,
             ) -> Result<$float_type, $float_type> {
-                match self.as_bits().compare_exchange_weak(
-                    current.to_bits(),
-                    new.to_bits(),
-                    success,
-                    failure,
-                ) {
-                    Ok(v) => Ok($float_type::from_bits(v)),
-                    Err(v) => Err($float_type::from_bits(v)),
-                }
+                self.inner.compare_exchange_weak(current, new, success, failure)
             }
 
             /// Adds to the current value, returning the previous value.
@@ -3281,10 +3265,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    Some(x + val)
-                })
-                .unwrap()
+                self.inner.fetch_add(val, order)
             }
 
             /// Subtracts from the current value, returning the previous value.
@@ -3315,10 +3296,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    Some(x - val)
-                })
-                .unwrap()
+                self.inner.fetch_sub(val, order)
             }
 
             /// Fetches the value, and applies a function to it that returns an optional
@@ -3420,10 +3398,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    Some(x.max(val))
-                })
-                .unwrap()
+                self.inner.fetch_max(val, order)
             }
 
             /// Minimum with the current value.
@@ -3457,10 +3432,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    Some(x.min(val))
-                })
-                .unwrap()
+                self.inner.fetch_min(val, order)
             }
 
             /// Computes the absolute value of the current value, and sets the
@@ -3492,8 +3464,7 @@ This type has the same in-memory representation as the underlying floating point
             )]
             #[inline]
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
-                const ABS_MASK: $int_type = !0 / 2;
-                $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
+                self.inner.fetch_abs(order)
             }
 
             // TODO: Add as_mut_ptr once it is stable on std atomic types.
@@ -3506,9 +3477,7 @@ See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
 portability of this operation (there are almost no issues)."),
                 #[inline]
                 pub fn as_bits(&self) -> &crate::$atomic_int_type {
-                    // SAFETY: $atomic_type and $atomic_int_type have the same layout,
-                    // and there is no concurrent access to the value that does not go through this method.
-                    unsafe { &*(self as *const $atomic_type as *const crate::$atomic_int_type) }
+                    self.inner.as_bits()
                 }
             }
         }
