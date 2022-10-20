@@ -1038,12 +1038,21 @@ impl AtomicBool {
     /// ordering of this operation. The first describes the required ordering for
     /// when the operation finally succeeds while the second describes the
     /// required ordering for loads. These correspond to the success and failure
-    /// orderings of [`AtomicBool::compare_exchange`] respectively.
+    /// orderings of [`compare_exchange`](Self::compare_exchange) respectively.
     ///
     /// Using [`Acquire`] as success ordering makes the store part of this
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
     /// load [`Relaxed`]. The (failed) load ordering can only be [`SeqCst`],
     /// [`Acquire`] or [`Relaxed`].
+    ///
+    /// # Considerations
+    ///
+    /// This method is not magic; it is not provided by the hardware.
+    /// It is implemented in terms of [`compare_exchange_weak`](Self::compare_exchange_weak),
+    /// and suffers from the same drawbacks.
+    /// In particular, this method will not circumvent the [ABA Problem].
+    ///
+    /// [ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
     ///
     /// # Panics
     ///
@@ -1494,7 +1503,7 @@ impl<T> AtomicPtr<T> {
     /// ordering of this operation. The first describes the required ordering for
     /// when the operation finally succeeds while the second describes the
     /// required ordering for loads. These correspond to the success and failure
-    /// orderings of [`AtomicPtr::compare_exchange`] respectively.
+    /// orderings of [`compare_exchange`](Self::compare_exchange) respectively.
     ///
     /// Using [`Acquire`] as success ordering makes the store part of this
     /// operation [`Relaxed`], and using [`Release`] makes the final successful
@@ -1504,6 +1513,15 @@ impl<T> AtomicPtr<T> {
     /// # Panics
     ///
     /// Panics if `fetch_order` is [`Release`], [`AcqRel`].
+    ///
+    /// # Considerations
+    ///
+    /// This method is not magic; it is not provided by the hardware.
+    /// It is implemented in terms of [`compare_exchange_weak`](Self::compare_exchange_weak),
+    /// and suffers from the same drawbacks.
+    /// In particular, this method will not circumvent the [ABA Problem].
+    ///
+    /// [ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
     ///
     /// # Examples
     ///
@@ -2769,6 +2787,15 @@ of this operation [`Relaxed`], and using [`Release`] makes the final successful 
 
 Panics if `fetch_order` is [`Release`], [`AcqRel`].
 
+# Considerations
+
+This method is not magic; it is not provided by the hardware.
+It is implemented in terms of [`compare_exchange_weak`](Self::compare_exchange_weak),
+and suffers from the same drawbacks.
+In particular, this method will not circumvent the [ABA Problem].
+
+[ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
+
 # Examples
 
 ```rust
@@ -3314,6 +3341,15 @@ This type has the same in-memory representation as the underlying floating point
             /// # Panics
             ///
             /// Panics if `fetch_order` is [`Release`], [`AcqRel`].
+            ///
+            /// # Considerations
+            ///
+            /// This method is not magic; it is not provided by the hardware.
+            /// It is implemented in terms of [`compare_exchange_weak`](Self::compare_exchange_weak),
+            /// and suffers from the same drawbacks.
+            /// In particular, this method will not circumvent the [ABA Problem].
+            ///
+            /// [ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
             #[cfg_attr(
                 portable_atomic_no_cfg_target_has_atomic,
                 cfg(any(
