@@ -2150,7 +2150,7 @@ atomic instructions or locks will be used.
 ```
 use portable_atomic::", stringify!($atomic_type), ";
 
-let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
+let val = ", stringify!($atomic_type), "::new(42);
 ```"
                 ),
                 #[inline]
@@ -2215,10 +2215,10 @@ concurrently accessing the atomic data.
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let mut some_var = ", stringify!($atomic_type), "::new(10);
-assert_eq!(*some_var.get_mut(), 10);
-*some_var.get_mut() = 5;
-assert_eq!(some_var.load(Ordering::SeqCst), 5);
+let mut val = ", stringify!($atomic_type), "::new(10);
+assert_eq!(*val.get_mut(), 10);
+*val.get_mut() = 5;
+assert_eq!(val.load(Ordering::SeqCst), 5);
 ```"),
                 #[inline]
                 pub fn get_mut(&mut self) -> &mut $int_type {
@@ -2240,8 +2240,8 @@ concurrently accessing the atomic data.
 ```
 use portable_atomic::", stringify!($atomic_type), ";
 
-let some_var = ", stringify!($atomic_type), "::new(5);
-assert_eq!(some_var.into_inner(), 5);
+let val = ", stringify!($atomic_type), "::new(5);
+assert_eq!(val.into_inner(), 5);
 ```"),
                 #[inline]
                 pub fn into_inner(self) -> $int_type {
@@ -2264,9 +2264,9 @@ Panics if `order` is [`Release`] or [`AcqRel`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let some_var = ", stringify!($atomic_type), "::new(5);
+let val = ", stringify!($atomic_type), "::new(5);
 
-assert_eq!(some_var.load(Ordering::Relaxed), 5);
+assert_eq!(val.load(Ordering::Relaxed), 5);
 ```"),
                 #[inline]
                 #[cfg_attr(
@@ -2293,10 +2293,10 @@ Panics if `order` is [`Acquire`] or [`AcqRel`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let some_var = ", stringify!($atomic_type), "::new(5);
+let val = ", stringify!($atomic_type), "::new(5);
 
-some_var.store(10, Ordering::Relaxed);
-assert_eq!(some_var.load(Ordering::Relaxed), 10);
+val.store(10, Ordering::Relaxed);
+assert_eq!(val.load(Ordering::Relaxed), 10);
 ```"),
                 #[inline]
                 #[cfg_attr(
@@ -2321,9 +2321,10 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let some_var = ", stringify!($atomic_type), "::new(5);
+let val = ", stringify!($atomic_type), "::new(5);
 
-assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
+assert_eq!(val.swap(10, Ordering::Relaxed), 5);
+assert_eq!(val.load(Ordering::Relaxed), 10);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2374,19 +2375,19 @@ Panics if `failure` is [`Release`], [`AcqRel`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let some_var = ", stringify!($atomic_type), "::new(5);
+let val = ", stringify!($atomic_type), "::new(5);
 
 assert_eq!(
-    some_var.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed),
+    val.compare_exchange(5, 10, Ordering::Acquire, Ordering::Relaxed),
     Ok(5),
 );
-assert_eq!(some_var.load(Ordering::Relaxed), 10);
+assert_eq!(val.load(Ordering::Relaxed), 10);
 
 assert_eq!(
-    some_var.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire),
+    val.compare_exchange(6, 12, Ordering::SeqCst, Ordering::Acquire),
     Err(10),
 );
-assert_eq!(some_var.load(Ordering::Relaxed), 10);
+assert_eq!(val.load(Ordering::Relaxed), 10);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2510,9 +2511,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(0);
-assert_eq!(foo.fetch_add(10, Ordering::SeqCst), 0);
-assert_eq!(foo.load(Ordering::SeqCst), 10);
+let val = ", stringify!($atomic_type), "::new(0);
+assert_eq!(val.fetch_add(10, Ordering::SeqCst), 0);
+assert_eq!(val.load(Ordering::SeqCst), 10);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2553,9 +2554,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(20);
-assert_eq!(foo.fetch_sub(10, Ordering::SeqCst), 20);
-assert_eq!(foo.load(Ordering::SeqCst), 10);
+let val = ", stringify!($atomic_type), "::new(20);
+assert_eq!(val.fetch_sub(10, Ordering::SeqCst), 20);
+assert_eq!(val.load(Ordering::SeqCst), 10);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2599,9 +2600,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(0b101101);
-assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
-assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
+let val = ", stringify!($atomic_type), "::new(0b101101);
+assert_eq!(val.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
+assert_eq!(val.load(Ordering::SeqCst), 0b100001);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2645,9 +2646,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(0x13);
-assert_eq!(foo.fetch_nand(0x31, Ordering::SeqCst), 0x13);
-assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
+let val = ", stringify!($atomic_type), "::new(0x13);
+assert_eq!(val.fetch_nand(0x31, Ordering::SeqCst), 0x13);
+assert_eq!(val.load(Ordering::SeqCst), !(0x13 & 0x31));
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2691,9 +2692,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(0b101101);
-assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
-assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
+let val = ", stringify!($atomic_type), "::new(0b101101);
+assert_eq!(val.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
+assert_eq!(val.load(Ordering::SeqCst), 0b111111);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -2737,9 +2738,9 @@ using [`Release`] makes the load part [`Relaxed`].
 ```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
-let foo = ", stringify!($atomic_type), "::new(0b101101);
-assert_eq!(foo.fetch_xor(0b110011, Ordering::SeqCst), 0b101101);
-assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
+let val = ", stringify!($atomic_type), "::new(0b101101);
+assert_eq!(val.fetch_xor(0b110011, Ordering::SeqCst), 0b101101);
+assert_eq!(val.load(Ordering::SeqCst), 0b011110);
 ```"),
                 #[cfg_attr(
                     portable_atomic_no_cfg_target_has_atomic,
@@ -3015,10 +3016,6 @@ This type has the same in-memory representation as the underlying floating point
             }
         }
 
-        // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic operations.
-        unsafe impl Sync for $atomic_type {}
-
         // UnwindSafe is implicitly implemented.
         #[cfg(not(portable_atomic_no_core_unwind_safe))]
         impl core::panic::RefUnwindSafe for $atomic_type {}
@@ -3028,275 +3025,433 @@ This type has the same in-memory representation as the underlying floating point
         serde_impls!($atomic_type);
 
         impl $atomic_type {
-            /// Creates a new atomic float.
-            #[inline]
-            #[must_use]
-            pub const fn new(v: $float_type) -> Self {
-                Self { inner: imp::float::$atomic_type::new(v) }
+            doc_comment! {
+                concat!(
+                    "Creates a new atomic float.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+let val = ", stringify!($atomic_type), "::new(1.0);
+```"
+                ),
+                #[inline]
+                #[must_use]
+                pub const fn new(v: $float_type) -> Self {
+                    Self { inner: imp::float::$atomic_type::new(v) }
+                }
             }
 
-            /// Returns `true` if operations on values of this type are lock-free.
-            ///
-            /// If the compiler or the platform doesn't support the necessary
-            /// atomic instructions, global locks for every potentially
-            /// concurrent atomic operation will be used.
-            #[inline]
-            #[must_use]
-            pub fn is_lock_free() -> bool {
-                <imp::float::$atomic_type>::is_lock_free()
+            doc_comment! {
+                concat!("Returns `true` if operations on values of this type are lock-free.
+
+If the compiler or the platform doesn't support the necessary
+atomic instructions, global locks for every potentially
+concurrent atomic operation will be used.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+let is_lock_free = ", stringify!($atomic_type), "::is_lock_free();
+```"),
+                #[inline]
+                #[must_use]
+                pub fn is_lock_free() -> bool {
+                    <imp::float::$atomic_type>::is_lock_free()
+                }
             }
 
-            /// Returns `true` if operations on values of this type are lock-free.
-            ///
-            /// If the compiler or the platform doesn't support the necessary
-            /// atomic instructions, global locks for every potentially
-            /// concurrent atomic operation will be used.
-            ///
-            /// **Note:** If the atomic operation relies on dynamic CPU feature detection,
-            /// this type may be lock-free even if the function returns false.
-            #[inline]
-            #[must_use]
-            pub const fn is_always_lock_free() -> bool {
-                <imp::float::$atomic_type>::is_always_lock_free()
+            doc_comment! {
+                concat!("Returns `true` if operations on values of this type are lock-free.
+
+If the compiler or the platform doesn't support the necessary
+atomic instructions, global locks for every potentially
+concurrent atomic operation will be used.
+
+**Note:** If the atomic operation relies on dynamic CPU feature detection,
+this type may be lock-free even if the function returns false.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock_free();
+```"),
+                #[inline]
+                #[must_use]
+                pub const fn is_always_lock_free() -> bool {
+                    <imp::float::$atomic_type>::is_always_lock_free()
+                }
             }
 
-            /// Returns a mutable reference to the underlying float.
-            ///
-            /// This is safe because the mutable reference guarantees that no other threads are
-            /// concurrently accessing the atomic data.
-            #[inline]
-            pub fn get_mut(&mut self) -> &mut $float_type {
-                self.inner.get_mut()
+            doc_comment! {
+                concat!("Returns a mutable reference to the underlying float.\n
+This is safe because the mutable reference guarantees that no other threads are
+concurrently accessing the atomic data.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let mut val = ", stringify!($atomic_type), "::new(10.0);
+assert_eq!(*val.get_mut(), 10.0);
+*val.get_mut() = 5.0;
+assert_eq!(val.load(Ordering::SeqCst), 5.0);
+```"),
+                #[inline]
+                pub fn get_mut(&mut self) -> &mut $float_type {
+                    self.inner.get_mut()
+                }
             }
 
-            // TODO: Add from_mut once it is stable on std atomic types.
+            // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
-            /// Consumes the atomic and returns the contained value.
-            ///
-            /// This is safe because passing `self` by value guarantees that no other threads are
-            /// concurrently accessing the atomic data.
-            #[inline]
-            pub fn into_inner(self) -> $float_type {
-                self.inner.into_inner()
+            doc_comment! {
+                concat!("Consumes the atomic and returns the contained value.
+
+This is safe because passing `self` by value guarantees that no other threads are
+concurrently accessing the atomic data.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+let val = ", stringify!($atomic_type), "::new(5.0);
+assert_eq!(val.into_inner(), 5.0);
+```"),
+                #[inline]
+                pub fn into_inner(self) -> $float_type {
+                    self.inner.into_inner()
+                }
             }
 
-            /// Loads a value from the atomic float.
-            ///
-            /// `load` takes an [`Ordering`] argument which describes the memory ordering of this operation.
-            /// Possible values are [`SeqCst`], [`Acquire`] and [`Relaxed`].
-            ///
-            /// # Panics
-            ///
-            /// Panics if `order` is [`Release`] or [`AcqRel`].
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub fn load(&self, order: Ordering) -> $float_type {
-                self.inner.load(order)
+            doc_comment! {
+                concat!("Loads a value from the atomic float.
+
+`load` takes an [`Ordering`] argument which describes the memory ordering of this operation.
+Possible values are [`SeqCst`], [`Acquire`] and [`Relaxed`].
+
+# Panics
+
+Panics if `order` is [`Release`] or [`AcqRel`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(5.0);
+
+assert_eq!(val.load(Ordering::Relaxed), 5.0);
+```"),
+                #[inline]
+                #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+                pub fn load(&self, order: Ordering) -> $float_type {
+                    self.inner.load(order)
+                }
             }
 
-            /// Stores a value into the atomic float.
-            ///
-            /// `store` takes an [`Ordering`] argument which describes the memory ordering of this operation.
-            ///  Possible values are [`SeqCst`], [`Release`] and [`Relaxed`].
-            ///
-            /// # Panics
-            ///
-            /// Panics if `order` is [`Acquire`] or [`AcqRel`].
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub fn store(&self, val: $float_type, order: Ordering) {
-                self.inner.store(val, order)
+            doc_comment! {
+                concat!("Stores a value into the atomic float.
+
+`store` takes an [`Ordering`] argument which describes the memory ordering of this operation.
+Possible values are [`SeqCst`], [`Release`] and [`Relaxed`].
+
+# Panics
+
+Panics if `order` is [`Acquire`] or [`AcqRel`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(5.0);
+
+val.store(10.0, Ordering::Relaxed);
+assert_eq!(val.load(Ordering::Relaxed), 10.0);
+```"),
+                #[inline]
+                #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+                pub fn store(&self, val: $float_type, order: Ordering) {
+                    self.inner.store(val, order)
+                }
             }
 
-            /// Stores a value into the atomic float, returning the previous value.
-            ///
-            /// `swap` takes an [`Ordering`] argument which describes the memory ordering
-            /// of this operation. All ordering modes are possible. Note that using
-            /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
-            /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[inline]
-            pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.inner.swap(val, order)
+            doc_comment! {
+                concat!("Stores a value into the atomic float, returning the previous value.
+
+`swap` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(5.0);
+
+assert_eq!(val.swap(10.0, Ordering::Relaxed), 5.0);
+assert_eq!(val.load(Ordering::Relaxed), 10.0);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
+                    self.inner.swap(val, order)
+                }
             }
 
-            /// Stores a value into the atomic float if the current value is the same as
-            /// the `current` value.
-            ///
-            /// The return value is a result indicating whether the new value was written and
-            /// containing the previous value. On success this value is guaranteed to be equal to
-            /// `current`.
-            ///
-            /// `compare_exchange` takes two [`Ordering`] arguments to describe the memory
-            /// ordering of this operation. `success` describes the required ordering for the
-            /// read-modify-write operation that takes place if the comparison with `current` succeeds.
-            /// `failure` describes the required ordering for the load operation that takes place when
-            /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
-            /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
-            ///
-            /// # Panics
-            ///
-            /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[inline]
-            #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub fn compare_exchange(
-                &self,
-                current: $float_type,
-                new: $float_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$float_type, $float_type> {
-                self.inner.compare_exchange(current, new, success, failure)
+            doc_comment! {
+                concat!("Stores a value into the atomic float if the current value is the same as
+the `current` value.
+
+The return value is a result indicating whether the new value was written and
+containing the previous value. On success this value is guaranteed to be equal to
+`current`.
+
+`compare_exchange` takes two [`Ordering`] arguments to describe the memory
+ordering of this operation. `success` describes the required ordering for the
+read-modify-write operation that takes place if the comparison with `current` succeeds.
+`failure` describes the required ordering for the load operation that takes place when
+the comparison fails. Using [`Acquire`] as success ordering makes the store part
+of this operation [`Relaxed`], and using [`Release`] makes the successful load
+[`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+
+# Panics
+
+Panics if `failure` is [`Release`], [`AcqRel`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(5.0);
+
+assert_eq!(
+    val.compare_exchange(5.0, 10.0, Ordering::Acquire, Ordering::Relaxed),
+    Ok(5.0),
+);
+assert_eq!(val.load(Ordering::Relaxed), 10.0);
+
+assert_eq!(
+    val.compare_exchange(6.0, 12.0, Ordering::SeqCst, Ordering::Acquire),
+    Err(10.0),
+);
+assert_eq!(val.load(Ordering::Relaxed), 10.0);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+                pub fn compare_exchange(
+                    &self,
+                    current: $float_type,
+                    new: $float_type,
+                    success: Ordering,
+                    failure: Ordering,
+                ) -> Result<$float_type, $float_type> {
+                    self.inner.compare_exchange(current, new, success, failure)
+                }
             }
 
-            /// Stores a value into the atomic float if the current value is the same as
-            /// the `current` value.
-            /// Unlike [`compare_exchange`](Self::compare_exchange)
-            /// this function is allowed to spuriously fail even
-            /// when the comparison succeeds, which can result in more efficient code on some
-            /// platforms. The return value is a result indicating whether the new value was
-            /// written and containing the previous value.
-            ///
-            /// `compare_exchange_weak` takes two [`Ordering`] arguments to describe the memory
-            /// ordering of this operation. `success` describes the required ordering for the
-            /// read-modify-write operation that takes place if the comparison with `current` succeeds.
-            /// `failure` describes the required ordering for the load operation that takes place when
-            /// the comparison fails. Using [`Acquire`] as success ordering makes the store part
-            /// of this operation [`Relaxed`], and using [`Release`] makes the successful load
-            /// [`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
-            ///
-            /// # Panics
-            ///
-            /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[inline]
-            #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub fn compare_exchange_weak(
-                &self,
-                current: $float_type,
-                new: $float_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$float_type, $float_type> {
-                self.inner.compare_exchange_weak(current, new, success, failure)
+            doc_comment! {
+                concat!("Stores a value into the atomic float if the current value is the same as
+the `current` value.
+Unlike [`compare_exchange`](Self::compare_exchange)
+this function is allowed to spuriously fail even
+when the comparison succeeds, which can result in more efficient code on some
+platforms. The return value is a result indicating whether the new value was
+written and containing the previous value.
+
+`compare_exchange_weak` takes two [`Ordering`] arguments to describe the memory
+ordering of this operation. `success` describes the required ordering for the
+read-modify-write operation that takes place if the comparison with `current` succeeds.
+`failure` describes the required ordering for the load operation that takes place when
+the comparison fails. Using [`Acquire`] as success ordering makes the store part
+of this operation [`Relaxed`], and using [`Release`] makes the successful load
+[`Relaxed`]. The failure ordering can only be [`SeqCst`], [`Acquire`] or [`Relaxed`].
+
+# Panics
+
+Panics if `failure` is [`Release`], [`AcqRel`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(4.0);
+
+let mut old = val.load(Ordering::Relaxed);
+loop {
+    let new = old * 2.0;
+    match val.compare_exchange_weak(old, new, Ordering::SeqCst, Ordering::Relaxed) {
+        Ok(_) => break,
+        Err(x) => old = x,
+    }
+}
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+                pub fn compare_exchange_weak(
+                    &self,
+                    current: $float_type,
+                    new: $float_type,
+                    success: Ordering,
+                    failure: Ordering,
+                ) -> Result<$float_type, $float_type> {
+                    self.inner.compare_exchange_weak(current, new, success, failure)
+                }
             }
 
-            /// Adds to the current value, returning the previous value.
-            ///
-            /// This operation wraps around on overflow.
-            ///
-            /// `fetch_add` takes an [`Ordering`] argument which describes the memory ordering
-            /// of this operation. All ordering modes are possible. Note that using
-            /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
-            /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[inline]
-            pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.inner.fetch_add(val, order)
+            doc_comment! {
+                concat!("Adds to the current value, returning the previous value.
+
+This operation wraps around on overflow.
+
+`fetch_add` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(0.0);
+assert_eq!(val.fetch_add(10.0, Ordering::SeqCst), 0.0);
+assert_eq!(val.load(Ordering::SeqCst), 10.0);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
+                    self.inner.fetch_add(val, order)
+                }
             }
 
-            /// Subtracts from the current value, returning the previous value.
-            ///
-            /// This operation wraps around on overflow.
-            ///
-            /// `fetch_sub` takes an [`Ordering`] argument which describes the memory ordering
-            /// of this operation. All ordering modes are possible. Note that using
-            /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
-            /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    target_arch = "avr",
-                    target_arch = "msp430"
-                ))
-            )]
-            #[inline]
-            pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.inner.fetch_sub(val, order)
+            doc_comment! {
+                concat!("Subtracts from the current value, returning the previous value.
+
+This operation wraps around on overflow.
+
+`fetch_sub` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let val = ", stringify!($atomic_type), "::new(20.0);
+assert_eq!(val.fetch_sub(10, Ordering::SeqCst), 20.0);
+assert_eq!(val.load(Ordering::SeqCst), 10.0);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
+                    self.inner.fetch_sub(val, order)
+                }
             }
 
             /// Fetches the value, and applies a function to it that returns an optional
