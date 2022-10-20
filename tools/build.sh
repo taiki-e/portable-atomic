@@ -155,7 +155,7 @@ build() {
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         case "${target}" in
-            *-none* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
+            *-none* | *-cuda* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
@@ -225,7 +225,7 @@ build() {
         *) args+=(--exclude-features "outline-atomics") ;;
     esac
     case "${target}" in
-        *-none* | avr-* | *-esp-espidf)
+        *-none* | *-cuda* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
             if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
                 case "${target}" in
