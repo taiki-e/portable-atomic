@@ -36,6 +36,7 @@ static NO_ATOMIC_64: &[&str] = &[
     "mips-unknown-linux-musl",
     "mips-unknown-linux-uclibc",
     "mipsel-sony-psp",
+    "mipsel-sony-psx",
     "mipsel-unknown-linux-gnu",
     "mipsel-unknown-linux-musl",
     "mipsel-unknown-linux-uclibc",
@@ -71,6 +72,7 @@ static NO_ATOMIC_64: &[&str] = &[
 
 static NO_ATOMIC: &[&str] = &[
     "avr-unknown-gnu-atmega328",
+    "mipsel-sony-psx",
     "msp430-none-elf",
     "riscv32i-unknown-none-elf",
     "riscv32im-unknown-none-elf",
