@@ -77,6 +77,7 @@ default_targets=(
 )
 known_cfgs=(
     docsrs
+    qemu
     portable_atomic_unsafe_assume_single_core
     portable_atomic_s_mode
     portable_atomic_disable_fiq
