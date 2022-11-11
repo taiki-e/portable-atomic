@@ -28,6 +28,9 @@ test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
 
+// As of qemu 7.0.0 , using lqarx/stqcx. with qemu-user hangs.
+// To test this, use real powerpc64le hardware or use POWER Functional
+// Simulator. See DEVELOPMENT.md for more.
 #[cfg_attr(
     all(
         target_arch = "powerpc64",
