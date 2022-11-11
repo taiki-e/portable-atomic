@@ -12,38 +12,54 @@ MEMORY {
 
 SECTIONS {
     .text : {
-        KEEP(rsrt0.o(.text));
+        /* be sure that the ROM header is the very first */
+        *(.text.gba_rom_header);
         *(.text .text.*);
         . = ALIGN(4);
-    } >rom = 0xff
+    } >rom = 0x00
 
     .rodata : {
         *(.rodata .rodata.*);
         . = ALIGN(4);
-    } >rom = 0xff
+    } >rom = 0x00
 
-    __iwram_lma = .;
-    .iwram : {
+    . = ALIGN(4);
+    __iwram_position_in_rom = .;
+    .data : {
         __iwram_start = ABSOLUTE(.);
 
-        __data_start = ABSOLUTE(.);
         *(.data .data.*);
+        *(.iwram .iwram.*);
         . = ALIGN(4);
-        __data_end = ABSOLUTE(.);
-
-        __text_iwram_start = ABSOLUTE(.);
-        *(.text_iwram .text_iwram.*);
-        . = ALIGN(4);
-        __text_iwram_end = ABSOLUTE(.);
 
         __iwram_end = ABSOLUTE(.);
-    } >iwram AT>rom = 0xff
+    } >iwram AT>rom = 0x00
 
+    . = ALIGN(4);
+    __ewram_position_in_rom = .;
+    .ewram : {
+        __ewram_start = ABSOLUTE(.);
+
+        *(.ewram .ewram.*);
+        . = ALIGN(4);
+
+        __ewram_end = ABSOLUTE(.);
+    } >ewram AT>rom = 0x00
+
+    . = ALIGN(4);
+    __bss_position_in_rom = .;
     .bss : {
+        __bss_start = ABSOLUTE(.);
+
         *(.bss .bss.*);
         . = ALIGN(4);
+
         __bss_end = ABSOLUTE(.);
     } >iwram
+
+    __iwram_word_copy_count = (__iwram_end - __iwram_start) / 4;
+    __ewram_word_copy_count = (__ewram_end - __ewram_start) / 4;
+    __bss_word_clear_count = (__bss_end - __bss_start) / 4;
 
     /* debugging sections */
     /* Stabs */
@@ -67,7 +83,7 @@ SECTIONS {
     .debug_info      0 : { *(.debug_info) }
     .debug_abbrev    0 : { *(.debug_abbrev) }
     .debug_line      0 : { *(.debug_line) }
-   	.debug_frame     0 : { *(.debug_frame) }
+    .debug_frame     0 : { *(.debug_frame) }
     .debug_str       0 : { *(.debug_str) }
     .debug_loc       0 : { *(.debug_loc) }
     .debug_macinfo   0 : { *(.debug_macinfo) }

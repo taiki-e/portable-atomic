@@ -9,8 +9,33 @@ mod helper;
 
 use core::{ptr, sync::atomic::Ordering};
 
-use gba::{fatal, warning};
+use gba::prelude::*;
 use portable_atomic::*;
+
+macro_rules! print {
+    ($($tt:tt)*) => {
+        if let Ok(mut logger) = MgbaBufferedLogger::try_new(MgbaMessageLevel::Warning) {
+            use core::fmt::Write as _;
+            let _ = write!(logger, $($tt)*);
+        }
+    };
+}
+macro_rules! println {
+    ($($tt:tt)*) => {
+        if let Ok(mut logger) = MgbaBufferedLogger::try_new(MgbaMessageLevel::Warning) {
+            use core::fmt::Write as _;
+            let _ = writeln!(logger, $($tt)*);
+        }
+    };
+}
+macro_rules! fatal {
+    ($($tt:tt)*) => {
+        if let Ok(mut logger) = MgbaBufferedLogger::try_new(MgbaMessageLevel::Fatal) {
+            use core::fmt::Write as _;
+            let _ = writeln!(logger, $($tt)*);
+        }
+    };
+}
 
 #[no_mangle]
 fn main() -> ! {
@@ -20,9 +45,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!($int_type, [<Atomic $int_type:camel>]);
                 }
-                warning!("test test_atomic_{} ... ", stringify!($int_type));
+                print!("test test_atomic_{} ... ", stringify!($int_type));
                 [<test_atomic_ $int_type>]();
-                warning!("ok");
+                println!("ok");
             }
         };
     }
@@ -33,9 +58,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
                 }
-                warning!("test test_atomic_{} ... ", stringify!($float_type));
+                print!("test test_atomic_{} ... ", stringify!($float_type));
                 [<test_atomic_ $float_type>]();
-                warning!("ok");
+                println!("ok");
             }
         };
     }
@@ -44,9 +69,9 @@ fn main() -> ! {
             fn test_atomic_bool() {
                 __test_atomic_bool!(AtomicBool);
             }
-            warning!("test test_atomic_bool ... ");
+            print!("test test_atomic_bool ... ");
             test_atomic_bool();
-            warning!("ok");
+            println!("ok");
         };
     }
     macro_rules! test_atomic_ptr {
@@ -54,13 +79,13 @@ fn main() -> ! {
             fn test_atomic_ptr() {
                 __test_atomic_ptr!(AtomicPtr<u8>);
             }
-            warning!("test test_atomic_ptr ... ");
+            print!("test test_atomic_ptr ... ");
             test_atomic_ptr();
-            warning!("ok");
+            println!("ok");
         };
     }
 
-    warning!("starting tests...");
+    println!("starting tests...");
 
     test_atomic_bool!();
     test_atomic_ptr!();
@@ -81,7 +106,7 @@ fn main() -> ! {
     #[cfg(feature = "float")]
     test_atomic_float!(f64);
 
-    warning!("all tests passed");
+    println!("all tests passed");
 
     loop {}
 }
@@ -98,4 +123,5 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     } else {
         fatal!("panic occurred (no message)");
     }
+    loop {}
 }
