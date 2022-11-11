@@ -131,6 +131,10 @@ fn main() {
         if version.probe(64, 2022, 7, 6) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_strict_provenance_atomic_ptr");
         }
+        // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
+        if !version.probe(67, 2022, 11, 5) {
+            println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
+        }
 
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();

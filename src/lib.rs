@@ -205,17 +205,6 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     ),
     feature(asm_experimental_arch)
 )]
-// non-Linux armv4t (tier 3)
-#![cfg_attr(
-    all(
-        portable_atomic_nightly,
-        target_arch = "arm",
-        not(target_has_atomic = "ptr"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-        any(test, portable_atomic_unsafe_assume_single_core)
-    ),
-    feature(isa_attribute)
-)]
 // Old nightly only
 // These features are already stable or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
@@ -241,6 +230,17 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
+)]
+// non-Linux armv4t (tier 3) on old nightly
+#![cfg_attr(
+    all(
+        portable_atomic_unstable_isa_attribute,
+        target_arch = "arm",
+        not(target_has_atomic = "ptr"),
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+        any(test, portable_atomic_unsafe_assume_single_core),
+    ),
+    feature(isa_attribute)
 )]
 // Miri and/or ThreadSanitizer only
 // They do not support inline assembly, so we need to use unstable features instead of it.
