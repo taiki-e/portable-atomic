@@ -322,6 +322,17 @@ compile_error!(
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
+#[cfg(portable_atomic_disable_fiq)]
+#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+compile_error!(
+    "cfg(portable_atomic_disable_fiq) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+);
+#[cfg(portable_atomic_s_mode)]
+#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+compile_error!(
+    "cfg(portable_atomic_s_mode) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+);
+
 #[cfg(any(test, feature = "std"))]
 extern crate std;
 
