@@ -8,7 +8,10 @@ pub(crate) struct Version {
 }
 
 impl Version {
-    pub(crate) const LATEST: Self = Self::stable(64);
+    // The known latest stable version. If we unable to determine
+    // the rustc version, we assume this is the current version.
+    // It is no problem if this is older than the actual latest stable.
+    pub(crate) const LATEST: Self = Self::stable(65);
 
     const fn stable(minor: u32) -> Self {
         Self { minor, nightly: false, commit_date: Date::new(0, 0, 0), llvm: 0 }
