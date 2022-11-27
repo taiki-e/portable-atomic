@@ -164,11 +164,11 @@ impl From<&Fields> for Position {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum MetaStyle {
-    // #[atomic(<name>)]
+    // #[attr(<name>)]
     Ident,
-    // #[atomic(<name> = ...)]
+    // #[attr(<name> = ...)]
     NamedValue,
-    // #[atomic(<name>(...))]
+    // #[attr(<name>(...))]
     List,
 }
 
