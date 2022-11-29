@@ -13,28 +13,9 @@ include!("no_atomic.rs");
 fn main() {
     println!("cargo:rerun-if-changed=no_atomic.rs");
 
-    let target = match env::var("TARGET") {
-        Ok(target) => target,
-        Err(e) => {
-            println!(
-                "cargo:warning={}: unable to get TARGET environment variable: {}",
-                env!("CARGO_PKG_NAME"),
-                e
-            );
-            return;
-        }
-    };
-    let target_arch = match env::var("CARGO_CFG_TARGET_ARCH") {
-        Ok(target_arch) => target_arch,
-        Err(e) => {
-            println!(
-                "cargo:warning={}: unable to get CARGO_CFG_TARGET_ARCH environment variable: {}",
-                env!("CARGO_PKG_NAME"),
-                e
-            );
-            return;
-        }
-    };
+    let target = &*env::var("TARGET").expect("TARGET not set");
+    let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
+    let target_os = &*env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
     // HACK: If --target is specified, rustflags is not applied to the build
     // script itself, so the build script will not be rerun when these are changed.
     //
@@ -106,17 +87,17 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         } else {
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
-            if NO_ATOMIC_CAS.contains(&&*target) {
+            if NO_ATOMIC_CAS.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
             }
-            if NO_ATOMIC_64.contains(&&*target) {
+            if NO_ATOMIC_64.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_64");
             } else {
                 // Otherwise, assuming `"max-atomic-width" == 64` or `"max-atomic-width" == 128`.
             }
         }
     }
-    if NO_ATOMIC.contains(&&*target) {
+    if NO_ATOMIC.contains(&target) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
     }
 
@@ -157,10 +138,12 @@ fn main() {
         }
     }
 
-    match &*target_arch {
+    match target_arch {
         "x86_64" => {
             // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L7
-            let has_cmpxchg16b = target == "x86_64-apple-darwin";
+            let has_cmpxchg16b = target_os == "macos";
+            // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/o4Y8W1hcb
+            // It is unlikely that rustc will support that name, so we will ignore it for now.
             target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, None, true);
             if version.nightly
                 && cfg!(feature = "fallback")
@@ -172,32 +155,26 @@ fn main() {
         }
         "aarch64" => {
             // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L5
-            let is_aarch64_macos = target == "aarch64-apple-darwin";
+            let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
-            target_feature_if("lse", is_aarch64_macos, &version, Some(61), true);
+            target_feature_if("lse", is_macos, &version, Some(61), true);
             // As of rustc 1.63, target_feature "lse2" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
-            target_feature_if("lse2", is_aarch64_macos, &version, None, false);
+            target_feature_if("lse2", is_macos, &version, None, false);
         }
         "arm" => {
+            // TODO: we should remove this cfg and refer mclass target features like atomic-maybe-uninit does.
             if target.starts_with("thumbv6m-") && target.contains("-none") {
                 println!("cargo:rustc-cfg=portable_atomic_armv6m");
             }
             // #[cfg(target_feature = "v7")] and others don't work on stable.
             // armv7-unknown-linux-gnueabihf
             //    ^^
-            let mut subarch = if target.starts_with("arm") {
-                &target["arm".len()..]
-            } else if target.starts_with("thumb") {
-                &target["thumb".len()..]
-            } else {
-                unreachable!()
-            };
-            subarch = subarch.split('-').next().unwrap();
+            let mut subarch =
+                strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb")).unwrap();
+            subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
             subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
-            if subarch.starts_with("eb") {
-                subarch = &target["eb".len()..]; // ignore endianness
-            }
+            subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
             let mut known = true;
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
             match subarch {
@@ -229,21 +206,26 @@ fn main() {
             }
         }
         "powerpc64" => {
-            if version.nightly {
-                // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
-                // See also https://github.com/rust-lang/rust/issues/59932
-                let mut has_quadword_atomics = target.starts_with("powerpc64le-"); // lqarx and stqcx.
-                if let Some(cpu) = target_cpu() {
-                    if cpu.starts_with("pwr") {
-                        let cpu_version = &cpu["pwr".len()..];
-                        if let Ok(cpu_version) = cpu_version.parse::<u32>() {
-                            // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-                            has_quadword_atomics = cpu_version >= 8;
-                        }
+            let target_endian =
+                env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
+            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
+            // See also https://github.com/rust-lang/rust/issues/59932
+            let mut has_pwr8_features = target_endian == "little";
+            // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
+            if let Some(cpu) = target_cpu().as_ref() {
+                if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
+                    cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
+                    if let Ok(cpu_version) = cpu_version.parse::<u32>() {
+                        has_pwr8_features = cpu_version >= 8;
                     }
+                } else {
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L434-L436
+                    has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
-                target_feature_if("quadword-atomics", has_quadword_atomics, &version, None, false);
             }
+            // lqarx and stqcx.
+            target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
         _ => {}
     }
@@ -277,11 +259,8 @@ fn target_feature_if(
         return;
     } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
-            if flag.starts_with("-C") {
-                flag = &flag["-C".len()..];
-            }
-            if flag.starts_with("target-feature=") {
-                flag = &flag["target-feature=".len()..];
+            flag = strip_prefix(flag, "-C").unwrap_or(flag);
+            if let Some(flag) = strip_prefix(flag, "target-feature=") {
                 for s in flag.split(',') {
                     // TODO: Handles cases where a specific target feature
                     // implicitly enables another target feature.
@@ -304,11 +283,8 @@ fn target_cpu() -> Option<String> {
     let rustflags = rustflags.to_string_lossy();
     let mut cpu = None;
     for mut flag in rustflags.split('\x1f') {
-        if flag.starts_with("-C") {
-            flag = &flag["-C".len()..];
-        }
-        if flag.starts_with("target-cpu=") {
-            flag = &flag["target-cpu=".len()..];
+        flag = strip_prefix(flag, "-C").unwrap_or(flag);
+        if let Some(flag) = strip_prefix(flag, "target-cpu=") {
             cpu = Some(flag);
         }
     }
@@ -318,15 +294,31 @@ fn target_cpu() -> Option<String> {
 fn is_allowed_feature(name: &str) -> bool {
     if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
-            if flag.starts_with("-Z") {
-                flag = &flag["-Z".len()..];
-            }
-            if flag.starts_with("allow-features=") {
-                flag = &flag["allow-features=".len()..];
+            flag = strip_prefix(flag, "-Z").unwrap_or(flag);
+            if let Some(flag) = strip_prefix(flag, "allow-features=") {
                 return flag.split(',').any(|allowed| allowed == name);
             }
         }
     }
     // allowed by default
     true
+}
+
+// str::strip_prefix requires Rust 1.45
+#[must_use]
+fn strip_prefix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
+    if s.starts_with(pat) {
+        Some(&s[pat.len()..])
+    } else {
+        None
+    }
+}
+// str::strip_suffix requires Rust 1.45
+#[must_use]
+fn strip_suffix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
+    if s.ends_with(pat) {
+        Some(&s[..s.len() - pat.len()])
+    } else {
+        None
+    }
 }

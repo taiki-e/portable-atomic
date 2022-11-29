@@ -31,10 +31,6 @@ fn main() {
     if !version.probe(36, 2019, 4, 14) {
         println!("cargo:rustc-cfg=portable_atomic_no_alloc");
     }
-    // raw_ref_macros stabilized in Rust 1.51 (nightly-2021-01-31) https://github.com/rust-lang/rust/pull/80886
-    if !version.probe(51, 2021, 1, 30) {
-        println!("cargo:rustc-cfg=portable_atomic_no_raw_ref_macros");
-    }
     // unsafe_op_in_unsafe_fn stabilized in Rust 1.52 (nightly-2021-03-11): https://github.com/rust-lang/rust/pull/79208
     if !version.probe(52, 2021, 3, 10) {
         println!("cargo:rustc-cfg=portable_atomic_no_unsafe_op_in_unsafe_fn");
