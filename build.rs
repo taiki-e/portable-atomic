@@ -163,10 +163,6 @@ fn main() {
             target_feature_if("lse2", is_macos, &version, None, false);
         }
         "arm" => {
-            // TODO: we should remove this cfg and refer mclass target features like atomic-maybe-uninit does.
-            if target.starts_with("thumbv6m-") && target.contains("-none") {
-                println!("cargo:rustc-cfg=portable_atomic_armv6m");
-            }
             // #[cfg(target_feature = "v7")] and others don't work on stable.
             // armv7-unknown-linux-gnueabihf
             //    ^^

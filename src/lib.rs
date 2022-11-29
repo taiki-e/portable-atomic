@@ -285,16 +285,11 @@ compile_error!(
     cfg(any(
         not(portable_atomic_no_atomic_cas),
         not(any(
-            portable_atomic_armv6m,
-            all(
-                target_arch = "arm",
-                not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-            ),
-            all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
-                portable_atomic_no_atomic_cas
-            ),
-            target_pointer_width = "16"
+            target_arch = "arm",
+            target_arch = "avr",
+            target_arch = "msp430",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
         ))
     ))
 )]
@@ -303,16 +298,11 @@ compile_error!(
     cfg(any(
         target_has_atomic = "ptr",
         not(any(
-            portable_atomic_armv6m,
-            all(
-                target_arch = "arm",
-                not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-            ),
-            all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
-                not(target_has_atomic = "ptr")
-            ),
-            target_pointer_width = "16"
+            target_arch = "arm",
+            target_arch = "avr",
+            target_arch = "msp430",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
         ))
     ))
 )]

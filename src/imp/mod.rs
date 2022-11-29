@@ -120,11 +120,7 @@ mod fallback;
     cfg(any(test, not(target_has_atomic = "ptr")))
 )]
 #[cfg(any(
-    portable_atomic_armv6m,
-    all(
-        target_arch = "arm",
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
-    ),
+    target_arch = "arm",
     target_arch = "avr",
     target_arch = "msp430",
     target_arch = "riscv32",

@@ -32,11 +32,17 @@
 #[cfg(not(target_arch = "avr"))]
 use arch::atomic;
 
-#[cfg_attr(portable_atomic_armv6m, path = "armv6m.rs")]
 #[cfg_attr(
     all(
         target_arch = "arm",
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))
+        any(target_feature = "mclass", portable_atomic_target_feature = "mclass")
+    ),
+    path = "armv6m.rs"
+)]
+#[cfg_attr(
+    all(
+        target_arch = "arm",
+        not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass"))
     ),
     path = "armv4t.rs"
 )]
