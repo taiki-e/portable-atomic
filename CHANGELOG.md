@@ -10,6 +10,14 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44))
+
+  - Support disabling FIQs on pre-v6 ARM under `portable_atomic_disable_fiq` cfg.
+  - Support RISC-V supervisor mode under `portable_atomic_s_mode` cfg.
+  - Documentation improvements.
+
+  See [#44](https://github.com/taiki-e/portable-atomic/pull/44) for more.
+
 ## [0.3.15] - 2022-09-09
 
 - Implement workaround for std cpuid bug due to LLVM bug ([rust-lang/rust#101346](https://github.com/rust-lang/rust/issues/101346), [llvm/llvm-project#57550](https://github.com/llvm/llvm-project/issues/57550)).

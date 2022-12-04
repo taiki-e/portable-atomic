@@ -110,6 +110,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
+  The cfg interface is kept between versions, so updating the portable-atomic is designed to not break downstream builds unless the portable-atomic types are exposed in the library's API.
+
   Feel free to submit an issue if your target is not supported yet.
 
 ## Related Projects
