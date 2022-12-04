@@ -418,7 +418,7 @@ macro_rules! atomic_int {
     };
     (load_store_atomic, $atomic_type:ident, $int_type:ident, $align:expr) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        atomic_int!(cas, $atomic_type, $int_type, $align);
+        atomic_int!(cas, $atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -465,7 +465,7 @@ macro_rules! atomic_int {
     };
     (load_store_critical_session, $atomic_type:ident, $int_type:ident, $align:expr) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        atomic_int!(cas, $atomic_type, $int_type, $align);
+        atomic_int!(cas, $atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -488,7 +488,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (cas, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (cas, $atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
