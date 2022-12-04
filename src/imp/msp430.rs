@@ -4,6 +4,9 @@
 // Including https://github.com/pftbest/msp430-atomic/pull/4 for a compile error fix.
 // Including https://github.com/pftbest/msp430-atomic/pull/5 for a soundness bug fix.
 //
+// Operations not supported here are provided by disabling interrupts.
+// See also src/imp/interrupt/msp430.rs.
+//
 // Note: Ordering is always SeqCst.
 
 #[cfg(not(portable_atomic_no_asm))]
@@ -104,6 +107,39 @@ impl AtomicBool {
         // pointer passed in is valid because we got it from a reference.
         unsafe {
             u8::atomic_store(self.v.get(), val as u8);
+        }
+    }
+
+    #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    pub(crate) fn and(&self, val: bool, order: Ordering) {
+        crate::utils::assert_swap_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
+        unsafe {
+            u8::atomic_and(self.v.get(), val as u8);
+        }
+    }
+
+    #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    pub(crate) fn or(&self, val: bool, order: Ordering) {
+        crate::utils::assert_swap_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
+        unsafe {
+            u8::atomic_or(self.v.get(), val as u8);
+        }
+    }
+
+    #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    pub(crate) fn xor(&self, val: bool, order: Ordering) {
+        crate::utils::assert_swap_ordering(order);
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
+        unsafe {
+            u8::atomic_xor(self.v.get(), val as u8);
         }
     }
 }
@@ -235,6 +271,61 @@ macro_rules! atomic_int {
                     $int_type::atomic_store(self.v.get(), val);
                 }
             }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn add(&self, val: $int_type, order: Ordering) {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_add(self.v.get(), val);
+                }
+            }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_sub(self.v.get(), val);
+                }
+            }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn and(&self, val: $int_type, order: Ordering) {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_and(self.v.get(), val);
+                }
+            }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn or(&self, val: $int_type, order: Ordering) {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_or(self.v.get(), val);
+                }
+            }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_xor(self.v.get(), val);
+                }
+            }
         }
 
         impl AtomicOperations for $int_type {
@@ -277,6 +368,101 @@ macro_rules! atomic_int {
                     );
                 }
             }
+
+            #[inline]
+            unsafe fn atomic_add(dst: *mut Self, val: Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("add", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("add", $asm_suffix, " $1, $0")
+                        :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                    );
+                }
+            }
+
+            #[inline]
+            unsafe fn atomic_sub(dst: *mut Self, val: Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("sub", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("sub", $asm_suffix, " $1, $0")
+                        :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                    );
+                }
+            }
+
+            #[inline]
+            unsafe fn atomic_and(dst: *mut Self, val: Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("and", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("and", $asm_suffix, " $1, $0")
+                        :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                    );
+                }
+            }
+
+            #[inline]
+            unsafe fn atomic_or(dst: *mut Self, val: Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("bis", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("bis", $asm_suffix, " $1, $0")
+                        :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                    );
+                }
+            }
+
+            #[inline]
+            unsafe fn atomic_xor(dst: *mut Self, val: Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("xor", $asm_suffix, " {val}, 0({dst})"),
+                        dst = in(reg) dst,
+                        val = in(reg) val,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("xor", $asm_suffix, " $1, $0")
+                        :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                    );
+                }
+            }
         }
     }
 }
@@ -291,4 +477,9 @@ atomic_int!(usize, AtomicUsize, ".w");
 trait AtomicOperations: Sized {
     unsafe fn atomic_load(src: *const Self) -> Self;
     unsafe fn atomic_store(dst: *mut Self, val: Self);
+    unsafe fn atomic_add(dst: *mut Self, val: Self);
+    unsafe fn atomic_sub(dst: *mut Self, val: Self);
+    unsafe fn atomic_and(dst: *mut Self, val: Self);
+    unsafe fn atomic_or(dst: *mut Self, val: Self);
+    unsafe fn atomic_xor(dst: *mut Self, val: Self);
 }

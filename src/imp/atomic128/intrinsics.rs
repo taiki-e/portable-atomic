@@ -415,6 +415,7 @@ macro_rules! atomic128 {
         // SAFETY: any data races are prevented by atomic intrinsics.
         unsafe impl Sync for $atomic_type {}
 
+        no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {

@@ -41,6 +41,9 @@ impl AtomicBool {
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+no_fetch_ops_impl!(AtomicBool, bool);
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 impl AtomicBool {
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -171,6 +174,15 @@ macro_rules! atomic_int {
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
         }
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(portable_atomic_no_atomic_cas))
+        )]
+        #[cfg_attr(
+            not(portable_atomic_no_cfg_target_has_atomic),
+            cfg(target_has_atomic = "ptr")
+        )]
+        no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {

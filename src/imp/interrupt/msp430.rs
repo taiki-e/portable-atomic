@@ -1,4 +1,6 @@
 // Adapted from https://github.com/rust-embedded/msp430.
+//
+// See also src/imp/msp430.rs.
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
