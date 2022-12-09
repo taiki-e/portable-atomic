@@ -186,6 +186,51 @@ macro_rules! ifunc {
     }};
 }
 
+// We do not provide `nand` because it cannot be optimized on neither x86 nor MSP430.
+// https://godbolt.org/z/x88voWGov
+macro_rules! no_fetch_ops_impl {
+    ($atomic_type:ident, bool) => {
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn and(&self, val: bool, order: Ordering) {
+                self.fetch_and(val, order);
+            }
+            #[inline]
+            pub(crate) fn or(&self, val: bool, order: Ordering) {
+                self.fetch_or(val, order);
+            }
+            #[inline]
+            pub(crate) fn xor(&self, val: bool, order: Ordering) {
+                self.fetch_xor(val, order);
+            }
+        }
+    };
+    ($atomic_type:ident, $value_type:ident) => {
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn add(&self, val: $value_type, order: Ordering) {
+                self.fetch_add(val, order);
+            }
+            #[inline]
+            pub(crate) fn sub(&self, val: $value_type, order: Ordering) {
+                self.fetch_sub(val, order);
+            }
+            #[inline]
+            pub(crate) fn and(&self, val: $value_type, order: Ordering) {
+                self.fetch_and(val, order);
+            }
+            #[inline]
+            pub(crate) fn or(&self, val: $value_type, order: Ordering) {
+                self.fetch_or(val, order);
+            }
+            #[inline]
+            pub(crate) fn xor(&self, val: $value_type, order: Ordering) {
+                self.fetch_xor(val, order);
+            }
+        }
+    };
+}
+
 pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}

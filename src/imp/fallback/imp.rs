@@ -130,6 +130,8 @@ macro_rules! atomic {
         // SAFETY: any data races are prevented by the lock and atomic operation.
         unsafe impl Sync for $atomic_type {}
 
+        #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+        no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
             #[inline]

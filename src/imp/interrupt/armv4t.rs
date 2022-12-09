@@ -51,6 +51,8 @@ pub(super) fn disable() -> State {
 pub(super) unsafe fn restore(State(cpsr): State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
+        // This clobbers the entire CPSR. See msp430.rs to safety on this.
+        //
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         asm!("msr cpsr_c, {0}", in(reg) cpsr, options(nostack));
     }

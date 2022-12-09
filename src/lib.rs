@@ -818,6 +818,67 @@ impl AtomicBool {
         self.inner.fetch_and(val, order)
     }
 
+    /// Logical "and" with a boolean value.
+    ///
+    /// Performs a logical "and" operation on the current value and the argument `val`, and sets
+    /// the new value to the result.
+    ///
+    /// Unlike `fetch_and`, this does not return the previous value.
+    ///
+    /// `and` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This function may generate more efficient code than `fetch_and` on some platforms.
+    ///
+    /// - x86: `lock and` instead of `cmpxchg` loop
+    /// - MSP430: `and` instead of disabling interrupts
+    ///
+    /// Note: On x86, the use of either function should not usually
+    /// affect the generated code, because LLVM can properly optimize the case
+    /// where the result is unused.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.and(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.and(true, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// foo.and(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[inline]
+    pub fn and(&self, val: bool, order: Ordering) {
+        self.inner.and(val, order);
+    }
+
     /// Logical "nand" with a boolean value.
     ///
     /// Performs a logical "nand" operation on the current value and the argument `val`, and sets
@@ -923,6 +984,67 @@ impl AtomicBool {
         self.inner.fetch_or(val, order)
     }
 
+    /// Logical "or" with a boolean value.
+    ///
+    /// Performs a logical "or" operation on the current value and the argument `val`, and sets the
+    /// new value to the result.
+    ///
+    /// Unlike `fetch_or`, this does not return the previous value.
+    ///
+    /// `or` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This function may generate more efficient code than `fetch_or` on some platforms.
+    ///
+    /// - x86: `lock or` instead of `cmpxchg` loop
+    /// - MSP430: `bis` instead of disabling interrupts
+    ///
+    /// Note: On x86, the use of either function should not usually
+    /// affect the generated code, because LLVM can properly optimize the case
+    /// where the result is unused.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.or(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.or(true, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// foo.or(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[inline]
+    pub fn or(&self, val: bool, order: Ordering) {
+        self.inner.or(val, order);
+    }
+
     /// Logical "xor" with a boolean value.
     ///
     /// Performs a logical "xor" operation on the current value and the argument `val`, and sets
@@ -975,6 +1097,67 @@ impl AtomicBool {
         self.inner.fetch_xor(val, order)
     }
 
+    /// Logical "xor" with a boolean value.
+    ///
+    /// Performs a logical "xor" operation on the current value and the argument `val`, and sets
+    /// the new value to the result.
+    ///
+    /// Unlike `fetch_xor`, this does not return the previous value.
+    ///
+    /// `xor` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This function may generate more efficient code than `fetch_xor` on some platforms.
+    ///
+    /// - x86: `lock xor` instead of `cmpxchg` loop
+    /// - MSP430: `xor` instead of disabling interrupts
+    ///
+    /// Note: On x86, the use of either function should not usually
+    /// affect the generated code, because LLVM can properly optimize the case
+    /// where the result is unused.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.xor(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// foo.xor(true, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// foo.xor(false, Ordering::SeqCst);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[inline]
+    pub fn xor(&self, val: bool, order: Ordering) {
+        self.inner.xor(val, order);
+    }
+
     /// Logical "not" with a boolean value.
     ///
     /// Performs a logical "not" operation on the current value, and sets
@@ -1021,6 +1204,63 @@ impl AtomicBool {
     #[inline]
     pub fn fetch_not(&self, order: Ordering) -> bool {
         self.fetch_xor(true, order)
+    }
+
+    /// Logical "not" with a boolean value.
+    ///
+    /// Performs a logical "not" operation on the current value, and sets
+    /// the new value to the result.
+    ///
+    /// Unlike `fetch_not`, this does not return the previous value.
+    ///
+    /// `not` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This function may generate more efficient code than `fetch_not` on some platforms.
+    ///
+    /// - x86: `lock xor` instead of `cmpxchg` loop
+    /// - MSP430: `xor` instead of disabling interrupts
+    ///
+    /// Note: On x86, the use of either function should not usually
+    /// affect the generated code, because LLVM can properly optimize the case
+    /// where the result is unused.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic::{AtomicBool, Ordering};
+    ///
+    /// let foo = AtomicBool::new(true);
+    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), true);
+    /// assert_eq!(foo.load(Ordering::SeqCst), false);
+    ///
+    /// let foo = AtomicBool::new(false);
+    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), false);
+    /// assert_eq!(foo.load(Ordering::SeqCst), true);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            target_arch = "avr",
+            target_arch = "msp430"
+        ))
+    )]
+    #[inline]
+    pub fn not(&self, order: Ordering) {
+        self.xor(true, order);
     }
 
     // TODO: Add as_mut_ptr once it is stable on std atomic types.
@@ -2540,6 +2780,55 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
             }
 
             doc_comment! {
+                concat!("Adds to the current value.
+
+This operation wraps around on overflow.
+
+Unlike `fetch_add`, this does not return the previous value.
+
+`add` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_add` on some platforms.
+
+- MSP430: `add` instead of disabling interrupts
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0);
+foo.add(10, Ordering::SeqCst);
+assert_eq!(foo.load(Ordering::SeqCst), 10);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn add(&self, val: $int_type, order: Ordering) {
+                    self.inner.add(val, order);
+                }
+            }
+
+            doc_comment! {
                 concat!("Subtracts from the current value, returning the previous value.
 
 This operation wraps around on overflow.
@@ -2579,6 +2868,55 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                 #[inline]
                 pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_sub(val, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Subtracts from the current value.
+
+This operation wraps around on overflow.
+
+Unlike `fetch_sub`, this does not return the previous value.
+
+`sub` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_sub` on some platforms.
+
+- MSP430: `sub` instead of disabling interrupts
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(20);
+foo.sub(10, Ordering::SeqCst);
+assert_eq!(foo.load(Ordering::SeqCst), 10);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn sub(&self, val: $int_type, order: Ordering) {
+                    self.inner.sub(val, order);
                 }
             }
 
@@ -2625,6 +2963,61 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                 #[inline]
                 pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_and(val, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Bitwise \"and\" with the current value.
+
+Performs a bitwise \"and\" operation on the current value and the argument `val`, and
+sets the new value to the result.
+
+Unlike `fetch_and`, this does not return the previous value.
+
+`and` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_and` on some platforms.
+
+- x86: `lock and` instead of `cmpxchg` loop
+- MSP430: `and` instead of disabling interrupts
+
+Note: On x86, the use of either function should not usually
+affect the generated code, because LLVM can properly optimize the case
+where the result is unused.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b101101);
+assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
+assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn and(&self, val: $int_type, order: Ordering) {
+                    self.inner.and(val, order);
                 }
             }
 
@@ -2721,6 +3114,61 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
             }
 
             doc_comment! {
+                concat!("Bitwise \"or\" with the current value.
+
+Performs a bitwise \"or\" operation on the current value and the argument `val`, and
+sets the new value to the result.
+
+Unlike `fetch_or`, this does not return the previous value.
+
+`or` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_or` on some platforms.
+
+- x86: `lock or` instead of `cmpxchg` loop
+- MSP430: `or` instead of disabling interrupts
+
+Note: On x86, the use of either function should not usually
+affect the generated code, because LLVM can properly optimize the case
+where the result is unused.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b101101);
+assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
+assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn or(&self, val: $int_type, order: Ordering) {
+                    self.inner.or(val, order);
+                }
+            }
+
+            doc_comment! {
                 concat!("Bitwise \"xor\" with the current value.
 
 Performs a bitwise \"xor\" operation on the current value and the argument `val`, and
@@ -2763,6 +3211,61 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                 #[inline]
                 pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_xor(val, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Bitwise \"xor\" with the current value.
+
+Performs a bitwise \"xor\" operation on the current value and the argument `val`, and
+sets the new value to the result.
+
+Unlike `fetch_xor`, this does not return the previous value.
+
+`xor` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_xor` on some platforms.
+
+- x86: `lock xor` instead of `cmpxchg` loop
+- MSP430: `xor` instead of disabling interrupts
+
+Note: On x86, the use of either function should not usually
+affect the generated code, because LLVM can properly optimize the case
+where the result is unused.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b101101);
+foo.xor(0b110011, Ordering::SeqCst);
+assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn xor(&self, val: $int_type, order: Ordering) {
+                    self.inner.xor(val, order);
                 }
             }
 
