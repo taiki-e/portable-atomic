@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.16] - 2022-12-09
+
 - Add `Atomic{I,U}*::{add,sub,and,or,xor}` and `AtomicBool::{and,or,xor}` methods. ([#47](https://github.com/taiki-e/portable-atomic/pull/47))
 
   They are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that implement atomics using inline assembly, such as the MSP430.
@@ -193,7 +195,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...HEAD
+[0.3.16]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/taiki-e/portable-atomic/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/taiki-e/portable-atomic/compare/v0.3.13...v0.3.14
 [0.3.13]: https://github.com/taiki-e/portable-atomic/compare/v0.3.12...v0.3.13
