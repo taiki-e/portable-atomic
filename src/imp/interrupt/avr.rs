@@ -37,6 +37,8 @@ pub(super) fn disable() -> State {
 pub(super) unsafe fn restore(State(sreg): State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
+        // This clobbers the entire status register. See msp430.rs to safety on this.
+        //
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         // Do not use `preserves_flags` because OUT modifies the status register (SREG).
         #[cfg(not(portable_atomic_no_asm))]
