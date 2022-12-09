@@ -10,14 +10,15 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Add `Atomic{I,U}*::{add,sub,and,or,xor}` and `AtomicBool::{and,or,xor}` methods.
+- Add `Atomic{I,U}*::{add,sub,and,or,xor}` and `AtomicBool::{and,or,xor}` methods. ([#47](https://github.com/taiki-e/portable-atomic/pull/47))
 
   They are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that implement atomics using inline assembly, such as the MSP430.
 
-- Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44))
+- Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44), [#40](https://github.com/taiki-e/portable-atomic/pull/40))
 
   - Support disabling FIQs on pre-v6 ARM under `portable_atomic_disable_fiq` cfg.
   - Support RISC-V supervisor mode under `portable_atomic_s_mode` cfg.
+  - Optimize interrupt restore on AVR and MSP430. ([#40](https://github.com/taiki-e/portable-atomic/pull/40))
   - Documentation improvements.
 
   See [#44](https://github.com/taiki-e/portable-atomic/pull/44) for more.
