@@ -840,7 +840,7 @@ mod strict {
         let dest_addr = addr as isize;
         let offset = dest_addr.wrapping_sub(self_addr);
 
-        // This is the canonical desugarring of this operation,
+        // This is the canonical desugaring of this operation,
         // but `pointer::cast` was only stabilized in 1.38.
         // self.cast::<u8>().wrapping_offset(offset).cast::<T>()
         (ptr as *mut u8).wrapping_offset(offset) as *mut T

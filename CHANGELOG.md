@@ -57,7 +57,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   The previous behavior was inconsistent because we consider the pre-v6 ARM Linux's atomic operations provided in a similar way by the Linux kernel to be lock-free.
 
-- Respect `-Zallow-features`.
+- Respect `-Z allow-features`.
 
 ## [0.3.10] - 2022-08-03
 

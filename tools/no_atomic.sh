@@ -4,6 +4,9 @@ set -euo pipefail
 IFS=$'\n\t'
 cd "$(dirname "$0")"/..
 
+# shellcheck disable=SC2154
+trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
+
 # Update the list of targets that do not support atomic/CAS operations.
 #
 # Usage:
@@ -40,12 +43,9 @@ done
 
 # sort and dedup
 IFS=$'\n'
-no_atomic_cas=($(LC_ALL=C sort <<<"${no_atomic_cas[*]}")) #
-no_atomic_cas=($(uniq <<<"${no_atomic_cas[*]}"))
-no_atomic_64=($(LC_ALL=C sort <<<"${no_atomic_64[*]}")) #
-no_atomic_64=($(uniq <<<"${no_atomic_64[*]}"))
-no_atomic=($(LC_ALL=C sort <<<"${no_atomic[*]}")) #
-no_atomic=($(uniq <<<"${no_atomic[*]}"))
+no_atomic_cas=($(LC_ALL=C sort -u <<<"${no_atomic_cas[*]}")) #
+no_atomic_64=($(LC_ALL=C sort -u <<<"${no_atomic_64[*]}"))   #
+no_atomic=($(LC_ALL=C sort -u <<<"${no_atomic[*]}"))         #
 IFS=$'\n\t'
 
 cat >"${file}" <<EOF

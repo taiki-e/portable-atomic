@@ -3,6 +3,8 @@ set -euo pipefail
 IFS=$'\n\t'
 cd "$(dirname "$0")"/..
 
+# shellcheck disable=SC2154
+trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
 trap -- 'exit 0' SIGINT
 
 default_targets=(
