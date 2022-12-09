@@ -4,3 +4,4 @@ status = [
     "test (aarch64-apple-darwin)",
     "valgrind (aarch64-unknown-linux-gnu)",
 ]
+timeout_sec = 7200
