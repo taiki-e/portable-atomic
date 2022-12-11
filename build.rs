@@ -86,6 +86,7 @@ fn main() {
             // nightly, which is older than nightly-2022-02-11.
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         } else {
+            let target = &*convert_custom_linux_target(target);
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
             if NO_ATOMIC_CAS.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
@@ -97,6 +98,7 @@ fn main() {
             }
         }
     }
+    // We don't need to use convert_custom_linux_target here because all linux targets have atomics.
     if NO_ATOMIC.contains(&target) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
     }
@@ -298,6 +300,22 @@ fn is_allowed_feature(name: &str) -> bool {
     }
     // allowed by default
     true
+}
+
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.14/build-common.rs.
+//
+// The target triplets have the form of 'arch-vendor-system'.
+//
+// When building for Linux (e.g. the 'system' part is
+// 'linux-something'), replace the vendor with 'unknown'
+// so that mapping to rust standard targets happens correctly.
+fn convert_custom_linux_target(target: &str) -> String {
+    let mut parts: Vec<&str> = target.split('-').collect();
+    let system = parts.get(2);
+    if system == Some(&"linux") {
+        parts[1] = "unknown";
+    }
+    parts.join("-")
 }
 
 // str::strip_prefix requires Rust 1.45
