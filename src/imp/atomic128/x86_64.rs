@@ -216,7 +216,7 @@ unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
     }
 }
 
-// VMOVDQA is atomic on on Intel CPU with AVX.
+// VMOVDQA is atomic on Intel and AMD CPUs with AVX.
 // See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
 //
 // Refs: https://www.felixcloutier.com/x86/movdqa:vmovdqa32:vmovdqa64
@@ -308,7 +308,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::cpuid();
-                if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
+                if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
                     _atomic_load_vmovdqa
                 } else {
                     _atomic_load_cmpxchg16b
@@ -353,7 +353,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::cpuid();
-                if cpuid.has_cmpxchg16b() && cpuid.is_intel_and_has_avx() {
+                if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
                     _atomic_store_vmovdqa
                 } else {
                     _atomic_store_cmpxchg16b
