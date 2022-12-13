@@ -10,7 +10,8 @@ use version::{rustc_version, Version};
 use std::env;
 
 fn main() {
-    println!("cargo:rerun-if-changed=no_atomic.rs");
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=version.rs");
 
     let version = match rustc_version() {
         Some(version) => version,

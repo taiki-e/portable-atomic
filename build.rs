@@ -11,7 +11,9 @@ use std::{env, str};
 include!("no_atomic.rs");
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=no_atomic.rs");
+    println!("cargo:rerun-if-changed=version.rs");
 
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
