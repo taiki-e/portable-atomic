@@ -43,9 +43,9 @@ done
 
 # sort and dedup
 IFS=$'\n'
-no_atomic_cas=($(LC_ALL=C sort -u <<<"${no_atomic_cas[*]}")) #
-no_atomic_64=($(LC_ALL=C sort -u <<<"${no_atomic_64[*]}"))   #
-no_atomic=($(LC_ALL=C sort -u <<<"${no_atomic[*]}"))         #
+no_atomic_cas=($(LC_ALL=C sort -u <<<"${no_atomic_cas[*]}"))
+no_atomic_64=($(LC_ALL=C sort -u <<<"${no_atomic_64[*]}"))
+no_atomic=($(LC_ALL=C sort -u <<<"${no_atomic[*]}"))
 IFS=$'\n\t'
 
 cat >"${file}" <<EOF
