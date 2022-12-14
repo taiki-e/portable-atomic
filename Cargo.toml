@@ -58,6 +58,9 @@ outline-atomics = []
 # - The MSRV when this feature enables depends on the MSRV of serde.
 serde = { version = "1.0.103", optional = true, default-features = false }
 
+# Use `critical-section`.
+critical-section = { version = "1", optional = true }
+
 [dev-dependencies]
 crossbeam-utils = "0.8"
 fastrand = "1"

@@ -31,8 +31,14 @@
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
 #[cfg(not(target_arch = "avr"))]
+#[cfg(not(feature = "critical-section"))]
 use arch::atomic;
 
+#[cfg(not(target_arch = "avr"))]
+#[cfg(feature = "critical-section")]
+use core::sync::atomic;
+
+#[cfg(not(feature = "critical-section"))]
 #[cfg_attr(
     all(
         target_arch = "arm",
@@ -59,6 +65,16 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 // provided in a similar way by the Linux kernel to be lock-free.)
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
+#[cfg(feature = "critical-section")]
+#[inline]
+fn with<F, R>(f: F) -> R
+where
+    F: FnOnce() -> R,
+{
+    critical_section::with(|_| f())
+}
+
+#[cfg(not(feature = "critical-section"))]
 #[inline]
 fn with<F, R>(f: F) -> R
 where
