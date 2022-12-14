@@ -23,7 +23,7 @@ pub(crate) struct CpuInfo(u32);
 impl CpuInfo {
     const INIT: u32 = 0;
     const HAS_CMPXCHG16B: u32 = 1;
-    const IS_INTEL_AND_HAS_AVX: u32 = 2;
+    const HAS_VMOVDQA_ATOMIC: u32 = 2;
 
     #[inline]
     fn set(&mut self, bit: u32) {
@@ -51,8 +51,8 @@ impl CpuInfo {
         }
     }
     #[inline]
-    pub(crate) fn is_intel_and_has_avx(self) -> bool {
-        self.test(CpuInfo::IS_INTEL_AND_HAS_AVX)
+    pub(crate) fn has_vmovdqa_atomic(self) -> bool {
+        self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)
     }
 }
 
@@ -95,6 +95,10 @@ unsafe fn __cpuid(leaf: u32) -> CpuidResult {
     CpuidResult { eax, ebx, ecx, edx }
 }
 
+// https://en.wikipedia.org/wiki/CPUID
+const VENDOR_ID_INTEL: [u8; 12] = *b"GenuineIntel";
+const VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD";
+
 #[inline]
 unsafe fn _vendor_id() -> [u8; 12] {
     // SAFETY: the caller must guarantee that CPU supports `cpuid`.
@@ -131,7 +135,9 @@ fn _cpuid(info: &mut CpuInfo) {
             info.set(CpuInfo::HAS_CMPXCHG16B);
         }
 
-        if vendor_id == *b"GenuineIntel" {
+        // VMOVDQA is atomic on Intel and AMD CPUs with AVX.
+        // See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
+        if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
             // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/os/x86.rs#L131-L224
             let cpu_xsave = test(proc_info_ecx, 26);
             if cpu_xsave {
@@ -141,7 +147,7 @@ fn _cpuid(info: &mut CpuInfo) {
                     let xcr0 = unsafe { _xgetbv(0) };
                     let os_avx_support = xcr0 & 6 == 6;
                     if os_avx_support && test(proc_info_ecx, 28) {
-                        info.set(CpuInfo::IS_INTEL_AND_HAS_AVX);
+                        info.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
                     }
                 }
             }
@@ -186,19 +192,19 @@ mod tests {
         let mut x = CpuInfo(0);
         assert!(!x.test(CpuInfo::INIT));
         assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::IS_INTEL_AND_HAS_AVX));
+        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         x.set(CpuInfo::INIT);
         assert!(x.test(CpuInfo::INIT));
         assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::IS_INTEL_AND_HAS_AVX));
+        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         x.set(CpuInfo::HAS_CMPXCHG16B);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::IS_INTEL_AND_HAS_AVX));
-        x.set(CpuInfo::IS_INTEL_AND_HAS_AVX);
+        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        x.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(x.test(CpuInfo::IS_INTEL_AND_HAS_AVX));
+        assert!(x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
     }
 
     #[test]
@@ -207,8 +213,11 @@ mod tests {
     #[cfg_attr(any(target_env = "sgx", miri), ignore)]
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), has_cmpxchg16b());
-        if unsafe { _vendor_id() } == *b"GenuineIntel" {
-            assert_eq!(std::is_x86_feature_detected!("avx"), cpuid().is_intel_and_has_avx());
+        let vendor_id = unsafe { _vendor_id() };
+        if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
+            assert_eq!(std::is_x86_feature_detected!("avx"), cpuid().has_vmovdqa_atomic());
+        } else {
+            assert!(!cpuid().has_vmovdqa_atomic());
         }
     }
 }
