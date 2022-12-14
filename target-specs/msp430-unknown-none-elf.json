@@ -1,0 +1,18 @@
+{
+  "arch": "msp430",
+  "asm-args": ["-mcpu=msp430"],
+  "atomic-cas": false,
+  "data-layout": "e-m:e-p:16:16-i32:16-i64:16-f32:16-f64:16-a:8-n8:16-S16",
+  "default-codegen-units": 1,
+  "eh-frame-header": false,
+  "emit-debug-gdb-scripts": false,
+  "linker": "msp430-elf-gcc",
+  "linker-is-gnu": false,
+  "llvm-target": "msp430-none-elf",
+  "max-atomic-width": 0,
+  "panic-strategy": "abort",
+  "relocation-model": "static",
+  "target-c-int-width": "16",
+  "target-pointer-width": "16",
+  "trap-unreachable": false
+}
