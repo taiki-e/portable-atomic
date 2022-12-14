@@ -9,14 +9,16 @@ trap -- 'exit 0' SIGINT
 
 default_targets=(
     # no atomic load/store (16-bit)
+    avr-unknown-gnu-atmega168 # for checking custom target
     avr-unknown-gnu-atmega328
     msp430-none-elf
+    msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
     # no atomic load/store (32-bit)
     riscv32i-unknown-none-elf
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
     # no atomic load/store (64-bit)
-    riscv64i-unknown-none-elf
+    riscv64i-unknown-none-elf # custom target
 
     # no atomic CAS (32-bit)
     thumbv4t-none-eabi
