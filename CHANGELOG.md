@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.17] - 2022-12-14
+
 - Optimize x86_64 128-bit atomic load/store on AMD CPU with AVX. ([#49](https://github.com/taiki-e/portable-atomic/pull/49))
 
 - Improve support for custom targets on old rustc.
@@ -199,7 +201,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...HEAD
+[0.3.17]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/taiki-e/portable-atomic/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/taiki-e/portable-atomic/compare/v0.3.13...v0.3.14
