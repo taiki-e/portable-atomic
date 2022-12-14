@@ -19,17 +19,34 @@
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock.
+// Known architectures that have such ABI are x86_64, aarch64, and mips64. However,
+// we list all 64-bit architectures because similar ABIs may exist for other architectures.
+// (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     target_arch = "aarch64",
+    target_arch = "bpf",
     target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
     target_arch = "x86_64",
 ))]
 mod seq_lock;
 #[cfg(not(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     target_arch = "aarch64",
+    target_arch = "bpf",
     target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
     target_arch = "x86_64",
 )))]
 #[path = "seq_lock_wide.rs"]

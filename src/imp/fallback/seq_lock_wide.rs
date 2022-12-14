@@ -10,6 +10,10 @@ use core::{
 
 use crate::utils::Backoff;
 
+// See imp.rs for details.
+type AtomicChunk = AtomicUsize;
+type Chunk = usize;
+
 /// A simple stamped lock.
 ///
 /// The state is represented as two `AtomicUsize`: `state_hi` for high bits and `state_lo` for low

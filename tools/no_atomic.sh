@@ -19,8 +19,7 @@ no_atomic_64=()
 no_atomic=()
 for target in $(rustc --print target-list); do
     target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
-    res=$(jq <<<"${target_spec}" -r 'select(."atomic-cas" == false)')
-    [[ -z "${res}" ]] || no_atomic_cas+=("${target}")
+    [[ -z "$(jq <<<"${target_spec}" -r 'select(."atomic-cas" == false)')" ]] || no_atomic_cas+=("${target}")
     max_atomic_width=$(jq <<<"${target_spec}" -r '."max-atomic-width"')
     case "${max_atomic_width}" in
         # It is not clear exactly what `"max-atomic-width" == null` means, but they

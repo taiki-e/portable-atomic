@@ -6,14 +6,7 @@ use crate::utils::CachePadded;
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
 // so use it to reduce chunks of byte-wise atomic memcpy.
-#[cfg(any(target_arch = "aarch64", target_arch = "mips64", target_arch = "x86_64"))]
-use core::sync::atomic::AtomicU64 as AtomicChunk;
-#[cfg(not(any(target_arch = "aarch64", target_arch = "mips64", target_arch = "x86_64")))]
-use core::sync::atomic::AtomicUsize as AtomicChunk;
-#[cfg(any(target_arch = "aarch64", target_arch = "mips64", target_arch = "x86_64"))]
-type Chunk = u64;
-#[cfg(not(any(target_arch = "aarch64", target_arch = "mips64", target_arch = "x86_64")))]
-type Chunk = usize;
+use super::{AtomicChunk, Chunk};
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]

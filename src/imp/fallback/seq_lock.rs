@@ -20,6 +20,10 @@ pub(crate) type Stamp = usize;
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 pub(crate) type Stamp = u64;
 
+// See imp.rs for details.
+type AtomicChunk = AtomicStamp;
+type Chunk = Stamp;
+
 /// A simple stamped lock.
 pub(crate) struct SeqLock {
     /// The current state of the lock.
