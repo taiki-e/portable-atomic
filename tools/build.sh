@@ -108,36 +108,30 @@ fi
 rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+rustc_minor_version="${rustc_version#*.}"
+rustc_minor_version="${rustc_minor_version%.*}"
 base_args=(${pre_args[@]+"${pre_args[@]}"} hack build)
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
-    case "${rustc_version}" in
-        # -Z check-cfg requires 1.63.0-nightly
-        1.[0-5]* | 1.6[0-2].*) ;;
-        *)
-            # TODO: handle key-value cfg from build script as --check-cfg=values(name, "value1", "value2", ... "valueN")
-            # shellcheck disable=SC2207
-            known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs portable-atomic-util/build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort -u))
-            check_cfg="-Z unstable-options --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
-            rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
-            base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
-            ;;
-    esac
+    # -Z check-cfg requires 1.63.0-nightly
+    if [[ "${rustc_minor_version}" -gt 62 ]]; then
+        # TODO: handle key-value cfg from build script as --check-cfg=values(name, "value1", "value2", ... "valueN")
+        # shellcheck disable=SC2207
+        known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs portable-atomic-util/build.rs | sed -E 's/^.*cargo:rustc-cfg=//' | sed -E 's/(=\\)?".*$//' | LC_ALL=C sort -u))
+        check_cfg="-Z unstable-options --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
+        rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
+        base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
+    fi
 fi
 echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
 
 has_asm=''
-case "${rustc_version}" in
-    # asm requires 1.59
-    1.[0-4]* | 1.5[0-8].*)
-        if [[ -n "${nightly}" ]]; then
-            has_asm='1'
-        fi
-        ;;
-    *) has_asm='1' ;;
-esac
+# asm requires 1.59
+if [[ "${rustc_minor_version}" -gt 58 ]] || [[ -n "${nightly}" ]]; then
+    has_asm='1'
+fi
 
 build() {
     local target="$1"
@@ -171,8 +165,15 @@ build() {
     fi
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
-    if ! grep <<<"${cfgs}" -q "target_has_atomic="; then
-        has_atomic_cas=''
+    # target_has_atomic changed in 1.40.0-nightly https://github.com/rust-lang/rust/pull/65214
+    if [[ "${rustc_minor_version}" -gt 39 ]]; then
+        if ! grep <<<"${cfgs}" -q 'target_has_atomic='; then
+            has_atomic_cas=''
+        fi
+    else
+        if ! grep <<<"${cfgs}" -q 'target_has_atomic="cas"'; then
+            has_atomic_cas=''
+        fi
     fi
     if [[ "${target}" == "riscv"* ]] && [[ -z "${has_atomic_cas}" ]] && [[ -z "${has_asm}" ]]; then
         # RISC-V without A-extension requires asm to implement atomics.
@@ -180,43 +181,40 @@ build() {
         return 0
     fi
 
-    case "${rustc_version}" in
-        # paste! on statements requires 1.45
-        1.[0-3]* | 1.4[0-4].*) ;;
-        *)
-            if [[ -n "${has_atomic_cas}" ]]; then
-                RUSTFLAGS="${target_rustflags}" \
-                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+    # paste! on statements requires 1.45
+    if [[ "${rustc_minor_version}" -gt 44 ]]; then
+        if [[ -n "${has_atomic_cas}" ]]; then
+            RUSTFLAGS="${target_rustflags}" \
+                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+        else
+            # target without CAS requires asm to implement CAS.
+            if [[ -n "${has_asm}" ]]; then
+                case "${target}" in
+                    avr-* | msp430-*) # always single-core
+                        RUSTFLAGS="${target_rustflags}" \
+                            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                        ;;
+                    bpf*) ;; # TODO
+                    *)
+                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                        case "${target}" in
+                            thumbv[4-5]t* | armv[4-5]t*)
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                ;;
+                            riscv*)
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                ;;
+                        esac
+                        ;;
+                esac
             else
-                # target without CAS requires asm to implement CAS.
-                if [[ -n "${has_asm}" ]]; then
-                    case "${target}" in
-                        avr-* | msp430-*) # always single-core
-                            RUSTFLAGS="${target_rustflags}" \
-                                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                            ;;
-                        bpf*) ;; # TODO
-                        *)
-                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                            case "${target}" in
-                                thumbv[4-5]t* | armv[4-5]t*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                        x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                                    ;;
-                                riscv*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                        x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                                    ;;
-                            esac
-                            ;;
-                    esac
-                else
-                    echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
-                fi
+                echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
             fi
-            ;;
-    esac
+        fi
+    fi
 
     args+=(
         --workspace --ignore-private
@@ -230,28 +228,32 @@ build() {
     case "${target}" in
         *-none* | *-cuda* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
-            if ! grep <<<"${cfgs}" -q "target_has_atomic=" && [[ -n "${has_asm}" ]]; then
-                case "${target}" in
-                    avr-* | msp430-*) ;;                            # always single-core
-                    bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
-                    *)
-                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
-                        case "${target}" in
-                            thumbv[4-5]t* | armv[4-5]t*)
-                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                    x cargo "${args[@]}" --target-dir target/assume-single-core-disable-fiq "$@"
-                                ;;
-                            riscv*)
-                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                    x cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
-                                ;;
-                        esac
-                        # portable-atomic-util uses atomic CAS, so doesn't work on
-                        # this target without portable_atomic_unsafe_assume_single_core cfg.
-                        args+=(--exclude portable-atomic-util)
-                        ;;
-                esac
+            if [[ -z "${has_atomic_cas}" ]]; then
+                if [[ -n "${has_asm}" ]]; then
+                    case "${target}" in
+                        avr-* | msp430-*) ;;                            # always single-core
+                        bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                        *)
+                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
+                            case "${target}" in
+                                thumbv[4-5]t* | armv[4-5]t*)
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                        x cargo "${args[@]}" --target-dir target/assume-single-core-disable-fiq "$@"
+                                    ;;
+                                riscv*)
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                        x cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                else
+                    echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
+                fi
+                # portable-atomic-util uses atomic CAS, so doesn't work on
+                # this target without portable_atomic_unsafe_assume_single_core cfg.
+                args+=(--exclude portable-atomic-util)
             fi
             ;;
     esac

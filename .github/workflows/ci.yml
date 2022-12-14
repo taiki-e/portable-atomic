@@ -222,6 +222,7 @@ jobs:
       fail-fast: false
       matrix:
         rust:
+          - '1.34'
           - '1.59'
           - stable
           - beta
