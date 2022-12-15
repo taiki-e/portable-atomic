@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.18] - 2022-12-15
+
 - Fix build error when not using `portable_atomic_unsafe_assume_single_core` cfg on AVR and MSP430 custom targets. ([#50](https://github.com/taiki-e/portable-atomic/pull/50))
 
   Since 0.3.11, atomic CAS was supported without the cfg on AVR and MSP430 builtin targets, but that change was not applied to custom targets.
@@ -205,7 +207,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...HEAD
+[0.3.18]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/taiki-e/portable-atomic/compare/v0.3.14...v0.3.15
