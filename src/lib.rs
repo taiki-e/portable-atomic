@@ -206,15 +206,16 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     feature(asm_experimental_arch)
 )]
 // Old nightly only
-// These features are already stable or have already been removed from compilers,
+// These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
-// cfg(cfg_target_has_atomic) on old nightly
+// - cfg(target_has_atomic)
+// - asm! on ARM, AArch64, RISC-V, x86_64
+// - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
+// - #[instruction_set] on non-Linux pre-v6 ARM (tier 3)
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
-// asm on old nightly
 #![cfg_attr(
     all(
-        portable_atomic_nightly,
-        portable_atomic_no_asm,
+        portable_atomic_unstable_asm,
         any(
             all(
                 any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"),
@@ -226,12 +227,10 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     ),
     feature(asm)
 )]
-// llvm_asm on old nightly
 #![cfg_attr(
     all(any(target_arch = "avr", target_arch = "msp430"), portable_atomic_no_asm),
     feature(llvm_asm)
 )]
-// non-Linux armv4t (tier 3) on old nightly
 #![cfg_attr(
     all(
         portable_atomic_unstable_isa_attribute,
@@ -243,7 +242,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
     feature(isa_attribute)
 )]
 // Miri and/or ThreadSanitizer only
-// They do not support inline assembly, so we need to use unstable features instead of it.
+// They do not support inline assembly, so we need to use unstable features instead.
 // Since they require nightly compilers anyway, we can use the unstable features.
 #![cfg_attr(
     all(
@@ -4086,9 +4085,12 @@ atomic_int!(AtomicU64, u64, 8);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            target_arch = "aarch64"
+        ),
+        all(
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
@@ -4129,9 +4131,12 @@ atomic_int!(AtomicI128, i128, 16);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
-        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            target_arch = "aarch64"
+        ),
+        all(
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",

@@ -167,7 +167,7 @@ build() {
     fi
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
-    # target_has_atomic changed in 1.40.0-nightly https://github.com/rust-lang/rust/pull/65214
+    # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
     if [[ "${rustc_minor_version}" -gt 39 ]]; then
         if ! grep <<<"${cfgs}" -q 'target_has_atomic='; then
             has_atomic_cas=''

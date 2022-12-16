@@ -26,12 +26,12 @@ mod aarch64;
     any(miri, portable_atomic_sanitize_thread),
     portable_atomic_new_atomic_intrinsics
 )))]
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[cfg(target_arch = "aarch64")]
 #[path = "atomic128/aarch64.rs"]
 mod aarch64;
 
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_nightly))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[cfg(any(
     target_feature = "cmpxchg16b",
     portable_atomic_target_feature = "cmpxchg16b",
@@ -84,10 +84,13 @@ mod riscv;
 #[cfg(any(
     test,
     not(any(
-        all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_nightly),
-            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            target_arch = "aarch64"
+        ),
+        all(
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b",),
             target_arch = "x86_64",
         ),
         all(
@@ -263,13 +266,13 @@ pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 // Atomic{I,U}128
 // aarch64 stable
 #[cfg(all(
-    any(not(portable_atomic_no_asm), portable_atomic_nightly),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     target_arch = "aarch64"
 ))]
 pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has cmpxchg16b => use cmpxchg16b
 #[cfg(all(
-    any(not(portable_atomic_no_asm), portable_atomic_nightly),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(
         target_feature = "cmpxchg16b",
         portable_atomic_target_feature = "cmpxchg16b",
@@ -293,9 +296,9 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
 #[cfg(not(any(
-    all(any(not(portable_atomic_no_asm), portable_atomic_nightly), target_arch = "aarch64"),
+    all(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), target_arch = "aarch64"),
     all(
-        any(not(portable_atomic_no_asm), portable_atomic_nightly),
+        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b",
