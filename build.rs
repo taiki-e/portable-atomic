@@ -68,7 +68,22 @@ fn main() {
     }
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     let no_asm = !version.probe(59, 2021, 12, 15);
+    let mut unstable_asm = false;
     if no_asm {
+        if version.nightly
+            && version.probe(46, 2020, 6, 20)
+            && (target_arch != "x86_64" || version.llvm >= 10)
+            && is_allowed_feature("asm")
+        {
+            // This feature was added in Rust 1.45 (nightly-2020-05-20), but
+            // concat! in asm! requires Rust 1.46 (nightly-2020-06-21).
+            // x86 intel syntax requires LLVM 10.
+            // The part of this feature we use has not been changed since nightly-2020-06-21
+            // until it was stabilized in nightly-2021-12-16, so it can be safely enabled in
+            // nightly, which is older than nightly-2021-12-16.
+            println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
+            unstable_asm = true;
+        }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     }
     // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621
@@ -82,8 +97,11 @@ fn main() {
 
     // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824
     if !version.probe(60, 2022, 2, 10) {
-        if version.nightly && is_allowed_feature("cfg_target_has_atomic") {
-            // This feature has not been changed since the change in nightly-2019-10-14
+        if version.nightly
+            && version.probe(40, 2019, 10, 13)
+            && is_allowed_feature("cfg_target_has_atomic")
+        {
+            // This feature has not been changed since the change in Rust 1.40 (nightly-2019-10-14)
             // until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
             // nightly, which is older than nightly-2022-02-11.
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
@@ -150,6 +168,7 @@ fn main() {
             // It is unlikely that rustc will support that name, so we will ignore it for now.
             target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, None, true);
             if version.nightly
+                && (!no_asm || unstable_asm)
                 && cfg!(feature = "fallback")
                 && cfg!(feature = "outline-atomics")
                 && is_allowed_feature("cmpxchg16b_target_feature")
@@ -292,16 +311,18 @@ fn target_cpu() -> Option<String> {
 }
 
 fn is_allowed_feature(name: &str) -> bool {
+    // allowed by default
+    let mut allowed = true;
     if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             flag = strip_prefix(flag, "-Z").unwrap_or(flag);
             if let Some(flag) = strip_prefix(flag, "allow-features=") {
-                return flag.split(',').any(|allowed| allowed == name);
+                // If it is specified multiple times, the last value will be preferred.
+                allowed = flag.split(',').any(|allowed| allowed == name);
             }
         }
     }
-    // allowed by default
-    true
+    allowed
 }
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.14/build-common.rs.
