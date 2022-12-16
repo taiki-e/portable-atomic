@@ -311,16 +311,18 @@ fn target_cpu() -> Option<String> {
 }
 
 fn is_allowed_feature(name: &str) -> bool {
+    // allowed by default
+    let mut allowed = true;
     if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             flag = strip_prefix(flag, "-Z").unwrap_or(flag);
             if let Some(flag) = strip_prefix(flag, "allow-features=") {
-                return flag.split(',').any(|allowed| allowed == name);
+                // If it is specified multiple times, the last value will be preferred.
+                allowed = flag.split(',').any(|allowed| allowed == name);
             }
         }
     }
-    // allowed by default
-    true
+    allowed
 }
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.14/build-common.rs.
