@@ -466,6 +466,17 @@ macro_rules! __test_atomic_int {
                 }
                 true
             }
+            fn quickcheck_add(x: $int_type, y: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.add(y, order);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_add(y));
+                    let a = <$atomic_type>::new(y);
+                    a.add(x, order);
+                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_add(x));
+                }
+                true
+            }
             fn quickcheck_fetch_sub(x: $int_type, y: $int_type) -> bool {
                 for &order in &swap_orderings() {
                     let a = <$atomic_type>::new(x);
@@ -477,6 +488,17 @@ macro_rules! __test_atomic_int {
                 }
                 true
             }
+            fn quickcheck_sub(x: $int_type, y: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.sub(y, order);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_sub(y));
+                    let a = <$atomic_type>::new(y);
+                    a.sub(x, order);
+                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_sub(x));
+                }
+                true
+            }
             fn quickcheck_fetch_and(x: $int_type, y: $int_type) -> bool {
                 for &order in &swap_orderings() {
                     let a = <$atomic_type>::new(x);
@@ -484,6 +506,17 @@ macro_rules! __test_atomic_int {
                     assert_eq!(a.load(Ordering::Relaxed), x & y);
                     let a = <$atomic_type>::new(y);
                     assert_eq!(a.fetch_and(x, order), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y & x);
+                }
+                true
+            }
+            fn quickcheck_and(x: $int_type, y: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.and(y, order);
+                    assert_eq!(a.load(Ordering::Relaxed), x & y);
+                    let a = <$atomic_type>::new(y);
+                    a.and(x, order);
                     assert_eq!(a.load(Ordering::Relaxed), y & x);
                 }
                 true
@@ -510,6 +543,17 @@ macro_rules! __test_atomic_int {
                 }
                 true
             }
+            fn quickcheck_or(x: $int_type, y: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.or(y, order);
+                    assert_eq!(a.load(Ordering::Relaxed), x | y);
+                    let a = <$atomic_type>::new(y);
+                    a.or(x, order);
+                    assert_eq!(a.load(Ordering::Relaxed), y | x);
+                }
+                true
+            }
             fn quickcheck_fetch_xor(x: $int_type, y: $int_type) -> bool {
                 for &order in &swap_orderings() {
                     let a = <$atomic_type>::new(x);
@@ -517,6 +561,17 @@ macro_rules! __test_atomic_int {
                     assert_eq!(a.load(Ordering::Relaxed), x ^ y);
                     let a = <$atomic_type>::new(y);
                     assert_eq!(a.fetch_xor(x, order), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                }
+                true
+            }
+            fn quickcheck_xor(x: $int_type, y: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.xor(y, order);
+                    assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                    let a = <$atomic_type>::new(y);
+                    a.xor(x, order);
                     assert_eq!(a.load(Ordering::Relaxed), y ^ x);
                 }
                 true
