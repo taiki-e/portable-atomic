@@ -1,7 +1,7 @@
 use core::sync::atomic::Ordering;
 
 macro_rules! __test_atomic_int {
-    ($int_type:ident, $atomic_type:ty) => {
+    ($atomic_type:ty, $int_type:ident) => {
         misc();
         fn misc() {
             static _VAL: $atomic_type = <$atomic_type>::new(5);
@@ -81,6 +81,17 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), $int_type::MAX.wrapping_add(1));
             }
         }
+        add();
+        fn add() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(0);
+                a.add(10, order);
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+                let a = <$atomic_type>::new($int_type::MAX);
+                a.add(1, order);
+                assert_eq!(a.load(Ordering::Relaxed), $int_type::MAX.wrapping_add(1));
+            }
+        }
         fetch_sub();
         fn fetch_sub() {
             for order in helper::swap_orderings().iter().copied() {
@@ -92,11 +103,30 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), $int_type::MIN.wrapping_sub(1));
             }
         }
+        sub();
+        fn sub() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(20);
+                a.sub(10, order);
+                assert_eq!(a.load(Ordering::Relaxed), 10);
+                let a = <$atomic_type>::new($int_type::MIN);
+                a.sub(1, order);
+                assert_eq!(a.load(Ordering::Relaxed), $int_type::MIN.wrapping_sub(1));
+            }
+        }
         fetch_and();
         fn fetch_and() {
             for order in helper::swap_orderings().iter().copied() {
                 let a = <$atomic_type>::new(0b101101);
                 assert_eq!(a.fetch_and(0b110011, order), 0b101101);
+                assert_eq!(a.load(Ordering::Relaxed), 0b100001);
+            }
+        }
+        and();
+        fn and() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(0b101101);
+                a.and(0b110011, order);
                 assert_eq!(a.load(Ordering::Relaxed), 0b100001);
             }
         }
@@ -116,11 +146,27 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b111111);
             }
         }
+        or();
+        fn or() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(0b101101);
+                a.or(0b110011, order);
+                assert_eq!(a.load(Ordering::Relaxed), 0b111111);
+            }
+        }
         fetch_xor();
         fn fetch_xor() {
             for order in helper::swap_orderings().iter().copied() {
                 let a = <$atomic_type>::new(0b101101);
                 assert_eq!(a.fetch_xor(0b110011, order), 0b101101);
+                assert_eq!(a.load(Ordering::Relaxed), 0b011110);
+            }
+        }
+        xor();
+        fn xor() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(0b101101);
+                a.xor(0b110011, order);
                 assert_eq!(a.load(Ordering::Relaxed), 0b011110);
             }
         }
@@ -167,7 +213,7 @@ macro_rules! __test_atomic_int {
     };
 }
 macro_rules! __test_atomic_float {
-    ($float_type:ident, $atomic_type:ty) => {
+    ($atomic_type:ty, $float_type:ident) => {
         misc();
         fn misc() {
             static _VAL: $atomic_type = <$atomic_type>::new(5.0);
@@ -394,6 +440,20 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
+        and();
+        fn and() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(true);
+                a.and(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(true);
+                a.and(true, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(false);
+                a.and(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+            }
+        }
         fetch_nand();
         fn fetch_nand() {
             for order in helper::swap_orderings().iter().copied() {
@@ -423,6 +483,20 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
+        or();
+        fn or() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(true);
+                a.or(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(true);
+                a.or(true, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(false);
+                a.or(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+            }
+        }
         fetch_xor();
         fn fetch_xor() {
             for order in helper::swap_orderings().iter().copied() {
@@ -437,6 +511,20 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
+        xor();
+        fn xor() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(true);
+                a.xor(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(true);
+                a.xor(true, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.xor(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+            }
+        }
         fetch_not();
         fn fetch_not() {
             for order in helper::swap_orderings().iter().copied() {
@@ -445,6 +533,17 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), false);
                 let a = <$atomic_type>::new(false);
                 assert_eq!(a.fetch_not(order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+            }
+        }
+        not();
+        fn not() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(true);
+                a.not(order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.not(order);
                 assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }

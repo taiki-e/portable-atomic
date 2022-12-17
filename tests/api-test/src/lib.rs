@@ -24,7 +24,7 @@ pub fn all() {
         ($int_type:ident) => {
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
-                    __test_atomic_int!($int_type, [<Atomic $int_type:camel>]);
+                    __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
                 }
                 [<test_atomic_ $int_type>]();
             }
@@ -35,7 +35,7 @@ pub fn all() {
         ($float_type:ident) => {
             paste::paste! {
                 fn [<test_atomic_ $float_type>]() {
-                    __test_atomic_float!($float_type, [<Atomic $float_type:camel>]);
+                    __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
                 }
                 [<test_atomic_ $float_type>]();
             }

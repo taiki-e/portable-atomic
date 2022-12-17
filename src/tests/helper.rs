@@ -1245,6 +1245,19 @@ macro_rules! __test_atomic_bool_pub {
             }
         }
         #[test]
+        fn not() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| a.fetch_not(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(true);
+                a.not(order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.not(order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+            }
+        }
+        #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
