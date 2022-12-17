@@ -22,6 +22,8 @@
 // [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 // [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 
+#![cfg_attr(test, allow(dead_code))]
+
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts. On MSP430, some RMWs that do not return the
 // previous value can also be optimized.

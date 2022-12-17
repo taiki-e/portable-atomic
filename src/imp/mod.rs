@@ -5,14 +5,17 @@
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
     target_arch = "avr",
     target_arch = "msp430",
 )))]
 #[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(all(feature = "critical-section", portable_atomic_no_atomic_cas)))
+)]
+#[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
         not(target_has_atomic = "ptr")
     )))
 )]
@@ -158,14 +161,17 @@ pub(crate) mod float;
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
     target_arch = "avr",
     target_arch = "msp430",
 )))]
 #[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(all(feature = "critical-section", portable_atomic_no_atomic_cas)))
+)]
+#[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
         not(target_has_atomic = "ptr")
     )))
 )]
@@ -197,14 +203,17 @@ pub(crate) use self::interrupt::{
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
     target_arch = "avr",
     target_arch = "msp430",
 )))]
 #[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(all(feature = "critical-section", portable_atomic_no_atomic_cas)))
+)]
+#[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
         not(target_has_atomic = "ptr")
     )))
 )]
@@ -231,9 +240,14 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
 )))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(any(
+        portable_atomic_no_atomic_64,
+        not(all(feature = "critical-section", portable_atomic_no_atomic_cas))
+    )))
+)]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
@@ -241,7 +255,11 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
         all(
             not(any(target_pointer_width = "16", target_pointer_width = "32")),
             not(all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(
+                    target_arch = "riscv32",
+                    target_arch = "riscv64",
+                    feature = "critical-section"
+                ),
                 not(target_has_atomic = "ptr")
             ))
         )
