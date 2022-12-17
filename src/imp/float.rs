@@ -130,28 +130,20 @@ macro_rules! atomic_float {
 
             #[inline]
             pub(crate) fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update_(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    x + val
-                })
+                self.fetch_update_(order, |x| x + val)
             }
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update_(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    x - val
-                })
+                self.fetch_update_(order, |x| x - val)
             }
 
             #[inline]
-            fn fetch_update_<F>(
-                &self,
-                set_order: Ordering,
-                fetch_order: Ordering,
-                mut f: F,
-            ) -> $float_type
+            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $float_type
             where
                 F: FnMut($float_type) -> $float_type,
             {
+                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
                 let mut prev = self.load(fetch_order);
                 loop {
                     let next = f(prev);
@@ -164,16 +156,12 @@ macro_rules! atomic_float {
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update_(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    x.max(val)
-                })
+                self.fetch_update_(order, |x| x.max(val))
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
-                self.fetch_update_(order, crate::utils::strongest_failure_ordering(order), |x| {
-                    x.min(val)
-                })
+                self.fetch_update_(order, |x| x.min(val))
             }
 
             #[inline]

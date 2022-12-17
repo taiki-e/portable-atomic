@@ -178,10 +178,7 @@ macro_rules! atomic_int {
             portable_atomic_no_cfg_target_has_atomic,
             cfg(not(portable_atomic_no_atomic_cas))
         )]
-        #[cfg_attr(
-            not(portable_atomic_no_cfg_target_has_atomic),
-            cfg(target_has_atomic = "ptr")
-        )]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
@@ -217,10 +214,7 @@ macro_rules! atomic_int {
             portable_atomic_no_cfg_target_has_atomic,
             cfg(not(portable_atomic_no_atomic_cas))
         )]
-        #[cfg_attr(
-            not(portable_atomic_no_cfg_target_has_atomic),
-            cfg(target_has_atomic = "ptr")
-        )]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -250,25 +244,21 @@ macro_rules! atomic_int {
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }
-            #[cfg(portable_atomic_no_atomic_min_max)]
+            #[cfg_attr(not(portable_atomic_no_atomic_min_max), allow(dead_code))]
             #[inline]
-            fn fetch_update<F>(
-                &self,
-                set_order: Ordering,
-                fetch_order: Ordering,
-                mut f: F,
-            ) -> Result<$int_type, $int_type>
+            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
             where
-                F: FnMut($int_type) -> Option<$int_type>,
+                F: FnMut($int_type) -> $int_type,
             {
+                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
                 let mut prev = self.load(fetch_order);
-                while let Some(next) = f(prev) {
+                loop {
+                    let next = f(prev);
                     match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
-                        x @ Ok(_) => return x,
+                        Ok(x) => return x,
                         Err(next_prev) => prev = next_prev,
                     }
                 }
-                Err(prev)
             }
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
@@ -281,7 +271,10 @@ macro_rules! atomic_int {
                         ),
                         all(
                             target_arch = "arm",
-                            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                            not(any(
+                                target_feature = "v6",
+                                portable_atomic_target_feature = "v6"
+                            )),
                         ),
                         target_arch = "mips",
                         target_arch = "mips64",
@@ -301,23 +294,14 @@ macro_rules! atomic_int {
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
                         // See also https://github.com/taiki-e/portable-atomic/issues/2
                         if core::mem::size_of::<$int_type>() <= 2 {
-                            return self
-                                .fetch_update(
-                                    order,
-                                    crate::utils::strongest_failure_ordering(order),
-                                    |x| Some(core::cmp::max(x, val)),
-                                )
-                                .unwrap();
+                            return self.fetch_update_(order, |x| core::cmp::max(x, val));
                         }
                     }
                     self.inner.fetch_max(val, order)
                 }
                 #[cfg(portable_atomic_no_atomic_min_max)]
                 {
-                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                        Some(core::cmp::max(x, val))
-                    })
-                    .unwrap()
+                    self.fetch_update_(order, |x| core::cmp::max(x, val))
                 }
             }
             #[inline]
@@ -331,7 +315,10 @@ macro_rules! atomic_int {
                         ),
                         all(
                             target_arch = "arm",
-                            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                            not(any(
+                                target_feature = "v6",
+                                portable_atomic_target_feature = "v6"
+                            )),
                         ),
                         target_arch = "mips",
                         target_arch = "mips64",
@@ -351,23 +338,14 @@ macro_rules! atomic_int {
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
                         // See also https://github.com/taiki-e/portable-atomic/issues/2
                         if core::mem::size_of::<$int_type>() <= 2 {
-                            return self
-                                .fetch_update(
-                                    order,
-                                    crate::utils::strongest_failure_ordering(order),
-                                    |x| Some(core::cmp::min(x, val)),
-                                )
-                                .unwrap();
+                            return self.fetch_update_(order, |x| core::cmp::min(x, val));
                         }
                     }
                     self.inner.fetch_min(val, order)
                 }
                 #[cfg(portable_atomic_no_atomic_min_max)]
                 {
-                    self.fetch_update(order, crate::utils::strongest_failure_ordering(order), |x| {
-                        Some(core::cmp::min(x, val))
-                    })
-                    .unwrap()
+                    self.fetch_update_(order, |x| core::cmp::min(x, val))
                 }
             }
         }
