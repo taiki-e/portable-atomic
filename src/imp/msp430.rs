@@ -111,9 +111,7 @@ impl AtomicBool {
     }
 
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn and(&self, val: bool, order: Ordering) {
-        crate::utils::assert_swap_ordering(order);
+    pub(crate) fn and(&self, val: bool, _order: Ordering) {
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         unsafe {
@@ -122,9 +120,7 @@ impl AtomicBool {
     }
 
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn or(&self, val: bool, order: Ordering) {
-        crate::utils::assert_swap_ordering(order);
+    pub(crate) fn or(&self, val: bool, _order: Ordering) {
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         unsafe {
@@ -133,9 +129,7 @@ impl AtomicBool {
     }
 
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn xor(&self, val: bool, order: Ordering) {
-        crate::utils::assert_swap_ordering(order);
+    pub(crate) fn xor(&self, val: bool, _order: Ordering) {
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         unsafe {
@@ -273,9 +267,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn add(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_swap_ordering(order);
+            pub(crate) fn add(&self, val: $int_type, _order: Ordering) {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -284,9 +276,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_swap_ordering(order);
+            pub(crate) fn sub(&self, val: $int_type, _order: Ordering) {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -295,9 +285,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn and(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_swap_ordering(order);
+            pub(crate) fn and(&self, val: $int_type, _order: Ordering) {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -306,9 +294,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn or(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_swap_ordering(order);
+            pub(crate) fn or(&self, val: $int_type, _order: Ordering) {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -317,9 +303,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_swap_ordering(order);
+            pub(crate) fn xor(&self, val: $int_type, _order: Ordering) {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {

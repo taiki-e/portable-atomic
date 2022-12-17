@@ -270,6 +270,10 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
+// The function called in dynamic detection cannot be inlined, so we use
+// unreachable_unchecked! to remove the panic path (see also macro docs).
+// Since Ordering is non_exhaustive, such a function must use this assertion to
+// prevent UB due to the addition of new orderings.
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn assert_swap_ordering(order: Ordering) {

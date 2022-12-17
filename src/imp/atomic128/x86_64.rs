@@ -190,6 +190,8 @@ unsafe fn cmpxchg16b(
 //
 // This is based on the code generated for the first load in DW RMWs by LLVM,
 // but it is interesting that they generate code that does mixed-sized atomic access.
+//
+// See also atomic_update.
 #[inline]
 unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
     debug_assert!(src as usize % 16 == 0);
@@ -268,7 +270,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     options(nostack, preserves_flags),
                 );
             }
-            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/M5s3fj46o
+            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/aK44sq6es
             _ => unreachable_unchecked!("{:?}", order),
         }
     }
