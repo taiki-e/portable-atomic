@@ -396,7 +396,9 @@ macro_rules! __test_atomic_bool {
         fn swap() {
             for order in helper::swap_orderings().iter().copied() {
                 let a = <$atomic_type>::new(true);
+                assert_eq!(a.swap(true, order), true);
                 assert_eq!(a.swap(false, order), true);
+                assert_eq!(a.swap(false, order), false);
                 assert_eq!(a.swap(true, order), false);
             }
         }
@@ -438,6 +440,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 assert_eq!(a.fetch_and(false, order), false);
                 assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_and(true, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
         and();
@@ -451,6 +456,9 @@ macro_rules! __test_atomic_bool {
                 assert_eq!(a.load(Ordering::Relaxed), true);
                 let a = <$atomic_type>::new(false);
                 a.and(false, order);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.and(true, order);
                 assert_eq!(a.load(Ordering::Relaxed), false);
             }
         }
@@ -467,6 +475,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 assert_eq!(a.fetch_nand(false, order), false);
                 assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_nand(true, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
         fetch_or();
@@ -481,6 +492,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 assert_eq!(a.fetch_or(false, order), false);
                 assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_or(true, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
         or();
@@ -495,6 +509,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 a.or(false, order);
                 assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.or(true, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
         fetch_xor();
@@ -509,6 +526,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 assert_eq!(a.fetch_xor(false, order), false);
                 assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_xor(true, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
         xor();
@@ -523,6 +543,9 @@ macro_rules! __test_atomic_bool {
                 let a = <$atomic_type>::new(false);
                 a.xor(false, order);
                 assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                a.xor(true, order);
+                assert_eq!(a.load(Ordering::Relaxed), true);
             }
         }
         fetch_not();
