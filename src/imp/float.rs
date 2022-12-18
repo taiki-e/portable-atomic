@@ -165,6 +165,12 @@ macro_rules! atomic_float {
             }
 
             #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $float_type {
+                const NEG_MASK: $int_type = !0 / 2 + 1;
+                $float_type::from_bits(self.as_bits().fetch_xor(NEG_MASK, order))
+            }
+
+            #[inline]
             pub(crate) fn fetch_abs(&self, order: Ordering) -> $float_type {
                 const ABS_MASK: $int_type = !0 / 2;
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))

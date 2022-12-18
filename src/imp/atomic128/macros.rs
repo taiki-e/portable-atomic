@@ -1,6 +1,6 @@
 #[cfg(any(target_arch = "s390x", target_arch = "x86_64"))]
 macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident) => {
+    (uint, $atomic_type:ident, $int_type:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: core::cell::UnsafeCell<$int_type>,
@@ -201,13 +201,48 @@ macro_rules! atomic128 {
                     }) as $int_type
                 }
             }
+
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    atomic_update(self.v.get().cast(), order, |x| !(x as $int_type) as u128)
+                        as $int_type
+                }
+            }
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident) => {
+        atomic128!(uint, $atomic_type, $int_type);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    atomic_update(self.v.get().cast(), order, |x| {
+                        (x as $int_type).wrapping_neg() as u128
+                    }) as $int_type
+                }
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
+            }
         }
     };
 }
 
 #[cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: core::cell::UnsafeCell<$int_type>,
@@ -385,6 +420,46 @@ macro_rules! atomic128 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $atomic_min(self.v.get(), val, order) }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                // TODO: define atomic_not function and use it
+                self.fetch_update_(order, |x| !x)
+            }
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
+
+            #[inline]
+            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
+            where
+                F: FnMut($int_type) -> $int_type,
+            {
+                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
+                let mut prev = self.load(fetch_order);
+                loop {
+                    let next = f(prev);
+                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
+                        Ok(x) => return x,
+                        Err(next_prev) => prev = next_prev,
+                    }
+                }
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                // TODO: define atomic_neg function and use it
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
             }
         }
     };

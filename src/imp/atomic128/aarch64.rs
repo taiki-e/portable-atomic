@@ -28,6 +28,9 @@
 // - https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
 //
+// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+// this module and use intrinsics.rs instead.
+//
 // Refs:
 // - ARM Compiler armasm User Guide
 //   https://developer.arm.com/documentation/dui0801/latest
@@ -957,8 +960,8 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {
@@ -994,8 +997,8 @@ mod tests_no_outline_atomics {
     // so we always use strong CAS.
     use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-    atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-    atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+    atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+    atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
     mod tests {
         use super::*;

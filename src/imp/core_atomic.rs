@@ -169,7 +169,7 @@ impl<T> core::ops::DerefMut for AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    ($($atomic_type:ident($int_type:ident)),*) => {$(
+    (uint, $atomic_type:ident, $int_type:ident) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
@@ -244,7 +244,6 @@ macro_rules! atomic_int {
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }
-            #[cfg_attr(not(portable_atomic_no_atomic_min_max), allow(dead_code))]
             #[inline]
             fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
             where
@@ -348,6 +347,19 @@ macro_rules! atomic_int {
                     self.fetch_update_(order, |x| core::cmp::min(x, val))
                 }
             }
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| !x)
+            }
+            #[cfg(not(all(
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(target_arch = "x86", target_arch = "x86_64")
+            )))]
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
         }
         impl core::ops::Deref for $atomic_type {
             type Target = core::sync::atomic::$atomic_type;
@@ -362,13 +374,42 @@ macro_rules! atomic_int {
                 &mut self.inner
             }
         }
-    )*};
+    };
+    (int, $atomic_type:ident, $int_type:ident) => {
+        atomic_int!(uint, $atomic_type, $int_type);
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(portable_atomic_no_atomic_cas))
+        )]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[cfg(not(all(
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(target_arch = "x86", target_arch = "x86_64")
+            )))]
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
+            }
+        }
+    };
 }
 
-atomic_int!(AtomicIsize(isize), AtomicUsize(usize));
-atomic_int!(AtomicI8(i8), AtomicI16(i16), AtomicU8(u8), AtomicU16(u16));
+atomic_int!(int, AtomicIsize, isize);
+atomic_int!(uint, AtomicUsize, usize);
+atomic_int!(int, AtomicI8, i8);
+atomic_int!(uint, AtomicU8, u8);
+atomic_int!(int, AtomicI16, i16);
+atomic_int!(uint, AtomicU16, u16);
 #[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
-atomic_int!(AtomicI32(i32), AtomicU32(u32));
+atomic_int!(int, AtomicI32, i32);
+#[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
+atomic_int!(uint, AtomicU32, u32);
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
@@ -377,4 +418,13 @@ atomic_int!(AtomicI32(i32), AtomicU32(u32));
         not(any(target_pointer_width = "16", target_pointer_width = "32"))
     )) // cfg(target_has_atomic_load_store = "64")
 )]
-atomic_int!(AtomicI64(i64), AtomicU64(u64));
+atomic_int!(int, AtomicI64, i64);
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(
+        target_has_atomic = "64",
+        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+    )) // cfg(target_has_atomic_load_store = "64")
+)]
+atomic_int!(uint, AtomicU64, u64);

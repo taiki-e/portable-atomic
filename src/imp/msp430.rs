@@ -310,6 +310,15 @@ macro_rules! atomic_int {
                     $int_type::atomic_xor(self.v.get(), val);
                 }
             }
+
+            #[inline]
+            pub(crate) fn not(&self, _order: Ordering) {
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    $int_type::atomic_not(self.v.get());
+                }
+            }
         }
 
         impl AtomicOperations for $int_type {
@@ -447,6 +456,24 @@ macro_rules! atomic_int {
                     );
                 }
             }
+
+            #[inline]
+            unsafe fn atomic_not(dst: *mut Self) {
+                // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+                unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    asm!(
+                        concat!("inv", $asm_suffix, " 0({dst})"),
+                        dst = in(reg) dst,
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        concat!("inv", $asm_suffix, " $0")
+                        :: "*m"(dst) : "memory" : "volatile"
+                    );
+                }
+            }
         }
     }
 }
@@ -466,4 +493,5 @@ trait AtomicOperations: Sized {
     unsafe fn atomic_and(dst: *mut Self, val: Self);
     unsafe fn atomic_or(dst: *mut Self, val: Self);
     unsafe fn atomic_xor(dst: *mut Self, val: Self);
+    unsafe fn atomic_not(dst: *mut Self);
 }

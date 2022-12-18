@@ -77,6 +77,14 @@ pub(crate) mod msp430;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 mod riscv;
 
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    any(target_arch = "x86", target_arch = "x86_64")
+))]
+mod x86;
+
 // -----------------------------------------------------------------------------
 // Lock-based fallback implementations
 

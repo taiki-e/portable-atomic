@@ -13,6 +13,9 @@
 // for the compiler to insert operations that might clear the reservation between
 // LL and SC. See aarch64.rs for details.
 //
+// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+// this module and use intrinsics.rs instead.
+//
 // Refs:
 // - Power ISA https://openpowerfoundation.org/specifications/isa
 // - AIX Assembler language reference https://www.ibm.com/docs/en/aix/7.3?topic=aix-assembler-language-reference
@@ -686,8 +689,8 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {
