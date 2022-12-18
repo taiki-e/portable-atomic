@@ -9,7 +9,7 @@ trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 
 # Update the list of targets that do not support atomic/CAS operations.
 #
-# Usage:
+# USAGE:
 #    ./tools/no_atomic.sh
 
 file="no_atomic.rs"

@@ -7,6 +7,9 @@ cd "$(dirname "$0")"/..
 trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
 trap -- 'exit 0' SIGINT
 
+# USAGE:
+#    ./tools/build.sh [+toolchain] [target]...
+
 default_targets=(
     # no atomic load/store (16-bit)
     avr-unknown-gnu-atmega168 # for checking custom target
@@ -27,26 +30,27 @@ default_targets=(
     bpfeb-unknown-none
     bpfel-unknown-none
 
-    # no-std 32-bit
+    # no-std 32-bit with 32-bit atomic
     thumbv7m-none-eabi
-    # no-std 64-bit
+    # no-std 64-bit with 64-bit atomic
     x86_64-unknown-none
+    # no-std 64-bit with 128-bit atomic
+    aarch64-unknown-none
+
     # x86_64 X32 ABI
     x86_64-unknown-linux-gnux32
-    # no-std 64-bit has Atomic{I,U}128
-    aarch64-unknown-none
-    # aarch64 no Atomic{I,U}128
-    aarch64-pc-windows-msvc
-    # aarch64 has Atomic{I,U}128
-    aarch64-unknown-freebsd
-    # aarch64 always support lse
-    aarch64-apple-darwin
-    # aarch64_be
-    aarch64_be-unknown-linux-gnu
     # aarch64 ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
     # aarch64 ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
+
+    # aarch64
+    aarch64-pc-windows-msvc
+    aarch64-unknown-freebsd
+    # aarch64 always support lse
+    aarch64-apple-darwin
+    # aarch64 big endian
+    aarch64_be-unknown-linux-gnu
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
@@ -95,6 +99,14 @@ x() {
         "${cmd}" "$@"
     )
 }
+x_cargo() {
+    if [[ -n "${RUSTFLAGS:-}" ]]; then
+        echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
+    fi
+    RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
+        x cargo "$@"
+    echo
+}
 
 pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
@@ -127,7 +139,6 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
     fi
 fi
-echo "base rustflags='${RUSTFLAGS:-} ${check_cfg:-}'"
 
 has_asm=''
 # asm requires 1.59
@@ -139,7 +150,7 @@ build() {
     local target="$1"
     shift
     local args=("${base_args[@]}")
-    local target_rustflags="${RUSTFLAGS:-} ${check_cfg:-}"
+    local target_rustflags="${RUSTFLAGS:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
@@ -187,27 +198,27 @@ build() {
     if [[ "${rustc_minor_version}" -gt 44 ]]; then
         if [[ -n "${has_atomic_cas}" ]]; then
             RUSTFLAGS="${target_rustflags}" \
-                x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
         else
             # target without CAS requires asm to implement CAS.
             if [[ -n "${has_asm}" ]]; then
                 case "${target}" in
                     avr-* | msp430-*) # always single-core
                         RUSTFLAGS="${target_rustflags}" \
-                            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                         ;;
                     bpf*) ;; # TODO
                     *)
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                         case "${target}" in
                             thumbv[4-5]t* | armv[4-5]t*)
                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                    x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                 ;;
                             riscv*)
                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                    x cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                    x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                 ;;
                         esac
                         ;;
@@ -237,15 +248,15 @@ build() {
                         bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                x cargo "${args[@]}" --target-dir target/assume-single-core "$@"
+                                x_cargo "${args[@]}" --target-dir target/assume-single-core "$@"
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
                                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                        x cargo "${args[@]}" --target-dir target/assume-single-core-disable-fiq "$@"
+                                        x_cargo "${args[@]}" --target-dir target/assume-single-core-disable-fiq "$@"
                                     ;;
                                 riscv*)
                                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                        x cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
+                                        x_cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
                                     ;;
                             esac
                             ;;
@@ -260,7 +271,7 @@ build() {
             ;;
     esac
     RUSTFLAGS="${target_rustflags}" \
-        x cargo "${args[@]}" "$@"
+        x_cargo "${args[@]}" "$@"
     case "${target}" in
         x86_64*)
             # macOS is skipped because it is +cmpxchg16b by default
@@ -268,25 +279,31 @@ build() {
                 *-darwin) ;;
                 *)
                     RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
-                        x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+                        x_cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
                     ;;
             esac
             ;;
         aarch64* | arm64*)
-            RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
-                x cargo "${args[@]}" --target-dir target/lse "$@"
-            RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
-                x cargo "${args[@]}" --target-dir target/lse2 "$@"
+            # macOS is skipped because it is +lse,+lse2 by default
+            case "${target}" in
+                *-darwin) ;;
+                *)
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
+                        x_cargo "${args[@]}" --target-dir target/lse "$@"
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
+                        x_cargo "${args[@]}" --target-dir target/lse2 "$@"
+                    ;;
+            esac
             ;;
         powerpc64-*)
             # powerpc64le- (little-endian) is skipped because it is pwr8 by default
             RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
-                x cargo "${args[@]}" --target-dir target/pwr8 "$@"
+                x_cargo "${args[@]}" --target-dir target/pwr8 "$@"
             ;;
         powerpc64le-*)
             # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
             RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
-                x cargo "${args[@]}" --target-dir target/pwr7 "$@"
+                x_cargo "${args[@]}" --target-dir target/pwr7 "$@"
             ;;
     esac
 }

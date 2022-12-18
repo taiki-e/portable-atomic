@@ -7,6 +7,9 @@ cd "$(dirname "$0")"/..
 trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
 trap -- 'exit 0' SIGINT
 
+# USAGE:
+#    ./tools/no-std.sh [+toolchain] [target]...
+
 default_targets=(
     # armv4t
     thumbv4t-none-eabi
@@ -29,6 +32,14 @@ x() {
         set -x
         "${cmd}" "$@"
     )
+}
+x_cargo() {
+    if [[ -n "${RUSTFLAGS:-}" ]]; then
+        echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
+    fi
+    RUSTFLAGS="${RUSTFLAGS:-}" \
+        x cargo "$@"
+    echo
 }
 bail() {
     echo "error: $*" >&2
@@ -105,18 +116,18 @@ run() {
             (
                 cd tests/gba
                 RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
-                    x cargo "${args[@]}" "$@"
+                    x_cargo "${args[@]}" "$@"
                 RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
-                    x cargo "${args[@]}" --release "$@"
+                    x_cargo "${args[@]}" --release "$@"
             )
             ;;
         thumb*)
             (
                 cd tests/cortex-m
                 RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
-                    x cargo "${args[@]}" "$@"
+                    x_cargo "${args[@]}" "$@"
                 RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
-                    x cargo "${args[@]}" --release "$@"
+                    x_cargo "${args[@]}" --release "$@"
             )
             ;;
         *) bail "unrecognized target '${target}'" ;;
