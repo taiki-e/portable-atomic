@@ -28,6 +28,9 @@
 // - https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
 //
+// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+// this module and use intrinsics.rs instead.
+//
 // Refs:
 // - ARM Compiler armasm User Guide
 //   https://developer.arm.com/documentation/dui0801/latest
