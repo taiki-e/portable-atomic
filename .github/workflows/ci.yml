@@ -133,7 +133,7 @@ jobs:
           key: cargo-careful-bin-${{ hashFiles('.github/caching/cargo-careful.lock') }}
         if: startsWith(matrix.rust, 'nightly')
       - name: Install cargo-careful
-        run: cargo install -f cargo-careful --root ${{ runner.tool_cache }}/cargo-careful --locked --version "${CARGO_CAREFUL_VERSION}"
+        run: cargo install -f cargo-careful --root "${{ runner.tool_cache }}/cargo-careful" --locked --version "${CARGO_CAREFUL_VERSION}"
         if: startsWith(matrix.rust, 'nightly') && steps.cache-cargo-careful.outputs.cache-hit != 'true'
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
