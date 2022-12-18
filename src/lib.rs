@@ -1233,11 +1233,11 @@ impl AtomicBool {
     /// use portable_atomic::{AtomicBool, Ordering};
     ///
     /// let foo = AtomicBool::new(true);
-    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), true);
+    /// foo.not(Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     ///
     /// let foo = AtomicBool::new(false);
-    /// assert_eq!(foo.fetch_not(Ordering::SeqCst), false);
+    /// foo.not(Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
     #[cfg_attr(
@@ -3479,6 +3479,97 @@ assert_eq!(min_foo, 12);
                 #[inline]
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_min(val, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Logical negates the current value, and sets the new value to the result.
+
+Returns the previous value.
+
+`fetch_not` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0);
+assert_eq!(foo.fetch_not(Ordering::Relaxed), 0);
+assert_eq!(foo.load(Ordering::Relaxed), !0);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn fetch_not(&self, order: Ordering) -> $int_type {
+                    self.inner.fetch_not(order)
+                }
+
+                doc_comment! {
+                    concat!("Logical negates the current value, and sets the new value to the result.
+
+Unlike `fetch_not`, this does not return the previous value.
+
+`not` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_not` on some platforms.
+
+- x86: `lock not` instead of `cmpxchg` loop
+- MSP430: `inv` instead of disabling interrupts
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0);
+foo.not(Ordering::Relaxed);
+assert_eq!(foo.load(Ordering::Relaxed), !0);
+```"),
+                    #[cfg_attr(
+                        portable_atomic_no_cfg_target_has_atomic,
+                        cfg(any(
+                            not(portable_atomic_no_atomic_cas),
+                            portable_atomic_unsafe_assume_single_core,
+                            target_arch = "avr",
+                            target_arch = "msp430"
+                        ))
+                    )]
+                    #[cfg_attr(
+                        not(portable_atomic_no_cfg_target_has_atomic),
+                        cfg(any(
+                            target_has_atomic = "ptr",
+                            portable_atomic_unsafe_assume_single_core,
+                            target_arch = "avr",
+                            target_arch = "msp430"
+                        ))
+                    )]
+                    #[inline]
+                    pub fn not(&self, order: Ordering) {
+                        self.inner.not(order);
+                    }
                 }
             }
 

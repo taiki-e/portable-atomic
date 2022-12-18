@@ -244,7 +244,6 @@ macro_rules! atomic_int {
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }
-            #[cfg_attr(not(portable_atomic_no_atomic_min_max), allow(dead_code))]
             #[inline]
             fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
             where
@@ -347,6 +346,19 @@ macro_rules! atomic_int {
                 {
                     self.fetch_update_(order, |x| core::cmp::min(x, val))
                 }
+            }
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| !x)
+            }
+            #[cfg(not(all(
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(target_arch = "x86", target_arch = "x86_64")
+            )))]
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
             }
         }
         impl core::ops::Deref for $atomic_type {

@@ -305,6 +305,20 @@ macro_rules! atomic {
                 self.write(core::cmp::min(result, val), &guard);
                 result
             }
+
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+                let guard = lock(self.v.get() as usize).write();
+                let result = self.read(&guard);
+                self.write(!result, &guard);
+                result
+            }
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
         }
     };
     (int, $atomic_type:ident, $int_type:ident, $align:expr) => {

@@ -440,6 +440,26 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0);
             }
         }
+        #[test]
+        fn fetch_not() {
+            let a = <$atomic_type>::new(1);
+            test_swap_ordering(|order| a.fetch_not(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(1);
+                assert_eq!(a.fetch_not(order), 1);
+                assert_eq!(a.load(Ordering::Relaxed), !1);
+            }
+        }
+        #[test]
+        fn not() {
+            let a = <$atomic_type>::new(1);
+            test_swap_ordering(|order| a.not(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(1);
+                a.not(order);
+                assert_eq!(a.load(Ordering::Relaxed), !1);
+            }
+        }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: $int_type, y: $int_type) -> bool {
                 for &order in &swap_orderings() {
@@ -617,6 +637,26 @@ macro_rules! __test_atomic_int {
                     let a = <$atomic_type>::new(y);
                     assert_eq!(a.fetch_min(x, order), y);
                     assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(y, x));
+                }
+                true
+            }
+            fn quickcheck_fetch_not(x: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_not(order), x);
+                    assert_eq!(a.load(Ordering::Relaxed), !x);
+                    assert_eq!(a.fetch_not(order), !x);
+                    assert_eq!(a.load(Ordering::Relaxed), x);
+                }
+                true
+            }
+            fn quickcheck_not(x: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.not(order);
+                    assert_eq!(a.load(Ordering::Relaxed), !x);
+                    a.not(order);
+                    assert_eq!(a.load(Ordering::Relaxed), x);
                 }
                 true
             }

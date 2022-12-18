@@ -222,6 +222,22 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0);
             }
         }
+        fetch_not();
+        fn fetch_not() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(1);
+                assert_eq!(a.fetch_not(order), 1);
+                assert_eq!(a.load(Ordering::Relaxed), !1);
+            }
+        }
+        not();
+        fn not() {
+            for order in helper::swap_orderings().iter().copied() {
+                let a = <$atomic_type>::new(1);
+                a.not(order);
+                assert_eq!(a.load(Ordering::Relaxed), !1);
+            }
+        }
         fetch_update();
         fn fetch_update() {
             for (success, failure) in helper::compare_exchange_orderings().iter().copied() {

@@ -493,6 +493,13 @@ macro_rules! atomic_int {
 
         #[cfg(not(target_arch = "msp430"))]
         no_fetch_ops_impl!($atomic_type, $int_type);
+        #[cfg(not(target_arch = "msp430"))]
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
+        }
         #[cfg(target_arch = "msp430")]
         impl $atomic_type {
             #[inline]
@@ -530,6 +537,13 @@ macro_rules! atomic_int {
                     (*(self as *const Self as *const atomic::$atomic_type)).xor(val, order);
                 }
             }
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                // SAFETY: Self and atomic::$atomic_type have the same layout,
+                unsafe {
+                    (*(self as *const Self as *const atomic::$atomic_type)).not(order);
+                }
+            }
         }
     };
     (
@@ -557,6 +571,11 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe { self.v.get().write(val) });
+            }
+
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
             }
         }
     };
@@ -698,6 +717,18 @@ macro_rules! atomic_int {
                 with(|| unsafe {
                     let result = self.v.get().read();
                     self.v.get().write(core::cmp::min(result, val));
+                    result
+                })
+            }
+
+            #[inline]
+            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let result = self.v.get().read();
+                    self.v.get().write(!result);
                     result
                 })
             }

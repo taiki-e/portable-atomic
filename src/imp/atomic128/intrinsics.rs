@@ -582,19 +582,16 @@ macro_rules! atomic128 {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $atomic_min(self.v.get(), val, order) }
             }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
+
             #[inline]
-            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| x.wrapping_neg())
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| !x)
             }
             #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
             }
+
             #[inline]
             fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
             where
@@ -609,6 +606,19 @@ macro_rules! atomic128 {
                         Err(next_prev) => prev = next_prev,
                     }
                 }
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
             }
         }
     };

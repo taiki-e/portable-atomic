@@ -16,6 +16,14 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   Currently, optimizations by these methods (`neg`) are only guaranteed for x86.
 
+- Add `Atomic{I,U}*::{fetch_not,not}` methods.
+
+  `Atomic{I,U}*::not` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock not`, MSP430's `inv`.
+
+  Currently, optimizations by these methods (`not`) are only guaranteed for x86 and MSP430.
+
+  (Note: `AtomicBool` already has `fetch_not` and `not` methods.)
+
 ## [0.3.18] - 2022-12-15
 
 - Fix build error when not using `portable_atomic_unsafe_assume_single_core` cfg on AVR and MSP430 custom targets. ([#50](https://github.com/taiki-e/portable-atomic/pull/50))
