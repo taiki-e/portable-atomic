@@ -263,8 +263,14 @@ build() {
         x cargo "${args[@]}" "$@"
     case "${target}" in
         x86_64*)
-            RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
-                x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+            # macOS is skipped because it is +cmpxchg16b by default
+            case "${target}" in
+                *-darwin) ;;
+                *)
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
+                        x cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+                    ;;
+            esac
             ;;
         aarch64* | arm64*)
             RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
@@ -273,10 +279,12 @@ build() {
                 x cargo "${args[@]}" --target-dir target/lse2 "$@"
             ;;
         powerpc64-*)
+            # powerpc64le- (little-endian) is skipped because it is pwr8 by default
             RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
                 x cargo "${args[@]}" --target-dir target/pwr8 "$@"
             ;;
         powerpc64le-*)
+            # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
             RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
                 x cargo "${args[@]}" --target-dir target/pwr7 "$@"
             ;;

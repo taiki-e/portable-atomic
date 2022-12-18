@@ -45,6 +45,8 @@ jobs:
     uses: taiki-e/workflows/.github/workflows/tidy-rust.yml@main
 
   test:
+    env:
+      CARGO_CAREFUL_VERSION: 0.3.0
     strategy:
       fail-fast: false
       matrix:
@@ -117,6 +119,22 @@ jobs:
       - run: rustup toolchain add nightly --no-self-update
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
+      - name: Pre Cache cargo-careful
+        run: |
+          mkdir -p .github/caching
+          echo "${CARGO_CAREFUL_VERSION}" > .github/caching/cargo-careful.lock
+          echo "${{ runner.tool_cache }}/cargo-careful/bin" >> "${GITHUB_PATH}"
+        if: startsWith(matrix.rust, 'nightly')
+      - name: Cache cargo-careful
+        id: cache-cargo-careful
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.tool_cache }}/cargo-careful/bin
+          key: cargo-careful-bin-${{ hashFiles('.github/caching/cargo-careful.lock') }}
+        if: startsWith(matrix.rust, 'nightly')
+      - name: Install cargo-careful
+        run: cargo install -f cargo-careful --root ${{ runner.tool_cache }}/cargo-careful --locked --version "${CARGO_CAREFUL_VERSION}"
+        if: startsWith(matrix.rust, 'nightly') && steps.cache-cargo-careful.outputs.cache-hit != 'true'
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
@@ -133,18 +151,21 @@ jobs:
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
+      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        if: startsWith(matrix.rust, 'nightly')
 
       # +cmpxchg16b
+      # macOS is skipped because it is +cmpxchg16b by default
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       # LTO + doctests is very slow on some platforms
       - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
         env:
@@ -152,7 +173,12 @@ jobs:
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.target == '' || startsWith(matrix.target, 'x86_64')
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
+      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly')
 
       # +lse
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
@@ -173,9 +199,15 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
+      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+        if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly')
       # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
 
       # pwr7
+      # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
@@ -194,8 +226,14 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
+      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+        if: startsWith(matrix.target, 'powerpc64le-') && startsWith(matrix.rust, 'nightly')
 
       # pwr8
+      # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
@@ -214,6 +252,11 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
+      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
+        if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly')
 
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
 
