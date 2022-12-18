@@ -222,6 +222,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
                 not(target_has_atomic = "ptr")
             ),
             target_arch = "aarch64",
+            target_arch = "x86",
             target_arch = "x86_64",
         ),
     ),
@@ -2306,22 +2307,34 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
+    (AtomicU8, $int_type:ident, $align:expr) => {
+        atomic_int!(uint, AtomicU8, $int_type, $align);
+    };
+    (AtomicU16, $int_type:ident, $align:expr) => {
+        atomic_int!(uint, AtomicU16, $int_type, $align);
+    };
     (AtomicU32, $int_type:ident, $align:expr) => {
-        atomic_int!(@int, AtomicU32, $int_type, $align);
+        atomic_int!(uint, AtomicU32, $int_type, $align);
         #[cfg(feature = "float")]
-        atomic_int!(@float, AtomicF32, f32, AtomicU32, $int_type, $align);
+        atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
     };
     (AtomicU64, $int_type:ident, $align:expr) => {
-        atomic_int!(@int, AtomicU64, $int_type, $align);
+        atomic_int!(uint, AtomicU64, $int_type, $align);
         #[cfg(feature = "float")]
-        atomic_int!(@float, AtomicF64, f64, AtomicU64, $int_type, $align);
+        atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
+    };
+    (AtomicU128, $int_type:ident, $align:expr) => {
+        atomic_int!(uint, AtomicU128, $int_type, $align);
+    };
+    (AtomicUsize, $int_type:ident, $align:expr) => {
+        atomic_int!(uint, AtomicUsize, $int_type, $align);
     };
     ($atomic_type:ident, $int_type:ident, $align:expr) => {
-        atomic_int!(@int, $atomic_type, $int_type, $align);
+        atomic_int!(int, $atomic_type, $int_type, $align);
     };
 
     // Atomic{I,U}* impls
-    (@int,
+    (uint,
         $atomic_type:ident, $int_type:ident, $align:expr
     ) => {
         doc_comment! {
@@ -3474,8 +3487,111 @@ assert_eq!(min_foo, 12);
         }
     };
 
+    // AtomicI* impls
+    (int,
+        $atomic_type:ident, $int_type:ident, $align:expr
+    ) => {
+        atomic_int!(uint, $atomic_type, $int_type, $align);
+
+        impl $atomic_type {
+            doc_comment! {
+                concat!("Negates the current value, and sets the new value to the result.
+
+Returns the previous value.
+
+`fetch_neg` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(5);
+assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5);
+assert_eq!(foo.load(Ordering::Relaxed), -5);
+assert_eq!(foo.fetch_neg(Ordering::Relaxed), -5);
+assert_eq!(foo.load(Ordering::Relaxed), 5);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        target_arch = "avr",
+                        target_arch = "msp430"
+                    ))
+                )]
+                #[inline]
+                pub fn fetch_neg(&self, order: Ordering) -> $int_type {
+                    self.inner.fetch_neg(order)
+                }
+
+                doc_comment! {
+                    concat!("Negates the current value, and sets the new value to the result.
+
+Unlike `fetch_neg`, this does not return the previous value.
+
+`neg` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This function may generate more efficient code than `fetch_neg` on some platforms.
+
+- x86: `lock neg` instead of `cmpxchg` loop
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(5);
+foo.neg(Ordering::Relaxed);
+assert_eq!(foo.load(Ordering::Relaxed), -5);
+foo.neg(Ordering::Relaxed);
+assert_eq!(foo.load(Ordering::Relaxed), 5);
+```"),
+                    #[cfg_attr(
+                        portable_atomic_no_cfg_target_has_atomic,
+                        cfg(any(
+                            not(portable_atomic_no_atomic_cas),
+                            portable_atomic_unsafe_assume_single_core,
+                            target_arch = "avr",
+                            target_arch = "msp430"
+                        ))
+                    )]
+                    #[cfg_attr(
+                        not(portable_atomic_no_cfg_target_has_atomic),
+                        cfg(any(
+                            target_has_atomic = "ptr",
+                            portable_atomic_unsafe_assume_single_core,
+                            target_arch = "avr",
+                            target_arch = "msp430"
+                        ))
+                    )]
+                    #[inline]
+                    pub fn neg(&self, order: Ordering) {
+                        self.inner.neg(order);
+                    }
+                }
+            }
+        }
+    };
+
     // AtomicF* impls
-    (@float,
+    (float,
         $atomic_type:ident, $float_type:ident, $atomic_int_type:ident, $int_type:ident, $align:expr
     ) => {
         doc_comment! {
@@ -3936,6 +4052,37 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_min(val, order)
+            }
+
+            /// Negates the current value, and sets the new value to the result.
+            ///
+            /// Returns the previous value.
+            ///
+            /// `fetch_neg` takes an [`Ordering`] argument which describes the memory ordering
+            /// of this operation. All ordering modes are possible. Note that using
+            /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+            /// using [`Release`] makes the load part [`Relaxed`].
+            #[cfg_attr(
+                portable_atomic_no_cfg_target_has_atomic,
+                cfg(any(
+                    not(portable_atomic_no_atomic_cas),
+                    portable_atomic_unsafe_assume_single_core,
+                    target_arch = "avr",
+                    target_arch = "msp430"
+                ))
+            )]
+            #[cfg_attr(
+                not(portable_atomic_no_cfg_target_has_atomic),
+                cfg(any(
+                    target_has_atomic = "ptr",
+                    portable_atomic_unsafe_assume_single_core,
+                    target_arch = "avr",
+                    target_arch = "msp430"
+                ))
+            )]
+            #[inline]
+            pub fn fetch_neg(&self, order: Ordering) -> $float_type {
+                self.inner.fetch_neg(order)
             }
 
             /// Computes the absolute value of the current value, and sets the

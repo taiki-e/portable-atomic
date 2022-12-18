@@ -405,7 +405,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 macro_rules! atomic128 {
-    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -584,10 +584,38 @@ macro_rules! atomic128 {
             }
         }
     };
+    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
+            }
+            #[inline]
+            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
+            where
+                F: FnMut($int_type) -> $int_type,
+            {
+                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
+                let mut prev = self.load(fetch_order);
+                loop {
+                    let next = f(prev);
+                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
+                        Ok(x) => return x,
+                        Err(next_prev) => prev = next_prev,
+                    }
+                }
+            }
+        }
+    };
 }
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {

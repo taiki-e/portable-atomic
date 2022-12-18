@@ -217,7 +217,29 @@ macro_rules! __test_atomic_ptr_load_store {
 }
 
 macro_rules! __test_atomic_int {
+    ($atomic_type:ty, u8, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, u8, single_thread);
+    };
+    ($atomic_type:ty, u16, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, u16, single_thread);
+    };
+    ($atomic_type:ty, u32, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, u32, single_thread);
+    };
+    ($atomic_type:ty, u64, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, u64, single_thread);
+    };
+    ($atomic_type:ty, u128, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, u128, single_thread);
+    };
+    ($atomic_type:ty, usize, single_thread) => {
+        __test_atomic_int!(uint, $atomic_type, usize, single_thread);
+    };
     ($atomic_type:ty, $int_type:ident, single_thread) => {
+        __test_atomic_int!(int, $atomic_type, $int_type, single_thread);
+        __test_atomic_int!(uint, $atomic_type, $int_type, single_thread);
+    };
+    (uint, $atomic_type:ty, $int_type:ident, single_thread) => {
         use core::$int_type;
         #[test]
         fn swap() {
@@ -600,6 +622,54 @@ macro_rules! __test_atomic_int {
             }
         }
     };
+    (int, $atomic_type:ty, $int_type:ident, single_thread) => {
+        #[test]
+        fn fetch_neg() {
+            let a = <$atomic_type>::new(5);
+            test_swap_ordering(|order| a.fetch_neg(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(5);
+                assert_eq!(a.fetch_neg(order), 5);
+                assert_eq!(a.load(Ordering::Relaxed), -5);
+                assert_eq!(a.fetch_neg(order), -5);
+                assert_eq!(a.load(Ordering::Relaxed), 5);
+            }
+        }
+        #[test]
+        fn neg() {
+            let a = <$atomic_type>::new(5);
+            test_swap_ordering(|order| a.neg(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(5);
+                a.neg(order);
+                assert_eq!(a.load(Ordering::Relaxed), -5);
+                a.neg(order);
+                assert_eq!(a.load(Ordering::Relaxed), 5);
+            }
+        }
+        ::quickcheck::quickcheck! {
+            fn quickcheck_fetch_neg(x: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_neg(order), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
+                    assert_eq!(a.fetch_neg(order), x.wrapping_neg());
+                    assert_eq!(a.load(Ordering::Relaxed), x);
+                }
+                true
+            }
+            fn quickcheck_neg(x: $int_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    a.neg(order);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
+                    a.neg(order);
+                    assert_eq!(a.load(Ordering::Relaxed), x);
+                }
+                true
+            }
+        }
+    };
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int!($atomic_type, $int_type, single_thread);
 
@@ -833,6 +903,18 @@ macro_rules! __test_atomic_float {
             }
         }
         #[test]
+        fn fetch_neg() {
+            let a = <$atomic_type>::new(5.0);
+            test_swap_ordering(|order| a.fetch_neg(order));
+            for &order in &swap_orderings() {
+                let a = <$atomic_type>::new(5.0);
+                assert_eq!(a.fetch_neg(order), 5.0);
+                assert_eq!(a.load(Ordering::Relaxed), -5.0);
+                assert_eq!(a.fetch_neg(order), -5.0);
+                assert_eq!(a.load(Ordering::Relaxed), 5.0);
+            }
+        }
+        #[test]
         fn fetch_abs() {
             let a = <$atomic_type>::new(23.0);
             test_swap_ordering(|order| a.fetch_abs(order));
@@ -923,6 +1005,16 @@ macro_rules! __test_atomic_float {
                     let a = <$atomic_type>::new(y);
                     assert_float_op_eq!(a.fetch_min(x, order), y);
                     assert_float_op_eq!(a.load(Ordering::Relaxed), y.min(x));
+                }
+                true
+            }
+            fn quickcheck_fetch_neg(x: $float_type) -> bool {
+                for &order in &swap_orderings() {
+                    let a = <$atomic_type>::new(x);
+                    assert_float_op_eq!(a.fetch_neg(order), x);
+                    assert_float_op_eq!(a.load(Ordering::Relaxed), -x);
+                    assert_float_op_eq!(a.fetch_neg(order), -x);
+                    assert_float_op_eq!(a.load(Ordering::Relaxed), x);
                 }
                 true
             }

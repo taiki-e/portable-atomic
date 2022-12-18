@@ -223,8 +223,8 @@ const fn is_always_lock_free() -> bool {
 }
 use is_always_lock_free as is_lock_free;
 
-atomic128!(AtomicI128, i128);
-atomic128!(AtomicU128, u128);
+atomic128!(int, AtomicI128, i128);
+atomic128!(uint, AtomicU128, u128);
 
 #[cfg(test)]
 mod tests {

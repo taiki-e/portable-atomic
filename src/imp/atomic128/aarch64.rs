@@ -960,8 +960,8 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {
@@ -997,8 +997,8 @@ mod tests_no_outline_atomics {
     // so we always use strong CAS.
     use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-    atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-    atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+    atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
+    atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
     mod tests {
         use super::*;

@@ -10,6 +10,12 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods.
+
+  `AtomicI*::neg` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock neg`.
+
+  Currently, optimizations by these methods (`neg`) are only guaranteed for x86.
+
 ## [0.3.18] - 2022-12-15
 
 - Fix build error when not using `portable_atomic_unsafe_assume_single_core` cfg on AVR and MSP430 custom targets. ([#50](https://github.com/taiki-e/portable-atomic/pull/50))
@@ -27,6 +33,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 - Add `Atomic{I,U}*::{add,sub,and,or,xor}` and `AtomicBool::{and,or,xor}` methods. ([#47](https://github.com/taiki-e/portable-atomic/pull/47))
 
   They are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that implement atomics using inline assembly, such as the MSP430.
+
+  Currently, optimizations by these methods (`add`,`sub`,`and`,`or`,`xor`) are only guaranteed for MSP430; on x86, LLVM can optimize in most cases, so cases, where this would improve things, should be rare.
 
 - Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44), [#40](https://github.com/taiki-e/portable-atomic/pull/40))
 

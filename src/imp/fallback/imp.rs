@@ -32,7 +32,7 @@ fn lock(addr: usize) -> &'static SeqLock {
 }
 
 macro_rules! atomic {
-    ($atomic_type:ident, $int_type:ident, $align:expr) => {
+    (uint, $atomic_type:ident, $int_type:ident, $align:expr) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -307,6 +307,24 @@ macro_rules! atomic {
             }
         }
     };
+    (int, $atomic_type:ident, $int_type:ident, $align:expr) => {
+        atomic!(uint, $atomic_type, $int_type, $align);
+        impl $atomic_type {
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+                let guard = lock(self.v.get() as usize).write();
+                let result = self.read(&guard);
+                self.write(result.wrapping_neg(), &guard);
+                result
+            }
+            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
+            }
+        }
+    };
 }
 
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
@@ -315,18 +333,18 @@ macro_rules! atomic {
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
-atomic!(AtomicI64, i64, 8);
+atomic!(int, AtomicI64, i64, 8);
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
-atomic!(AtomicU64, u64, 8);
+atomic!(uint, AtomicU64, u64, 8);
 
 #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
-atomic!(AtomicI128, i128, 16);
-atomic!(AtomicU128, u128, 16);
+atomic!(int, AtomicI128, i128, 16);
+atomic!(uint, AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {
