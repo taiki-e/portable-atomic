@@ -74,7 +74,7 @@ macro_rules! __test_atomic_int_load_store {
         #[test]
         fn stress_load_store() {
             let iterations = if cfg!(miri) {
-                100
+                50
             } else if cfg!(valgrind) && cfg!(debug_assertions) {
                 5_000
             } else {
@@ -606,7 +606,7 @@ macro_rules! __test_atomic_int {
         #[test]
         fn stress_swap() {
             let iterations = if cfg!(miri) {
-                100
+                50
             } else if cfg!(valgrind) && cfg!(debug_assertions) {
                 5_000
             } else {
@@ -668,7 +668,7 @@ macro_rules! __test_atomic_int {
         #[test]
         fn stress_compare_exchange() {
             let iterations = if cfg!(miri) {
-                100
+                50
             } else if cfg!(valgrind) && cfg!(debug_assertions) {
                 5_000
             } else {

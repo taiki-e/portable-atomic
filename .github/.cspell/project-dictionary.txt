@@ -27,6 +27,7 @@ mclass
 memcpy
 mgba
 miscompilation
+moreutils
 nand
 nographic
 nostack
