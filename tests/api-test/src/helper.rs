@@ -20,8 +20,8 @@ macro_rules! __test_atomic_int {
         __test_atomic_int!(uint, $atomic_type, usize);
     };
     ($atomic_type:ty, $int_type:ident) => {
-        __test_atomic_int!(int, $atomic_type, $int_type);
         __test_atomic_int!(uint, $atomic_type, $int_type);
+        __test_atomic_int!(int, $atomic_type, $int_type);
     };
     (uint, $atomic_type:ty, $int_type:ident) => {
         misc();

@@ -49,6 +49,6 @@
     // TODO
     "src/imp/**",
     "target-specs/**",
-    "**/linker.ld"
+    "**/*.ld"
   ]
 }

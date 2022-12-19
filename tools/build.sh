@@ -154,7 +154,7 @@ build() {
     shift
     local args=("${base_args[@]}")
     local target_rustflags="${RUSTFLAGS:-}"
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
+    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
             return 0

@@ -5,4 +5,4 @@ target-dir = "../../target"
 runner = "mgba -l 4"
 
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-rustflags = ["-C", "link-arg=-Tlinker.ld"]
+rustflags = ["-C", "link-arg=-Tlink.ld"]

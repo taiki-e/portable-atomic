@@ -71,7 +71,7 @@ run() {
     shift
     local args=(${pre_args[@]+"${pre_args[@]}"})
     local target_rustflags="${RUSTFLAGS:-}"
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$"; then
+    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             echo "target '${target}' not available on ${rustc_version} (skipped)"
             return 0
@@ -80,7 +80,7 @@ run() {
     else
         target_flags=(--target "${target}")
     fi
-    subcmd=run
+    local subcmd=run
     case "${target}" in
         thumbv4t* | armv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
@@ -89,7 +89,7 @@ run() {
             fi
             ;;
     esac
-    args+=(hack "${subcmd}" "${target_flags[@]}")
+    args+=("${subcmd}" "${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
@@ -99,39 +99,35 @@ run() {
         return 0
     fi
 
-    args+=(--feature-powerset)
     case "${target}" in
-        thumb* | arm*)
-            args+=(--exclude-features=float) # TODO
-            ;;
+        thumb* | arm*) ;; # TODO: float
+        *) args+=(--all-features) ;;
     esac
     case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core"
             ;;
     esac
-
+    local test_dir
     case "${target}" in
         thumbv4t* | armv4t*)
-            (
-                cd tests/gba
-                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
-                    x_cargo "${args[@]}" "$@"
-                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlinker.ld" \
-                    x_cargo "${args[@]}" --release "$@"
-            )
+            test_dir=tests/gba
+            target_rustflags="${target_rustflags} -C link-arg=-Tlink.ld"
             ;;
         thumb*)
-            (
-                cd tests/cortex-m
-                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
-                    x_cargo "${args[@]}" "$@"
-                RUSTFLAGS="${target_rustflags} -C link-arg=-Tlink.x" \
-                    x_cargo "${args[@]}" --release "$@"
-            )
+            test_dir=tests/cortex-m
+            target_rustflags="${target_rustflags} -C link-arg=-Tlink.x"
             ;;
         *) bail "unrecognized target '${target}'" ;;
     esac
+
+    (
+        cd "${test_dir}"
+        RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" "$@"
+        RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" --release "$@"
+    )
 }
 
 for target in "${targets[@]}"; do
