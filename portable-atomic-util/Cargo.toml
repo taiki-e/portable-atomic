@@ -16,6 +16,9 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
 
+[lib]
+doc-scrape-examples = false
+
 [features]
 default = []
 std = ["alloc"]

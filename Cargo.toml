@@ -24,6 +24,9 @@ members = [
     "tests/api-test",
 ]
 
+[lib]
+doc-scrape-examples = false
+
 [features]
 default = ["fallback"]
 
