@@ -234,7 +234,7 @@ build() {
 
     args+=(
         --workspace --ignore-private
-        --no-dev-deps --feature-powerset --depth 3 --optional-deps
+        --no-dev-deps --feature-powerset --depth 2 --optional-deps
     )
     case "${target}" in
         x86_64* | aarch64* | arm64*) ;;

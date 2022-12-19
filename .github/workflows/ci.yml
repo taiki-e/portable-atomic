@@ -40,7 +40,7 @@ jobs:
     with:
       event_name: ${{ github.event_name }}
       # Exclude serde feature because the MSRV when it is enabled depends on the MSRV of serde
-      args: -vvv --feature-powerset --depth 3 --optional-deps --exclude-features serde
+      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy-rust.yml@main
 
@@ -448,6 +448,7 @@ jobs:
         if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
       - id: diff
         run: |
+          set -euxo pipefail
           git config user.name "Taiki Endo"
           git config user.email "te316e89@gmail.com"
           git add -N .
