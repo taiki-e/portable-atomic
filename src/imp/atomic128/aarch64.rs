@@ -270,9 +270,10 @@ unsafe fn atomic_compare_exchange(
         #[cfg(not(all(
             not(portable_atomic_no_aarch64_target_feature),
             feature = "outline-atomics",
-            // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
+            // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
+            // It is fine to use std for targets that we know can be linked to std.
             // Note: aarch64 freebsd is tier 3, so std may not be available.
-            any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
+            any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
         )))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
@@ -280,9 +281,10 @@ unsafe fn atomic_compare_exchange(
         #[cfg(all(
             not(portable_atomic_no_aarch64_target_feature),
             feature = "outline-atomics",
-            // https://github.com/rust-lang/stdarch/blob/28335054b1f417175ab5005cf1d9cf7937737930/crates/std_detect/src/detect/mod.rs
+            // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
+            // It is fine to use std for targets that we know can be linked to std.
             // Note: aarch64 freebsd is tier 3, so std may not be available.
-            any(feature = "std", target_os = "linux", target_os = "windows", /* target_os = "freebsd" */)
+            any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
         ))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         () => {

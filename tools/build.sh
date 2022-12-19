@@ -37,35 +37,38 @@ default_targets=(
     # no-std 64-bit with 128-bit atomic
     aarch64-unknown-none
 
+    # x86_64
+    x86_64-apple-darwin
+    x86_64-pc-windows-gnu
+    x86_64-pc-windows-msvc
+    x86_64-unknown-linux-gnu
     # x86_64 X32 ABI
     x86_64-unknown-linux-gnux32
+
+    # aarch64
+    aarch64-linux-android
+    aarch64-pc-windows-msvc
+    aarch64-unknown-freebsd
+    aarch64-unknown-linux-gnu
+    # aarch64 always support lse
+    aarch64-apple-darwin
+    # aarch64 big endian
+    aarch64_be-unknown-linux-gnu
     # aarch64 ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
     # aarch64 ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
 
-    # aarch64
-    aarch64-pc-windows-msvc
-    aarch64-unknown-freebsd
-    # aarch64 always support lse
-    aarch64-apple-darwin
-    # aarch64 big endian
-    aarch64_be-unknown-linux-gnu
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
 
-    # tier 1 targets
-    aarch64-unknown-linux-gnu
+    # other tier 1 targets
     i686-pc-windows-gnu
     i686-pc-windows-msvc
     i686-unknown-linux-gnu
-    x86_64-apple-darwin
-    x86_64-pc-windows-gnu
-    x86_64-pc-windows-msvc
-    x86_64-unknown-linux-gnu
 
-    # tier 2 targets we run tests on CI
+    # other tier 2 targets we run tests on CI
     arm-unknown-linux-gnueabi
     armv5te-unknown-linux-gnueabi
     armv7-unknown-linux-gnueabi
