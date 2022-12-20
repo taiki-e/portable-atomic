@@ -1002,10 +1002,7 @@ mod tests_no_outline_atomics {
     atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
     atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
 
-    mod tests {
-        use super::*;
-
-        test_atomic_int!(i128);
-        test_atomic_int!(u128);
-    }
+    // Do not put this in the nested tests module due to glob imports refer to super::super::Atomic*.
+    test_atomic_int!(i128);
+    test_atomic_int!(u128);
 }
