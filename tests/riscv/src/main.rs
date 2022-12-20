@@ -1,6 +1,6 @@
 #![no_main]
 #![no_std]
-#![warn(rust_2018_idioms, unsafe_op_in_unsafe_fn)]
+#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![feature(panic_info_message)]
 
 #[macro_use]
