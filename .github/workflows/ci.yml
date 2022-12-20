@@ -152,6 +152,9 @@ jobs:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
       - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
         if: startsWith(matrix.rust, 'nightly')
 
       # +cmpxchg16b
@@ -176,8 +179,8 @@ jobs:
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b -Z randomize-layout
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b -Z randomize-layout
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly')
 
       # +lse
@@ -201,8 +204,8 @@ jobs:
         if: startsWith(matrix.target, 'aarch64')
       - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse -Z randomize-layout
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse -Z randomize-layout
         if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly')
       # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
 
@@ -228,8 +231,8 @@ jobs:
         if: startsWith(matrix.target, 'powerpc64le-')
       - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7 -Z randomize-layout
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7 -Z randomize-layout
         if: startsWith(matrix.target, 'powerpc64le-') && startsWith(matrix.rust, 'nightly')
 
       # pwr8
@@ -254,8 +257,8 @@ jobs:
         if: startsWith(matrix.target, 'powerpc64-')
       - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8 -Z randomize-layout
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8 -Z randomize-layout
         if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly')
 
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
@@ -329,6 +332,7 @@ jobs:
           cargo miri test --workspace --exclude bench --all-features $TARGET 2>&1 | ts -i '%.s  '
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
           QUICKCHECK_TESTS: 50
 
