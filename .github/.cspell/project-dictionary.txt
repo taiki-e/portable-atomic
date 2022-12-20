@@ -26,6 +26,7 @@ lqarx
 machdep
 mclass
 memcpy
+metavar
 mgba
 miscompilation
 moreutils
@@ -41,6 +42,7 @@ semihosting
 seqlock
 sifive
 SIGINT
+simavr
 skiboot
 sourceware
 spinlock
@@ -54,5 +56,9 @@ systemsim
 tagme
 Tlink
 uart
+ufmt
+usart
+uwrite
+uwriteln
 virt
 vmlinux

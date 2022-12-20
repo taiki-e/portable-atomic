@@ -150,9 +150,9 @@ mod semihosting {
     static EXIT_HANDLE: AtomicPtr<u32> = AtomicPtr::new(ptr::null_mut());
     pub const EXIT_SUCCESS: u32 = 0;
     pub const EXIT_FAILURE: u32 = 1;
-    pub fn exit(exit_code: u32) -> ! {
+    pub fn exit(code: u32) -> ! {
         if let Some(ptr) = NonNull::new(EXIT_HANDLE.load(Ordering::Acquire)) {
-            unsafe { ptr.as_ptr().write_volatile(exit_code << 16 | 0x3333) }
+            unsafe { ptr.as_ptr().write_volatile(code << 16 | 0x3333) }
         }
         loop {}
     }

@@ -12,7 +12,7 @@ trap -- 'exit 0' SIGINT
 
 default_targets=(
     # no atomic load/store (16-bit)
-    avr-unknown-gnu-atmega168 # for checking custom target
+    avr-unknown-gnu-atmega2560 # for checking custom target
     avr-unknown-gnu-atmega328
     msp430-none-elf
     msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
