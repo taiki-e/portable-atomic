@@ -5,8 +5,6 @@
 #[macro_use]
 mod helper;
 
-use core::ptr;
-
 use portable_atomic as atomic;
 use portable_atomic::{
     hint, AtomicBool, AtomicI128, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize,

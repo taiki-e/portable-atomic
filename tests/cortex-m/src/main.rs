@@ -7,7 +7,7 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::{ptr, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 use cortex_m_rt::entry;
 use cortex_m_semihosting as semihosting;
@@ -97,25 +97,24 @@ fn main() -> ! {
     #[cfg(feature = "float")]
     test_atomic_float!(f64);
 
-    loop {
-        semihosting::debug::exit(semihosting::debug::EXIT_SUCCESS);
-    }
+    semihosting::debug::exit(semihosting::debug::EXIT_SUCCESS);
+    loop {}
 }
 
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(s) = info.message() {
-        if let Some(l) = info.location() {
-            println!("panicked at '{:?}', {}", s, l);
-        } else {
-            println!("panicked at '{:?}' (no location info)", s);
-        }
+    if let Some(m) = info.message() {
+        print!("panicked at '{m:?}'");
     } else {
-        println!("panic occurred (no message)");
+        print!("panic occurred (no message)");
+    }
+    if let Some(l) = info.location() {
+        println!(", {l}");
+    } else {
+        println!(" (no location info)");
     }
 
-    loop {
-        semihosting::debug::exit(semihosting::debug::EXIT_FAILURE);
-    }
+    semihosting::debug::exit(semihosting::debug::EXIT_FAILURE);
+    loop {}
 }

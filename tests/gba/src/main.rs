@@ -7,7 +7,7 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::{ptr, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 use gba::prelude::*;
 use portable_atomic::*;
@@ -114,14 +114,16 @@ fn main() -> ! {
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(s) = info.message() {
+    if let Some(m) = info.message() {
         if let Some(l) = info.location() {
-            fatal!("panicked at '{:?}', {}", s, l);
+            fatal!("panicked at '{m:?}', {l}");
         } else {
-            fatal!("panicked at '{:?}' (no location info)", s);
+            fatal!("panicked at '{m:?}' (no location info)");
         }
+    } else if let Some(l) = info.location() {
+        fatal!("panic occurred (no message), {l}");
     } else {
-        fatal!("panic occurred (no message)");
+        fatal!("panic occurred (no message) (no location info)");
     }
     loop {}
 }

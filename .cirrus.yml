@@ -58,7 +58,7 @@ aarch64_linux_valgrind_task:
   setup_script:
     - rustup toolchain add nightly --component rust-src && rustup default nightly
     # libc6-dbg is needed to run Valgrind
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y libc6-dbg
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends libc6-dbg
     # Valgrind doesn't support ldxp/stxp as of 3.18.1: https://sourceware.org/git/?p=valgrind.git;a=commit;h=530df882b8f60ecacaf2b9b8a719f7ea1c1d1650
     - |
       set -euxo pipefail

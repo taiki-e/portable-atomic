@@ -7,7 +7,7 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::{arch::asm, ptr, sync::atomic::Ordering};
+use core::{arch::asm, sync::atomic::Ordering};
 
 use portable_atomic::*;
 
@@ -106,14 +106,15 @@ unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(s) = info.message() {
-        if let Some(l) = info.location() {
-            println!("panicked at '{:?}', {}", s, l);
-        } else {
-            println!("panicked at '{:?}' (no location info)", s);
-        }
+    if let Some(m) = info.message() {
+        print!("panicked at '{m:?}'");
     } else {
-        println!("panic occurred (no message)");
+        print!("panic occurred (no message)");
+    }
+    if let Some(l) = info.location() {
+        println!(", {l}");
+    } else {
+        println!(" (no location info)");
     }
 
     semihosting::exit(semihosting::EXIT_FAILURE)
