@@ -1,0 +1,5 @@
+[build]
+target-dir = "../../target"
+
+[target.avr-unknown-gnu-atmega2560]
+runner = "simavr -m atmega2560"

@@ -1,0 +1,29 @@
+[package]
+name = "avr-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[features]
+float = ["portable-atomic/float"]
+
+[dependencies]
+portable-atomic = { path = "../.." }
+
+avr-device = "0.4"
+paste = "1"
+ufmt = "0.1"
+
+[target.avr-unknown-gnu-atmega2560.dependencies]
+arduino-hal = { git = "https://github.com/rahix/avr-hal.git", rev = "b73f17e2b6d35c669003a1e346d5d396753a1922", features = ["arduino-mega2560"] }
+
+[profile.dev]
+lto = true
+opt-level = "s"
+
+[profile.release]
+lto = true
+opt-level = "s"
