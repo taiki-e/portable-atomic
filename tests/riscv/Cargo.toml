@@ -1,0 +1,17 @@
+[package]
+name = "riscv-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[features]
+float = ["portable-atomic/float"]
+
+[dependencies]
+portable-atomic = { path = "../.." }
+
+fdt = "0.1"
+paste = "1"

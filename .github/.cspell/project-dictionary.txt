@@ -15,6 +15,7 @@ doctests
 Dpkg
 endianness
 FIQs
+hartid
 hstdout
 ifunc
 impls
@@ -32,11 +33,13 @@ nand
 nographic
 nostack
 nproc
+opensbi
 prefetcher
 quadword
 rclass
 semihosting
 seqlock
+sifive
 SIGINT
 skiboot
 sourceware
@@ -50,4 +53,6 @@ syscall
 systemsim
 tagme
 Tlink
+uart
+virt
 vmlinux

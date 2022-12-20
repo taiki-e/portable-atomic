@@ -23,6 +23,16 @@ default_targets=(
     thumbv8m.base-none-eabi
     thumbv8m.main-none-eabi
     thumbv8m.main-none-eabihf
+
+    # riscv64
+    riscv64i-unknown-none-elf
+    riscv64imac-unknown-none-elf
+    riscv64gc-unknown-none-elf
+    # riscv32
+    riscv32i-unknown-none-elf
+    riscv32im-unknown-none-elf
+    riscv32imc-unknown-none-elf
+    riscv32imac-unknown-none-elf
 )
 
 x() {
@@ -100,12 +110,15 @@ run() {
     fi
 
     case "${target}" in
-        thumb* | arm*) ;; # TODO: float
+        thumb* | arm* | riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
         *) args+=(--all-features) ;;
     esac
     case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core"
+            ;;
+        riscv??i-* | riscv??im-* | riscv??imc-*)
+            target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
             ;;
     esac
     local test_dir
@@ -117,6 +130,14 @@ run() {
         thumb*)
             test_dir=tests/cortex-m
             target_rustflags="${target_rustflags} -C link-arg=-Tlink.x"
+            ;;
+        riscv*)
+            test_dir=tests/riscv
+            case "${target}" in
+                riscv32*) target_rustflags="${target_rustflags} -C link-arg=-Tlink32.ld" ;;
+                riscv64*) target_rustflags="${target_rustflags} -C link-arg=-Tlink64.ld" ;;
+                *) bail "unrecognized target '${target}'" ;;
+            esac
             ;;
         *) bail "unrecognized target '${target}'" ;;
     esac
