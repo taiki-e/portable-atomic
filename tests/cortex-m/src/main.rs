@@ -9,13 +9,11 @@ mod helper;
 
 use core::sync::atomic::Ordering;
 
-use cortex_m_rt::entry;
-use cortex_m_semihosting as semihosting;
 use portable_atomic::*;
 
 macro_rules! print {
     ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hio::hstdout() {
+        if let Ok(mut hstdout) = semihosting::hstdout() {
             use core::fmt::Write as _;
             let _ = write!(hstdout, $($tt)*);
         }
@@ -23,17 +21,18 @@ macro_rules! print {
 }
 macro_rules! println {
     ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hio::hstdout() {
+        if let Ok(mut hstdout) = semihosting::hstdout() {
             use core::fmt::Write as _;
             let _ = writeln!(hstdout, $($tt)*);
         }
     };
 }
 
-#[entry]
+#[cortex_m_rt::entry]
 fn main() -> ! {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
+            #[cfg(feature = "int")]
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
@@ -44,9 +43,9 @@ fn main() -> ! {
             }
         };
     }
-    #[cfg(feature = "float")]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
+            #[cfg(feature = "float")]
             paste::paste! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
@@ -92,16 +91,15 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    // TODO
-    if cfg!(not(debug_assertions)) {
-        #[cfg(feature = "float")]
+    // In debug mode, the float-related code is so large that the memory layout
+    // we use for testing does not allow us to run float and int tests together.
+    // So, in debug mode, test float and int separately.
+    if cfg!(any(not(debug_assertions), not(feature = "int"))) {
         test_atomic_float!(f32);
-        #[cfg(feature = "float")]
         test_atomic_float!(f64);
     }
 
-    semihosting::debug::exit(semihosting::debug::EXIT_SUCCESS);
-    loop {}
+    semihosting::exit(semihosting::EXIT_SUCCESS)
 }
 
 #[inline(never)]
@@ -118,6 +116,17 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         println!(" (no location info)");
     }
 
-    semihosting::debug::exit(semihosting::debug::EXIT_FAILURE);
-    loop {}
+    semihosting::exit(semihosting::EXIT_FAILURE)
+}
+
+mod semihosting {
+    pub use cortex_m_semihosting::{
+        debug::{EXIT_FAILURE, EXIT_SUCCESS},
+        hio::hstdout,
+    };
+
+    pub fn exit(status: cortex_m_semihosting::debug::ExitStatus) -> ! {
+        cortex_m_semihosting::debug::exit(status);
+        loop {}
+    }
 }

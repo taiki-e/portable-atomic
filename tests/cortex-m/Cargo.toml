@@ -8,6 +8,8 @@ publish = false
 resolver = "2"
 
 [features]
+default = ["int"]
+int = []
 float = ["portable-atomic/float"]
 
 [dependencies]

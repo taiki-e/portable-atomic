@@ -113,10 +113,6 @@ run() {
     fi
 
     case "${target}" in
-        riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
-        *) args+=(--all-features) ;;
-    esac
-    case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core"
             ;;
@@ -133,6 +129,14 @@ run() {
         thumb*)
             test_dir=tests/cortex-m
             target_rustflags="${target_rustflags} -C link-arg=-Tlink.x"
+            (
+                # In debug mode, the float-related code is so large that the memory layout
+                # we use for testing does not allow us to run float and int tests together.
+                # So, in debug mode, test float and int separately.
+                cd "${test_dir}"
+                RUSTFLAGS="${target_rustflags}" \
+                    x_cargo "${args[@]}" --no-default-features --features=float "$@"
+            )
             ;;
         riscv*)
             test_dir=tests/riscv
@@ -146,6 +150,10 @@ run() {
             test_dir=tests/avr
             ;;
         *) bail "unrecognized target '${target}'" ;;
+    esac
+    case "${target}" in
+        riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
+        *) args+=(--all-features) ;;
     esac
 
     (
