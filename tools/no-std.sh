@@ -113,7 +113,7 @@ run() {
     fi
 
     case "${target}" in
-        thumb* | arm* | riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
+        riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
         *) args+=(--all-features) ;;
     esac
     case "${target}" in

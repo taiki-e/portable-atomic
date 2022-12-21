@@ -92,10 +92,13 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    #[cfg(feature = "float")]
-    test_atomic_float!(f32);
-    #[cfg(feature = "float")]
-    test_atomic_float!(f64);
+    // TODO
+    if cfg!(not(debug_assertions)) {
+        #[cfg(feature = "float")]
+        test_atomic_float!(f32);
+        #[cfg(feature = "float")]
+        test_atomic_float!(f64);
+    }
 
     semihosting::debug::exit(semihosting::debug::EXIT_SUCCESS);
     loop {}
