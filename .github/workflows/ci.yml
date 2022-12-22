@@ -273,6 +273,12 @@ jobs:
           - stable
           - beta
           - nightly
+          # The oldest nightly that can compile this crate is nightly-2019-01-27
+          # which Atomic{I,U}{8,16,32,64} stabilized.
+          # https://github.com/rust-lang/rust/pull/57425
+          # Note: Old nightly compilers are essentially fragile, so support for
+          # them is on a best-effort basis.
+          - nightly-2019-01-27
           # for AVR: https://github.com/rust-lang/compiler-builtins/issues/400
           - nightly-2020-12-26
     runs-on: ubuntu-latest

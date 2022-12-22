@@ -7,6 +7,7 @@ callthru
 cfgs
 cirruslabs
 cmpxchg
+concat
 cpuid
 ctypes
 dedup

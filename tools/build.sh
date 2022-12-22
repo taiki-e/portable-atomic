@@ -144,8 +144,9 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
 fi
 
 has_asm=''
-# asm requires 1.59
-if [[ "${rustc_minor_version}" -gt 58 ]] || [[ -n "${nightly}" ]]; then
+# asm! requires 1.59
+# concat! in asm! requires 1.46.0-nightly (nightly-2020-06-21).
+if [[ "${rustc_minor_version}" -gt 58 ]] || [[ "${rustc_minor_version}" -gt 45 ]] && [[ -n "${nightly}" ]]; then
     has_asm='1'
 fi
 
@@ -167,6 +168,11 @@ build() {
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
         x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
+        # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
+        if ! cargo ${pre_args[@]+"${pre_args[@]}"} -Z help | grep -Eq '\bZ build-std\b'; then
+            echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
+            return 0
+        fi
         case "${target}" in
             *-none* | *-cuda* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;

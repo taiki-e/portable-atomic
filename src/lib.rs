@@ -235,10 +235,10 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(
     all(
         portable_atomic_unstable_isa_attribute,
-        target_arch = "arm",
-        not(target_has_atomic = "ptr"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
         any(test, portable_atomic_unsafe_assume_single_core),
+        target_arch = "arm",
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+        not(target_has_atomic = "ptr"),
     ),
     feature(isa_attribute)
 )]
