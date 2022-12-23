@@ -62,9 +62,14 @@ mod arch;
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
+// Critical section implementations might use locks internally.
+#[cfg(feature = "critical-section")]
+const IS_ALWAYS_LOCK_FREE: bool = false;
+
 // Consider atomic operations based on disabling interrupts on single-core
 // systems are lock-free. (We consider the pre-v6 ARM Linux's atomic operations
 // provided in a similar way by the Linux kernel to be lock-free.)
+#[cfg(not(feature = "critical-section"))]
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
 #[cfg(feature = "critical-section")]
