@@ -341,6 +341,11 @@ compile_error!(
     "cfg(portable_atomic_s_mode) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
 );
 
+#[cfg(all(portable_atomic_unsafe_assume_single_core, feature="critical-section"))]
+compile_error!(
+    "You may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time."
+);
+
 #[cfg(any(test, feature = "std"))]
 extern crate std;
 
