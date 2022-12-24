@@ -191,15 +191,16 @@ fn main() {
             //    ^^
             let mut subarch =
                 strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb")).unwrap();
+            subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
             subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
             subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
-            subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
             let mut known = true;
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
+            let mut is_mclass = false;
             match subarch {
-                "v7" | "v7a" | "v7neon" | "v7s" | "v7k" => target_feature("aclass"),
-                "v6m" | "v7em" | "v7m" | "v8m" => target_feature("mclass"),
-                "v7r" => target_feature("rclass"),
+                "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8a" => {} // aclass
+                "v6m" | "v7em" | "v7m" | "v8m" => is_mclass = true,
+                "v7r" | "v8r" => {} // rclass
                 // arm-linux-androideabi is v5te
                 // https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => subarch = "v5te",
@@ -216,13 +217,12 @@ fn main() {
                     );
                 }
             }
-            if known
+            target_feature_if("mclass", is_mclass, &version, None, true);
+            let v6 = known
                 && (subarch.starts_with("v6")
                     || subarch.starts_with("v7")
-                    || subarch.starts_with("v8"))
-            {
-                target_feature("v6");
-            }
+                    || subarch.starts_with("v8"));
+            target_feature_if("v6", v6, &version, None, true);
         }
         "powerpc64" => {
             let target_endian =
@@ -250,16 +250,12 @@ fn main() {
     }
 }
 
-fn target_feature(name: &str) {
-    println!("cargo:rustc-cfg=portable_atomic_target_feature=\"{}\"", name);
-}
-
 fn target_feature_if(
     name: &str,
     mut has_target_feature: bool,
     version: &Version,
     stabilized: Option<u32>,
-    is_in_rustc: bool,
+    is_rustc_target_feature: bool,
 ) {
     // HACK: Currently, it seems that the only way to handle unstable target
     // features on the stable is to parse the `-C target-feature` in RUSTFLAGS.
@@ -271,7 +267,7 @@ fn target_feature_if(
     // (e.g., https://godbolt.org/z/8Eh3z5Wzb), so this hack works properly on stable.
     //
     // [RFC2045]: https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
-    if is_in_rustc
+    if is_rustc_target_feature
         && (version.nightly || stabilized.map_or(false, |stabilized| version.minor >= stabilized))
     {
         // In this case, cfg(target_feature = "...") would work, so skip emitting our own target_feature cfg.
@@ -293,7 +289,7 @@ fn target_feature_if(
         }
     }
     if has_target_feature {
-        target_feature(name);
+        println!("cargo:rustc-cfg=portable_atomic_target_feature=\"{}\"", name);
     }
 }
 
