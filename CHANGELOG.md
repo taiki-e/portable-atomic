@@ -24,6 +24,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   (Note: `AtomicBool` already has `fetch_not` and `not` methods.)
 
+- Improve support for old nightly compilers.
+
 ## [0.3.18] - 2022-12-15
 
 - Fix build error when not using `portable_atomic_unsafe_assume_single_core` cfg on AVR and MSP430 custom targets. ([#50](https://github.com/taiki-e/portable-atomic/pull/50))
