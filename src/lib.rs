@@ -102,6 +102,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
 
+  The cfg interface is kept between versions, so it is designed to prevent downstream builds from breaking when upgrade to semver-incompatible version unless the portable-atomic types are exposed in the library's API.
+
   Feel free to submit an issue if your target is not supported yet.
 
 ## Related Projects
