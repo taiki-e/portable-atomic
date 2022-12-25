@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.3.19] - 2022-12-25
+
 - Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
 
   `AtomicI*::neg` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock neg`.
@@ -227,7 +229,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...HEAD
+[0.3.19]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/taiki-e/portable-atomic/compare/v0.3.15...v0.3.16
