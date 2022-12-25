@@ -6,10 +6,10 @@
 // - CASP (DWCAS) added as FEAT_LSE (armv8.1-a)
 // - LDP/STP (DW load/store) if FEAT_LSE2 (armv8.4-a) is available
 //
-// If the `outline-atomics` feature is not enabled, we use CASP if
-// FEAT_LSE is enabled at compile-time, otherwise, use LDXP/STXP loop.
-// If the `outline-atomics` feature is enabled, we use CASP for
-// compare_exchange(_weak) if FEAT_LSE is available at run-time.
+// If outline-atomics is not enabled, we use CASP if FEAT_LSE is enabled at
+// compile-time, otherwise, use LDXP/STXP loop.
+// If outline-atomics is enabled, we use CASP for compare_exchange(_weak) if
+// FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
 // Note: As of rustc 1.63, -C target-feature=+lse2 does not
@@ -269,7 +269,7 @@ unsafe fn atomic_compare_exchange(
         () => unsafe { _compare_exchange_casp(dst, old, new, success) },
         #[cfg(not(all(
             not(portable_atomic_no_aarch64_target_feature),
-            feature = "outline-atomics",
+            not(portable_atomic_no_outline_atomics),
             // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
             // It is fine to use std for targets that we know can be linked to std.
             // Note: aarch64 freebsd is tier 3, so std may not be available.
@@ -280,7 +280,7 @@ unsafe fn atomic_compare_exchange(
         () => unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) },
         #[cfg(all(
             not(portable_atomic_no_aarch64_target_feature),
-            feature = "outline-atomics",
+            not(portable_atomic_no_outline_atomics),
             // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
             // It is fine to use std for targets that we know can be linked to std.
             // Note: aarch64 freebsd is tier 3, so std may not be available.

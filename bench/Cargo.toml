@@ -9,7 +9,6 @@ publish = false
 default = ["fallback", "std"]
 fallback = []
 std = []
-outline-atomics = []
 
 [dev-dependencies]
 atomic = "0.5"

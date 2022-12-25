@@ -291,7 +291,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
         // Miri and Sanitizer do not support inline assembly.
         #[cfg(any(
-            not(feature = "outline-atomics"),
+            portable_atomic_no_outline_atomics,
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -299,7 +299,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe { _atomic_load_cmpxchg16b(src, order) },
         #[cfg(not(any(
-            not(feature = "outline-atomics"),
+            portable_atomic_no_outline_atomics,
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -336,7 +336,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
         // Miri and Sanitizer do not support inline assembly.
         #[cfg(any(
-            not(feature = "outline-atomics"),
+            portable_atomic_no_outline_atomics,
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -344,7 +344,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe { _atomic_store_cmpxchg16b(dst, val, order) },
         #[cfg(not(any(
-            not(feature = "outline-atomics"),
+            portable_atomic_no_outline_atomics,
             not(target_feature = "sse"),
             miri,
             portable_atomic_sanitize_thread
@@ -430,7 +430,7 @@ fn is_lock_free() -> bool {
 }
 #[inline]
 const fn is_always_lock_free() -> bool {
-    cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b",))
+    cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
 }
 
 atomic128!(int, AtomicI128, i128);

@@ -96,7 +96,7 @@ aarch64_linux_valgrind_task:
 #   setup_script:
 #     - rustup toolchain add nightly && rustup default nightly
 #   bench_script:
-#     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics" cargo bench -vv --manifest-path bench/Cargo.toml
+#     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
 # aarch64_macos_bench_task:
