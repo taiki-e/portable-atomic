@@ -11,7 +11,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
-- Provide `AtomicF32` and `AtomicF64`. (optional)
+- Provide `AtomicF32` and `AtomicF64`. ([optional](#optional-features-float))
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR) ([optional and single-core only](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
@@ -67,7 +67,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
   See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
 
-- **`float`**<br>
+- <a name="optional-features-float"></a>**`float`**<br>
   Provide `AtomicF{32,64}`.
   Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 
