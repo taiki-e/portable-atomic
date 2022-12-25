@@ -92,6 +92,7 @@ known_cfgs=(
     portable_atomic_unsafe_assume_single_core
     portable_atomic_s_mode
     portable_atomic_disable_fiq
+    portable_atomic_no_outline_atomics
 )
 
 x() {
@@ -242,11 +243,8 @@ build() {
         --workspace --ignore-private
         --no-dev-deps --feature-powerset --depth 2 --optional-deps
     )
-    case "${target}" in
-        x86_64* | aarch64* | arm64*) ;;
-        # outline-atomics feature only affects x86_64 and aarch64.
-        *) args+=(--exclude-features "outline-atomics") ;;
-    esac
+    # outline-atomics　feature is no-op since https://github.com/taiki-e/portable-atomic/pull/57.
+    args+=(--exclude-features "outline-atomics")
     case "${target}" in
         *-none* | *-cuda* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
@@ -281,6 +279,13 @@ build() {
     esac
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
+    case "${target}" in
+        # portable_atomic_no_outline_atomics only affects x86_64 and aarch64.
+        x86_64* | aarch64* | arm64*)
+            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
+                x_cargo "${args[@]}" --target-dir target/no_outline_atomics "$@"
+            ;;
+    esac
     case "${target}" in
         x86_64*)
             # macOS is skipped because it is +cmpxchg16b by default

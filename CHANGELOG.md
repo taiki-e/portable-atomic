@@ -10,19 +10,21 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods.
+- Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
 
   `AtomicI*::neg` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock neg`.
 
   Currently, optimizations by these methods (`neg`) are only guaranteed for x86.
 
-- Add `Atomic{I,U}*::{fetch_not,not}` methods.
+- Add `Atomic{I,U}*::{fetch_not,not}` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
 
   `Atomic{I,U}*::not` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock not`, MSP430's `inv`.
 
   Currently, optimizations by these methods (`not`) are only guaranteed for x86 and MSP430.
 
   (Note: `AtomicBool` already has `fetch_not` and `not` methods.)
+
+- Enable outline-atomics for 128-bit atomics by default. ([#57](https://github.com/taiki-e/portable-atomic/pull/57)) See [#57](https://github.com/taiki-e/portable-atomic/pull/57) for more.
 
 - Improve support for old nightly compilers.
 

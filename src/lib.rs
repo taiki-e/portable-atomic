@@ -34,7 +34,7 @@ portable-atomic = { version = "0.3", default-features = false }
 
 Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (le or pwr8+, nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
 
-On x86_64, when the `outline-atomics` optional feature is not enabled and `cmpxchg16b` target feature is not enabled at compile-time, this uses the fallback implementation. `cmpxchg16b` target feature is enabled by default only on macOS.
+On x86_64, even if `cmpxchg16b` is not available at compile time (note: `cmpxchg16b` target feature is enabled by default only on macOS), run-time detection checks whether `cmpxchg16b` is available. If `cmpxchg16b` is not available at either compile-time or run-time detection, the fallback implementation is used. See also [`portable_atomic_no_outline_atomics`](#optional-cfg-no-outline-atomics) cfg.
 
 They are usually implemented using inline assembly, and when using Miri or ThreadSanitizer that do not support inline assembly, core intrinsics are used instead of inline assembly if possible.
 
@@ -46,18 +46,6 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   Enable fallback implementations.
 
   Disabling this allows only atomic types for which the platform natively supports atomic operations.
-
-- **`outline-atomics`**<br>
-  Enable run-time CPU feature detection.
-
-  This allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
-
-  Note:
-  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.59+ (AVX) or nightly (CMPXCHG16B) for x86_64, and in nightly for other platforms, otherwise it works the same as the default.
-  - If the required target features are enabled at compile-time, the atomic operations are inlined.
-  - This is compatible with no-std (as with all features except `std`).
-
-  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
 
 - <a name="optional-features-float"></a>**`float`**<br>
   Provide `AtomicF{32,64}`.
@@ -105,6 +93,19 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   The cfg interface is kept between versions, so it is designed to prevent downstream builds from breaking when upgrade to semver-incompatible version unless the portable-atomic types are exposed in the library's API.
 
   Feel free to submit an issue if your target is not supported yet.
+
+- <a name="optional-cfg-no-outline-atomics"></a>**`--cfg portable_atomic_no_outline_atomics`**<br>
+  Disable dynamic dispatching by run-time CPU feature detection.
+
+  If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
+
+  Note:
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.59+ (AVX) or nightly (CMPXCHG16B) for x86_64, and in nightly for other platforms, otherwise it works the same as when this cfg is set.
+  - If the required target features are enabled at compile-time, the atomic operations are inlined.
+  - This is compatible with no-std (as with all features except `std`).
+  - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.
+
+  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
 
 ## Related Projects
 

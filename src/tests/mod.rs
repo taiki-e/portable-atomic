@@ -97,3 +97,19 @@ extern "C" {
     #[cfg(feature = "float")]
     fn _atomic_f64_ffi_safety(_: AtomicF64);
 }
+
+#[cfg(target_arch = "x86_64")]
+#[test]
+#[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
+fn test_x86_64_atomic_128_is_lock_free() {
+    assert_eq!(
+        AtomicI128::is_always_lock_free(),
+        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
+    );
+    assert_eq!(
+        AtomicI128::is_lock_free(),
+        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
+            || cfg!(portable_atomic_cmpxchg16b_dynamic)
+                && std::is_x86_feature_detected!("cmpxchg16b")
+    );
+}

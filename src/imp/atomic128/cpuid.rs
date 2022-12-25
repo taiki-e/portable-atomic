@@ -2,7 +2,7 @@
 
 #![cfg_attr(
     any(
-        not(feature = "outline-atomics"),
+        portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
         miri,
         portable_atomic_sanitize_thread

@@ -30,6 +30,7 @@ fn main() {
     let mut target_upper = target.replace(|c: char| c == '-' || c == '.', "_");
     target_upper.make_ascii_uppercase();
     println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
+    println!("cargo:rerun-if-env-changed=CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS");
 
     let version = match rustc_version() {
         Some(version) => version,
@@ -170,7 +171,7 @@ fn main() {
             if version.nightly
                 && (!no_asm || unstable_asm)
                 && cfg!(feature = "fallback")
-                && cfg!(feature = "outline-atomics")
+                && env::var_os("CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS").is_none()
                 && is_allowed_feature("cmpxchg16b_target_feature")
             {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
