@@ -270,6 +270,8 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 // There are currently no 8-bit, 128-bit, or higher builtin targets.
+// (Although some of our generic code is written with the future
+// addition of 128-bit targets in mind.)
 // Note that Rust (and C99) pointers must be at least 16-bits: https://github.com/rust-lang/rust/pull/49305
 #[cfg(not(any(
     target_pointer_width = "16",
@@ -314,6 +316,19 @@ compile_error!(
      if you need cfg(portable_atomic_unsafe_assume_single_core) support for this target, \
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
+
+#[cfg(portable_atomic_no_outline_atomics)]
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+compile_error!("cfg(portable_atomic_no_outline_atomics) does not compatible with this target");
+#[cfg(portable_atomic_disable_fiq)]
+#[cfg(not(all(
+    target_arch = "arm",
+    not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass"))
+)))]
+compile_error!("cfg(portable_atomic_disable_fiq) does not compatible with this target");
+#[cfg(portable_atomic_s_mode)]
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+compile_error!("cfg(portable_atomic_s_mode) does not compatible with this target");
 
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
