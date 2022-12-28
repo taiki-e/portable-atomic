@@ -114,21 +114,21 @@ run() {
 
     case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
-            target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core"
+            target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
         riscv??i-* | riscv??im-* | riscv??imc-*)
-            target_rustflags="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
+            target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
             ;;
     esac
     local test_dir
     case "${target}" in
         thumbv4t* | armv4t*)
             test_dir=tests/gba
-            target_rustflags="${target_rustflags} -C link-arg=-Tlink.ld"
+            target_rustflags+=" -C link-arg=-Tlink.ld"
             ;;
         thumb*)
             test_dir=tests/cortex-m
-            target_rustflags="${target_rustflags} -C link-arg=-Tlink.x"
+            target_rustflags+=" -C link-arg=-Tlink.x"
             (
                 # In debug mode, the float-related code is so large that the memory layout
                 # we use for testing does not allow us to run float and int tests together.
@@ -141,8 +141,8 @@ run() {
         riscv*)
             test_dir=tests/riscv
             case "${target}" in
-                riscv32*) target_rustflags="${target_rustflags} -C link-arg=-Tlink32.ld" ;;
-                riscv64*) target_rustflags="${target_rustflags} -C link-arg=-Tlink64.ld" ;;
+                riscv32*) target_rustflags+=" -C link-arg=-Tlink32.ld" ;;
+                riscv64*) target_rustflags+=" -C link-arg=-Tlink64.ld" ;;
                 *) bail "unrecognized target '${target}'" ;;
             esac
             ;;
