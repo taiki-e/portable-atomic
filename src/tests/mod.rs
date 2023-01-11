@@ -9,6 +9,8 @@
 #[macro_use]
 pub(crate) mod helper;
 
+#[cfg(feature = "critical-section")]
+mod critical_section_std;
 #[cfg(feature = "serde")]
 mod serde;
 

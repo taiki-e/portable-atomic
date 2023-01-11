@@ -39,6 +39,7 @@ opensbi
 prefetcher
 quadword
 rclass
+reentrancy
 semihosting
 seqlock
 sifive
