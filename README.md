@@ -73,6 +73,24 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   Note:
   - The MSRV when this feature enables depends on the MSRV of [serde].
 
+- **`critical-section`**<br>
+  When this feature is enabled, this crate uses [critical-section] to provide atomic CAS for targets where
+  it is not natively available. When enabling it, you should provide a suitable critical section implementation
+  for the current target, see the [critical-section] documentation for details on how to do so.
+
+  `critical-section` support is useful to get atomic CAS when `--cfg portable_atomic_unsafe_assume_single_core` can't be used,
+  such as multi-core targets, unprivileged code running under some RTOS, or environments where disabling interrupts
+  needs extra care due to e.g. real-time requirements.
+
+  Note that with the `critical-section` feature, critical sections are taken for all atomic operations, while with
+  `portable_atomic_unsafe_assume_single_core` some operations don't require disabling interrupts (loads and stores, but
+  additionally on MSP430 `add`, `sub`, `and`, `or`, `xor`, `not`). Therefore, for better performance, if
+  all the `critical-section` implementation for your target does is disable interrupts, prefer using
+  `--cfg portable_atomic_unsafe_assume_single_core` instead.
+  
+  Note:
+  - The MSRV when this feature enables depends on the MSRV of [critical-section].
+
 ## Optional cfg
 
 - **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
@@ -125,6 +143,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [rust-lang/rust#100650]: https://github.com/rust-lang/rust/issues/100650
 [serde]: https://github.com/serde-rs/serde
+[critical-section]: https://github.com/rust-embedded/critical-section
 
 ## License
 
