@@ -1,6 +1,13 @@
 // Critical section based fallback implementations
 //
-// Critical session (disabling interrupts) based fallback is not sound on multi-core systems.
+// This module supports two different critical section implementations:
+// - Built-in "disable all interrupts".
+// - Call into the `critical-section` crate (which allows the user to plug any implementation).
+//
+// The `critical-section`-based fallback is enabled when the user asks for it with the `critical-section`
+// Cargo feature.
+//
+// The "disable interrupts" fallback is not sound on multi-core systems.
 // Also, this uses privileged instructions to disable interrupts, so it usually
 // doesn't work on unprivileged mode. Using this fallback in an environment where privileged
 // instructions are not available is also usually considered **unsound**,
