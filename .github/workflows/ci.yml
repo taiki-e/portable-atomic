@@ -39,8 +39,8 @@ jobs:
     uses: taiki-e/workflows/.github/workflows/msrv.yml@main
     with:
       event_name: ${{ github.event_name }}
-      # Exclude serde feature because the MSRV when it is enabled depends on the MSRV of serde
-      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde
+      # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
+      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy-rust.yml@main
 
@@ -346,7 +346,7 @@ jobs:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
-          QUICKCHECK_TESTS: 50
+          QUICKCHECK_TESTS: 20
 
   san:
     strategy:

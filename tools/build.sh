@@ -246,6 +246,10 @@ build() {
     )
     # outline-atomics　feature is no-op since https://github.com/taiki-e/portable-atomic/pull/57.
     args+=(--exclude-features "outline-atomics")
+    # critical-section requires 1.54
+    if [[ "${rustc_minor_version}" -lt 54 ]]; then
+        args+=(--exclude-features "critical-section")
+    fi
     case "${target}" in
         *-none* | *-cuda* | avr-* | *-esp-espidf)
             args+=(--exclude-features "std")
@@ -256,15 +260,15 @@ build() {
                         bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                x_cargo "${args[@]}" --target-dir target/assume-single-core "$@"
+                                x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core "$@"
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
                                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                        x_cargo "${args[@]}" --target-dir target/assume-single-core-disable-fiq "$@"
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core-disable-fiq "$@"
                                     ;;
                                 riscv*)
                                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                        x_cargo "${args[@]}" --target-dir target/assume-single-core-s-mode "$@"
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core-s-mode "$@"
                                     ;;
                             esac
                             ;;

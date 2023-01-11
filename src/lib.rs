@@ -341,7 +341,7 @@ compile_error!(
     "cfg(portable_atomic_s_mode) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
 );
 
-#[cfg(all(portable_atomic_unsafe_assume_single_core, feature="critical-section"))]
+#[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]
 compile_error!(
     "You may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time."
 );
@@ -2656,7 +2656,7 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2666,7 +2666,7 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2721,7 +2721,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2731,7 +2731,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2795,7 +2795,7 @@ loop {
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2805,7 +2805,7 @@ loop {
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2851,7 +2851,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2861,7 +2861,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2902,7 +2902,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2912,7 +2912,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2947,7 +2947,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2957,7 +2957,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -2998,7 +2998,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3008,7 +3008,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3046,7 +3046,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3056,7 +3056,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3103,7 +3103,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3113,7 +3113,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3151,7 +3151,7 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3161,7 +3161,7 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3199,7 +3199,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3209,7 +3209,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3256,7 +3256,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3266,7 +3266,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3304,7 +3304,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3314,7 +3314,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3361,7 +3361,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3371,7 +3371,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3429,7 +3429,7 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3439,7 +3439,7 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3507,7 +3507,7 @@ assert!(max_foo == 42);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3517,7 +3517,7 @@ assert!(max_foo == 42);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3568,7 +3568,7 @@ assert_eq!(min_foo, 12);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3578,7 +3578,7 @@ assert_eq!(min_foo, 12);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
-                        feature="critical-section",
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3613,6 +3613,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3622,6 +3623,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3660,6 +3662,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                         cfg(any(
                             not(portable_atomic_no_atomic_cas),
                             portable_atomic_unsafe_assume_single_core,
+                            feature = "critical-section",
                             target_arch = "avr",
                             target_arch = "msp430"
                         ))
@@ -3669,6 +3672,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                         cfg(any(
                             target_has_atomic = "ptr",
                             portable_atomic_unsafe_assume_single_core,
+                            feature = "critical-section",
                             target_arch = "avr",
                             target_arch = "msp430"
                         ))
@@ -3718,6 +3722,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                     cfg(any(
                         not(portable_atomic_no_atomic_cas),
                         portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3727,6 +3732,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                     cfg(any(
                         target_has_atomic = "ptr",
                         portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
                         target_arch = "avr",
                         target_arch = "msp430"
                     ))
@@ -3766,6 +3772,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                         cfg(any(
                             not(portable_atomic_no_atomic_cas),
                             portable_atomic_unsafe_assume_single_core,
+                            feature = "critical-section",
                             target_arch = "avr",
                             target_arch = "msp430"
                         ))
@@ -3775,6 +3782,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                         cfg(any(
                             target_has_atomic = "ptr",
                             portable_atomic_unsafe_assume_single_core,
+                            feature = "critical-section",
                             target_arch = "avr",
                             target_arch = "msp430"
                         ))
@@ -3937,7 +3945,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -3947,7 +3955,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -3980,7 +3988,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -3990,7 +3998,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4032,7 +4040,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4042,7 +4050,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4073,7 +4081,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4083,7 +4091,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4106,7 +4114,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4116,7 +4124,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4160,7 +4168,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4170,7 +4178,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4212,7 +4220,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4222,7 +4230,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4248,7 +4256,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4258,7 +4266,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4281,6 +4289,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4290,6 +4299,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4313,7 +4323,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     not(portable_atomic_no_atomic_cas),
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))
@@ -4323,7 +4333,7 @@ This type has the same in-memory representation as the underlying floating point
                 cfg(any(
                     target_has_atomic = "ptr",
                     portable_atomic_unsafe_assume_single_core,
-                    feature="critical-section",
+                    feature = "critical-section",
                     target_arch = "avr",
                     target_arch = "msp430"
                 ))

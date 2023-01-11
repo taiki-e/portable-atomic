@@ -8,6 +8,8 @@
 // Generated asm:
 // - riscv64gc https://godbolt.org/z/6z47vqj5v
 
+#![cfg_attr(feature = "critical-section", allow(dead_code))]
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};

@@ -179,7 +179,7 @@ pub(crate) use self::core_atomic::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
 // RISC-V without A-extension
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+#[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
@@ -243,10 +243,13 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
 )))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
-    cfg(not(any(
-        portable_atomic_no_atomic_64,
-        not(all(feature = "critical-section", portable_atomic_no_atomic_cas))
-    )))
+    cfg(any(
+        not(portable_atomic_no_atomic_64),
+        all(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            not(all(feature = "critical-section", portable_atomic_no_atomic_cas))
+        ),
+    ))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),

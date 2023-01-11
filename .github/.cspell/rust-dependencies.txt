@@ -4,11 +4,13 @@
 assertions
 atomic
 criterion
+critical
 crossbeam
 fastrand
 paste
 portable
 quickcheck
+section
 serde
 sptr
 static
