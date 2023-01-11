@@ -27,8 +27,9 @@ default_targets=(
     thumbv4t-none-eabi
     thumbv6m-none-eabi
     # no atomic CAS (64-bit)
-    bpfeb-unknown-none
-    bpfel-unknown-none
+    # TODO: since https://github.com/rust-lang/rust/pull/105708, build of core is broken on bpf.
+    # bpfeb-unknown-none
+    # bpfel-unknown-none
 
     # no-std 32-bit with 32-bit atomic
     thumbv7m-none-eabi
