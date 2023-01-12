@@ -110,6 +110,7 @@ jobs:
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -285,6 +286,7 @@ jobs:
           # for AVR: https://github.com/rust-lang/compiler-builtins/issues/400
           - nightly-2020-12-26
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v3
         with:
@@ -296,6 +298,7 @@ jobs:
 
   no-std:
     runs-on: ubuntu-22.04 # QEMU 6.2
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -331,6 +334,7 @@ jobs:
           - powerpc64le-unknown-linux-gnu
           - s390x-unknown-linux-gnu
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -357,6 +361,7 @@ jobs:
           - memory
           - thread
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -418,6 +423,7 @@ jobs:
     env:
       CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -458,6 +464,7 @@ jobs:
 
   codegen:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       contents: write
       pull-requests: write
@@ -502,6 +509,7 @@ jobs:
     # prettier-ignore
     needs: [check-external-types, deny, docs, msrv, tidy, test, build, no-std, miri, san, valgrind, codegen] # tidy:needs
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Mark the job as a success
         run: exit 0
