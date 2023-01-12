@@ -36,6 +36,7 @@ test_atomic_int_pub!(u64);
 #[cfg_attr(
     all(
         target_arch = "powerpc64",
+        portable_atomic_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
@@ -47,6 +48,7 @@ test_atomic_int_pub!(i128);
 #[cfg_attr(
     all(
         target_arch = "powerpc64",
+        portable_atomic_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
@@ -56,17 +58,17 @@ test_atomic_int_pub!(i128);
 )]
 test_atomic_int_pub!(u128);
 #[cfg(qemu)]
-#[cfg(target_arch = "powerpc64")]
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
+#[cfg(all(
+    target_arch = "powerpc64",
+    portable_atomic_asm_experimental_arch,
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
 ))]
 test_atomic_int_load_store_pub!(i128);
 #[cfg(qemu)]
-#[cfg(target_arch = "powerpc64")]
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
+#[cfg(all(
+    target_arch = "powerpc64",
+    portable_atomic_asm_experimental_arch,
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
 ))]
 test_atomic_int_load_store_pub!(u128);
 

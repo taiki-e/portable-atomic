@@ -9,11 +9,11 @@
 //
 // Note: Ordering is always SeqCst.
 
-#![cfg_attr(feature = "critical-section", allow(dead_code))]
-
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
+#[cfg(any(test, not(feature = "critical-section")))]
+use core::cell::UnsafeCell;
+use core::sync::atomic::Ordering;
 
 /// An atomic fence.
 ///
@@ -52,15 +52,18 @@ pub fn compiler_fence(order: Ordering) {
     }
 }
 
+#[cfg(any(test, not(feature = "critical-section")))]
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     v: UnsafeCell<u8>,
 }
 
+#[cfg(any(test, not(feature = "critical-section")))]
 // Send is implicitly implemented.
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl Sync for AtomicBool {}
 
+#[cfg(any(test, not(feature = "critical-section")))]
 impl AtomicBool {
     #[cfg(test)]
     #[inline]
@@ -140,16 +143,20 @@ impl AtomicBool {
     }
 }
 
+#[cfg(any(test, not(feature = "critical-section")))]
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
     p: UnsafeCell<*mut T>,
 }
 
+#[cfg(any(test, not(feature = "critical-section")))]
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl<T> Send for AtomicPtr<T> {}
+#[cfg(any(test, not(feature = "critical-section")))]
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
+#[cfg(any(test, not(feature = "critical-section")))]
 impl<T> AtomicPtr<T> {
     #[cfg(test)]
     #[inline]
@@ -207,15 +214,18 @@ impl<T> AtomicPtr<T> {
 
 macro_rules! atomic_int {
     ($int_type:ident, $atomic_type:ident, $asm_suffix:expr) => {
+        #[cfg(any(test, not(feature = "critical-section")))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
         }
 
+        #[cfg(any(test, not(feature = "critical-section")))]
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl Sync for $atomic_type {}
 
+        #[cfg(any(test, not(feature = "critical-section")))]
         impl $atomic_type {
             #[cfg(test)]
             #[inline]
@@ -323,6 +333,7 @@ macro_rules! atomic_int {
             }
         }
 
+        #[cfg(any(test, not(feature = "critical-section")))]
         impl AtomicOperations for $int_type {
             #[inline]
             unsafe fn atomic_load(src: *const Self) -> Self {
@@ -487,6 +498,7 @@ atomic_int!(u16, AtomicU16, ".w");
 atomic_int!(isize, AtomicIsize, ".w");
 atomic_int!(usize, AtomicUsize, ".w");
 
+#[cfg(any(test, not(feature = "critical-section")))]
 trait AtomicOperations: Sized {
     unsafe fn atomic_load(src: *const Self) -> Self;
     unsafe fn atomic_store(dst: *mut Self, val: Self);

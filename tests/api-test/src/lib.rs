@@ -73,7 +73,9 @@ pub fn all() {
     // Simulator. See DEVELOPMENT.md for more.
     #[cfg_attr(
         all(
+            test,
             target_arch = "powerpc64",
+            portable_atomic_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
@@ -84,7 +86,9 @@ pub fn all() {
     test_atomic_int!(i128);
     #[cfg_attr(
         all(
+            test,
             target_arch = "powerpc64",
+            portable_atomic_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
