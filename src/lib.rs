@@ -6,7 +6,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. ([optional](#optional-features-float))
 <!-- - Provide generic `Atomic<T>` type. (optional) -->
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR) ([optional and single-core only](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) ([optional](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -38,7 +38,7 @@ On x86_64, even if `cmpxchg16b` is not available at compile time (note: `cmpxchg
 
 They are usually implemented using inline assembly, and when using Miri or ThreadSanitizer that do not support inline assembly, core intrinsics are used instead of inline assembly if possible.
 
-See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
+See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Optional features
 
@@ -65,6 +65,24 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   Note:
   - The MSRV when this feature enables depends on the MSRV of [serde].
 
+- <a name="optional-features-critical-section"></a>**`critical-section`**<br>
+  When this feature is enabled, this crate uses [critical-section] to provide atomic CAS for targets where
+  it is not natively available. When enabling it, you should provide a suitable critical section implementation
+  for the current target, see the [critical-section] documentation for details on how to do so.
+
+  `critical-section` support is useful to get atomic CAS when `--cfg portable_atomic_unsafe_assume_single_core` can't be used,
+  such as multi-core targets, unprivileged code running under some RTOS, or environments where disabling interrupts
+  needs extra care due to e.g. real-time requirements.
+
+  Note that with the `critical-section` feature, critical sections are taken for all atomic operations, while with
+  `portable_atomic_unsafe_assume_single_core` some operations don't require disabling interrupts (loads and stores, but
+  additionally on MSP430 `add`, `sub`, `and`, `or`, `xor`, `not`). Therefore, for better performance, if
+  all the `critical-section` implementation for your target does is disable interrupts, prefer using
+  `--cfg portable_atomic_unsafe_assume_single_core` instead.
+
+  Note:
+  - The MSRV when this feature enables depends on the MSRV of [critical-section].
+
 ## Optional cfg
 
 - **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
@@ -82,9 +100,11 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
 
     See also [the `interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
 
+  Consider using the [`critical-section` feature](#optional-features-critical-section) for systems that cannot use this cfg.
+
   This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
 
-  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension are currently supported. See [#33] for support of multi-core systems.
+  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension are currently supported.
 
   Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this cfg.
 
@@ -105,16 +125,16 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   - This is compatible with no-std (as with all features except `std`).
   - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.
 
-  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
+  See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Related Projects
 
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
 
-[#33]: https://github.com/taiki-e/portable-atomic/issues/33
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
+[critical-section]: https://github.com/rust-embedded/critical-section
 [rust-lang/rust#100650]: https://github.com/rust-lang/rust/issues/100650
 [serde]: https://github.com/serde-rs/serde
 */
