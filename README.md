@@ -46,7 +46,7 @@ On x86_64, even if `cmpxchg16b` is not available at compile time (note: `cmpxchg
 
 They are usually implemented using inline assembly, and when using Miri or ThreadSanitizer that do not support inline assembly, core intrinsics are used instead of inline assembly if possible.
 
-See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067) for details.
+See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Optional features
 
@@ -87,7 +87,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   additionally on MSP430 `add`, `sub`, `and`, `or`, `xor`, `not`). Therefore, for better performance, if
   all the `critical-section` implementation for your target does is disable interrupts, prefer using
   `--cfg portable_atomic_unsafe_assume_single_core` instead.
-  
+
   Note:
   - The MSRV when this feature enables depends on the MSRV of [critical-section].
 
@@ -131,7 +131,7 @@ See [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecommen
   - This is compatible with no-std (as with all features except `std`).
   - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.
 
-  See also [this list](https://github.com/taiki-e/portable-atomic/issues/10#issuecomment-1159368067).
+  See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Related Projects
 
