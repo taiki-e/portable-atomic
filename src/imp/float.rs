@@ -69,6 +69,7 @@ macro_rules! atomic_float {
             cfg(any(
                 not(portable_atomic_no_atomic_cas),
                 portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430"
             ))
@@ -78,6 +79,7 @@ macro_rules! atomic_float {
             cfg(any(
                 target_has_atomic = "ptr",
                 portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430"
             ))
@@ -189,6 +191,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
             any(
                 not(portable_atomic_no_atomic_cas),
                 portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430"
             )
@@ -205,6 +208,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
             any(
                 target_has_atomic = "ptr",
                 portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430"
             )

@@ -1,6 +1,13 @@
 // Critical section based fallback implementations
 //
-// Critical session (disabling interrupts) based fallback is not sound on multi-core systems.
+// This module supports two different critical section implementations:
+// - Built-in "disable all interrupts".
+// - Call into the `critical-section` crate (which allows the user to plug any implementation).
+//
+// The `critical-section`-based fallback is enabled when the user asks for it with the `critical-section`
+// Cargo feature.
+//
+// The "disable interrupts" fallback is not sound on multi-core systems.
 // Also, this uses privileged instructions to disable interrupts, so it usually
 // doesn't work on unprivileged mode. Using this fallback in an environment where privileged
 // instructions are not available is also usually considered **unsound**,
@@ -22,6 +29,8 @@
 // [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1008
 // [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 
+#![cfg_attr(test, allow(dead_code))]
+
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts. On MSP430, some RMWs that do not return the
 // previous value can also be optimized.
@@ -30,9 +39,10 @@
 // CAS together with atomic load/store. The load/store will not be
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
-#[cfg(not(target_arch = "avr"))]
+#[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
 use arch::atomic;
 
+#[cfg(not(feature = "critical-section"))]
 #[cfg_attr(
     all(
         target_arch = "arm",
@@ -47,18 +57,33 @@ use arch::atomic;
     ),
     path = "armv4t.rs"
 )]
-#[cfg_attr(target_arch = "avr", path = "avr.rs")]
+#[cfg_attr(any(target_arch = "avr", feature = "critical-section"), path = "avr.rs")]
 #[cfg_attr(target_arch = "msp430", path = "msp430.rs")]
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]
 mod arch;
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
+// Critical section implementations might use locks internally.
+#[cfg(feature = "critical-section")]
+const IS_ALWAYS_LOCK_FREE: bool = false;
+
 // Consider atomic operations based on disabling interrupts on single-core
 // systems are lock-free. (We consider the pre-v6 ARM Linux's atomic operations
 // provided in a similar way by the Linux kernel to be lock-free.)
+#[cfg(not(feature = "critical-section"))]
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
+#[cfg(feature = "critical-section")]
+#[inline]
+fn with<F, R>(f: F) -> R
+where
+    F: FnOnce() -> R,
+{
+    critical_section::with(|_| f())
+}
+
+#[cfg(not(feature = "critical-section"))]
 #[inline]
 fn with<F, R>(f: F) -> R
 where
@@ -119,12 +144,12 @@ impl AtomicBool {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(target_arch = "avr"))]
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) },
-            #[cfg(target_arch = "avr")]
+            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -138,14 +163,14 @@ impl AtomicBool {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(target_arch = "avr"))]
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
             },
-            #[cfg(target_arch = "avr")]
+            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -247,9 +272,9 @@ impl AtomicBool {
     }
 }
 
-#[cfg(not(target_arch = "msp430"))]
+#[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
 no_fetch_ops_impl!(AtomicBool, bool);
-#[cfg(target_arch = "msp430")]
+#[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
 impl AtomicBool {
     #[inline]
     pub(crate) fn and(&self, val: bool, order: Ordering) {
@@ -324,12 +349,12 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_load_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(target_arch = "avr"))]
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) },
-            #[cfg(target_arch = "avr")]
+            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -343,14 +368,14 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_store_ordering(order);
         #[deny(unreachable_patterns)]
         match () {
-            #[cfg(not(target_arch = "avr"))]
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
             // SAFETY: any data races are prevented by atomic intrinsics (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
             () => unsafe {
                 (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
             },
-            #[cfg(target_arch = "avr")]
+            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
             // SAFETY: any data races are prevented by disabling interrupts (see
             // module-level comments) and the raw pointer is valid because we got it
             // from a reference.
@@ -454,14 +479,14 @@ macro_rules! atomic_int {
                 crate::utils::assert_load_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
-                    #[cfg(not(target_arch = "avr"))]
+                    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
                     // SAFETY: any data races are prevented by atomic intrinsics (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).load(order)
                     },
-                    #[cfg(target_arch = "avr")]
+                    #[cfg(any(target_arch = "avr", feature = "critical-section"))]
                     // SAFETY: any data races are prevented by disabling interrupts (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
@@ -475,14 +500,14 @@ macro_rules! atomic_int {
                 crate::utils::assert_store_ordering(order);
                 #[deny(unreachable_patterns)]
                 match () {
-                    #[cfg(not(target_arch = "avr"))]
+                    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
                     // SAFETY: any data races are prevented by atomic intrinsics (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
                     () => unsafe {
                         (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
                     },
-                    #[cfg(target_arch = "avr")]
+                    #[cfg(any(target_arch = "avr", feature = "critical-section"))]
                     // SAFETY: any data races are prevented by disabling interrupts (see
                     // module-level comments) and the raw pointer is valid because we got it
                     // from a reference.
@@ -491,16 +516,16 @@ macro_rules! atomic_int {
             }
         }
 
-        #[cfg(not(target_arch = "msp430"))]
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         no_fetch_ops_impl!($atomic_type, $int_type);
-        #[cfg(not(target_arch = "msp430"))]
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
         }
-        #[cfg(target_arch = "msp430")]
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn add(&self, val: $int_type, order: Ordering) {

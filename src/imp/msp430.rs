@@ -9,6 +9,8 @@
 //
 // Note: Ordering is always SeqCst.
 
+#![cfg_attr(feature = "critical-section", allow(dead_code))]
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
