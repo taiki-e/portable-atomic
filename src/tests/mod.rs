@@ -100,18 +100,68 @@ extern "C" {
     fn _atomic_f64_ffi_safety(_: AtomicF64);
 }
 
-#[cfg(target_arch = "x86_64")]
+#[rustversion::since(1.60)]
 #[test]
-#[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
-fn test_x86_64_atomic_128_is_lock_free() {
-    assert_eq!(
-        AtomicI128::is_always_lock_free(),
-        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
-    );
-    assert_eq!(
-        AtomicI128::is_lock_free(),
-        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
-            || cfg!(portable_atomic_cmpxchg16b_dynamic)
-                && std::is_x86_feature_detected!("cmpxchg16b")
-    );
+fn test_is_lock_free() {
+    assert!(AtomicI8::is_always_lock_free());
+    assert!(AtomicI8::is_lock_free());
+    assert!(AtomicU8::is_always_lock_free());
+    assert!(AtomicU8::is_lock_free());
+    assert!(AtomicI16::is_always_lock_free());
+    assert!(AtomicI16::is_lock_free());
+    assert!(AtomicU16::is_always_lock_free());
+    assert!(AtomicU16::is_lock_free());
+    assert!(AtomicI32::is_always_lock_free());
+    assert!(AtomicI32::is_lock_free());
+    assert!(AtomicU32::is_always_lock_free());
+    assert!(AtomicU32::is_lock_free());
+    if cfg!(target_has_atomic = "64") {
+        assert!(AtomicI64::is_always_lock_free());
+        assert!(AtomicI64::is_lock_free());
+        assert!(AtomicU64::is_always_lock_free());
+        assert!(AtomicU64::is_lock_free());
+    } else {
+        assert!(!AtomicI64::is_always_lock_free());
+        assert!(!AtomicI64::is_lock_free());
+        assert!(!AtomicU64::is_always_lock_free());
+        assert!(!AtomicU64::is_lock_free());
+    }
+    if cfg!(any(
+        target_arch = "aarch64",
+        all(
+            target_arch = "powerpc64",
+            portable_atomic_asm_experimental_arch,
+            any(
+                target_feature = "quadword-atomics",
+                portable_atomic_target_feature = "quadword-atomics"
+            )
+        ),
+        all(target_arch = "s390x", portable_atomic_asm_experimental_arch),
+        all(
+            target_arch = "x86_64",
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")
+        ),
+    )) {
+        assert!(AtomicI128::is_always_lock_free());
+        assert!(AtomicI128::is_lock_free());
+        assert!(AtomicU128::is_always_lock_free());
+        assert!(AtomicU128::is_lock_free());
+    } else {
+        assert!(!AtomicI128::is_always_lock_free());
+        assert!(!AtomicU128::is_always_lock_free());
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            assert!(!AtomicI128::is_lock_free());
+            assert!(!AtomicU128::is_lock_free());
+        }
+        #[cfg(target_arch = "x86_64")]
+        // Miri doesn't support inline assembly used in is_x86_feature_detected
+        #[cfg(not(miri))]
+        {
+            let has_cmpxchg16b = cfg!(portable_atomic_cmpxchg16b_dynamic)
+                && std::is_x86_feature_detected!("cmpxchg16b");
+            assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
+            assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);
+        }
+    }
 }

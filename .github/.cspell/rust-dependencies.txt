@@ -12,6 +12,7 @@ once
 paste
 portable
 quickcheck
+rustversion
 section
 serde
 sptr
