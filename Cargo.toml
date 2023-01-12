@@ -46,10 +46,6 @@ float = []
 # Use `std`.
 std = []
 
-# no-op since 0.3.19
-# TODO: remove in next breaking release (0.4 or 1.0).
-outline-atomics = []
-
 # Note: serde is public dependencies.
 [dependencies]
 # Implements serde::{Serialize,Deserialize} for atomic types.

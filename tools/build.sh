@@ -244,8 +244,6 @@ build() {
         --workspace --ignore-private
         --no-dev-deps --feature-powerset --depth 2 --optional-deps
     )
-    # outline-atomics　feature is no-op since https://github.com/taiki-e/portable-atomic/pull/57.
-    args+=(--exclude-features "outline-atomics")
     # critical-section requires 1.54
     if [[ "${rustc_minor_version}" -lt 54 ]]; then
         args+=(--exclude-features "critical-section")
