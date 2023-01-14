@@ -10,6 +10,16 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `critical-section` feature to use [critical-section](https://github.com/rust-embedded/critical-section) on targets where atomic CAS is not natively available. ([#51](https://github.com/taiki-e/portable-atomic/pull/51), thanks @Dirbaio)
+
+  This is useful to get atomic CAS when `--cfg portable_atomic_unsafe_assume_single_core` can't be used, such as multi-core targets, unprivileged code running under some RTOS, or environments where disabling interrupts needs extra care due to e.g. real-time requirements.
+
+  See [documentation](https://github.com/taiki-e/portable-atomic#optional-features-critical-section) for more.
+
+- Remove `outline-atomics` feature. This was no-op since 0.3.19.
+
+- Documentation improvements.
+
 ## [0.3.19] - 2022-12-25
 
 - Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
