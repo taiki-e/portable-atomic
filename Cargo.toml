@@ -39,22 +39,23 @@ fallback = []
 # Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 float = []
 
-# TODO
-# # Provides generic `atomic<t>` type.
-# generic = []
-
 # Use `std`.
 std = []
 
-# Note: serde is public dependencies.
+# Note: serde and critical-section are public dependencies.
 [dependencies]
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
 # Note:
-# - The MSRV when this feature enables depends on the MSRV of serde.
+# - The MSRV when this feature is enabled depends on the MSRV of serde.
 serde = { version = "1.0.103", optional = true, default-features = false }
 
 # Use `critical-section`.
+#
+# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-critical-section
+#
+# Note:
+# - The MSRV when this feature is enabled depends on the MSRV of critical-section.
 critical-section = { version = "1", optional = true }
 
 [dev-dependencies]

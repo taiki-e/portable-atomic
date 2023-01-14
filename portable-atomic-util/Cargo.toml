@@ -21,8 +21,22 @@ doc-scrape-examples = false
 
 [features]
 default = []
+
+# Use `std`.
+#
+# Note:
+# - This implicitly enables the `alloc` feature.
 std = ["alloc"]
+
+# Use `alloc`.
+#
+# Note:
+# - The MSRV when this feature is enabled and the `std` feature is *not* enabled is Rust 1.36 that `alloc` crate stabilized.
 alloc = []
+
+# TODO
+# # Provides generic `atomic<t>` type.
+# generic = []
 
 [dependencies]
 portable-atomic = { version = "=0.3.19", path = "..", default-features = false }

@@ -11,10 +11,9 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
-- Provide `AtomicF32` and `AtomicF64`. ([optional](#optional-features-float))
-<!-- - Provide generic `Atomic<T>` type. (optional) -->
+- Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) ([optional](#optional-cfg) for ARM and RISC-V, always enabled for MSP430 and AVR)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -59,11 +58,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   Provide `AtomicF{32,64}`.
   Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
 
-<!-- TODO
-- **`generic`**<br>
-  Provides generic `Atomic<T>` type.
--->
-
 - **`std`**<br>
   Use `std`.
 
@@ -71,7 +65,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   Implement `serde::{Serialize,Deserialize}` for atomic types.
 
   Note:
-  - The MSRV when this feature enables depends on the MSRV of [serde].
+  - The MSRV when this feature is enabled depends on the MSRV of [serde].
 
 - <a name="optional-features-critical-section"></a>**`critical-section`**<br>
   When this feature is enabled, this crate uses [critical-section] to provide atomic CAS for targets where
@@ -89,7 +83,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   `--cfg portable_atomic_unsafe_assume_single_core` instead.
 
   Note:
-  - The MSRV when this feature enables depends on the MSRV of [critical-section].
+  - The MSRV when this feature is enabled depends on the MSRV of [critical-section].
 
 ## Optional cfg
 
@@ -117,8 +111,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this cfg.
 
   Enabling this cfg for targets that have atomic CAS will result in a compile error.
-
-  The cfg interface is kept between versions, so it is designed to prevent downstream builds from breaking when upgrade to semver-incompatible version unless the portable-atomic types are exposed in the library's API.
 
   Feel free to submit an issue if your target is not supported yet.
 

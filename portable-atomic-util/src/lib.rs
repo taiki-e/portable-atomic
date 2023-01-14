@@ -1,6 +1,34 @@
 /*!
-Synchronization primitives built with portable-atomic.
+Synchronization primitives built with [portable-atomic].
 
+- Provide `Arc`. (optional, requires the `std` or `alloc` feature)
+<!-- - Provide generic `Atomic<T>` type. (optional, requires the `generic` feature) -->
+
+See [#1] for other primitives being considered for addition to this crate.
+
+*Compiler support: requires rustc 1.34+*
+
+## Optional features
+
+- **`std`**<br>
+  Use `std`.
+
+  Note:
+  - This implicitly enables the `alloc` feature.
+
+- **`alloc`**<br>
+  Use `alloc`.
+
+  Note:
+  - The MSRV when this feature is enabled and the `std` feature is *not* enabled is Rust 1.36 that `alloc` crate stabilized.
+
+<!-- TODO
+- **`generic`**<br>
+  Provides generic `Atomic<T>` type.
+-->
+
+[portable-atomic]: https://github.com/taiki-e/portable-atomic
+[#1]: https://github.com/taiki-e/portable-atomic/issues/1
 */
 
 #![no_std]
