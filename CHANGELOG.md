@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.0.0] - 2023-01-15
+
 - Add `critical-section` feature to use [critical-section](https://github.com/rust-embedded/critical-section) on targets where atomic CAS is not natively available. ([#51](https://github.com/taiki-e/portable-atomic/pull/51), thanks @Dirbaio)
 
   This is useful to get atomic CAS when `--cfg portable_atomic_unsafe_assume_single_core` can't be used, such as multi-core targets, unprivileged code running under some RTOS, or environments where disabling interrupts needs extra care due to e.g. real-time requirements.
@@ -239,7 +241,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...v1.0.0
 [0.3.19]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...v0.3.17
