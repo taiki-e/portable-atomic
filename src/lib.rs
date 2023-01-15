@@ -5,7 +5,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg) otherwise)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg-unsafe-assume-single-core) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -16,7 +16,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-portable-atomic = "0.3"
+portable-atomic = "1"
 ```
 
 The default features are mainly for users who use atomics larger than the pointer width.
@@ -24,7 +24,7 @@ If you don't need them, disabling the default features may reduce code size and 
 
 ```toml
 [dependencies]
-portable-atomic = { version = "0.3", default-features = false }
+portable-atomic = { version = "1", default-features = false }
 ```
 
 *Compiler support: requires rustc 1.34+*
@@ -69,17 +69,22 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   needs extra care due to e.g. real-time requirements.
 
   Note that with the `critical-section` feature, critical sections are taken for all atomic operations, while with
-  `portable_atomic_unsafe_assume_single_core` some operations don't require disabling interrupts (loads and stores, but
+  `--cfg portable_atomic_unsafe_assume_single_core` some operations don't require disabling interrupts (loads and stores, but
   additionally on MSP430 `add`, `sub`, `and`, `or`, `xor`, `not`). Therefore, for better performance, if
   all the `critical-section` implementation for your target does is disable interrupts, prefer using
   `--cfg portable_atomic_unsafe_assume_single_core` instead.
 
   Note:
   - The MSRV when this feature is enabled depends on the MSRV of [critical-section].
+  - It is usually *not* recommended to always enable this feature in dependencies of the library.
+
+    Enabling this feature will prevent the end user from having the chance to take advantage of other (potentially) efficient implementations ([Implementations provided by `--cfg portable_atomic_unsafe_assume_single_core`, default implementations on MSP430 and AVR](#optional-cfg-unsafe-assume-single-core), implementation proposed in [#60], etc. Other systems may also be supported in the future).
+
+    The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where other implementations are known not to work.)
 
 ## Optional cfg
 
-- **`--cfg portable_atomic_unsafe_assume_single_core`**<br>
+- <a name="optional-cfg-unsafe-assume-single-core"></a>**`--cfg portable_atomic_unsafe_assume_single_core`**<br>
   Assume that the target is single-core.
   When this cfg is enabled, this crate provides atomic CAS for targets where atomic CAS is not available in the standard library by disabling interrupts.
 
@@ -124,6 +129,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
 
+[#60]: https://github.com/taiki-e/portable-atomic/issues/60
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [critical-section]: https://github.com/rust-embedded/critical-section
@@ -355,7 +361,7 @@ compile_error!(
 
 #[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]
 compile_error!(
-    "You may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time."
+    "you may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time"
 );
 
 #[cfg(any(test, feature = "std"))]
