@@ -12,7 +12,7 @@ std = []
 
 [dev-dependencies]
 atomic = "0.5"
-criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # https://github.com/bheisler/criterion.rs/pull/496 + patches to reduce deps more
+criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # reduce deps
 crossbeam-utils = "0.8"
 fastrand = "1"
 paste = "1"
