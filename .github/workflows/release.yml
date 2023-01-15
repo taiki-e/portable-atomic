@@ -39,6 +39,3 @@ jobs:
           title: $version
           branch: main
           token: ${{ secrets.GITHUB_TOKEN }}
-      - run: cargo publish
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
