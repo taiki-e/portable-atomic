@@ -42,7 +42,7 @@ jobs:
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
       args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section
   tidy:
-    uses: taiki-e/workflows/.github/workflows/tidy-rust.yml@main
+    uses: taiki-e/workflows/.github/workflows/tidy.yml@main
 
   test:
     strategy:
