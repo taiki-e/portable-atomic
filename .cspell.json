@@ -45,10 +45,5 @@
       "dictionaries": ["rust"]
     }
   ],
-  "ignorePaths": [
-    // TODO
-    "src/imp/**",
-    "target-specs/**",
-    "**/*.ld"
-  ]
+  "ignorePaths": ["target-specs/**", "**/*.ld"]
 }
