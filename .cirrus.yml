@@ -1,3 +1,5 @@
+only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'dev' || $CIRRUS_BRANCH == 'staging')
+auto_cancellation: $CIRRUS_BRANCH != 'main'
 env:
   CARGO_INCREMENTAL: '0'
   CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
@@ -11,7 +13,6 @@ env:
 
 aarch64_linux_test_task:
   name: test (aarch64-unknown-linux-gnu)
-  auto_cancellation: $CIRRUS_BRANCH != 'main'
   env:
     TARGET: aarch64-unknown-linux-gnu
   arm_container:
@@ -32,7 +33,6 @@ aarch64_linux_test_task:
 
 aarch64_macos_test_task:
   name: test (aarch64-apple-darwin)
-  auto_cancellation: $CIRRUS_BRANCH != 'main'
   env:
     TARGET: aarch64-apple-darwin
   macos_instance:
@@ -48,7 +48,6 @@ aarch64_macos_test_task:
 
 aarch64_linux_valgrind_task:
   name: valgrind (aarch64-unknown-linux-gnu)
-  auto_cancellation: $CIRRUS_BRANCH != 'main'
   env:
     CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
     RUSTDOCFLAGS: -D warnings --cfg valgrind
@@ -87,7 +86,6 @@ aarch64_linux_valgrind_task:
 #
 # aarch64_linux_bench_task:
 #   name: bench (aarch64-unknown-linux-gnu)
-#   auto_cancellation: $CIRRUS_BRANCH != 'main'
 #   env:
 #     TARGET: aarch64-unknown-linux-gnu
 #   arm_container:
@@ -102,7 +100,6 @@ aarch64_linux_valgrind_task:
 
 # aarch64_macos_bench_task:
 #   name: bench (aarch64-apple-darwin)
-#   auto_cancellation: $CIRRUS_BRANCH != 'main'
 #   env:
 #     TARGET: aarch64-apple-darwin
 #   macos_instance:
