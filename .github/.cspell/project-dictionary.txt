@@ -50,6 +50,7 @@ ldaxp
 ldxp
 libc
 libcalls
+libtcl
 libtest
 lqarx
 lwsync

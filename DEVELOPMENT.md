@@ -34,9 +34,9 @@ Install dependencies.
 
 ```sh
 # gcc-powerpc64le-linux-gnu and libc6-dev-ppc64el-cross for cross-compiling
-# xterm for simulator
+# xterm and libtcl8.6 for simulator
 # jq for parsing json output from cargo
-sudo apt-get install gcc-powerpc64le-linux-gnu libc6-dev-ppc64el-cross xterm jq
+sudo apt-get install gcc-powerpc64le-linux-gnu libc6-dev-ppc64el-cross xterm libtcl8.6 jq
 ```
 
 Download Simulator from [download page](https://www.ibm.com/support/pages/node/6493437).
@@ -96,7 +96,7 @@ cp "$binary_path" /tmp/t
 In simulator's console, copy test binary from host.
 
 ```sh
-callthru source /tmp/t>t && chmod +x ./t
+callthru source /tmp/t >t && chmod +x ./t
 ```
 
 Run test binary in simulator.
