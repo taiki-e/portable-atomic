@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.0.1] - 2023-01-21
+
 - Optimize `Atomic{I,U}*::{fetch_not,not}` methods. ([#62](https://github.com/taiki-e/portable-atomic/pull/62))
 
 ## [1.0.0] - 2023-01-15
@@ -243,7 +245,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...v1.0.0
 [0.3.19]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...v0.3.18
