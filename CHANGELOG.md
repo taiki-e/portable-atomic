@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Optimize `Atomic{I,U}*::{fetch_not,not}` methods.
+
 ## [1.0.0] - 2023-01-15
 
 - Add `critical-section` feature to use [critical-section](https://github.com/rust-embedded/critical-section) on targets where atomic CAS is not natively available. ([#51](https://github.com/taiki-e/portable-atomic/pull/51), thanks @Dirbaio)

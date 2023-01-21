@@ -424,12 +424,28 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                // TODO: define atomic_not function and use it
-                self.fetch_update_(order, |x| !x)
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_not(self.v.get().cast(), order) as $int_type }
             }
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                // TODO: define atomic_neg function and use it
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
             }
 
             #[inline]
@@ -446,20 +462,6 @@ macro_rules! atomic128 {
                         Err(next_prev) => prev = next_prev,
                     }
                 }
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                // TODO: define atomic_neg function and use it
-                self.fetch_update_(order, |x| x.wrapping_neg())
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
             }
         }
     };

@@ -405,7 +405,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 macro_rules! atomic128 {
-    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    (int_general, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -584,12 +584,35 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| !x)
-            }
-            #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
+            }
+        }
+    };
+    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(int_general, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_xor(core::$int_type::MAX, order)
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+        atomic128!(int_general, $atomic_type, $int_type, $atomic_max, $atomic_min);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_xor(-1, order)
+            }
+
+            #[inline]
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                self.fetch_update_(order, |x| x.wrapping_neg())
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
             }
 
             #[inline]
@@ -606,19 +629,6 @@ macro_rules! atomic128 {
                         Err(next_prev) => prev = next_prev,
                     }
                 }
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| x.wrapping_neg())
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
             }
         }
     };
