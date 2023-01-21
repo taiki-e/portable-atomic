@@ -663,6 +663,38 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 #[inline]
+unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    unsafe {
+        let (mut prev_lo, mut prev_hi);
+        macro_rules! not {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    "2:",
+                        concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
+                        "mvn {tmp_lo}, {prev_lo}",
+                        "mvn {tmp_hi}, {prev_hi}",
+                        concat!("st", $release, "xp {r:w}, {tmp_lo}, {tmp_hi}, [{dst", ptr_modifier!(), "}]"),
+                        // 0 if the store was successful, 1 if no store was performed
+                        "cbnz {r:w}, 2b",
+                    dst = in(reg) dst,
+                    prev_lo = out(reg) prev_lo,
+                    prev_hi = out(reg) prev_hi,
+                    tmp_lo = out(reg) _,
+                    tmp_hi = out(reg) _,
+                    r = out(reg) _,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(not, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
+}
+
+#[inline]
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 

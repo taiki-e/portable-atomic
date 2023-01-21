@@ -508,6 +508,12 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 #[inline]
+unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    unsafe { atomic_xor(dst, core::u128::MAX, order) }
+}
+
+#[inline]
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 

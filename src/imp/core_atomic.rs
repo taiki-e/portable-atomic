@@ -169,7 +169,7 @@ impl<T> core::ops::DerefMut for AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    (uint, $atomic_type:ident, $int_type:ident) => {
+    (int_general, $atomic_type:ident, $int_type:ident) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
@@ -244,6 +244,7 @@ macro_rules! atomic_int {
                 let success = crate::utils::upgrade_success_ordering(success, failure);
                 self.inner.compare_exchange_weak(current, new, success, failure)
             }
+            #[allow(dead_code)]
             #[inline]
             fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
             where
@@ -347,10 +348,6 @@ macro_rules! atomic_int {
                     self.fetch_update_(order, |x| core::cmp::min(x, val))
                 }
             }
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| !x)
-            }
             #[cfg(not(all(
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
@@ -375,14 +372,32 @@ macro_rules! atomic_int {
             }
         }
     };
-    (int, $atomic_type:ident, $int_type:ident) => {
-        atomic_int!(uint, $atomic_type, $int_type);
+    (uint, $atomic_type:ident, $int_type:ident) => {
+        atomic_int!(int_general, $atomic_type, $int_type);
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,
             cfg(not(portable_atomic_no_atomic_cas))
         )]
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_xor(core::$int_type::MAX, order)
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident) => {
+        atomic_int!(int_general, $atomic_type, $int_type);
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(portable_atomic_no_atomic_cas))
+        )]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.fetch_xor(-1, order)
+            }
             #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
                 self.fetch_update_(order, |x| x.wrapping_neg())
