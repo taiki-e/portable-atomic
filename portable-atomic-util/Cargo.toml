@@ -39,4 +39,4 @@ alloc = []
 # generic = []
 
 [dependencies]
-portable-atomic = { version = "1.0.0", path = "..", default-features = false }
+portable-atomic = { version = "1.0.1", path = "..", default-features = false }
