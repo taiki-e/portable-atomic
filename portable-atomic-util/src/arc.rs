@@ -43,6 +43,7 @@ struct Shared<T: ?Sized> {
     value: T,
 }
 
+#[repr(C)]
 struct Header {
     /// The current strong reference count.
     ///
