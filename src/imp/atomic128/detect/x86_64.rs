@@ -10,6 +10,8 @@
     allow(dead_code)
 )]
 
+include!("common.rs");
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{
@@ -17,22 +19,10 @@ use core::{
     sync::atomic::{AtomicU32, Ordering},
 };
 
-#[derive(Clone, Copy)]
-pub(crate) struct CpuInfo(u32);
-
 impl CpuInfo {
     const INIT: u32 = 0;
     const HAS_CMPXCHG16B: u32 = 1;
     const HAS_VMOVDQA_ATOMIC: u32 = 2;
-
-    #[inline]
-    fn set(&mut self, bit: u32) {
-        self.0 = set(self.0, bit);
-    }
-    #[inline]
-    fn test(self, bit: u32) -> bool {
-        test(self.0, bit)
-    }
 
     #[allow(clippy::unused_self)]
     #[inline]
@@ -54,15 +44,6 @@ impl CpuInfo {
     pub(crate) fn has_vmovdqa_atomic(self) -> bool {
         self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)
     }
-}
-
-#[inline]
-fn set(x: u32, bit: u32) -> u32 {
-    x | 1 << bit
-}
-#[inline]
-fn test(x: u32, bit: u32) -> bool {
-    x & (1 << bit) != 0
 }
 
 // Workaround for https://github.com/rust-lang/rust/issues/101346
