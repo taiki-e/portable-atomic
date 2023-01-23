@@ -103,7 +103,10 @@ unsafe fn cmpxchg16b(
 ) -> (u128, bool) {
     #[cfg_attr(
         all(
-            any(all(test, portable_atomic_nightly), portable_atomic_cmpxchg16b_dynamic),
+            any(
+                all(test, portable_atomic_nightly),
+                portable_atomic_unstable_cmpxchg16b_target_feature
+            ),
             not(any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
@@ -148,7 +151,7 @@ unsafe fn cmpxchg16b(
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
         // and cfg guarantees that CMPXCHG16B is statically available.
         () => unsafe { _cmpxchg16b(dst, old, new, success, failure) },
-        #[cfg(portable_atomic_cmpxchg16b_dynamic)]
+        #[cfg(portable_atomic_unstable_cmpxchg16b_target_feature)]
         #[cfg(not(any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b"
@@ -478,20 +481,20 @@ mod tests {
                     }
 
                     #[cfg(portable_atomic_nightly)]
-                    let b = Align16(UnsafeCell::new(x));
-                    #[cfg(portable_atomic_nightly)]
-                    assert_eq!(
-                        res,
-                        core::arch::x86_64::cmpxchg16b(
-                            b.get(),
-                            y,
-                            z,
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        ),
-                    );
-                    #[cfg(portable_atomic_nightly)]
-                    assert_eq!(*a.get(), *b.get());
+                    {
+                        let b = Align16(UnsafeCell::new(x));
+                        assert_eq!(
+                            res,
+                            core::arch::x86_64::cmpxchg16b(
+                                b.get(),
+                                y,
+                                z,
+                                Ordering::SeqCst,
+                                Ordering::SeqCst,
+                            ),
+                        );
+                        assert_eq!(*a.get(), *b.get());
+                    }
                 }
                 true
             }

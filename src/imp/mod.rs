@@ -39,7 +39,7 @@ mod aarch64;
 #[cfg(any(
     target_feature = "cmpxchg16b",
     portable_atomic_target_feature = "cmpxchg16b",
-    portable_atomic_cmpxchg16b_dynamic
+    portable_atomic_unstable_cmpxchg16b_target_feature
 ))]
 #[cfg(target_arch = "x86_64")]
 #[path = "atomic128/x86_64.rs"]
@@ -47,7 +47,7 @@ mod x86_64;
 
 // Miri and Sanitizer do not support inline assembly.
 #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm15))]
-#[cfg(portable_atomic_asm_experimental_arch)]
+#[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
@@ -56,7 +56,7 @@ mod x86_64;
 #[path = "atomic128/intrinsics.rs"]
 mod powerpc64;
 #[cfg(not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm15)))]
-#[cfg(portable_atomic_asm_experimental_arch)]
+#[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
@@ -65,7 +65,7 @@ mod powerpc64;
 #[path = "atomic128/powerpc64.rs"]
 mod powerpc64;
 
-#[cfg(portable_atomic_asm_experimental_arch)]
+#[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(target_arch = "s390x")]
 #[path = "atomic128/s390x.rs"]
 mod s390x;
@@ -107,14 +107,14 @@ mod x86;
             target_arch = "x86_64",
         ),
         all(
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
             target_arch = "powerpc64"
         ),
-        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
+        all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -315,13 +315,13 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     any(
         target_feature = "cmpxchg16b",
         portable_atomic_target_feature = "cmpxchg16b",
-        portable_atomic_cmpxchg16b_dynamic
+        portable_atomic_unstable_cmpxchg16b_target_feature
     ),
     target_arch = "x86_64",
 ))]
 pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 // powerpc64
-#[cfg(portable_atomic_asm_experimental_arch)]
+#[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics"
@@ -329,7 +329,7 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 #[cfg(target_arch = "powerpc64")]
 pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
 // s390x
-#[cfg(portable_atomic_asm_experimental_arch)]
+#[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(target_arch = "s390x")]
 pub(crate) use self::s390x::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has CAS => use lock-base fallback
@@ -341,19 +341,19 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b",
-            portable_atomic_cmpxchg16b_dynamic
+            portable_atomic_unstable_cmpxchg16b_target_feature
         ),
         target_arch = "x86_64",
     ),
     all(
-        portable_atomic_asm_experimental_arch,
+        portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
         ),
         target_arch = "powerpc64"
     ),
-    all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
+    all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
 )))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]

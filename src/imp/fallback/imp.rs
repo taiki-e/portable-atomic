@@ -50,7 +50,7 @@ macro_rules! atomic {
                 unsafe { &*(self.v.get() as *const $int_type as *const [AtomicChunk; Self::LEN]) }
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
@@ -123,27 +123,27 @@ macro_rules! atomic {
         // SAFETY: any data races are prevented by the lock and atomic operation.
         unsafe impl Sync for $atomic_type {}
 
-        #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+        #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
         no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
                 Self::is_always_lock_free()
             }
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
                 false
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
                 // SAFETY: the mutable reference guarantees unique ownership.
@@ -151,13 +151,13 @@ macro_rules! atomic {
                 unsafe { &mut *self.v.get() }
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn into_inner(self) -> $int_type {
                 self.v.into_inner()
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
@@ -181,7 +181,7 @@ macro_rules! atomic {
                 val
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
@@ -190,7 +190,7 @@ macro_rules! atomic {
                 self.write(val, &guard)
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -221,7 +221,7 @@ macro_rules! atomic {
                 }
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange_weak(
@@ -234,7 +234,7 @@ macro_rules! atomic {
                 self.compare_exchange(current, new, success, failure)
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -243,7 +243,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -252,7 +252,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -261,7 +261,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -270,7 +270,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -279,7 +279,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -288,7 +288,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -297,7 +297,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -306,7 +306,7 @@ macro_rules! atomic {
                 result
             }
 
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -314,7 +314,7 @@ macro_rules! atomic {
                 self.write(!result, &guard);
                 result
             }
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
@@ -324,7 +324,7 @@ macro_rules! atomic {
     (int, $atomic_type:ident, $int_type:ident, $align:expr) => {
         atomic!(uint, $atomic_type, $int_type, $align);
         impl $atomic_type {
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
@@ -332,7 +332,7 @@ macro_rules! atomic {
                 self.write(result.wrapping_neg(), &guard);
                 result
             }
-            #[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
@@ -356,7 +356,7 @@ atomic!(int, AtomicI64, i64, 8);
 )]
 atomic!(uint, AtomicU64, u64, 8);
 
-#[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+#[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
 atomic!(int, AtomicI128, i128, 16);
 atomic!(uint, AtomicU128, u128, 16);
 

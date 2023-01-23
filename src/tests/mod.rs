@@ -36,7 +36,7 @@ test_atomic_int_pub!(u64);
 #[cfg_attr(
     all(
         target_arch = "powerpc64",
-        portable_atomic_asm_experimental_arch,
+        portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
@@ -48,7 +48,7 @@ test_atomic_int_pub!(i128);
 #[cfg_attr(
     all(
         target_arch = "powerpc64",
-        portable_atomic_asm_experimental_arch,
+        portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics"
@@ -60,14 +60,14 @@ test_atomic_int_pub!(u128);
 #[cfg(qemu)]
 #[cfg(all(
     target_arch = "powerpc64",
-    portable_atomic_asm_experimental_arch,
+    portable_atomic_unstable_asm_experimental_arch,
     any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
 ))]
 test_atomic_int_load_store_pub!(i128);
 #[cfg(qemu)]
 #[cfg(all(
     target_arch = "powerpc64",
-    portable_atomic_asm_experimental_arch,
+    portable_atomic_unstable_asm_experimental_arch,
     any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
 ))]
 test_atomic_int_load_store_pub!(u128);
@@ -132,13 +132,13 @@ fn test_is_lock_free() {
         target_arch = "aarch64",
         all(
             target_arch = "powerpc64",
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             )
         ),
-        all(target_arch = "s390x", portable_atomic_asm_experimental_arch),
+        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
         all(
             target_arch = "x86_64",
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")
@@ -160,7 +160,7 @@ fn test_is_lock_free() {
         // Miri doesn't support inline assembly used in is_x86_feature_detected
         #[cfg(not(miri))]
         {
-            let has_cmpxchg16b = cfg!(portable_atomic_cmpxchg16b_dynamic)
+            let has_cmpxchg16b = cfg!(portable_atomic_unstable_cmpxchg16b_target_feature)
                 && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);

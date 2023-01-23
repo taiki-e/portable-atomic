@@ -184,15 +184,15 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::type_complexity
 )]
 // x86_64 128-bit atomic (fallback + dynamic detection only)
-// we use cfg set by build script to determine whether this feature is available or not.
+// We use cfg set by build script to determine whether this feature is available or not.
+// This feature will be stabilized in https://github.com/rust-lang/rust/pull/106774.
 #![cfg_attr(
     all(
-        portable_atomic_nightly,
         target_arch = "x86_64",
         any(
-            test,
+            all(test, portable_atomic_nightly),
             all(
-                portable_atomic_cmpxchg16b_dynamic,
+                portable_atomic_unstable_cmpxchg16b_target_feature,
                 not(any(
                     target_feature = "cmpxchg16b",
                     portable_atomic_target_feature = "cmpxchg16b",
@@ -208,20 +208,19 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 // determine whether this feature is available or not.
 #![cfg_attr(
     all(
-        portable_atomic_nightly,
         not(portable_atomic_no_asm),
         any(
             target_arch = "avr",
             target_arch = "msp430",
             all(
-                portable_atomic_asm_experimental_arch,
+                portable_atomic_unstable_asm_experimental_arch,
                 target_arch = "powerpc64",
                 any(
                     target_feature = "quadword-atomics",
                     portable_atomic_target_feature = "quadword-atomics"
                 )
             ),
-            all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
+            all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
         ),
     ),
     feature(asm_experimental_arch)
@@ -273,6 +272,8 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     ),
     feature(core_intrinsics)
 )]
+// This feature will be unnecessary once stdarch submodule in rust-lang/rust is
+// updated to include https://github.com/rust-lang/stdarch/pull/1358.
 #![cfg_attr(
     all(
         target_arch = "x86_64",
@@ -4489,19 +4490,19 @@ atomic_int!(AtomicU64, u64, 8);
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_cmpxchg16b_dynamic
+                portable_atomic_unstable_cmpxchg16b_target_feature
             ),
             target_arch = "x86_64",
         ),
         all(
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
             target_arch = "powerpc64"
         ),
-        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
+        all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(
@@ -4537,19 +4538,19 @@ atomic_int!(AtomicI128, i128, 16);
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_cmpxchg16b_dynamic
+                portable_atomic_unstable_cmpxchg16b_target_feature
             ),
             target_arch = "x86_64",
         ),
         all(
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
             ),
             target_arch = "powerpc64"
         ),
-        all(portable_atomic_asm_experimental_arch, target_arch = "s390x"),
+        all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
 )]
 #[cfg_attr(

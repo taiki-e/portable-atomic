@@ -64,7 +64,7 @@ mod seq_lock;
 #[cfg_attr(test, allow(unused_imports))]
 pub(crate) use seq_lock::imp::{AtomicI64, AtomicU64};
 
-#[cfg(any(test, not(portable_atomic_cmpxchg16b_dynamic)))]
+#[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
 #[cfg_attr(test, allow(unused_imports))]
 pub(crate) use seq_lock::imp::AtomicI128;
 #[cfg_attr(test, allow(unused_imports))]

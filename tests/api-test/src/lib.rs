@@ -75,7 +75,7 @@ pub fn all() {
         all(
             test,
             target_arch = "powerpc64",
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"
@@ -88,7 +88,7 @@ pub fn all() {
         all(
             test,
             target_arch = "powerpc64",
-            portable_atomic_asm_experimental_arch,
+            portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics"

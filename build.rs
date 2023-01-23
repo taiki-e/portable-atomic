@@ -73,7 +73,7 @@ fn main() {
     if no_asm {
         if version.nightly
             && version.probe(46, 2020, 6, 20)
-            && (target_arch != "x86_64" || version.llvm >= 10)
+            && ((target_arch != "x86" && target_arch != "x86_64") || version.llvm >= 10)
             && is_allowed_feature("asm")
         {
             // This feature was added in Rust 1.45 (nightly-2020-05-20), but
@@ -107,8 +107,8 @@ fn main() {
             // nightly, which is older than nightly-2022-02-11.
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         } else {
-            let target = &*convert_custom_linux_target(target);
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
+            let target = &*convert_custom_linux_target(target);
             if NO_ATOMIC_CAS.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
             }
@@ -157,7 +157,7 @@ fn main() {
             && (target_arch == "powerpc64" || target_arch == "s390x")
             && is_allowed_feature("asm_experimental_arch")
         {
-            println!("cargo:rustc-cfg=portable_atomic_asm_experimental_arch");
+            println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
         }
     }
 
@@ -174,7 +174,7 @@ fn main() {
                 && env::var_os("CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS").is_none()
                 && is_allowed_feature("cmpxchg16b_target_feature")
             {
-                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_dynamic");
+                println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_target_feature");
             }
         }
         "aarch64" => {
