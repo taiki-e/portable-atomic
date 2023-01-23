@@ -88,6 +88,7 @@ sourceware
 spinlock
 sreg
 sstatus
+stdarch
 stdsimd
 stlxp
 stpq

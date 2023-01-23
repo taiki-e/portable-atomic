@@ -45,6 +45,9 @@
 
 include!("macros.rs");
 
+#[path = "detect/aarch64_std.rs"]
+mod detect;
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::sync::atomic::Ordering;
@@ -270,9 +273,6 @@ unsafe fn atomic_compare_exchange(
         #[cfg(not(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
-            // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
-            // It is fine to use std for targets that we know can be linked to std.
-            // Note: aarch64 freebsd is tier 3, so std may not be available.
             any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
         )))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -281,20 +281,16 @@ unsafe fn atomic_compare_exchange(
         #[cfg(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
-            // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
-            // It is fine to use std for targets that we know can be linked to std.
-            // Note: aarch64 freebsd is tier 3, so std may not be available.
             any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
         ))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         () => {
-            extern crate std;
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
             // and we've checked if FEAT_LSE is available.
             unsafe {
                 ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128;
-                if std::arch::is_aarch64_feature_detected!("lse") {
+                if detect::has_lse() {
                     _compare_exchange_casp
                 } else {
                     _compare_exchange_ldxp_stxp
