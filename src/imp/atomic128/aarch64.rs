@@ -45,7 +45,8 @@
 
 include!("macros.rs");
 
-#[path = "detect/aarch64_std.rs"]
+#[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
+#[cfg_attr(not(target_os = "windows"), path = "detect/aarch64_std.rs")]
 mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
