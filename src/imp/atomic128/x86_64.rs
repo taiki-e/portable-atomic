@@ -312,7 +312,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128;
             {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
-                let cpuid = detect::cpuid();
+                let cpuid = detect::detect();
                 if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
                     _atomic_load_vmovdqa
                 } else {
@@ -357,7 +357,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering);
             {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
-                let cpuid = detect::cpuid();
+                let cpuid = detect::detect();
                 if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
                     _atomic_store_vmovdqa
                 } else {

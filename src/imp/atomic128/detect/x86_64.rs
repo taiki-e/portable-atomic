@@ -14,37 +14,7 @@ include!("common.rs");
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::{
-    arch::x86_64::CpuidResult,
-    sync::atomic::{AtomicU32, Ordering},
-};
-
-impl CpuInfo {
-    const INIT: u32 = 0;
-    const HAS_CMPXCHG16B: u32 = 1;
-    const HAS_VMOVDQA_ATOMIC: u32 = 2;
-
-    #[allow(clippy::unused_self)]
-    #[inline]
-    pub(crate) fn has_cmpxchg16b(self) -> bool {
-        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        {
-            // CMPXCHG16B is statically available.
-            true
-        }
-        #[cfg(not(any(
-            target_feature = "cmpxchg16b",
-            portable_atomic_target_feature = "cmpxchg16b"
-        )))]
-        {
-            self.test(CpuInfo::HAS_CMPXCHG16B)
-        }
-    }
-    #[inline]
-    pub(crate) fn has_vmovdqa_atomic(self) -> bool {
-        self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)
-    }
-}
+use core::arch::x86_64::CpuidResult;
 
 // Workaround for https://github.com/rust-lang/rust/issues/101346
 // It is not clear if our use cases are affected, but we implement this just in case.
@@ -93,8 +63,7 @@ unsafe fn _vendor_id() -> [u8; 12] {
 }
 
 #[inline]
-fn _cpuid(info: &mut CpuInfo) {
-    info.set(CpuInfo::INIT);
+fn _detect(info: &mut CpuInfo) {
     // Miri doesn't support inline assembly used in __cpuid
     #[cfg(miri)]
     {
@@ -136,33 +105,6 @@ fn _cpuid(info: &mut CpuInfo) {
     }
 }
 
-#[inline]
-pub(crate) fn cpuid() -> CpuInfo {
-    static CACHE: AtomicU32 = AtomicU32::new(0);
-    let mut info = CpuInfo(CACHE.load(Ordering::Relaxed));
-    if info.0 != 0 {
-        return info;
-    }
-    _cpuid(&mut info);
-    CACHE.store(info.0, Ordering::Relaxed);
-    info
-}
-
-/// Equivalent to `cpuid().has_cmpxchg16b()`, but avoids calling `cpuid()`
-/// if CMPXCHG16B is statically available.
-#[inline]
-pub(crate) fn has_cmpxchg16b() -> bool {
-    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-    {
-        // CMPXCHG16B is statically available.
-        true
-    }
-    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
-    {
-        cpuid().has_cmpxchg16b()
-    }
-}
-
 #[allow(clippy::undocumented_unsafe_blocks)]
 #[cfg(test)]
 mod tests {
@@ -196,9 +138,9 @@ mod tests {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), has_cmpxchg16b());
         let vendor_id = unsafe { _vendor_id() };
         if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
-            assert_eq!(std::is_x86_feature_detected!("avx"), cpuid().has_vmovdqa_atomic());
+            assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
         } else {
-            assert!(!cpuid().has_vmovdqa_atomic());
+            assert!(!detect().has_vmovdqa_atomic());
         }
     }
 }

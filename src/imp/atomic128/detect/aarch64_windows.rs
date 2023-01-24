@@ -17,26 +17,6 @@
 
 include!("common.rs");
 
-use core::sync::atomic::{AtomicU32, Ordering};
-
-impl CpuInfo {
-    const INIT: u32 = 0;
-    const HAS_LSE: u32 = 1;
-}
-
-#[inline]
-pub(crate) fn has_lse() -> bool {
-    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-    {
-        // FEAT_LSE is statically available.
-        true
-    }
-    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-    {
-        detect().test(CpuInfo::HAS_LSE)
-    }
-}
-
 #[allow(clippy::upper_case_acronyms)]
 #[inline]
 fn _detect(info: &mut CpuInfo) {
@@ -51,24 +31,11 @@ fn _detect(info: &mut CpuInfo) {
         fn IsProcessorFeaturePresent(ProcessorFeature: DWORD) -> BOOL;
     }
 
-    info.set(CpuInfo::INIT);
     // SAFETY: calling IsProcessorFeaturePresent is safe, and FALSE is also
     // returned if the HAL does not support detection of the specified feature.
     if unsafe { IsProcessorFeaturePresent(PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE) != FALSE } {
         info.set(CpuInfo::HAS_LSE);
     }
-}
-
-#[inline]
-fn detect() -> CpuInfo {
-    static CACHE: AtomicU32 = AtomicU32::new(0);
-    let mut info = CpuInfo(CACHE.load(Ordering::Relaxed));
-    if info.0 != 0 {
-        return info;
-    }
-    _detect(&mut info);
-    CACHE.store(info.0, Ordering::Relaxed);
-    info
 }
 
 #[allow(clippy::undocumented_unsafe_blocks)]
@@ -99,7 +66,7 @@ mod tests {
                 not(portable_atomic_no_aarch64_target_feature),
             ))]
             unsafe {
-                use core::cell::UnsafeCell;
+                use core::{cell::UnsafeCell, sync::atomic::Ordering};
                 let v = UnsafeCell::new(0);
                 assert_eq!(
                     super::super::_compare_exchange_casp(v.get(), 0, 1, Ordering::SeqCst),
