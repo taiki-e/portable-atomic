@@ -93,7 +93,7 @@ impl<T: ?Sized> Shared<T> {
 ///     });
 /// }
 /// # // Sleep to give MIRI time to catch up.
-/// # std::thread::sleep(std::time::Duration::from_secs(3));
+/// # std::thread::sleep(std::time::Duration::from_secs(1));
 /// ```
 pub struct Arc<T: ?Sized> {
     /// The inner heap allocation.
@@ -125,7 +125,7 @@ pub struct Arc<T: ?Sized> {
 ///     assert_eq!(*five, 5);
 /// });
 /// # // Sleep to give MIRI time to catch up.
-/// # std::thread::sleep(std::time::Duration::from_secs(3));
+/// # std::thread::sleep(std::time::Duration::from_secs(1));
 /// ```
 pub struct Weak<T: ?Sized> {
     /// The inner heap allocation.
