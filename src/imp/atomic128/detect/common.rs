@@ -40,6 +40,7 @@ pub(crate) fn detect() -> CpuInfo {
 
 #[cfg(target_arch = "aarch64")]
 impl CpuInfo {
+    /// Whether FEAT_LSE is available
     const HAS_LSE: u32 = 1;
 }
 #[cfg(target_arch = "aarch64")]
@@ -58,7 +59,9 @@ pub(crate) fn has_lse() -> bool {
 
 #[cfg(target_arch = "x86_64")]
 impl CpuInfo {
+    /// Whether CMPXCHG16B is available
     const HAS_CMPXCHG16B: u32 = 1;
+    /// Whether VMOVDQA is atomic
     const HAS_VMOVDQA_ATOMIC: u32 = 2;
 
     #[allow(clippy::unused_self)]
