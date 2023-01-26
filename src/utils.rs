@@ -235,7 +235,7 @@ pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}
 
-// https://github.com/rust-lang/rust/blob/1.63.0/library/core/src/sync/atomic.rs#L2563
+// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2956
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
@@ -246,7 +246,7 @@ pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2624
+// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2983
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -258,7 +258,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2610
+// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2968
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -288,7 +288,7 @@ pub(crate) fn assert_swap_ordering(order: Ordering) {
 }
 
 // https://github.com/rust-lang/rust/pull/98383
-// https://github.com/rust-lang/rust/blob/7b68106ffb71f853ea32f0e0dc0785d9d647cbbf/library/core/src/sync/atomic.rs#L2686
+// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L3049
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {

@@ -12,9 +12,10 @@
 // FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
-// Note: As of rustc 1.63, -C target-feature=+lse2 does not
-// implicitly enable target_feature "lse". Also, target_feature "lse2" is not available on rustc side:
-// https://github.com/rust-lang/rust/blob/1.63.0/compiler/rustc_codegen_ssa/src/target_features.rs#L45
+// Note: As of rustc 1.68.0-nightly, -C target-feature=+lse2 does not implicitly
+// enable target_feature "lse": https://godbolt.org/z/GYTcTeda6
+// Also, as of rustc 1.67, target_feature "lse2" is not available on rustc side:
+// https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_codegen_ssa/src/target_features.rs#L47
 //
 // Note that we do not separate LL and SC into separate functions, but handle
 // them within a single asm block. This is because it is theoretically possible
