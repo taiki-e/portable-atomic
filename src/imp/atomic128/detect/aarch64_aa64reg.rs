@@ -1,4 +1,4 @@
-// Run-time feature detection on aarch64.
+// Run-time feature detection on aarch64 Linux/FreeBSD/OpenBSD.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection of FEAT_LSE on OpenBSD.
 // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
@@ -17,9 +17,10 @@
 // - OpenBSD 7.1+ (through sysctl)
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
-// For now, this module is only used on FreeBSD and OpenBSD, because on Linux
-// this approach requires a higher kernel version than Rust supports, and also
-// does not work with qemu-user as of QEMU 7.2.
+// For now, this module is only used on FreeBSD and OpenBSD.
+// On Linux, this module is test only because this approach requires a higher
+// kernel version than Rust supports, and also does not work with qemu-user as
+// of QEMU 7.2.
 
 #![cfg_attr(
     any(

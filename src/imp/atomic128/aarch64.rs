@@ -54,6 +54,13 @@ include!("macros.rs");
 )]
 mod detect;
 
+// test only
+#[cfg(test)]
+#[cfg(not(qemu))]
+#[cfg(any(target_os = "linux", target_os = "android"))]
+#[path = "detect/aarch64_aa64reg.rs"]
+mod detect_aa64reg;
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::sync::atomic::Ordering;
