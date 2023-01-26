@@ -2,7 +2,14 @@
     any(
         portable_atomic_no_aarch64_target_feature,
         portable_atomic_no_outline_atomics,
-        not(any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)),
+        not(any(
+            feature = "std",
+            target_os = "linux",
+            target_os = "android",
+            target_os = "windows",
+            // target_os = "freebsd",
+            // target_os = "openbsd",
+        )),
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     ),
     allow(dead_code)
@@ -23,8 +30,15 @@ pub(crate) fn has_lse() -> bool {
             not(portable_atomic_no_outline_atomics),
             // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
             // It is fine to use std for targets that we know can be linked to std.
-            // Note: aarch64 freebsd is tier 3, so std may not be available.
-            any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
+            // Note: std may not be available on tier 3 such as aarch64 FreeBSD/OpenBSD.
+            any(
+                feature = "std",
+                target_os = "linux",
+                target_os = "android",
+                target_os = "windows",
+                // target_os = "freebsd",
+                // target_os = "openbsd",
+            )
         ))]
         {
             extern crate std;

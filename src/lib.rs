@@ -146,6 +146,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     )
 ))]
 #![warn(
+    improper_ctypes,
     missing_debug_implementations,
     missing_docs,
     rust_2018_idioms,

@@ -51,7 +51,8 @@ default_targets=(
     aarch64-pc-windows-msvc
     aarch64-unknown-freebsd
     aarch64-unknown-linux-gnu
-    # aarch64 always support lse
+    aarch64-unknown-openbsd
+    # aarch64 always support lse & lse2
     aarch64-apple-darwin
     # aarch64 big endian
     aarch64_be-unknown-linux-gnu

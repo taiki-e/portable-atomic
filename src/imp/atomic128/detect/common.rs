@@ -40,7 +40,16 @@ pub(crate) fn detect() -> CpuInfo {
 
 #[cfg(target_arch = "aarch64")]
 impl CpuInfo {
+    /// Whether FEAT_LSE is available
     const HAS_LSE: u32 = 1;
+    /// Whether FEAT_LSE2 is available
+    // This is currently only used in tests.
+    #[cfg(test)]
+    const HAS_LSE2: u32 = 2;
+    /// Whether FEAT_LSE128 is available
+    // This is currently only used in tests.
+    #[cfg(test)]
+    const HAS_LSE128: u32 = 3;
 }
 #[cfg(target_arch = "aarch64")]
 #[inline]
@@ -58,7 +67,9 @@ pub(crate) fn has_lse() -> bool {
 
 #[cfg(target_arch = "x86_64")]
 impl CpuInfo {
+    /// Whether CMPXCHG16B is available
     const HAS_CMPXCHG16B: u32 = 1;
+    /// Whether VMOVDQA is atomic
     const HAS_VMOVDQA_ATOMIC: u32 = 2;
 
     #[allow(clippy::unused_self)]
@@ -95,5 +106,85 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     {
         detect().has_cmpxchg16b()
+    }
+}
+
+#[cfg(target_arch = "aarch64")]
+#[allow(clippy::undocumented_unsafe_blocks)]
+#[cfg(test)]
+mod tests_aarch64_common {
+    use super::*;
+
+    #[test]
+    fn test_bit_flags() {
+        let mut x = CpuInfo(0);
+        assert!(!x.test(CpuInfo::INIT));
+        assert!(!x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::INIT);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(!x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::HAS_LSE);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::HAS_LSE2);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::HAS_LSE128);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(x.test(CpuInfo::HAS_LSE2));
+        assert!(x.test(CpuInfo::HAS_LSE128));
+    }
+
+    #[test]
+    fn test_detect() {
+        if has_lse() {
+            assert!(detect().test(CpuInfo::HAS_LSE));
+            #[cfg(any(
+                target_feature = "lse",
+                portable_atomic_target_feature = "lse",
+                not(portable_atomic_no_aarch64_target_feature),
+            ))]
+            unsafe {
+                use core::{cell::UnsafeCell, sync::atomic::Ordering};
+                let v = UnsafeCell::new(0);
+                assert_eq!(
+                    super::super::_compare_exchange_casp(v.get(), 0, 1, Ordering::SeqCst),
+                    0
+                );
+                assert_eq!(*v.get(), 1);
+            }
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSE));
+            #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            {
+                assert!(!std::arch::is_aarch64_feature_detected!("lse"));
+            }
+        }
+        if detect().test(CpuInfo::HAS_LSE2) {
+            assert!(detect().test(CpuInfo::HAS_LSE));
+            assert!(detect().test(CpuInfo::HAS_LSE2));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSE2));
+            #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            {
+                assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
+            }
+        }
+        if detect().test(CpuInfo::HAS_LSE128) {
+            assert!(detect().test(CpuInfo::HAS_LSE));
+            assert!(detect().test(CpuInfo::HAS_LSE2));
+            assert!(detect().test(CpuInfo::HAS_LSE128));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSE128));
+        }
     }
 }
