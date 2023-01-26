@@ -48,7 +48,6 @@ ishld
 isync
 ldaxp
 ldxp
-libc
 libcalls
 libtcl
 libtest

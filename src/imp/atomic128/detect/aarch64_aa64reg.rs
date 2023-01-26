@@ -122,7 +122,7 @@ mod imp {
 
     // core::ffi::c_* (except c_void) requires Rust 1.64
     #[allow(non_camel_case_types)]
-    mod ffi {
+    pub(super) mod ffi {
         pub(crate) use core::ffi::c_void;
         // c_{,u}int is {i,u}32 on non-16-bit architectures
         // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
@@ -220,4 +220,27 @@ mod tests {
             assert_eq!(extract(aa64mmfr2, 35, 32), 1);
         }
     }
+
+    // static assertions for FFI bindings signatures
+    // TODO: auto-generate this test
+    #[cfg(target_os = "openbsd")]
+    const _: fn() = || {
+        use imp::ffi;
+        let _: ffi::c_int = 0 as libc::c_int;
+        let _: ffi::c_uint = 0 as libc::c_uint;
+        let _: ffi::c_size_t = 0 as libc::size_t;
+        let mut _sysctl: unsafe extern "C" fn(
+            *const ffi::c_int,
+            ffi::c_uint,
+            *mut ffi::c_void,
+            *mut ffi::c_size_t,
+            *mut ffi::c_void,
+            ffi::c_size_t,
+        ) -> ffi::c_int = ffi::sysctl;
+        _sysctl = libc::sysctl;
+        let [] = [(); (ffi::CTL_MACHDEP - libc::CTL_MACHDEP) as usize];
+        // libc doesn't have them
+        // let [] = [(); (ffi::CPU_ID_AA64ISAR0 - libc::CPU_ID_AA64ISAR0) as usize];
+        // let [] = [(); (ffi::CPU_ID_AA64MMFR2 - libc::CPU_ID_AA64MMFR2) as usize];
+    };
 }
