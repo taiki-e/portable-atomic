@@ -46,7 +46,11 @@
 include!("macros.rs");
 
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
-#[cfg_attr(not(target_os = "windows"), path = "detect/aarch64_std.rs")]
+#[cfg_attr(any(target_os = "freebsd", target_os = "openbsd"), path = "detect/aarch64_aa64reg.rs")]
+#[cfg_attr(
+    not(any(target_os = "windows", target_os = "freebsd", target_os = "openbsd")),
+    path = "detect/aarch64_std.rs"
+)]
 mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
@@ -274,7 +278,14 @@ unsafe fn atomic_compare_exchange(
         #[cfg(not(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
-            any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
+            any(
+                feature = "std",
+                target_os = "linux",
+                target_os = "android",
+                target_os = "windows",
+                target_os = "freebsd",
+                target_os = "openbsd",
+            )
         )))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
@@ -282,7 +293,14 @@ unsafe fn atomic_compare_exchange(
         #[cfg(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
-            any(feature = "std", target_os = "linux", target_os = "android", target_os = "windows", /* target_os = "freebsd" */)
+            any(
+                feature = "std",
+                target_os = "linux",
+                target_os = "android",
+                target_os = "windows",
+                target_os = "freebsd",
+                target_os = "openbsd",
+            )
         ))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         () => {

@@ -42,6 +42,14 @@ pub(crate) fn detect() -> CpuInfo {
 impl CpuInfo {
     /// Whether FEAT_LSE is available
     const HAS_LSE: u32 = 1;
+    /// Whether FEAT_LSE2 is available
+    // This is currently only used in tests.
+    #[cfg(test)]
+    const HAS_LSE2: u32 = 2;
+    /// Whether FEAT_LSE128 is available
+    // This is currently only used in tests.
+    #[cfg(test)]
+    const HAS_LSE128: u32 = 3;
 }
 #[cfg(target_arch = "aarch64")]
 #[inline]
@@ -112,12 +120,28 @@ mod tests_aarch64_common {
         let mut x = CpuInfo(0);
         assert!(!x.test(CpuInfo::INIT));
         assert!(!x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
         x.set(CpuInfo::INIT);
         assert!(x.test(CpuInfo::INIT));
         assert!(!x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
         x.set(CpuInfo::HAS_LSE);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(!x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::HAS_LSE2);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(x.test(CpuInfo::HAS_LSE2));
+        assert!(!x.test(CpuInfo::HAS_LSE128));
+        x.set(CpuInfo::HAS_LSE128);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(x.test(CpuInfo::HAS_LSE2));
+        assert!(x.test(CpuInfo::HAS_LSE128));
     }
 
     #[test]
@@ -144,6 +168,23 @@ mod tests_aarch64_common {
             {
                 assert!(!std::arch::is_aarch64_feature_detected!("lse"));
             }
+        }
+        if detect().test(CpuInfo::HAS_LSE2) {
+            assert!(detect().test(CpuInfo::HAS_LSE));
+            assert!(detect().test(CpuInfo::HAS_LSE2));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSE2));
+            #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            {
+                assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
+            }
+        }
+        if detect().test(CpuInfo::HAS_LSE128) {
+            assert!(detect().test(CpuInfo::HAS_LSE));
+            assert!(detect().test(CpuInfo::HAS_LSE2));
+            assert!(detect().test(CpuInfo::HAS_LSE128));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSE128));
         }
     }
 }
