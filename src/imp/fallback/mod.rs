@@ -52,7 +52,19 @@ mod seq_lock;
 #[path = "seq_lock_wide.rs"]
 mod seq_lock;
 
-#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+#[cfg(not(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    target_arch = "aarch64",
+    target_arch = "bpf",
+    target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
+    target_arch = "x86_64",
+)))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_64))

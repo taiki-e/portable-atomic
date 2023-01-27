@@ -341,14 +341,38 @@ macro_rules! atomic {
     };
 }
 
-#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+#[cfg(not(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    target_arch = "aarch64",
+    target_arch = "bpf",
+    target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
+    target_arch = "x86_64",
+)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
 atomic!(int, AtomicI64, i64, 8);
-#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+#[cfg(not(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")),
+    target_arch = "aarch64",
+    target_arch = "bpf",
+    target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
+    target_arch = "x86_64",
+)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
@@ -364,9 +388,33 @@ atomic!(uint, AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+    #[cfg(not(any(
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        target_arch = "aarch64",
+        target_arch = "bpf",
+        target_arch = "mips64",
+        target_arch = "nvptx64",
+        target_arch = "powerpc64",
+        target_arch = "riscv64",
+        target_arch = "s390x",
+        target_arch = "sparc64",
+        target_arch = "wasm64",
+        target_arch = "x86_64",
+    )))]
     test_atomic_int!(i64);
-    #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+    #[cfg(not(any(
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        target_arch = "aarch64",
+        target_arch = "bpf",
+        target_arch = "mips64",
+        target_arch = "nvptx64",
+        target_arch = "powerpc64",
+        target_arch = "riscv64",
+        target_arch = "s390x",
+        target_arch = "sparc64",
+        target_arch = "wasm64",
+        target_arch = "x86_64",
+    )))]
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);

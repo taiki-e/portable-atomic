@@ -91,6 +91,7 @@ default_targets=(
 known_cfgs=(
     docsrs
     qemu
+    valgrind
     portable_atomic_unsafe_assume_single_core
     portable_atomic_s_mode
     portable_atomic_disable_fiq
@@ -130,7 +131,12 @@ rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
-base_args=(${pre_args[@]+"${pre_args[@]}"} hack build)
+metadata=$(cargo metadata --format-version=1 --no-deps)
+target_dir=$(jq <<<"${metadata}" -r '.target_directory')
+case "${TESTS:-}" in
+    1) base_args=(${pre_args[@]+"${pre_args[@]}"} check --tests) ;;
+    *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
+esac
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
@@ -142,9 +148,14 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs portable-atomic-util/build.rs | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
         check_cfg="-Z unstable-options --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
-        base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
+        target_dir="${target_dir}/check-cfg"
+        case "${TESTS:-}" in
+            1) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy --tests -Z check-cfg="names,values,output,features") ;;
+            *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features") ;;
+        esac
     fi
 fi
+export CARGO_TARGET_DIR="${target_dir}"
 
 has_asm=''
 # asm! requires 1.59
@@ -206,6 +217,19 @@ build() {
         return 0
     fi
 
+    if [[ "${TESTS:-}" == "1" ]]; then
+        case "${target}" in
+            # we use std in tests
+            *-none* | *-cuda* | avr-* | *-esp-espidf)
+                echo "target '${target}' does not support 'std' required to build test (skipped all checks)"
+                return 0
+                ;;
+        esac
+        RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" "$@" --all-features
+        return 0
+    fi
+
     # paste! on statements requires 1.45
     if [[ "${rustc_minor_version}" -gt 44 ]]; then
         if [[ -n "${has_atomic_cas}" ]]; then
@@ -258,16 +282,19 @@ build() {
                         avr-* | msp430-*) ;;                            # always single-core
                         bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
                         *)
-                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core "$@"
+                            CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                        x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core-disable-fiq "$@"
+                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-disable-fiq" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                                     ;;
                                 riscv*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                        x_cargo "${args[@]}" --exclude-features "critical-section" --target-dir target/assume-single-core-s-mode "$@"
+                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                                     ;;
                             esac
                             ;;
@@ -286,8 +313,9 @@ build() {
     case "${target}" in
         # portable_atomic_no_outline_atomics only affects x86_64 and aarch64.
         x86_64* | aarch64* | arm64*)
-            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
-                x_cargo "${args[@]}" --target-dir target/no_outline_atomics "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
+                x_cargo "${args[@]}" "$@"
             ;;
     esac
     case "${target}" in
@@ -296,8 +324,9 @@ build() {
             case "${target}" in
                 *-darwin) ;;
                 *)
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
-                        x_cargo "${args[@]}" --target-dir target/cmpxchg16b "$@"
+                    CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
+                        x_cargo "${args[@]}" "$@"
                     ;;
             esac
             ;;
@@ -306,22 +335,26 @@ build() {
             case "${target}" in
                 *-darwin) ;;
                 *)
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
-                        x_cargo "${args[@]}" --target-dir target/lse "$@"
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
-                        x_cargo "${args[@]}" --target-dir target/lse2 "$@"
+                    CARGO_TARGET_DIR="${target_dir}/lse" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
+                        x_cargo "${args[@]}" "$@"
+                    CARGO_TARGET_DIR="${target_dir}/lse2" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
+                        x_cargo "${args[@]}" "$@"
                     ;;
             esac
             ;;
         powerpc64-*)
             # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-            RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
-                x_cargo "${args[@]}" --target-dir target/pwr8 "$@"
+            CARGO_TARGET_DIR="${target_dir}/pwr8" \
+                RUSTFLAGS="${target_rustflags} -C target-cpu=pwr8" \
+                x_cargo "${args[@]}" "$@"
             ;;
         powerpc64le-*)
             # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-            RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
-                x_cargo "${args[@]}" --target-dir target/pwr7 "$@"
+            CARGO_TARGET_DIR="${target_dir}/pwr7" \
+                RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
+                x_cargo "${args[@]}" "$@"
             ;;
     esac
 }

@@ -225,6 +225,7 @@ mod tests {
     // static assertions for FFI bindings signatures
     // TODO: auto-generate this test
     #[cfg(target_os = "openbsd")]
+    #[allow(clippy::no_effect_underscore_binding)]
     const _: fn() = || {
         use imp::ffi;
         let _: ffi::c_int = 0 as libc::c_int;
