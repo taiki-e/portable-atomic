@@ -126,8 +126,8 @@ macro_rules! serde_impls {
             where
                 S: serde::Serializer,
             {
-                // https://github.com/serde-rs/serde/blob/v1.0.136/serde/src/ser/impls.rs#L918-L919
-                self.load(Ordering::SeqCst).serialize(serializer)
+                // https://github.com/serde-rs/serde/blob/v1.0.152/serde/src/ser/impls.rs#L958-L959
+                self.load(Ordering::Relaxed).serialize(serializer)
             }
         }
         #[cfg(feature = "serde")]
