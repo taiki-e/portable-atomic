@@ -57,6 +57,7 @@ mod detect;
 // test only
 #[cfg(test)]
 #[cfg(not(qemu))]
+#[cfg(not(valgrind))]
 #[cfg(any(target_os = "linux", target_os = "android"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect_aa64reg;

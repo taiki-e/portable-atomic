@@ -19,8 +19,8 @@
 //
 // For now, this module is only used on FreeBSD and OpenBSD.
 // On Linux, this module is test only because this approach requires a higher
-// kernel version than Rust supports, and also does not work with qemu-user as
-// of QEMU 7.2.
+// kernel version than Rust supports, and also does not work with qemu-user
+// (as of QEMU 7.2) and Valgrind.
 
 #![cfg_attr(
     any(
