@@ -45,5 +45,5 @@
       "dictionaries": ["rust"]
     }
   ],
-  "ignorePaths": ["target-specs/**", "**/*.ld"]
+  "ignorePaths": ["target-specs/**", "tools/codegen/patches/**", "**/*.ld"]
 }

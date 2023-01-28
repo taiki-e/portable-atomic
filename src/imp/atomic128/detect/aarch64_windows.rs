@@ -48,7 +48,16 @@ fn _detect(info: &mut CpuInfo) {
 mod tests {
     use super::*;
 
-    // static assertions for FFI bindings signatures
+    // Static assertions for FFI bindings.
+    // This checks that FFI bindings defined in this crate and FFI bindings defined
+    // in windows-sys have compatible signatures (or the same values if constants).
+    // Since this is static assertion, we can detect problems with
+    // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+    // without actually running tests on these platforms.
+    // (Unlike libc, windows-sys programmatically generates bindings from Windows
+    // API metadata, so it should be enough to check compatibility with the
+    // windows-sys' signatures/values.)
+    // See also tools/codegen/src/ffi.rs.
     // TODO: auto-generate this test
     #[allow(clippy::no_effect_underscore_binding)]
     const _: fn() = || {

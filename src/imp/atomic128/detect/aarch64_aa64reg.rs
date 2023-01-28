@@ -199,7 +199,13 @@ mod imp {
     }
 }
 
-#[allow(clippy::undocumented_unsafe_blocks)]
+#[allow(
+    clippy::alloc_instead_of_core,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core,
+    clippy::undocumented_unsafe_blocks,
+    clippy::wildcard_imports
+)]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -222,11 +228,23 @@ mod tests {
         }
     }
 
-    // static assertions for FFI bindings signatures
+    // Static assertions for FFI bindings.
+    // This checks that FFI bindings defined in this crate, FFI bindings defined
+    // in libc, and FFI bindings generated for the platform's latest header file
+    // using bindgen have compatible signatures (or the same values if constants).
+    // Since this is static assertion, we can detect problems with
+    // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+    // without actually running tests on these platforms.
+    // See also tools/codegen/src/ffi.rs.
     // TODO: auto-generate this test
     #[cfg(target_os = "openbsd")]
-    #[allow(clippy::no_effect_underscore_binding)]
+    #[allow(
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss,
+        clippy::no_effect_underscore_binding
+    )]
     const _: fn() = || {
+        use crate::tests::sys::*;
         use imp::ffi;
         let _: ffi::c_int = 0 as libc::c_int;
         let _: ffi::c_uint = 0 as libc::c_uint;
@@ -240,9 +258,16 @@ mod tests {
             ffi::c_size_t,
         ) -> ffi::c_int = ffi::sysctl;
         _sysctl = libc::sysctl;
+        _sysctl = sys_sysctl::sysctl;
         let [] = [(); (ffi::CTL_MACHDEP - libc::CTL_MACHDEP) as usize];
-        // libc doesn't have them
+        let [] = [(); (ffi::CTL_MACHDEP - sys_sysctl::CTL_MACHDEP as ffi::c_int) as usize];
+        // libc doesn't have this
         // let [] = [(); (ffi::CPU_ID_AA64ISAR0 - libc::CPU_ID_AA64ISAR0) as usize];
+        let [] =
+            [(); (ffi::CPU_ID_AA64ISAR0 - machine_cpu::CPU_ID_AA64ISAR0 as ffi::c_int) as usize];
+        // libc doesn't have this
         // let [] = [(); (ffi::CPU_ID_AA64MMFR2 - libc::CPU_ID_AA64MMFR2) as usize];
+        let [] =
+            [(); (ffi::CPU_ID_AA64MMFR2 - machine_cpu::CPU_ID_AA64MMFR2 as ffi::c_int) as usize];
     };
 }

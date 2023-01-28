@@ -66,6 +66,7 @@ mstatus
 nand
 newtype
 nographic
+nostdinc
 opensbi
 osxsave
 prefetcher
@@ -84,6 +85,7 @@ sifive
 SIGINT
 simavr
 skiboot
+smfr
 sourceware
 spinlock
 sreg
@@ -106,6 +108,7 @@ uart
 ufmt
 umax
 umin
+unparse
 usart
 uwrite
 uwriteln

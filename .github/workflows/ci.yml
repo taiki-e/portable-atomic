@@ -127,6 +127,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
+      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
@@ -135,14 +136,14 @@ jobs:
       - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+      - run: cargo careful test -vv --workspace --all-features           $EXCLUDE $TARGET $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
@@ -150,50 +151,50 @@ jobs:
 
       # +cmpxchg16b
       # macOS is skipped because it is +cmpxchg16b by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+      - run: cargo careful test -vv --workspace --all-features           $EXCLUDE $TARGET $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly')
 
       # +lse
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+      - run: cargo careful test -vv --workspace --all-features           $EXCLUDE $TARGET $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
@@ -202,25 +203,25 @@ jobs:
 
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+      - run: cargo careful test -vv --workspace --all-features           $EXCLUDE $TARGET $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
@@ -228,25 +229,25 @@ jobs:
 
       # pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
+      - run: cargo careful test -vv --workspace --all-features           $EXCLUDE $TARGET $DOCTEST_XCOMPILE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
@@ -337,10 +338,11 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component miri && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
       - run: |
-          cargo miri test --workspace --exclude bench --all-features $TARGET 2>&1 | ts -i '%.s  '
+          cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
@@ -364,6 +366,7 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: |
           echo "ASAN_OPTIONS=detect_stack_use_after_return=1" >>"${GITHUB_ENV}"
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
@@ -380,13 +383,13 @@ jobs:
         if: matrix.sanitizer == 'thread'
       # debug build + doctests is slow
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features           --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features --release         --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
         if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
       # LTO + doctests is very slow on some platforms
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -394,19 +397,19 @@ jobs:
       # +cmpxchg16b
       # debug build + doctests is slow
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features           --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features --release         --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
       # LTO + doctests is very slow on some platforms
       - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
+          cargo -Z build-std test -vv --workspace --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -426,31 +429,32 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
       - uses: taiki-e/install-action@valgrind
+      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       # doctests on Valgrind are very slow
-      - run: cargo test -vv --workspace --exclude bench --all-features --tests
+      - run: cargo test -vv --workspace --all-features           --tests $EXCLUDE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude bench --all-features --tests
+      - run: cargo test -vv --workspace --all-features           --tests $EXCLUDE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
+      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -468,21 +472,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update && rustup default nightly
+        run: rustup toolchain add nightly --no-self-update --component rustfmt && rustup default nightly
       - run: tools/no_atomic.sh
+      - run: tools/gen.sh
       - run: git add -N . && git diff --exit-code
         if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
       - id: diff
-        run: |
-          set -euxo pipefail
-          git config user.name "Taiki Endo"
-          git config user.email "te316e89@gmail.com"
-          git add -N .
-          if ! git diff --exit-code; then
-              git add .
-              git commit -m "Update no_atomic.rs"
-              echo "success=false" >>"${GITHUB_OUTPUT}"
-          fi
+        run: ci/gen.sh
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
       - uses: taiki-e/create-pull-request@v4
         with:
