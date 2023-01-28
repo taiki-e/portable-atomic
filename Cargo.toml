@@ -7,7 +7,7 @@ license = "Apache-2.0 OR MIT"
 repository = "https://github.com/taiki-e/portable-atomic"
 keywords = ["atomic"]
 categories = ["concurrency", "data-structures", "embedded", "hardware-support", "no-std"]
-exclude = ["/.*", "/tools", "/target-specs"]
+exclude = ["/.*", "/ci", "/tools", "/target-specs"]
 description = """
 Portable atomic types including support for 128-bit atomics, atomic float, etc.
 """
@@ -22,6 +22,7 @@ members = [
     "bench",
     "portable-atomic-util",
     "tests/api-test",
+    "tools/codegen",
 ]
 
 [lib]

@@ -14,6 +14,9 @@ mod critical_section_std;
 #[cfg(feature = "serde")]
 mod serde;
 
+#[path = "gen/sys/mod.rs"]
+pub(crate) mod sys;
+
 use super::*;
 
 test_atomic_bool_pub!();
