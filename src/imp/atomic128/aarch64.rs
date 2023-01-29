@@ -35,6 +35,8 @@
 // Refs:
 // - ARM Compiler armasm User Guide
 //   https://developer.arm.com/documentation/dui0801/latest
+// - Arm A-profile A64 Instruction Set Architecture
+//   https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions?lang=en
 // - Arm Architecture Reference Manual for A-profile architecture
 //   https://developer.arm.com/documentation/ddi0487/latest
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
@@ -127,12 +129,31 @@ macro_rules! atomic_rmw {
     };
 }
 
+#[inline]
+unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+    #[deny(unreachable_patterns)]
+    match () {
+        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE2.
+        () => unsafe { _atomic_load_ldp(src, order) },
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        () => unsafe { _atomic_compare_exchange_casp(src, 0, 0, order) },
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        () => unsafe { _atomic_load_ldxp_stxp(src, order) },
+    }
+}
 // If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
 #[inline]
-unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
+unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
@@ -163,64 +184,6 @@ unsafe fn _ldp(src: *mut u128, order: Ordering) -> u128 {
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
-
-// If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
-// otherwise it is two single-copy atomic writes.
-// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
-#[inline]
-unsafe fn _stp(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must guarantee that `dst` is valid for writes,
-    // 16-byte aligned, that there are no concurrent non-atomic operations.
-    //
-    // Refs:
-    // - STP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STP
-    unsafe {
-        let val = U128 { whole: val };
-        macro_rules! atomic_store {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    concat!("stp {val_lo}, {val_hi}, [{dst", ptr_modifier!(), "}]"),
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_lo = in(reg) val.pair.lo,
-                    val_hi = in(reg) val.pair.hi,
-                    options(nostack, preserves_flags),
-                )
-            };
-        }
-        match order {
-            Ordering::Relaxed => atomic_store!("", ""),
-            Ordering::Release => atomic_store!("", "dmb ish"),
-            Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
-            _ => unreachable_unchecked!("{:?}", order),
-        }
-    }
-}
-
-#[inline]
-unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[deny(unreachable_patterns)]
-    match () {
-        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        // cfg guarantee that the CPU supports FEAT_LSE2.
-        () => unsafe { _ldp(src, order) },
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        () => unsafe { _compare_exchange_casp(src, 0, 0, order) },
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        () => unsafe { _atomic_load_ldxp_stxp(src, order) },
-    }
-}
-
 #[inline]
 unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
@@ -259,12 +222,48 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         // cfg guarantee that the CPU supports FEAT_LSE2.
-        () => unsafe { _stp(dst, val, order) },
+        () => unsafe { _atomic_store_stp(dst, val, order) },
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe {
             atomic_swap(dst, val, order);
         },
+    }
+}
+// If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
+// otherwise it is two single-copy atomic writes.
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+#[inline]
+unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for writes,
+    // 16-byte aligned, that there are no concurrent non-atomic operations.
+    //
+    // Refs:
+    // - STP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STP
+    unsafe {
+        let val = U128 { whole: val };
+        macro_rules! atomic_store {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    $release,
+                    concat!("stp {val_lo}, {val_hi}, [{dst", ptr_modifier!(), "}]"),
+                    $acquire,
+                    dst = in(reg) dst,
+                    val_lo = in(reg) val.pair.lo,
+                    val_hi = in(reg) val.pair.hi,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        match order {
+            Ordering::Relaxed => atomic_store!("", ""),
+            Ordering::Release => atomic_store!("", "dmb ish"),
+            Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
+            _ => unreachable_unchecked!("{:?}", order),
+        }
     }
 }
 
@@ -283,7 +282,7 @@ unsafe fn atomic_compare_exchange(
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
         // cfg guarantee that the CPU supports FEAT_LSE.
-        () => unsafe { _compare_exchange_casp(dst, old, new, success) },
+        () => unsafe { _atomic_compare_exchange_casp(dst, old, new, success) },
         #[cfg(not(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
@@ -298,7 +297,7 @@ unsafe fn atomic_compare_exchange(
         )))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-        () => unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) },
+        () => unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) },
         #[cfg(all(
             not(portable_atomic_no_aarch64_target_feature),
             not(portable_atomic_no_outline_atomics),
@@ -319,9 +318,9 @@ unsafe fn atomic_compare_exchange(
             unsafe {
                 ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128;
                 if detect::has_lse() {
-                    _compare_exchange_casp
+                    _atomic_compare_exchange_casp
                 } else {
-                    _compare_exchange_ldxp_stxp
+                    _atomic_compare_exchange_ldxp_stxp
                 })
             }
         }
@@ -332,7 +331,6 @@ unsafe fn atomic_compare_exchange(
         Err(res)
     }
 }
-
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
@@ -340,7 +338,12 @@ unsafe fn atomic_compare_exchange(
 ))]
 #[cfg_attr(not(portable_atomic_no_aarch64_target_feature), target_feature(enable = "lse"))]
 #[inline]
-unsafe fn _compare_exchange_casp(dst: *mut u128, old: u128, new: u128, order: Ordering) -> u128 {
+unsafe fn _atomic_compare_exchange_casp(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    order: Ordering,
+) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -348,7 +351,8 @@ unsafe fn _compare_exchange_casp(dst: *mut u128, old: u128, new: u128, order: Or
     // and the CPU supports FEAT_LSE.
     //
     // Refs:
-    // - CASP(AL): https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL
+    // - https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL
+    // - https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-Swap-Pair-of-words-or-doublewords-in-memory-
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -372,9 +376,8 @@ unsafe fn _compare_exchange_casp(dst: *mut u128, old: u128, new: u128, order: Or
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
-
 #[inline]
-unsafe fn _compare_exchange_ldxp_stxp(
+unsafe fn _atomic_compare_exchange_ldxp_stxp(
     dst: *mut u128,
     old: u128,
     new: u128,
@@ -1043,7 +1046,7 @@ mod tests_no_outline_atomics {
         _failure: Ordering,
     ) -> Result<u128, u128> {
         // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-        let res = unsafe { _compare_exchange_ldxp_stxp(dst, old, new, success) };
+        let res = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) };
         if res == old {
             Ok(res)
         } else {

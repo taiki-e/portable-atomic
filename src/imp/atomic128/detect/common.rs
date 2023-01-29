@@ -157,7 +157,7 @@ mod tests_aarch64_common {
                 use core::{cell::UnsafeCell, sync::atomic::Ordering};
                 let v = UnsafeCell::new(0);
                 assert_eq!(
-                    super::super::_compare_exchange_casp(v.get(), 0, 1, Ordering::SeqCst),
+                    super::super::_atomic_compare_exchange_casp(v.get(), 0, 1, Ordering::SeqCst),
                     0
                 );
                 assert_eq!(*v.get(), 1);
