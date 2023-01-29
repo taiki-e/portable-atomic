@@ -134,6 +134,7 @@ mod imp {
         pub(crate) type c_size_t = usize;
 
         extern "C" {
+            // Defined in sys/sysctl.h.
             // https://man.openbsd.org/sysctl.2
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/openbsd/mod.rs#L1817-L1824
             pub(crate) fn sysctl(
@@ -179,8 +180,11 @@ mod imp {
         const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u64>() as ffi::c_size_t;
         let mut out = MaybeUninit::<u64>::uninit();
         let mut out_len = OUT_LEN;
-        #[allow(clippy::undocumented_unsafe_blocks)] // TODO
         #[allow(clippy::cast_possible_truncation)]
+        // SAFETY:
+        // - `mib.len()` does not exceed the size of `mib`.
+        // - `out_len` does not exceed the size of `out`.
+        // - `sysctl` is thread-safe.
         let res = unsafe {
             ffi::sysctl(
                 mib.as_ptr(),
@@ -246,6 +250,8 @@ mod tests {
     const _: fn() = || {
         use crate::tests::sys::*;
         use imp::ffi;
+        let _: ffi::c_int = 0 as std::os::raw::c_int;
+        let _: ffi::c_uint = 0 as std::os::raw::c_uint;
         let _: ffi::c_int = 0 as libc::c_int;
         let _: ffi::c_uint = 0 as libc::c_uint;
         let _: ffi::c_size_t = 0 as libc::size_t;
