@@ -144,51 +144,47 @@ unsafe fn cmpxchg16b(
         }
     }
 
-    #[deny(unreachable_patterns)]
-    match () {
-        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-        // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-        // and cfg guarantees that CMPXCHG16B is statically available.
-        () => unsafe { _cmpxchg16b(dst, old, new, success, failure) },
-        #[cfg(portable_atomic_unstable_cmpxchg16b_target_feature)]
-        #[cfg(not(any(
-            target_feature = "cmpxchg16b",
-            portable_atomic_target_feature = "cmpxchg16b"
-        )))]
-        () => {
-            #[cold]
-            unsafe fn _fallback(
-                dst: *mut u128,
-                old: u128,
-                new: u128,
-                success: Ordering,
-                failure: Ordering,
-            ) -> (u128, bool) {
-                #[allow(clippy::cast_ptr_alignment)]
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    match (*(dst as *const super::fallback::AtomicU128))
-                        .compare_exchange(old, new, success, failure)
-                    {
-                        Ok(v) => (v, true),
-                        Err(v) => (v, false),
-                    }
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and cfg guarantees that CMPXCHG16B is statically available.
+    unsafe {
+        _cmpxchg16b(dst, old, new, success, failure)
+    }
+    #[cfg(portable_atomic_unstable_cmpxchg16b_target_feature)]
+    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
+    {
+        #[cold]
+        unsafe fn _fallback(
+            dst: *mut u128,
+            old: u128,
+            new: u128,
+            success: Ordering,
+            failure: Ordering,
+        ) -> (u128, bool) {
+            #[allow(clippy::cast_ptr_alignment)]
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                match (*(dst as *const super::fallback::AtomicU128))
+                    .compare_exchange(old, new, success, failure)
+                {
+                    Ok(v) => (v, true),
+                    Err(v) => (v, false),
                 }
             }
-            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-            // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
-            unsafe {
-                ifunc!(unsafe fn(
-                    dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
-                ) -> (u128, bool) {
-                    if detect::has_cmpxchg16b() {
-                        _cmpxchg16b
-                    } else {
-                        _fallback
-                    }
-                })
-            }
+        }
+        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+        // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
+        unsafe {
+            ifunc!(unsafe fn(
+                dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
+            ) -> (u128, bool) {
+                if detect::has_cmpxchg16b() {
+                    _cmpxchg16b
+                } else {
+                    _fallback
+                }
+            })
         }
     }
 }
@@ -292,37 +288,36 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
     }
 
-    #[deny(unreachable_patterns)]
-    match () {
-        // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
-        // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
-        // Miri and Sanitizer do not support inline assembly.
-        #[cfg(any(
-            portable_atomic_no_outline_atomics,
-            not(target_feature = "sse"),
-            miri,
-            portable_atomic_sanitize_thread
-        ))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        () => unsafe { _atomic_load_cmpxchg16b(src, order) },
-        #[cfg(not(any(
-            portable_atomic_no_outline_atomics,
-            not(target_feature = "sse"),
-            miri,
-            portable_atomic_sanitize_thread
-        )))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        () => unsafe {
-            ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128 {
-                // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
-                let cpuid = detect::detect();
-                if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
-                    _atomic_load_vmovdqa
-                } else {
-                    _atomic_load_cmpxchg16b
-                }
-            })
-        },
+    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(
+        portable_atomic_no_outline_atomics,
+        not(target_feature = "sse"),
+        miri,
+        portable_atomic_sanitize_thread
+    ))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        _atomic_load_cmpxchg16b(src, order)
+    }
+    #[cfg(not(any(
+        portable_atomic_no_outline_atomics,
+        not(target_feature = "sse"),
+        miri,
+        portable_atomic_sanitize_thread
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128 {
+            // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
+            let cpuid = detect::detect();
+            if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
+                _atomic_load_vmovdqa
+            } else {
+                _atomic_load_cmpxchg16b
+            }
+        })
     }
 }
 
@@ -336,37 +331,36 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
 
-    #[deny(unreachable_patterns)]
-    match () {
-        // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
-        // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
-        // Miri and Sanitizer do not support inline assembly.
-        #[cfg(any(
-            portable_atomic_no_outline_atomics,
-            not(target_feature = "sse"),
-            miri,
-            portable_atomic_sanitize_thread
-        ))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        () => unsafe { _atomic_store_cmpxchg16b(dst, val, order) },
-        #[cfg(not(any(
-            portable_atomic_no_outline_atomics,
-            not(target_feature = "sse"),
-            miri,
-            portable_atomic_sanitize_thread
-        )))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        () => unsafe {
-            ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) {
-                // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
-                let cpuid = detect::detect();
-                if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
-                    _atomic_store_vmovdqa
-                } else {
-                    _atomic_store_cmpxchg16b
-                }
-            });
-        },
+    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(
+        portable_atomic_no_outline_atomics,
+        not(target_feature = "sse"),
+        miri,
+        portable_atomic_sanitize_thread
+    ))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        _atomic_store_cmpxchg16b(dst, val, order);
+    }
+    #[cfg(not(any(
+        portable_atomic_no_outline_atomics,
+        not(target_feature = "sse"),
+        miri,
+        portable_atomic_sanitize_thread
+    )))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) {
+            // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
+            let cpuid = detect::detect();
+            if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
+                _atomic_store_vmovdqa
+            } else {
+                _atomic_store_cmpxchg16b
+            }
+        });
     }
 }
 

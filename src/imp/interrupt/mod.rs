@@ -142,40 +142,36 @@ impl AtomicBool {
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         crate::utils::assert_load_ordering(order);
-        #[deny(unreachable_patterns)]
-        match () {
-            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-            // SAFETY: any data races are prevented by atomic intrinsics (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => unsafe { (*(self as *const Self as *const atomic::AtomicBool)).load(order) },
-            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-            // SAFETY: any data races are prevented by disabling interrupts (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => with(|| unsafe { self.v.get().read() != 0 }),
+        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        // SAFETY: any data races are prevented by atomic intrinsics (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        unsafe {
+            (*(self as *const Self as *const atomic::AtomicBool)).load(order)
         }
+        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        with(|| unsafe { self.v.get().read() != 0 })
     }
 
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         crate::utils::assert_store_ordering(order);
-        #[deny(unreachable_patterns)]
-        match () {
-            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-            // SAFETY: any data races are prevented by atomic intrinsics (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => unsafe {
-                (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
-            },
-            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-            // SAFETY: any data races are prevented by disabling interrupts (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => with(|| unsafe { self.v.get().write(val as u8) }),
+        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        // SAFETY: any data races are prevented by atomic intrinsics (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        unsafe {
+            (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
         }
+        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        with(|| unsafe { self.v.get().write(val as u8) });
     }
 
     #[inline]
@@ -347,40 +343,36 @@ impl<T> AtomicPtr<T> {
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
-        #[deny(unreachable_patterns)]
-        match () {
-            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-            // SAFETY: any data races are prevented by atomic intrinsics (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => unsafe { (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order) },
-            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-            // SAFETY: any data races are prevented by disabling interrupts (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => with(|| unsafe { self.p.get().read() }),
+        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        // SAFETY: any data races are prevented by atomic intrinsics (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        unsafe {
+            (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order)
         }
+        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        with(|| unsafe { self.p.get().read() })
     }
 
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
-        #[deny(unreachable_patterns)]
-        match () {
-            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-            // SAFETY: any data races are prevented by atomic intrinsics (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => unsafe {
-                (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
-            },
-            #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-            // SAFETY: any data races are prevented by disabling interrupts (see
-            // module-level comments) and the raw pointer is valid because we got it
-            // from a reference.
-            () => with(|| unsafe { self.p.get().write(ptr) }),
+        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        // SAFETY: any data races are prevented by atomic intrinsics (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        unsafe {
+            (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
         }
+        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        // SAFETY: any data races are prevented by disabling interrupts (see
+        // module-level comments) and the raw pointer is valid because we got it
+        // from a reference.
+        with(|| unsafe { self.p.get().write(ptr) });
     }
 
     #[inline]
@@ -477,42 +469,36 @@ macro_rules! atomic_int {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                #[deny(unreachable_patterns)]
-                match () {
-                    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-                    // SAFETY: any data races are prevented by atomic intrinsics (see
-                    // module-level comments) and the raw pointer is valid because we got it
-                    // from a reference.
-                    () => unsafe {
-                        (*(self as *const Self as *const atomic::$atomic_type)).load(order)
-                    },
-                    #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-                    // SAFETY: any data races are prevented by disabling interrupts (see
-                    // module-level comments) and the raw pointer is valid because we got it
-                    // from a reference.
-                    () => with(|| unsafe { self.v.get().read() }),
+                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                // SAFETY: any data races are prevented by atomic intrinsics (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                unsafe {
+                    (*(self as *const Self as *const atomic::$atomic_type)).load(order)
                 }
+                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe { self.v.get().read() })
             }
 
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                #[deny(unreachable_patterns)]
-                match () {
-                    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-                    // SAFETY: any data races are prevented by atomic intrinsics (see
-                    // module-level comments) and the raw pointer is valid because we got it
-                    // from a reference.
-                    () => unsafe {
-                        (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
-                    },
-                    #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-                    // SAFETY: any data races are prevented by disabling interrupts (see
-                    // module-level comments) and the raw pointer is valid because we got it
-                    // from a reference.
-                    () => with(|| unsafe { self.v.get().write(val) }),
+                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                // SAFETY: any data races are prevented by atomic intrinsics (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                unsafe {
+                    (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
                 }
+                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe { self.v.get().write(val) });
             }
         }
 

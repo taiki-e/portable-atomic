@@ -131,21 +131,24 @@ macro_rules! atomic_rmw {
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[deny(unreachable_patterns)]
-    match () {
-        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        // cfg guarantee that the CPU supports FEAT_LSE2.
-        () => unsafe { _atomic_load_ldp(src, order) },
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        () => unsafe { _atomic_compare_exchange_casp(src, 0, 0, order) },
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-        () => unsafe { _atomic_load_ldxp_stxp(src, order) },
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    unsafe {
+        _atomic_load_ldp(src, order)
+    }
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        _atomic_compare_exchange_casp(src, 0, 0, order)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    unsafe {
+        _atomic_load_ldxp_stxp(src, order)
     }
 }
 // If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
@@ -217,17 +220,16 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[deny(unreachable_patterns)]
-    match () {
-        #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        // cfg guarantee that the CPU supports FEAT_LSE2.
-        () => unsafe { _atomic_store_stp(dst, val, order) },
-        #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_store`.
-        () => unsafe {
-            atomic_swap(dst, val, order);
-        },
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    unsafe {
+        _atomic_store_stp(dst, val, order);
+    }
+    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    unsafe {
+        atomic_swap(dst, val, order);
     }
 }
 // If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
@@ -277,53 +279,50 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     let success = crate::utils::upgrade_success_ordering(success, failure);
 
-    #[deny(unreachable_patterns)]
-    let res = match () {
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        () => unsafe { _atomic_compare_exchange_casp(dst, old, new, success) },
-        #[cfg(not(all(
-            not(portable_atomic_no_aarch64_target_feature),
-            not(portable_atomic_no_outline_atomics),
-            any(
-                feature = "std",
-                target_os = "linux",
-                target_os = "android",
-                target_os = "windows",
-                target_os = "freebsd",
-                target_os = "openbsd",
-            )
-        )))]
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-        () => unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) },
-        #[cfg(all(
-            not(portable_atomic_no_aarch64_target_feature),
-            not(portable_atomic_no_outline_atomics),
-            any(
-                feature = "std",
-                target_os = "linux",
-                target_os = "android",
-                target_os = "windows",
-                target_os = "freebsd",
-                target_os = "openbsd",
-            )
-        ))]
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        () => {
-            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-            // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-            // and we've checked if FEAT_LSE is available.
-            unsafe {
-                ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128 {
-                    if detect::has_lse() {
-                        _atomic_compare_exchange_casp
-                    } else {
-                        _atomic_compare_exchange_ldxp_stxp
-                    }
-                })
-            }
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    let res = unsafe { _atomic_compare_exchange_casp(dst, old, new, success) };
+    #[cfg(not(all(
+        not(portable_atomic_no_aarch64_target_feature),
+        not(portable_atomic_no_outline_atomics),
+        any(
+            feature = "std",
+            target_os = "linux",
+            target_os = "android",
+            target_os = "windows",
+            target_os = "freebsd",
+            target_os = "openbsd",
+        )
+    )))]
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    let res = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) };
+    #[cfg(all(
+        not(portable_atomic_no_aarch64_target_feature),
+        not(portable_atomic_no_outline_atomics),
+        any(
+            feature = "std",
+            target_os = "linux",
+            target_os = "android",
+            target_os = "windows",
+            target_os = "freebsd",
+            target_os = "openbsd",
+        )
+    ))]
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    let res = {
+        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+        // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+        // and we've checked if FEAT_LSE is available.
+        unsafe {
+            ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128 {
+                if detect::has_lse() {
+                    _atomic_compare_exchange_casp
+                } else {
+                    _atomic_compare_exchange_ldxp_stxp
+                }
+            })
         }
     };
     if res == old {
