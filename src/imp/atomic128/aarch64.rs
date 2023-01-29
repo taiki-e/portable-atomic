@@ -316,11 +316,12 @@ unsafe fn atomic_compare_exchange(
             // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
             // and we've checked if FEAT_LSE is available.
             unsafe {
-                ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128;
-                if detect::has_lse() {
-                    _atomic_compare_exchange_casp
-                } else {
-                    _atomic_compare_exchange_ldxp_stxp
+                ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128 {
+                    if detect::has_lse() {
+                        _atomic_compare_exchange_casp
+                    } else {
+                        _atomic_compare_exchange_ldxp_stxp
+                    }
                 })
             }
         }

@@ -148,15 +148,14 @@ macro_rules! serde_impls {
 #[allow(unused_macros)]
 macro_rules! ifunc {
     // if the functions are unsafe, this macro is also unsafe.
-    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?; $if_block:expr) => {{
-        type FnRaw = *mut ();
+    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
-            = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
+            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
         #[cold]
         unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
-            let func: FnTy = $if_block;
-            FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
+            let func: FnTy = { $($if_block)* };
+            FUNC.store(func as *mut (), core::sync::atomic::Ordering::Relaxed);
             // SAFETY: the caller must uphold the safety contract.
             unsafe { func($($arg_pat),*) }
         }
@@ -165,22 +164,21 @@ macro_rules! ifunc {
         // (To force the caller to use unsafe block for this macro, do not use
         // unsafe block here.)
         let func = FUNC.load(core::sync::atomic::Ordering::Relaxed);
-        core::mem::transmute::<FnRaw, FnTy>(func)($($arg_pat),*)
+        core::mem::transmute::<*mut (), FnTy>(func)($($arg_pat),*)
     }};
-    (fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?; $if_block:expr) => {{
-        type FnRaw = *mut ();
+    (fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{
         type FnTy = fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
-            = core::sync::atomic::AtomicPtr::new(detect as FnRaw);
+            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
         #[cold]
         fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
-            let func: FnTy = $if_block;
-            FUNC.store(func as FnRaw, core::sync::atomic::Ordering::Relaxed);
+            let func: FnTy = { $($if_block)* };
+            FUNC.store(func as *mut (), core::sync::atomic::Ordering::Relaxed);
             func($($arg_pat),*)
         }
         // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
         let func = unsafe {
-            core::mem::transmute::<FnRaw, FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
+            core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
         };
         func($($arg_pat),*)
     }};

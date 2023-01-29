@@ -179,11 +179,15 @@ unsafe fn cmpxchg16b(
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
             unsafe {
-                ifunc!(
-                    unsafe fn(
-                        dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
-                    ) -> (u128, bool);
-                    if detect::has_cmpxchg16b() { _cmpxchg16b } else { _fallback })
+                ifunc!(unsafe fn(
+                    dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
+                ) -> (u128, bool) {
+                    if detect::has_cmpxchg16b() {
+                        _cmpxchg16b
+                    } else {
+                        _fallback
+                    }
+                })
             }
         }
     }
@@ -309,8 +313,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         )))]
         // SAFETY: the caller must uphold the safety contract for `atomic_load`.
         () => unsafe {
-            ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128;
-            {
+            ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128 {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::detect();
                 if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
@@ -354,8 +357,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         )))]
         // SAFETY: the caller must uphold the safety contract for `atomic_store`.
         () => unsafe {
-            ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering);
-            {
+            ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) {
                 // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
                 let cpuid = detect::detect();
                 if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
