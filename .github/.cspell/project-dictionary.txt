@@ -85,7 +85,6 @@ sifive
 SIGINT
 simavr
 skiboot
-smfr
 sourceware
 spinlock
 sreg
