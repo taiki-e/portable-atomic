@@ -64,10 +64,9 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
-          # TODO: broken since nightly-2022-10-28
-          # - rust: nightly
-          #   target: aarch64_be-unknown-linux-gnu
-          #   os: ubuntu-22.04
+          - rust: nightly
+            target: aarch64_be-unknown-linux-gnu
+            os: ubuntu-22.04
           - rust: nightly
             target: arm-unknown-linux-gnueabi
           - rust: nightly

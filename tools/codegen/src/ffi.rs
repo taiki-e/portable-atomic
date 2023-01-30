@@ -22,7 +22,38 @@ use crate::{
 #[rustfmt::skip]
 static TARGETS: &[Target] = &[
     Target {
-        triple: "aarch64-unknown-openbsd",
+        triples: &[
+            "aarch64-unknown-linux-gnu",
+            "aarch64-unknown-linux-gnu_ilp32",
+        ],
+        headers: &[
+            // TODO
+            // Header {
+            //     // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
+            //     // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
+            //     path: "sys/auxv.h",
+            //     types: &[],
+            //     vars: &[],
+            //     functions: &["getauxval"],
+            // },
+            Header {
+                // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
+                path: "include/uapi/linux/auxvec.h",
+                types: &[],
+                vars: &["AT_HWCAP"],
+                functions: &[],
+            },
+            Header {
+                // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
+                path: "arch/arm64/include/uapi/asm/hwcap.h",
+                types: &[],
+                vars: &["HWCAP_ATOMICS", "HWCAP_CPUID"],
+                functions: &[],
+            },
+        ],
+    },
+    Target {
+        triples: &["aarch64-unknown-openbsd"],
         headers: &[
             Header {
                 // https://github.com/openbsd/src/blob/HEAD/sys/sys/sysctl.h
@@ -44,7 +75,7 @@ static TARGETS: &[Target] = &[
 
 #[derive(Clone, Copy)]
 struct Target {
-    triple: &'static str,
+    triples: &'static [&'static str],
     headers: &'static [Header],
 }
 
@@ -63,96 +94,107 @@ pub(crate) fn gen() -> Result<()> {
     let out_dir = &workspace_root.join("src/tests/gen/sys");
 
     let mut modules = vec![];
-    for &Target { triple, headers } in TARGETS {
-        let target = &target_spec_json(triple)?;
-        let module_name = triple.replace("-unknown", "").replace('-', "_");
-        let out_dir = &out_dir.join(&module_name);
-        {
-            let module_name = format_ident!("{}", module_name);
-            let mut cfg = quote!();
-            let arch = target.arch.as_str();
-            cfg.extend(quote! { target_arch = #arch });
-            let os = target.os.as_str();
-            cfg.extend(quote! { , target_os = #os });
-            if let Some(env) = &target.env {
-                cfg.extend(quote! { , target_env = #env });
+    for &Target { triples, headers } in TARGETS {
+        for triple in triples {
+            let target = &target_spec_json(triple)?;
+            let module_name = triple.replace("-unknown", "").replace('-', "_");
+            let out_dir = &out_dir.join(&module_name);
+            {
+                let module_name = format_ident!("{}", module_name);
+                let mut cfg = quote!();
+                let arch = target.arch.as_str();
+                cfg.extend(quote! { target_arch = #arch });
+                let os = target.os.as_str();
+                cfg.extend(quote! { , target_os = #os });
+                if let Some(env) = &target.env {
+                    cfg.extend(quote! { , target_env = #env });
+                }
+                if target.os == linux && matches!(target.arch, aarch64 | x86_64) {
+                    let width = &target.target_pointer_width;
+                    cfg.extend(quote! { , target_pointer_width = #width });
+                }
+                modules.push(quote! {
+                    #[cfg(all(#cfg))]
+                    mod #module_name;
+                    #[cfg(all(#cfg))]
+                    pub(crate) use #module_name::*;
+                });
             }
-            if target.os == linux && matches!(target.arch, aarch64 | x86_64) {
-                let width = &target.target_pointer_width;
-                cfg.extend(quote! { , target_pointer_width = #width });
-            }
-            modules.push(quote! {
-                #[cfg(all(#cfg))]
-                mod #module_name;
-                #[cfg(all(#cfg))]
-                pub(crate) use #module_name::*;
-            });
-        }
-        fs::create_dir_all(out_dir)?;
-        let src_dir = &git_clone(target, download_cache_dir)?;
-        arch_symlink(target, src_dir)?;
+            fs::create_dir_all(out_dir)?;
+            let src_dir = &git_clone(target, download_cache_dir)?;
+            arch_symlink(target, src_dir)?;
 
-        let target_flag = &*format!("--target={triple}");
-        let mut clang_args = vec![target_flag, "-nostdinc"];
-        let include = match target.os {
-            openbsd => vec![src_dir.join("sys")],
-            _ => todo!("{target:?}"),
-        };
-        for include in &include {
-            clang_args.push("-I");
-            clang_args.push(include.as_str());
-        }
-
-        let mut files = vec![];
-        for &header in headers {
-            let out_file = format!(
-                "{}.rs",
-                Utf8PathBuf::from(header.path.replace('/', "_")).file_stem().unwrap()
-            );
-            let out_path = out_dir.join(&out_file);
-            files.push(out_file);
-
-            let header_path = match target.os {
-                openbsd => src_dir.join(format!("sys/{}", header.path)),
+            let target_flag = &*format!("--target={triple}");
+            let mut clang_args = vec![target_flag, "-nostdinc"];
+            let include = match target.os {
+                linux => {
+                    let arch = match target.arch {
+                        aarch64 => "arm64",
+                        _ => todo!("{target:?}"),
+                    };
+                    vec![src_dir.join("arch").join(arch).join("include/uapi")]
+                }
+                openbsd => vec![src_dir.join("sys")],
                 _ => todo!("{target:?}"),
             };
-
-            let bindings = bindgen::builder()
-                .array_pointers_in_arguments(true)
-                .derive_debug(false)
-                .generate_comments(false)
-                .layout_tests(false)
-                .rust_target(bindgen::RustTarget::Stable_1_36)
-                .use_core()
-                .header(header_path.as_str())
-                .clang_args(&clang_args)
-                .allowlist_function(header.functions.join("|"))
-                .allowlist_type(header.types.join("|"))
-                .allowlist_var(header.vars.join("|"))
-                .generate()
-                .with_context(|| format!("failed to generate for {}", header.path))?;
-            bindings
-                .write_to_file(out_path)
-                .with_context(|| format!("failed to write_to_file for {}", header.path))?;
-        }
-        let modules = files.iter().map(|path| {
-            let name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
-            quote! {
-                #[path = #path]
-                pub(crate) mod #name;
+            for include in &include {
+                clang_args.push("-I");
+                clang_args.push(include.as_str());
             }
-        });
-        file::write(
-            function_name!(),
-            out_dir.join("mod.rs").as_std_path(),
-            quote! { #(#modules)* },
-        )?;
+
+            let mut files = vec![];
+            for &header in headers {
+                let out_file = format!(
+                    "{}.rs",
+                    Utf8PathBuf::from(header.path.replace('/', "_")).file_stem().unwrap()
+                );
+                let out_path = out_dir.join(&out_file);
+                files.push(out_file);
+
+                let header_path = match target.os {
+                    linux => src_dir.join(header.path),
+                    openbsd => src_dir.join(format!("sys/{}", header.path)),
+                    _ => todo!("{target:?}"),
+                };
+
+                let bindings = bindgen::builder()
+                    .array_pointers_in_arguments(true)
+                    .derive_debug(false)
+                    .generate_comments(false)
+                    .layout_tests(false)
+                    .rust_target(bindgen::RustTarget::Stable_1_36)
+                    .use_core()
+                    .header(header_path.as_str())
+                    .clang_args(&clang_args)
+                    .allowlist_function(header.functions.join("|"))
+                    .allowlist_type(header.types.join("|"))
+                    .allowlist_var(header.vars.join("|"))
+                    .generate()
+                    .with_context(|| format!("failed to generate for {}", header.path))?;
+                bindings
+                    .write_to_file(out_path)
+                    .with_context(|| format!("failed to write_to_file for {}", header.path))?;
+            }
+            let modules = files.iter().map(|path| {
+                let name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
+                quote! {
+                    #[path = #path]
+                    pub(crate) mod #name;
+                }
+            });
+            file::write(
+                function_name!(),
+                out_dir.join("mod.rs").as_std_path(),
+                quote! { #(#modules)* },
+            )?;
+        }
     }
     file::write(function_name!(), out_dir.join("mod.rs").as_std_path(), quote! {
         #![allow(
             dead_code,
             non_camel_case_types,
             unreachable_pub,
+            clippy::unreadable_literal,
         )]
         #(#modules)*
     })?;
@@ -161,6 +203,7 @@ pub(crate) fn gen() -> Result<()> {
 
 fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8PathBuf> {
     let repository = match target.os {
+        linux => "torvalds/linux",
         openbsd => "openbsd/src",
         _ => todo!("{target:?}"),
     };
@@ -197,6 +240,7 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
 // TODO: They should have a script included in their repository that does this automatically, so use it.
 fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
     match target.os {
+        linux => {}
         openbsd => {
             let arch = match target.arch {
                 aarch64 => "arm64",

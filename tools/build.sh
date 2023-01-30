@@ -39,18 +39,23 @@ default_targets=(
     aarch64-unknown-none
 
     # x86_64
-    x86_64-apple-darwin
+    # rustc --print target-list | grep -E '^x86_64'
     x86_64-pc-windows-gnu
     x86_64-pc-windows-msvc
     x86_64-unknown-linux-gnu
+    # x86_64 always support cmpxchg16b
+    x86_64-apple-darwin
     # x86_64 X32 ABI
     x86_64-unknown-linux-gnux32
 
     # aarch64
+    # rustc --print target-list | grep -E '^(aarch64|arm64)'
     aarch64-linux-android
+    aarch64-pc-windows-gnullvm
     aarch64-pc-windows-msvc
     aarch64-unknown-freebsd
     aarch64-unknown-linux-gnu
+    aarch64-unknown-linux-musl
     aarch64-unknown-openbsd
     # aarch64 always support lse & lse2
     aarch64-apple-darwin

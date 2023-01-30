@@ -3,7 +3,43 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-#![allow(dead_code, non_camel_case_types, unreachable_pub)]
+#![allow(dead_code, non_camel_case_types, unreachable_pub, clippy::unreadable_literal)]
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_linux_gnu;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_pointer_width = "64"
+    )
+)]
+pub(crate) use aarch64_linux_gnu::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_pointer_width = "32"
+    )
+)]
+mod aarch64_linux_gnu_ilp32;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_pointer_width = "32"
+    )
+)]
+pub(crate) use aarch64_linux_gnu_ilp32::*;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
 mod aarch64_openbsd;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
