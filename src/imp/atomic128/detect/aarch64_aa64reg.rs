@@ -1,4 +1,4 @@
-// Run-time feature detection on aarch64 Linux/FreeBSD/OpenBSD.
+// Run-time feature detection on aarch64 Linux/FreeBSD/OpenBSD by parsing system registers.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection of FEAT_LSE on OpenBSD.
 // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
@@ -20,7 +20,8 @@
 // For now, this module is only used on FreeBSD and OpenBSD.
 // On Linux, this module is test only because this approach requires a higher
 // kernel version than Rust supports, and also does not work with qemu-user
-// (as of QEMU 7.2) and Valgrind.
+// (as of QEMU 7.2) and Valgrind. (Looking into HWCAP_CPUID in auxvec, it appears
+// that Valgrind is setting it to false correctly, but qemu-user is setting it to true.)
 
 #![cfg_attr(
     any(

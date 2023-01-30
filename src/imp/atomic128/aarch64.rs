@@ -48,10 +48,19 @@
 
 include!("macros.rs");
 
+#[cfg_attr(
+    all(target_os = "linux", target_env = "gnu"),
+    path = "detect/aarch64_linux_getauxval.rs"
+)]
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
 #[cfg_attr(any(target_os = "freebsd", target_os = "openbsd"), path = "detect/aarch64_aa64reg.rs")]
 #[cfg_attr(
-    not(any(target_os = "windows", target_os = "freebsd", target_os = "openbsd")),
+    not(any(
+        all(target_os = "linux", target_env = "gnu"),
+        target_os = "windows",
+        target_os = "freebsd",
+        target_os = "openbsd"
+    )),
     path = "detect/aarch64_std.rs"
 )]
 mod detect;

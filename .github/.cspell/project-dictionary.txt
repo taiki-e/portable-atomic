@@ -5,6 +5,8 @@ addc
 adde
 armasm
 autogen
+auxv
+auxvec
 backoff
 binutils
 bitops
@@ -35,13 +37,16 @@ cxchg
 cxchgweak
 datatypes
 dedup
+dlsym
 docsrs
 doctests
 DWCAS
 endianness
 FIQs
+getauxval
 hartid
 hstdout
+HWCAP
 ifunc
 isel
 ishld
@@ -103,6 +108,7 @@ syscall
 systemsim
 tagme
 Tlink
+uapi
 uart
 ufmt
 umax
