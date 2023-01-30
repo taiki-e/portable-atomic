@@ -10,6 +10,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
+  EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 aarch64_linux_test_task:
   name: test (aarch64-unknown-linux-gnu)
@@ -20,15 +21,15 @@ aarch64_linux_test_task:
   setup_script:
     - rustup toolchain add nightly --component rust-src && rustup default nightly
   test_script:
-    - cargo test -vv --workspace --exclude bench --all-features
-    - cargo test -vv --workspace --exclude bench --all-features --release
+    - cargo test -vv --workspace --all-features $EXCLUDE
+    - cargo test -vv --workspace --all-features --release $EXCLUDE
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --exclude bench --all-features
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --exclude bench --all-features --release
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release $EXCLUDE
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 
 aarch64_macos_test_task:
@@ -41,10 +42,10 @@ aarch64_macos_test_task:
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
     - source $HOME/.cargo/env
-    - cargo test -vv --workspace --exclude bench --all-features
-    - cargo test -vv --workspace --exclude bench --all-features --release
+    - cargo test -vv --workspace --all-features $EXCLUDE
+    - cargo test -vv --workspace --all-features --release $EXCLUDE
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
 
 aarch64_linux_valgrind_task:
   name: valgrind (aarch64-unknown-linux-gnu)
@@ -73,15 +74,15 @@ aarch64_linux_valgrind_task:
       rm -rf valgrind
   test_script:
     # doctests on Valgrind are very slow
-    - cargo test -vv --workspace --exclude bench --all-features --tests
-    - cargo test -vv --workspace --exclude bench --all-features --release --tests
+    - cargo test -vv --workspace --all-features --tests $EXCLUDE
+    - cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --exclude bench --all-features --tests
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --exclude bench --all-features --release --tests
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --tests $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --tests --target $TARGET
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 #
 # aarch64_linux_bench_task:

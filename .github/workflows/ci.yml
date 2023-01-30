@@ -24,6 +24,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
+  EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 defaults:
   run:
@@ -126,7 +127,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
         if: matrix.target != ''
-      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
@@ -337,7 +337,6 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component miri && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
       - run: |
@@ -365,7 +364,6 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       - run: |
           echo "ASAN_OPTIONS=detect_stack_use_after_return=1" >>"${GITHUB_ENV}"
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
@@ -428,7 +426,6 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
       - uses: taiki-e/install-action@valgrind
-      - run: echo "EXCLUDE=--exclude bench --exclude portable-atomic-internal-codegen" >>"${GITHUB_ENV}"
       # doctests on Valgrind are very slow
       - run: cargo test -vv --workspace --all-features           --tests $EXCLUDE
         env:
