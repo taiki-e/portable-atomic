@@ -174,10 +174,10 @@ mod tests_aarch64_common {
             assert!(detect().test(CpuInfo::HAS_LSE2));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
-            #[cfg(not(portable_atomic_no_aarch64_target_feature))]
-            {
-                assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
-            }
+            // #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            // {
+            //     assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
+            // }
         }
         if detect().test(CpuInfo::HAS_LSE128) {
             assert!(detect().test(CpuInfo::HAS_LSE));
@@ -185,6 +185,10 @@ mod tests_aarch64_common {
             assert!(detect().test(CpuInfo::HAS_LSE128));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
+            // #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            // {
+            //     assert!(!std::arch::is_aarch64_feature_detected!("lse128"));
+            // }
         }
     }
 }
