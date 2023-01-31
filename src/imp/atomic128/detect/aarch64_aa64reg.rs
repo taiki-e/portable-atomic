@@ -213,6 +213,11 @@ mod imp {
 )]
 #[cfg(test)]
 mod tests {
+    use std::{
+        process::Command,
+        string::{String, ToString},
+    };
+
     use super::*;
 
     #[test]
@@ -220,6 +225,19 @@ mod tests {
         let AA64Reg { aa64isar0, aa64mmfr2 } = imp::aa64reg();
         std::eprintln!("aa64isar0={}", aa64isar0);
         std::eprintln!("aa64mmfr2={}", aa64mmfr2);
+        if cfg!(target_os = "openbsd") {
+            let output = Command::new("sysctl").arg("machdep").output().unwrap();
+            assert!(output.status.success());
+            let stdout = String::from_utf8(output.stdout).unwrap();
+            assert_eq!(
+                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar0=")).unwrap(),
+                aa64isar0.to_string(),
+            );
+            assert_eq!(
+                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64mmfr2=")).unwrap_or("0"),
+                aa64mmfr2.to_string(),
+            );
+        }
         if detect().test(CpuInfo::HAS_LSE) {
             let atomic = extract(aa64isar0, 23, 20);
             if detect().test(CpuInfo::HAS_LSE128) {

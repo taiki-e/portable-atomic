@@ -110,9 +110,17 @@ pub(crate) fn has_cmpxchg16b() -> bool {
 }
 
 #[cfg(target_arch = "aarch64")]
-#[allow(clippy::undocumented_unsafe_blocks)]
+#[allow(
+    clippy::alloc_instead_of_core,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core,
+    clippy::undocumented_unsafe_blocks,
+    clippy::wildcard_imports
+)]
 #[cfg(test)]
 mod tests_aarch64_common {
+    use std::{fs, path::Path, vec::Vec};
+
     use super::*;
 
     #[test]
@@ -144,8 +152,97 @@ mod tests_aarch64_common {
         assert!(x.test(CpuInfo::HAS_LSE128));
     }
 
+    // CPU feature detection from reading /proc/cpuinfo (Linux/NetBSD)
+    // or /var/run/dmesg.boot (FreeBSD/OpenBSD).
+    // This is used for testing to ensure that the result of the CPU feature
+    // detection we are using matches the information we get from the other
+    // approaches.
+    #[derive(Debug, Clone, Copy)]
+    struct ProcCpuinfo {
+        lse: bool,
+        lse2: Option<bool>,
+    }
+    impl ProcCpuinfo {
+        fn new() -> Option<Self> {
+            if cfg!(any(target_os = "linux", target_os = "netbsd")) {
+                let text = fs::read_to_string("/proc/cpuinfo").unwrap();
+                let features = text
+                    .lines()
+                    // on qemu-user, there is not 'Features' section
+                    // TODO: check whether a runner is set instead.
+                    .find_map(|line| line.strip_prefix("Features"))?
+                    .splitn(2, ':')
+                    .nth(1)
+                    .unwrap()
+                    .split(' ')
+                    .map(str::trim)
+                    .collect::<Vec<_>>();
+                std::eprintln!("Features={:?}", features);
+                Some(Self {
+                    lse: features.contains(&"atomics"),
+                    // /proc/cpuinfo doesn't have field for lse2
+                    lse2: None,
+                })
+            } else if cfg!(target_os = "freebsd") {
+                let text = fs::read_to_string("/var/run/dmesg.boot").unwrap();
+                let isa0 = text
+                    .lines()
+                    .find(|line| line.contains("Instruction Set Attributes 0"))
+                    .expect("no 'Instruction Set Attributes 0' section in /var/run/dmesg.boot")
+                    .splitn(2, '=')
+                    .nth(1)
+                    .unwrap()
+                    .trim()
+                    .strip_prefix('<')
+                    .unwrap()
+                    .strip_suffix('>')
+                    .unwrap()
+                    .split(',')
+                    .collect::<Vec<_>>();
+                let mmf2 = text
+                    .lines()
+                    .find(|line| line.contains("Memory Model Features 2"))
+                    .expect("no 'Memory Model Features 2' section in /var/run/dmesg.boot")
+                    .splitn(2, '=')
+                    .nth(1)
+                    .unwrap()
+                    .trim()
+                    .strip_prefix('<')
+                    .unwrap()
+                    .strip_suffix('>')
+                    .unwrap()
+                    .split(',')
+                    .collect::<Vec<_>>();
+                std::eprintln!("Instruction Set Attributes 0={:?}", isa0);
+                std::eprintln!("Memory Model Features 2={:?}", mmf2);
+                Some(Self { lse: isa0.contains(&"Atomic"), lse2: Some(mmf2.contains(&"AT")) })
+            } else if cfg!(target_os = "openbsd") {
+                let text = fs::read_to_string("/var/run/dmesg.boot").unwrap();
+                let features = text
+                    .lines()
+                    .filter_map(|line| line.strip_prefix("cpu0: "))
+                    .last()
+                    .expect("no 'cpu0' section in /var/run/dmesg.boot")
+                    .trim()
+                    .split(',')
+                    .collect::<Vec<_>>();
+                std::eprintln!("Features={:?}", features);
+                Some(Self {
+                    lse: features.contains(&"Atomic"),
+                    // /var/run/dmesg.boot on OpenBSD doesn't have field for lse2
+                    lse2: None,
+                })
+            } else {
+                assert!(!Path::new("/proc/cpuinfo").exists());
+                assert!(!Path::new("/var/run/dmesg.boot").exists());
+                None
+            }
+        }
+    }
+
     #[test]
     fn test_detect() {
+        let proc_cpuinfo = ProcCpuinfo::new();
         if has_lse() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             #[cfg(any(
@@ -162,22 +259,34 @@ mod tests_aarch64_common {
                 );
                 assert_eq!(*v.get(), 1);
             }
+            if let Some(proc_cpuinfo) = proc_cpuinfo {
+                assert!(proc_cpuinfo.lse);
+            }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE));
             #[cfg(not(portable_atomic_no_aarch64_target_feature))]
             {
                 assert!(!std::arch::is_aarch64_feature_detected!("lse"));
             }
+            if let Some(proc_cpuinfo) = proc_cpuinfo {
+                assert!(!proc_cpuinfo.lse);
+            }
         }
         if detect().test(CpuInfo::HAS_LSE2) {
             assert!(detect().test(CpuInfo::HAS_LSE));
             assert!(detect().test(CpuInfo::HAS_LSE2));
+            if let Some(ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
+                assert!(lse2);
+            }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
             // #[cfg(not(portable_atomic_no_aarch64_target_feature))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
             // }
+            if let Some(ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
+                assert!(!lse2);
+            }
         }
         if detect().test(CpuInfo::HAS_LSE128) {
             assert!(detect().test(CpuInfo::HAS_LSE));
