@@ -37,7 +37,7 @@ aarch64_macos_test_task:
   env:
     TARGET: aarch64-apple-darwin
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
   setup_script:
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
@@ -104,7 +104,7 @@ aarch64_linux_valgrind_task:
 #   env:
 #     TARGET: aarch64-apple-darwin
 #   macos_instance:
-#     image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
+#     image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
 #   setup_script:
 #     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
 #   bench_script:
