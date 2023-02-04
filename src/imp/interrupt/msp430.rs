@@ -19,7 +19,7 @@ pub(super) fn disable() -> State {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Do not use `preserves_flags` because DINT modifies the GIE (global interrupt enable) bit of the status register.
-        // Refs: http://mspgcc.sourceforge.net/manual/x951.html
+        // Refs: https://mspgcc.sourceforge.net/manual/x951.html
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
             "mov R2, {0}",

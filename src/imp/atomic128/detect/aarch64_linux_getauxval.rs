@@ -31,7 +31,7 @@ mod ffi {
     pub(crate) type c_ulong = u32;
 
     extern "C" {
-        // http://man7.org/linux/man-pages/man3/getauxval.3.html
+        // https://man7.org/linux/man-pages/man3/getauxval.3.html
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
