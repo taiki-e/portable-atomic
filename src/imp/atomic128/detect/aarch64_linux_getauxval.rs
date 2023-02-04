@@ -1,12 +1,17 @@
-// Run-time feature detection on aarch64 Linux by using getauxval.
+// Run-time feature detection on aarch64 Linux/Android by using getauxval.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
-// on aarch64 linux, but on linux-gnu [aarch64 support is available on glibc 2.17+](https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html)
-// and is newer than [glibc 2.16 that getauxval was added](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html),
-// so we can safely assume getauxval is linked to the binary.
-// https://github.com/rust-lang/stdarch/pull/1375
+// on aarch64 Linux/Android, but on the following platforms, so we can safely assume getauxval
+// is linked to the binary.
 //
-// On other linux targets, we cannot assume that getauxval is always available yet
+// - On linux-gnu, [aarch64 support is available on glibc 2.17+](https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html)
+// and is newer than [glibc 2.16 that getauxval was added](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html).
+// - On Android, [64-bit architecture support is available on Android 5.0+ (API level 21+)](https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
+// and is newer than [Android 4.3 (API level 18) that getauxval was added](https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h#49).
+//
+// See also https://github.com/rust-lang/stdarch/pull/1375
+//
+// On other Linux targets, we cannot assume that getauxval is always available yet
 // (see stdarch PR linked above for details), so we use is_aarch64_feature_detected
 // which uses dlsym (+io fallback) instead of this module.
 

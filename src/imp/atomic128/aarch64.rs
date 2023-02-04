@@ -49,7 +49,7 @@
 include!("macros.rs");
 
 #[cfg_attr(
-    all(target_os = "linux", target_env = "gnu"),
+    any(all(target_os = "linux", target_env = "gnu"), target_os = "android"),
     path = "detect/aarch64_linux_getauxval.rs"
 )]
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
@@ -57,6 +57,7 @@ include!("macros.rs");
 #[cfg_attr(
     not(any(
         all(target_os = "linux", target_env = "gnu"),
+        target_os = "android",
         target_os = "windows",
         target_os = "freebsd",
         target_os = "openbsd"

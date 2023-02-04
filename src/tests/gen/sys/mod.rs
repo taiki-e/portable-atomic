@@ -40,6 +40,10 @@ mod aarch64_linux_gnu_ilp32;
     )
 )]
 pub(crate) use aarch64_linux_gnu_ilp32::*;
+#[cfg(all(target_arch = "aarch64", target_os = "android"))]
+mod aarch64_linux_android;
+#[cfg(all(target_arch = "aarch64", target_os = "android"))]
+pub(crate) use aarch64_linux_android::*;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
 mod aarch64_openbsd;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]

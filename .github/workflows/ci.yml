@@ -47,6 +47,8 @@ jobs:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
 
   test:
+    env:
+      cargo: cargo
     strategy:
       fail-fast: false
       matrix:
@@ -67,6 +69,14 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
+          - rust: stable
+            target: aarch64-unknown-linux-musl
+          - rust: nightly
+            target: aarch64-unknown-linux-musl
+          - rust: stable
+            target: aarch64-linux-android
+          - rust: nightly
+            target: aarch64-linux-android
           - rust: nightly
             target: arm-unknown-linux-gnueabi
           - rust: nightly
@@ -121,7 +131,14 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != ''
+        if: matrix.target != '' && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
+      - uses: taiki-e/install-action@cross
+        if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
+      - run: echo "cargo=cross" >>"${GITHUB_ENV}"
+        if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
+        # Workaround https://github.com/cross-rs/cross/issues/1128 / https://github.com/rust-lang/rust/issues/103673
+      - run: echo "BUILD_STD=-Z build-std" >>"${GITHUB_ENV}"
+        if: startsWith(matrix.rust, 'nightly') && contains(matrix.target, '-android')
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
@@ -130,10 +147,10 @@ jobs:
       - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
-      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
-      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -141,22 +158,22 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.rust, 'nightly')
+        if: startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
       # +cmpxchg16b
       # macOS is skipped because it is +cmpxchg16b by default
-      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -167,21 +184,21 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly')
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
       # +lse
-      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -192,23 +209,23 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly')
+        if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
       # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
 
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
-      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -219,22 +236,22 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'powerpc64le-') && startsWith(matrix.rust, 'nightly')
+        if: startsWith(matrix.target, 'powerpc64le-') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
       # pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features                   $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release         $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
       # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: $cargo test -vv --workspace --all-features --release --tests $EXCLUDE $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
           CARGO_PROFILE_RELEASE_LTO: fat
@@ -245,9 +262,11 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly')
+        if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
+        # We set BUILD_STD due to https://github.com/cross-rs/cross/issues/1128 / https://github.com/rust-lang/rust/issues/103673
+        if: "!(startsWith(matrix.rust, 'nightly') && contains(matrix.target, '-android'))"
 
   build:
     name: build (${{ matrix.rust }}${{ matrix.tests && ', --tests' }})
