@@ -173,7 +173,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::missing_inline_in_public_items,
 )]
 #![allow(
-    clippy::box_default,
     clippy::cast_lossless,
     clippy::doc_markdown,
     clippy::float_cmp,
