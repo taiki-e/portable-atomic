@@ -178,7 +178,6 @@ pub(crate) fn gen() -> Result<()> {
             let modules = files.iter().map(|path| {
                 let name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
                 quote! {
-                    #[path = #path]
                     pub(crate) mod #name;
                 }
             });

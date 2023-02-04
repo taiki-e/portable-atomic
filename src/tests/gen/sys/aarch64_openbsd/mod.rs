@@ -3,7 +3,5 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-#[path = "sys_sysctl.rs"]
 pub(crate) mod sys_sysctl;
-#[path = "machine_cpu.rs"]
 pub(crate) mod machine_cpu;
