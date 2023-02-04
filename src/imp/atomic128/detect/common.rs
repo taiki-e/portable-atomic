@@ -164,7 +164,7 @@ mod tests_aarch64_common {
     }
     impl ProcCpuinfo {
         fn new() -> Option<Self> {
-            if cfg!(any(target_os = "linux", target_os = "netbsd")) {
+            if cfg!(any(target_os = "linux", target_os = "android", target_os = "netbsd")) {
                 let text = fs::read_to_string("/proc/cpuinfo").unwrap();
                 let features = text
                     .lines()

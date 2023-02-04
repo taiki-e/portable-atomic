@@ -25,6 +25,7 @@ static TARGETS: &[Target] = &[
         triples: &[
             "aarch64-unknown-linux-gnu",
             "aarch64-unknown-linux-gnu_ilp32",
+            "aarch64-linux-android",
         ],
         headers: &[
             // TODO
@@ -127,7 +128,7 @@ pub(crate) fn gen() -> Result<()> {
             let target_flag = &*format!("--target={triple}");
             let mut clang_args = vec![target_flag, "-nostdinc"];
             let include = match target.os {
-                linux => {
+                linux | android => {
                     let arch = match target.arch {
                         aarch64 => "arm64",
                         _ => todo!("{target:?}"),
@@ -152,7 +153,7 @@ pub(crate) fn gen() -> Result<()> {
                 files.push(out_file);
 
                 let header_path = match target.os {
-                    linux => src_dir.join(header.path),
+                    linux | android => src_dir.join(header.path),
                     openbsd => src_dir.join(format!("sys/{}", header.path)),
                     _ => todo!("{target:?}"),
                 };
@@ -202,7 +203,7 @@ pub(crate) fn gen() -> Result<()> {
 
 fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8PathBuf> {
     let repository = match target.os {
-        linux => "torvalds/linux",
+        linux | android => "torvalds/linux",
         openbsd => "openbsd/src",
         _ => todo!("{target:?}"),
     };
@@ -239,7 +240,7 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
 // TODO: They should have a script included in their repository that does this automatically, so use it.
 fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
     match target.os {
-        linux => {}
+        linux | android => {}
         openbsd => {
             let arch = match target.arch {
                 aarch64 => "arm64",
