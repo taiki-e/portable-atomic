@@ -8,7 +8,7 @@
 //
 // If outline-atomics is not enabled, we use CASP if FEAT_LSE is enabled at
 // compile-time, otherwise, use LDXP/STXP loop.
-// If outline-atomics is enabled, we use CASP for compare_exchange(_weak) if
+// If outline-atomics is enabled, we use CASP for load/compare_exchange(_weak) if
 // FEAT_LSE is available at run-time.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
