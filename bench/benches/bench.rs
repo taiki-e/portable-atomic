@@ -39,7 +39,7 @@ mod arch;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/s390x.rs"]
 mod arch;
-#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/intrinsics.rs"]
 mod intrinsics;
@@ -88,7 +88,7 @@ macro_rules! impl_atomic_u128 {
         }
     };
 }
-#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
 impl_atomic_u128!(intrinsics::AtomicU128);
 impl_atomic_u128!(arch::AtomicU128);
 impl_atomic_u128!(seqlock_fallback::AtomicU128);
@@ -318,7 +318,7 @@ macro_rules! benches {
         }
     };
 }
-#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
 benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128);
 benches!(bench_portable_atomic_arch, arch::AtomicU128);
 benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128);

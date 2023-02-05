@@ -8,6 +8,9 @@
 //
 // Note that we cannot use this module on s390x because LLVM currently generates
 // libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/6E6fchxvP
+//
+// Note that we cannot use this module on aarch64_be (big-endian) because LLVM
+// currently generates broken code. (on cfg(miri) it is fine though)
 
 use core::{
     cell::UnsafeCell,
