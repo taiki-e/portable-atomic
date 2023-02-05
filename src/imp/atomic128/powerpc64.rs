@@ -706,8 +706,8 @@ mod tests {
     test_atomic_int!(i128);
     #[cfg(not(qemu))]
     test_atomic_int!(u128);
-    // As of qemu 7.0.0 , using lqarx/stqcx. with qemu-user hangs.
-    // To test this, use real powerpc64le hardware or use POWER Functional
+    // As of QEMU 7.2, using lqarx/stqcx. with qemu-user hangs.
+    // To test this, use real powerpc64 hardware or use POWER Functional
     // Simulator. See DEVELOPMENT.md for more.
     #[cfg(qemu)]
     test_atomic_int_load_store!(i128);
