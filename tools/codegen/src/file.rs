@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{format_err, Result};
 use camino::Utf8PathBuf;
 use fs_err as fs;
 use proc_macro2::TokenStream;
@@ -40,18 +40,17 @@ fn header(function_name: &str) -> String {
 }
 
 #[track_caller]
-pub fn write(function_name: &str, path: &Path, contents: TokenStream) -> Result<()> {
-    write_raw(function_name, path, format_tokens(contents))
+pub fn write(function_name: &str, path: impl AsRef<Path>, contents: TokenStream) -> Result<()> {
+    write_raw(function_name, path.as_ref(), format_tokens(contents)?)
 }
 
-pub fn format_tokens(contents: TokenStream) -> Vec<u8> {
+fn format_tokens(contents: TokenStream) -> Result<Vec<u8>> {
     let mut out = prettyplease::unparse(
-        &syn::parse2(contents.clone())
-            .unwrap_or_else(|e| panic!("{} in:\n---\n{}\n---", e, contents)),
+        &syn::parse2(contents.clone()).map_err(|e| format_err!("{e} in:\n---\n{contents}\n---"))?,
     )
     .into_bytes();
     format_macros(&mut out);
-    out
+    Ok(out)
 }
 
 // Roughly format the code inside macro calls.

@@ -182,14 +182,10 @@ pub(crate) fn gen() -> Result<()> {
                     pub(crate) mod #name;
                 }
             });
-            file::write(
-                function_name!(),
-                out_dir.join("mod.rs").as_std_path(),
-                quote! { #(#modules)* },
-            )?;
+            file::write(function_name!(), out_dir.join("mod.rs"), quote! { #(#modules)* })?;
         }
     }
-    file::write(function_name!(), out_dir.join("mod.rs").as_std_path(), quote! {
+    file::write(function_name!(), out_dir.join("mod.rs"), quote! {
         #![allow(
             dead_code,
             non_camel_case_types,
