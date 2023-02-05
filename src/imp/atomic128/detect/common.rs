@@ -109,6 +109,7 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     }
 }
 
+// x86_64 tests are in x86_64.rs.
 #[cfg(target_arch = "aarch64")]
 #[allow(
     clippy::alloc_instead_of_core,
