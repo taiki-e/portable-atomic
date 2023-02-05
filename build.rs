@@ -78,7 +78,8 @@ fn main() {
         {
             // This feature was added in Rust 1.45 (nightly-2020-05-20), but
             // concat! in asm! requires Rust 1.46 (nightly-2020-06-21).
-            // x86 intel syntax requires LLVM 10.
+            // x86 intel syntax requires LLVM 10 (since Rust 1.53, the minimum
+            // external LLVM version is 10+: https://github.com/rust-lang/rust/pull/83387).
             // The part of this feature we use has not been changed since nightly-2020-06-21
             // until it was stabilized in nightly-2021-12-16, so it can be safely enabled in
             // nightly, which is older than nightly-2021-12-16.
