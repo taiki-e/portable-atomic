@@ -1680,7 +1680,7 @@ macro_rules! test_atomic_ptr {
             clippy::undocumented_unsafe_blocks
         )]
         #[allow(unstable_name_collisions)]
-        mod test_atomic_bool_ptr {
+        mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
             __test_atomic_ptr!(AtomicPtr<u8>);
@@ -1768,7 +1768,7 @@ macro_rules! test_atomic_ptr_pub {
             clippy::undocumented_unsafe_blocks
         )]
         #[allow(unstable_name_collisions)]
-        mod test_atomic_bool_ptr {
+        mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
             __test_atomic_ptr!(AtomicPtr<u8>);
