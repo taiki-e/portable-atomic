@@ -281,10 +281,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     ),
     feature(stdsimd)
 )]
-#![cfg_attr(
-    all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr),
-    feature(strict_provenance_atomic_ptr)
-)]
 // docs.rs only
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
@@ -1899,6 +1895,23 @@ impl<T> AtomicPtr<T> {
         Err(prev)
     }
 
+    #[cfg(miri)]
+    #[inline]
+    fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> *mut T
+    where
+        F: FnMut(*mut T) -> *mut T,
+    {
+        let fetch_order = crate::utils::strongest_failure_ordering(set_order);
+        let mut prev = self.load(fetch_order);
+        loop {
+            let next = f(prev);
+            match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
+                Ok(x) => return x,
+                Err(next_prev) => prev = next_prev,
+            }
+        }
+    }
+
     /// Offsets the pointer's address by adding `val` (in units of `T`),
     /// returning the previous pointer.
     ///
@@ -2059,16 +2072,16 @@ impl<T> AtomicPtr<T> {
     )]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        #[cfg(miri)]
         {
-            self.inner.fetch_byte_add(val, order)
+            self.fetch_update_(order, |x| strict::map_addr(x, |x| x.wrapping_add(val)))
         }
-        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        #[cfg(not(miri))]
         {
             self.as_atomic_usize().fetch_add(val, order) as *mut T
         }
@@ -2122,16 +2135,16 @@ impl<T> AtomicPtr<T> {
     )]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        #[cfg(miri)]
         {
-            self.inner.fetch_byte_sub(val, order)
+            self.fetch_update_(order, |x| strict::map_addr(x, |x| x.wrapping_sub(val)))
         }
-        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        #[cfg(not(miri))]
         {
             self.as_atomic_usize().fetch_sub(val, order) as *mut T
         }
@@ -2200,16 +2213,16 @@ impl<T> AtomicPtr<T> {
     )]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        #[cfg(miri)]
         {
-            self.inner.fetch_or(val, order)
+            self.fetch_update_(order, |x| strict::map_addr(x, |x| x | val))
         }
-        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        #[cfg(not(miri))]
         {
             self.as_atomic_usize().fetch_or(val, order) as *mut T
         }
@@ -2276,16 +2289,16 @@ impl<T> AtomicPtr<T> {
     )]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        #[cfg(miri)]
         {
-            self.inner.fetch_and(val, order)
+            self.fetch_update_(order, |x| strict::map_addr(x, |x| x & val))
         }
-        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        #[cfg(not(miri))]
         {
             self.as_atomic_usize().fetch_and(val, order) as *mut T
         }
@@ -2351,22 +2364,22 @@ impl<T> AtomicPtr<T> {
     )]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now use it only on cfg(miri).
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
         // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
         // compatible and is sound.
         // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr))]
+        #[cfg(miri)]
         {
-            self.inner.fetch_xor(val, order)
+            self.fetch_update_(order, |x| strict::map_addr(x, |x| x ^ val))
         }
-        #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+        #[cfg(not(miri))]
         {
             self.as_atomic_usize().fetch_xor(val, order) as *mut T
         }
     }
 
-    #[cfg(not(all(miri, portable_atomic_unstable_strict_provenance_atomic_ptr)))]
+    #[cfg(not(miri))]
     #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
@@ -4574,3 +4587,48 @@ atomic_int!(AtomicI128, i128, 16);
     ))
 )]
 atomic_int!(AtomicU128, u128, 16);
+
+/// Emulate strict provenance.
+///
+/// Once strict_provenance is stable, migrate to the standard library's APIs.
+#[cfg(miri)]
+#[allow(
+    clippy::cast_possible_wrap,
+    clippy::transmutes_expressible_as_ptr_casts,
+    clippy::useless_transmute
+)]
+mod strict {
+    use core::mem;
+
+    /// Get the address of a pointer.
+    #[must_use]
+    #[inline]
+    pub(super) fn addr<T>(ptr: *mut T) -> usize {
+        // SAFETY: Every sized pointer is a valid integer for the time being.
+        unsafe { mem::transmute(ptr) }
+    }
+
+    /// Replace the address portion of this pointer with a new address.
+    #[must_use]
+    #[inline]
+    pub(super) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
+        // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
+        //
+        // In the mean-time, this operation is defined to be "as if" it was
+        // a wrapping_offset, so we can emulate it as such. This should properly
+        // restore pointer provenance even under today's compiler.
+        let self_addr = self::addr(ptr) as isize;
+        let dest_addr = addr as isize;
+        let offset = dest_addr.wrapping_sub(self_addr);
+
+        // This is the canonical desugaring of this operation.
+        (ptr as *mut u8).wrapping_offset(offset) as *mut T
+    }
+
+    /// Run an operation of some kind on a pointer.
+    #[must_use]
+    #[inline]
+    pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
+        self::with_addr(ptr, f(addr(ptr)))
+    }
+}

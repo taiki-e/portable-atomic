@@ -794,26 +794,32 @@ fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
 ///
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
 #[allow(
-    clippy::useless_transmute,
+    clippy::cast_possible_wrap,
     clippy::transmutes_expressible_as_ptr_casts,
-    clippy::cast_possible_wrap
+    clippy::useless_transmute
 )]
 mod strict {
     use core::mem;
 
     /// Get the address of a pointer.
+    #[must_use]
+    #[inline]
     pub(super) fn addr<T>(ptr: *mut T) -> usize {
         // SAFETY: Every sized pointer is a valid integer for the time being.
         unsafe { mem::transmute(ptr) }
     }
 
     /// Create a new, invalid pointer from an address.
+    #[must_use]
+    #[inline]
     pub(super) fn invalid<T>(addr: usize) -> *mut T {
         // SAFETY: Every integer is a valid pointer as long as it is not dereferenced.
         unsafe { mem::transmute(addr) }
     }
 
     /// Create a new pointer with the metadata of `other`.
+    #[must_use]
+    #[inline]
     pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *mut U) -> *mut U {
         let target = &mut other as *mut *mut U as *mut *mut u8;
 
@@ -828,10 +834,7 @@ mod strict {
     /// Replace the address portion of this pointer with a new address.
     #[must_use]
     #[inline]
-    pub(crate) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T
-    where
-        T: Sized,
-    {
+    pub(super) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
         // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
         //
         // In the mean-time, this operation is defined to be "as if" it was
@@ -841,19 +844,14 @@ mod strict {
         let dest_addr = addr as isize;
         let offset = dest_addr.wrapping_sub(self_addr);
 
-        // This is the canonical desugaring of this operation,
-        // but `pointer::cast` was only stabilized in 1.38.
-        // self.cast::<u8>().wrapping_offset(offset).cast::<T>()
+        // This is the canonical desugaring of this operation.
         (ptr as *mut u8).wrapping_offset(offset) as *mut T
     }
 
     /// Run an operation of some kind on a pointer.
     #[must_use]
     #[inline]
-    pub(crate) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T
-    where
-        T: Sized,
-    {
+    pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
         self::with_addr(ptr, f(addr(ptr)))
     }
 }
