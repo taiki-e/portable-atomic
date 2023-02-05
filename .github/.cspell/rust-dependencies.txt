@@ -7,6 +7,7 @@ atomic
 bindgen
 camino
 cell
+clang
 criterion
 critical
 crossbeam
