@@ -6,4 +6,7 @@ updates:
       interval: daily
     commit-message:
       prefix: ''
+    ignore:
+      # 1.5.0 has a breaking change
+      - dependency-name: clang-sys
     labels: []
