@@ -57,7 +57,7 @@ use arch::atomic;
     ),
     path = "armv4t.rs"
 )]
-#[cfg_attr(any(target_arch = "avr", feature = "critical-section"), path = "avr.rs")]
+#[cfg_attr(target_arch = "avr", path = "avr.rs")]
 #[cfg_attr(target_arch = "msp430", path = "msp430.rs")]
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]
 mod arch;
