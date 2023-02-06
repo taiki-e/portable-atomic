@@ -55,24 +55,14 @@ aarch64_linux_valgrind_task:
     RUSTFLAGS: -D warnings --cfg valgrind
     TARGET: aarch64-unknown-linux-gnu
   arm_container:
-    image: rust:latest
+    # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
+    # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
+    image: debian:bookworm
   setup_script:
-    - rustup toolchain add nightly --component rust-src && rustup default nightly
-    # libc6-dbg is needed to run Valgrind
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends libc6-dbg
-    # Valgrind doesn't support ldxp/stxp as of 3.18.1: https://sourceware.org/git/?p=valgrind.git;a=commit;h=530df882b8f60ecacaf2b9b8a719f7ea1c1d1650
-    - |
-      set -euxo pipefail
-      git clone git://sourceware.org/git/valgrind.git
-      cd valgrind
-      git checkout 530df882b8f60ecacaf2b9b8a719f7ea1c1d1650
-      ./autogen.sh
-      ./configure
-      make -j$(nproc)
-      make -j$(nproc) install
-      cd ..
-      rm -rf valgrind
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind ca-certificates curl gcc git libc6-dev
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
+    - source $HOME/.cargo/env
     # doctests on Valgrind are very slow
     - cargo test -vv --workspace --all-features --tests $EXCLUDE
     - cargo test -vv --workspace --all-features --release --tests $EXCLUDE
