@@ -13,23 +13,35 @@ env:
   EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 aarch64_linux_test_task:
-  name: test (aarch64-unknown-linux-gnu)
-  env:
-    TARGET: aarch64-unknown-linux-gnu
-  arm_container:
-    image: rust:latest
-  setup_script:
-    - rustup toolchain add nightly --component rust-src && rustup default nightly
+  matrix:
+    - name: test (aarch64-unknown-linux-gnu)
+      env:
+        TARGET: aarch64-unknown-linux-gnu
+      arm_container:
+        image: rust:latest
+      setup_script:
+        - set -ex
+        - lscpu
+        - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+    - name: test (aarch64-unknown-linux-musl)
+      env:
+        TARGET: aarch64-unknown-linux-musl
+      arm_container:
+        image: rust:alpine
+      setup_script:
+        - set -ex
+        - apk --no-cache add git musl-dev util-linux
+        - lscpu
+        - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
   test_script:
-    - cargo test -vv --workspace --all-features $EXCLUDE
+    - set -ex
+    - cargo test -vv --workspace --all-features           $EXCLUDE
     - cargo test -vv --workspace --all-features --release $EXCLUDE
-    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features           $EXCLUDE
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release $EXCLUDE
-    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 
 aarch64_macos_test_task:
@@ -39,13 +51,15 @@ aarch64_macos_test_task:
   macos_instance:
     image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
   setup_script:
+    - set -ex
+    - sysctl hw.optional machdep.cpu
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
+    - set -ex
     - source $HOME/.cargo/env
     - cargo test -vv --workspace --all-features $EXCLUDE
     - cargo test -vv --workspace --all-features --release $EXCLUDE
-    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
 
 aarch64_linux_valgrind_task:
   name: valgrind (aarch64-unknown-linux-gnu)
@@ -59,20 +73,21 @@ aarch64_linux_valgrind_task:
     # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
     image: debian:bookworm
   setup_script:
+    - set -ex
+    - lscpu
     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind ca-certificates curl gcc git libc6-dev
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
+    - set -ex
     - source $HOME/.cargo/env
     # doctests on Valgrind are very slow
-    - cargo test -vv --workspace --all-features --tests $EXCLUDE
+    - cargo test -vv --workspace --all-features           --tests $EXCLUDE
     - cargo test -vv --workspace --all-features --release --tests $EXCLUDE
-    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
+    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --tests $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features           --tests $EXCLUDE
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release --tests $EXCLUDE
-    # Use -Z build-std because the prebuilt libtest seems to be incompatible with LTO, causing miscompilation: https://gist.github.com/taiki-e/9713f8e02e8f9f852ccee8d6f089ec24
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo -Z build-std test -vv --workspace --all-features --release --tests --target $TARGET $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 #
 # aarch64_linux_bench_task:
@@ -84,8 +99,11 @@ aarch64_linux_valgrind_task:
 #     cpu: 4
 #     memory: 12G
 #   setup_script:
-#     - rustup toolchain add nightly && rustup default nightly
+#     - set -ex
+#     - lscpu
+#     - rustup toolchain add nightly --no-self-update && rustup default nightly
 #   bench_script:
+#     - set -ex
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
@@ -96,8 +114,10 @@ aarch64_linux_valgrind_task:
 #   macos_instance:
 #     image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
 #   setup_script:
+#     - set -ex
+#     - sysctl hw.optional machdep.cpu
 #     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
 #   bench_script:
-#     - sysctl -a | grep machdep.cpu
+#     - set -ex
 #     - source $HOME/.cargo/env
 #     - cargo bench -vv --manifest-path bench/Cargo.toml
