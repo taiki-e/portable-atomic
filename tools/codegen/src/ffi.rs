@@ -11,6 +11,7 @@ use std::ffi::OsStr;
 
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
+use duct::cmd;
 use fs_err as fs;
 use quote::{format_ident, quote};
 
@@ -198,33 +199,36 @@ pub(crate) fn gen() -> Result<()> {
 }
 
 fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8PathBuf> {
-    let repository = match target.os {
-        linux | android => "torvalds/linux",
-        openbsd => "openbsd/src",
+    fn clone(download_cache_dir: &Utf8Path, repository: &str) -> Result<Utf8PathBuf> {
+        let src_dir = download_cache_dir.join(repository.replace('/', "-"));
+        if src_dir.exists() {
+            cmd!("git", "clean", "-df",).dir(&src_dir).run()?;
+            // TODO: use stash?
+            cmd!("git", "checkout", ".",).dir(&src_dir).run()?;
+        } else {
+            // TODO: use sparse-checkout
+            cmd!(
+                "git",
+                "clone",
+                "--depth",
+                "1",
+                format!("https://github.com/{repository}.git"),
+                &src_dir
+            )
+            .run()?;
+        }
+        Ok(src_dir)
+    }
+    let src_dir = match target.os {
+        linux | android => clone(download_cache_dir, "torvalds/linux")?,
+        openbsd => clone(download_cache_dir, "openbsd/src")?,
         _ => todo!("{target:?}"),
     };
-    let src_dir = download_cache_dir.join(repository.replace('/', "-"));
-    if src_dir.exists() {
-        duct::cmd!("git", "clean", "-df",).dir(&src_dir).run()?;
-        // TODO: use stash?
-        duct::cmd!("git", "checkout", ".",).dir(&src_dir).run()?;
-    } else {
-        // TODO: use sparse-checkout
-        duct::cmd!(
-            "git",
-            "clone",
-            "--depth",
-            "1",
-            format!("https://github.com/{repository}.git"),
-            &src_dir
-        )
-        .run()?;
-    }
     // TODO: remove needs of patches.
     for e in fs::read_dir("tools/codegen/patches")?.filter_map(Result::ok) {
         let path = e.path();
         if path.file_stem() == Some(OsStr::new(target.os.as_str())) {
-            duct::cmd!("patch", "-p1")
+            cmd!("patch", "-p1")
                 .stdin_file(fs::File::open(path)?.into_parts().0)
                 .dir(&src_dir)
                 .run()?;
