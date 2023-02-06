@@ -231,89 +231,90 @@ build() {
                 return 0
                 ;;
         esac
-        RUSTFLAGS="${target_rustflags}" \
-            x_cargo "${args[@]}" "$@" --all-features
-        return 0
-    fi
-
-    # paste! on statements requires 1.45
-    if [[ "${rustc_minor_version}" -gt 44 ]]; then
-        if [[ -n "${has_atomic_cas}" ]]; then
-            RUSTFLAGS="${target_rustflags}" \
-                x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-        else
-            # target without CAS requires asm to implement CAS.
-            if [[ -n "${has_asm}" ]]; then
-                case "${target}" in
-                    avr-* | msp430-*) # always single-core
-                        RUSTFLAGS="${target_rustflags}" \
-                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                        ;;
-                    bpf*) ;; # TODO
-                    *)
-                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                        case "${target}" in
-                            thumbv[4-5]t* | armv[4-5]t*)
-                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                    x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                                ;;
-                            riscv*)
-                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                    x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                                ;;
-                        esac
-                        ;;
-                esac
+        args+=(
+            --workspace --all-features
+            --exclude bench --exclude portable-atomic-internal-codegen
+        )
+    else
+        # paste! on statements requires 1.45
+        if [[ "${rustc_minor_version}" -gt 44 ]]; then
+            if [[ -n "${has_atomic_cas}" ]]; then
+                RUSTFLAGS="${target_rustflags}" \
+                    x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
             else
-                echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
-            fi
-        fi
-    fi
-
-    args+=(
-        --workspace --ignore-private
-        --no-dev-deps --feature-powerset --depth 2 --optional-deps
-    )
-    # critical-section requires 1.54
-    if [[ "${rustc_minor_version}" -lt 54 ]]; then
-        args+=(--exclude-features "critical-section")
-    fi
-    case "${target}" in
-        *-none* | *-cuda* | avr-* | *-esp-espidf)
-            args+=(--exclude-features "std")
-            if [[ -z "${has_atomic_cas}" ]]; then
+                # target without CAS requires asm to implement CAS.
                 if [[ -n "${has_asm}" ]]; then
                     case "${target}" in
-                        avr-* | msp430-*) ;;                            # always single-core
-                        bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                        avr-* | msp430-*) # always single-core
+                            RUSTFLAGS="${target_rustflags}" \
+                                x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            ;;
+                        bpf*) ;; # TODO
                         *)
-                            CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
-                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
-                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-disable-fiq" \
-                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                        x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                     ;;
                                 riscv*)
-                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
-                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                        x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                     ;;
                             esac
                             ;;
                     esac
                 else
-                    echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
+                    echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
                 fi
-                # portable-atomic-util uses atomic CAS, so doesn't work on
-                # this target without portable_atomic_unsafe_assume_single_core cfg.
-                args+=(--exclude portable-atomic-util)
             fi
-            ;;
-    esac
+        fi
+
+        args+=(
+            --workspace --ignore-private
+            --no-dev-deps --feature-powerset --depth 2 --optional-deps
+        )
+        # critical-section requires 1.54
+        if [[ "${rustc_minor_version}" -lt 54 ]]; then
+            args+=(--exclude-features "critical-section")
+        fi
+        case "${target}" in
+            *-none* | *-cuda* | avr-* | *-esp-espidf)
+                args+=(--exclude-features "std")
+                if [[ -z "${has_atomic_cas}" ]]; then
+                    if [[ -n "${has_asm}" ]]; then
+                        case "${target}" in
+                            avr-* | msp430-*) ;;                            # always single-core
+                            bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                            *)
+                                CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
+                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                    x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                case "${target}" in
+                                    thumbv[4-5]t* | armv[4-5]t*)
+                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-disable-fiq" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                        ;;
+                                    riscv*)
+                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                        ;;
+                                esac
+                                ;;
+                        esac
+                    else
+                        echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
+                    fi
+                    # portable-atomic-util uses atomic CAS, so doesn't work on
+                    # this target without portable_atomic_unsafe_assume_single_core cfg.
+                    args+=(--exclude portable-atomic-util)
+                fi
+                ;;
+        esac
+    fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
     case "${target}" in
@@ -346,6 +347,9 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     # FEAT_LSE2 doesn't imply FEAT_LSE.
                     CARGO_TARGET_DIR="${target_dir}/lse2" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+lse2" \
+                        x_cargo "${args[@]}" "$@"
+                    CARGO_TARGET_DIR="${target_dir}/lse-lse2" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
                         x_cargo "${args[@]}" "$@"
                     ;;
