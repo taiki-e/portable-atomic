@@ -210,7 +210,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
         if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
-      # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
+      # TODO: As of QEMU 7.2, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
 
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default

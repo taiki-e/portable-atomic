@@ -344,6 +344,7 @@ build() {
                     CARGO_TARGET_DIR="${target_dir}/lse" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
                         x_cargo "${args[@]}" "$@"
+                    # FEAT_LSE2 doesn't imply FEAT_LSE.
                     CARGO_TARGET_DIR="${target_dir}/lse2" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
                         x_cargo "${args[@]}" "$@"

@@ -242,6 +242,8 @@ fn main() {
                 }
             }
             // lqarx and stqcx.
+            // Note: As of rustc 1.67, target_feature "quadword-atomics" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_codegen_ssa/src/target_features.rs#L215
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
         _ => {}
