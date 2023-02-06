@@ -3,19 +3,18 @@
 // There are a few ways to implement 128-bit atomic operations in AArch64.
 //
 // - LDXP/STXP loop (DW LL/SC)
-// - CASP (DWCAS) added as FEAT_LSE (armv8.1-a)
-// - LDP/STP (DW load/store) if FEAT_LSE2 (armv8.4-a) is available
+// - CASP (DWCAS) added as FEAT_LSE (mandatory from armv8.1-a)
+// - LDP/STP (DW load/store) if FEAT_LSE2 (optional from armv8.2-a, mandatory from armv8.4-a) is available
 //
-// If outline-atomics is not enabled, we use CASP if FEAT_LSE is enabled at
-// compile-time, otherwise, use LDXP/STXP loop.
-// If outline-atomics is enabled, we use CASP for load/compare_exchange(_weak) if
-// FEAT_LSE is available at run-time.
+// If outline-atomics is not enabled and FEAT_LSE is not available at
+// compile-time, we use LDXP/STXP loop.
+// If outline-atomics is enabled and FEAT_LSE is not available at
+// compile-time, we use CASP for CAS if FEAT_LSE is available
+// at run-time, otherwise, use LDXP/STXP loop.
+// If FEAT_LSE is available at compile-time, we use CASP for load/store/CAS/RMW.
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
 //
-// Note: As of rustc 1.68.0-nightly, -C target-feature=+lse2 does not implicitly
-// enable target_feature "lse": https://godbolt.org/z/GYTcTeda6
-// Also, as of rustc 1.67, target_feature "lse2" is not available on rustc side:
-// https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_codegen_ssa/src/target_features.rs#L47
+// Note: FEAT_LSE2 doesn't imply FEAT_LSE.
 //
 // Note that we do not separate LL and SC into separate functions, but handle
 // them within a single asm block. This is because it is theoretically possible
@@ -42,9 +41,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/z5cd5W8fh
-// - aarch64 (+lse) https://godbolt.org/z/offxb8rrj
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/8nn4WE4cj
+// - aarch64 https://godbolt.org/z/8E1PanvhY
+// - aarch64 (+lse) https://godbolt.org/z/4377cG4T7
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/6hsdMfKWv
 
 include!("macros.rs");
 
@@ -147,24 +146,24 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     unsafe {
         _atomic_load_ldp(src, order)
     }
-    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    // cfg guarantee that the CPU supports FEAT_LSE.
-    unsafe {
-        _atomic_compare_exchange_casp(src, 0, 0, order)
-    }
-    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
-    unsafe {
-        _atomic_load_ldxp_stxp(src, order)
+    {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        unsafe {
+            _atomic_compare_exchange_casp(src, 0, 0, order)
+        }
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+        // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+        unsafe {
+            _atomic_load_ldxp_stxp(src, order)
+        }
     }
 }
 // If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
 #[inline]
 unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
@@ -199,6 +198,8 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
 }
 #[inline]
 unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
+    debug_assert!(src as usize % 16 == 0);
+
     // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
     unsafe {
         let (mut prev_lo, mut prev_hi);
@@ -454,11 +455,49 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
 // so we always use strong CAS for now.
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
+#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse",))]
+#[inline]
+unsafe fn atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+where
+    F: FnMut(u128) -> u128,
+{
+    let failure = crate::utils::strongest_failure_ordering(order);
+    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    unsafe {
+        // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+        // This is not single-copy atomic reads, but this is ok because subsequent
+        // CAS will check for consistency.
+        let mut old = _atomic_load_ldp(dst, failure);
+        loop {
+            let next = f(old);
+            let x = _atomic_compare_exchange_casp(dst, old, next, order);
+            if x == old {
+                return x;
+            }
+            old = x;
+        }
+    }
+}
+
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |_| val)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    unsafe {
+        _atomic_swap_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_swap_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -487,9 +526,23 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| x.wrapping_add(val))
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+    unsafe {
+        _atomic_add_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_add_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_add_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -523,9 +576,23 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| x.wrapping_sub(val))
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+    unsafe {
+        _atomic_sub_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_sub_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_sub_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -559,9 +626,23 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| x & val)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+    unsafe {
+        _atomic_and_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_and_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_and_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -594,9 +675,23 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| !(x & val))
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+    unsafe {
+        _atomic_nand_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_nand_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_nand_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -631,9 +726,23 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| x | val)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+    unsafe {
+        _atomic_or_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_or_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_or_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -666,9 +775,23 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| x ^ val)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+    unsafe {
+        _atomic_xor_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_xor_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_xor_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -701,9 +824,23 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, |x| !x)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    unsafe {
+        _atomic_not_ldxp_stxp(dst, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_not_ldxp_stxp(dst: *mut u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_not_ldxp_stxp`.
     unsafe {
         let (mut prev_lo, mut prev_hi);
         macro_rules! not {
@@ -733,9 +870,24 @@ unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+    // SAFETY: the caller must uphold the safety contract for `atomic_max`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst.cast(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_max`.
+    unsafe {
+        _atomic_max_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_max_ldxp_stxp(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_max`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_max_ldxp_stxp`.
     unsafe {
         let val = I128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -808,9 +960,23 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 
 #[inline]
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst.cast(), order, |x| core::cmp::max(x, val))
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
+    unsafe {
+        _atomic_umax_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_umax_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_umax_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -883,9 +1049,24 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+    // SAFETY: the caller must uphold the safety contract for `atomic_min`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst.cast(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_min`.
+    unsafe {
+        _atomic_min_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_min_ldxp_stxp(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_min`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_min_ldxp_stxp`.
     unsafe {
         let val = I128 { whole: val };
         let (mut prev_lo, mut prev_hi);
@@ -958,9 +1139,23 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 
 #[inline]
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst.cast(), order, |x| core::cmp::min(x, val))
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
+    unsafe {
+        _atomic_umin_ldxp_stxp(dst, val, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_umin_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
+    // SAFETY: the caller must uphold the safety contract for `_atomic_umin_ldxp_stxp`.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);

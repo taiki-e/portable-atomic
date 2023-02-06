@@ -308,6 +308,7 @@ where
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract for `atomic_max`
     unsafe {
         atomic_update(dst.cast(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
@@ -335,6 +336,7 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract for `atomic_min`
     unsafe {
         atomic_update(dst.cast(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
