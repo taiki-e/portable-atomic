@@ -13,9 +13,9 @@ env:
   EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 aarch64_linux_test_task:
+  name: test ($TARGET)
   matrix:
-    - name: test (aarch64-unknown-linux-gnu)
-      env:
+    - env:
         TARGET: aarch64-unknown-linux-gnu
       arm_container:
         image: rust:latest
@@ -23,8 +23,7 @@ aarch64_linux_test_task:
         - set -ex
         - lscpu
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-    - name: test (aarch64-unknown-linux-musl)
-      env:
+    - env:
         TARGET: aarch64-unknown-linux-musl
       arm_container:
         image: rust:alpine
@@ -45,7 +44,7 @@ aarch64_linux_test_task:
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 
 aarch64_macos_test_task:
-  name: test (aarch64-apple-darwin)
+  name: test ($TARGET)
   env:
     TARGET: aarch64-apple-darwin
   macos_instance:
@@ -62,7 +61,7 @@ aarch64_macos_test_task:
     - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
 
 aarch64_linux_valgrind_task:
-  name: valgrind (aarch64-unknown-linux-gnu)
+  name: valgrind ($TARGET)
   env:
     CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
     RUSTDOCFLAGS: -D warnings --cfg valgrind
@@ -91,7 +90,7 @@ aarch64_linux_valgrind_task:
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 #
 # aarch64_linux_bench_task:
-#   name: bench (aarch64-unknown-linux-gnu)
+#   name: bench ($TARGET)
 #   env:
 #     TARGET: aarch64-unknown-linux-gnu
 #   arm_container:
@@ -108,7 +107,7 @@ aarch64_linux_valgrind_task:
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
 # aarch64_macos_bench_task:
-#   name: bench (aarch64-apple-darwin)
+#   name: bench ($TARGET)
 #   env:
 #     TARGET: aarch64-apple-darwin
 #   macos_instance:
