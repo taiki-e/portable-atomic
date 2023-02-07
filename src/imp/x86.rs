@@ -36,7 +36,7 @@ macro_rules! atomic_int {
                     // atomic RMW is always SeqCst.
                     asm!(
                         concat!("lock not ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}]"),
-                        dst = inout(reg) dst => _,
+                        dst = in(reg) dst,
                         options(nostack, preserves_flags),
                     );
                 }
@@ -67,7 +67,7 @@ macro_rules! atomic_int {
                     // atomic RMW is always SeqCst.
                     asm!(
                         concat!("lock neg ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}]"),
-                        dst = inout(reg) dst => _,
+                        dst = in(reg) dst,
                         // Do not use `preserves_flags` because NEG modifies the CF, OF, SF, ZF, AF, and PF flag.
                         options(nostack),
                     );
