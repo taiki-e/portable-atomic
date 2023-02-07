@@ -82,7 +82,6 @@ RAII
 rclass
 reentrancy
 sbcs
-semihosting
 seqcst
 seqlock
 sete
@@ -110,7 +109,6 @@ tagme
 Tlink
 uapi
 uart
-ufmt
 umax
 umin
 unparse
