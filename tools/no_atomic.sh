@@ -25,12 +25,23 @@ no_atomic=()
 for target in $(rustc --print target-list); do
     target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
     max_atomic_width=$(jq <<<"${target_spec}" -r '."max-atomic-width"')
+    min_atomic_width=$(jq <<<"${target_spec}" -r '."min-atomic-width"')
     case "${max_atomic_width}" in
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
         0) no_atomic+=("${target}") ;;
         32 | 64 | 128 | null) ;;
         # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
-        *) echo "${target}" && exit 1 ;;
+        *) echo "'${target}' has max-atomic-width == ${max_atomic_width}" && exit 1 ;;
+    esac
+    case "${min_atomic_width}" in
+        8 | null)  ;;
+        *)
+            case "${target}" in
+                bpfeb-unknown-none | bpfel-unknown-none) ;;
+                *) echo "'${target}' has min-atomic-width == ${min_atomic_width}" && exit 1 ;;
+            esac
+            no_atomic+=("${target}")
+            ;;
     esac
 done
 for target in $(rustc +nightly-2022-02-10 --print target-list); do

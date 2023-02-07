@@ -67,6 +67,8 @@ static NO_ATOMIC_64: &[&str] = &[
 
 static NO_ATOMIC: &[&str] = &[
     "avr-unknown-gnu-atmega328",
+    "bpfeb-unknown-none",
+    "bpfel-unknown-none",
     "mipsel-sony-psx",
     "msp430-none-elf",
     "riscv32i-unknown-none-elf",
