@@ -146,6 +146,7 @@ macro_rules! serde_impls {
 
 // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
 #[allow(unused_macros)]
+#[cfg(not(portable_atomic_no_outline_atomics))]
 macro_rules! ifunc {
     // if the functions are unsafe, this macro is also unsafe.
     (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{

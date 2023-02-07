@@ -47,6 +47,7 @@
 
 include!("macros.rs");
 
+#[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg_attr(
     any(all(target_os = "linux", target_env = "gnu"), target_os = "android"),
     path = "detect/aarch64_linux_getauxval.rs"

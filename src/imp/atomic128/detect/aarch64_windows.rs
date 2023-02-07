@@ -9,7 +9,6 @@
 #![cfg_attr(
     any(
         portable_atomic_no_aarch64_target_feature,
-        portable_atomic_no_outline_atomics,
         any(target_feature = "lse", portable_atomic_target_feature = "lse")
     ),
     allow(dead_code)

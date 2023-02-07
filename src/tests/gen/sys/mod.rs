@@ -3,7 +3,13 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-#![allow(dead_code, non_camel_case_types, unreachable_pub, clippy::unreadable_literal)]
+#![allow(
+    dead_code,
+    non_camel_case_types,
+    unreachable_pub,
+    unused_imports,
+    clippy::unreadable_literal,
+)]
 #[cfg(
     all(
         target_arch = "aarch64",

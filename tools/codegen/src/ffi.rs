@@ -191,6 +191,7 @@ pub(crate) fn gen() -> Result<()> {
             dead_code,
             non_camel_case_types,
             unreachable_pub,
+            unused_imports,
             clippy::unreadable_literal,
         )]
         #(#modules)*
