@@ -1,8 +1,8 @@
 // Based on https://github.com/rust-embedded/critical-section/blob/v1.1.1/src/std.rs,
-// but compatible with Rust 1.59 that we run test.
+// but don't use `static mut` and compatible with Rust 1.59 that we run tests.
 
 use std::{
-    cell::Cell,
+    cell::{Cell, UnsafeCell},
     mem::MaybeUninit,
     sync::{Mutex, MutexGuard},
 };
@@ -12,7 +12,8 @@ use once_cell::sync::Lazy;
 static GLOBAL_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
 // This is initialized if a thread has acquired the CS, uninitialized otherwise.
-static mut GLOBAL_GUARD: MaybeUninit<MutexGuard<'static, ()>> = MaybeUninit::uninit();
+static GLOBAL_GUARD: SyncUnsafeCell<MaybeUninit<MutexGuard<'static, ()>>> =
+    SyncUnsafeCell::new(MaybeUninit::uninit());
 
 std::thread_local!(static IS_LOCKED: Cell<bool> = Cell::new(false));
 
@@ -43,7 +44,7 @@ unsafe impl critical_section::Impl for StdCriticalSection {
                 }
             };
             unsafe {
-                GLOBAL_GUARD.write(guard);
+                GLOBAL_GUARD.get().write(MaybeUninit::new(guard));
             }
 
             false
@@ -56,7 +57,7 @@ unsafe impl critical_section::Impl for StdCriticalSection {
             // if the critical section is acquired in the current thread,
             // in which case we know the GLOBAL_GUARD is initialized.
             unsafe {
-                GLOBAL_GUARD.as_mut_ptr().drop_in_place();
+                GLOBAL_GUARD.get().cast::<MutexGuard<'static, ()>>().drop_in_place();
             }
 
             // Note: it is fine to clear this flag *after* releasing the mutex because it's thread local.
@@ -64,5 +65,23 @@ unsafe impl critical_section::Impl for StdCriticalSection {
             // This way, we hold the mutex for slightly less time.
             IS_LOCKED.with(|l| l.set(false));
         }
+    }
+}
+
+// See https://github.com/rust-lang/rust/issues/53639
+// In our use case, the use of `static mut` should be sound but uses one with less foot guns.
+#[repr(transparent)]
+struct SyncUnsafeCell<T: ?Sized> {
+    value: UnsafeCell<T>,
+}
+unsafe impl<T: ?Sized> Sync for SyncUnsafeCell<T> {}
+impl<T> SyncUnsafeCell<T> {
+    #[inline]
+    const fn new(value: T) -> Self {
+        Self { value: UnsafeCell::new(value) }
+    }
+    #[inline]
+    const fn get(&self) -> *mut T {
+        self.value.get()
     }
 }
