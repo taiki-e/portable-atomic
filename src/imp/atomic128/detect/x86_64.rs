@@ -10,6 +10,7 @@
     ),
     allow(dead_code)
 )]
+#![cfg_attr(target_env = "sgx", allow(unused_variables))]
 
 include!("common.rs");
 
