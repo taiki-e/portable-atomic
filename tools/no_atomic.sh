@@ -34,7 +34,7 @@ for target in $(rustc --print target-list); do
         *) echo "'${target}' has max-atomic-width == ${max_atomic_width}" && exit 1 ;;
     esac
     case "${min_atomic_width}" in
-        8 | null)  ;;
+        8 | null) ;;
         *)
             case "${target}" in
                 bpfeb-unknown-none | bpfel-unknown-none) ;;
