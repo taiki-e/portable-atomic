@@ -18,8 +18,6 @@ default_targets=(
     msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
     # no atomic load/store (32-bit)
     riscv32i-unknown-none-elf
-    riscv32im-unknown-none-elf
-    riscv32imc-unknown-none-elf
     # no atomic load/store (64-bit)
     riscv64i-unknown-none-elf # custom target
 
@@ -40,13 +38,17 @@ default_targets=(
 
     # x86_64
     # rustc --print target-list | grep -E '^x86_64'
-    x86_64-pc-windows-gnu
-    x86_64-pc-windows-msvc
     x86_64-unknown-linux-gnu
     # x86_64 always support cmpxchg16b
     x86_64-apple-darwin
     # x86_64 X32 ABI
     x86_64-unknown-linux-gnux32
+    # x86_64 without CPUID
+    x86_64-fortanix-unknown-sgx
+
+    # x86
+    i686-unknown-linux-gnu
+    i586-unknown-linux-gnu
 
     # aarch64
     # rustc --print target-list | grep -E '^(aarch64|arm64)'
@@ -69,29 +71,17 @@ default_targets=(
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
+    # riscv64 with atomic
+    riscv64gc-unknown-linux-gnu
 
-    # other tier 1 targets
-    i686-pc-windows-gnu
-    i686-pc-windows-msvc
-    i686-unknown-linux-gnu
-
-    # other tier 2 targets we run tests on CI
-    arm-unknown-linux-gnueabi
-    armv5te-unknown-linux-gnueabi
-    armv7-unknown-linux-gnueabi
-    armv7-unknown-linux-gnueabihf
-    i586-unknown-linux-gnu
-    mips-unknown-linux-gnu
-    mips64-unknown-linux-gnuabi64
-    mips64el-unknown-linux-gnuabi64
-    mipsel-unknown-linux-gnu
-    powerpc-unknown-linux-gnu
+    # powerpc64
+    # rustc --print target-list | grep -E '^powerpc64'
     powerpc64-unknown-linux-gnu
     powerpc64le-unknown-linux-gnu
-    riscv64gc-unknown-linux-gnu
+
+    # s390x
+    # rustc --print target-list | grep -E '^s390x'
     s390x-unknown-linux-gnu
-    sparc64-unknown-linux-gnu
-    thumbv7neon-unknown-linux-gnueabihf
 )
 known_cfgs=(
     docsrs
@@ -135,6 +125,7 @@ fi
 rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 metadata=$(cargo metadata --format-version=1 --no-deps)
@@ -173,6 +164,9 @@ fi
 build() {
     local target="$1"
     shift
+    case "${target}" in
+        host) target="${host}" ;;
+    esac
     local args=("${base_args[@]}")
     local target_rustflags="${RUSTFLAGS:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
@@ -194,7 +188,7 @@ build() {
             return 0
         fi
         case "${target}" in
-            *-none* | *-cuda* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
+            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
             *) args+=(-Z build-std) ;;
         esac
     else
@@ -226,8 +220,8 @@ build() {
     if [[ "${TESTS:-}" == "1" ]]; then
         case "${target}" in
             # we use std in tests
-            *-none* | *-cuda* | avr-* | *-esp-espidf)
-                echo "target '${target}' does not support 'std' required to build test (skipped all checks)"
+            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf)
+                echo "target '${target}' does not support 'std' required to build tests (skipped all checks)"
                 return 0
                 ;;
         esac
@@ -280,7 +274,7 @@ build() {
             args+=(--exclude-features "critical-section")
         fi
         case "${target}" in
-            *-none* | *-cuda* | avr-* | *-esp-espidf)
+            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf)
                 args+=(--exclude-features "std")
                 if [[ -z "${has_atomic_cas}" ]]; then
                     if [[ -n "${has_asm}" ]]; then
@@ -347,9 +341,6 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     # FEAT_LSE2 doesn't imply FEAT_LSE.
                     CARGO_TARGET_DIR="${target_dir}/lse2" \
-                        RUSTFLAGS="${target_rustflags} -C target-feature=+lse2" \
-                        x_cargo "${args[@]}" "$@"
-                    CARGO_TARGET_DIR="${target_dir}/lse-lse2" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
                         x_cargo "${args[@]}" "$@"
                     ;;

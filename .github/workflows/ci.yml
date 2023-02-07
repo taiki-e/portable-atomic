@@ -90,6 +90,9 @@ jobs:
           - rust: nightly
             target: i686-unknown-linux-gnu
           - rust: nightly
+            target: i686-pc-windows-msvc
+            os: windows-latest
+          - rust: nightly
             target: mips-unknown-linux-gnu
           - rust: nightly
             target: mips64-unknown-linux-gnuabi64
@@ -131,7 +134,9 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != '' && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
+        if: matrix.target != '' && !(startsWith(matrix.os, 'windows') || contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
+      - run: rustup target add "${{ matrix.target }}"
+        if: matrix.target != '' && startsWith(matrix.os, 'windows')
       - uses: taiki-e/install-action@cross
         if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
       - run: echo "cargo=cross" >>"${GITHUB_ENV}"
@@ -264,6 +269,8 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
         if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
+      - run: tools/build.sh ${{ matrix.target || 'host' }}
+
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
         # We set BUILD_STD due to https://github.com/cross-rs/cross/issues/1128 / https://github.com/rust-lang/rust/issues/103673
         if: "!(startsWith(matrix.rust, 'nightly') && contains(matrix.target, '-android'))"
@@ -288,8 +295,6 @@ jobs:
           # for AVR: https://github.com/rust-lang/compiler-builtins/issues/400
           - rust: nightly-2020-12-26
           # Check that test suite can be built
-          - rust: stable
-            tests: 1
           - rust: nightly
             tests: 1
     runs-on: ubuntu-latest
