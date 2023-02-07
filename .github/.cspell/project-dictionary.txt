@@ -1,5 +1,4 @@
 aclass
-acqrel
 adcs
 addc
 adde
@@ -68,7 +67,6 @@ miscompilation
 mmfr
 moreutils
 mstatus
-nand
 newtype
 nographic
 nostdinc
@@ -82,7 +80,6 @@ RAII
 rclass
 reentrancy
 sbcs
-seqcst
 seqlock
 sete
 sifive
