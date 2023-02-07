@@ -22,7 +22,7 @@
 // Known architectures that have such ABI are x86_64, aarch64, and mips64. However,
 // we list all 64-bit architectures because similar ABIs may exist for other architectures.
 // Script to get the list:
-// (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    target_arch = "/g' | sed -E 's/$/",/g'
+// $ (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    target_arch = "/g; s/$/",/g'
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     target_arch = "aarch64",

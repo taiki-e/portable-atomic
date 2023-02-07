@@ -31,7 +31,7 @@ pub struct TargetSpec {
 #[allow(non_camel_case_types)]
 pub enum TargetArch {
     // Script to get the list:
-    // (for target in $(rustc --print target-list); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    /g' | sed -E 's/$/,/g'
+    // $ (for target in $(rustc --print target-list); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    /g; s/$/,/g'
     aarch64,
     arm,
     avr,
@@ -66,7 +66,7 @@ impl TargetArch {
 #[allow(non_camel_case_types)]
 pub enum TargetOs {
     // Script to get the list:
-    // (for target in $(rustc --print target-list); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u | sed -E 's/^/    /g' | sed -E 's/$/,/g' | sed -E 's/null/none/g'
+    // $ (for target in $(rustc --print target-list); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u | sed -E 's/^/    /g; s/$/,/g; s/null/none/g'
     aix,
     android,
     cuda,
