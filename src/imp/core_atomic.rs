@@ -23,6 +23,10 @@ impl AtomicBool {
         true
     }
     #[inline]
+    pub(crate) fn get_mut(&mut self) -> &mut bool {
+        self.inner.get_mut()
+    }
+    #[inline]
     pub(crate) fn into_inner(self) -> bool {
         self.inner.into_inner()
     }
@@ -81,12 +85,6 @@ impl core::ops::Deref for AtomicBool {
         &self.inner
     }
 }
-impl core::ops::DerefMut for AtomicBool {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
 
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
@@ -104,6 +102,10 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) const fn is_always_lock_free() -> bool {
         true
+    }
+    #[inline]
+    pub(crate) fn get_mut(&mut self) -> &mut *mut T {
+        self.inner.get_mut()
     }
     #[inline]
     pub(crate) fn into_inner(self) -> *mut T {
@@ -161,12 +163,6 @@ impl<T> core::ops::Deref for AtomicPtr<T> {
         &self.inner
     }
 }
-impl<T> core::ops::DerefMut for AtomicPtr<T> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
 
 macro_rules! atomic_int {
     (int_general, $atomic_type:ident, $int_type:ident) => {
@@ -192,6 +188,10 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
                 true
+            }
+            #[inline]
+            pub(crate) fn get_mut(&mut self) -> &mut $int_type {
+                self.inner.get_mut()
             }
             #[inline]
             pub(crate) fn into_inner(self) -> $int_type {
@@ -363,12 +363,6 @@ macro_rules! atomic_int {
             #[inline]
             fn deref(&self) -> &Self::Target {
                 &self.inner
-            }
-        }
-        impl core::ops::DerefMut for $atomic_type {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.inner
             }
         }
     };
