@@ -108,8 +108,7 @@ pub(crate) struct AtomicBool {
 
 // Send is implicitly implemented.
 // SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments) and the raw pointer is
-// valid because we got it from a reference.
+// atomic intrinsics (see module-level comments).
 unsafe impl Sync for AtomicBool {}
 
 impl AtomicBool {
@@ -304,12 +303,10 @@ pub(crate) struct AtomicPtr<T> {
 }
 
 // SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments) and the raw pointer is
-// valid because we got it from a reference.
+// atomic intrinsics (see module-level comments).
 unsafe impl<T> Send for AtomicPtr<T> {}
 // SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments) and the raw pointer is
-// valid because we got it from a reference.
+// atomic intrinsics (see module-level comments).
 unsafe impl<T> Sync for AtomicPtr<T> {}
 
 impl<T> AtomicPtr<T> {
@@ -429,8 +426,7 @@ macro_rules! atomic_int {
 
         // Send is implicitly implemented.
         // SAFETY: any data races are prevented by disabling interrupts or
-        // atomic intrinsics (see module-level comments) and the raw pointer is
-        // valid because we got it from a reference.
+        // atomic intrinsics (see module-level comments).
         unsafe impl Sync for $atomic_type {}
 
         impl $atomic_type {
