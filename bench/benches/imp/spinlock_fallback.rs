@@ -74,7 +74,7 @@ fn lock(addr: usize) -> SpinlockGuard<'static> {
 }
 
 macro_rules! atomic_int {
-    ($atomic_type:ident, $int_type:ident, $align:expr) => {
+    (uint, $atomic_type:ident, $int_type:ident, $align:expr) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -84,6 +84,7 @@ macro_rules! atomic_int {
         // SAFETY: any data races are prevented by the lock.
         unsafe impl Sync for $atomic_type {}
 
+        no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
@@ -276,20 +277,56 @@ macro_rules! atomic_int {
                     result
                 }
             }
+
+            #[inline]
+            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by the lock and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    let _guard = lock(self.v.get() as usize);
+                    let result = self.v.get().read();
+                    self.v.get().write(!result);
+                    result
+                }
+            }
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
+        }
+    };
+    (int, $atomic_type:ident, $int_type:ident, $align:expr) => {
+        atomic_int!(uint, $atomic_type, $int_type, $align);
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by the lock and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    let _guard = lock(self.v.get() as usize);
+                    let result = self.v.get().read();
+                    self.v.get().write(result.wrapping_neg());
+                    result
+                }
+            }
+            #[inline]
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
+            }
         }
     };
 }
 
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
-atomic_int!(AtomicI32, i32, 4);
-atomic_int!(AtomicU32, u32, 4);
-atomic_int!(AtomicI64, i64, 8);
-atomic_int!(AtomicU64, u64, 8);
-atomic_int!(AtomicI128, i128, 16);
-atomic_int!(AtomicU128, u128, 16);
+atomic_int!(int, AtomicI8, i8, 1);
+atomic_int!(uint, AtomicU8, u8, 1);
+atomic_int!(int, AtomicI16, i16, 2);
+atomic_int!(uint, AtomicU16, u16, 2);
+atomic_int!(int, AtomicI32, i32, 4);
+atomic_int!(uint, AtomicU32, u32, 4);
+atomic_int!(int, AtomicI64, i64, 8);
+atomic_int!(uint, AtomicU64, u64, 8);
+atomic_int!(int, AtomicI128, i128, 16);
+atomic_int!(uint, AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {
