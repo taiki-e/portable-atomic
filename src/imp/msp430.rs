@@ -213,7 +213,7 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    ($int_type:ident, $atomic_type:ident, $asm_suffix:expr) => {
+    ($atomic_type:ident, $int_type:ident, $asm_suffix:expr) => {
         #[cfg(any(test, not(feature = "critical-section")))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
@@ -491,12 +491,12 @@ macro_rules! atomic_int {
     }
 }
 
-atomic_int!(i8, AtomicI8, ".b");
-atomic_int!(u8, AtomicU8, ".b");
-atomic_int!(i16, AtomicI16, ".w");
-atomic_int!(u16, AtomicU16, ".w");
-atomic_int!(isize, AtomicIsize, ".w");
-atomic_int!(usize, AtomicUsize, ".w");
+atomic_int!(AtomicI8, i8, ".b");
+atomic_int!(AtomicU8, u8, ".b");
+atomic_int!(AtomicI16, i16, ".w");
+atomic_int!(AtomicU16, u16, ".w");
+atomic_int!(AtomicIsize, isize, ".w");
+atomic_int!(AtomicUsize, usize, ".w");
 
 #[cfg(any(test, not(feature = "critical-section")))]
 trait AtomicOperations: Sized {

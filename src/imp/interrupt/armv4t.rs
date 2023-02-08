@@ -115,7 +115,7 @@ pub(crate) mod atomic {
     }
 
     macro_rules! atomic_int {
-        ($int_type:ident, $atomic_type:ident, $asm_suffix:expr) => {
+        ($atomic_type:ident, $int_type:ident, $asm_suffix:expr) => {
             #[repr(transparent)]
             pub(crate) struct $atomic_type {
                 v: UnsafeCell<$int_type>,
@@ -191,14 +191,14 @@ pub(crate) mod atomic {
         };
     }
 
-    atomic_int!(i8, AtomicI8, "b");
-    atomic_int!(u8, AtomicU8, "b");
-    atomic_int!(i16, AtomicI16, "h");
-    atomic_int!(u16, AtomicU16, "h");
-    atomic_int!(i32, AtomicI32, "");
-    atomic_int!(u32, AtomicU32, "");
-    atomic_int!(isize, AtomicIsize, "");
-    atomic_int!(usize, AtomicUsize, "");
+    atomic_int!(AtomicI8, i8, "b");
+    atomic_int!(AtomicU8, u8, "b");
+    atomic_int!(AtomicI16, i16, "h");
+    atomic_int!(AtomicU16, u16, "h");
+    atomic_int!(AtomicI32, i32, "");
+    atomic_int!(AtomicU32, u32, "");
+    atomic_int!(AtomicIsize, isize, "");
+    atomic_int!(AtomicUsize, usize, "");
 
     trait AtomicOperations: Sized {
         unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self;

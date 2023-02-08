@@ -204,26 +204,26 @@ macro_rules! no_fetch_ops_impl {
             }
         }
     };
-    ($atomic_type:ident, $value_type:ident) => {
+    ($atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
-            pub(crate) fn add(&self, val: $value_type, order: Ordering) {
+            pub(crate) fn add(&self, val: $int_type, order: Ordering) {
                 self.fetch_add(val, order);
             }
             #[inline]
-            pub(crate) fn sub(&self, val: $value_type, order: Ordering) {
+            pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
                 self.fetch_sub(val, order);
             }
             #[inline]
-            pub(crate) fn and(&self, val: $value_type, order: Ordering) {
+            pub(crate) fn and(&self, val: $int_type, order: Ordering) {
                 self.fetch_and(val, order);
             }
             #[inline]
-            pub(crate) fn or(&self, val: $value_type, order: Ordering) {
+            pub(crate) fn or(&self, val: $int_type, order: Ordering) {
                 self.fetch_or(val, order);
             }
             #[inline]
-            pub(crate) fn xor(&self, val: $value_type, order: Ordering) {
+            pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
                 self.fetch_xor(val, order);
             }
         }
