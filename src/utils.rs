@@ -403,13 +403,6 @@ impl<T> ops::Deref for CachePadded<T> {
     }
 }
 
-impl<T> ops::DerefMut for CachePadded<T> {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut T {
-        &mut self.value
-    }
-}
-
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/backoff.rs.
 // Adjusted to reduce spinning.
 /// Performs exponential backoff in spin loops.
