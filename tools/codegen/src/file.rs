@@ -25,7 +25,7 @@ pub fn workspace_root() -> Utf8PathBuf {
 }
 
 #[track_caller]
-fn header(function_name: &str) -> String {
+pub fn header(function_name: &str) -> String {
     // rust-analyzer does not respect outer attribute (#[rustfmt::skip]) on
     // a module without a body. So use inner attribute under cfg(rustfmt).
     format!(

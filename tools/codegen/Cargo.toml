@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 anyhow = "1"
-bindgen = "0.63"
+bindgen = "0.64"
 camino = "1"
 duct = "0.13"
 fs-err = "2"

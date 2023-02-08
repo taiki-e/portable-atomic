@@ -94,6 +94,8 @@ pub(crate) fn gen() -> Result<()> {
     let download_cache_dir = &workspace_root.join("tools/codegen/tmp/cache");
     fs::create_dir_all(download_cache_dir)?;
     let out_dir = &workspace_root.join("src/tests/gen/sys");
+    let raw_line = file::header(function_name!());
+    let raw_line = raw_line.strip_suffix("\n\n#![cfg_attr(rustfmt, rustfmt::skip)]\n").unwrap();
 
     let mut modules = vec![];
     for &Target { triples, headers } in TARGETS {
@@ -162,6 +164,7 @@ pub(crate) fn gen() -> Result<()> {
                 let bindings = bindgen::builder()
                     .array_pointers_in_arguments(true)
                     .derive_debug(false)
+                    .disable_header_comment()
                     .generate_comments(false)
                     .layout_tests(false)
                     .rust_target(bindgen::RustTarget::Stable_1_36)
@@ -171,6 +174,7 @@ pub(crate) fn gen() -> Result<()> {
                     .allowlist_function(header.functions.join("|"))
                     .allowlist_type(header.types.join("|"))
                     .allowlist_var(header.vars.join("|"))
+                    .raw_line(raw_line)
                     .generate()
                     .with_context(|| format!("failed to generate for {}", header.path))?;
                 bindings
