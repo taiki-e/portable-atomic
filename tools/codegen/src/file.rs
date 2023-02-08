@@ -3,6 +3,7 @@ use std::path::Path;
 use anyhow::{format_err, Result};
 use camino::Utf8PathBuf;
 use fs_err as fs;
+use once_cell::sync::OnceCell;
 use proc_macro2::TokenStream;
 
 // Inspired by https://stackoverflow.com/a/63904992.
@@ -113,6 +114,23 @@ fn test_format_macros() {
 
 #[track_caller]
 pub fn write_raw(function_name: &str, path: &Path, contents: impl AsRef<[u8]>) -> Result<()> {
+    static LINGUIST_GENERATED: OnceCell<Vec<globset::GlobMatcher>> = OnceCell::new();
+    let linguist_generated = LINGUIST_GENERATED.get_or_try_init(|| -> Result<_> {
+        let gitattributes = fs::read_to_string(workspace_root().join(".gitattributes"))?;
+        let mut linguist_generated = vec![];
+        for line in gitattributes.lines() {
+            if line.contains("linguist-generated") {
+                linguist_generated
+                    .push(globset::Glob::new(line.split_once(' ').unwrap().0)?.compile_matcher());
+            }
+        }
+        Ok(linguist_generated)
+    })?;
+    let p = path.strip_prefix(&workspace_root()).unwrap();
+    if !linguist_generated.iter().any(|m| m.is_match(p)) {
+        eprintln!("warning: you may want to mark {} linguist-generated", p.display())
+    }
+
     let mut out = header(function_name).into_bytes();
     out.extend_from_slice(contents.as_ref());
     if path.is_file() && fs::read(path)? == out {
