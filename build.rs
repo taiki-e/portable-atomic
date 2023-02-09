@@ -31,6 +31,7 @@ fn main() {
     target_upper.make_ascii_uppercase();
     println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
     println!("cargo:rerun-if-env-changed=CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS");
+    println!("cargo:rerun-if-env-changed=RUSTC");
 
     let version = match rustc_version() {
         Some(version) => version,
