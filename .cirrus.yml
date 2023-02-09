@@ -4,6 +4,7 @@ env:
   CARGO_INCREMENTAL: '0'
   CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
   CARGO_NET_RETRY: '10'
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: 'sparse'
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: '1'
   RUST_TEST_THREADS: '1'
@@ -13,9 +14,9 @@ env:
   EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 aarch64_linux_test_task:
-  name: test ($TARGET)
   matrix:
-    - env:
+    - name: test ($TARGET)
+      env:
         TARGET: aarch64-unknown-linux-gnu
       arm_container:
         image: rust:latest
@@ -23,7 +24,19 @@ aarch64_linux_test_task:
         - set -ex
         - lscpu
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-    - env:
+    - name: test ($TARGET, glibc 2.17)
+      env:
+        TARGET: aarch64-unknown-linux-gnu
+      arm_container:
+        # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
+        image: centos:7
+      setup_script:
+        - set -ex
+        - lscpu
+        - yum install -y git gcc
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+    - name: test ($TARGET)
+      env:
         TARGET: aarch64-unknown-linux-musl
       arm_container:
         image: rust:alpine
@@ -34,6 +47,8 @@ aarch64_linux_test_task:
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
   test_script:
     - set -ex
+    - |
+      [ ! -f $HOME/.cargo/env ] || source $HOME/.cargo/env
     - cargo test -vv --workspace --all-features           $EXCLUDE
     - cargo test -vv --workspace --all-features --release $EXCLUDE
     - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
