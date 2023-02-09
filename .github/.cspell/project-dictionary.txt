@@ -9,6 +9,7 @@ auxvec
 backoff
 binutils
 bitops
+bytecount
 callthru
 casp
 cbnz
@@ -56,6 +57,7 @@ libcalls
 libtcl
 libtest
 lqarx
+lrcpc
 lwsync
 machdep
 mclass
@@ -101,6 +103,7 @@ subc
 subcmd
 subfe
 syscall
+sysctlbyname
 systemsim
 tagme
 Tlink
