@@ -50,7 +50,7 @@ include!("macros.rs");
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg_attr(
     any(all(target_os = "linux", target_env = "gnu"), target_os = "android"),
-    path = "detect/aarch64_linux_getauxval.rs"
+    path = "detect/aarch64_linux.rs"
 )]
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
 #[cfg_attr(any(target_os = "freebsd", target_os = "openbsd"), path = "detect/aarch64_aa64reg.rs")]
