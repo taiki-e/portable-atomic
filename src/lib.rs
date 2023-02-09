@@ -179,6 +179,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::inline_always,
     clippy::missing_errors_doc,
     clippy::module_inception,
+    clippy::naive_bytecount,
     clippy::similar_names,
     clippy::single_match,
     clippy::type_complexity

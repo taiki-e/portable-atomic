@@ -73,6 +73,10 @@ mod detect;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect_aa64reg;
+#[cfg(test)]
+#[cfg(target_os = "macos")]
+#[path = "detect/aarch64_macos.rs"]
+mod detect_macos;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
