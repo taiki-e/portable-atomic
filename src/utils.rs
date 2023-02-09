@@ -161,11 +161,15 @@ macro_rules! ifunc {
             unsafe { func($($arg_pat),*) }
         }
         // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
-        // the caller must uphold the remaining safety contract.
         // (To force the caller to use unsafe block for this macro, do not use
         // unsafe block here.)
-        let func = FUNC.load(core::sync::atomic::Ordering::Relaxed);
-        core::mem::transmute::<*mut (), FnTy>(func)($($arg_pat),*)
+        let func = {
+            core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
+        };
+        // SAFETY: the caller must uphold the safety contract.
+        // (To force the caller to use unsafe block for this macro, do not use
+        // unsafe block here.)
+        func($($arg_pat),*)
     }};
     (fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{
         type FnTy = fn($($arg_ty),*) $(-> $ret_ty)?;
