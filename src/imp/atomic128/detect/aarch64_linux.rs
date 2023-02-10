@@ -55,6 +55,8 @@ mod ffi {
     pub(crate) const AT_HWCAP: c_ulong = 16;
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
     pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
+    #[cfg(test)]
+    pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
 }
 
 #[inline]
@@ -66,6 +68,12 @@ fn _detect(info: &mut CpuInfo) {
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
     if hwcap & ffi::HWCAP_ATOMICS != 0 {
         info.set(CpuInfo::HAS_LSE);
+    }
+    #[cfg(test)]
+    {
+        if hwcap & ffi::HWCAP_USCAT != 0 {
+            info.set(CpuInfo::HAS_LSE2);
+        }
     }
 }
 
@@ -107,6 +115,10 @@ mod tests {
         let [] = [(); (ffi::HWCAP_ATOMICS - libc::HWCAP_ATOMICS) as usize];
         let [] = [(); (ffi::HWCAP_ATOMICS
             - arch_arm64_include_uapi_asm_hwcap::HWCAP_ATOMICS as ffi::c_ulong)
+            as usize];
+        let [] = [(); (ffi::HWCAP_USCAT - libc::HWCAP_USCAT) as usize];
+        let [] = [(); (ffi::HWCAP_USCAT
+            - arch_arm64_include_uapi_asm_hwcap::HWCAP_USCAT as ffi::c_ulong)
             as usize];
     };
 }

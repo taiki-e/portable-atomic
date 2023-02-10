@@ -113,6 +113,7 @@ umax
 umin
 unparse
 usart
+uscat
 uwrite
 uwriteln
 virt

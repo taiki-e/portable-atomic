@@ -58,7 +58,12 @@ mod tests {
     // windows-sys' signatures/values.)
     // See also tools/codegen/src/ffi.rs.
     // TODO: auto-generate this test
-    #[allow(clippy::no_effect_underscore_binding)]
+    #[allow(
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss,
+        clippy::cast_possible_truncation,
+        clippy::no_effect_underscore_binding
+    )]
     const _: fn() = || {
         let _: ffi::DWORD = 0 as windows_sys::Win32::System::Threading::PROCESSOR_FEATURE_ID;
         let _: ffi::BOOL = 0 as windows_sys::Win32::Foundation::BOOL;

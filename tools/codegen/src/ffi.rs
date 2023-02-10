@@ -49,7 +49,7 @@ static TARGETS: &[Target] = &[
                 // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
                 path: "arch/arm64/include/uapi/asm/hwcap.h",
                 types: &[],
-                vars: &["HWCAP_ATOMICS", "HWCAP_CPUID"],
+                vars: &["HWCAP_ATOMICS", "HWCAP_CPUID", "HWCAP_USCAT"],
                 functions: &[],
             },
         ],

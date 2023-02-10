@@ -4,3 +4,4 @@
 
 pub const HWCAP_ATOMICS: u32 = 256;
 pub const HWCAP_CPUID: u32 = 2048;
+pub const HWCAP_USCAT: u32 = 33554432;

@@ -1,6 +1,6 @@
 // Run-time feature detection on aarch64 Linux/FreeBSD/OpenBSD by parsing system registers.
 //
-// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection of FEAT_LSE on OpenBSD.
+// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on OpenBSD.
 // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
 // https://github.com/rust-lang/stdarch/pull/1374
 //

@@ -181,8 +181,7 @@ mod tests_aarch64_common {
                 std::eprintln!("Features={:?}", features);
                 Some(Self {
                     lse: features.contains(&"atomics"),
-                    // /proc/cpuinfo doesn't have field for lse2
-                    lse2: None,
+                    lse2: Some(features.contains(&"uscat")),
                 })
             } else if cfg!(target_os = "freebsd") {
                 let text = fs::read_to_string("/var/run/dmesg.boot").unwrap();
