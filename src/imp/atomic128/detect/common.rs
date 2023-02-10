@@ -50,6 +50,10 @@ impl CpuInfo {
     // This is currently only used in tests.
     #[cfg(test)]
     const HAS_LSE128: u32 = 3;
+    /// Whether FEAT_LRCPC3 is available
+    // This is currently only used in tests.
+    #[cfg(test)]
+    const HAS_RCPC3: u32 = 4;
 }
 #[cfg(target_arch = "aarch64")]
 #[inline]
@@ -131,26 +135,37 @@ mod tests_aarch64_common {
         assert!(!x.test(CpuInfo::HAS_LSE));
         assert!(!x.test(CpuInfo::HAS_LSE2));
         assert!(!x.test(CpuInfo::HAS_LSE128));
+        assert!(!x.test(CpuInfo::HAS_RCPC3));
         x.set(CpuInfo::INIT);
         assert!(x.test(CpuInfo::INIT));
         assert!(!x.test(CpuInfo::HAS_LSE));
         assert!(!x.test(CpuInfo::HAS_LSE2));
         assert!(!x.test(CpuInfo::HAS_LSE128));
+        assert!(!x.test(CpuInfo::HAS_RCPC3));
         x.set(CpuInfo::HAS_LSE);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_LSE));
         assert!(!x.test(CpuInfo::HAS_LSE2));
         assert!(!x.test(CpuInfo::HAS_LSE128));
+        assert!(!x.test(CpuInfo::HAS_RCPC3));
         x.set(CpuInfo::HAS_LSE2);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_LSE));
         assert!(x.test(CpuInfo::HAS_LSE2));
         assert!(!x.test(CpuInfo::HAS_LSE128));
+        assert!(!x.test(CpuInfo::HAS_RCPC3));
         x.set(CpuInfo::HAS_LSE128);
         assert!(x.test(CpuInfo::INIT));
         assert!(x.test(CpuInfo::HAS_LSE));
         assert!(x.test(CpuInfo::HAS_LSE2));
         assert!(x.test(CpuInfo::HAS_LSE128));
+        assert!(!x.test(CpuInfo::HAS_RCPC3));
+        x.set(CpuInfo::HAS_RCPC3);
+        assert!(x.test(CpuInfo::INIT));
+        assert!(x.test(CpuInfo::HAS_LSE));
+        assert!(x.test(CpuInfo::HAS_LSE2));
+        assert!(x.test(CpuInfo::HAS_LSE128));
+        assert!(x.test(CpuInfo::HAS_RCPC3));
     }
 
     // CPU feature detection from reading /proc/cpuinfo (Linux/NetBSD)
@@ -309,6 +324,18 @@ mod tests_aarch64_common {
             // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse128"));
+            // }
+        }
+        if detect().test(CpuInfo::HAS_RCPC3) {
+            assert!(detect().test(CpuInfo::HAS_RCPC3));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_RCPC3));
+            // #[cfg(not(any(
+            //     portable_atomic_no_aarch64_target_feature,
+            //     portable_atomic_unstable_aarch64_target_feature
+            // )))]
+            // {
+            //     assert!(!std::arch::is_aarch64_feature_detected!("rcpc3"));
             // }
         }
     }

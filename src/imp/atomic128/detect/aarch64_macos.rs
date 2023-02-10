@@ -96,6 +96,14 @@ fn _detect(info: &mut CpuInfo) {
         if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE2\0").unwrap_or(0) != 0 } {
             info.set(CpuInfo::HAS_LSE2);
         }
+        // SAFETY: we passed a valid C string.
+        if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE128\0").unwrap_or(0) != 0 } {
+            info.set(CpuInfo::HAS_LSE128);
+        }
+        // SAFETY: we passed a valid C string.
+        if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LRCPC3\0").unwrap_or(0) != 0 } {
+            info.set(CpuInfo::HAS_RCPC3);
+        }
     }
 }
 

@@ -17,7 +17,7 @@
 // - OpenBSD 7.1+ (through sysctl)
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
-// For now, this module is only used on FreeBSD and OpenBSD.
+// For now, this module is only used on FreeBSD/OpenBSD.
 // On Linux, this module is test only because this approach requires a higher
 // kernel version than Rust supports, and also does not work with qemu-user
 // (as of QEMU 7.2) and Valgrind. (Looking into HWCAP_CPUID in auxvec, it appears
@@ -36,6 +36,8 @@ include!("common.rs");
 struct AA64Reg {
     aa64isar0: u64,
     #[cfg(test)]
+    aa64isar1: u64,
+    #[cfg(test)]
     aa64mmfr2: u64,
 }
 
@@ -43,6 +45,8 @@ struct AA64Reg {
 fn _detect(info: &mut CpuInfo) {
     let AA64Reg {
         aa64isar0,
+        #[cfg(test)]
+        aa64isar1,
         #[cfg(test)]
         aa64mmfr2,
     } = imp::aa64reg();
@@ -62,6 +66,11 @@ fn _detect(info: &mut CpuInfo) {
 
     #[cfg(test)]
     {
+        // ID_AA64ISAR1_EL1, Instruction Set Attribute Register 1
+        // https://developer.arm.com/documentation/ddi0601/2022-12/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1?lang=en
+        if extract(aa64isar1, 23, 20) >= 3 {
+            info.set(CpuInfo::HAS_RCPC3);
+        }
         // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
         // https://developer.arm.com/documentation/ddi0601/2022-12/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2?lang=en
         if extract(aa64mmfr2, 35, 32) >= 1 {
@@ -95,6 +104,16 @@ mod imp {
                 options(pure, nomem, nostack, preserves_flags)
             );
             #[cfg(test)]
+            let aa64isar1: u64;
+            #[cfg(test)]
+            {
+                asm!(
+                    "mrs {}, ID_AA64ISAR1_EL1",
+                    out(reg) aa64isar1,
+                    options(pure, nomem, nostack, preserves_flags)
+                );
+            }
+            #[cfg(test)]
             let aa64mmfr2: u64;
             #[cfg(test)]
             {
@@ -106,6 +125,8 @@ mod imp {
             }
             AA64Reg {
                 aa64isar0,
+                #[cfg(test)]
+                aa64isar1,
                 #[cfg(test)]
                 aa64mmfr2,
             }
@@ -154,6 +175,8 @@ mod imp {
         // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/arch/arm64/include/cpu.h#L25-L40
         pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
         #[cfg(test)]
+        pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
+        #[cfg(test)]
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
     }
 
@@ -167,9 +190,13 @@ mod imp {
     pub(super) fn aa64reg() -> AA64Reg {
         let aa64isar0 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR0]).unwrap_or(0);
         #[cfg(test)]
+        let aa64isar1 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR1]).unwrap_or(0);
+        #[cfg(test)]
         let aa64mmfr2 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64MMFR2]).unwrap_or(0);
         AA64Reg {
             aa64isar0,
+            #[cfg(test)]
+            aa64isar1,
             #[cfg(test)]
             aa64mmfr2,
         }
@@ -221,8 +248,9 @@ mod tests {
 
     #[test]
     fn test_aa64reg() {
-        let AA64Reg { aa64isar0, aa64mmfr2 } = imp::aa64reg();
+        let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
         std::eprintln!("aa64isar0={}", aa64isar0);
+        std::eprintln!("aa64isar1={}", aa64isar1);
         std::eprintln!("aa64mmfr2={}", aa64mmfr2);
         if cfg!(target_os = "openbsd") {
             let output = Command::new("sysctl").arg("machdep").output().unwrap();
@@ -231,6 +259,10 @@ mod tests {
             assert_eq!(
                 stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar0=")).unwrap(),
                 aa64isar0.to_string(),
+            );
+            assert_eq!(
+                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar1=")).unwrap(),
+                aa64isar1.to_string(),
             );
             assert_eq!(
                 stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64mmfr2=")).unwrap_or("0"),
@@ -247,6 +279,9 @@ mod tests {
         }
         if detect().test(CpuInfo::HAS_LSE2) {
             assert_eq!(extract(aa64mmfr2, 35, 32), 1);
+        }
+        if detect().test(CpuInfo::HAS_RCPC3) {
+            assert_eq!(extract(aa64isar1, 23, 20), 3);
         }
     }
 
@@ -289,6 +324,10 @@ mod tests {
         // let [] = [(); (ffi::CPU_ID_AA64ISAR0 - libc::CPU_ID_AA64ISAR0) as usize];
         let [] =
             [(); (ffi::CPU_ID_AA64ISAR0 - machine_cpu::CPU_ID_AA64ISAR0 as ffi::c_int) as usize];
+        // libc doesn't have this
+        // let [] = [(); (ffi::CPU_ID_AA64ISAR1 - libc::CPU_ID_AA64ISAR1) as usize];
+        let [] =
+            [(); (ffi::CPU_ID_AA64ISAR1 - machine_cpu::CPU_ID_AA64ISAR1 as ffi::c_int) as usize];
         // libc doesn't have this
         // let [] = [(); (ffi::CPU_ID_AA64MMFR2 - libc::CPU_ID_AA64MMFR2) as usize];
         let [] =

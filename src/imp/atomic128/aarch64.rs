@@ -60,7 +60,7 @@ include!("macros.rs");
         target_os = "android",
         target_os = "windows",
         target_os = "freebsd",
-        target_os = "openbsd"
+        target_os = "openbsd",
     )),
     path = "detect/aarch64_std.rs"
 )]

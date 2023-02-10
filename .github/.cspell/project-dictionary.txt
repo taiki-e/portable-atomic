@@ -80,6 +80,7 @@ quadword
 qword
 RAII
 rclass
+rcpc
 reentrancy
 sbcs
 seqlock
