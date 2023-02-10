@@ -31,7 +31,7 @@ pub(crate) fn has_lse() -> bool {
             // Note: std may not be available on tier 3 such as aarch64 FreeBSD/OpenBSD.
             any(
                 feature = "std",
-                target_os = "linux",
+                all(target_os = "linux", any(target_env = "gnu", target_env = "musl")),
                 target_os = "android",
                 target_os = "windows",
                 // target_os = "freebsd",

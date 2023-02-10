@@ -58,6 +58,7 @@ default_targets=(
     aarch64-unknown-freebsd
     aarch64-unknown-linux-gnu
     aarch64-unknown-linux-musl
+    aarch64-unknown-linux-uclibc # custom target
     aarch64-unknown-openbsd
     # aarch64 always support lse & lse2
     aarch64-apple-darwin
@@ -109,6 +110,13 @@ x_cargo() {
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
         x cargo "$@"
     echo
+}
+is_no_std() {
+    case "$1" in
+        # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
+        *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 pre_args=()
@@ -191,10 +199,11 @@ build() {
             echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
             return 0
         fi
-        case "${target}" in
-            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf) args+=(-Z build-std="core,alloc") ;;
-            *) args+=(-Z build-std) ;;
-        esac
+        if is_no_std "${target}"; then
+            args+=(-Z build-std="core,alloc")
+        else
+            args+=(-Z build-std)
+        fi
     else
         echo "target '${target}' requires nightly compiler (skipped all checks)"
         return 0
@@ -222,13 +231,11 @@ build() {
     fi
 
     if [[ "${TESTS:-}" == "1" ]]; then
-        case "${target}" in
+        if is_no_std "${target}"; then
             # we use std in tests
-            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf)
-                echo "target '${target}' does not support 'std' required to build tests (skipped all checks)"
-                return 0
-                ;;
-        esac
+            echo "target '${target}' does not support 'std' required to build tests (skipped all checks)"
+            return 0
+        fi
         args+=(
             --workspace --all-features
             --exclude bench --exclude portable-atomic-internal-codegen
@@ -277,41 +284,39 @@ build() {
         if [[ "${rustc_minor_version}" -lt 54 ]]; then
             args+=(--exclude-features "critical-section")
         fi
-        case "${target}" in
-            *-none* | *-uefi* | *-cuda* | avr-* | *-esp-espidf)
-                args+=(--exclude-features "std")
-                if [[ -z "${has_atomic_cas}" ]]; then
-                    if [[ -n "${has_asm}" ]]; then
-                        case "${target}" in
-                            avr-* | msp430-*) ;;                            # always single-core
-                            bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
-                            *)
-                                CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-                                    x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
-                                case "${target}" in
-                                    thumbv[4-5]t* | armv[4-5]t*)
-                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-disable-fiq" \
-                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
-                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
-                                        ;;
-                                    riscv*)
-                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
-                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
-                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
-                                        ;;
-                                esac
-                                ;;
-                        esac
-                    else
-                        echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
-                    fi
-                    # portable-atomic-util uses atomic CAS, so doesn't work on
-                    # this target without portable_atomic_unsafe_assume_single_core cfg.
-                    args+=(--exclude portable-atomic-util)
+        if is_no_std "${target}"; then
+            args+=(--exclude-features "std")
+            if [[ -z "${has_atomic_cas}" ]]; then
+                if [[ -n "${has_asm}" ]]; then
+                    case "${target}" in
+                        avr-* | msp430-*) ;;                            # always single-core
+                        bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                        *)
+                            CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                                x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                            case "${target}" in
+                                thumbv[4-5]t* | armv[4-5]t*)
+                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-disable-fiq" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    ;;
+                                riscv*)
+                                    CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                        x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                else
+                    echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
-                ;;
-        esac
+                # portable-atomic-util uses atomic CAS, so doesn't work on
+                # this target without portable_atomic_unsafe_assume_single_core cfg.
+                args+=(--exclude portable-atomic-util)
+            fi
+        fi
     fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
