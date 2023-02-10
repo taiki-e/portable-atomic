@@ -230,10 +230,19 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
+// - #[target_feature(enable = "lse")] on AArch64
 // - asm! on ARM, AArch64, RISC-V, x86_64
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux pre-v6 ARM (tier 3)
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
+#![cfg_attr(
+    all(
+        target_arch = "aarch64",
+        portable_atomic_unstable_aarch64_target_feature,
+        not(portable_atomic_no_outline_atomics),
+    ),
+    feature(aarch64_target_feature)
+)]
 #![cfg_attr(
     all(
         portable_atomic_unstable_asm,

@@ -89,10 +89,6 @@ fn main() {
         }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     }
-    // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621
-    if !version.probe(61, 2022, 3, 15) {
-        println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
-    }
     // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
     if !version.probe(64, 2022, 7, 18) {
         println!("cargo:rustc-cfg=portable_atomic_no_stronger_failure_ordering");
@@ -176,6 +172,19 @@ fn main() {
             }
         }
         "aarch64" => {
+            // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621
+            if !version.probe(61, 2022, 3, 15) {
+                if version.nightly && is_allowed_feature("aarch64_target_feature") {
+                    // The part of this feature we use has not been changed since 1.27
+                    // (https://github.com/rust-lang/rust/commit/1217d70465edb2079880347fea4baaac56895f51)
+                    // until it was stabilized in nightly-2022-03-16, so it can be safely enabled in
+                    // nightly, which is older than nightly-2022-03-16.
+                    println!("cargo:rustc-cfg=portable_atomic_unstable_aarch64_target_feature");
+                } else {
+                    println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
+                }
+            }
+
             // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L7
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.

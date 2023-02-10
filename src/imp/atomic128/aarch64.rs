@@ -350,9 +350,12 @@ unsafe fn atomic_compare_exchange(
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
-    not(portable_atomic_no_aarch64_target_feature),
+    all(not(portable_atomic_no_aarch64_target_feature), not(portable_atomic_no_outline_atomics)),
 ))]
-#[cfg_attr(not(portable_atomic_no_aarch64_target_feature), target_feature(enable = "lse"))]
+#[cfg_attr(
+    not(any(target_feature = "lse", portable_atomic_target_feature = "lse",)),
+    target_feature(enable = "lse")
+)]
 #[inline]
 unsafe fn _atomic_compare_exchange_casp(
     dst: *mut u128,

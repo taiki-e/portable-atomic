@@ -1,19 +1,28 @@
 // Run-time feature detection on aarch64 Linux/Android by using getauxval.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
-// on aarch64 Linux/Android, but on the following platforms, so we can safely assume getauxval
-// is linked to the binary.
+// on aarch64 Linux/Android, but on the following platforms, so we can safely assume
+// getauxval is linked to the binary.
 //
 // - On linux-gnu, [aarch64 support is available on glibc 2.17+](https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html)
-// and is newer than [glibc 2.16 that getauxval was added](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html).
+//   and is newer than [glibc 2.16 that added getauxval](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html).
 // - On Android, [64-bit architecture support is available on Android 5.0+ (API level 21+)](https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
-// and is newer than [Android 4.3 (API level 18) that getauxval was added](https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h#49).
+//   and is newer than [Android 4.3 (API level 18) that added getauxval](https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h#49).
+//
+// On other Linux targets, we cannot assume that getauxval is always available,
+// so we use is_aarch64_feature_detected which uses dlsym (+io fallback) instead
+// of this module.
+//
+// - On linux-musl, [aarch64 support is available on musl 1.1.7+](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.7#n1422)
+//   and is newer than [musl 1.1.0 that added getauxval](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.0#n1197).
+//   However, it seems that getauxval is not always available, independent of version requirements: https://github.com/rust-lang/rust/issues/89626
+//   (That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
+//   but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
+//   of the same error.)
+// - On linux-uclibc, they [recently added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647)
+//   but have not released it yet (as of 2023-02-09).
 //
 // See also https://github.com/rust-lang/stdarch/pull/1375
-//
-// On other Linux targets, we cannot assume that getauxval is always available yet
-// (see stdarch PR linked above for details), so we use is_aarch64_feature_detected
-// which uses dlsym (+io fallback) instead of this module.
 
 #![cfg_attr(
     any(
@@ -50,7 +59,8 @@ mod ffi {
 
 #[inline]
 fn _detect(info: &mut CpuInfo) {
-    // SAFETY: getauxval is available in all versions on aarch64 linux-gnu. see also module level docs
+    // SAFETY: getauxval is available in all versions on aarch64 linux-gnu/android.
+    // See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
 
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h

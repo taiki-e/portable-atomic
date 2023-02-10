@@ -249,7 +249,10 @@ mod tests_aarch64_common {
             #[cfg(any(
                 target_feature = "lse",
                 portable_atomic_target_feature = "lse",
-                not(portable_atomic_no_aarch64_target_feature),
+                all(
+                    not(portable_atomic_no_aarch64_target_feature),
+                    not(portable_atomic_no_outline_atomics)
+                ),
             ))]
             unsafe {
                 use core::{cell::UnsafeCell, sync::atomic::Ordering};
@@ -265,7 +268,10 @@ mod tests_aarch64_common {
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE));
-            #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            #[cfg(not(any(
+                portable_atomic_no_aarch64_target_feature,
+                portable_atomic_unstable_aarch64_target_feature
+            )))]
             {
                 assert!(!std::arch::is_aarch64_feature_detected!("lse"));
             }
@@ -281,7 +287,10 @@ mod tests_aarch64_common {
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
-            // #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            // #[cfg(not(any(
+            //     portable_atomic_no_aarch64_target_feature,
+            //     portable_atomic_unstable_aarch64_target_feature
+            // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
             // }
@@ -295,7 +304,10 @@ mod tests_aarch64_common {
             assert!(detect().test(CpuInfo::HAS_LSE128));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
-            // #[cfg(not(portable_atomic_no_aarch64_target_feature))]
+            // #[cfg(not(any(
+            //     portable_atomic_no_aarch64_target_feature,
+            //     portable_atomic_unstable_aarch64_target_feature
+            // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse128"));
             // }
