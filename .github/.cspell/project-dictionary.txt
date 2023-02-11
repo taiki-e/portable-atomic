@@ -42,6 +42,7 @@ docsrs
 doctests
 DWCAS
 endianness
+exynos
 FIQs
 getauxval
 hartid

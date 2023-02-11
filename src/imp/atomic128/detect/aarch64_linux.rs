@@ -37,6 +37,14 @@ include!("common.rs");
 // core::ffi::c_* (except c_void) requires Rust 1.64
 #[allow(non_camel_case_types)]
 mod ffi {
+    // c_char is u8 on aarch64 Linux/Android
+    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
+    #[cfg(target_os = "android")]
+    pub(crate) type c_char = u8;
+    // c_{,u}int is {i,u}32 on non-16-bit architectures
+    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+    #[cfg(target_os = "android")]
+    pub(crate) type c_int = i32;
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
     #[cfg(target_pointer_width = "64")]
     pub(crate) type c_ulong = u64;
@@ -49,6 +57,11 @@ mod ffi {
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
         pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
+
+        // Defined in sys/system_properties.h.
+        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
+        #[cfg(target_os = "android")]
+        pub(crate) fn __system_property_get(__name: *const c_char, __value: *mut c_char) -> c_int;
     }
 
     // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
@@ -57,10 +70,34 @@ mod ffi {
     pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
     #[cfg(test)]
     pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
+
+    // Defined in sys/system_properties.h.
+    // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L2760
+    #[cfg(target_os = "android")]
+    pub(crate) const PROP_VALUE_MAX: c_int = 92;
 }
 
 #[inline]
 fn _detect(info: &mut CpuInfo) {
+    #[cfg(target_os = "android")]
+    {
+        // Samsung Exynos 9810 has a bug that big and little cores have different
+        // ISAs. And on older Android (pre-9), the kernel incorrectly reports
+        // that features available only on some cores are available on all cores.
+        // https://reviews.llvm.org/D114523
+        let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
+        // SAFETY: we've passed a valid C string and a buffer with max length.
+        let len = unsafe {
+            ffi::__system_property_get(
+                b"ro.arch\0".as_ptr() as *const ffi::c_char,
+                arch.as_mut_ptr() as *mut ffi::c_char,
+            )
+        };
+        if len > 0 && arch.starts_with(b"exynos9810\0") {
+            return;
+        }
+    }
+
     // SAFETY: getauxval is available in all versions on aarch64 linux-gnu/android.
     // See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
@@ -88,6 +125,29 @@ fn _detect(info: &mut CpuInfo) {
 mod tests {
     use super::*;
 
+    #[allow(clippy::cast_sign_loss)]
+    #[cfg(target_os = "android")]
+    #[test]
+    fn test_android() {
+        unsafe {
+            let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
+            let len = ffi::__system_property_get(
+                b"ro.arch\0".as_ptr() as *const ffi::c_char,
+                arch.as_mut_ptr(),
+            );
+            if len < 1 {
+                std::println!("len={}", len);
+            }
+            std::println!("len={}", len);
+            std::println!("arch={:?}", arch);
+            std::println!(
+                "arch={:?}",
+                core::str::from_utf8(core::slice::from_raw_parts(arch.as_ptr(), len as usize))
+                    .unwrap()
+            );
+        }
+    }
+
     // Static assertions for FFI bindings.
     // This checks that FFI bindings defined in this crate, FFI bindings defined
     // in libc, and FFI bindings generated for the platform's latest header file
@@ -105,10 +165,27 @@ mod tests {
     )]
     const _: fn() = || {
         use crate::tests::sys::*;
+        #[cfg(target_os = "android")]
+        let _: ffi::c_char = 0 as std::os::raw::c_char;
+        #[cfg(target_os = "android")]
+        let _: ffi::c_char = 0 as libc::c_char;
+        #[cfg(target_os = "android")]
+        let _: ffi::c_int = 0 as std::os::raw::c_int;
+        #[cfg(target_os = "android")]
+        let _: ffi::c_int = 0 as libc::c_int;
         let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
         let _: ffi::c_ulong = 0 as libc::c_ulong;
         let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
         _getauxval = libc::getauxval;
+        #[cfg(target_os = "android")]
+        let mut ___system_property_get: unsafe extern "C" fn(
+            *const ffi::c_char,
+            *mut ffi::c_char,
+        ) -> ffi::c_int = ffi::__system_property_get;
+        #[cfg(target_os = "android")]
+        {
+            ___system_property_get = libc::__system_property_get;
+        }
         let [] = [(); (ffi::AT_HWCAP - libc::AT_HWCAP) as usize];
         let [] =
             [(); (ffi::AT_HWCAP - include_uapi_linux_auxvec::AT_HWCAP as ffi::c_ulong) as usize];
@@ -120,5 +197,7 @@ mod tests {
         let [] = [(); (ffi::HWCAP_USCAT
             - arch_arm64_include_uapi_asm_hwcap::HWCAP_USCAT as ffi::c_ulong)
             as usize];
+        #[cfg(target_os = "android")]
+        let [] = [(); (ffi::PROP_VALUE_MAX - libc::PROP_VALUE_MAX) as usize];
     };
 }
