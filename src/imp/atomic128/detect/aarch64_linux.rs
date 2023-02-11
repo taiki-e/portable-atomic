@@ -166,13 +166,12 @@ mod tests {
     const _: fn() = || {
         use crate::tests::sys::*;
         #[cfg(target_os = "android")]
-        let _: ffi::c_char = 0 as std::os::raw::c_char;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_char = 0 as libc::c_char;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_int = 0 as std::os::raw::c_int;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_int = 0 as libc::c_int;
+        {
+            let _: ffi::c_char = 0 as std::os::raw::c_char;
+            let _: ffi::c_char = 0 as libc::c_char;
+            let _: ffi::c_int = 0 as std::os::raw::c_int;
+            let _: ffi::c_int = 0 as libc::c_int;
+        }
         let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
         let _: ffi::c_ulong = 0 as libc::c_ulong;
         let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
