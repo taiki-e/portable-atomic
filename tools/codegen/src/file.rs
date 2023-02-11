@@ -137,5 +137,6 @@ pub fn write_raw(function_name: &str, path: &Path, contents: impl AsRef<[u8]>) -
         return Ok(());
     }
     fs::write(path, out)?;
+    eprintln!("updated {}", p.display());
     Ok(())
 }
