@@ -135,9 +135,7 @@ mod tests {
                 b"ro.arch\0".as_ptr() as *const ffi::c_char,
                 arch.as_mut_ptr(),
             );
-            if len < 1 {
-                std::println!("len={}", len);
-            }
+            assert!(len >= 0);
             std::println!("len={}", len);
             std::println!("arch={:?}", arch);
             std::println!(
@@ -178,12 +176,11 @@ mod tests {
         let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
         _getauxval = libc::getauxval;
         #[cfg(target_os = "android")]
-        let mut ___system_property_get: unsafe extern "C" fn(
-            *const ffi::c_char,
-            *mut ffi::c_char,
-        ) -> ffi::c_int = ffi::__system_property_get;
-        #[cfg(target_os = "android")]
         {
+            let mut ___system_property_get: unsafe extern "C" fn(
+                *const ffi::c_char,
+                *mut ffi::c_char,
+            ) -> ffi::c_int = ffi::__system_property_get;
             ___system_property_get = libc::__system_property_get;
         }
         let [] = [(); (ffi::AT_HWCAP - libc::AT_HWCAP) as usize];
