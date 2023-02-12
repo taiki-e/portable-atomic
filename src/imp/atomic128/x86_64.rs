@@ -105,7 +105,7 @@ unsafe fn cmpxchg16b(
         all(
             any(
                 all(test, portable_atomic_nightly),
-                portable_atomic_unstable_cmpxchg16b_target_feature
+                portable_atomic_unstable_cmpxchg16b_target_feature,
             ),
             not(any(
                 target_feature = "cmpxchg16b",

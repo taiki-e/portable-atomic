@@ -675,7 +675,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -726,7 +726,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -736,7 +736,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -794,7 +794,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -804,7 +804,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -856,7 +856,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -866,7 +866,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -919,7 +919,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -929,7 +929,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -974,7 +974,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -984,7 +984,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1028,7 +1028,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1038,7 +1038,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1091,7 +1091,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1101,7 +1101,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1145,7 +1145,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1155,7 +1155,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1208,7 +1208,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1218,7 +1218,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1258,7 +1258,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1268,7 +1268,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1317,7 +1317,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1327,7 +1327,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1389,7 +1389,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1399,7 +1399,7 @@ impl AtomicBool {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1663,7 +1663,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1673,7 +1673,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1717,7 +1717,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1727,7 +1727,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1785,7 +1785,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1795,7 +1795,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1871,7 +1871,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1881,7 +1881,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[inline]
@@ -1961,7 +1961,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -1971,7 +1971,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
@@ -2016,7 +2016,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2026,7 +2026,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
@@ -2067,7 +2067,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2077,7 +2077,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
@@ -2130,7 +2130,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2140,7 +2140,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
@@ -2208,7 +2208,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2218,7 +2218,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
@@ -2284,7 +2284,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2294,7 +2294,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
@@ -2359,7 +2359,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2369,7 +2369,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
@@ -2398,7 +2398,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     #[cfg_attr(
@@ -2408,7 +2408,7 @@ impl<T> AtomicPtr<T> {
             portable_atomic_unsafe_assume_single_core,
             feature = "critical-section",
             target_arch = "avr",
-            target_arch = "msp430"
+            target_arch = "msp430",
         ))
     )]
     fn as_atomic_usize(&self) -> &AtomicUsize {
@@ -2700,7 +2700,7 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -2710,7 +2710,7 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -2765,7 +2765,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -2775,7 +2775,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -2839,7 +2839,7 @@ loop {
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -2849,7 +2849,7 @@ loop {
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -2895,7 +2895,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -2905,7 +2905,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -2946,7 +2946,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -2956,7 +2956,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -2991,7 +2991,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3001,7 +3001,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3042,7 +3042,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3052,7 +3052,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3090,7 +3090,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3100,7 +3100,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3147,7 +3147,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3157,7 +3157,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3195,7 +3195,7 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3205,7 +3205,7 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3243,7 +3243,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3253,7 +3253,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3300,7 +3300,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3310,7 +3310,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3348,7 +3348,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3358,7 +3358,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3405,7 +3405,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3415,7 +3415,7 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3473,7 +3473,7 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3483,7 +3483,7 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3551,7 +3551,7 @@ assert!(max_foo == 42);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3561,7 +3561,7 @@ assert!(max_foo == 42);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3612,7 +3612,7 @@ assert_eq!(min_foo, 12);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3622,7 +3622,7 @@ assert_eq!(min_foo, 12);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3657,7 +3657,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3667,7 +3667,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3706,7 +3706,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                             portable_atomic_unsafe_assume_single_core,
                             feature = "critical-section",
                             target_arch = "avr",
-                            target_arch = "msp430"
+                            target_arch = "msp430",
                         ))
                     )]
                     #[cfg_attr(
@@ -3716,7 +3716,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                             portable_atomic_unsafe_assume_single_core,
                             feature = "critical-section",
                             target_arch = "avr",
-                            target_arch = "msp430"
+                            target_arch = "msp430",
                         ))
                     )]
                     #[inline]
@@ -3766,7 +3766,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[cfg_attr(
@@ -3776,7 +3776,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                         portable_atomic_unsafe_assume_single_core,
                         feature = "critical-section",
                         target_arch = "avr",
-                        target_arch = "msp430"
+                        target_arch = "msp430",
                     ))
                 )]
                 #[inline]
@@ -3816,7 +3816,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                             portable_atomic_unsafe_assume_single_core,
                             feature = "critical-section",
                             target_arch = "avr",
-                            target_arch = "msp430"
+                            target_arch = "msp430",
                         ))
                     )]
                     #[cfg_attr(
@@ -3826,7 +3826,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                             portable_atomic_unsafe_assume_single_core,
                             feature = "critical-section",
                             target_arch = "avr",
-                            target_arch = "msp430"
+                            target_arch = "msp430",
                         ))
                     )]
                     #[inline]
@@ -3989,7 +3989,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -3999,7 +3999,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4032,7 +4032,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4042,7 +4042,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4084,7 +4084,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4094,7 +4094,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4125,7 +4125,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4135,7 +4135,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4158,7 +4158,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4168,7 +4168,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4212,7 +4212,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4222,7 +4222,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4264,7 +4264,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4274,7 +4274,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4300,7 +4300,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4310,7 +4310,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4333,7 +4333,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4343,7 +4343,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4367,7 +4367,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[cfg_attr(
@@ -4377,7 +4377,7 @@ This type has the same in-memory representation as the underlying floating point
                     portable_atomic_unsafe_assume_single_core,
                     feature = "critical-section",
                     target_arch = "avr",
-                    target_arch = "msp430"
+                    target_arch = "msp430",
                 ))
             )]
             #[inline]
@@ -4440,7 +4440,7 @@ atomic_int!(AtomicU32, u32, 4);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         not(portable_atomic_no_atomic_64),
@@ -4457,7 +4457,7 @@ atomic_int!(AtomicU32, u32, 4);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         target_has_atomic = "64",
@@ -4475,7 +4475,7 @@ atomic_int!(AtomicI64, i64, 8);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         not(portable_atomic_no_atomic_64),
@@ -4492,7 +4492,7 @@ atomic_int!(AtomicI64, i64, 8);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         target_has_atomic = "64",
@@ -4506,14 +4506,14 @@ atomic_int!(AtomicU64, u64, 8);
     cfg(any(
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            target_arch = "aarch64"
+            target_arch = "aarch64",
         ),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_unstable_cmpxchg16b_target_feature
+                portable_atomic_unstable_cmpxchg16b_target_feature,
             ),
             target_arch = "x86_64",
         ),
@@ -4521,9 +4521,9 @@ atomic_int!(AtomicU64, u64, 8);
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
+                portable_atomic_target_feature = "quadword-atomics",
             ),
-            target_arch = "powerpc64"
+            target_arch = "powerpc64",
         ),
         all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
@@ -4535,7 +4535,7 @@ atomic_int!(AtomicU64, u64, 8);
         portable_atomic_unsafe_assume_single_core,
         feature = "critical-section",
         target_arch = "avr",
-        target_arch = "msp430"
+        target_arch = "msp430",
     ))
 )]
 #[cfg_attr(
@@ -4545,7 +4545,7 @@ atomic_int!(AtomicU64, u64, 8);
         portable_atomic_unsafe_assume_single_core,
         feature = "critical-section",
         target_arch = "avr",
-        target_arch = "msp430"
+        target_arch = "msp430",
     ))
 )]
 atomic_int!(AtomicI128, i128, 16);
@@ -4554,14 +4554,14 @@ atomic_int!(AtomicI128, i128, 16);
     cfg(any(
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            target_arch = "aarch64"
+            target_arch = "aarch64",
         ),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_unstable_cmpxchg16b_target_feature
+                portable_atomic_unstable_cmpxchg16b_target_feature,
             ),
             target_arch = "x86_64",
         ),
@@ -4569,9 +4569,9 @@ atomic_int!(AtomicI128, i128, 16);
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
+                portable_atomic_target_feature = "quadword-atomics",
             ),
-            target_arch = "powerpc64"
+            target_arch = "powerpc64",
         ),
         all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
@@ -4583,7 +4583,7 @@ atomic_int!(AtomicI128, i128, 16);
         portable_atomic_unsafe_assume_single_core,
         feature = "critical-section",
         target_arch = "avr",
-        target_arch = "msp430"
+        target_arch = "msp430",
     ))
 )]
 #[cfg_attr(
@@ -4593,7 +4593,7 @@ atomic_int!(AtomicI128, i128, 16);
         portable_atomic_unsafe_assume_single_core,
         feature = "critical-section",
         target_arch = "avr",
-        target_arch = "msp430"
+        target_arch = "msp430",
     ))
 )]
 atomic_int!(AtomicU128, u128, 16);

@@ -71,7 +71,7 @@ macro_rules! atomic_float {
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             ))
         )]
         #[cfg_attr(
@@ -81,7 +81,7 @@ macro_rules! atomic_float {
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             ))
         )]
         impl $atomic_type {
@@ -193,7 +193,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         not(portable_atomic_no_atomic_64),
@@ -210,7 +210,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
                 target_arch = "avr",
-                target_arch = "msp430"
+                target_arch = "msp430",
             )
         ),
         target_has_atomic = "64",

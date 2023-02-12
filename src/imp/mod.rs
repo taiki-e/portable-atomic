@@ -16,7 +16,7 @@
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
         any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
-        not(target_has_atomic = "ptr")
+        not(target_has_atomic = "ptr"),
     )))
 )]
 mod core_atomic;
@@ -28,7 +28,7 @@ mod core_atomic;
 mod aarch64;
 #[cfg(not(all(
     any(miri, portable_atomic_sanitize_thread),
-    portable_atomic_new_atomic_intrinsics
+    portable_atomic_new_atomic_intrinsics,
 )))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[cfg(target_arch = "aarch64")]
@@ -39,7 +39,7 @@ mod aarch64;
 #[cfg(any(
     target_feature = "cmpxchg16b",
     portable_atomic_target_feature = "cmpxchg16b",
-    portable_atomic_unstable_cmpxchg16b_target_feature
+    portable_atomic_unstable_cmpxchg16b_target_feature,
 ))]
 #[cfg(target_arch = "x86_64")]
 #[path = "atomic128/x86_64.rs"]
@@ -50,7 +50,7 @@ mod x86_64;
 #[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
+    portable_atomic_target_feature = "quadword-atomics",
 ))]
 #[cfg(target_arch = "powerpc64")]
 #[path = "atomic128/intrinsics.rs"]
@@ -59,7 +59,7 @@ mod powerpc64;
 #[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
+    portable_atomic_target_feature = "quadword-atomics",
 ))]
 #[cfg(target_arch = "powerpc64")]
 #[path = "atomic128/powerpc64.rs"]
@@ -86,7 +86,7 @@ mod riscv;
 #[cfg(all(
     not(any(miri, portable_atomic_sanitize_thread)),
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-    any(target_arch = "x86", target_arch = "x86_64")
+    any(target_arch = "x86", target_arch = "x86_64"),
 ))]
 mod x86;
 
@@ -99,20 +99,20 @@ mod x86;
     not(any(
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            target_arch = "aarch64"
+            target_arch = "aarch64",
         ),
         all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b",),
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
             target_arch = "x86_64",
         ),
         all(
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
+                portable_atomic_target_feature = "quadword-atomics",
             ),
-            target_arch = "powerpc64"
+            target_arch = "powerpc64",
         ),
         all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
     ))
@@ -173,7 +173,7 @@ pub(crate) mod float;
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
         any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
-        not(target_has_atomic = "ptr")
+        not(target_has_atomic = "ptr"),
     )))
 )]
 pub(crate) use self::core_atomic::{
@@ -192,7 +192,7 @@ pub(crate) use self::riscv::{
     portable_atomic_unsafe_assume_single_core,
     feature = "critical-section",
     target_arch = "avr",
-    target_arch = "msp430"
+    target_arch = "msp430",
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
@@ -215,7 +215,7 @@ pub(crate) use self::interrupt::{
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
         any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
-        not(target_has_atomic = "ptr")
+        not(target_has_atomic = "ptr"),
     )))
 )]
 pub(crate) use self::core_atomic::{AtomicI32, AtomicU32};
@@ -231,7 +231,7 @@ pub(crate) use self::riscv::{AtomicI32, AtomicU32};
     portable_atomic_unsafe_assume_single_core,
     feature = "critical-section",
     target_arch = "avr",
-    target_arch = "msp430"
+    target_arch = "msp430",
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
@@ -248,7 +248,7 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
         not(portable_atomic_no_atomic_64),
         all(
             not(any(target_pointer_width = "16", target_pointer_width = "32")),
-            not(all(feature = "critical-section", portable_atomic_no_atomic_cas))
+            not(all(feature = "critical-section", portable_atomic_no_atomic_cas)),
         ),
     ))
 )]
@@ -262,11 +262,11 @@ pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
                 any(
                     target_arch = "riscv32",
                     target_arch = "riscv64",
-                    feature = "critical-section"
+                    feature = "critical-section",
                 ),
-                not(target_has_atomic = "ptr")
-            ))
-        )
+                not(target_has_atomic = "ptr"),
+            )),
+        ),
     ))
 )]
 pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
@@ -290,13 +290,13 @@ pub(crate) use self::fallback::{AtomicI64, AtomicU64};
 // no core Atomic{I,U}64 & no CAS & assume single core => critical section based fallback
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    feature = "fallback"
+    feature = "fallback",
 ))]
 #[cfg(any(
     portable_atomic_unsafe_assume_single_core,
     feature = "critical-section",
     target_arch = "avr",
-    target_arch = "msp430"
+    target_arch = "msp430",
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
@@ -306,7 +306,7 @@ pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
 // aarch64 stable
 #[cfg(all(
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-    target_arch = "aarch64"
+    target_arch = "aarch64",
 ))]
 pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // no core Atomic{I,U}128 & has cmpxchg16b => use cmpxchg16b
@@ -315,7 +315,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     any(
         target_feature = "cmpxchg16b",
         portable_atomic_target_feature = "cmpxchg16b",
-        portable_atomic_unstable_cmpxchg16b_target_feature
+        portable_atomic_unstable_cmpxchg16b_target_feature,
     ),
     target_arch = "x86_64",
 ))]
@@ -324,7 +324,7 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 #[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(any(
     target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
+    portable_atomic_target_feature = "quadword-atomics",
 ))]
 #[cfg(target_arch = "powerpc64")]
 pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
@@ -341,7 +341,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b",
-            portable_atomic_unstable_cmpxchg16b_target_feature
+            portable_atomic_unstable_cmpxchg16b_target_feature,
         ),
         target_arch = "x86_64",
     ),
@@ -349,9 +349,9 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics"
+            portable_atomic_target_feature = "quadword-atomics",
         ),
-        target_arch = "powerpc64"
+        target_arch = "powerpc64",
     ),
     all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
 )))]
@@ -364,7 +364,7 @@ pub(crate) use self::fallback::{AtomicI128, AtomicU128};
     portable_atomic_unsafe_assume_single_core,
     feature = "critical-section",
     target_arch = "avr",
-    target_arch = "msp430"
+    target_arch = "msp430",
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]

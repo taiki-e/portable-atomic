@@ -353,7 +353,7 @@ unsafe fn atomic_compare_exchange(
     all(not(portable_atomic_no_aarch64_target_feature), not(portable_atomic_no_outline_atomics)),
 ))]
 #[cfg_attr(
-    not(any(target_feature = "lse", portable_atomic_target_feature = "lse",)),
+    not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
     target_feature(enable = "lse")
 )]
 #[inline]
@@ -463,7 +463,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
 // so we always use strong CAS for now.
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse",))]
+#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
 unsafe fn atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where

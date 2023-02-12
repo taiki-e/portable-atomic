@@ -47,8 +47,8 @@ test_atomic_int_pub!(u64);
         portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics"
-        )
+            portable_atomic_target_feature = "quadword-atomics",
+        ),
     ),
     cfg(not(qemu))
 )]
@@ -59,8 +59,8 @@ test_atomic_int_pub!(i128);
         portable_atomic_unstable_asm_experimental_arch,
         any(
             target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics"
-        )
+            portable_atomic_target_feature = "quadword-atomics",
+        ),
     ),
     cfg(not(qemu))
 )]

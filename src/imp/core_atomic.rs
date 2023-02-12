@@ -273,7 +273,7 @@ macro_rules! atomic_int {
                             target_arch = "arm",
                             not(any(
                                 target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
+                                portable_atomic_target_feature = "v6",
                             )),
                         ),
                         target_arch = "mips",
@@ -317,7 +317,7 @@ macro_rules! atomic_int {
                             target_arch = "arm",
                             not(any(
                                 target_feature = "v6",
-                                portable_atomic_target_feature = "v6"
+                                portable_atomic_target_feature = "v6",
                             )),
                         ),
                         target_arch = "mips",
@@ -351,7 +351,7 @@ macro_rules! atomic_int {
             #[cfg(not(all(
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_arch = "x86", target_arch = "x86_64")
+                any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
@@ -399,7 +399,7 @@ macro_rules! atomic_int {
             #[cfg(not(all(
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_arch = "x86", target_arch = "x86_64")
+                any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
@@ -424,7 +424,7 @@ atomic_int!(uint, AtomicU32, u32);
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
     )) // cfg(target_has_atomic_load_store = "64")
 )]
 atomic_int!(int, AtomicI64, i64);
@@ -433,7 +433,7 @@ atomic_int!(int, AtomicI64, i64);
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32"))
+        not(any(target_pointer_width = "16", target_pointer_width = "32")),
     )) // cfg(target_has_atomic_load_store = "64")
 )]
 atomic_int!(uint, AtomicU64, u64);
