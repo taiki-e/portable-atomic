@@ -46,6 +46,42 @@ mod aarch64_linux_gnu_ilp32;
     )
 )]
 pub(crate) use aarch64_linux_gnu_ilp32::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "musl",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_linux_musl;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "musl",
+        target_pointer_width = "64"
+    )
+)]
+pub(crate) use aarch64_linux_musl::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "uclibc",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_linux_uclibc;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "uclibc",
+        target_pointer_width = "64"
+    )
+)]
+pub(crate) use aarch64_linux_uclibc::*;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
 mod aarch64_linux_android;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]

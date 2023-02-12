@@ -10,8 +10,7 @@
 //   and is newer than [Android 4.3 (API level 18) that added getauxval](https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h#49).
 //
 // On other Linux targets, we cannot assume that getauxval is always available,
-// so we use is_aarch64_feature_detected which uses dlsym (+io fallback) instead
-// of this module.
+// so we use dlsym instead of directly calling getauxval.
 //
 // - On linux-musl, [aarch64 support is available on musl 1.1.7+](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.7#n1422)
 //   and is newer than [musl 1.1.0 that added getauxval](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.0#n1197).
@@ -37,9 +36,9 @@ include!("common.rs");
 // core::ffi::c_* (except c_void) requires Rust 1.64
 #[allow(non_camel_case_types)]
 mod ffi {
+    pub(crate) use core::ffi::c_void;
     // c_char is u8 on aarch64 Linux/Android
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
-    #[cfg(target_os = "android")]
     pub(crate) type c_char = u8;
     // c_{,u}int is {i,u}32 on non-16-bit architectures
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
@@ -56,7 +55,12 @@ mod ffi {
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
+        #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "android"))]
         pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
+
+        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/mod.rs#L1187
+        #[allow(dead_code)]
+        pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
         // Defined in sys/system_properties.h.
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
@@ -70,6 +74,11 @@ mod ffi {
     pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
     #[cfg(test)]
     pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
+
+    // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/mod.rs#L1748
+    // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L265
+    #[allow(dead_code)]
+    pub(crate) const RTLD_DEFAULT: *mut c_void = 0_i64 as *mut c_void;
 
     // Defined in sys/system_properties.h.
     // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L2760
@@ -100,9 +109,22 @@ fn _detect(info: &mut CpuInfo) {
         }
     }
 
+    #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "android"))]
     // SAFETY: getauxval is available in all versions on aarch64 linux-gnu/android.
     // See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
+    #[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
+    // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
+    // is a valid pointer to the function if it is non-null.
+    let hwcap = unsafe {
+        type FnTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
+        let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr() as *const ffi::c_char);
+        if ptr.is_null() {
+            0
+        } else {
+            core::mem::transmute::<*mut ffi::c_void, FnTy>(ptr)(ffi::AT_HWCAP)
+        }
+    };
 
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
     if hwcap & ffi::HWCAP_ATOMICS != 0 {
@@ -148,6 +170,23 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_dlsym_getauxval() {
+        // ptr-to-int cast is not stable on const context, so we test this here.
+        assert_eq!(ffi::RTLD_DEFAULT as usize, libc::RTLD_DEFAULT as usize);
+        unsafe {
+            type FnTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
+            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr() as *const ffi::c_char);
+            if cfg!(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")) {
+                assert!(!ptr.is_null());
+                let hwcap = core::mem::transmute::<*mut ffi::c_void, FnTy>(ptr)(ffi::AT_HWCAP);
+                assert_eq!(hwcap & ffi::HWCAP_ATOMICS != 0, detect().test(CpuInfo::HAS_LSE));
+            } else {
+                assert!(ptr.is_null());
+            }
+        }
+    }
+
     // Static assertions for FFI bindings.
     // This checks that FFI bindings defined in this crate, FFI bindings defined
     // in libc, and FFI bindings generated for the platform's latest header file
@@ -165,17 +204,19 @@ mod tests {
     )]
     const _: fn() = || {
         use crate::tests::sys::*;
+        let _: ffi::c_char = 0 as std::os::raw::c_char;
+        let _: ffi::c_char = 0 as libc::c_char;
         #[cfg(target_os = "android")]
-        {
-            let _: ffi::c_char = 0 as std::os::raw::c_char;
-            let _: ffi::c_char = 0 as libc::c_char;
-            let _: ffi::c_int = 0 as std::os::raw::c_int;
-            let _: ffi::c_int = 0 as libc::c_int;
-        }
+        let _: ffi::c_int = 0 as std::os::raw::c_int;
+        #[cfg(target_os = "android")]
+        let _: ffi::c_int = 0 as libc::c_int;
         let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
         let _: ffi::c_ulong = 0 as libc::c_ulong;
-        let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
-        _getauxval = libc::getauxval;
+        #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "android"))]
+        {
+            let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
+            _getauxval = libc::getauxval;
+        }
         #[cfg(target_os = "android")]
         {
             let mut ___system_property_get: unsafe extern "C" fn(
@@ -184,6 +225,13 @@ mod tests {
             ) -> ffi::c_int = ffi::__system_property_get;
             ___system_property_get = libc::__system_property_get;
         }
+        let mut _dlsym: unsafe extern "C" fn(
+            *mut ffi::c_void,
+            *const ffi::c_char,
+        ) -> *mut ffi::c_void = ffi::dlsym;
+        _dlsym = libc::dlsym;
+        // ptr-to-int cast is not stable on const context, so we test this in test_dlsym_getauxval.
+        // let [] = [(); ffi::RTLD_DEFAULT as usize - libc::RTLD_DEFAULT as usize];
         let [] = [(); (ffi::AT_HWCAP - libc::AT_HWCAP) as usize];
         let [] =
             [(); (ffi::AT_HWCAP - include_uapi_linux_auxvec::AT_HWCAP as ffi::c_ulong) as usize];
