@@ -114,17 +114,7 @@ fn _detect(info: &mut CpuInfo) {
     // See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
     #[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
-    // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
-    // is a valid pointer to the function if it is non-null.
-    let hwcap = unsafe {
-        type FnTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
-        let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr() as *const ffi::c_char);
-        if ptr.is_null() {
-            0
-        } else {
-            core::mem::transmute::<*mut ffi::c_void, FnTy>(ptr)(ffi::AT_HWCAP)
-        }
-    };
+    let hwcap = getauxval_weak();
 
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
     if hwcap & ffi::HWCAP_ATOMICS != 0 {
@@ -134,6 +124,59 @@ fn _detect(info: &mut CpuInfo) {
     {
         if hwcap & ffi::HWCAP_USCAT != 0 {
             info.set(CpuInfo::HAS_LSE2);
+        }
+    }
+}
+
+#[cfg(not(portable_atomic_nightly))]
+#[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
+#[inline]
+fn getauxval_weak() -> ffi::c_ulong {
+    type FnTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
+    // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
+    // is a valid pointer to the function if it is non-null.
+    unsafe {
+        let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr() as *const ffi::c_char);
+        if ptr.is_null() {
+            0
+        } else {
+            core::mem::transmute::<*mut ffi::c_void, FnTy>(ptr)(ffi::AT_HWCAP)
+        }
+    }
+}
+#[cfg(portable_atomic_nightly)]
+#[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
+#[inline]
+fn getauxval_weak() -> ffi::c_ulong {
+    type FnTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
+    // Adapted from https://github.com/rust-lang/rust/blob/1.67.0/library/std/src/sys/unix/weak.rs
+    pub(crate) struct ExternWeak<F: Copy> {
+        weak_ptr: Option<F>,
+    }
+    impl<F: Copy> ExternWeak<F> {
+        #[inline]
+        pub(crate) fn new(weak_ptr: Option<F>) -> Self {
+            ExternWeak { weak_ptr }
+        }
+        #[inline]
+        pub(crate) fn get(&self) -> Option<F> {
+            self.weak_ptr
+        }
+    }
+    #[allow(clippy::undocumented_unsafe_blocks)]
+    unsafe {
+        #[allow(clippy::toplevel_ref_arg)]
+        let ref getauxval: ExternWeak<FnTy> = {
+            extern "C" {
+                #[linkage = "extern_weak"]
+                static getauxval: Option<FnTy>;
+            }
+            ExternWeak::new(getauxval)
+        };
+        if let Some(getauxval) = getauxval.get() {
+            getauxval(ffi::AT_HWCAP)
+        } else {
+            0
         }
     }
 }

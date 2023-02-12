@@ -226,6 +226,9 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     ),
     feature(asm_experimental_arch)
 )]
+// Opt-in unstable features
+// TODO: use portable_atomic_unstable instead of portable_atomic_nightly
+#![cfg_attr(portable_atomic_nightly, feature(linkage))]
 // Old nightly only
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
