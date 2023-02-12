@@ -93,7 +93,9 @@ fn _detect(info: &mut CpuInfo) {
                 arch.as_mut_ptr() as *mut ffi::c_char,
             )
         };
-        if len > 0 && arch.starts_with(b"exynos9810\0") {
+        // On Exynos, ro.arch is not available on Android 12+, but it is fine
+        // because Android 9+ includes the fix.
+        if len > 0 && arch.starts_with(b"exynos9810") {
             return;
         }
     }
