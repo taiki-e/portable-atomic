@@ -194,7 +194,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         not(portable_atomic_no_atomic_64),
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
@@ -211,7 +211,7 @@ atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         target_has_atomic = "64",
         not(any(target_pointer_width = "16", target_pointer_width = "32")),

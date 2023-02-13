@@ -69,14 +69,14 @@ test_atomic_int_pub!(u128);
 #[cfg(all(
     target_arch = "powerpc64",
     portable_atomic_unstable_asm_experimental_arch,
-    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
 ))]
 test_atomic_int_load_store_pub!(i128);
 #[cfg(qemu)]
 #[cfg(all(
     target_arch = "powerpc64",
     portable_atomic_unstable_asm_experimental_arch,
-    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
 ))]
 test_atomic_int_load_store_pub!(u128);
 
@@ -143,13 +143,13 @@ fn test_is_lock_free() {
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
-                portable_atomic_target_feature = "quadword-atomics"
-            )
+                portable_atomic_target_feature = "quadword-atomics",
+            ),
         ),
         all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
         all(
             target_arch = "x86_64",
-            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
         ),
     )) {
         assert!(AtomicI128::is_always_lock_free());

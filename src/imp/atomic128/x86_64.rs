@@ -110,7 +110,7 @@ unsafe fn cmpxchg16b(
             not(any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-            ))
+            )),
         ),
         target_feature(enable = "cmpxchg16b")
     )]
@@ -295,7 +295,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     ))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
@@ -305,7 +305,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
@@ -338,7 +338,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     ))]
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
@@ -348,7 +348,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {

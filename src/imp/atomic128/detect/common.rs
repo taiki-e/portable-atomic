@@ -86,7 +86,7 @@ impl CpuInfo {
         }
         #[cfg(not(any(
             target_feature = "cmpxchg16b",
-            portable_atomic_target_feature = "cmpxchg16b"
+            portable_atomic_target_feature = "cmpxchg16b",
         )))]
         {
             self.test(CpuInfo::HAS_CMPXCHG16B)
@@ -265,7 +265,7 @@ mod tests_aarch64_common {
                 portable_atomic_target_feature = "lse",
                 all(
                     not(portable_atomic_no_aarch64_target_feature),
-                    not(portable_atomic_no_outline_atomics)
+                    not(portable_atomic_no_outline_atomics),
                 ),
             ))]
             unsafe {
@@ -284,7 +284,7 @@ mod tests_aarch64_common {
             assert!(!detect().test(CpuInfo::HAS_LSE));
             #[cfg(not(any(
                 portable_atomic_no_aarch64_target_feature,
-                portable_atomic_unstable_aarch64_target_feature
+                portable_atomic_unstable_aarch64_target_feature,
             )))]
             {
                 assert!(!std::arch::is_aarch64_feature_detected!("lse"));
@@ -303,7 +303,7 @@ mod tests_aarch64_common {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature
+            //     portable_atomic_unstable_aarch64_target_feature,
             // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
@@ -320,7 +320,7 @@ mod tests_aarch64_common {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature
+            //     portable_atomic_unstable_aarch64_target_feature,
             // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("lse128"));
@@ -332,7 +332,7 @@ mod tests_aarch64_common {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature
+            //     portable_atomic_unstable_aarch64_target_feature,
             // )))]
             // {
             //     assert!(!std::arch::is_aarch64_feature_detected!("rcpc3"));

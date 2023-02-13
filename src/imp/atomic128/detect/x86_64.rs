@@ -6,7 +6,7 @@
         not(target_feature = "sse"),
         target_env = "sgx",
         miri,
-        portable_atomic_sanitize_thread
+        portable_atomic_sanitize_thread,
     ),
     allow(dead_code)
 )]

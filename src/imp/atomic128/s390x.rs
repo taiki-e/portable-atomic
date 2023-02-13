@@ -17,7 +17,7 @@ include!("macros.rs");
 
 #[cfg(not(all(
     any(miri, portable_atomic_sanitize_thread),
-    portable_atomic_new_atomic_intrinsics
+    portable_atomic_new_atomic_intrinsics,
 )))]
 use core::arch::asm;
 use core::sync::atomic::Ordering;
@@ -56,7 +56,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     }
     #[cfg(not(all(
         any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics
+        portable_atomic_new_atomic_intrinsics,
     )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_load`.
     unsafe {
@@ -92,7 +92,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     }
     #[cfg(not(all(
         any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics
+        portable_atomic_new_atomic_intrinsics,
     )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_store`.
     unsafe {
@@ -162,7 +162,7 @@ unsafe fn atomic_compare_exchange(
     };
     #[cfg(not(all(
         any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics
+        portable_atomic_new_atomic_intrinsics,
     )))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
     let res = unsafe {

@@ -197,9 +197,9 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
                 not(any(
                     target_feature = "cmpxchg16b",
                     portable_atomic_target_feature = "cmpxchg16b",
-                ))
-            )
-        )
+                )),
+            ),
+        ),
     ),
     feature(cmpxchg16b_target_feature)
 )]
@@ -218,8 +218,8 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
                 target_arch = "powerpc64",
                 any(
                     target_feature = "quadword-atomics",
-                    portable_atomic_target_feature = "quadword-atomics"
-                )
+                    portable_atomic_target_feature = "quadword-atomics",
+                ),
             ),
             all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
         ),
@@ -249,7 +249,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
         any(
             all(
                 any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"),
-                not(target_has_atomic = "ptr")
+                not(target_has_atomic = "ptr"),
             ),
             target_arch = "aarch64",
             target_arch = "x86",
@@ -278,7 +278,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
-        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread)
+        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread),
     ),
     feature(core_intrinsics)
 )]
@@ -287,7 +287,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         target_arch = "x86_64",
-        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread)
+        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread),
     ),
     feature(stdsimd)
 )]
@@ -320,7 +320,7 @@ compile_error!(
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
-        ))
+        )),
     ))
 )]
 #[cfg_attr(
@@ -333,7 +333,7 @@ compile_error!(
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
-        ))
+        )),
     ))
 )]
 compile_error!(
@@ -348,7 +348,7 @@ compile_error!("cfg(portable_atomic_no_outline_atomics) does not compatible with
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(all(
     target_arch = "arm",
-    not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass"))
+    not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass")),
 )))]
 compile_error!("cfg(portable_atomic_disable_fiq) does not compatible with this target");
 #[cfg(portable_atomic_s_mode)]
@@ -4441,7 +4441,7 @@ atomic_int!(AtomicU32, u32, 4);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         not(portable_atomic_no_atomic_64),
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
@@ -4458,7 +4458,7 @@ atomic_int!(AtomicU32, u32, 4);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         target_has_atomic = "64",
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
@@ -4476,7 +4476,7 @@ atomic_int!(AtomicI64, i64, 8);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         not(portable_atomic_no_atomic_64),
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
@@ -4493,7 +4493,7 @@ atomic_int!(AtomicI64, i64, 8);
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
-            )
+            ),
         ),
         target_has_atomic = "64",
         not(any(target_pointer_width = "16", target_pointer_width = "32")),

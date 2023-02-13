@@ -309,7 +309,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "windows",
             target_os = "freebsd",
             target_os = "openbsd",
-        )
+        ),
     )))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
@@ -324,7 +324,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "windows",
             target_os = "freebsd",
             target_os = "openbsd",
-        )
+        ),
     ))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let res = {
