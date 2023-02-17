@@ -55,28 +55,27 @@ macro_rules! atomic {
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
                 let mut dst: [Chunk; Self::LEN] = [0; Self::LEN];
+                // SAFETY:
+                // - There are no threads that perform non-atomic concurrent write operations.
+                // - There is no writer that updates the value using atomic operations of different granularity.
+                //
+                // If the atomic operation is not used here, it will cause a data race
+                // when `write` performs concurrent write operation.
+                // Such a data race is sometimes considered virtually unproblematic
+                // in SeqLock implementations:
+                //
+                // - https://github.com/Amanieu/seqlock/issues/2
+                // - https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L1111-L1116
+                // - https://rust-lang.zulipchat.com/#narrow/stream/136281-t-lang.2Fwg-unsafe-code-guidelines/topic/avoiding.20UB.20due.20to.20races.20by.20discarding.20result.3F
+                //
+                // However, in our use case, the implementation that loads/stores value as
+                // chunks of usize is enough fast and sound, so we use that implementation.
+                //
+                // See also atomic-memcpy crate, a generic implementation of this pattern:
+                // https://github.com/taiki-e/atomic-memcpy
+                let chunks = unsafe { self.chunks() };
                 for i in 0..Self::LEN {
-                    // SAFETY:
-                    // - There are no threads that perform non-atomic concurrent write operations.
-                    // - There is no writer that updates the value using atomic operations of different granularity.
-                    //
-                    // If the atomic operation is not used here, it will cause a data race
-                    // when `write` performs concurrent write operation.
-                    // Such a data race is sometimes considered virtually unproblematic
-                    // in SeqLock implementations:
-                    //
-                    // - https://github.com/Amanieu/seqlock/issues/2
-                    // - https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L1111-L1116
-                    // - https://rust-lang.zulipchat.com/#narrow/stream/136281-t-lang.2Fwg-unsafe-code-guidelines/topic/avoiding.20UB.20due.20to.20races.20by.20discarding.20result.3F
-                    //
-                    // However, in our use case, the implementation that loads/stores value as
-                    // chunks of usize is enough fast and sound, so we use that implementation.
-                    //
-                    // See also atomic-memcpy crate, a generic implementation of this pattern:
-                    // https://github.com/taiki-e/atomic-memcpy
-                    unsafe {
-                        dst[i] = self.chunks()[i].load(Ordering::Relaxed);
-                    }
+                    dst[i] = chunks[i].load(Ordering::Relaxed);
                 }
                 // SAFETY: integers are plain old datatypes so we can always transmute to them.
                 unsafe { mem::transmute::<[Chunk; Self::LEN], $int_type>(dst) }
@@ -106,15 +105,14 @@ macro_rules! atomic {
             fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard<'static>) {
                 // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
                 let val = unsafe { mem::transmute::<$int_type, [Chunk; Self::LEN]>(val) };
+                // SAFETY:
+                // - The guard guarantees that we hold the lock to write.
+                // - There are no threads that perform non-atomic concurrent read or write operations.
+                //
+                // See optimistic_read for the reason that atomic operations are used here.
+                let chunks = unsafe { self.chunks() };
                 for i in 0..Self::LEN {
-                    // SAFETY:
-                    // - The guard guarantees that we hold the lock to write.
-                    // - There are no threads that perform non-atomic concurrent read or write operations.
-                    //
-                    // See optimistic_read for the reason that atomic operations are used here.
-                    unsafe {
-                        self.chunks()[i].store(val[i], Ordering::Relaxed);
-                    }
+                    chunks[i].store(val[i], Ordering::Relaxed);
                 }
             }
         }
