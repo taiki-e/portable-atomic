@@ -192,7 +192,7 @@ unsafe fn atomic_compare_exchange(
 
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
-#[inline]
+#[inline(always)]
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,

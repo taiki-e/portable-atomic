@@ -464,7 +464,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-#[inline]
+#[inline(always)]
 unsafe fn atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,

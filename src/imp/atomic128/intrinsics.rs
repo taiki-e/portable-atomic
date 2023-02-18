@@ -280,7 +280,7 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 #[cfg(target_arch = "powerpc64")]
-#[inline]
+#[inline(always)]
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
