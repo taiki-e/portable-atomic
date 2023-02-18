@@ -469,13 +469,12 @@ unsafe fn atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u1
 where
     F: FnMut(u128) -> u128,
 {
-    let failure = crate::utils::strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
         // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
         // This is not single-copy atomic reads, but this is ok because subsequent
         // CAS will check for consistency.
-        let mut old = _atomic_load_ldp(dst, failure);
+        let mut old = _atomic_load_ldp(dst, Ordering::Relaxed);
         loop {
             let next = f(old);
             let x = _atomic_compare_exchange_casp(dst, old, next, order);
