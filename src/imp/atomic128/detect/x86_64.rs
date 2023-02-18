@@ -54,14 +54,12 @@ const VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD";
 
 #[inline]
 unsafe fn _vendor_id() -> [u8; 12] {
+    // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L40-L59
     // SAFETY: the caller must guarantee that CPU supports `cpuid`.
-    // transmute is safe because `[u8; 12]` and `[[u8; 4]; 3]` has the same layout.
-    unsafe {
-        // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L40-L59
-        let CpuidResult { ebx, ecx, edx, .. } = __cpuid(0);
-        let vendor_id: [[u8; 4]; 3] = [ebx.to_ne_bytes(), edx.to_ne_bytes(), ecx.to_ne_bytes()];
-        core::mem::transmute(vendor_id)
-    }
+    let CpuidResult { ebx, ecx, edx, .. } = unsafe { __cpuid(0) };
+    let vendor_id: [[u8; 4]; 3] = [ebx.to_ne_bytes(), edx.to_ne_bytes(), ecx.to_ne_bytes()];
+    // SAFETY: transmute is safe because `[u8; 12]` and `[[u8; 4]; 3]` has the same layout.
+    unsafe { core::mem::transmute(vendor_id) }
 }
 
 #[inline]
