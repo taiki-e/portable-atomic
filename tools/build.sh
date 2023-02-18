@@ -139,7 +139,7 @@ rustc_minor_version="${rustc_minor_version%%.*}"
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 case "${TESTS:-}" in
-    1) base_args=(${pre_args[@]+"${pre_args[@]}"} check --tests) ;;
+    1) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
     *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
 esac
 nightly=''
@@ -159,7 +159,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         case "${TESTS:-}" in
-            1) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy --tests -Z check-cfg="names,values,output,features") ;;
+            1) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy -Z check-cfg="names,values,output,features") ;;
             *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features") ;;
         esac
     fi
@@ -237,7 +237,7 @@ build() {
             return 0
         fi
         args+=(
-            --workspace --all-features
+            --workspace --all-features --tests
             --exclude bench --exclude portable-atomic-internal-codegen
         )
     else

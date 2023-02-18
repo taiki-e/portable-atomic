@@ -272,6 +272,7 @@ jobs:
         if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly') && !(contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
 
       - run: tools/build.sh ${{ matrix.target || 'host' }}
+      - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
 
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
         # We set BUILD_STD due to https://github.com/cross-rs/cross/issues/1128 / https://github.com/rust-lang/rust/issues/103673
