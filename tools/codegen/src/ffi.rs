@@ -1,9 +1,10 @@
 // Run-time feature detection on aarch64 usually requires the use of
 // platform APIs, and we define our own FFI bindings to those APIs.
 //
-// We use only one function and a few constants per platform, but
-// technically OS can change these APIs so it is preferable to be able
-// to detect them.
+// We use only one or two function(s) and a few types/constants per platform,
+// but technically OS can change these APIs (unfortunately, some operating
+// systems don't care about breaking API/ABI between releases), so it is
+// preferable to be able to detect them.
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
@@ -29,15 +30,11 @@ static TARGETS: &[Target] = &[
             "aarch64-linux-android",
         ],
         headers: &[
-            // TODO
-            // Header {
-            //     // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
-            //     // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
-            //     path: "sys/auxv.h",
-            //     types: &[],
-            //     vars: &[],
-            //     functions: &["getauxval"],
-            // },
+            // TODO: getauxval
+            // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
+            // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
+            // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
+            // https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "include/uapi/linux/auxvec.h",
@@ -205,28 +202,22 @@ pub(crate) fn gen() -> Result<()> {
 
 fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8PathBuf> {
     fn clone(download_cache_dir: &Utf8Path, repository: &str) -> Result<Utf8PathBuf> {
-        let src_dir = download_cache_dir.join(repository.replace('/', "-"));
+        let name = repository.strip_suffix(".git").unwrap_or(repository);
+        let name = name.strip_prefix("https://github.com/").unwrap_or(name);
+        let src_dir = download_cache_dir.join(name.replace('/', "-"));
         if src_dir.exists() {
             cmd!("git", "clean", "-df",).dir(&src_dir).run()?;
             // TODO: use stash?
             cmd!("git", "checkout", ".",).dir(&src_dir).run()?;
         } else {
             // TODO: use sparse-checkout
-            cmd!(
-                "git",
-                "clone",
-                "--depth",
-                "1",
-                format!("https://github.com/{repository}.git"),
-                &src_dir
-            )
-            .run()?;
+            cmd!("git", "clone", "--depth", "1", repository, &src_dir).run()?;
         }
         Ok(src_dir)
     }
     let src_dir = match target.os {
-        linux | android => clone(download_cache_dir, "torvalds/linux")?,
-        openbsd => clone(download_cache_dir, "openbsd/src")?,
+        linux | android => clone(download_cache_dir, "https://github.com/torvalds/linux.git")?,
+        openbsd => clone(download_cache_dir, "https://github.com/openbsd/src.git")?,
         _ => todo!("{target:?}"),
     };
     // TODO: remove needs of patches.
