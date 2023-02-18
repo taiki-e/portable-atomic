@@ -972,7 +972,7 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
     // cfg guarantee that the CPU supports FEAT_LSE.
     unsafe {
-        atomic_update_casp(dst.cast(), order, |x| core::cmp::max(x, val))
+        atomic_update_casp(dst, order, |x| core::cmp::max(x, val))
     }
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
@@ -1151,7 +1151,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
     // cfg guarantee that the CPU supports FEAT_LSE.
     unsafe {
-        atomic_update_casp(dst.cast(), order, |x| core::cmp::min(x, val))
+        atomic_update_casp(dst, order, |x| core::cmp::min(x, val))
     }
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
