@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/EzMTYq8ne
-// - powerpc64le https://godbolt.org/z/cE1511Ks1
+// - powerpc64 (pwr8) https://godbolt.org/z/EnodWGcWr
+// - powerpc64le https://godbolt.org/z/Tr5xvrb6K
 
 include!("macros.rs");
 
@@ -198,10 +198,7 @@ unsafe fn atomic_compare_exchange(
                         "bne %cr0, 3f",
                         "stqcx. %r6, 0, {dst}",
                         "bne %cr0, 2b",
-                        "b 4f",
                     "3:",
-                        "stqcx. %r8, 0, {dst}",
-                    "4:",
                     $acquire,
                     dst = in(reg) dst,
                     old_hi = in(reg) old.pair.hi,
