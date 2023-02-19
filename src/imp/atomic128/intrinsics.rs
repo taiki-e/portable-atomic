@@ -7,7 +7,7 @@
 // On x86_64, this module is currently only enabled on benchmark.
 //
 // Note that we cannot use this module on s390x because LLVM currently generates
-// libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/6E6fchxvP
+// libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/5c9b3eYf7
 //
 // Note that we cannot use this module on aarch64_be (big-endian) because LLVM
 // currently generates broken code. (on cfg(miri) it is fine though)

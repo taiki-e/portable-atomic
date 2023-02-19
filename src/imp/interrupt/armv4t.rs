@@ -1,7 +1,7 @@
 // Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en#CIHJBHJA
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/6oK9Ef7bv
+// - armv5te https://godbolt.org/z/4z8ahWd4T
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -61,6 +61,9 @@ pub(super) unsafe fn restore(State(cpsr): State) {
 // On pre-v6 ARM, we cannot use core::sync::atomic here because they call the
 // `__sync_*` builtins for non-relaxed load/store (because pre-v6 ARM doesn't
 // have Data Memory Barrier).
+//
+// Generated asm:
+// - armv5te https://godbolt.org/z/9x4Ghe7ao
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;

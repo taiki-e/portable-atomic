@@ -4,7 +4,7 @@
 // - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/vbz7bG156
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/93Grnav1P
 
 include!("macros.rs");
 
@@ -273,7 +273,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     options(nostack, preserves_flags),
                 );
             }
-            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/aK44sq6es
+            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/sMqxeq438
             _ => unreachable_unchecked!("{:?}", order),
         }
     }

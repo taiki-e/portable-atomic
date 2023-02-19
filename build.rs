@@ -159,7 +159,7 @@ fn main() {
         "x86_64" => {
             // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
             let has_cmpxchg16b = target_os == "macos";
-            // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/o4Y8W1hcb
+            // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
             // It is unlikely that rustc will support that name, so we will ignore it for now.
             target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, None, true);
             if version.nightly

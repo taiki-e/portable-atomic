@@ -53,7 +53,7 @@ macro_rules! atomic {
             #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
             #[inline]
             fn optimistic_read(&self) -> $int_type {
-                // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/84ETbhqE3
+                // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/86f8s733M
                 let mut dst: [Chunk; Self::LEN] = [0; Self::LEN];
                 // SAFETY:
                 // - There are no threads that perform non-atomic concurrent write operations.

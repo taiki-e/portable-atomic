@@ -3,15 +3,14 @@
 // s390x supports 128-bit atomic load/store/cmpxchg:
 // https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
 //
-// Note that LLVM currently generates libcalls for other operations:
-// https://godbolt.org/z/6E6fchxvP
+// Note that LLVM currently generates libcalls for other operations: https://godbolt.org/z/5c9b3eYf7
 //
 // Refs:
 // - z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/qcoxxq1K1
+// - s390x https://godbolt.org/z/7P6rTcKvd
 
 include!("macros.rs");
 
