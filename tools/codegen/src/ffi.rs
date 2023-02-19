@@ -35,6 +35,7 @@ static TARGETS: &[Target] = &[
             // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
             // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
             // https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h
+            // https://github.com/picolibc/picolibc/blob/HEAD/newlib/libc/picolib/getauxval.c
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "include/uapi/linux/auxvec.h",

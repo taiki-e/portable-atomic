@@ -75,6 +75,7 @@ nographic
 nostdinc
 opensbi
 osxsave
+picolibc
 prefetcher
 PRIMASK
 quadword

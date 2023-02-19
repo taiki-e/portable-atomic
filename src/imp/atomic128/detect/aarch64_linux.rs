@@ -1,4 +1,4 @@
-// Run-time feature detection on aarch64 Linux/Android by using getauxval.
+// Run-time feature detection on aarch64 Linux/Android by parsing ELF auxiliary vectors.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
 // on aarch64 Linux/Android, but on the following platforms, so we can safely assume
@@ -21,6 +21,7 @@
 //   of the same error.)
 // - On linux-uclibc, they [recently added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647)
 //   but have not released it yet (as of 2023-02-09).
+// - On Picolibc, [Picolibc 1.4.6 added getauxval stub](https://github.com/picolibc/picolibc#picolibc-version-146).
 //
 // See also https://github.com/rust-lang/stdarch/pull/1375
 
@@ -100,8 +101,8 @@ fn _detect(info: &mut CpuInfo) {
         }
     }
 
-    // SAFETY: getauxval is available in all versions on aarch64 linux-gnu/android.
-    // See also the module level docs.
+    // SAFETY: `getauxval` is thread-safe and is available in all versions on
+    // aarch64 linux-gnu/android. See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
 
     // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
