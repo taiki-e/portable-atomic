@@ -48,7 +48,7 @@ macro_rules! atomic_int {
                 // See also https://github.com/rust-lang/rust/pull/66705 and
                 // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
                 unsafe {
-                    (*(self as *const Self as *const core::cell::UnsafeCell<$int_type>)).get()
+                    (*(self as *const Self).cast::<core::cell::UnsafeCell<$int_type>>()).get()
                 }
             }
         }

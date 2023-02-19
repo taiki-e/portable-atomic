@@ -216,7 +216,7 @@ mod imp {
             ffi::sysctl(
                 mib.as_ptr(),
                 mib.len() as ffi::c_uint,
-                out.as_mut_ptr() as *mut ffi::c_void,
+                out.as_mut_ptr().cast::<ffi::c_void>(),
                 &mut out_len,
                 ptr::null_mut(),
                 0,

@@ -90,8 +90,8 @@ fn _detect(info: &mut CpuInfo) {
         // SAFETY: we've passed a valid C string and a buffer with max length.
         let len = unsafe {
             ffi::__system_property_get(
-                b"ro.arch\0".as_ptr() as *const ffi::c_char,
-                arch.as_mut_ptr() as *mut ffi::c_char,
+                b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
+                arch.as_mut_ptr().cast::<ffi::c_char>(),
             )
         };
         // On Exynos, ro.arch is not available on Android 12+, but it is fine
@@ -135,8 +135,8 @@ mod tests {
         unsafe {
             let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
             let len = ffi::__system_property_get(
-                b"ro.arch\0".as_ptr() as *const ffi::c_char,
-                arch.as_mut_ptr(),
+                b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
+                arch.as_mut_ptr().cast::<ffi::c_char>(),
             );
             assert!(len >= 0);
             std::println!("len={}", len);

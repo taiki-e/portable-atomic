@@ -69,8 +69,8 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
     // - `sysctlbyname` is thread-safe.
     let res = unsafe {
         ffi::sysctlbyname(
-            name.as_ptr() as *const ffi::c_char,
-            out.as_mut_ptr() as *mut ffi::c_void,
+            name.as_ptr().cast::<ffi::c_char>(),
+            out.as_mut_ptr().cast::<ffi::c_void>(),
             &mut out_len,
             ptr::null_mut(),
             0,

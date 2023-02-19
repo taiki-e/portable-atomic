@@ -86,7 +86,7 @@ impl AtomicBool {
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
         // SAFETY: the mutable reference guarantees unique ownership.
-        unsafe { &mut *(self.v.get() as *mut bool) }
+        unsafe { &mut *self.v.get().cast::<bool>() }
     }
 
     #[cfg(test)]
@@ -196,7 +196,7 @@ impl<T> AtomicPtr<T> {
         // SAFETY: any data races are prevented by atomic intrinsics and the raw
         // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
-        unsafe { usize::atomic_load(self.p.get() as *mut usize) as *mut T }
+        unsafe { usize::atomic_load(self.p.get().cast::<usize>()) as *mut T }
     }
 
     #[inline]
@@ -207,7 +207,7 @@ impl<T> AtomicPtr<T> {
         // pointer passed in is valid because we got it from a reference.
         // TODO: remove int to ptr cast
         unsafe {
-            usize::atomic_store(self.p.get() as *mut usize, ptr as usize);
+            usize::atomic_store(self.p.get().cast::<usize>(), ptr as usize);
         }
     }
 }

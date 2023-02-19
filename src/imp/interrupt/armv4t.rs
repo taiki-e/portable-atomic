@@ -103,7 +103,7 @@ pub(crate) mod atomic {
             // SAFETY: any data races are prevented by atomic intrinsics and the raw
             // pointer passed in is valid because we got it from a reference.
             // TODO: remove int to ptr cast
-            unsafe { usize::atomic_load(self.p.get() as *mut usize, order) as *mut T }
+            unsafe { usize::atomic_load(self.p.get().cast::<usize>(), order) as *mut T }
         }
 
         #[inline]
@@ -112,7 +112,7 @@ pub(crate) mod atomic {
             // pointer passed in is valid because we got it from a reference.
             // TODO: remove int to ptr cast
             unsafe {
-                usize::atomic_store(self.p.get() as *mut usize, ptr as usize, order);
+                usize::atomic_store(self.p.get().cast::<usize>(), ptr as usize, order);
             }
         }
     }
