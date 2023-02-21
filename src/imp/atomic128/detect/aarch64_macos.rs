@@ -6,9 +6,7 @@
 // If macOS supporting Armv9.4-a becomes popular in the future, this module will
 // be used to support outline atomics for FEAT_LSE128/FEAT_LRCPC3.
 //
-// Refs:
-// - https://developer.apple.com/documentation/apple-silicon/addressing-architectural-differences-in-your-macos-code
-// - https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
+// Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 //
 // Note that iOS doesn't support sysctl:
 // - https://developer.apple.com/forums/thread/9440
@@ -84,8 +82,16 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
 
 #[inline]
 fn _detect(info: &mut CpuInfo) {
+    // hw.optional.armv8_1_atomics is available on macOS 11+ (note: aarch64 support was added on macOS 11),
+    // hw.optional.arm.FEAT_* are only available on macOS 12+.
+    // Query both names in case future versions of macOS remove the old name.
+    // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
+    // https://github.com/google/boringssl/commit/91e0b11eba517d83b910b20fe3740eeb39ecb37e
     // SAFETY: we passed a valid C string.
-    if unsafe { sysctlbyname32(b"hw.optional.armv8_1_atomics\0").unwrap_or(0) != 0 } {
+    if unsafe {
+        sysctlbyname32(b"hw.optional.arm.FEAT_LSE\0").unwrap_or(0) != 0
+            || sysctlbyname32(b"hw.optional.armv8_1_atomics\0").unwrap_or(0) != 0
+    } {
         info.set(CpuInfo::HAS_LSE);
     }
 
