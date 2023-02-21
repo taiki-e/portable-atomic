@@ -48,10 +48,6 @@ fn main() {
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
     // for non-cargo build systems that don't run the build script.
-    // underscore_const_names stabilized in Rust 1.37 (nightly-2019-06-18): https://github.com/rust-lang/rust/pull/61347
-    if !version.probe(37, 2019, 6, 17) {
-        println!("cargo:rustc-cfg=portable_atomic_no_underscore_consts");
-    }
     // atomic_min_max stabilized in Rust 1.45 (nightly-2020-05-30): https://github.com/rust-lang/rust/pull/72324
     if !version.probe(45, 2020, 5, 29) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_min_max");

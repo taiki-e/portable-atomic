@@ -76,9 +76,10 @@ mod tests {
         let mut _sysctl: unsafe extern "system" fn(ffi::DWORD) -> ffi::BOOL =
             ffi::IsProcessorFeaturePresent;
         _sysctl = windows_sys::Win32::System::Threading::IsProcessorFeaturePresent;
-        let [] = [(); (ffi::FALSE - windows_sys::Win32::Foundation::FALSE) as usize];
-        let [] = [(); (ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
-            - windows_sys::Win32::System::Threading::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE)
-            as usize];
+        static_assert!(ffi::FALSE == windows_sys::Win32::Foundation::FALSE);
+        static_assert!(
+            ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
+                == windows_sys::Win32::System::Threading::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
+        );
     };
 }

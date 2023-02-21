@@ -459,8 +459,6 @@ pub struct AtomicBool {
     _marker: PhantomData<NoRefUnwindSafe>,
 }
 
-static_assert_layout!(AtomicBool, bool);
-
 impl Default for AtomicBool {
     /// Creates an `AtomicBool` initialized to `false`.
     #[inline]
@@ -507,6 +505,7 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub const fn new(v: bool) -> Self {
+        static_assert_layout!(AtomicBool, bool);
         Self { inner: imp::AtomicBool::new(v), _marker: PhantomData }
     }
 
@@ -1445,8 +1444,6 @@ pub struct AtomicPtr<T> {
     _marker: PhantomData<NoRefUnwindSafe>,
 }
 
-static_assert_layout!(AtomicPtr<()>, *mut ());
-
 impl<T> Default for AtomicPtr<T> {
     /// Creates a null `AtomicPtr<T>`.
     #[inline]
@@ -1498,6 +1495,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[must_use]
     pub const fn new(p: *mut T) -> Self {
+        static_assert_layout!(AtomicPtr<()>, *mut ());
         Self { inner: imp::AtomicPtr::new(p), _marker: PhantomData }
     }
 
@@ -2412,9 +2410,12 @@ impl<T> AtomicPtr<T> {
         ))
     )]
     fn as_atomic_usize(&self) -> &AtomicUsize {
-        let [] = [(); core::mem::size_of::<AtomicPtr<()>>() - core::mem::size_of::<AtomicUsize>()];
-        let [] =
-            [(); core::mem::align_of::<AtomicPtr<()>>() - core::mem::align_of::<AtomicUsize>()];
+        static_assert!(
+            core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()
+        );
+        static_assert!(
+            core::mem::align_of::<AtomicPtr<()>>() == core::mem::align_of::<AtomicUsize>()
+        );
         // SAFETY: AtomicPtr and AtomicUsize have the same layout,
         // and both access data in the same way.
         unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
@@ -2474,8 +2475,6 @@ atomic instructions or locks will be used.
             }
         }
 
-        static_assert_layout!($atomic_type, $int_type);
-
         impl Default for $atomic_type {
             #[inline]
             fn default() -> Self {
@@ -2522,6 +2521,7 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
                 #[inline]
                 #[must_use]
                 pub const fn new(v: $int_type) -> Self {
+                    static_assert_layout!($atomic_type, $int_type);
                     Self { inner: imp::$atomic_type::new(v), _marker: PhantomData }
                 }
             }
@@ -3858,8 +3858,6 @@ This type has the same in-memory representation as the underlying floating point
             }
         }
 
-        static_assert_layout!($atomic_type, $float_type);
-
         impl Default for $atomic_type {
             #[inline]
             fn default() -> Self {
@@ -3899,6 +3897,7 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[must_use]
             pub const fn new(v: $float_type) -> Self {
+                static_assert_layout!($atomic_type, $float_type);
                 Self { inner: imp::float::$atomic_type::new(v) }
             }
 

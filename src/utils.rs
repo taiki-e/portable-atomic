@@ -2,19 +2,13 @@
 
 use core::{cell::UnsafeCell, ops, sync::atomic::Ordering};
 
-#[cfg(not(portable_atomic_no_underscore_consts))]
 macro_rules! static_assert {
-    ($cond:expr $(,)?) => {
-        const _: [(); true as usize] = [(); $crate::utils::_assert_is_bool($cond) as usize];
-    };
+    ($cond:expr $(,)?) => {{
+        let [] = [(); true as usize - $crate::utils::_assert_is_bool($cond) as usize];
+    }};
 }
-#[cfg(not(portable_atomic_no_underscore_consts))]
 pub(crate) const fn _assert_is_bool(v: bool) -> bool {
     v
-}
-#[cfg(portable_atomic_no_underscore_consts)]
-macro_rules! static_assert {
-    ($($tt:tt)*) => {};
 }
 
 macro_rules! static_assert_layout {

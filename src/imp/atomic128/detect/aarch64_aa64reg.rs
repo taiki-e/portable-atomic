@@ -321,19 +321,13 @@ mod tests {
         ) -> ffi::c_int = ffi::sysctl;
         _sysctl = libc::sysctl;
         _sysctl = sys_sysctl::sysctl;
-        let [] = [(); (ffi::CTL_MACHDEP - libc::CTL_MACHDEP) as usize];
-        let [] = [(); (ffi::CTL_MACHDEP - sys_sysctl::CTL_MACHDEP as ffi::c_int) as usize];
-        // libc doesn't have this
-        // let [] = [(); (ffi::CPU_ID_AA64ISAR0 - libc::CPU_ID_AA64ISAR0) as usize];
-        let [] =
-            [(); (ffi::CPU_ID_AA64ISAR0 - machine_cpu::CPU_ID_AA64ISAR0 as ffi::c_int) as usize];
-        // libc doesn't have this
-        // let [] = [(); (ffi::CPU_ID_AA64ISAR1 - libc::CPU_ID_AA64ISAR1) as usize];
-        let [] =
-            [(); (ffi::CPU_ID_AA64ISAR1 - machine_cpu::CPU_ID_AA64ISAR1 as ffi::c_int) as usize];
-        // libc doesn't have this
-        // let [] = [(); (ffi::CPU_ID_AA64MMFR2 - libc::CPU_ID_AA64MMFR2) as usize];
-        let [] =
-            [(); (ffi::CPU_ID_AA64MMFR2 - machine_cpu::CPU_ID_AA64MMFR2 as ffi::c_int) as usize];
+        static_assert!(ffi::CTL_MACHDEP == libc::CTL_MACHDEP);
+        static_assert!(ffi::CTL_MACHDEP == sys_sysctl::CTL_MACHDEP as ffi::c_int);
+        // static_assert!(ffi::CPU_ID_AA64ISAR0 == libc::CPU_ID_AA64ISAR0); // libc doesn't have this
+        static_assert!(ffi::CPU_ID_AA64ISAR0 == machine_cpu::CPU_ID_AA64ISAR0 as ffi::c_int);
+        // static_assert!(ffi::CPU_ID_AA64ISAR1 == libc::CPU_ID_AA64ISAR1); // libc doesn't have this
+        static_assert!(ffi::CPU_ID_AA64ISAR1 == machine_cpu::CPU_ID_AA64ISAR1 as ffi::c_int);
+        // static_assert!(ffi::CPU_ID_AA64MMFR2 == libc::CPU_ID_AA64MMFR2); // libc doesn't have this
+        static_assert!(ffi::CPU_ID_AA64MMFR2 == machine_cpu::CPU_ID_AA64MMFR2 as ffi::c_int);
     };
 }
