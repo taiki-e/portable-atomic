@@ -32,7 +32,6 @@ mod ffi {
     pub(crate) use core::ffi::c_void;
     // c_char is {i,u}32 on darwin
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
-    // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/apple/mod.rs#L4
     pub(crate) type c_char = i8;
     // c_{,u}int is {i,u}32 on non-16-bit architectures
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
@@ -134,8 +133,9 @@ mod tests {
     }
 
     // Static assertions for FFI bindings.
-    // This checks that FFI bindings defined in this crate and FFI bindings defined
-    // in libc have compatible signatures (or the same values if constants).
+    // This checks that FFI bindings defined in this crate, FFI bindings defined
+    // in libc, and FFI bindings generated for the platform's latest header file
+    // using bindgen have compatible signatures (or the same values if constants).
     // Since this is static assertion, we can detect problems with
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
@@ -147,6 +147,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
+        use crate::tests::sys::*;
         let _: ffi::c_int = 0 as std::os::raw::c_int;
         let _: ffi::c_int = 0 as libc::c_int;
         let _: ffi::c_size_t = 0 as libc::size_t;
@@ -158,5 +159,6 @@ mod tests {
             ffi::c_size_t,
         ) -> ffi::c_int = ffi::sysctlbyname;
         _sysctlbyname = libc::sysctlbyname;
+        _sysctlbyname = sys_sysctl::sysctlbyname;
     };
 }

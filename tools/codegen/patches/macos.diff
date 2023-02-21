@@ -1,0 +1,23 @@
+diff --git a/bsd/sys/proc.h b/bsd/sys/proc.h
+--- a/bsd/sys/proc.h
++++ b/bsd/sys/proc.h
+@@ -69,6 +69,8 @@
+ #ifndef _SYS_PROC_H_
+ #define _SYS_PROC_H_
+
++#include <sys/_types/_u_char.h>
++#include <sys/_types/_u_short.h>
+ #include <sys/appleapiopts.h>
+ #include <sys/cdefs.h>
+ #include <sys/select.h>                 /* For struct selinfo. */
+diff --git a/bsd/sys/ucred.h b/bsd/sys/ucred.h
+--- a/bsd/sys/ucred.h
++++ b/bsd/sys/ucred.h
+@@ -70,6 +70,7 @@
+ #ifndef _SYS_UCRED_H_
+ #define _SYS_UCRED_H_
+
++#include <sys/_types/_u_int.h>
+ #include <sys/appleapiopts.h>
+ #include <sys/cdefs.h>
+ #include <sys/param.h>

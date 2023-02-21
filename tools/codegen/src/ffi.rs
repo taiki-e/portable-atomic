@@ -53,6 +53,18 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
+        triples: &["aarch64-apple-darwin"],
+        headers: &[
+            Header {
+                // https://github.com/apple-oss-distributions/xnu/blob/HEAD/bsd/sys/sysctl.h
+                path: "sys/sysctl.h",
+                types: &[],
+                vars: &[],
+                functions: &["sysctlbyname"],
+            },
+        ],
+    },
+    Target {
         triples: &["aarch64-unknown-openbsd"],
         headers: &[
             Header {
@@ -128,6 +140,13 @@ pub(crate) fn gen() -> Result<()> {
 
             let target_flag = &*format!("--target={triple}");
             let mut clang_args = vec![target_flag, "-nostdinc"];
+            match target.os {
+                macos => {
+                    // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
+                    clang_args.push("-D_POSIX_C_SOURCE=200112L");
+                }
+                _ => {}
+            }
             let include = match target.os {
                 linux | android => {
                     let arch = match target.arch {
@@ -136,6 +155,13 @@ pub(crate) fn gen() -> Result<()> {
                     };
                     vec![src_dir.join("arch").join(arch).join("include/uapi")]
                 }
+                macos => vec![
+                    src_dir.join("bsd"),
+                    src_dir.join("EXTERNAL_HEADERS"),
+                    src_dir.join("osfmk"),
+                    src_dir.parent().unwrap().join("Libc/include"),
+                    src_dir.parent().unwrap().join("libpthread/include"),
+                ],
                 openbsd => vec![src_dir.join("sys")],
                 _ => todo!("{target:?}"),
             };
@@ -155,6 +181,7 @@ pub(crate) fn gen() -> Result<()> {
 
                 let header_path = match target.os {
                     linux | android => src_dir.join(header.path),
+                    macos => src_dir.join(format!("bsd/{}", header.path)),
                     openbsd => src_dir.join(format!("sys/{}", header.path)),
                     _ => todo!("{target:?}"),
                 };
@@ -205,12 +232,13 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
     fn clone(download_cache_dir: &Utf8Path, repository: &str) -> Result<Utf8PathBuf> {
         let name = repository.strip_suffix(".git").unwrap_or(repository);
         let name = name.strip_prefix("https://github.com/").unwrap_or(name);
-        let src_dir = download_cache_dir.join(name.replace('/', "-"));
+        let src_dir = download_cache_dir.join(name);
         if src_dir.exists() {
             cmd!("git", "clean", "-df",).dir(&src_dir).run()?;
             // TODO: use stash?
             cmd!("git", "checkout", ".",).dir(&src_dir).run()?;
         } else {
+            fs::create_dir_all(src_dir.parent().unwrap())?;
             // TODO: use sparse-checkout
             cmd!("git", "clone", "--depth", "1", repository, &src_dir).run()?;
         }
@@ -218,6 +246,11 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
     }
     let src_dir = match target.os {
         linux | android => clone(download_cache_dir, "https://github.com/torvalds/linux.git")?,
+        macos => {
+            clone(download_cache_dir, "https://github.com/apple-oss-distributions/Libc.git")?;
+            clone(download_cache_dir, "https://github.com/apple-oss-distributions/libpthread.git")?;
+            clone(download_cache_dir, "https://github.com/apple-oss-distributions/xnu.git")?
+        }
         openbsd => clone(download_cache_dir, "https://github.com/openbsd/src.git")?,
         _ => todo!("{target:?}"),
     };
@@ -238,6 +271,12 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
 fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
     match target.os {
         linux | android => {}
+        macos => {
+            // https://github.com/apple-oss-distributions/xnu/blob/xnu-8792.81.2/bsd/sys/make_symbol_aliasing.sh
+            // https://github.com/apple-oss-distributions/xnu/blob/xnu-8792.81.2/bsd/sys/make_posix_availability.sh#L68
+            fs::write(src_dir.join("bsd/sys/_symbol_aliasing.h"), "")?;
+            fs::write(src_dir.join("bsd/sys/_posix_availability.h"), "")?;
+        }
         openbsd => {
             let arch = match target.arch {
                 aarch64 => "arm64",

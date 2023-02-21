@@ -55,6 +55,7 @@ isync
 ldaxp
 ldxp
 libcalls
+libpthread
 libtcl
 libtest
 lqarx
@@ -74,8 +75,10 @@ newtype
 nographic
 nostdinc
 opensbi
+osfmk
 osxsave
 picolibc
+posix
 prefetcher
 PRIMASK
 quadword
