@@ -46,6 +46,7 @@ mod ffi {
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
     #[cfg(target_os = "android")]
     pub(crate) type c_int = i32;
+    // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
     // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
     #[cfg(target_pointer_width = "64")]
     pub(crate) type c_ulong = u64;
@@ -60,6 +61,7 @@ mod ffi {
         pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
 
         // Defined in sys/system_properties.h.
+        // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
         // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
         #[cfg(target_os = "android")]
         pub(crate) fn __system_property_get(__name: *const c_char, __value: *mut c_char) -> c_int;
@@ -73,7 +75,7 @@ mod ffi {
     pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
 
     // Defined in sys/system_properties.h.
-    // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L2760
+    // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
     #[cfg(target_os = "android")]
     pub(crate) const PROP_VALUE_MAX: c_int = 92;
 }
@@ -105,10 +107,10 @@ fn _detect(info: &mut CpuInfo) {
     // aarch64 linux-gnu/android. See also the module level docs.
     let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
 
-    // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
     if hwcap & ffi::HWCAP_ATOMICS != 0 {
         info.set(CpuInfo::HAS_LSE);
     }
+    // we currently only use FEAT_LSE in outline-atomics.
     #[cfg(test)]
     {
         if hwcap & ffi::HWCAP_USCAT != 0 {

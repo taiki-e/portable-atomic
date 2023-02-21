@@ -94,7 +94,7 @@ fn _detect(info: &mut CpuInfo) {
     } {
         info.set(CpuInfo::HAS_LSE);
     }
-
+    // we currently only use FEAT_LSE in outline-atomics.
     #[cfg(test)]
     {
         // SAFETY: we passed a valid C string.
@@ -124,7 +124,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_detect() {
+    fn test_macos() {
         unsafe {
             assert_eq!(sysctlbyname32(b"hw.optional.armv8_1_atomics\0"), Some(1));
             assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LSE\0"), Some(1));

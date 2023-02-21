@@ -10,18 +10,18 @@
 // - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
 //
 // Supported platforms:
-// - Linux 4.11+
+// - Linux 4.11+ (emulate mrs instruction)
 //   https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
-// - FreeBSD 12.0+
+// - FreeBSD 12.0+ (emulate mrs instruction)
 //   https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
 // - OpenBSD 7.1+ (through sysctl)
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
 // For now, this module is only used on FreeBSD/OpenBSD.
-// On Linux, this module is test only because this approach requires a higher
-// kernel version than Rust supports, and also does not work with qemu-user
-// (as of QEMU 7.2) and Valgrind. (Looking into HWCAP_CPUID in auxvec, it appears
-// that Valgrind is setting it to false correctly, but qemu-user is setting it to true.)
+// - On Linux, this module is test-only because this approach requires a higher
+//   kernel version than Rust supports, and also does not work with qemu-user
+//   (as of QEMU 7.2) and Valgrind. (Looking into HWCAP_CPUID in auxvec, it appears
+//   that Valgrind is setting it to false correctly, but qemu-user is setting it to true.)
 
 #![cfg_attr(
     any(
@@ -56,6 +56,7 @@ fn _detect(info: &mut CpuInfo) {
     let atomic = extract(aa64isar0, 23, 20);
     if atomic >= 2 {
         info.set(CpuInfo::HAS_LSE);
+        // we currently only use FEAT_LSE in outline-atomics.
         #[cfg(test)]
         {
             if atomic >= 3 {
@@ -63,7 +64,7 @@ fn _detect(info: &mut CpuInfo) {
             }
         }
     }
-
+    // we currently only use FEAT_LSE in outline-atomics.
     #[cfg(test)]
     {
         // ID_AA64ISAR1_EL1, Instruction Set Attribute Register 1
@@ -256,14 +257,16 @@ mod tests {
             let output = Command::new("sysctl").arg("machdep").output().unwrap();
             assert!(output.status.success());
             let stdout = String::from_utf8(output.stdout).unwrap();
+            // OpenBSD 7.1+
             assert_eq!(
-                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar0=")).unwrap(),
+                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar0=")).unwrap_or("0"),
                 aa64isar0.to_string(),
             );
             assert_eq!(
-                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar1=")).unwrap(),
+                stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64isar1=")).unwrap_or("0"),
                 aa64isar1.to_string(),
             );
+            // OpenBSD 7.3+
             assert_eq!(
                 stdout.lines().find_map(|s| s.strip_prefix("machdep.id_aa64mmfr2=")).unwrap_or("0"),
                 aa64mmfr2.to_string(),

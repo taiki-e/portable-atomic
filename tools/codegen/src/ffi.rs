@@ -36,6 +36,7 @@ static TARGETS: &[Target] = &[
             // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
             // https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/include/sys/auxv.h
             // https://github.com/picolibc/picolibc/blob/HEAD/newlib/libc/picolib/getauxval.c
+            // TODO(android): __system_property_get, PROP_VALUE_MAX
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "include/uapi/linux/auxvec.h",
@@ -273,7 +274,7 @@ fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
         linux | android => {}
         macos => {
             // https://github.com/apple-oss-distributions/xnu/blob/xnu-8792.81.2/bsd/sys/make_symbol_aliasing.sh
-            // https://github.com/apple-oss-distributions/xnu/blob/xnu-8792.81.2/bsd/sys/make_posix_availability.sh#L68
+            // https://github.com/apple-oss-distributions/xnu/blob/xnu-8792.81.2/bsd/sys/make_posix_availability.sh
             fs::write(src_dir.join("bsd/sys/_symbol_aliasing.h"), "")?;
             fs::write(src_dir.join("bsd/sys/_posix_availability.h"), "")?;
         }
