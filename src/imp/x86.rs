@@ -23,7 +23,7 @@ macro_rules! ptr_modifier {
 }
 
 macro_rules! atomic_int {
-    (uint, $atomic_type:ident, $int_type:ident, $val_reg:tt, $val_modifier:tt, $ptr_size:tt) => {
+    (uint, $atomic_type:ident, $int_type:ident, $val_reg:ident, $val_modifier:tt, $ptr_size:tt) => {
         impl imp::$atomic_type {
             #[inline]
             pub(crate) fn not(&self, _order: Ordering) {
@@ -53,7 +53,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (int, $atomic_type:ident, $int_type:ident, $val_reg:tt, $val_modifier:tt, $ptr_size:tt) => {
+    (int, $atomic_type:ident, $int_type:ident, $val_reg:ident, $val_modifier:tt, $ptr_size:tt) => {
         atomic_int!(uint, $atomic_type, $int_type, $val_reg, $val_modifier, $ptr_size);
         impl imp::$atomic_type {
             #[inline]

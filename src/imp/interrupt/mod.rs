@@ -418,7 +418,7 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    (base, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (base, $atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -457,7 +457,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    ($kind:ident, load_store_atomic, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    ($kind:ident, load_store_atomic, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
         atomic_int!($kind, cas, $atomic_type, $int_type);
         impl $atomic_type {
@@ -554,7 +554,11 @@ macro_rules! atomic_int {
         }
     };
     (
-        $kind:ident, load_store_critical_session, $atomic_type:ident, $int_type:ident, $align:expr
+        $kind:ident,
+        load_store_critical_session,
+        $atomic_type:ident,
+        $int_type:ident,
+        $align:literal
     ) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
         atomic_int!($kind, cas, $atomic_type, $int_type);

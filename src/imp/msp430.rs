@@ -213,7 +213,7 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    ($atomic_type:ident, $int_type:ident, $asm_suffix:expr) => {
+    ($atomic_type:ident, $int_type:ident, $asm_suffix:tt) => {
         #[cfg(any(test, not(feature = "critical-section")))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type {

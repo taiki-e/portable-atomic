@@ -32,7 +32,7 @@ fn lock(addr: usize) -> &'static SeqLock {
 }
 
 macro_rules! atomic {
-    (uint, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -319,7 +319,7 @@ macro_rules! atomic {
             }
         }
     };
-    (int, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic!(uint, $atomic_type, $int_type, $align);
         impl $atomic_type {
             #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]

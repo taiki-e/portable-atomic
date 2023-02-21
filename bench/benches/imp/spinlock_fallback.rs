@@ -74,7 +74,7 @@ fn lock(addr: usize) -> SpinlockGuard<'static> {
 }
 
 macro_rules! atomic_int {
-    (uint, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -295,7 +295,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (int, $atomic_type:ident, $int_type:ident, $align:expr) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(uint, $atomic_type, $int_type, $align);
         impl $atomic_type {
             #[inline]

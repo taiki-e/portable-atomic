@@ -6,7 +6,11 @@ use core::sync::atomic::Ordering;
 
 macro_rules! atomic_float {
     (
-        $atomic_type:ident, $float_type:ident, $atomic_int_type:ident, $int_type:ident, $align:expr
+        $atomic_type:ident,
+        $float_type:ident,
+        $atomic_int_type:ident,
+        $int_type:ident,
+        $align:literal
     ) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {

@@ -18,7 +18,7 @@ macro_rules! static_assert {
 }
 
 macro_rules! static_assert_layout {
-    ($atomic_type:ty, $value_type:ident, $align:expr) => {
+    ($atomic_type:ty, $value_type:ident, $align:literal) => {
         static_assert!(
             core::mem::align_of::<$atomic_type>() == core::mem::size_of::<$atomic_type>()
         );

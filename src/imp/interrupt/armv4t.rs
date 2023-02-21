@@ -118,7 +118,7 @@ pub(crate) mod atomic {
     }
 
     macro_rules! atomic_int {
-        ($atomic_type:ident, $int_type:ident, $asm_suffix:expr) => {
+        ($atomic_type:ident, $int_type:ident, $asm_suffix:tt) => {
             #[repr(transparent)]
             pub(crate) struct $atomic_type {
                 v: UnsafeCell<$int_type>,

@@ -2422,36 +2422,34 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    (AtomicU8, $int_type:ident, $align:expr) => {
+    (AtomicU8, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicU8, $int_type, $align);
     };
-    (AtomicU16, $int_type:ident, $align:expr) => {
+    (AtomicU16, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicU16, $int_type, $align);
     };
-    (AtomicU32, $int_type:ident, $align:expr) => {
+    (AtomicU32, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicU32, $int_type, $align);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
     };
-    (AtomicU64, $int_type:ident, $align:expr) => {
+    (AtomicU64, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicU64, $int_type, $align);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
     };
-    (AtomicU128, $int_type:ident, $align:expr) => {
+    (AtomicU128, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicU128, $int_type, $align);
     };
-    (AtomicUsize, $int_type:ident, $align:expr) => {
+    (AtomicUsize, $int_type:ident, $align:literal) => {
         atomic_int!(uint, AtomicUsize, $int_type, $align);
     };
-    ($atomic_type:ident, $int_type:ident, $align:expr) => {
+    ($atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(int, $atomic_type, $int_type, $align);
     };
 
     // Atomic{I,U}* impls
-    (uint,
-        $atomic_type:ident, $int_type:ident, $align:expr
-    ) => {
+    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
 
@@ -3732,9 +3730,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
     };
 
     // AtomicI* impls
-    (int,
-        $atomic_type:ident, $int_type:ident, $align:expr
-    ) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(uint, $atomic_type, $int_type, $align);
 
         impl $atomic_type {
@@ -3840,7 +3836,11 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
 
     // AtomicF* impls
     (float,
-        $atomic_type:ident, $float_type:ident, $atomic_int_type:ident, $int_type:ident, $align:expr
+        $atomic_type:ident,
+        $float_type:ident,
+        $atomic_int_type:ident,
+        $int_type:ident,
+        $align:literal
     ) => {
         doc_comment! {
             concat!("A floating point type which can be safely shared between threads.
