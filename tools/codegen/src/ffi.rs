@@ -8,13 +8,14 @@
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
-use std::ffi::OsStr;
+use std::{collections::BTreeSet, ffi::OsStr};
 
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
 use fs_err as fs;
 use quote::{format_ident, quote};
+use regex::Regex;
 
 use crate::{
     file::{self, workspace_root},
@@ -108,7 +109,7 @@ pub(crate) fn gen() -> Result<()> {
     let raw_line = file::header(function_name!());
     let raw_line = raw_line.strip_suffix("\n\n#![cfg_attr(rustfmt, rustfmt::skip)]\n").unwrap();
 
-    let mut modules = vec![];
+    let mut target_modules = vec![];
     for &Target { triples, headers } in TARGETS {
         for triple in triples {
             let target = &target_spec_json(triple)?;
@@ -128,7 +129,7 @@ pub(crate) fn gen() -> Result<()> {
                     let width = &target.target_pointer_width;
                     cfg.extend(quote! { , target_pointer_width = #width });
                 }
-                modules.push(quote! {
+                target_modules.push(quote! {
                     #[cfg(all(#cfg))]
                     mod #module_name;
                     #[cfg(all(#cfg))]
@@ -173,12 +174,15 @@ pub(crate) fn gen() -> Result<()> {
 
             let mut files = vec![];
             for &header in headers {
+                let functions = header.functions.join("|");
+                let types = header.types.join("|");
+                let vars = header.vars.join("|");
+
                 let out_file = format!(
                     "{}.rs",
                     Utf8PathBuf::from(header.path.replace('/', "_")).file_stem().unwrap()
                 );
                 let out_path = out_dir.join(&out_file);
-                files.push(out_file);
 
                 let header_path = match target.os {
                     linux | android => src_dir.join(header.path),
@@ -197,22 +201,62 @@ pub(crate) fn gen() -> Result<()> {
                     .use_core()
                     .header(header_path.as_str())
                     .clang_args(&clang_args)
-                    .allowlist_function(header.functions.join("|"))
-                    .allowlist_type(header.types.join("|"))
-                    .allowlist_var(header.vars.join("|"))
+                    .allowlist_function(&functions)
+                    .allowlist_type(&types)
+                    .allowlist_var(&vars)
                     .raw_line(raw_line)
                     .generate()
                     .with_context(|| format!("failed to generate for {}", header.path))?;
                 bindings
                     .write_to_file(out_path)
                     .with_context(|| format!("failed to write_to_file for {}", header.path))?;
+
+                files.push((out_file, functions, types, vars));
             }
-            let modules = files.iter().map(|path| {
-                let name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
-                quote! {
-                    pub mod #name;
+            let mut modules = vec![];
+            for (path, functions, types, vars) in &files {
+                let module_name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
+                // Only export matched names because the module may contain type def.
+                let mut uses = BTreeSet::new();
+                let functions = Regex::new(&format!("^({functions})$"))?;
+                let types = Regex::new(&format!("^({types})$"))?;
+                let vars = Regex::new(&format!("^({vars})$"))?;
+                let f = syn::parse_file(&fs::read_to_string(out_dir.join(path))?)?;
+                for i in f.items {
+                    match i {
+                        syn::Item::ForeignMod(i) => {
+                            for i in i.items {
+                                match i {
+                                    syn::ForeignItem::Fn(i)
+                                        if matches!(i.vis, syn::Visibility::Public(..))
+                                            && functions.is_match(&i.sig.ident.to_string()) =>
+                                    {
+                                        uses.insert(format_ident!("{}", i.sig.ident));
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        }
+                        syn::Item::Type(i)
+                            if matches!(i.vis, syn::Visibility::Public(..))
+                                && types.is_match(&i.ident.to_string()) =>
+                        {
+                            uses.insert(format_ident!("{}", i.ident));
+                        }
+                        syn::Item::Const(i)
+                            if matches!(i.vis, syn::Visibility::Public(..))
+                                && vars.is_match(&i.ident.to_string()) =>
+                        {
+                            uses.insert(format_ident!("{}", i.ident));
+                        }
+                        _ => {}
+                    }
                 }
-            });
+                modules.push(quote! {
+                    mod #module_name;
+                    pub use #module_name::{#(#uses),*};
+                });
+            }
             file::write(function_name!(), out_dir.join("mod.rs"), quote! { #(#modules)* })?;
         }
     }
@@ -224,7 +268,7 @@ pub(crate) fn gen() -> Result<()> {
             unused_imports,
             clippy::unreadable_literal,
         )]
-        #(#modules)*
+        #(#target_modules)*
     })?;
     Ok(())
 }

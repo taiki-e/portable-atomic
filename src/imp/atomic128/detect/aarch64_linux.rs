@@ -167,7 +167,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use test_helper::{libc, sys::*};
+        use test_helper::{libc, sys};
         #[cfg(target_os = "android")]
         let _: ffi::c_char = 0 as std::os::raw::c_char;
         #[cfg(target_os = "android")]
@@ -189,15 +189,11 @@ mod tests {
             ___system_property_get = libc::__system_property_get;
         }
         static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
-        static_assert!(ffi::AT_HWCAP == include_uapi_linux_auxvec::AT_HWCAP as ffi::c_ulong);
+        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as ffi::c_ulong);
         static_assert!(ffi::HWCAP_ATOMICS == libc::HWCAP_ATOMICS);
-        static_assert!(
-            ffi::HWCAP_ATOMICS == arch_arm64_include_uapi_asm_hwcap::HWCAP_ATOMICS as ffi::c_ulong
-        );
+        static_assert!(ffi::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
         static_assert!(ffi::HWCAP_USCAT == libc::HWCAP_USCAT);
-        static_assert!(
-            ffi::HWCAP_USCAT == arch_arm64_include_uapi_asm_hwcap::HWCAP_USCAT as ffi::c_ulong
-        );
+        static_assert!(ffi::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
         #[cfg(target_os = "android")]
         static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
     };

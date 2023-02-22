@@ -3,5 +3,7 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-pub mod include_uapi_linux_auxvec;
-pub mod arch_arm64_include_uapi_asm_hwcap;
+mod include_uapi_linux_auxvec;
+pub use include_uapi_linux_auxvec::AT_HWCAP;
+mod arch_arm64_include_uapi_asm_hwcap;
+pub use arch_arm64_include_uapi_asm_hwcap::{HWCAP_ATOMICS, HWCAP_CPUID, HWCAP_USCAT};

@@ -305,7 +305,7 @@ mod tests {
     )]
     const _: fn() = || {
         use imp::ffi;
-        use test_helper::{libc, sys::*};
+        use test_helper::{libc, sys};
         let _: ffi::c_int = 0 as std::os::raw::c_int;
         let _: ffi::c_uint = 0 as std::os::raw::c_uint;
         let _: ffi::c_int = 0 as libc::c_int;
@@ -320,14 +320,14 @@ mod tests {
             ffi::c_size_t,
         ) -> ffi::c_int = ffi::sysctl;
         _sysctl = libc::sysctl;
-        _sysctl = sys_sysctl::sysctl;
+        _sysctl = sys::sysctl;
         static_assert!(ffi::CTL_MACHDEP == libc::CTL_MACHDEP);
-        static_assert!(ffi::CTL_MACHDEP == sys_sysctl::CTL_MACHDEP as ffi::c_int);
+        static_assert!(ffi::CTL_MACHDEP == sys::CTL_MACHDEP as ffi::c_int);
         // static_assert!(ffi::CPU_ID_AA64ISAR0 == libc::CPU_ID_AA64ISAR0); // libc doesn't have this
-        static_assert!(ffi::CPU_ID_AA64ISAR0 == machine_cpu::CPU_ID_AA64ISAR0 as ffi::c_int);
+        static_assert!(ffi::CPU_ID_AA64ISAR0 == sys::CPU_ID_AA64ISAR0 as ffi::c_int);
         // static_assert!(ffi::CPU_ID_AA64ISAR1 == libc::CPU_ID_AA64ISAR1); // libc doesn't have this
-        static_assert!(ffi::CPU_ID_AA64ISAR1 == machine_cpu::CPU_ID_AA64ISAR1 as ffi::c_int);
+        static_assert!(ffi::CPU_ID_AA64ISAR1 == sys::CPU_ID_AA64ISAR1 as ffi::c_int);
         // static_assert!(ffi::CPU_ID_AA64MMFR2 == libc::CPU_ID_AA64MMFR2); // libc doesn't have this
-        static_assert!(ffi::CPU_ID_AA64MMFR2 == machine_cpu::CPU_ID_AA64MMFR2 as ffi::c_int);
+        static_assert!(ffi::CPU_ID_AA64MMFR2 == sys::CPU_ID_AA64MMFR2 as ffi::c_int);
     };
 }

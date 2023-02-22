@@ -3,5 +3,11 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-pub mod sys_sysctl;
-pub mod machine_cpu;
+mod sys_sysctl;
+pub use sys_sysctl::{CTL_MACHDEP, sysctl};
+mod machine_cpu;
+pub use machine_cpu::{
+    CPU_ID_AA64ISAR0, CPU_ID_AA64ISAR1, CPU_ID_AA64ISAR2, CPU_ID_AA64MMFR0,
+    CPU_ID_AA64MMFR1, CPU_ID_AA64MMFR2, CPU_ID_AA64PFR0, CPU_ID_AA64PFR1,
+    CPU_ID_AA64SMFR0, CPU_ID_AA64ZFR0,
+};
