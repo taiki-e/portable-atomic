@@ -9,7 +9,7 @@ trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 git config user.name "Taiki Endo"
 git config user.email "te316e89@gmail.com"
 
-for path in no_atomic.rs src/tests/gen/sys/*; do
+for path in no_atomic.rs tests/helper/src/gen/sys/*; do
     git add -N "${path}"
     if ! git diff --exit-code -- "${path}"; then
         git add "${path}"
