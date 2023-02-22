@@ -47,8 +47,8 @@
   ],
   "ignorePaths": [
     "target-specs/**",
+    "tests/helper/src/gen/**",
     "tools/codegen/patches/**",
-    "src/tests/gen/sys/**",
     "**/*.ld"
   ]
 }

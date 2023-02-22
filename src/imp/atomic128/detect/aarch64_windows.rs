@@ -71,6 +71,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
+        use test_helper::windows_sys;
         let _: ffi::DWORD = 0 as windows_sys::Win32::System::Threading::PROCESSOR_FEATURE_ID;
         let _: ffi::BOOL = 0 as windows_sys::Win32::Foundation::BOOL;
         let mut _sysctl: unsafe extern "system" fn(ffi::DWORD) -> ffi::BOOL =

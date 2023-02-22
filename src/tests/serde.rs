@@ -1,19 +1,7 @@
-use std::fmt;
-
 use crate::*;
 
-use ::serde::{Deserialize, Serialize};
 use serde_test::{assert_tokens, Token};
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(transparent)]
-struct DebugPartialEq<T>(T);
-
-impl<T: fmt::Debug> PartialEq for DebugPartialEq<T> {
-    fn eq(&self, other: &Self) -> bool {
-        std::format!("{:?}", self) == std::format!("{:?}", other)
-    }
-}
+use test_helper::serde::DebugPartialEq;
 
 macro_rules! t {
     ($atomic_type:ty, $value_type:ident, $token_type:ident) => {

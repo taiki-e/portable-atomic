@@ -12,6 +12,7 @@ float = ["portable-atomic/float"]
 
 [dependencies]
 portable-atomic = { path = "../.." }
+test-helper = { path = "../helper" }
 
 fdt = "0.1"
 paste = "1"

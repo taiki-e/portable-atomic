@@ -43,9 +43,7 @@ unsafe impl critical_section::Impl for StdCriticalSection {
                     err.into_inner()
                 }
             };
-            unsafe {
-                GLOBAL_GUARD.get().write(MaybeUninit::new(guard));
-            }
+            GLOBAL_GUARD.get().write(MaybeUninit::new(guard));
 
             false
         })
@@ -56,9 +54,7 @@ unsafe impl critical_section::Impl for StdCriticalSection {
             // SAFETY: As per the acquire/release safety contract, release can only be called
             // if the critical section is acquired in the current thread,
             // in which case we know the GLOBAL_GUARD is initialized.
-            unsafe {
-                GLOBAL_GUARD.get().cast::<MutexGuard<'static, ()>>().drop_in_place();
-            }
+            GLOBAL_GUARD.get().cast::<MutexGuard<'static, ()>>().drop_in_place();
 
             // Note: it is fine to clear this flag *after* releasing the mutex because it's thread local.
             // No other thread can see its value, there's no potential for races.

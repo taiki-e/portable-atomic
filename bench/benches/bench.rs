@@ -21,8 +21,6 @@ mod utils;
 mod tests {
     #[macro_use]
     pub(crate) mod helper;
-    #[path = "gen/sys/mod.rs"]
-    pub(crate) mod sys;
 }
 
 #[cfg(target_arch = "aarch64")]

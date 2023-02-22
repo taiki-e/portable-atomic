@@ -2,6 +2,10 @@
 
 use core::{ops, sync::atomic::Ordering};
 
+pub(crate) use test_helper::{
+    compare_exchange_orderings, load_orderings, store_orderings, swap_orderings,
+};
+
 macro_rules! __test_atomic_common {
     ($atomic_type:ty, $value_type:ty) => {
         #[allow(clippy::extra_unused_type_parameters)] // https://github.com/rust-lang/rust-clippy/issues/10319
@@ -1832,9 +1836,6 @@ pub(crate) fn assert_panic<T: std::fmt::Debug>(f: impl FnOnce() -> T) -> std::st
         .cloned()
         .unwrap_or_else(|| msg.downcast_ref::<&'static str>().copied().unwrap().into())
 }
-pub(crate) fn load_orderings() -> [Ordering; 3] {
-    [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst]
-}
 pub(crate) fn rand_load_ordering() -> Ordering {
     load_orderings()[fastrand::usize(0..load_orderings().len())]
 }
@@ -1854,9 +1855,6 @@ pub(crate) fn test_load_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
         );
     }
 }
-pub(crate) fn store_orderings() -> [Ordering; 3] {
-    [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst]
-}
 pub(crate) fn rand_store_ordering() -> Ordering {
     store_orderings()[fastrand::usize(0..store_orderings().len())]
 }
@@ -1875,25 +1873,6 @@ pub(crate) fn test_store_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T)
             "there is no such thing as an acquire-release store"
         );
     }
-}
-pub(crate) fn compare_exchange_orderings() -> [(Ordering, Ordering); 15] {
-    [
-        (Ordering::Relaxed, Ordering::Relaxed),
-        (Ordering::Relaxed, Ordering::Acquire),
-        (Ordering::Relaxed, Ordering::SeqCst),
-        (Ordering::Acquire, Ordering::Relaxed),
-        (Ordering::Acquire, Ordering::Acquire),
-        (Ordering::Acquire, Ordering::SeqCst),
-        (Ordering::Release, Ordering::Relaxed),
-        (Ordering::Release, Ordering::Acquire),
-        (Ordering::Release, Ordering::SeqCst),
-        (Ordering::AcqRel, Ordering::Relaxed),
-        (Ordering::AcqRel, Ordering::Acquire),
-        (Ordering::AcqRel, Ordering::SeqCst),
-        (Ordering::SeqCst, Ordering::Relaxed),
-        (Ordering::SeqCst, Ordering::Acquire),
-        (Ordering::SeqCst, Ordering::SeqCst),
-    ]
 }
 pub(crate) fn rand_compare_exchange_ordering() -> (Ordering, Ordering) {
     compare_exchange_orderings()[fastrand::usize(0..compare_exchange_orderings().len())]
@@ -1923,9 +1902,6 @@ pub(crate) fn test_compare_exchange_ordering<T: std::fmt::Debug>(
             );
         }
     }
-}
-pub(crate) fn swap_orderings() -> [Ordering; 5] {
-    [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
 }
 pub(crate) fn rand_swap_ordering() -> Ordering {
     swap_orderings()[fastrand::usize(0..swap_orderings().len())]

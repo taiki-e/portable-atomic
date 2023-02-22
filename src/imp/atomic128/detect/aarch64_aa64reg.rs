@@ -304,8 +304,8 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use crate::tests::sys::*;
         use imp::ffi;
+        use test_helper::{libc, sys::*};
         let _: ffi::c_int = 0 as std::os::raw::c_int;
         let _: ffi::c_uint = 0 as std::os::raw::c_uint;
         let _: ffi::c_int = 0 as libc::c_int;

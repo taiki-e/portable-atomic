@@ -3,5 +3,5 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-pub(crate) mod include_uapi_linux_auxvec;
-pub(crate) mod arch_arm64_include_uapi_asm_hwcap;
+pub mod include_uapi_linux_auxvec;
+pub mod arch_arm64_include_uapi_asm_hwcap;

@@ -11,6 +11,8 @@ fallback = []
 std = []
 
 [dev-dependencies]
+test-helper = { path = "../tests/helper", features = ["std"] }
+
 atomic = "0.5"
 criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # reduce deps
 crossbeam-utils = "0.8"
@@ -18,15 +20,6 @@ fastrand = "1"
 paste = "1"
 quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" }  # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
 static_assertions = "1"
-
-[target.'cfg(unix)'.dev-dependencies]
-libc = "0.2"
-
-[target.'cfg(windows)'.dev-dependencies]
-windows-sys = { version = "0.45", features = [
-    "Win32_Foundation",
-    "Win32_System_Threading",
-] }
 
 [[bench]]
 name = "bench"

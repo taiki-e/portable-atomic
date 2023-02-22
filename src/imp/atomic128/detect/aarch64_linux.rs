@@ -167,7 +167,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use crate::tests::sys::*;
+        use test_helper::{libc, sys::*};
         #[cfg(target_os = "android")]
         let _: ffi::c_char = 0 as std::os::raw::c_char;
         #[cfg(target_os = "android")]

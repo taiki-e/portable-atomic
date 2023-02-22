@@ -104,7 +104,7 @@ pub(crate) fn gen() -> Result<()> {
     let workspace_root = &workspace_root();
     let download_cache_dir = &workspace_root.join("tools/codegen/tmp/cache");
     fs::create_dir_all(download_cache_dir)?;
-    let out_dir = &workspace_root.join("src/tests/gen/sys");
+    let out_dir = &workspace_root.join("tests/helper/src/gen/sys");
     let raw_line = file::header(function_name!());
     let raw_line = raw_line.strip_suffix("\n\n#![cfg_attr(rustfmt, rustfmt::skip)]\n").unwrap();
 
@@ -132,7 +132,7 @@ pub(crate) fn gen() -> Result<()> {
                     #[cfg(all(#cfg))]
                     mod #module_name;
                     #[cfg(all(#cfg))]
-                    pub(crate) use #module_name::*;
+                    pub use #module_name::*;
                 });
             }
             fs::create_dir_all(out_dir)?;
@@ -210,7 +210,7 @@ pub(crate) fn gen() -> Result<()> {
             let modules = files.iter().map(|path| {
                 let name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
                 quote! {
-                    pub(crate) mod #name;
+                    pub mod #name;
                 }
             });
             file::write(function_name!(), out_dir.join("mod.rs"), quote! { #(#modules)* })?;

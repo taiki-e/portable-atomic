@@ -3,4 +3,5 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-pub(crate) mod sys_sysctl;
+pub mod sys_sysctl;
+pub mod machine_cpu;

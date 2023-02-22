@@ -1,0 +1,28 @@
+[package]
+name = "test-helper"
+version = "0.0.0"
+edition = "2018"
+rust-version = "1.34"
+publish = false
+
+[lib]
+doctest = false
+doc = false
+
+[features]
+std = ["critical-section", "fs-err", "once_cell", "serde", "libc", "windows-sys"]
+
+[dependencies]
+critical-section = { version = "1", optional = true, features = ["restore-state-bool"] }
+fs-err = { version = "2", optional = true }
+once_cell = { version = "1", optional = true }
+serde = { version = "1", optional = true, features = ["derive"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.45", optional = true, features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+] }

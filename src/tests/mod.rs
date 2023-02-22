@@ -10,13 +10,8 @@
 #[macro_use]
 pub(crate) mod helper;
 
-#[cfg(feature = "critical-section")]
-mod critical_section_std;
 #[cfg(feature = "serde")]
 mod serde;
-
-#[path = "gen/sys/mod.rs"]
-pub(crate) mod sys;
 
 #[allow(dead_code)]
 #[path = "../../version.rs"]

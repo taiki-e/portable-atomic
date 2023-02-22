@@ -27,7 +27,7 @@ mod aarch64_linux_gnu;
         target_pointer_width = "64"
     )
 )]
-pub(crate) use aarch64_linux_gnu::*;
+pub use aarch64_linux_gnu::*;
 #[cfg(
     all(
         target_arch = "aarch64",
@@ -45,16 +45,16 @@ mod aarch64_linux_gnu_ilp32;
         target_pointer_width = "32"
     )
 )]
-pub(crate) use aarch64_linux_gnu_ilp32::*;
+pub use aarch64_linux_gnu_ilp32::*;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
 mod aarch64_linux_android;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-pub(crate) use aarch64_linux_android::*;
+pub use aarch64_linux_android::*;
 #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
 mod aarch64_apple_darwin;
 #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
-pub(crate) use aarch64_apple_darwin::*;
+pub use aarch64_apple_darwin::*;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
 mod aarch64_openbsd;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
-pub(crate) use aarch64_openbsd::*;
+pub use aarch64_openbsd::*;
