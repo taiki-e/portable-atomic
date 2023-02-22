@@ -35,49 +35,8 @@
 
 include!("common.rs");
 
-// core::ffi::c_* (except c_void) requires Rust 1.64
-#[allow(non_camel_case_types)]
-mod ffi {
-    // c_char is u8 on aarch64 Linux/Android
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
-    #[cfg(target_os = "android")]
-    pub(crate) type c_char = u8;
-    // c_{,u}int is {i,u}32 on non-16-bit architectures
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
-    #[cfg(target_os = "android")]
-    pub(crate) type c_int = i32;
-    // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
-    #[cfg(target_pointer_width = "64")]
-    pub(crate) type c_ulong = u64;
-    #[cfg(target_pointer_width = "32")]
-    pub(crate) type c_ulong = u32;
-
-    extern "C" {
-        // https://man7.org/linux/man-pages/man3/getauxval.3.html
-        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
-        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
-        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
-        pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
-
-        // Defined in sys/system_properties.h.
-        // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
-        // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
-        #[cfg(target_os = "android")]
-        pub(crate) fn __system_property_get(__name: *const c_char, __value: *mut c_char) -> c_int;
-    }
-
-    // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
-    pub(crate) const AT_HWCAP: c_ulong = 16;
-    // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
-    pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
-    #[cfg(test)]
-    pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
-
-    // Defined in sys/system_properties.h.
-    // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
-    #[cfg(target_os = "android")]
-    pub(crate) const PROP_VALUE_MAX: c_int = 92;
+struct AuxVec {
+    hwcap: ffi::c_ulong,
 }
 
 #[inline]
@@ -103,9 +62,7 @@ fn _detect(info: &mut CpuInfo) {
         }
     }
 
-    // SAFETY: `getauxval` is thread-safe and is available in all versions on
-    // aarch64 linux-gnu/android. See also the module level docs.
-    let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
+    let AuxVec { hwcap } = imp::auxv();
 
     if hwcap & ffi::HWCAP_ATOMICS != 0 {
         info.set(CpuInfo::HAS_LSE);
@@ -116,6 +73,68 @@ fn _detect(info: &mut CpuInfo) {
         if hwcap & ffi::HWCAP_USCAT != 0 {
             info.set(CpuInfo::HAS_LSE2);
         }
+    }
+}
+
+use imp::ffi;
+#[cfg(any(target_os = "linux", target_os = "android"))]
+mod imp {
+    use super::AuxVec;
+
+    // core::ffi::c_* (except c_void) requires Rust 1.64
+    #[allow(non_camel_case_types)]
+    pub(super) mod ffi {
+        // c_char is u8 on aarch64 Linux/Android
+        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
+        #[cfg(target_os = "android")]
+        pub(crate) type c_char = u8;
+        // c_{,u}int is {i,u}32 on non-16-bit architectures
+        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+        #[cfg(target_os = "android")]
+        pub(crate) type c_int = i32;
+        // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
+        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
+        #[cfg(target_pointer_width = "64")]
+        pub(crate) type c_ulong = u64;
+        #[cfg(target_pointer_width = "32")]
+        pub(crate) type c_ulong = u32;
+
+        extern "C" {
+            // https://man7.org/linux/man-pages/man3/getauxval.3.html
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
+            pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
+
+            // Defined in sys/system_properties.h.
+            // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
+            #[cfg(target_os = "android")]
+            pub(crate) fn __system_property_get(
+                __name: *const c_char,
+                __value: *mut c_char,
+            ) -> c_int;
+        }
+
+        // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
+        pub(crate) const AT_HWCAP: c_ulong = 16;
+        // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
+        pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
+        #[cfg(test)]
+        pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
+
+        // Defined in sys/system_properties.h.
+        // https://github.com/aosp-mirror/platform_bionic/blob/5fb10ce72de5f09b22a7096b4981664e24dd1734/libc/include/sys/system_properties.h
+        #[cfg(target_os = "android")]
+        pub(crate) const PROP_VALUE_MAX: c_int = 92;
+    }
+
+    #[inline]
+    pub(super) fn auxv() -> AuxVec {
+        // SAFETY: `getauxval` is thread-safe and is available in all versions on
+        // aarch64 linux-gnu/android. See also the module level docs.
+        let hwcap = unsafe { ffi::getauxval(ffi::AT_HWCAP) };
+        AuxVec { hwcap }
     }
 }
 
@@ -160,6 +179,7 @@ mod tests {
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
     // TODO: auto-generate this test
+    #[cfg(any(target_os = "linux", target_os = "android"))]
     #[allow(
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss,
