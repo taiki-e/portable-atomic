@@ -1,7 +1,6 @@
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
-use super::{SeqLock, SeqLockWriteGuard};
-use crate::utils::CachePadded;
+use super::{super::utils::CachePadded, SeqLock, SeqLockWriteGuard};
 
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,

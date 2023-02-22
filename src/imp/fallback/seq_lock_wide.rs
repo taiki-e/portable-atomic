@@ -8,7 +8,7 @@ use core::{
     sync::atomic::{self, AtomicUsize, Ordering},
 };
 
-use crate::utils::Backoff;
+use super::utils::Backoff;
 
 // See imp.rs for details.
 type AtomicChunk = AtomicUsize;

@@ -9,6 +9,8 @@
 // Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
 // type and the value type must be the same.
 
+pub(crate) mod utils;
+
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
 // around.
 //
