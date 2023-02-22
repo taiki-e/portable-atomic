@@ -1334,7 +1334,7 @@ impl AtomicBool {
         self.xor(true, order);
     }
 
-    // TODO: Add as_mut_ptr once it is stable on std atomic types.
+    // TODO: Add as_ptr once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/66893
 
     /// Fetches the value, and applies a function to it that returns an optional
@@ -2386,6 +2386,9 @@ impl<T> AtomicPtr<T> {
             self.as_atomic_usize().fetch_xor(val, order) as *mut T
         }
     }
+
+    // TODO: Add as_ptr once it is stable on std atomic types.
+    // https://github.com/rust-lang/rust/issues/66893
 
     #[cfg(not(miri))]
     #[inline]
@@ -3724,7 +3727,7 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                 }
             }
 
-            // TODO: Add as_mut_ptr once it is stable on std atomic types.
+            // TODO: Add as_ptr once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
         }
     };
@@ -4384,7 +4387,7 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.fetch_abs(order)
             }
 
-            // TODO: Add as_mut_ptr once it is stable on std atomic types.
+            // TODO: Add as_ptr once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/66893
 
             doc_comment! {

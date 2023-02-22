@@ -27,7 +27,7 @@ macro_rules! atomic_int {
         impl imp::$atomic_type {
             #[inline]
             pub(crate) fn not(&self, _order: Ordering) {
-                let dst = self.as_mut_ptr();
+                let dst = self.as_ptr();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 //
@@ -43,7 +43,7 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn as_mut_ptr(&self) -> *mut $int_type {
+            pub(crate) fn as_ptr(&self) -> *mut $int_type {
                 // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
                 // See also https://github.com/rust-lang/rust/pull/66705 and
                 // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
@@ -58,7 +58,7 @@ macro_rules! atomic_int {
         impl imp::$atomic_type {
             #[inline]
             pub(crate) fn neg(&self, _order: Ordering) {
-                let dst = self.as_mut_ptr();
+                let dst = self.as_ptr();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 //
