@@ -6,4 +6,7 @@ updates:
       interval: daily
     commit-message:
       prefix: ''
+    ignore:
+      # see tools/codegen/Cargo.toml
+      - dependency-name: globset
     labels: []
