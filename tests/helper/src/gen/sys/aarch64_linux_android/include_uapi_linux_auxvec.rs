@@ -3,3 +3,4 @@
 // It is not intended for manual editing.
 
 pub const AT_HWCAP: u32 = 16;
+pub const AT_HWCAP2: u32 = 26;

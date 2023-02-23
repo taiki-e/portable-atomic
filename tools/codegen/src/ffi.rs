@@ -42,14 +42,14 @@ static TARGETS: &[Target] = &[
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "include/uapi/linux/auxvec.h",
                 types: &[],
-                vars: &["AT_HWCAP"],
+                vars: &["AT_HWCAP.*"],
                 functions: &[],
             },
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
                 path: "arch/arm64/include/uapi/asm/hwcap.h",
                 types: &[],
-                vars: &["HWCAP_ATOMICS", "HWCAP_CPUID", "HWCAP_USCAT"],
+                vars: &["HWCAP.*"],
                 functions: &[],
             },
         ],
