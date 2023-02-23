@@ -11,7 +11,6 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
-  EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 aarch64_linux_test_task:
   matrix:
@@ -33,7 +32,7 @@ aarch64_linux_test_task:
       setup_script:
         - set -ex
         - lscpu
-        - yum install -y git gcc
+        - yum install -y gcc git
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
     - name: test ($TARGET)
       env:
@@ -42,20 +41,16 @@ aarch64_linux_test_task:
         image: rust:alpine
       setup_script:
         - set -ex
-        - apk --no-cache add git musl-dev util-linux
+        - apk --no-cache add bash git musl-dev util-linux
         - lscpu
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
   test_script:
-    - set -ex
     - |
       [ ! -f $HOME/.cargo/env ] || source $HOME/.cargo/env
-    - cargo test -vv --workspace --all-features           $EXCLUDE
-    - cargo test -vv --workspace --all-features --release $EXCLUDE
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
+    - set -ex
+    - ./tools/test.sh -vv
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features           $EXCLUDE
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release $EXCLUDE
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 
 aarch64_macos_test_task:
@@ -69,11 +64,9 @@ aarch64_macos_test_task:
     - sysctl hw.optional machdep.cpu
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
-    - set -ex
     - source $HOME/.cargo/env
-    - cargo test -vv --workspace --all-features $EXCLUDE
-    - cargo test -vv --workspace --all-features --release $EXCLUDE
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
+    - set -ex
+    - ./tools/test.sh -vv
 
 aarch64_linux_valgrind_task:
   name: valgrind ($TARGET)
@@ -89,19 +82,15 @@ aarch64_linux_valgrind_task:
   setup_script:
     - set -ex
     - lscpu
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind ca-certificates curl gcc git libc6-dev
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
-    - set -ex
     - source $HOME/.cargo/env
+    - set -ex
     # doctests on Valgrind are very slow
-    - cargo test -vv --workspace --all-features           --tests $EXCLUDE
-    - cargo test -vv --workspace --all-features --release --tests $EXCLUDE
-    - CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
+    - ./tools/test.sh -vv --tests
     # +lse
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features           --tests $EXCLUDE
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" cargo test -vv --workspace --all-features --release --tests $EXCLUDE
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 CARGO_PROFILE_RELEASE_LTO=fat cargo test -vv --workspace --all-features --release --tests $EXCLUDE
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
     # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 #
 # aarch64_linux_bench_task:
@@ -132,6 +121,6 @@ aarch64_linux_valgrind_task:
 #     - sysctl hw.optional machdep.cpu
 #     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
 #   bench_script:
-#     - set -ex
 #     - source $HOME/.cargo/env
+#     - set -ex
 #     - cargo bench -vv --manifest-path bench/Cargo.toml
