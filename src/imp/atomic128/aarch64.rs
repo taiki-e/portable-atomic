@@ -49,18 +49,22 @@ include!("macros.rs");
 
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg_attr(
-    any(all(target_os = "linux", target_env = "gnu"), target_os = "android"),
+    any(
+        all(target_os = "linux", target_env = "gnu"),
+        target_os = "android",
+        target_os = "freebsd",
+    ),
     path = "detect/aarch64_auxv.rs"
 )]
+#[cfg_attr(target_os = "openbsd", path = "detect/aarch64_aa64reg.rs")]
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
-#[cfg_attr(any(target_os = "freebsd", target_os = "openbsd"), path = "detect/aarch64_aa64reg.rs")]
 #[cfg_attr(
     not(any(
         all(target_os = "linux", target_env = "gnu"),
         target_os = "android",
-        target_os = "windows",
         target_os = "freebsd",
         target_os = "openbsd",
+        target_os = "windows",
     )),
     path = "detect/aarch64_std.rs"
 )]
@@ -70,7 +74,7 @@ mod detect;
 #[cfg(test)]
 #[cfg(not(qemu))]
 #[cfg(not(valgrind))]
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect_aa64reg;
 #[cfg(test)]
@@ -306,9 +310,9 @@ unsafe fn atomic_compare_exchange(
             feature = "std",
             target_os = "linux",
             target_os = "android",
-            target_os = "windows",
             target_os = "freebsd",
             target_os = "openbsd",
+            target_os = "windows",
         ),
     )))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -321,9 +325,9 @@ unsafe fn atomic_compare_exchange(
             feature = "std",
             target_os = "linux",
             target_os = "android",
-            target_os = "windows",
             target_os = "freebsd",
             target_os = "openbsd",
+            target_os = "windows",
         ),
     ))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]

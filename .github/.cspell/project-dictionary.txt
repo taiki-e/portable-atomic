@@ -92,6 +92,7 @@ sbcs
 seqlock
 sete
 sifive
+SIGILL
 SIGINT
 simavr
 skiboot

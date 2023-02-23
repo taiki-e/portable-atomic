@@ -1,4 +1,6 @@
-// Run-time feature detection on aarch64 Linux/Android by parsing ELF auxiliary vectors.
+// Run-time feature detection on aarch64 Linux/Android/FreeBSD by parsing ELF auxiliary vectors.
+//
+// # Linux/Android
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
 // on aarch64 Linux/Android, but on the following platforms, so we can safely assume
@@ -24,6 +26,24 @@
 // - On Picolibc, [Picolibc 1.4.6 added getauxval stub](https://github.com/picolibc/picolibc#picolibc-version-146).
 //
 // See also https://github.com/rust-lang/stdarch/pull/1375
+//
+// # FreeBSD
+//
+// As of nightly-2023-01-23, is_aarch64_feature_detected always uses mrs on
+// aarch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
+// on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+//
+// So use elf_aux_info instead of mrs like compiler-rt does.
+// https://man.freebsd.org/elf_aux_info(3)
+// https://reviews.llvm.org/D109330
+//
+// elf_aux_info is available on FreeBSD 12.0+ and 11.4+:
+// https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
+// https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
+// On FreeBSD, [aarch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/relnotes/#hardware-arm),
+// but FreeBSD 11 (11.4) was EoL on 2021-09-30, and FreeBSD 11.3 was EoL on 2020-09-30:
+// https://www.freebsd.org/security/unsupported
+// See also https://github.com/rust-lang/stdarch/pull/611#issuecomment-445464613
 
 #![cfg_attr(
     any(
@@ -142,6 +162,67 @@ mod imp {
         AuxVec { hwcap }
     }
 }
+#[cfg(target_os = "freebsd")]
+mod imp {
+    use super::AuxVec;
+
+    // core::ffi::c_* (except c_void) requires Rust 1.64
+    #[allow(non_camel_case_types)]
+    pub(super) mod ffi {
+        pub(crate) use core::ffi::c_void;
+        // c_{,u}int is {i,u}32 on non-16-bit architectures
+        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+        pub(crate) type c_int = i32;
+        // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
+        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
+        #[cfg(target_pointer_width = "64")]
+        pub(crate) type c_ulong = u64;
+        #[cfg(target_pointer_width = "32")]
+        pub(crate) type c_ulong = u32;
+
+        // Defined in sys/elf_common.h.
+        // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/elf_common.h
+        pub(crate) const AT_HWCAP: c_int = 25;
+
+        // Defined in machine/elf.h.
+        // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/arm64/include/elf.h
+        // available on FreeBSD 13.0+ and 12.2+
+        // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+        pub(crate) const HWCAP_ATOMICS: c_ulong = 0x0000_0100;
+        #[cfg(test)]
+        pub(crate) const HWCAP_USCAT: c_ulong = 0x0200_0000;
+
+        extern "C" {
+            // Defined in sys/auxv.h.
+            // https://man.freebsd.org/elf_aux_info(3)
+            // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/auxv.h
+            pub(crate) fn elf_aux_info(aux: c_int, buf: *mut c_void, buf_len: c_int) -> c_int;
+        }
+    }
+
+    #[inline]
+    fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
+        #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
+        const OUT_LEN: ffi::c_int = core::mem::size_of::<ffi::c_ulong>() as ffi::c_int;
+        let mut out: ffi::c_ulong = 0;
+        // SAFETY:
+        // - the pointer is valid because we got it from a reference.
+        // - `OUT_LEN` is the same as the size of `out`.
+        // - `elf_aux_info` is thread-safe.
+        // If elf_aux_info fails, `out` will be left at zero (which is the proper default value).
+        unsafe {
+            ffi::elf_aux_info(aux, (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(), OUT_LEN);
+        }
+        out
+    }
+
+    #[inline]
+    pub(super) fn auxv() -> AuxVec {
+        let hwcap = getauxval(ffi::AT_HWCAP);
+        AuxVec { hwcap }
+    }
+}
 
 #[allow(
     clippy::alloc_instead_of_core,
@@ -221,5 +302,32 @@ mod tests {
         static_assert!(ffi::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
         #[cfg(target_os = "android")]
         static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
+    };
+    #[cfg(target_os = "freebsd")]
+    #[allow(
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss,
+        clippy::cast_possible_truncation,
+        clippy::no_effect_underscore_binding
+    )]
+    const _: fn() = || {
+        use test_helper::{libc, sys};
+        let _: ffi::c_int = 0 as libc::c_int;
+        let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
+        let _: ffi::c_ulong = 0 as libc::c_ulong;
+        let mut _elf_aux_info: unsafe extern "C" fn(
+            ffi::c_int,
+            *mut ffi::c_void,
+            ffi::c_int,
+        ) -> ffi::c_int = ffi::elf_aux_info;
+        // libc has this, but unreleased as of 0.2.139: https://github.com/rust-lang/libc/commit/a4fd9d32c854417afa1acdbc922eeafac5fcbbfd
+        // _elf_aux_info = libc::elf_aux_info;
+        _elf_aux_info = sys::elf_aux_info;
+        // static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP); // libc doesn't have this
+        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as ffi::c_int);
+        // static_assert!(ffi::HWCAP_ATOMICS == libc::HWCAP_ATOMICS); // libc doesn't have this
+        static_assert!(ffi::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
+        // static_assert!(ffi::HWCAP_USCAT == libc::HWCAP_USCAT); // libc doesn't have this
+        static_assert!(ffi::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
     };
 }

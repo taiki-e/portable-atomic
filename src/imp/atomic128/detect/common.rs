@@ -193,6 +193,8 @@ mod tests_aarch64_common {
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE));
+            // is_aarch64_feature_detected uses mrs on FreeBSD
+            #[cfg(not(target_os = "freebsd"))]
             #[cfg(not(any(
                 portable_atomic_no_aarch64_target_feature,
                 portable_atomic_unstable_aarch64_target_feature,
@@ -212,6 +214,8 @@ mod tests_aarch64_common {
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
+            // // is_aarch64_feature_detected uses mrs on FreeBSD
+            // #[cfg(not(target_os = "freebsd"))]
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
             //     portable_atomic_unstable_aarch64_target_feature,
@@ -229,6 +233,9 @@ mod tests_aarch64_common {
             assert!(detect().test(CpuInfo::HAS_LSE128));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
+            // is_aarch64_feature_detected doesn't support lse128
+            // // is_aarch64_feature_detected uses mrs on FreeBSD
+            // #[cfg(not(target_os = "freebsd"))]
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
             //     portable_atomic_unstable_aarch64_target_feature,
@@ -241,6 +248,9 @@ mod tests_aarch64_common {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
         } else {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
+            // is_aarch64_feature_detected doesn't support rcpc3
+            // // is_aarch64_feature_detected uses mrs on FreeBSD
+            // #[cfg(not(target_os = "freebsd"))]
             // #[cfg(not(any(
             //     portable_atomic_no_aarch64_target_feature,
             //     portable_atomic_unstable_aarch64_target_feature,

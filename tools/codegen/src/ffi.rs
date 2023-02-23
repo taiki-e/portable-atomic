@@ -68,6 +68,32 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
+        triples: &["aarch64-unknown-freebsd"],
+        headers: &[
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/auxv.h
+                path: "sys/auxv.h",
+                types: &[],
+                vars: &[],
+                functions: &["elf_aux_info"],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/elf_common.h
+                path: "sys/elf_common.h",
+                types: &[],
+                vars: &["AT_HWCAP.*"],
+                functions: &[],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/arm64/include/elf.h
+                path: "machine/elf.h",
+                types: &[],
+                vars: &["HWCAP.*"],
+                functions: &[],
+            },
+        ],
+    },
+    Target {
         triples: &["aarch64-unknown-openbsd"],
         headers: &[
             Header {
@@ -165,7 +191,7 @@ pub(crate) fn gen() -> Result<()> {
                     src_dir.parent().unwrap().join("Libc/include"),
                     src_dir.parent().unwrap().join("libpthread/include"),
                 ],
-                openbsd => vec![src_dir.join("sys")],
+                freebsd | openbsd => vec![src_dir.join("sys")],
                 _ => todo!("{target:?}"),
             };
             for include in &include {
@@ -188,7 +214,7 @@ pub(crate) fn gen() -> Result<()> {
                 let header_path = match target.os {
                     linux | android => src_dir.join(header.path),
                     macos => src_dir.join(format!("bsd/{}", header.path)),
-                    openbsd => src_dir.join(format!("sys/{}", header.path)),
+                    freebsd | openbsd => src_dir.join(format!("sys/{}", header.path)),
                     _ => todo!("{target:?}"),
                 };
 
@@ -297,6 +323,7 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
             clone(download_cache_dir, "https://github.com/apple-oss-distributions/libpthread.git")?;
             clone(download_cache_dir, "https://github.com/apple-oss-distributions/xnu.git")?
         }
+        freebsd => clone(download_cache_dir, "https://github.com/freebsd/freebsd-src.git")?,
         openbsd => clone(download_cache_dir, "https://github.com/openbsd/src.git")?,
         _ => todo!("{target:?}"),
     };
@@ -322,6 +349,14 @@ fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
             // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_posix_availability.sh
             fs::write(src_dir.join("bsd/sys/_symbol_aliasing.h"), "")?;
             fs::write(src_dir.join("bsd/sys/_posix_availability.h"), "")?;
+        }
+        freebsd => {
+            let arch = match target.arch {
+                aarch64 => "arm64",
+                _ => todo!("{target:?}"),
+            };
+            let link = &src_dir.join("sys/machine");
+            fs::os::unix::fs::symlink(src_dir.join("sys").join(arch).join("include"), link)?;
         }
         openbsd => {
             let arch = match target.arch {
