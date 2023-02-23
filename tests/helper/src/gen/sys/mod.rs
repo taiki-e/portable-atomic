@@ -54,6 +54,10 @@ pub use aarch64_linux_android::*;
 mod aarch64_apple_darwin;
 #[cfg(all(target_arch = "aarch64", target_os = "macos"))]
 pub use aarch64_apple_darwin::*;
+#[cfg(all(target_arch = "aarch64", target_os = "freebsd"))]
+mod aarch64_freebsd;
+#[cfg(all(target_arch = "aarch64", target_os = "freebsd"))]
+pub use aarch64_freebsd::*;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
 mod aarch64_openbsd;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]

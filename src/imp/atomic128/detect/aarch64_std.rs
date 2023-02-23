@@ -5,9 +5,9 @@
             feature = "std",
             target_os = "linux",
             target_os = "android",
-            target_os = "windows",
             // target_os = "freebsd",
             // target_os = "openbsd",
+            target_os = "windows",
         )),
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     ),
@@ -36,9 +36,9 @@ pub(crate) fn has_lse() -> bool {
                 feature = "std",
                 all(target_os = "linux", any(target_env = "gnu", target_env = "musl")),
                 target_os = "android",
-                target_os = "windows",
                 // target_os = "freebsd",
                 // target_os = "openbsd",
+                target_os = "windows",
             ),
         ))]
         {
