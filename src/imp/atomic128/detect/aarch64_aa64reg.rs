@@ -155,20 +155,6 @@ mod imp {
         // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L83-L88
         pub(crate) type c_size_t = usize;
 
-        extern "C" {
-            // Defined in sys/sysctl.h.
-            // https://man.openbsd.org/sysctl.2
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/openbsd/mod.rs#L1817-L1824
-            pub(crate) fn sysctl(
-                name: *const c_int,
-                name_len: c_uint,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *mut c_void,
-                new_len: c_size_t,
-            ) -> c_int;
-        }
-
         // Defined in sys/sysctl.h.
         // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/sys/sysctl.h#L82
         pub(crate) const CTL_MACHDEP: c_int = 7;
@@ -179,6 +165,21 @@ mod imp {
         pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
         #[cfg(test)]
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
+
+        extern "C" {
+            // Defined in sys/sysctl.h.
+            // https://man.openbsd.org/sysctl.2
+            // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/sys/sysctl.h
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/openbsd/mod.rs#L1817-L1824
+            pub(crate) fn sysctl(
+                name: *const c_int,
+                name_len: c_uint,
+                old_p: *mut c_void,
+                old_len_p: *mut c_size_t,
+                new_p: *mut c_void,
+                new_len: c_size_t,
+            ) -> c_int;
+        }
     }
 
     // ID_AA64ISAR0_EL1 and ID_AA64ISAR1_EL1 are supported on OpenBSD 7.1+.
