@@ -88,6 +88,12 @@ fn main() -> ! {
 
     println!("starting tests...");
 
+    // TODO: undefined reference to `__sync_synchronize'
+    // for &order in &test_helper::FENCE_ORDERINGS {
+    //     fence(order);
+    //     compiler_fence(order);
+    // }
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);

@@ -14,10 +14,6 @@ use portable_atomic::{
 use portable_atomic::{AtomicF32, AtomicF64};
 
 pub fn all() {
-    atomic::fence(Ordering::SeqCst);
-    atomic::compiler_fence(Ordering::SeqCst);
-    hint::spin_loop();
-
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
@@ -56,6 +52,11 @@ pub fn all() {
         };
     }
 
+    for &order in &test_helper::FENCE_ORDERINGS {
+        portable_atomic::fence(order);
+        portable_atomic::compiler_fence(order);
+    }
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);

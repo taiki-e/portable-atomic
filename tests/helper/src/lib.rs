@@ -24,37 +24,41 @@ mod once_lock;
 #[cfg(feature = "std")]
 pub mod serde;
 
-use core::sync::atomic::Ordering;
+use core::{ops, sync::atomic::Ordering};
 
-#[inline]
-pub fn load_orderings() -> [Ordering; 3] {
-    [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst]
-}
-#[inline]
-pub fn store_orderings() -> [Ordering; 3] {
-    [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst]
-}
-#[inline]
-pub fn swap_orderings() -> [Ordering; 5] {
-    [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst]
-}
-#[inline]
-pub fn compare_exchange_orderings() -> [(Ordering, Ordering); 15] {
-    [
-        (Ordering::Relaxed, Ordering::Relaxed),
-        (Ordering::Relaxed, Ordering::Acquire),
-        (Ordering::Relaxed, Ordering::SeqCst),
-        (Ordering::Acquire, Ordering::Relaxed),
-        (Ordering::Acquire, Ordering::Acquire),
-        (Ordering::Acquire, Ordering::SeqCst),
-        (Ordering::Release, Ordering::Relaxed),
-        (Ordering::Release, Ordering::Acquire),
-        (Ordering::Release, Ordering::SeqCst),
-        (Ordering::AcqRel, Ordering::Relaxed),
-        (Ordering::AcqRel, Ordering::Acquire),
-        (Ordering::AcqRel, Ordering::SeqCst),
-        (Ordering::SeqCst, Ordering::Relaxed),
-        (Ordering::SeqCst, Ordering::Acquire),
-        (Ordering::SeqCst, Ordering::SeqCst),
-    ]
+pub const LOAD_ORDERINGS: [Ordering; 3] = [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst];
+pub const STORE_ORDERINGS: [Ordering; 3] = [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst];
+pub const SWAP_ORDERINGS: [Ordering; 5] =
+    [Ordering::Relaxed, Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst];
+pub const COMPARE_EXCHANGE_ORDERINGS: [(Ordering, Ordering); 15] = [
+    (Ordering::Relaxed, Ordering::Relaxed),
+    (Ordering::Relaxed, Ordering::Acquire),
+    (Ordering::Relaxed, Ordering::SeqCst),
+    (Ordering::Acquire, Ordering::Relaxed),
+    (Ordering::Acquire, Ordering::Acquire),
+    (Ordering::Acquire, Ordering::SeqCst),
+    (Ordering::Release, Ordering::Relaxed),
+    (Ordering::Release, Ordering::Acquire),
+    (Ordering::Release, Ordering::SeqCst),
+    (Ordering::AcqRel, Ordering::Relaxed),
+    (Ordering::AcqRel, Ordering::Acquire),
+    (Ordering::AcqRel, Ordering::SeqCst),
+    (Ordering::SeqCst, Ordering::Relaxed),
+    (Ordering::SeqCst, Ordering::Acquire),
+    (Ordering::SeqCst, Ordering::SeqCst),
+];
+pub const FENCE_ORDERINGS: [Ordering; 4] =
+    [Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst];
+
+#[derive(Debug, Clone, Copy, Default)]
+#[repr(C, align(16))]
+pub struct Align16<T>(pub T);
+
+impl<T> ops::Deref for Align16<T> {
+    type Target = T;
+
+    #[inline]
+    fn deref(&self) -> &T {
+        &self.0
+    }
 }

@@ -455,8 +455,9 @@ mod tests {
     mod quickcheck {
         use core::cell::UnsafeCell;
 
+        use test_helper::Align16;
+
         use super::super::*;
-        use crate::tests::helper::Align16;
 
         ::quickcheck::quickcheck! {
             #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly

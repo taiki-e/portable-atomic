@@ -82,6 +82,11 @@ unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
         };
     }
 
+    for &order in &test_helper::FENCE_ORDERINGS {
+        fence(order);
+        compiler_fence(order);
+    }
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);
