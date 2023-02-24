@@ -4,6 +4,7 @@
 #![feature(lang_items)]
 #![feature(macro_metavar_expr)]
 #![feature(panic_info_message)]
+#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]

@@ -112,6 +112,7 @@ run() {
         return 0
     fi
 
+    # NB: sync with tools/build.sh
     case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
@@ -121,6 +122,7 @@ run() {
             ;;
     esac
     local test_dir
+    # NB: sync with tools/build.sh
     case "${target}" in
         thumbv4t* | armv4t*)
             test_dir=tests/gba

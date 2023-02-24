@@ -12,7 +12,7 @@ trap -- 'exit 0' SIGINT
 
 default_targets=(
     # no atomic load/store (16-bit)
-    avr-unknown-gnu-atmega2560 # for checking custom target
+    avr-unknown-gnu-atmega2560 # custom target
     avr-unknown-gnu-atmega328
     msp430-none-elf
     msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
@@ -139,8 +139,8 @@ rustc_minor_version="${rustc_minor_version%%.*}"
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 case "${TESTS:-}" in
-    1) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
-    *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
+    '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
+    *) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
 esac
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
@@ -148,7 +148,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     # -Z check-cfg requires 1.63.0-nightly
     # shellcheck disable=SC2207
-    if [[ "${rustc_minor_version}" -gt 62 ]]; then
+    if [[ "${rustc_minor_version}" -gt 62 ]] && [[ -n "${TESTS:-}" ]]; then
         build_scripts=(build.rs portable-atomic-util/build.rs)
         check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(feature,"cargo-clippy")'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
@@ -159,8 +159,8 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         case "${TESTS:-}" in
-            1) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy -Z check-cfg="names,values,output,features") ;;
-            *) base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features") ;;
+            '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features") ;;
+            *) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy -Z check-cfg="names,values,output,features") ;;
         esac
     fi
 fi
@@ -230,15 +230,40 @@ build() {
         return 0
     fi
 
-    if [[ "${TESTS:-}" == "1" ]]; then
+    if [[ -n "${TESTS:-}" ]]; then
+        # We use std in main tests, so we cannot build them on no-std targets.
+        # Some no-std targets have target-specific test crates, so build public
+        # crates' library part and (if they exist) target-specific test crates.
         if is_no_std "${target}"; then
-            # we use std in tests
-            echo "target '${target}' does not support 'std' required to build tests (skipped all checks)"
+            case "${target}" in
+                thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??i-*-none* | riscv??im-*-none* | riscv??imc-*-none*)
+                    target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
+                    ;;
+            esac
+            RUSTFLAGS="${target_rustflags}" \
+                x_cargo "${args[@]}" --features float --manifest-path Cargo.toml "$@"
+            RUSTFLAGS="${target_rustflags}" \
+                x_cargo "${args[@]}" --features alloc --manifest-path portable-atomic-util/Cargo.toml "$@"
+            # target-specific test crates are nightly-only.
+            if [[ -n "${nightly}" ]]; then
+                local test_dir=''
+                # NB: sync with tools/no-std.sh
+                case "${target}" in
+                    thumbv4t* | armv4t*) test_dir=tests/gba ;;
+                    thumb*) test_dir=tests/cortex-m ;;
+                    riscv*) test_dir=tests/riscv ;;
+                    avr-unknown-gnu-atmega2560) test_dir=tests/avr ;; # tests/avr is for atmega2560 not atmega328
+                esac
+                if [[ -n "${test_dir}" ]]; then
+                    RUSTFLAGS="${target_rustflags}" \
+                        x_cargo "${args[@]}" --all-features --manifest-path "${test_dir}"/Cargo.toml "$@"
+                fi
+            fi
             return 0
         fi
         args+=(
-            --workspace --all-features --tests
-            --exclude bench --exclude portable-atomic-internal-codegen
+            --all-features --tests
+            --workspace --exclude bench --exclude portable-atomic-internal-codegen
         )
     else
         # paste! on statements requires 1.45
