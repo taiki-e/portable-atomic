@@ -1,5 +1,5 @@
 // Based on https://github.com/rust-embedded/critical-section/blob/v1.1.1/src/std.rs,
-// but don't use `static mut` and compatible with Rust 1.59 that we run tests.
+// but don't use `static mut` and compatible with Rust 1.54 that we run tests.
 
 use std::{
     cell::{Cell, UnsafeCell},
@@ -7,9 +7,15 @@ use std::{
     sync::{Mutex, MutexGuard},
 };
 
-use once_cell::sync::Lazy;
+use crate::once_lock::OnceLock;
 
-static GLOBAL_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+fn global_mutex() -> &'static Mutex<()> {
+    static GLOBAL_MUTEX: OnceLock<Mutex<()>> = OnceLock::new();
+    fn init() -> Mutex<()> {
+        Mutex::new(())
+    }
+    GLOBAL_MUTEX.get_or_init(init)
+}
 
 // This is initialized if a thread has acquired the CS, uninitialized otherwise.
 static GLOBAL_GUARD: SyncUnsafeCell<MaybeUninit<MutexGuard<'static, ()>>> =
@@ -35,7 +41,7 @@ unsafe impl critical_section::Impl for StdCriticalSection {
             l.set(true);
 
             // Not acquired in the current thread, acquire it.
-            let guard = match GLOBAL_MUTEX.lock() {
+            let guard = match global_mutex().lock() {
                 Ok(guard) => guard,
                 Err(err) => {
                     // Ignore poison on the global mutex in case a panic occurred

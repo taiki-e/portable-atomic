@@ -10,12 +10,11 @@ doctest = false
 doc = false
 
 [features]
-std = ["critical-section", "fs-err", "once_cell", "serde", "libc", "windows-sys"]
+std = ["critical-section", "fs-err", "serde", "libc", "windows-sys"]
 
 [dependencies]
 critical-section = { version = "1", optional = true, features = ["restore-state-bool"] }
 fs-err = { version = "2", optional = true }
-once_cell = { version = "1", optional = true }
 serde = { version = "1", optional = true, features = ["derive"] }
 
 [target.'cfg(unix)'.dependencies]
