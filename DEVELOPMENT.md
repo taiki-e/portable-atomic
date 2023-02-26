@@ -1,33 +1,40 @@
 # Development Guide
 
+- [Project layout](#project-layout)
+- [Testing powerpc64le using POWER Functional Simulator](#testing-powerpc64le-using-power-functional-simulator)
+
 ## Project layout
 
 ```text
-bench/                  -- simple benchmarks
-build.rs                -- build script
-no_atomic.rs            -- definitions of statics used by build script (auto-generated)
-portable-atomic-util/   -- crate that defines synchronization primitives built with portable-atomic
-src/imp/atomic128/      -- 128-bit atomic implementation (mainly by asm)
-src/imp/core_atomic.rs  -- wrapper for core::sync::atomic types
-src/imp/fallback/       -- fallback implementation based on global locks
-src/imp/float.rs        -- atomic float implementation based on atomic integer
-src/imp/interrupt/      -- fallback implementation based on disabling interrupts (for no-std)
-src/imp/msp430.rs       -- atomic implementation for MSP430 (by asm)
-src/imp/riscv.rs        -- atomic implementation for RISC-V without A-extension (by asm)
-src/lib.rs              -- definitions of public APIs
-src/tests/              -- unit tests and test helpers
-src/utils.rs            -- common code
-target-specs/           -- specs of custom targets for tests
-tests/api-test/         -- API check
-tests/cortex-m/         -- tests for cortex-m (thumbv*m)
-tests/gba/              -- tests for gba (thumbv4t)
-tools/                  -- tools for CI or development
+bench/                          -- simple benchmarks
+build.rs                        -- build script
+no_atomic.rs                    -- definitions of statics used by build script (auto-generated)
+version.rs                      -- rustc version detection code used by build script
+ci/                             -- tools for CI
+portable-atomic-util/           -- crate that defines synchronization primitives built with portable-atomic
+src/imp/atomic128/              -- 128-bit atomic implementations (mainly by asm)
+src/imp/atomic128/detect/       -- Run-time feature detection implementations used for outline-atomics
+src/imp/core_atomic.rs          -- wrapper for core::sync::atomic types
+src/imp/fallback/               -- fallback implementation based on global locks
+src/imp/float.rs                -- atomic float implementation based on atomic integer
+src/imp/interrupt/              -- fallback implementation based on disabling interrupts (for no-std)
+src/imp/msp430.rs               -- atomic implementation for MSP430 (by asm)
+src/imp/riscv.rs                -- atomic implementation for RISC-V without A-extension (by asm)
+src/lib.rs                      -- definitions of public APIs
+src/tests/                      -- unit tests and test helpers
+src/utils.rs                    -- common code
+target-specs/                   -- specs of custom targets used for tests
+tests/api-test/                 -- API check
+tests/{avr,cortex-m,gba,riscv}/ -- tests for no-std targets
+tests/helper/                   -- test helpers
+tools/                          -- tools for CI and/or development
 ```
 
 ## Testing powerpc64le using POWER Functional Simulator
 
 We mainly use qemu to test for targets other than x86_64/aarch64, but some instructions do not work well in qemu, so we sometimes use other tools. This section describes testing powerpc64le using IBM [POWER Functional Simulator](https://www.ibm.com/support/pages/node/6491145).
 
+<!-- omit in toc -->
 ### Setup
 
 Install dependencies.
@@ -46,6 +53,8 @@ Install POWER Functional Simulator.
 ```sh
 sudo dpkg -i systemsim-p10-<version>_amd64.deb
 ```
+
+(If the installation failed due to missing dependencies, etc., systemsim-p10 must be uninstalled once by `sudo dpkg --remove systemsim-p10` before reinstallation)
 
 Download images (see `/opt/ibm/systemsim-p10-<version>/examples/linux/README` for more).
 
@@ -66,6 +75,7 @@ cd /opt/ibm/systemsim-<version>/run/p10/linux
 ../power10 -f boot-linux-ubuntu-p10.tcl
 ```
 
+<!-- omit in toc -->
 ### Run tests
 
 Install Rust target.
