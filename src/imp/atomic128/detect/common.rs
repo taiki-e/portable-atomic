@@ -169,6 +169,10 @@ mod tests_aarch64_common {
     #[test]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
+        std::println!("lse: {}", detect().test(CpuInfo::HAS_LSE));
+        std::println!("lse2: {}", detect().test(CpuInfo::HAS_LSE2));
+        std::println!("lse128: {}", detect().test(CpuInfo::HAS_LSE128));
+        std::println!("rcpc3: {}", detect().test(CpuInfo::HAS_RCPC3));
         if has_lse() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             #[cfg(any(

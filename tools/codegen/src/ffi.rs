@@ -112,6 +112,28 @@ static TARGETS: &[Target] = &[
             },
         ],
     },
+    Target {
+        triples: &["aarch64-unknown-fuchsia"],
+        headers: &[
+            // TODO: zx_system_get_features
+            // TODO: zx_status_t
+            // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/types.h
+            Header {
+                // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/errors.h
+                path: "zircon/system/public/zircon/errors.h",
+                types: &[],
+                vars: &["ZX_OK"],
+                functions: &[],
+            },
+            Header {
+                // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
+                path: "zircon/system/public/zircon/features.h",
+                types: &[],
+                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_ISA_ATOMICS"],
+                functions: &[],
+            },
+        ],
+    },
 ];
 
 #[derive(Clone, Copy)]
@@ -192,6 +214,7 @@ pub(crate) fn gen() -> Result<()> {
                     src_dir.parent().unwrap().join("libpthread/include"),
                 ],
                 freebsd | openbsd => vec![src_dir.join("sys")],
+                fuchsia => vec![src_dir.join("zircon/system/public")],
                 _ => todo!("{target:?}"),
             };
             for include in &include {
@@ -215,6 +238,7 @@ pub(crate) fn gen() -> Result<()> {
                     linux | android => src_dir.join(header.path),
                     macos => src_dir.join(format!("bsd/{}", header.path)),
                     freebsd | openbsd => src_dir.join(format!("sys/{}", header.path)),
+                    fuchsia => src_dir.join(header.path),
                     _ => todo!("{target:?}"),
                 };
 
@@ -304,6 +328,7 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
     fn clone(download_cache_dir: &Utf8Path, repository: &str) -> Result<Utf8PathBuf> {
         let name = repository.strip_suffix(".git").unwrap_or(repository);
         let name = name.strip_prefix("https://github.com/").unwrap_or(name);
+        let name = name.replace("https://fuchsia.googlesource.com/", "fuchsia/");
         let src_dir = download_cache_dir.join(name);
         if src_dir.exists() {
             cmd!("git", "clean", "-df",).dir(&src_dir).run()?;
@@ -325,6 +350,7 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
         }
         freebsd => clone(download_cache_dir, "https://github.com/freebsd/freebsd-src.git")?,
         openbsd => clone(download_cache_dir, "https://github.com/openbsd/src.git")?,
+        fuchsia => clone(download_cache_dir, "https://fuchsia.googlesource.com/fuchsia")?,
         _ => todo!("{target:?}"),
     };
     // TODO: remove needs of patches.
@@ -366,6 +392,7 @@ fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
             let link = &src_dir.join("sys/machine");
             fs::os::unix::fs::symlink(src_dir.join("sys/arch").join(arch).join("include"), link)?;
         }
+        fuchsia => {}
         _ => todo!("{target:?}"),
     }
     Ok(())

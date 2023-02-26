@@ -56,6 +56,7 @@ default_targets=(
     aarch64-pc-windows-gnullvm
     aarch64-pc-windows-msvc
     aarch64-unknown-freebsd
+    aarch64-unknown-fuchsia
     aarch64-unknown-linux-gnu
     aarch64-unknown-linux-musl
     aarch64-unknown-linux-uclibc # custom target

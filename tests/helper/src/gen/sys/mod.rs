@@ -62,3 +62,7 @@ pub use aarch64_freebsd::*;
 mod aarch64_openbsd;
 #[cfg(all(target_arch = "aarch64", target_os = "openbsd"))]
 pub use aarch64_openbsd::*;
+#[cfg(all(target_arch = "aarch64", target_os = "fuchsia"))]
+mod aarch64_fuchsia;
+#[cfg(all(target_arch = "aarch64", target_os = "fuchsia"))]
+pub use aarch64_fuchsia::*;
