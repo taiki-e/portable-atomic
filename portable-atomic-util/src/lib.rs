@@ -57,12 +57,14 @@ See [#1] for other primitives being considered for addition to this crate.
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
     // lints that help writing unsafe code
+    clippy::as_ptr_cast_mut,
     clippy::default_union_representation,
     clippy::trailing_empty_array,
     clippy::transmute_undefined_repr,
     clippy::undocumented_unsafe_blocks,
     // misc
     clippy::inline_asm_x86_att_syntax,
+    clippy::rest_pat_in_fully_bound_structs,
 )]
 #![allow(
     clippy::cast_lossless,
