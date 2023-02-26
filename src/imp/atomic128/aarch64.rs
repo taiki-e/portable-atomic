@@ -57,6 +57,7 @@ include!("macros.rs");
     path = "detect/aarch64_auxv.rs"
 )]
 #[cfg_attr(target_os = "openbsd", path = "detect/aarch64_aa64reg.rs")]
+#[cfg_attr(target_os = "fuchsia", path = "detect/aarch64_fuchsia.rs")]
 #[cfg_attr(target_os = "windows", path = "detect/aarch64_windows.rs")]
 #[cfg_attr(
     not(any(
@@ -64,6 +65,7 @@ include!("macros.rs");
         target_os = "android",
         target_os = "freebsd",
         target_os = "openbsd",
+        target_os = "fuchsia",
         target_os = "windows",
     )),
     path = "detect/aarch64_std.rs"
@@ -312,6 +314,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "android",
             target_os = "freebsd",
             target_os = "openbsd",
+            target_os = "fuchsia",
             target_os = "windows",
         ),
     )))]
@@ -327,6 +330,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "android",
             target_os = "freebsd",
             target_os = "openbsd",
+            target_os = "fuchsia",
             target_os = "windows",
         ),
     ))]
