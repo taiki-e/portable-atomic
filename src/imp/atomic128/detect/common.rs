@@ -92,6 +92,7 @@ impl CpuInfo {
             self.test(CpuInfo::HAS_CMPXCHG16B)
         }
     }
+    #[cfg(target_feature = "sse")]
     #[inline]
     pub(crate) fn has_vmovdqa_atomic(self) -> bool {
         self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)

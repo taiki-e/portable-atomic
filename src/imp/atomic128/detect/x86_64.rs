@@ -3,7 +3,6 @@
 #![cfg_attr(
     any(
         portable_atomic_no_outline_atomics,
-        not(target_feature = "sse"),
         target_env = "sgx",
         miri,
         portable_atomic_sanitize_thread,

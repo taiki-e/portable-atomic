@@ -1,14 +1,7 @@
 #![cfg_attr(
     any(
         portable_atomic_no_aarch64_target_feature,
-        not(any(
-            feature = "std",
-            target_os = "linux",
-            target_os = "android",
-            // target_os = "freebsd",
-            // target_os = "openbsd",
-            target_os = "windows",
-        )),
+        not(any(feature = "std", target_os = "linux")),
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     ),
     allow(dead_code)
