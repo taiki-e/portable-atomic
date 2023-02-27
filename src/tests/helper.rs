@@ -8,7 +8,6 @@ pub(crate) use test_helper::{
 
 macro_rules! __test_atomic_common {
     ($atomic_type:ty, $value_type:ty) => {
-        #[allow(clippy::extra_unused_type_parameters)] // https://github.com/rust-lang/rust-clippy/issues/10319
         #[test]
         fn assert_auto_traits() {
             fn _assert<T: Send + Sync + Unpin + std::panic::UnwindSafe>() {}
@@ -34,7 +33,6 @@ macro_rules! __test_atomic_common {
 }
 macro_rules! __test_atomic_pub_common {
     ($atomic_type:ty, $value_type:ty) => {
-        #[allow(clippy::extra_unused_type_parameters)] // https://github.com/rust-lang/rust-clippy/issues/10318
         #[test]
         fn assert_ref_unwind_safe() {
             #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]
