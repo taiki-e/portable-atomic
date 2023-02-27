@@ -42,12 +42,17 @@ impl AtomicBool {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(val, order);
     }
-    #[inline]
-    pub(crate) fn as_ptr(&self) -> *mut bool {
-        // SAFETY: Self is #[repr(C)] and internally UnsafeCell<u8>.
-        // See also https://github.com/rust-lang/rust/pull/66705 and
-        // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-        unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<u8>)).get() as *mut bool }
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+        #[inline]
+        pub(crate) const fn as_ptr(&self) -> *mut bool {
+            // SAFETY: Self is #[repr(C)] and internally UnsafeCell<u8>.
+            // See also https://github.com/rust-lang/rust/pull/66705 and
+            // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+            unsafe {
+                (*(self as *const Self as *const core::cell::UnsafeCell<u8>)).get() as *mut bool
+            }
+        }
     }
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -130,12 +135,15 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(ptr, order);
     }
-    #[inline]
-    pub(crate) fn as_ptr(&self) -> *mut *mut T {
-        // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
-        // See also https://github.com/rust-lang/rust/pull/66705 and
-        // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-        unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<*mut T>)).get() }
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+        #[inline]
+        pub(crate) const fn as_ptr(&self) -> *mut *mut T {
+            // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
+            // See also https://github.com/rust-lang/rust/pull/66705 and
+            // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+            unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<*mut T>)).get() }
+        }
     }
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -223,13 +231,16 @@ macro_rules! atomic_int {
                 crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.store(val, order);
             }
-            #[inline]
-            pub(crate) fn as_ptr(&self) -> *mut $int_type {
-                // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
-                // See also https://github.com/rust-lang/rust/pull/66705 and
-                // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-                unsafe {
-                    (*(self as *const Self as *const core::cell::UnsafeCell<$int_type>)).get()
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+                #[inline]
+                pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                    // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
+                    // See also https://github.com/rust-lang/rust/pull/66705 and
+                    // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+                    unsafe {
+                        (*(self as *const Self as *const core::cell::UnsafeCell<$int_type>)).get()
+                    }
                 }
             }
         }

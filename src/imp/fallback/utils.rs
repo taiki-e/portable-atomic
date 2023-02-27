@@ -96,7 +96,7 @@ const SPIN_LIMIT: u32 = 4;
 
 impl Backoff {
     #[inline]
-    pub(crate) fn new() -> Self {
+    pub(crate) const fn new() -> Self {
         Self { step: 0 }
     }
 

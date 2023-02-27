@@ -1422,19 +1422,24 @@ impl AtomicBool {
         Err(prev)
     }
 
-    /// Returns a mutable pointer to the underlying [`bool`].
-    ///
-    /// Returning an `*mut` pointer from a shared reference to this atomic is
-    /// safe because the atomic types work with interior mutability. Any use of
-    /// the returned raw pointer requires an `unsafe` block and has to uphold
-    /// the safety requirements:
-    /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
-    ///   operations on it must be atomic.
-    /// - Otherwise, any concurrent operations on it must be compatible with
-    ///   operations performed by this atomic type.
-    #[inline]
-    pub fn as_ptr(&self) -> *mut bool {
-        self.inner.as_ptr()
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+        /// Returns a mutable pointer to the underlying [`bool`].
+        ///
+        /// Returning an `*mut` pointer from a shared reference to this atomic is
+        /// safe because the atomic types work with interior mutability. Any use of
+        /// the returned raw pointer requires an `unsafe` block and has to uphold
+        /// the safety requirements:
+        /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+        ///   operations on it must be atomic.
+        /// - Otherwise, any concurrent operations on it must be compatible with
+        ///   operations performed by this atomic type.
+        ///
+        /// This is `const fn` on Rust 1.58+.
+        #[inline]
+        pub const fn as_ptr(&self) -> *mut bool {
+            self.inner.as_ptr()
+        }
     }
 }
 
@@ -2436,19 +2441,24 @@ impl<T> AtomicPtr<T> {
         unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
     }
 
-    /// Returns a mutable pointer to the underlying pointer.
-    ///
-    /// Returning an `*mut` pointer from a shared reference to this atomic is
-    /// safe because the atomic types work with interior mutability. Any use of
-    /// the returned raw pointer requires an `unsafe` block and has to uphold
-    /// the safety requirements:
-    /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
-    ///   operations on it must be atomic.
-    /// - Otherwise, any concurrent operations on it must be compatible with
-    ///   operations performed by this atomic type.
-    #[inline]
-    pub fn as_ptr(&self) -> *mut *mut T {
-        self.inner.as_ptr()
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+        /// Returns a mutable pointer to the underlying pointer.
+        ///
+        /// Returning an `*mut` pointer from a shared reference to this atomic is
+        /// safe because the atomic types work with interior mutability. Any use of
+        /// the returned raw pointer requires an `unsafe` block and has to uphold
+        /// the safety requirements:
+        /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+        ///   operations on it must be atomic.
+        /// - Otherwise, any concurrent operations on it must be compatible with
+        ///   operations performed by this atomic type.
+        ///
+        /// This is `const fn` on Rust 1.58+.
+        #[inline]
+        pub const fn as_ptr(&self) -> *mut *mut T {
+            self.inner.as_ptr()
+        }
     }
 }
 
@@ -3754,19 +3764,24 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                 }
             }
 
-            /// Returns a mutable pointer to the underlying integer.
-            ///
-            /// Returning an `*mut` pointer from a shared reference to this atomic is
-            /// safe because the atomic types work with interior mutability. Any use of
-            /// the returned raw pointer requires an `unsafe` block and has to uphold
-            /// the safety requirements:
-            /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
-            ///   operations on it must be atomic.
-            /// - Otherwise, any concurrent operations on it must be compatible with
-            ///   operations performed by this atomic type.
-            #[inline]
-            pub fn as_ptr(&self) -> *mut $int_type {
-                self.inner.as_ptr()
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+                /// Returns a mutable pointer to the underlying integer.
+                ///
+                /// Returning an `*mut` pointer from a shared reference to this atomic is
+                /// safe because the atomic types work with interior mutability. Any use of
+                /// the returned raw pointer requires an `unsafe` block and has to uphold
+                /// the safety requirements:
+                /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+                ///   operations on it must be atomic.
+                /// - Otherwise, any concurrent operations on it must be compatible with
+                ///   operations performed by this atomic type.
+                ///
+                /// This is `const fn` on Rust 1.58+.
+                #[inline]
+                pub const fn as_ptr(&self) -> *mut $int_type {
+                    self.inner.as_ptr()
+                }
             }
         }
     };
@@ -4426,30 +4441,51 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.fetch_abs(order)
             }
 
+            #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
                 concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
 
 See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
-portability of this operation (there are almost no issues)."),
+portability of this operation (there are almost no issues).
+
+This is `const fn` on Rust 1.58+."),
+                #[inline]
+                pub const fn as_bits(&self) -> &crate::$atomic_int_type {
+                    self.inner.as_bits()
+                }
+            }
+            #[cfg(portable_atomic_no_const_raw_ptr_deref)]
+            doc_comment! {
+                concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
+
+See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
+portability of this operation (there are almost no issues).
+
+This is `const fn` on Rust 1.58+."),
                 #[inline]
                 pub fn as_bits(&self) -> &crate::$atomic_int_type {
                     self.inner.as_bits()
                 }
             }
 
-            /// Returns a mutable pointer to the underlying float.
-            ///
-            /// Returning an `*mut` pointer from a shared reference to this atomic is
-            /// safe because the atomic types work with interior mutability. Any use of
-            /// the returned raw pointer requires an `unsafe` block and has to uphold
-            /// the safety requirements:
-            /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
-            ///   operations on it must be atomic.
-            /// - Otherwise, any concurrent operations on it must be compatible with
-            ///   operations performed by this atomic type.
-            #[inline]
-            pub fn as_ptr(&self) -> *mut $float_type {
-                self.inner.as_ptr()
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+                /// Returns a mutable pointer to the underlying float.
+                ///
+                /// Returning an `*mut` pointer from a shared reference to this atomic is
+                /// safe because the atomic types work with interior mutability. Any use of
+                /// the returned raw pointer requires an `unsafe` block and has to uphold
+                /// the safety requirements:
+                /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+                ///   operations on it must be atomic.
+                /// - Otherwise, any concurrent operations on it must be compatible with
+                ///   operations performed by this atomic type.
+                ///
+                /// This is `const fn` on Rust 1.58+.
+                #[inline]
+                pub const fn as_ptr(&self) -> *mut $float_type {
+                    self.inner.as_ptr()
+                }
             }
         }
     };

@@ -183,6 +183,20 @@ macro_rules! ifunc {
     }};
 }
 
+macro_rules! const_fn {
+    (
+        const_if: #[cfg($($cfg:tt)+)];
+        $(#[$($attr:tt)*])* $vis:vis const fn $($rest:tt)*
+    ) => {
+        #[cfg($($cfg)+)]
+        $(#[$($attr)*])*
+        $vis const fn $($rest)*
+        #[cfg(not($($cfg)+))]
+        $(#[$($attr)*])*
+        $vis fn $($rest)*
+    };
+}
+
 // We do not provide `nand` because it cannot be optimized on neither x86 nor MSP430.
 // https://godbolt.org/z/x88voWGov
 macro_rules! no_fetch_ops_impl {
