@@ -179,6 +179,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::doc_markdown,
     clippy::float_cmp,
     clippy::inline_always,
+    clippy::let_underscore_untyped, // https://github.com/rust-lang/rust-clippy/issues/10410
     clippy::missing_errors_doc,
     clippy::module_inception,
     clippy::naive_bytecount,
