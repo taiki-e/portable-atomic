@@ -41,16 +41,6 @@ macro_rules! atomic_int {
                     );
                 }
             }
-
-            #[inline]
-            pub(crate) fn as_ptr(&self) -> *mut $int_type {
-                // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
-                // See also https://github.com/rust-lang/rust/pull/66705 and
-                // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-                unsafe {
-                    (*(self as *const Self).cast::<core::cell::UnsafeCell<$int_type>>()).get()
-                }
-            }
         }
     };
     (int, $atomic_type:ident, $int_type:ident, $ptr_size:tt) => {

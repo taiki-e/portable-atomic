@@ -592,6 +592,11 @@ macro_rules! atomic128 {
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
+            }
         }
     };
     (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {

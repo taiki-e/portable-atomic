@@ -6,7 +6,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg-unsafe-assume-single-core) otherwise)
-- Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
+- Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485), [`Atomic*::as_ptr`](https://github.com/rust-lang/rust/issues/66893).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
 
@@ -1337,9 +1337,6 @@ impl AtomicBool {
         self.xor(true, order);
     }
 
-    // TODO: Add as_ptr once it is stable on std atomic types.
-    // https://github.com/rust-lang/rust/issues/66893
-
     /// Fetches the value, and applies a function to it that returns an optional
     /// new value. Returns a `Result` of `Ok(previous_value)` if the function
     /// returned `Some(_)`, else `Err(previous_value)`.
@@ -1423,6 +1420,21 @@ impl AtomicBool {
             }
         }
         Err(prev)
+    }
+
+    /// Returns a mutable pointer to the underlying [`bool`].
+    ///
+    /// Returning an `*mut` pointer from a shared reference to this atomic is
+    /// safe because the atomic types work with interior mutability. Any use of
+    /// the returned raw pointer requires an `unsafe` block and has to uphold
+    /// the safety requirements:
+    /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+    ///   operations on it must be atomic.
+    /// - Otherwise, any concurrent operations on it must be compatible with
+    ///   operations performed by this atomic type.
+    #[inline]
+    pub fn as_ptr(&self) -> *mut bool {
+        self.inner.as_ptr()
     }
 }
 
@@ -2390,9 +2402,6 @@ impl<T> AtomicPtr<T> {
         }
     }
 
-    // TODO: Add as_ptr once it is stable on std atomic types.
-    // https://github.com/rust-lang/rust/issues/66893
-
     #[cfg(not(miri))]
     #[inline]
     #[cfg_attr(
@@ -2425,6 +2434,21 @@ impl<T> AtomicPtr<T> {
         // SAFETY: AtomicPtr and AtomicUsize have the same layout,
         // and both access data in the same way.
         unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
+    }
+
+    /// Returns a mutable pointer to the underlying pointer.
+    ///
+    /// Returning an `*mut` pointer from a shared reference to this atomic is
+    /// safe because the atomic types work with interior mutability. Any use of
+    /// the returned raw pointer requires an `unsafe` block and has to uphold
+    /// the safety requirements:
+    /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+    ///   operations on it must be atomic.
+    /// - Otherwise, any concurrent operations on it must be compatible with
+    ///   operations performed by this atomic type.
+    #[inline]
+    pub fn as_ptr(&self) -> *mut *mut T {
+        self.inner.as_ptr()
     }
 }
 
@@ -3730,8 +3754,20 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                 }
             }
 
-            // TODO: Add as_ptr once it is stable on std atomic types.
-            // https://github.com/rust-lang/rust/issues/66893
+            /// Returns a mutable pointer to the underlying integer.
+            ///
+            /// Returning an `*mut` pointer from a shared reference to this atomic is
+            /// safe because the atomic types work with interior mutability. Any use of
+            /// the returned raw pointer requires an `unsafe` block and has to uphold
+            /// the safety requirements:
+            /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+            ///   operations on it must be atomic.
+            /// - Otherwise, any concurrent operations on it must be compatible with
+            ///   operations performed by this atomic type.
+            #[inline]
+            pub fn as_ptr(&self) -> *mut $int_type {
+                self.inner.as_ptr()
+            }
         }
     };
 
@@ -4390,9 +4426,6 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.fetch_abs(order)
             }
 
-            // TODO: Add as_ptr once it is stable on std atomic types.
-            // https://github.com/rust-lang/rust/issues/66893
-
             doc_comment! {
                 concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
 
@@ -4402,6 +4435,21 @@ portability of this operation (there are almost no issues)."),
                 pub fn as_bits(&self) -> &crate::$atomic_int_type {
                     self.inner.as_bits()
                 }
+            }
+
+            /// Returns a mutable pointer to the underlying float.
+            ///
+            /// Returning an `*mut` pointer from a shared reference to this atomic is
+            /// safe because the atomic types work with interior mutability. Any use of
+            /// the returned raw pointer requires an `unsafe` block and has to uphold
+            /// the safety requirements:
+            /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+            ///   operations on it must be atomic.
+            /// - Otherwise, any concurrent operations on it must be compatible with
+            ///   operations performed by this atomic type.
+            #[inline]
+            pub fn as_ptr(&self) -> *mut $float_type {
+                self.inner.as_ptr()
             }
         }
     };

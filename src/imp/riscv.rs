@@ -71,6 +71,12 @@ impl AtomicBool {
             u8::atomic_store(self.v.get(), val as u8, order);
         }
     }
+
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) const fn as_ptr(&self) -> *mut bool {
+        self.v.get().cast::<bool>()
+    }
 }
 
 #[repr(transparent)]
@@ -136,6 +142,12 @@ impl<T> AtomicPtr<T> {
             usize::atomic_store(self.p.get().cast::<usize>(), ptr as usize, order);
         }
     }
+
+    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+    #[inline]
+    pub(crate) const fn as_ptr(&self) -> *mut *mut T {
+        self.p.get()
+    }
 }
 
 macro_rules! atomic_int {
@@ -199,6 +211,12 @@ macro_rules! atomic_int {
                 unsafe {
                     $int_type::atomic_store(self.v.get(), val, order);
                 }
+            }
+
+            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
             }
         }
 

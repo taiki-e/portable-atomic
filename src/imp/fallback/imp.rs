@@ -316,6 +316,12 @@ macro_rules! atomic {
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
+
+            #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
+            }
         }
     };
     (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
