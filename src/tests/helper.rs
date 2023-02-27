@@ -52,6 +52,7 @@ macro_rules! __test_atomic_int_load_store {
             let mut a = <$atomic_type>::new(10);
             assert_eq!(*a.get_mut(), 10);
             *a.get_mut() = 5;
+            assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), 5);
         }
         #[test]
@@ -125,6 +126,7 @@ macro_rules! __test_atomic_float_load_store {
             let mut a = <$atomic_type>::new(10.0);
             assert_eq!(*a.get_mut(), 10.0);
             *a.get_mut() = 5.0;
+            assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), 5.0);
         }
         #[test]
@@ -158,6 +160,7 @@ macro_rules! __test_atomic_bool_load_store {
             let mut a = <$atomic_type>::new(false);
             assert_eq!(*a.get_mut(), false);
             *a.get_mut() = true;
+            assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), true);
         }
         #[test]
@@ -193,6 +196,7 @@ macro_rules! __test_atomic_ptr_load_store {
             let mut a = <$atomic_type>::new(ptr::null_mut());
             assert!(a.get_mut().is_null());
             *a.get_mut() = &mut v;
+            assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert!(!a.into_inner().is_null());
         }
         #[test]

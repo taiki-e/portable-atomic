@@ -265,6 +265,11 @@ impl AtomicBool {
             result != 0
         })
     }
+
+    #[inline]
+    pub(crate) const fn as_ptr(&self) -> *mut bool {
+        self.v.get() as *mut bool
+    }
 }
 
 #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
@@ -415,6 +420,11 @@ impl<T> AtomicPtr<T> {
     ) -> Result<*mut T, *mut T> {
         self.compare_exchange(current, new, success, failure)
     }
+
+    #[inline]
+    pub(crate) const fn as_ptr(&self) -> *mut *mut T {
+        self.p.get()
+    }
 }
 
 macro_rules! atomic_int {
@@ -454,6 +464,11 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn into_inner(self) -> $int_type {
                 self.v.into_inner()
+            }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
             }
         }
     };

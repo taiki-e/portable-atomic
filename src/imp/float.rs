@@ -66,6 +66,11 @@ macro_rules! atomic_float {
                 // and there is no concurrent access to the value that does not go through this method.
                 unsafe { &*(self as *const $atomic_type as *const crate::$atomic_int_type) }
             }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $float_type {
+                self.v.get()
+            }
         }
 
         #[cfg_attr(

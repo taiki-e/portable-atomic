@@ -42,6 +42,13 @@ impl AtomicBool {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(val, order);
     }
+    #[inline]
+    pub(crate) fn as_ptr(&self) -> *mut bool {
+        // SAFETY: Self is #[repr(C)] and internally UnsafeCell<u8>.
+        // See also https://github.com/rust-lang/rust/pull/66705 and
+        // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+        unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<u8>)).get() as *mut bool }
+    }
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
@@ -122,6 +129,13 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(ptr, order);
+    }
+    #[inline]
+    pub(crate) fn as_ptr(&self) -> *mut *mut T {
+        // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
+        // See also https://github.com/rust-lang/rust/pull/66705 and
+        // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+        unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<*mut T>)).get() }
     }
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -208,6 +222,15 @@ macro_rules! atomic_int {
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.store(val, order);
+            }
+            #[inline]
+            pub(crate) fn as_ptr(&self) -> *mut $int_type {
+                // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
+                // See also https://github.com/rust-lang/rust/pull/66705 and
+                // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+                unsafe {
+                    (*(self as *const Self as *const core::cell::UnsafeCell<$int_type>)).get()
+                }
             }
         }
         #[cfg_attr(
