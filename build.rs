@@ -64,6 +64,10 @@ fn main() {
     if !version.probe(56, 2021, 8, 1) {
         println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");
     }
+    // const_raw_ptr_deref stabilized in Rust 1.58 (nightly-2021-11-15): https://github.com/rust-lang/rust/pull/89551
+    if !version.probe(58, 2021, 11, 14) {
+        println!("cargo:rustc-cfg=portable_atomic_no_const_raw_ptr_deref");
+    }
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     let no_asm = !version.probe(59, 2021, 12, 15);
     let mut unstable_asm = false;
