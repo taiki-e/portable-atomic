@@ -163,8 +163,11 @@ fn test_is_lock_free() {
         // Miri doesn't support inline assembly used in is_x86_feature_detected
         #[cfg(not(miri))]
         {
-            let has_cmpxchg16b = cfg!(portable_atomic_unstable_cmpxchg16b_target_feature)
-                && std::is_x86_feature_detected!("cmpxchg16b");
+            let has_cmpxchg16b = cfg!(all(
+                feature = "fallback",
+                portable_atomic_cmpxchg16b_target_feature,
+                not(portable_atomic_no_outline_atomics),
+            )) && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);
         }
