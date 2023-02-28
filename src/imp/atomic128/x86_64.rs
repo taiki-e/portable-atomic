@@ -45,10 +45,35 @@ struct Pair {
     hi: u64,
 }
 
-#[inline(always)]
-unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
+#[cfg_attr(
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    target_feature(enable = "cmpxchg16b")
+)]
+#[cfg_attr(
+    any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+    inline
+)]
+#[cfg_attr(
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    inline(never)
+)]
+unsafe fn _cmpxchg16b(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    success: Ordering,
+    failure: Ordering,
+) -> (u128, bool) {
     debug_assert!(dst as usize % 16 == 0);
 
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(miri, portable_atomic_sanitize_thread))]
+    // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
+    unsafe {
+        let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
+        (res, res == old)
+    }
+    #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned (required by CMPXCHG16B), that there are no
     // concurrent non-atomic operations, and that the CPU supports CMPXCHG16B.
@@ -62,6 +87,8 @@ unsafe fn __cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     //
     // Refs: https://www.felixcloutier.com/x86/cmpxchg8b:cmpxchg16b
     unsafe {
+        // cmpxchg16b is always SeqCst.
+        let _ = (success, failure);
         let r: u8;
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -101,40 +128,6 @@ unsafe fn cmpxchg16b(
     success: Ordering,
     failure: Ordering,
 ) -> (u128, bool) {
-    #[cfg_attr(
-        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-        target_feature(enable = "cmpxchg16b")
-    )]
-    #[cfg_attr(
-        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        inline
-    )]
-    #[cfg_attr(
-        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-        inline(never)
-    )]
-    unsafe fn _cmpxchg16b(
-        dst: *mut u128,
-        old: u128,
-        new: u128,
-        success: Ordering,
-        failure: Ordering,
-    ) -> (u128, bool) {
-        // Miri and Sanitizer do not support inline assembly.
-        #[cfg(any(miri, portable_atomic_sanitize_thread))]
-        // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
-        unsafe {
-            let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
-            (res, res == old)
-        }
-        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
-        // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
-        unsafe {
-            let _ = (success, failure);
-            __cmpxchg16b(dst, old, new)
-        }
-    }
-
     #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
@@ -434,9 +427,12 @@ mod tests {
     test_atomic_int!(u128);
 
     #[test]
-    #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
     fn test() {
-        assert!(std::is_x86_feature_detected!("cmpxchg16b"));
+        // Miri doesn't support inline assembly used in is_x86_feature_detected
+        #[cfg(not(miri))]
+        {
+            assert!(std::is_x86_feature_detected!("cmpxchg16b"));
+        }
         assert!(AtomicI128::is_lock_free());
         assert!(AtomicU128::is_lock_free());
     }
@@ -450,13 +446,15 @@ mod tests {
         use super::super::*;
 
         ::quickcheck::quickcheck! {
-            #[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
-            #[cfg_attr(portable_atomic_sanitize_thread, ignore)] // TSan doesn't know the semantics of the asm synchronization instructions.
             fn test(x: u128, y: u128, z: u128) -> bool {
-                assert!(std::is_x86_feature_detected!("cmpxchg16b"));
+                // Miri doesn't support inline assembly used in is_x86_feature_detected
+                #[cfg(not(miri))]
+                {
+                    assert!(std::is_x86_feature_detected!("cmpxchg16b"));
+                }
                 unsafe {
                     let a = Align16(UnsafeCell::new(x));
-                    let (res, ok) = __cmpxchg16b(a.get(), y, z);
+                    let (res, ok) = _cmpxchg16b(a.get(), y, z, Ordering::SeqCst, Ordering::SeqCst);
                     if x == y {
                         assert!(ok);
                         assert_eq!(res, x);
