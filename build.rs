@@ -30,7 +30,6 @@ fn main() {
     let mut target_upper = target.replace(|c: char| c == '-' || c == '.', "_");
     target_upper.make_ascii_uppercase();
     println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
-    println!("cargo:rerun-if-env-changed=CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS");
     println!("cargo:rerun-if-env-changed=RUSTC");
 
     let version = match rustc_version() {
@@ -70,7 +69,6 @@ fn main() {
     }
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     let no_asm = !version.probe(59, 2021, 12, 15);
-    let mut unstable_asm = false;
     if no_asm {
         if version.nightly
             && version.probe(46, 2020, 6, 20)
@@ -85,7 +83,6 @@ fn main() {
             // until it was stabilized in nightly-2021-12-16, so it can be safely enabled in
             // nightly, which is older than nightly-2021-12-16.
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
-            unstable_asm = true;
         }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     }
@@ -157,19 +154,28 @@ fn main() {
 
     match target_arch {
         "x86_64" => {
+            // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
+            if !version.probe(69, 2023, 2, 28) {
+                if version.nightly && is_allowed_feature("cmpxchg16b_target_feature") {
+                    // This feature has not been changed since 1.33
+                    // (https://github.com/rust-lang/rust/commit/fbb56bcf44d28e65a9495decf091b6d0386e540c)
+                    // until it was stabilized in nightly-2023-03-01, so it can be safely enabled in
+                    // nightly, which is older than nightly-2023-03-01.
+                    println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_target_feature");
+                    println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
+                } else {
+                    // println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
+                }
+            } else {
+                // TODO: invert flag once 1.69 became stable
+                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
+            }
+
             // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
             let has_cmpxchg16b = target_os == "macos";
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
-            // It is unlikely that rustc will support that name, so we will ignore it for now.
-            target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, None, true);
-            if version.nightly
-                && (!no_asm || unstable_asm)
-                && cfg!(feature = "fallback")
-                && env::var_os("CARGO_CFG_PORTABLE_ATOMIC_NO_OUTLINE_ATOMICS").is_none()
-                && is_allowed_feature("cmpxchg16b_target_feature")
-            {
-                println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_target_feature");
-            }
+            // It is unlikely that rustc will support that name, so we ignore it.
+            target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, Some(69), true);
         }
         "aarch64" => {
             // aarch64_target_feature stabilized in Rust 1.61 (nightly-2022-03-16): https://github.com/rust-lang/rust/pull/90621

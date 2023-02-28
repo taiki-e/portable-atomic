@@ -102,16 +102,7 @@ unsafe fn cmpxchg16b(
     failure: Ordering,
 ) -> (u128, bool) {
     #[cfg_attr(
-        all(
-            any(
-                all(test, portable_atomic_nightly),
-                portable_atomic_unstable_cmpxchg16b_target_feature,
-            ),
-            not(any(
-                target_feature = "cmpxchg16b",
-                portable_atomic_target_feature = "cmpxchg16b",
-            )),
-        ),
+        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
         target_feature(enable = "cmpxchg16b")
     )]
     #[cfg_attr(
@@ -151,7 +142,6 @@ unsafe fn cmpxchg16b(
     unsafe {
         _cmpxchg16b(dst, old, new, success, failure)
     }
-    #[cfg(portable_atomic_unstable_cmpxchg16b_target_feature)]
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     {
         #[cold]

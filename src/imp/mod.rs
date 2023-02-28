@@ -39,7 +39,11 @@ mod aarch64;
 #[cfg(any(
     target_feature = "cmpxchg16b",
     portable_atomic_target_feature = "cmpxchg16b",
-    portable_atomic_unstable_cmpxchg16b_target_feature,
+    all(
+        feature = "fallback",
+        portable_atomic_cmpxchg16b_target_feature,
+        not(portable_atomic_no_outline_atomics),
+    ),
 ))]
 #[cfg(target_arch = "x86_64")]
 #[path = "atomic128/x86_64.rs"]
@@ -315,7 +319,11 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     any(
         target_feature = "cmpxchg16b",
         portable_atomic_target_feature = "cmpxchg16b",
-        portable_atomic_unstable_cmpxchg16b_target_feature,
+        all(
+            feature = "fallback",
+            portable_atomic_cmpxchg16b_target_feature,
+            not(portable_atomic_no_outline_atomics),
+        ),
     ),
     target_arch = "x86_64",
 ))]
@@ -341,7 +349,11 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b",
-            portable_atomic_unstable_cmpxchg16b_target_feature,
+            all(
+                feature = "fallback",
+                portable_atomic_cmpxchg16b_target_feature,
+                not(portable_atomic_no_outline_atomics),
+            ),
         ),
         target_arch = "x86_64",
     ),

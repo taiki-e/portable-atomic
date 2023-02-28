@@ -117,7 +117,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.59+ (AVX) or nightly (CMPXCHG16B) for x86_64, and in nightly for other platforms, otherwise it works the same as when this cfg is set.
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in Rust 1.59+ (AVX) or 1.69+ (CMPXCHG16B) for x86_64, otherwise it works the same as when this cfg is set.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
   - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.
@@ -187,25 +187,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::single_match,
     clippy::type_complexity
 )]
-// x86_64 128-bit atomic (fallback + dynamic detection only)
-// We use cfg set by build script to determine whether this feature is available or not.
-// This feature will be stabilized in https://github.com/rust-lang/rust/pull/106774.
-#![cfg_attr(
-    all(
-        target_arch = "x86_64",
-        any(
-            all(test, portable_atomic_nightly),
-            all(
-                portable_atomic_unstable_cmpxchg16b_target_feature,
-                not(any(
-                    target_feature = "cmpxchg16b",
-                    portable_atomic_target_feature = "cmpxchg16b",
-                )),
-            ),
-        ),
-    ),
-    feature(cmpxchg16b_target_feature)
-)]
 // asm_experimental_arch
 // AVR and MSP430 are tier 3 platforms and require nightly anyway.
 // On tier 2 platforms (powerpc64 and s390x), we use cfg set by build script to
@@ -234,6 +215,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
 // - #[target_feature(enable = "lse")] on AArch64
+// - #[target_feature(enable = "cmpxchg16b")] on x86_64
 // - asm! on ARM, AArch64, RISC-V, x86_64
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux pre-v6 ARM (tier 3)
@@ -245,6 +227,15 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
         not(portable_atomic_no_outline_atomics),
     ),
     feature(aarch64_target_feature)
+)]
+#![cfg_attr(
+    all(
+        target_arch = "x86_64",
+        portable_atomic_unstable_cmpxchg16b_target_feature,
+        not(portable_atomic_no_outline_atomics),
+        feature = "fallback",
+    ),
+    feature(cmpxchg16b_target_feature)
 )]
 #![cfg_attr(
     all(
@@ -4602,7 +4593,11 @@ atomic_int!(AtomicU64, u64, 8);
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_unstable_cmpxchg16b_target_feature,
+                all(
+                    feature = "fallback",
+                    portable_atomic_cmpxchg16b_target_feature,
+                    not(portable_atomic_no_outline_atomics),
+                ),
             ),
             target_arch = "x86_64",
         ),
@@ -4650,7 +4645,11 @@ atomic_int!(AtomicI128, i128, 16);
             any(
                 target_feature = "cmpxchg16b",
                 portable_atomic_target_feature = "cmpxchg16b",
-                portable_atomic_unstable_cmpxchg16b_target_feature,
+                all(
+                    feature = "fallback",
+                    portable_atomic_cmpxchg16b_target_feature,
+                    not(portable_atomic_no_outline_atomics),
+                ),
             ),
             target_arch = "x86_64",
         ),

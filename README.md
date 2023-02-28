@@ -125,7 +125,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE (aarch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in 1.59+ (AVX) or nightly (CMPXCHG16B) for x86_64, and in nightly for other platforms, otherwise it works the same as when this cfg is set.
+  - Dynamic detection is currently only enabled in Rust 1.61+ for aarch64, in Rust 1.59+ (AVX) or 1.69+ (CMPXCHG16B) for x86_64, otherwise it works the same as when this cfg is set.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
   - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.

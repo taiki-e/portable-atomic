@@ -42,7 +42,6 @@ impl SeqLock {
     /// If not locked, returns the current stamp.
     ///
     /// This method should be called before optimistic reads.
-    #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
     #[inline]
     fn optimistic_read(&self) -> Option<Stamp> {
         let state = self.state.load(Ordering::Acquire);
@@ -57,7 +56,6 @@ impl SeqLock {
     ///
     /// This method should be called after optimistic reads to check whether they are valid. The
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
-    #[cfg(any(test, not(portable_atomic_unstable_cmpxchg16b_target_feature)))]
     #[inline]
     fn validate_read(&self, stamp: Stamp) -> bool {
         atomic::fence(Ordering::Acquire);
