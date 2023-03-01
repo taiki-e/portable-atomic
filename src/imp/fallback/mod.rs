@@ -86,6 +86,7 @@ pub(crate) use seq_lock::imp::{AtomicI64, AtomicU64};
             target_arch = "x86_64",
             portable_atomic_cmpxchg16b_target_feature,
             not(portable_atomic_no_outline_atomics),
+            not(target_env = "sgx"),
         ),
     ),
     allow(unused_imports)

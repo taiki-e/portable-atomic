@@ -167,6 +167,7 @@ fn test_is_lock_free() {
                 feature = "fallback",
                 portable_atomic_cmpxchg16b_target_feature,
                 not(portable_atomic_no_outline_atomics),
+                not(target_env = "sgx"),
             )) && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);
