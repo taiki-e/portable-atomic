@@ -82,9 +82,18 @@ macro_rules! atomic {
                 // See also atomic-memcpy crate, a generic implementation of this pattern:
                 // https://github.com/taiki-e/atomic-memcpy
                 let chunks = unsafe { self.chunks() };
+                // https://godbolt.org/z/xxEx49xWh
+                // match Self::LEN {
+                //     2 => {
+                //         dst[0] = chunks[0].load(Ordering::Relaxed);
+                //         dst[1] = chunks[1].load(Ordering::Relaxed);
+                //     }
+                //     _ => {
                 for i in 0..Self::LEN {
                     dst[i] = chunks[i].load(Ordering::Relaxed);
                 }
+                //     }
+                // }
                 // SAFETY: integers are plain old datatypes so we can always transmute to them.
                 unsafe { mem::transmute::<[Chunk; Self::LEN], $int_type>(dst) }
             }
@@ -119,9 +128,17 @@ macro_rules! atomic {
                 //
                 // See optimistic_read for the reason that atomic operations are used here.
                 let chunks = unsafe { self.chunks() };
+                // match Self::LEN {
+                //     2 => {
+                //         chunks[0].store(val[0], Ordering::Relaxed);
+                //         chunks[1].store(val[1], Ordering::Relaxed);
+                //     }
+                //     _ => {
                 for i in 0..Self::LEN {
                     chunks[i].store(val[i], Ordering::Relaxed);
                 }
+                //     }
+                // }
             }
         }
 
