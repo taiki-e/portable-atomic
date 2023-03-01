@@ -233,6 +233,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
         target_arch = "x86_64",
         portable_atomic_unstable_cmpxchg16b_target_feature,
         not(portable_atomic_no_outline_atomics),
+        not(target_env = "sgx"),
         feature = "fallback",
     ),
     feature(cmpxchg16b_target_feature)
@@ -4597,6 +4598,7 @@ atomic_int!(AtomicU64, u64, 8);
                     feature = "fallback",
                     portable_atomic_cmpxchg16b_target_feature,
                     not(portable_atomic_no_outline_atomics),
+                    not(target_env = "sgx"),
                 ),
             ),
             target_arch = "x86_64",
@@ -4649,6 +4651,7 @@ atomic_int!(AtomicI128, i128, 16);
                     feature = "fallback",
                     portable_atomic_cmpxchg16b_target_feature,
                     not(portable_atomic_no_outline_atomics),
+                    not(target_env = "sgx"),
                 ),
             ),
             target_arch = "x86_64",

@@ -273,10 +273,12 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 
     // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
     // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // SGX doesn't support CPUID.
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(any(
-        portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
+        portable_atomic_no_outline_atomics,
+        target_env = "sgx",
         miri,
         portable_atomic_sanitize_thread,
     ))]
@@ -285,8 +287,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         _atomic_load_cmpxchg16b(src, order)
     }
     #[cfg(not(any(
-        portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
+        portable_atomic_no_outline_atomics,
+        target_env = "sgx",
         miri,
         portable_atomic_sanitize_thread,
     )))]
@@ -316,10 +319,12 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 
     // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
     // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // SGX doesn't support CPUID.
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(any(
-        portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
+        portable_atomic_no_outline_atomics,
+        target_env = "sgx",
         miri,
         portable_atomic_sanitize_thread,
     ))]
@@ -328,8 +333,9 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         _atomic_store_cmpxchg16b(dst, val, order);
     }
     #[cfg(not(any(
-        portable_atomic_no_outline_atomics,
         not(target_feature = "sse"),
+        portable_atomic_no_outline_atomics,
+        target_env = "sgx",
         miri,
         portable_atomic_sanitize_thread,
     )))]
