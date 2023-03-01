@@ -147,7 +147,7 @@ mod imp {
 
     use super::AA64Reg;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
         pub(crate) use core::ffi::c_void;

@@ -2,9 +2,9 @@
 // platform APIs, and we define our own FFI bindings to those APIs.
 //
 // We use only one or two function(s) and a few types/constants per platform,
-// but technically OS can change these APIs (unfortunately, some operating
-// systems don't care about breaking API/ABI between releases), so it is
-// preferable to be able to detect them.
+// but technically OS can change these APIs (unfortunately, some OSes don't care
+// about breaking API/ABI between releases), so it is preferable to be able
+// to detect them.
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
