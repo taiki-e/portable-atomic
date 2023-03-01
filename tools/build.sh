@@ -193,7 +193,7 @@ build() {
     fi
     args+=("${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
-        x rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
+        rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
         if ! cargo ${pre_args[@]+"${pre_args[@]}"} -Z help | grep -Eq '\bZ build-std\b'; then

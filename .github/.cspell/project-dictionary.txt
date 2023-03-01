@@ -50,13 +50,17 @@ hartid
 hstdout
 HWCAP
 ifunc
+includepath
 isel
 ishld
 isync
 ldaxp
 ldxp
 libcalls
+libdir
+libfdio
 libpthread
+libstd
 libtcl
 libtest
 lqarx
@@ -72,6 +76,7 @@ miscompilation
 mmfr
 moreutils
 mstatus
+newrepo
 newtype
 nographic
 nostdinc

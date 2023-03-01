@@ -2,6 +2,7 @@
 
 - [Project layout](#project-layout)
 - [Testing powerpc64le using POWER Functional Simulator](#testing-powerpc64le-using-power-functional-simulator)
+- [Testing Fuchsia](#testing-fuchsia)
 
 ## Project layout
 
@@ -36,6 +37,8 @@ We mainly use qemu to test for targets other than x86_64/aarch64, but some instr
 
 <!-- omit in toc -->
 ### Setup
+
+Host requirements: x86_64 Linux
 
 Install dependencies.
 
@@ -116,3 +119,40 @@ Run test binary in simulator.
 ```
 
 TODO: Automate more processes.
+
+## Testing Fuchsia
+
+This section describes testing Fuchsia using the emulator included in the Fuchsia SDK. See [rustc's platform support documentation]([fuchsia-platform-support-doc]) for details.
+
+<!-- omit in toc -->
+### Setup
+
+Host requirements: x86_64 Linux/macOS
+
+Download the Fuchsia SDK according to the instructions in [rustc's platform support documentation]([fuchsia-platform-support-doc]).
+
+Then set `SDK_PATH` environment variable.
+
+```sh
+export SDK_PATH=<path/to/sdk>
+```
+
+Start simulator (Ctrl-C to stop).
+
+```sh
+./tools/fuchsia-test.sh emu aarch64
+```
+
+(The only fuchsia-specific code in our codebase is for aarch64, so here we use the aarch64 emulator, but if you pass `x86_64` instead of `aarch64` as the first argument of the script, it works for x86_64.)
+
+<!-- omit in toc -->
+### Run tests
+
+```sh
+# By default this runs test with --lib on workspace root.
+./tools/fuchsia-test.sh aarch64 --release
+```
+
+TODO: Reflects whether the test was successful in the exit code of the script.
+
+[fuchsia-platform-support-doc]: https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
