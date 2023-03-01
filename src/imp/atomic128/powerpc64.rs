@@ -2,10 +2,10 @@
 //
 // powerpc64 on pwr8+ support 128-bit atomics:
 // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-// https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/test/CodeGen/PowerPC/atomics-i128-ldst.ll
-// https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/test/CodeGen/PowerPC/atomics-i128.ll
+// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/test/CodeGen/PowerPC/atomics-i128-ldst.ll
+// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/test/CodeGen/PowerPC/atomics-i128.ll
 //
-// powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
+// powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L663
 // See also https://github.com/rust-lang/rust/issues/59932
 //
 // Note that we do not separate LL and SC into separate functions, but handle

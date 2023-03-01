@@ -191,7 +191,7 @@ fn main() {
                 }
             }
 
-            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.6: https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/aarch64_apple_darwin.rs#L7
+            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.5-a: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
             target_feature_if("lse", is_macos, &version, Some(61), true);
@@ -241,7 +241,7 @@ fn main() {
         "powerpc64" => {
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
+            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L663
             // See also https://github.com/rust-lang/rust/issues/59932
             let mut has_pwr8_features = target_endian == "little";
             // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
@@ -252,8 +252,8 @@ fn main() {
                         has_pwr8_features = cpu_version >= 8;
                     }
                 } else {
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L652
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-15.0.0/llvm/lib/Target/PowerPC/PPC.td#L434-L436
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L663
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L445-L447
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
