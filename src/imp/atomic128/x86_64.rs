@@ -68,7 +68,9 @@ unsafe fn _cmpxchg16b(
 
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(any(miri, portable_atomic_sanitize_thread))]
-    // SAFETY: the caller must uphold the safety contract for `_cmpxchg16b`.
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned (required by CMPXCHG16B), that there are no
+    // concurrent non-atomic operations, and that the CPU supports CMPXCHG16B.
     unsafe {
         let res = core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure);
         (res, res == old)
@@ -120,64 +122,9 @@ unsafe fn _cmpxchg16b(
     }
 }
 
-#[inline]
-unsafe fn cmpxchg16b(
-    dst: *mut u128,
-    old: u128,
-    new: u128,
-    success: Ordering,
-    failure: Ordering,
-) -> (u128, bool) {
-    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and cfg guarantees that CMPXCHG16B is statically available.
-    unsafe {
-        _cmpxchg16b(dst, old, new, success, failure)
-    }
-    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
-    {
-        #[cold]
-        unsafe fn _fallback(
-            dst: *mut u128,
-            old: u128,
-            new: u128,
-            success: Ordering,
-            failure: Ordering,
-        ) -> (u128, bool) {
-            #[allow(clippy::cast_ptr_alignment)]
-            // SAFETY: the caller must uphold the safety contract.
-            unsafe {
-                match (*(dst as *const super::fallback::AtomicU128))
-                    .compare_exchange(old, new, success, failure)
-                {
-                    Ok(v) => (v, true),
-                    Err(v) => (v, false),
-                }
-            }
-        }
-        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-        // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
-        unsafe {
-            ifunc!(unsafe fn(
-                dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
-            ) -> (u128, bool) {
-                if detect::has_cmpxchg16b() {
-                    _cmpxchg16b
-                } else {
-                    _fallback
-                }
-            })
-        }
-    }
-}
-
 // 128-bit atomic load by two 64-bit atomic loads.
 //
-// This is based on the code generated for the first load in DW RMWs by LLVM,
-// but it is interesting that they generate code that does mixed-sized atomic access.
-//
-// See also atomic_update.
+// See atomic_update for details.
 #[inline]
 unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
     debug_assert!(src as usize % 16 == 0);
@@ -268,7 +215,11 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
         let fail_order = crate::utils::strongest_failure_ordering(order);
         // SAFETY: the caller must uphold the safety contract for `_atomic_load_cmpxchg16b`.
-        unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+        unsafe {
+            match atomic_compare_exchange(src, 0, 0, order, fail_order) {
+                Ok(v) | Err(v) => v,
+            }
+        }
     }
 
     // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
@@ -362,8 +313,46 @@ unsafe fn atomic_compare_exchange(
     failure: Ordering,
 ) -> Result<u128, u128> {
     let success = crate::utils::upgrade_success_ordering(success, failure);
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
-    let (res, ok) = unsafe { cmpxchg16b(dst, old, new, success, failure) };
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and cfg guarantees that CMPXCHG16B is statically available.
+    let (res, ok) = unsafe { _cmpxchg16b(dst, old, new, success, failure) };
+    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
+    let (res, ok) = {
+        #[cold]
+        unsafe fn _fallback(
+            dst: *mut u128,
+            old: u128,
+            new: u128,
+            success: Ordering,
+            failure: Ordering,
+        ) -> (u128, bool) {
+            #[allow(clippy::cast_ptr_alignment)]
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                match (*(dst as *const super::fallback::AtomicU128))
+                    .compare_exchange(old, new, success, failure)
+                {
+                    Ok(v) => (v, true),
+                    Err(v) => (v, false),
+                }
+            }
+        }
+        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+        // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
+        unsafe {
+            ifunc!(unsafe fn(
+                dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
+            ) -> (u128, bool) {
+                if detect::has_cmpxchg16b() {
+                    _cmpxchg16b
+                } else {
+                    _fallback
+                }
+            })
+        }
+    };
     if ok {
         Ok(res)
     } else {
@@ -388,13 +377,13 @@ where
         // CAS will check for consistency.
         //
         // byte_wise_atomic_load works the same way as seqlock's byte-wise atomic memcpy,
-        // so it works well even when CAS calls global lock-based fallback.
+        // so it works well even when atomic_compare_exchange_weak calls global lock-based fallback.
         //
         // Note that the C++20 memory model does not allow mixed-sized atomic access,
-        // so we must use inline assembly to implement this. (i.e., byte-wise atomic
-        // based on standard library's atomic types cannot be used here).
-        // Since fallback's byte-wise atomic memcpy is per 64-bit on x86_64,
-        // it's okay to use it together with this.
+        // so we must use inline assembly to implement byte_wise_atomic_load.
+        // (i.e., byte-wise atomic based on the standard library's atomic types
+        // cannot be used here). Since fallback's byte-wise atomic memcpy is per
+        // 64-bit on x86_64 (even on x32 ABI), it's okay to use it together with this.
         let mut old = byte_wise_atomic_load(dst);
         loop {
             let next = f(old);
@@ -534,7 +523,11 @@ mod tests_no_cmpxchg16b {
     #[inline(never)]
     unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         let fail_order = crate::utils::strongest_failure_ordering(order);
-        unsafe { cmpxchg16b(src, 0, 0, order, fail_order).0 }
+        unsafe {
+            match atomic_compare_exchange(src, 0, 0, order, fail_order) {
+                Ok(v) | Err(v) => v,
+            }
+        }
     }
 
     #[inline(never)]
