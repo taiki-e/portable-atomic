@@ -1,14 +1,6 @@
 #![cfg_attr(
     any(
         portable_atomic_no_aarch64_target_feature,
-        not(any(
-            feature = "std",
-            target_os = "linux",
-            target_os = "android",
-            // target_os = "freebsd",
-            // target_os = "openbsd",
-            target_os = "windows",
-        )),
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     ),
     allow(dead_code)
@@ -35,10 +27,6 @@ pub(crate) fn has_lse() -> bool {
             any(
                 feature = "std",
                 all(target_os = "linux", any(target_env = "gnu", target_env = "musl")),
-                target_os = "android",
-                // target_os = "freebsd",
-                // target_os = "openbsd",
-                target_os = "windows",
             ),
         ))]
         {
