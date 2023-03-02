@@ -1,6 +1,6 @@
 #[cfg(any(target_arch = "s390x", target_arch = "x86_64"))]
 macro_rules! atomic128 {
-    (uint, $atomic_type:ident, $int_type:ident) => {
+    ($atomic_type:ident, $int_type:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: core::cell::UnsafeCell<$int_type>,
@@ -218,15 +218,6 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident) => {
-        atomic128!(uint, $atomic_type, $int_type);
-        impl $atomic_type {
-            #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -241,13 +232,18 @@ macro_rules! atomic128 {
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
             }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
+            }
         }
     };
 }
 
 #[cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 macro_rules! atomic128 {
-    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: core::cell::UnsafeCell<$int_type>,
@@ -440,15 +436,6 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(uint, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
-            #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
                 // TODO: define atomic_neg function and use it
                 self.fetch_update_(order, |x| x.wrapping_neg())
@@ -456,6 +443,11 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
+            }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
             }
 
             #[inline]

@@ -410,7 +410,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 }
 
 macro_rules! atomic128 {
-    (int_general, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
+    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(16))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -589,31 +589,13 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                const NOT_MASK: $int_type = (0 as $int_type).wrapping_sub(1);
+                self.fetch_xor(NOT_MASK, order)
+            }
+            #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
-            }
-
-            #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
-            }
-        }
-    };
-    (uint, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(int_general, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.fetch_xor(core::$int_type::MAX, order)
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
-        atomic128!(int_general, $atomic_type, $int_type, $atomic_max, $atomic_min);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.fetch_xor(-1, order)
             }
 
             #[inline]
@@ -623,6 +605,11 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
+            }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
             }
 
             #[inline]
@@ -644,8 +631,8 @@ macro_rules! atomic128 {
     };
 }
 
-atomic128!(int, AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(uint, AtomicU128, u128, atomic_umax, atomic_umin);
+atomic128!(AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {

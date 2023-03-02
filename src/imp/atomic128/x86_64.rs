@@ -410,8 +410,8 @@ const fn is_always_lock_free() -> bool {
     cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
 }
 
-atomic128!(int, AtomicI128, i128);
-atomic128!(uint, AtomicU128, u128);
+atomic128!(AtomicI128, i128);
+atomic128!(AtomicU128, u128);
 
 #[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
@@ -585,8 +585,8 @@ mod tests_no_cmpxchg16b {
     }
     use is_always_lock_free as is_lock_free;
 
-    atomic128!(int, AtomicI128, i128);
-    atomic128!(uint, AtomicU128, u128);
+    atomic128!(AtomicI128, i128);
+    atomic128!(AtomicU128, u128);
 
     // Do not put this in the nested tests module due to glob imports refer to super::super::Atomic*.
     test_atomic_int!(i128);

@@ -2455,34 +2455,22 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    (AtomicU8, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicU8, $int_type, $align);
-    };
-    (AtomicU16, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicU16, $int_type, $align);
-    };
-    (AtomicU32, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicU32, $int_type, $align);
+    (AtomicU32, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
+        atomic_int!(int, AtomicU32, $int_type, $align, $neg_example);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
     };
-    (AtomicU64, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicU64, $int_type, $align);
+    (AtomicU64, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
+        atomic_int!(int, AtomicU64, $int_type, $align, $neg_example);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
     };
-    (AtomicU128, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicU128, $int_type, $align);
-    };
-    (AtomicUsize, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, AtomicUsize, $int_type, $align);
-    };
-    ($atomic_type:ident, $int_type:ident, $align:literal) => {
-        atomic_int!(int, $atomic_type, $int_type, $align);
+    ($atomic_type:ident, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
+        atomic_int!(int, $atomic_type, $int_type, $align, $neg_example);
     };
 
     // Atomic{I,U}* impls
-    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal, $neg_example:literal) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
 
@@ -3756,33 +3744,6 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                 }
             }
 
-            const_fn! {
-                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
-                /// Returns a mutable pointer to the underlying integer.
-                ///
-                /// Returning an `*mut` pointer from a shared reference to this atomic is
-                /// safe because the atomic types work with interior mutability. Any use of
-                /// the returned raw pointer requires an `unsafe` block and has to uphold
-                /// the safety requirements:
-                /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
-                ///   operations on it must be atomic.
-                /// - Otherwise, any concurrent operations on it must be compatible with
-                ///   operations performed by this atomic type.
-                ///
-                /// This is `const fn` on Rust 1.58+.
-                #[inline]
-                pub const fn as_ptr(&self) -> *mut $int_type {
-                    self.inner.as_ptr()
-                }
-            }
-        }
-    };
-
-    // AtomicI* impls
-    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, $atomic_type, $int_type, $align);
-
-        impl $atomic_type {
             doc_comment! {
                 concat!("Negates the current value, and sets the new value to the result.
 
@@ -3800,8 +3761,8 @@ use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
 let foo = ", stringify!($atomic_type), "::new(5);
 assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5);
-assert_eq!(foo.load(Ordering::Relaxed), -5);
-assert_eq!(foo.fetch_neg(Ordering::Relaxed), -5);
+assert_eq!(foo.load(Ordering::Relaxed), ", $neg_example, ");
+assert_eq!(foo.fetch_neg(Ordering::Relaxed), ", $neg_example, ");
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
                 #[cfg_attr(
@@ -3850,7 +3811,7 @@ use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
 let foo = ", stringify!($atomic_type), "::new(5);
 foo.neg(Ordering::Relaxed);
-assert_eq!(foo.load(Ordering::Relaxed), -5);
+assert_eq!(foo.load(Ordering::Relaxed), ", $neg_example, ");
 foo.neg(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
@@ -3878,6 +3839,26 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                     pub fn neg(&self, order: Ordering) {
                         self.inner.neg(order);
                     }
+                }
+            }
+
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+                /// Returns a mutable pointer to the underlying integer.
+                ///
+                /// Returning an `*mut` pointer from a shared reference to this atomic is
+                /// safe because the atomic types work with interior mutability. Any use of
+                /// the returned raw pointer requires an `unsafe` block and has to uphold
+                /// the safety requirements:
+                /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
+                ///   operations on it must be atomic.
+                /// - Otherwise, any concurrent operations on it must be compatible with
+                ///   operations performed by this atomic type.
+                ///
+                /// This is `const fn` on Rust 1.58+.
+                #[inline]
+                pub const fn as_ptr(&self) -> *mut $int_type {
+                    self.inner.as_ptr()
                 }
             }
         }
@@ -4484,31 +4465,31 @@ This is `const fn` on Rust 1.58+."),
 }
 
 #[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicIsize, isize, 2);
+atomic_int!(AtomicIsize, isize, 2, neg_example = "-5");
 #[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicUsize, usize, 2);
+atomic_int!(AtomicUsize, usize, 2, neg_example = "65531");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicIsize, isize, 4);
+atomic_int!(AtomicIsize, isize, 4, neg_example = "-5");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicUsize, usize, 4);
+atomic_int!(AtomicUsize, usize, 4, neg_example = "4294967291");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicIsize, isize, 8);
+atomic_int!(AtomicIsize, isize, 8, neg_example = "-5");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicUsize, usize, 8);
+atomic_int!(AtomicUsize, usize, 8, neg_example = "18446744073709551611");
 #[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicIsize, isize, 16);
+atomic_int!(AtomicIsize, isize, 16, neg_example = "-5");
 #[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicUsize, usize, 16);
+atomic_int!(AtomicUsize, usize, 16, neg_example = "340282366920938463463374607431768211451");
 
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
+atomic_int!(AtomicI8, i8, 1, neg_example = "-5");
+atomic_int!(AtomicU8, u8, 1, neg_example = "251");
+atomic_int!(AtomicI16, i16, 2, neg_example = "-5");
+atomic_int!(AtomicU16, u16, 2, neg_example = "65531");
 
 #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicI32, i32, 4);
+atomic_int!(AtomicI32, i32, 4, neg_example = "-5");
 #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicU32, u32, 4);
+atomic_int!(AtomicU32, u32, 4, neg_example = "4294967291");
 
 // cfg(any(target_has_atomic = "ptr", target_has_atomic_load_store = "64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
 #[cfg_attr(
@@ -4545,7 +4526,7 @@ atomic_int!(AtomicU32, u32, 4);
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
     ))
 )]
-atomic_int!(AtomicI64, i64, 8);
+atomic_int!(AtomicI64, i64, 8, neg_example = "-5");
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
@@ -4580,7 +4561,7 @@ atomic_int!(AtomicI64, i64, 8);
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
     ))
 )]
-atomic_int!(AtomicU64, u64, 8);
+atomic_int!(AtomicU64, u64, 8, neg_example = "18446744073709551611");
 
 #[cfg_attr(
     not(feature = "fallback"),
@@ -4634,7 +4615,7 @@ atomic_int!(AtomicU64, u64, 8);
         target_arch = "msp430",
     ))
 )]
-atomic_int!(AtomicI128, i128, 16);
+atomic_int!(AtomicI128, i128, 16, neg_example = "-5");
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
@@ -4687,7 +4668,7 @@ atomic_int!(AtomicI128, i128, 16);
         target_arch = "msp430",
     ))
 )]
-atomic_int!(AtomicU128, u128, 16);
+atomic_int!(AtomicU128, u128, 16, neg_example = "340282366920938463463374607431768211451");
 
 /// Emulate strict provenance.
 ///

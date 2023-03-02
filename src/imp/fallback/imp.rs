@@ -41,7 +41,7 @@ fn lock(addr: usize) -> &'static SeqLock {
 }
 
 macro_rules! atomic {
-    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    ($atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -307,15 +307,6 @@ macro_rules! atomic {
             }
 
             #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
-        atomic!(uint, $atomic_type, $int_type, $align);
-        impl $atomic_type {
-            #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
                 let result = self.read(&guard);
@@ -325,6 +316,11 @@ macro_rules! atomic {
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
+            }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
             }
         }
     };
@@ -348,7 +344,7 @@ macro_rules! atomic {
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
-atomic!(int, AtomicI64, i64, 8);
+atomic!(AtomicI64, i64, 8);
 #[cfg(not(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")),
     target_arch = "aarch64",
@@ -367,10 +363,10 @@ atomic!(int, AtomicI64, i64, 8);
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "64")))
 )]
-atomic!(uint, AtomicU64, u64, 8);
+atomic!(AtomicU64, u64, 8);
 
-atomic!(int, AtomicI128, i128, 16);
-atomic!(uint, AtomicU128, u128, 16);
+atomic!(AtomicI128, i128, 16);
+atomic!(AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {

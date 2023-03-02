@@ -472,9 +472,9 @@ macro_rules! atomic_int {
             }
         }
     };
-    ($kind:ident, load_store_atomic, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (load_store_atomic, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        atomic_int!($kind, cas, $atomic_type, $int_type);
+        atomic_int!(cas, $atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -568,15 +568,9 @@ macro_rules! atomic_int {
             }
         }
     };
-    (
-        $kind:ident,
-        load_store_critical_session,
-        $atomic_type:ident,
-        $int_type:ident,
-        $align:literal
-    ) => {
+    (load_store_critical_session, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        atomic_int!($kind, cas, $atomic_type, $int_type);
+        atomic_int!(cas, $atomic_type, $int_type);
         no_fetch_ops_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
@@ -605,7 +599,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (uint, cas, $atomic_type:ident, $int_type:ident) => {
+    (cas, $atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
@@ -758,11 +752,7 @@ macro_rules! atomic_int {
                     result
                 })
             }
-        }
-    };
-    (int, cas, $atomic_type:ident, $int_type:ident) => {
-        atomic_int!(uint, cas, $atomic_type, $int_type);
-        impl $atomic_type {
+
             #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -783,53 +773,53 @@ macro_rules! atomic_int {
 }
 
 #[cfg(target_pointer_width = "16")]
-atomic_int!(int, load_store_atomic, AtomicIsize, isize, 2);
+atomic_int!(load_store_atomic, AtomicIsize, isize, 2);
 #[cfg(target_pointer_width = "16")]
-atomic_int!(uint, load_store_atomic, AtomicUsize, usize, 2);
+atomic_int!(load_store_atomic, AtomicUsize, usize, 2);
 #[cfg(target_pointer_width = "32")]
-atomic_int!(int, load_store_atomic, AtomicIsize, isize, 4);
+atomic_int!(load_store_atomic, AtomicIsize, isize, 4);
 #[cfg(target_pointer_width = "32")]
-atomic_int!(uint, load_store_atomic, AtomicUsize, usize, 4);
+atomic_int!(load_store_atomic, AtomicUsize, usize, 4);
 #[cfg(target_pointer_width = "64")]
-atomic_int!(int, load_store_atomic, AtomicIsize, isize, 8);
+atomic_int!(load_store_atomic, AtomicIsize, isize, 8);
 #[cfg(target_pointer_width = "64")]
-atomic_int!(uint, load_store_atomic, AtomicUsize, usize, 8);
+atomic_int!(load_store_atomic, AtomicUsize, usize, 8);
 #[cfg(target_pointer_width = "128")]
-atomic_int!(int, load_store_atomic, AtomicIsize, isize, 16);
+atomic_int!(load_store_atomic, AtomicIsize, isize, 16);
 #[cfg(target_pointer_width = "128")]
-atomic_int!(uint, load_store_atomic, AtomicUsize, usize, 16);
+atomic_int!(load_store_atomic, AtomicUsize, usize, 16);
 
-atomic_int!(int, load_store_atomic, AtomicI8, i8, 1);
-atomic_int!(uint, load_store_atomic, AtomicU8, u8, 1);
-atomic_int!(int, load_store_atomic, AtomicI16, i16, 2);
-atomic_int!(uint, load_store_atomic, AtomicU16, u16, 2);
+atomic_int!(load_store_atomic, AtomicI8, i8, 1);
+atomic_int!(load_store_atomic, AtomicU8, u8, 1);
+atomic_int!(load_store_atomic, AtomicI16, i16, 2);
+atomic_int!(load_store_atomic, AtomicU16, u16, 2);
 
 #[cfg(not(target_pointer_width = "16"))]
-atomic_int!(int, load_store_atomic, AtomicI32, i32, 4);
+atomic_int!(load_store_atomic, AtomicI32, i32, 4);
 #[cfg(not(target_pointer_width = "16"))]
-atomic_int!(uint, load_store_atomic, AtomicU32, u32, 4);
+atomic_int!(load_store_atomic, AtomicU32, u32, 4);
 #[cfg(target_pointer_width = "16")]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(int, load_store_critical_session, AtomicI32, i32, 4);
+atomic_int!(load_store_critical_session, AtomicI32, i32, 4);
 #[cfg(target_pointer_width = "16")]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(uint, load_store_critical_session, AtomicU32, u32, 4);
+atomic_int!(load_store_critical_session, AtomicU32, u32, 4);
 
 #[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-atomic_int!(int, load_store_atomic, AtomicI64, i64, 8);
+atomic_int!(load_store_atomic, AtomicI64, i64, 8);
 #[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-atomic_int!(uint, load_store_atomic, AtomicU64, u64, 8);
+atomic_int!(load_store_atomic, AtomicU64, u64, 8);
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(int, load_store_critical_session, AtomicI64, i64, 8);
+atomic_int!(load_store_critical_session, AtomicI64, i64, 8);
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(uint, load_store_critical_session, AtomicU64, u64, 8);
+atomic_int!(load_store_critical_session, AtomicU64, u64, 8);
 
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(int, load_store_critical_session, AtomicI128, i128, 16);
+atomic_int!(load_store_critical_session, AtomicI128, i128, 16);
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(uint, load_store_critical_session, AtomicU128, u128, 16);
+atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {

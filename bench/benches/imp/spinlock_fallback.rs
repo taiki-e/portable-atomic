@@ -74,7 +74,7 @@ fn lock(addr: usize) -> SpinlockGuard<'static> {
 }
 
 macro_rules! atomic_int {
-    (uint, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    ($atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
             v: UnsafeCell<$int_type>,
@@ -295,15 +295,6 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
-            }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
-        atomic_int!(uint, $atomic_type, $int_type, $align);
-        impl $atomic_type {
-            #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -318,20 +309,25 @@ macro_rules! atomic_int {
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
             }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                self.v.get()
+            }
         }
     };
 }
 
-atomic_int!(int, AtomicI8, i8, 1);
-atomic_int!(uint, AtomicU8, u8, 1);
-atomic_int!(int, AtomicI16, i16, 2);
-atomic_int!(uint, AtomicU16, u16, 2);
-atomic_int!(int, AtomicI32, i32, 4);
-atomic_int!(uint, AtomicU32, u32, 4);
-atomic_int!(int, AtomicI64, i64, 8);
-atomic_int!(uint, AtomicU64, u64, 8);
-atomic_int!(int, AtomicI128, i128, 16);
-atomic_int!(uint, AtomicU128, u128, 16);
+atomic_int!(AtomicI8, i8, 1);
+atomic_int!(AtomicU8, u8, 1);
+atomic_int!(AtomicI16, i16, 2);
+atomic_int!(AtomicU16, u16, 2);
+atomic_int!(AtomicI32, i32, 4);
+atomic_int!(AtomicU32, u32, 4);
+atomic_int!(AtomicI64, i64, 8);
+atomic_int!(AtomicU64, u64, 8);
+atomic_int!(AtomicI128, i128, 16);
+atomic_int!(AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {

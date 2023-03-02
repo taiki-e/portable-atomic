@@ -7,29 +7,7 @@ macro_rules! __run_test {
 }
 
 macro_rules! __test_atomic_int {
-    ($atomic_type:ty, u8) => {
-        __test_atomic_int!(uint, $atomic_type, u8);
-    };
-    ($atomic_type:ty, u16) => {
-        __test_atomic_int!(uint, $atomic_type, u16);
-    };
-    ($atomic_type:ty, u32) => {
-        __test_atomic_int!(uint, $atomic_type, u32);
-    };
-    ($atomic_type:ty, u64) => {
-        __test_atomic_int!(uint, $atomic_type, u64);
-    };
-    ($atomic_type:ty, u128) => {
-        __test_atomic_int!(uint, $atomic_type, u128);
-    };
-    ($atomic_type:ty, usize) => {
-        __test_atomic_int!(uint, $atomic_type, usize);
-    };
     ($atomic_type:ty, $int_type:ident) => {
-        __test_atomic_int!(uint, $atomic_type, $int_type);
-        __test_atomic_int!(int, $atomic_type, $int_type);
-    };
-    (uint, $atomic_type:ty, $int_type:ident) => {
         __run_test!(misc, $int_type);
         fn misc() {
             static _VAL: $atomic_type = <$atomic_type>::new(5);
@@ -242,25 +220,13 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), !1);
             }
         }
-        __run_test!(fetch_update, $int_type);
-        fn fetch_update() {
-            for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
-                let a = <$atomic_type>::new(7);
-                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
-                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
-                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
-                assert_eq!(a.load(Ordering::Relaxed), 9);
-            }
-        }
-    };
-    (int, $atomic_type:ty, $int_type:ident) => {
         __run_test!(fetch_neg, $int_type);
         fn fetch_neg() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 assert_eq!(a.fetch_neg(order), 5);
-                assert_eq!(a.load(Ordering::Relaxed), -5);
-                assert_eq!(a.fetch_neg(order), -5);
+                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
+                assert_eq!(a.fetch_neg(order), (5 as $int_type).wrapping_neg());
                 assert_eq!(a.load(Ordering::Relaxed), 5);
             }
         }
@@ -269,9 +235,19 @@ macro_rules! __test_atomic_int {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 a.neg(order);
-                assert_eq!(a.load(Ordering::Relaxed), -5);
+                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), 5);
+            }
+        }
+        __run_test!(fetch_update, $int_type);
+        fn fetch_update() {
+            for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
+                let a = <$atomic_type>::new(7);
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
+                assert_eq!(a.load(Ordering::Relaxed), 9);
             }
         }
     };

@@ -23,7 +23,7 @@ macro_rules! ptr_modifier {
 }
 
 macro_rules! atomic_int {
-    (uint, $atomic_type:ident, $int_type:ident, $ptr_size:tt) => {
+    ($atomic_type:ident, $int_type:ident, $ptr_size:tt) => {
         impl imp::$atomic_type {
             #[inline]
             pub(crate) fn not(&self, _order: Ordering) {
@@ -41,11 +41,6 @@ macro_rules! atomic_int {
                     );
                 }
             }
-        }
-    };
-    (int, $atomic_type:ident, $int_type:ident, $ptr_size:tt) => {
-        atomic_int!(uint, $atomic_type, $int_type, $ptr_size);
-        impl imp::$atomic_type {
             #[inline]
             pub(crate) fn neg(&self, _order: Ordering) {
                 let dst = self.as_ptr();
@@ -67,24 +62,24 @@ macro_rules! atomic_int {
     };
 }
 
-atomic_int!(int, AtomicI8, i8, "byte");
-atomic_int!(uint, AtomicU8, u8, "byte");
-atomic_int!(int, AtomicI16, i16, "word");
-atomic_int!(uint, AtomicU16, u16, "word");
-atomic_int!(int, AtomicI32, i32, "dword");
-atomic_int!(uint, AtomicU32, u32, "dword");
+atomic_int!(AtomicI8, i8, "byte");
+atomic_int!(AtomicU8, u8, "byte");
+atomic_int!(AtomicI16, i16, "word");
+atomic_int!(AtomicU16, u16, "word");
+atomic_int!(AtomicI32, i32, "dword");
+atomic_int!(AtomicU32, u32, "dword");
 #[cfg(target_arch = "x86_64")]
-atomic_int!(int, AtomicI64, i64, "qword");
+atomic_int!(AtomicI64, i64, "qword");
 #[cfg(target_arch = "x86_64")]
-atomic_int!(uint, AtomicU64, u64, "qword");
+atomic_int!(AtomicU64, u64, "qword");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(int, AtomicIsize, isize, "dword");
+atomic_int!(AtomicIsize, isize, "dword");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(uint, AtomicUsize, usize, "dword");
+atomic_int!(AtomicUsize, usize, "dword");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(int, AtomicIsize, isize, "qword");
+atomic_int!(AtomicIsize, isize, "qword");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(uint, AtomicUsize, usize, "qword");
+atomic_int!(AtomicUsize, usize, "qword");
 
 #[cfg(target_arch = "x86")]
 impl imp::AtomicI64 {
@@ -102,5 +97,9 @@ impl imp::AtomicU64 {
     #[inline]
     pub(crate) fn not(&self, order: Ordering) {
         self.fetch_not(order);
+    }
+    #[inline]
+    pub(crate) fn neg(&self, order: Ordering) {
+        self.fetch_neg(order);
     }
 }
