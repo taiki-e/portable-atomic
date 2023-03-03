@@ -95,6 +95,7 @@ rcpc
 reentrancy
 sbcs
 seqlock
+setb
 sete
 sifive
 SIGILL

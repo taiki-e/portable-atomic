@@ -2399,6 +2399,201 @@ impl<T> AtomicPtr<T> {
         }
     }
 
+    /// Sets the bit at the specified bit-position to 1.
+    ///
+    /// Returns `true` if the specified bit was previously set to 1.
+    ///
+    /// `bit_set` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This corresponds to x86's `lock bts`, and the implementation calls them on x86.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    ///
+    /// let atom = AtomicPtr::<i64>::new(pointer);
+    /// // Tag the bottom bit of the pointer.
+    /// assert!(!atom.bit_set(0, Ordering::Relaxed));
+    /// // Extract and untag.
+    /// let tagged = atom.load(Ordering::Relaxed);
+    /// assert_eq!(tagged.addr() & 1, 1);
+    /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[inline]
+    pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
+        #[cfg(miri)]
+        {
+            let mask = 1_usize.wrapping_shl(bit);
+            strict::addr(self.fetch_or(mask, order)) & mask != 0
+        }
+        #[cfg(not(miri))]
+        {
+            self.as_atomic_usize().bit_set(bit, order)
+        }
+    }
+
+    /// Clears the bit at the specified bit-position to 1.
+    ///
+    /// Returns `true` if the specified bit was previously set to 1.
+    ///
+    /// `bit_clear` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This corresponds to x86's `lock btr`, and the implementation calls them on x86.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    /// // A tagged pointer
+    /// let atom = AtomicPtr::<i64>::new(pointer.map_addr(|a| a | 1));
+    /// assert!(atom.bit_set(0, Ordering::Relaxed));
+    /// // Untag
+    /// assert!(atom.bit_clear(0, Ordering::Relaxed));
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[inline]
+    pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
+        #[cfg(miri)]
+        {
+            let mask = 1_usize.wrapping_shl(bit);
+            strict::addr(self.fetch_and(!mask, order)) & mask != 0
+        }
+        #[cfg(not(miri))]
+        {
+            self.as_atomic_usize().bit_clear(bit, order)
+        }
+    }
+
+    /// Toggles the bit at the specified bit-position.
+    ///
+    /// Returns `true` if the specified bit was previously set to 1.
+    ///
+    /// `bit_toggle` takes an [`Ordering`] argument which describes the memory ordering
+    /// of this operation. All ordering modes are possible. Note that using
+    /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
+    /// using [`Release`] makes the load part [`Relaxed`].
+    ///
+    /// This corresponds to x86's `lock btc`, and the implementation calls them on x86.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # #![allow(unstable_name_collisions)]
+    /// use portable_atomic::{AtomicPtr, Ordering};
+    /// use sptr::Strict; // stable polyfill for strict provenance
+    ///
+    /// let pointer = &mut 3i64 as *mut i64;
+    /// let atom = AtomicPtr::<i64>::new(pointer);
+    ///
+    /// // Toggle a tag bit on the pointer.
+    /// atom.bit_toggle(0, Ordering::Relaxed);
+    /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
+    /// ```
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            not(portable_atomic_no_atomic_cas),
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "ptr",
+            portable_atomic_unsafe_assume_single_core,
+            feature = "critical-section",
+            target_arch = "avr",
+            target_arch = "msp430",
+        ))
+    )]
+    #[inline]
+    pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
+        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
+        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+        // compatible and is sound.
+        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
+        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
+        #[cfg(miri)]
+        {
+            let mask = 1_usize.wrapping_shl(bit);
+            strict::addr(self.fetch_xor(mask, order)) & mask != 0
+        }
+        #[cfg(not(miri))]
+        {
+            self.as_atomic_usize().bit_toggle(bit, order)
+        }
+    }
+
     #[cfg(not(miri))]
     #[inline]
     #[cfg_attr(
@@ -3646,6 +3841,151 @@ assert_eq!(min_foo, 12);
                 #[inline]
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_min(val, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Sets the bit at the specified bit-position to 1.
+
+Returns `true` if the specified bit was previously set to 1.
+
+`bit_set` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This corresponds to x86's `lock bts`, and the implementation calls them on x86.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b0000);
+assert!(!foo.bit_set(0, Ordering::Relaxed));
+assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
+assert!(foo.bit_set(0, Ordering::Relaxed));
+assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[inline]
+                pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
+                    self.inner.bit_set(bit, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Clears the bit at the specified bit-position to 1.
+
+Returns `true` if the specified bit was previously set to 1.
+
+`bit_clear` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This corresponds to x86's `lock btr`, and the implementation calls them on x86.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b0001);
+assert!(foo.bit_clear(0, Ordering::Relaxed));
+assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[inline]
+                pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
+                    self.inner.bit_clear(bit, order)
+                }
+            }
+
+            doc_comment! {
+                concat!("Toggles the bit at the specified bit-position.
+
+Returns `true` if the specified bit was previously set to 1.
+
+`bit_toggle` takes an [`Ordering`] argument which describes the memory ordering
+of this operation. All ordering modes are possible. Note that using
+[`Acquire`] makes the store part of this operation [`Relaxed`], and
+using [`Release`] makes the load part [`Relaxed`].
+
+This corresponds to x86's `lock btc`, and the implementation calls them on x86.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let foo = ", stringify!($atomic_type), "::new(0b0000);
+assert!(!foo.bit_toggle(0, Ordering::Relaxed));
+assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
+assert!(foo.bit_toggle(0, Ordering::Relaxed));
+assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
+```"),
+                #[cfg_attr(
+                    portable_atomic_no_cfg_target_has_atomic,
+                    cfg(any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_cfg_target_has_atomic),
+                    cfg(any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ))
+                )]
+                #[inline]
+                pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
+                    self.inner.bit_toggle(bit, order)
                 }
             }
 

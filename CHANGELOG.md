@@ -10,6 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `Atomic{I,U}*::bit_{set,clear,toggle}` and `AtomicPtr::bit_{set,clear,toggle}`. ([#72](https://github.com/taiki-e/portable-atomic/pull/72))
+
+  They correspond to x86's `lock bt{s,r,c}`, and the implementation calls them on x86.
+
 - Add `AtomicU*::{fetch_neg,neg}` methods. Previously it was only available on `AtomicI*` and `AtomicF*`.
 
 - Add `as_ptr` method to all atomic types. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))

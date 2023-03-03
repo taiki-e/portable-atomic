@@ -480,6 +480,42 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), <$int_type>::MIN);
             }
         }
+        #[test]
+        fn bit_set() {
+            let a = <$atomic_type>::new(0b0001);
+            test_swap_ordering(|order| assert!(a.bit_set(0, order)));
+            for &order in &SWAP_ORDERINGS {
+                let a = <$atomic_type>::new(0b0000);
+                assert!(!a.bit_set(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0001);
+                assert!(a.bit_set(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0001);
+            }
+        }
+        #[test]
+        fn bit_clear() {
+            let a = <$atomic_type>::new(0b0000);
+            test_swap_ordering(|order| assert!(!a.bit_clear(0, order)));
+            for &order in &SWAP_ORDERINGS {
+                let a = <$atomic_type>::new(0b0001);
+                assert!(a.bit_clear(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0000);
+                assert!(!a.bit_clear(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0000);
+            }
+        }
+        #[test]
+        fn bit_toggle() {
+            let a = <$atomic_type>::new(0b0000);
+            test_swap_ordering(|order| a.bit_toggle(0, order));
+            for &order in &SWAP_ORDERINGS {
+                let a = <$atomic_type>::new(0b0000);
+                assert!(!a.bit_toggle(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0001);
+                assert!(a.bit_toggle(0, order));
+                assert_eq!(a.load(Ordering::Relaxed), 0b0000);
+            }
+        }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: $int_type, y: $int_type) -> bool {
                 for &order in &SWAP_ORDERINGS {
@@ -697,6 +733,36 @@ macro_rules! __test_atomic_int {
                     assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
                     a.neg(order);
                     assert_eq!(a.load(Ordering::Relaxed), x);
+                }
+                true
+            }
+            fn quickcheck_bit_set(x: $int_type, bit: u32) -> bool {
+                for &order in &SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_set(bit, order);
+                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    assert_eq!(a.load(Ordering::Relaxed), x | mask);
+                    assert_eq!(b, (x & mask) != 0);
+                }
+                true
+            }
+            fn quickcheck_bit_clear(x: $int_type, bit: u32) -> bool {
+                for &order in &SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_clear(bit, order);
+                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    assert_eq!(a.load(Ordering::Relaxed), x & !mask);
+                    assert_eq!(b, (x & mask) != 0);
+                }
+                true
+            }
+            fn quickcheck_bit_toggle(x: $int_type, bit: u32) -> bool {
+                for &order in &SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_toggle(bit, order);
+                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    assert_eq!(a.load(Ordering::Relaxed), x ^ mask);
+                    assert_eq!(b, (x & mask) != 0);
                 }
                 true
             }
@@ -1534,6 +1600,46 @@ macro_rules! __test_atomic_ptr_pub {
 
             assert_eq!(atom.fetch_and(MASK_PTR, Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
             assert_eq!(atom.load(Ordering::SeqCst), ptr);
+        }
+        #[test]
+        fn bit_set() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>().map_addr(|a| a | 1));
+            test_swap_ordering(|order| assert!(a.bit_set(0, order)));
+            for &order in &SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                let atom = <$atomic_type>::new(pointer);
+                // Tag the bottom bit of the pointer.
+                assert!(!atom.bit_set(0, order));
+                // Extract and untag.
+                let tagged = atom.load(Ordering::Relaxed);
+                assert_eq!(tagged.addr() & 1, 1);
+                assert_eq!(tagged.map_addr(|p| p & !1), pointer);
+            }
+        }
+        #[test]
+        fn bit_clear() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
+            test_swap_ordering(|order| assert!(!a.bit_clear(0, order)));
+            for &order in &SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                // A tagged pointer
+                let atom = <$atomic_type>::new(pointer.map_addr(|a| a | 1));
+                assert!(atom.bit_set(0, order));
+                // Untag
+                assert!(atom.bit_clear(0, order));
+            }
+        }
+        #[test]
+        fn bit_toggle() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
+            test_swap_ordering(|order| a.bit_toggle(0, order));
+            for &order in &SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                let atom = <$atomic_type>::new(pointer);
+                // Toggle a tag bit on the pointer.
+                atom.bit_toggle(0, order);
+                assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
+            }
         }
     };
 }
