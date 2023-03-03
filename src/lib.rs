@@ -882,10 +882,10 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_and` on some platforms.
     ///
-    /// - x86: `lock and` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock and` instead of `cmpxchg` loop
     /// - MSP430: `and` instead of disabling interrupts
     ///
-    /// Note: On x86, the use of either function should not usually
+    /// Note: On x86/x86_64, the use of either function should not usually
     /// affect the generated code, because LLVM can properly optimize the case
     /// where the result is unused.
     ///
@@ -1054,10 +1054,10 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
-    /// - x86: `lock or` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock or` instead of `cmpxchg` loop
     /// - MSP430: `bis` instead of disabling interrupts
     ///
-    /// Note: On x86, the use of either function should not usually
+    /// Note: On x86/x86_64, the use of either function should not usually
     /// affect the generated code, because LLVM can properly optimize the case
     /// where the result is unused.
     ///
@@ -1171,10 +1171,10 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
-    /// - x86: `lock xor` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
     /// - MSP430: `xor` instead of disabling interrupts
     ///
-    /// Note: On x86, the use of either function should not usually
+    /// Note: On x86/x86_64, the use of either function should not usually
     /// affect the generated code, because LLVM can properly optimize the case
     /// where the result is unused.
     ///
@@ -1284,10 +1284,10 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
-    /// - x86: `lock xor` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
     /// - MSP430: `xor` instead of disabling interrupts
     ///
-    /// Note: On x86, the use of either function should not usually
+    /// Note: On x86/x86_64, the use of either function should not usually
     /// affect the generated code, because LLVM can properly optimize the case
     /// where the result is unused.
     ///
@@ -2408,7 +2408,7 @@ impl<T> AtomicPtr<T> {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     ///
-    /// This corresponds to x86's `lock bts`, and the implementation calls them on x86.
+    /// This corresponds to x86's `lock bts`, and the implementation calls them on x86/x86_64.
     ///
     /// # Examples
     ///
@@ -2475,7 +2475,7 @@ impl<T> AtomicPtr<T> {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     ///
-    /// This corresponds to x86's `lock btr`, and the implementation calls them on x86.
+    /// This corresponds to x86's `lock btr`, and the implementation calls them on x86/x86_64.
     ///
     /// # Examples
     ///
@@ -2539,7 +2539,7 @@ impl<T> AtomicPtr<T> {
     /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
     /// using [`Release`] makes the load part [`Relaxed`].
     ///
-    /// This corresponds to x86's `lock btc`, and the implementation calls them on x86.
+    /// This corresponds to x86's `lock btc`, and the implementation calls them on x86/x86_64.
     ///
     /// # Examples
     ///
@@ -3141,7 +3141,7 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_add` on some platforms.
 
-- MSP430: `add` instead of disabling interrupts (only {8,16}-bit atomics)
+- MSP430: `add` instead of disabling interrupts ({8,16}-bit atomics)
 
 # Examples
 
@@ -3237,7 +3237,7 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_sub` on some platforms.
 
-- MSP430: `sub` instead of disabling interrupts (only {8,16}-bit atomics)
+- MSP430: `sub` instead of disabling interrupts ({8,16}-bit atomics)
 
 # Examples
 
@@ -3337,10 +3337,10 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_and` on some platforms.
 
-- x86: `lock and` instead of `cmpxchg` loop (only {8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
-- MSP430: `and` instead of disabling interrupts (only {8,16}-bit atomics)
+- x86/x86_64: `lock and` instead of `cmpxchg` loop ({8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
+- MSP430: `and` instead of disabling interrupts ({8,16}-bit atomics)
 
-Note: On x86, the use of either function should not usually
+Note: On x86/x86_64, the use of either function should not usually
 affect the generated code, because LLVM can properly optimize the case
 where the result is unused.
 
@@ -3490,10 +3490,10 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_or` on some platforms.
 
-- x86: `lock or` instead of `cmpxchg` loop (only {8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
-- MSP430: `or` instead of disabling interrupts (only {8,16}-bit atomics)
+- x86/x86_64: `lock or` instead of `cmpxchg` loop ({8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
+- MSP430: `or` instead of disabling interrupts ({8,16}-bit atomics)
 
-Note: On x86, the use of either function should not usually
+Note: On x86/x86_64, the use of either function should not usually
 affect the generated code, because LLVM can properly optimize the case
 where the result is unused.
 
@@ -3595,10 +3595,10 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_xor` on some platforms.
 
-- x86: `lock xor` instead of `cmpxchg` loop (only {8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
-- MSP430: `xor` instead of disabling interrupts (only {8,16}-bit atomics)
+- x86/x86_64: `lock xor` instead of `cmpxchg` loop ({8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
+- MSP430: `xor` instead of disabling interrupts ({8,16}-bit atomics)
 
-Note: On x86, the use of either function should not usually
+Note: On x86/x86_64, the use of either function should not usually
 affect the generated code, because LLVM can properly optimize the case
 where the result is unused.
 
@@ -3854,7 +3854,7 @@ of this operation. All ordering modes are possible. Note that using
 [`Acquire`] makes the store part of this operation [`Relaxed`], and
 using [`Release`] makes the load part [`Relaxed`].
 
-This corresponds to x86's `lock bts`, and the implementation calls them on x86.
+This corresponds to x86's `lock bts`, and the implementation calls them on x86/x86_64.
 
 # Examples
 
@@ -3903,7 +3903,7 @@ of this operation. All ordering modes are possible. Note that using
 [`Acquire`] makes the store part of this operation [`Relaxed`], and
 using [`Release`] makes the load part [`Relaxed`].
 
-This corresponds to x86's `lock btr`, and the implementation calls them on x86.
+This corresponds to x86's `lock btr`, and the implementation calls them on x86/x86_64.
 
 # Examples
 
@@ -3950,7 +3950,7 @@ of this operation. All ordering modes are possible. Note that using
 [`Acquire`] makes the store part of this operation [`Relaxed`], and
 using [`Release`] makes the load part [`Relaxed`].
 
-This corresponds to x86's `lock btc`, and the implementation calls them on x86.
+This corresponds to x86's `lock btc`, and the implementation calls them on x86/x86_64.
 
 # Examples
 
@@ -4045,8 +4045,8 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_not` on some platforms.
 
-- x86: `lock not` instead of `cmpxchg` loop (only {8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
-- MSP430: `inv` instead of disabling interrupts (only {8,16}-bit atomics)
+- x86/x86_64: `lock not` instead of `cmpxchg` loop ({8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
+- MSP430: `inv` instead of disabling interrupts ({8,16}-bit atomics)
 
 # Examples
 
@@ -4142,7 +4142,7 @@ using [`Release`] makes the load part [`Relaxed`].
 
 This function may generate more efficient code than `fetch_neg` on some platforms.
 
-- x86: `lock neg` instead of `cmpxchg` loop (only {8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
+- x86/x86_64: `lock neg` instead of `cmpxchg` loop ({8,16,32}-bit atomics on x86, but additionally 64-bit atomics on x86_64)
 
 # Examples
 

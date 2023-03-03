@@ -12,7 +12,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Add `Atomic{I,U}*::bit_{set,clear,toggle}` and `AtomicPtr::bit_{set,clear,toggle}`. ([#72](https://github.com/taiki-e/portable-atomic/pull/72))
 
-  They correspond to x86's `lock bt{s,r,c}`, and the implementation calls them on x86.
+  They correspond to x86's `lock bt{s,r,c}`, and the implementation calls them on x86/x86_64.
 
 - Add `AtomicU*::{fetch_neg,neg}` methods. Previously it was only available on `AtomicI*` and `AtomicF*`.
 
@@ -58,13 +58,13 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   `AtomicI*::neg` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock neg`.
 
-  Currently, optimizations by these methods (`neg`) are only guaranteed for x86.
+  Currently, optimizations by these methods (`neg`) are only guaranteed for x86/x86_64.
 
 - Add `Atomic{I,U}*::{fetch_not,not}` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
 
   `Atomic{I,U}*::not` are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that have atomic instructions for the corresponding operation, such as x86's `lock not`, MSP430's `inv`.
 
-  Currently, optimizations by these methods (`not`) are only guaranteed for x86 and MSP430.
+  Currently, optimizations by these methods (`not`) are only guaranteed for x86/x86_64 and MSP430.
 
   (Note: `AtomicBool` already has `fetch_not` and `not` methods.)
 
@@ -90,7 +90,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   They are equivalent to the corresponding `fetch_*` methods, but do not return the previous value. They are intended for optimization on platforms that implement atomics using inline assembly, such as the MSP430.
 
-  Currently, optimizations by these methods (`add`,`sub`,`and`,`or`,`xor`) are only guaranteed for MSP430; on x86, LLVM can optimize in most cases, so cases, where this would improve things, should be rare.
+  Currently, optimizations by these methods (`add`,`sub`,`and`,`or`,`xor`) are only guaranteed for MSP430; on x86/x86_64, LLVM can optimize in most cases, so cases, where this would improve things, should be rare.
 
 - Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44), [#40](https://github.com/taiki-e/portable-atomic/pull/40))
 

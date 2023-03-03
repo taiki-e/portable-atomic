@@ -1,4 +1,4 @@
-// Atomic operations implementation on x86.
+// Atomic operations implementation on x86/x86_64.
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use CAS loop instead.
