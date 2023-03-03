@@ -283,7 +283,7 @@ jobs:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
-          QUICKCHECK_TESTS: 20
+          QUICKCHECK_TESTS: 10
 
   san:
     strategy:

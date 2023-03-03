@@ -242,6 +242,27 @@ macro_rules! no_fetch_ops_impl {
         }
     };
 }
+macro_rules! bit_opts_fetch_impl {
+    ($atomic_type:ident, $int_type:ident) => {
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn bit_set(&self, bit: u32, order: Ordering) -> bool {
+                let mask = (1 as $int_type).wrapping_shl(bit);
+                self.fetch_or(mask, order) & mask != 0
+            }
+            #[inline]
+            pub(crate) fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
+                let mask = (1 as $int_type).wrapping_shl(bit);
+                self.fetch_and(!mask, order) & mask != 0
+            }
+            #[inline]
+            pub(crate) fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
+                let mask = (1 as $int_type).wrapping_shl(bit);
+                self.fetch_xor(mask, order) & mask != 0
+            }
+        }
+    };
+}
 
 pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.

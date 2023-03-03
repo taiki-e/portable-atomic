@@ -119,6 +119,9 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
     }
 
+    if version.llvm >= 16 {
+        println!("cargo:rustc-cfg=portable_atomic_llvm16");
+    }
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
 

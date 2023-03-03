@@ -198,6 +198,17 @@ macro_rules! atomic_int {
         )]
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         no_fetch_ops_impl!($atomic_type, $int_type);
+        #[cfg(not(all(
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(target_arch = "x86", target_arch = "x86_64"),
+        )))]
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(portable_atomic_no_atomic_cas))
+        )]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
+        bit_opts_fetch_impl!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
