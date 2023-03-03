@@ -10,6 +10,28 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `AtomicU*::{fetch_neg,neg}` methods. Previously it was only available on `AtomicI*` and `AtomicF*`.
+
+- Add `as_ptr` method to all atomic types. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
+
+- Make `AtomicF{32,64}::as_bits` const on Rust 1.58+. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
+
+- Relax ordering in `Serialize` impl to reflect [upstream change](https://github.com/serde-rs/serde/pull/2263).
+
+- Make `AtomicPtr::fetch_*` -Zmiri-strict-provenance compatible even on old nightly. Previously it was only recent nightly.
+
+- Optimize x86_64 outline-atomics for 128-bit atomics.
+  - Support outline-atomics for cmpxchg16b on Rust 1.69+. Previously it was only nightly. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
+  - portable-atomic no longer enables outline-atomics on target where run-time feature detection is not available. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
+
+- Optimize aarch64 outline-atomics for 128-bit atomics.
+  - Support more targets. ([#63](https://github.com/taiki-e/portable-atomic/pull/63), [#64](https://github.com/taiki-e/portable-atomic/pull/64), [#67](https://github.com/taiki-e/portable-atomic/pull/67), [#69](https://github.com/taiki-e/portable-atomic/pull/69), [#74](https://github.com/taiki-e/portable-atomic/pull/74), [#75](https://github.com/taiki-e/portable-atomic/pull/75), [#76](https://github.com/taiki-e/portable-atomic/pull/76), [#77](https://github.com/taiki-e/portable-atomic/pull/77))
+    Most of these improvements have already been [accepted upstream](https://github.com/rust-lang/stdarch/pulls?q=is%3Apr+author%3Ataiki-e+) and will soon be available in `std::arch::is_aarch64_feature_detected`.
+  - portable-atomic no longer enables outline-atomics on target where run-time feature detection is not available.
+  - Support old nightly. ([#73](https://github.com/taiki-e/portable-atomic/pull/73))
+
+- Optimize aarch64 128-bit atomics. ([#70](https://github.com/taiki-e/portable-atomic/pull/70))
+
 ## [1.0.1] - 2023-01-21
 
 - Optimize `Atomic{I,U}*::{fetch_not,not}` methods. ([#62](https://github.com/taiki-e/portable-atomic/pull/62))
