@@ -41,9 +41,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/1n9z5h61G
-// - aarch64 (+lse) https://godbolt.org/z/aMqd7MMEW
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/1f49cvseK
+// - aarch64 https://godbolt.org/z/Kqj47n8Pr
+// - aarch64 (+lse) https://godbolt.org/z/anqeh64je
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/7oE38f4sn
 
 include!("macros.rs");
 
@@ -567,7 +567,7 @@ unsafe fn _atomic_add_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u
                     "2:",
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
                         concat!("adds ", select_le_or_be!("{tmp_lo}, {prev_lo}, {val_lo}", "{tmp_hi}, {prev_hi}, {val_hi}")),
-                        concat!("adcs ", select_le_or_be!("{tmp_hi}, {prev_hi}, {val_hi}", "{tmp_lo}, {prev_lo}, {val_lo}")),
+                        concat!("adc ", select_le_or_be!("{tmp_hi}, {prev_hi}, {val_hi}", "{tmp_lo}, {prev_lo}, {val_lo}")),
                         concat!("st", $release, "xp {r:w}, {tmp_lo}, {tmp_hi}, [{dst", ptr_modifier!(), "}]"),
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
@@ -579,7 +579,7 @@ unsafe fn _atomic_add_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
                     r = out(reg) _,
-                    // Do not use `preserves_flags` because ADDS and ADCS modify the condition flags.
+                    // Do not use `preserves_flags` because ADDS modifies the condition flags.
                     options(nostack),
                 )
             };
@@ -617,7 +617,7 @@ unsafe fn _atomic_sub_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u
                     "2:",
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
                         concat!("subs ", select_le_or_be!("{tmp_lo}, {prev_lo}, {val_lo}", "{tmp_hi}, {prev_hi}, {val_hi}")),
-                        concat!("sbcs ", select_le_or_be!("{tmp_hi}, {prev_hi}, {val_hi}", "{tmp_lo}, {prev_lo}, {val_lo}")),
+                        concat!("sbc ", select_le_or_be!("{tmp_hi}, {prev_hi}, {val_hi}", "{tmp_lo}, {prev_lo}, {val_lo}")),
                         concat!("st", $release, "xp {r:w}, {tmp_lo}, {tmp_hi}, [{dst", ptr_modifier!(), "}]"),
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
@@ -629,7 +629,7 @@ unsafe fn _atomic_sub_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
                     r = out(reg) _,
-                    // Do not use `preserves_flags` because SUBS and SBCS modify the condition flags.
+                    // Do not use `preserves_flags` because SUBS modifies the condition flags.
                     options(nostack),
                 )
             };
@@ -879,6 +879,57 @@ unsafe fn _atomic_not_ldxp_stxp(dst: *mut u128, order: Ordering) -> u128 {
             };
         }
         atomic_rmw!(not, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
+}
+
+#[inline]
+unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        atomic_update_casp(dst, order, u128::wrapping_neg)
+    }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    unsafe {
+        _atomic_neg_ldxp_stxp(dst, order)
+    }
+}
+#[inline]
+unsafe fn _atomic_neg_ldxp_stxp(dst: *mut u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract for `_atomic_not_ldxp_stxp`.
+    //
+    // Refs:
+    // - https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions/NEGS--Negate--setting-flags--an-alias-of-SUBS--shifted-register--
+    // - https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions/NGC--Negate-with-Carry--an-alias-of-SBC-
+    unsafe {
+        let (mut prev_lo, mut prev_hi);
+        macro_rules! neg {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    "2:",
+                        concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
+                        concat!("negs ", select_le_or_be!("{tmp_lo}, {prev_lo}", "{tmp_hi}, {prev_hi}")),
+                        concat!("ngc ", select_le_or_be!("{tmp_hi}, {prev_hi}", "{tmp_lo}, {prev_lo}")),
+                        concat!("st", $release, "xp {r:w}, {tmp_lo}, {tmp_hi}, [{dst", ptr_modifier!(), "}]"),
+                        // 0 if the store was successful, 1 if no store was performed
+                        "cbnz {r:w}, 2b",
+                    dst = in(reg) dst,
+                    prev_lo = out(reg) prev_lo,
+                    prev_hi = out(reg) prev_hi,
+                    tmp_lo = out(reg) _,
+                    tmp_hi = out(reg) _,
+                    r = out(reg) _,
+                    // Do not use `preserves_flags` because NEGS modifies the condition flags.
+                    options(nostack),
+                )
+            };
+        }
+        atomic_rmw!(neg, order);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }

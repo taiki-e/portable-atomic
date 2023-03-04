@@ -224,9 +224,7 @@ macro_rules! atomic128 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    atomic_update(self.v.get().cast(), order, |x| {
-                        (x as $int_type).wrapping_neg() as u128
-                    }) as $int_type
+                    atomic_update(self.v.get().cast(), order, u128::wrapping_neg) as $int_type
                 }
             }
             #[inline]
@@ -439,8 +437,10 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                // TODO: define atomic_neg function and use it
-                self.fetch_update_(order, |x| x.wrapping_neg())
+                crate::utils::assert_swap_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_neg(self.v.get().cast(), order) as $int_type }
             }
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
@@ -450,22 +450,6 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) const fn as_ptr(&self) -> *mut $int_type {
                 self.v.get()
-            }
-
-            #[inline]
-            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
-            where
-                F: FnMut($int_type) -> $int_type,
-            {
-                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
-                let mut prev = self.load(fetch_order);
-                loop {
-                    let next = f(prev);
-                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
-                        Ok(x) => return x,
-                        Err(next_prev) => prev = next_prev,
-                    }
-                }
             }
         }
     };

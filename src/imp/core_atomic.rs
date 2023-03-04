@@ -409,7 +409,7 @@ macro_rules! atomic_int {
             }
             #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| x.wrapping_neg())
+                self.fetch_update_(order, $int_type::wrapping_neg)
             }
             #[cfg(not(all(
                 not(any(miri, portable_atomic_sanitize_thread)),

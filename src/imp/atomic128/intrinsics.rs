@@ -279,7 +279,6 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(target_arch = "powerpc64")]
 #[inline(always)]
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
@@ -601,7 +600,12 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                self.fetch_update_(order, |x| x.wrapping_neg())
+                assert_cmpxchg16b!();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    atomic_update(self.v.get().cast(), order, u128::wrapping_neg) as $int_type
+                }
             }
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
@@ -611,22 +615,6 @@ macro_rules! atomic128 {
             #[inline]
             pub(crate) const fn as_ptr(&self) -> *mut $int_type {
                 self.v.get()
-            }
-
-            #[inline]
-            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
-            where
-                F: FnMut($int_type) -> $int_type,
-            {
-                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
-                let mut prev = self.load(fetch_order);
-                loop {
-                    let next = f(prev);
-                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
-                        Ok(x) => return x,
-                        Err(next_prev) => prev = next_prev,
-                    }
-                }
             }
         }
     };

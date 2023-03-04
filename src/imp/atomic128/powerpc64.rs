@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/scYK8WYnx
-// - powerpc64le https://godbolt.org/z/YWqj98njT
+// - powerpc64 (pwr8) https://godbolt.org/z/YoT1PK46x
+// - powerpc64le https://godbolt.org/z/4WYh6fxfb
 
 include!("macros.rs");
 
@@ -508,6 +508,44 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract for `atomic_not`.
     unsafe { atomic_xor(dst, core::u128::MAX, order) }
+}
+
+#[inline]
+unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract for `atomic_neg`.
+    unsafe {
+        let (mut prev_hi, mut prev_lo);
+        macro_rules! neg {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    $release,
+                    "2:",
+                        "lqarx %r6, 0, {dst}",
+                        // TODO: can we use subfic (Subtract from Immediate Carrying) here?
+                        "subc %r9, {zero}, %r7",
+                        "subfze %r8, %r6",
+                        "stqcx. %r8, 0, {dst}",
+                        "bne %cr0, 2b",
+                    $acquire,
+                    dst = in(reg) dst,
+                    zero = in(reg) 0_u64,
+                    out("r0") _,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 and r2, so starting with r4.
+                    out("r6") prev_hi,
+                    out("r7") prev_lo,
+                    out("r8") _, // new (hi)
+                    out("r9") _, // new (lo)
+                    out("cr0") _,
+                    options(nostack),
+                )
+            };
+        }
+        atomic_rmw!(neg, order);
+        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+    }
 }
 
 #[inline]

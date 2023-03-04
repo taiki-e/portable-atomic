@@ -76,6 +76,7 @@ miscompilation
 mmfr
 moreutils
 mstatus
+negs
 newrepo
 newtype
 nographic
@@ -116,6 +117,8 @@ subarch
 subc
 subcmd
 subfe
+subfic
+subfze
 syscall
 sysctlbyname
 systemsim
