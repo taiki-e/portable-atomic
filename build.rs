@@ -120,7 +120,7 @@ fn main() {
     }
 
     if version.llvm >= 16 {
-        println!("cargo:rustc-cfg=portable_atomic_llvm16");
+        println!("cargo:rustc-cfg=portable_atomic_llvm_16");
     }
     if version.nightly {
         println!("cargo:rustc-cfg=portable_atomic_nightly");
@@ -145,7 +145,7 @@ fn main() {
         }
 
         if version.llvm >= 15 {
-            println!("cargo:rustc-cfg=portable_atomic_llvm15");
+            println!("cargo:rustc-cfg=portable_atomic_llvm_15");
         }
         if !no_asm
             && (target_arch == "powerpc64" || target_arch == "s390x")

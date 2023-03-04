@@ -116,9 +116,9 @@ macro_rules! atomic_bit_opts {
         // LLVM 16 can generate `lock bt{s,r,c}` for both immediate and register bit offsets.
         // https://github.com/taiki-e/portable-atomic/issues/48#issuecomment-1453473831
         // So, use fetch_* based implementations on LLVM 16+, otherwise use asm based implementations.
-        #[cfg(portable_atomic_llvm16)]
+        #[cfg(portable_atomic_llvm_16)]
         bit_opts_fetch_impl!($atomic_type, $int_type);
-        #[cfg(not(portable_atomic_llvm16))]
+        #[cfg(not(portable_atomic_llvm_16))]
         impl $atomic_type {
             // `<integer>::BITS` is not available on old nightly.
             const BITS: u32 = (core::mem::size_of::<$int_type>() * 8) as u32;
