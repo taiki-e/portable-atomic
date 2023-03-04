@@ -1,8 +1,5 @@
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/seq_lock_wide.rs.
 
-#[path = "imp.rs"]
-pub(super) mod imp;
-
 use core::{
     mem::ManuallyDrop,
     sync::atomic::{self, AtomicUsize, Ordering},
@@ -10,15 +7,15 @@ use core::{
 
 use super::utils::Backoff;
 
-// See imp.rs for details.
-type AtomicChunk = AtomicUsize;
-type Chunk = usize;
+// See mod.rs for details.
+pub(super) type AtomicChunk = AtomicUsize;
+pub(super) type Chunk = usize;
 
 /// A simple stamped lock.
 ///
 /// The state is represented as two `AtomicUsize`: `state_hi` for high bits and `state_lo` for low
 /// bits.
-struct SeqLock {
+pub(super) struct SeqLock {
     /// The high bits of the current state of the lock.
     state_hi: AtomicUsize,
 
@@ -31,7 +28,7 @@ struct SeqLock {
 
 impl SeqLock {
     #[inline]
-    const fn new() -> Self {
+    pub(super) const fn new() -> Self {
         Self { state_hi: AtomicUsize::new(0), state_lo: AtomicUsize::new(0) }
     }
 
@@ -39,7 +36,7 @@ impl SeqLock {
     ///
     /// This method should be called before optimistic reads.
     #[inline]
-    fn optimistic_read(&self) -> Option<(usize, usize)> {
+    pub(super) fn optimistic_read(&self) -> Option<(usize, usize)> {
         // The acquire loads from `state_hi` and `state_lo` synchronize with the release stores in
         // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
         //
@@ -60,7 +57,7 @@ impl SeqLock {
     /// This method should be called after optimistic reads to check whether they are valid. The
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[inline]
-    fn validate_read(&self, stamp: (usize, usize)) -> bool {
+    pub(super) fn validate_read(&self, stamp: (usize, usize)) -> bool {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
         // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
         // visible.
@@ -85,7 +82,7 @@ impl SeqLock {
 
     /// Grabs the lock for writing.
     #[inline]
-    fn write(&self) -> SeqLockWriteGuard<'_> {
+    pub(super) fn write(&self) -> SeqLockWriteGuard<'_> {
         let mut backoff = Backoff::new();
         loop {
             let previous = self.state_lo.swap(1, Ordering::Acquire);
@@ -107,7 +104,7 @@ impl SeqLock {
 
 /// An RAII guard that releases the lock and increments the stamp when dropped.
 #[must_use]
-struct SeqLockWriteGuard<'a> {
+pub(super) struct SeqLockWriteGuard<'a> {
     /// The parent lock.
     lock: &'a SeqLock,
 
@@ -118,7 +115,7 @@ struct SeqLockWriteGuard<'a> {
 impl SeqLockWriteGuard<'_> {
     /// Releases the lock without incrementing the stamp.
     #[inline]
-    fn abort(self) {
+    pub(super) fn abort(self) {
         // We specifically don't want to call drop(), since that's
         // what increments the stamp.
         let this = ManuallyDrop::new(self);
