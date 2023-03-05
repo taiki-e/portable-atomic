@@ -42,7 +42,6 @@ fn main() -> ! {
             }
         };
     }
-    #[cfg(feature = "float")]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -127,9 +126,7 @@ fn main() -> ! {
     test_atomic_int!(u128);
     // TODO
     if cfg!(not(debug_assertions)) {
-        #[cfg(feature = "float")]
         test_atomic_float!(f32);
-        #[cfg(feature = "float")]
         test_atomic_float!(f64);
     }
 

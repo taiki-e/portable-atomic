@@ -24,15 +24,16 @@ default_targets=(
     thumbv8m.main-none-eabi
     thumbv8m.main-none-eabihf
 
-    # riscv64
-    riscv64i-unknown-none-elf
-    riscv64imac-unknown-none-elf
-    riscv64gc-unknown-none-elf
     # riscv32
     riscv32i-unknown-none-elf
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
     riscv32imac-unknown-none-elf
+    riscv32gc-unknown-none-elf
+    # riscv64
+    riscv64i-unknown-none-elf
+    riscv64imac-unknown-none-elf
+    riscv64gc-unknown-none-elf
 
     # avr
     avr-unknown-gnu-atmega2560
@@ -131,14 +132,6 @@ run() {
         thumb*)
             test_dir=tests/cortex-m
             target_rustflags+=" -C link-arg=-Tlink.x"
-            (
-                # In debug mode, the float-related code is so large that the memory layout
-                # we use for testing does not allow us to run float and int tests together.
-                # So, in debug mode, test float and int separately.
-                cd "${test_dir}"
-                RUSTFLAGS="${target_rustflags}" \
-                    x_cargo "${args[@]}" --no-default-features --features=float "$@"
-            )
             ;;
         riscv*)
             test_dir=tests/riscv
@@ -153,10 +146,7 @@ run() {
             ;;
         *) bail "unrecognized target '${target}'" ;;
     esac
-    case "${target}" in
-        riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
-        *) args+=(--all-features) ;;
-    esac
+    args+=(--all-features)
 
     (
         cd "${test_dir}"

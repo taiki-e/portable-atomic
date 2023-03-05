@@ -33,7 +33,6 @@ macro_rules! println {
 fn main() -> ! {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
-            #[cfg(feature = "int")]
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
@@ -46,7 +45,6 @@ fn main() -> ! {
     }
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
-            #[cfg(feature = "float")]
             paste::paste! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
@@ -97,13 +95,8 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    // In debug mode, the float-related code is so large that the memory layout
-    // we use for testing does not allow us to run float and int tests together.
-    // So, in debug mode, test float and int separately.
-    if cfg!(any(not(debug_assertions), not(feature = "int"))) {
-        test_atomic_float!(f32);
-        test_atomic_float!(f64);
-    }
+    test_atomic_float!(f32);
+    test_atomic_float!(f64);
 
     semihosting::exit(semihosting::EXIT_SUCCESS)
 }

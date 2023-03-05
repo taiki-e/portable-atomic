@@ -48,7 +48,7 @@ unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
             }
         };
     }
-    #[cfg(feature = "float")]
+    #[cfg(any(target_feature = "f", target_feature = "d"))]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -101,9 +101,10 @@ unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    #[cfg(feature = "float")]
+    // TODO
+    #[cfg(target_feature = "f")]
     test_atomic_float!(f32);
-    #[cfg(feature = "float")]
+    #[cfg(target_feature = "d")]
     test_atomic_float!(f64);
 
     semihosting::exit(semihosting::EXIT_SUCCESS)
