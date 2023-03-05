@@ -284,13 +284,14 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    let failure = crate::utils::strongest_failure_ordering(order);
     // SAFETY: the caller must uphold the safety contract for `atomic_update`.
     unsafe {
-        let mut old = atomic_load(dst, failure);
+        // This is a private function and all instances of `f` only operate on the value
+        // loaded, so there is no need to synchronize the first load/failed CAS.
+        let mut old = atomic_load(dst, Ordering::Relaxed);
         loop {
             let next = f(old);
-            match atomic_compare_exchange_weak(dst, old, next, order, failure) {
+            match atomic_compare_exchange_weak(dst, old, next, order, Ordering::Relaxed) {
                 Ok(x) => return x,
                 Err(x) => old = x,
             }
