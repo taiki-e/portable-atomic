@@ -291,15 +291,16 @@ macro_rules! atomic_int {
             }
             #[allow(dead_code)]
             #[inline]
-            fn fetch_update_<F>(&self, set_order: Ordering, mut f: F) -> $int_type
+            fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> $int_type
             where
                 F: FnMut($int_type) -> $int_type,
             {
-                let fetch_order = crate::utils::strongest_failure_ordering(set_order);
-                let mut prev = self.load(fetch_order);
+                // This is a private function and all instances of `f` only operate on the value
+                // loaded, so there is no need to synchronize the first load/failed CAS.
+                let mut prev = self.load(Ordering::Relaxed);
                 loop {
                     let next = f(prev);
-                    match self.compare_exchange_weak(prev, next, set_order, fetch_order) {
+                    match self.compare_exchange_weak(prev, next, order, Ordering::Relaxed) {
                         Ok(x) => return x,
                         Err(next_prev) => prev = next_prev,
                     }

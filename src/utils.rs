@@ -269,6 +269,7 @@ pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
 unsafe impl Sync for NoRefUnwindSafe {}
 
 // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2956
+#[allow(dead_code)]
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
