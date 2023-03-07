@@ -1,4 +1,13 @@
-// AtomicU{32,64} based AtomicF{32,64} implementation.
+// AtomicF{32,64} implementation based on AtomicU{32,64}.
+//
+// This module provides atomic float implementations using atomic integer.
+//
+// Note that most of `fetch_*` operations of atomic floats are implemented using
+// CAS loops, which can be slower than equivalent operations of atomic integers.
+//
+// GPU targets have atomic instructions for float, so GPU targets will use
+// architecture-specific implementations instead of this implementation in the
+// future: https://github.com/taiki-e/portable-atomic/issues/34
 
 #![cfg(any(not(target_pointer_width = "16"), feature = "fallback"))] // See lib.rs's AtomicU32 definition
 

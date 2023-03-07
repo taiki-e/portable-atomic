@@ -1,5 +1,8 @@
 // Atomic operations implementation on x86/x86_64.
 //
+// This module provides atomic operations not supported by LLVM or optimizes
+// cases where LLVM code generation is not optimal.
+//
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use CAS loop instead.
 

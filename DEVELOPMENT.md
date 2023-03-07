@@ -7,28 +7,33 @@
 ## Project layout
 
 ```text
-bench/                          -- simple benchmarks
-build.rs                        -- build script
-no_atomic.rs                    -- definitions of statics used by build script (auto-generated)
-version.rs                      -- rustc version detection code used by build script
-ci/                             -- tools for CI
-portable-atomic-util/           -- crate that defines synchronization primitives built with portable-atomic
-src/imp/atomic128/              -- 128-bit atomic implementations (mainly by asm)
-src/imp/atomic128/detect/       -- Run-time feature detection implementations used for outline-atomics
-src/imp/core_atomic.rs          -- wrapper for core::sync::atomic types
-src/imp/fallback/               -- fallback implementation based on global locks
-src/imp/float.rs                -- atomic float implementation based on atomic integer
-src/imp/interrupt/              -- fallback implementation based on disabling interrupts (for no-std)
-src/imp/msp430.rs               -- atomic implementation for MSP430 (by asm)
-src/imp/riscv.rs                -- atomic implementation for RISC-V without A-extension (by asm)
-src/lib.rs                      -- definitions of public APIs
-src/tests/                      -- unit tests and test helpers
-src/utils.rs                    -- common code
-target-specs/                   -- specs of custom targets used for tests
-tests/api-test/                 -- API check
-tests/{avr,cortex-m,gba,riscv}/ -- tests for no-std targets
-tests/helper/                   -- test helpers
-tools/                          -- tools for CI and/or development
+portable-atomic/
+├── bench/                        -- simple benchmarks
+├── build.rs                      -- build script
+├── no_atomic.rs                  -- definitions of statics used by build script (auto-generated)
+├── version.rs                    -- rustc version detection code used by build script
+├── ci/                           -- tools for CI
+├── portable-atomic-util/         -- crate that defines synchronization primitives built with portable-atomic
+├── src/
+│   ├── imp/
+│   │   ├── atomic128/            -- 128-bit atomic implementations (mainly by asm)
+│   │   │   └── detect/           -- Run-time feature detection implementations used for outline-atomics
+│   │   ├── core_atomic.rs        -- wrapper for core::sync::atomic types
+│   │   ├── fallback/             -- fallback implementation based on global locks
+│   │   ├── float.rs              -- atomic float implementation based on atomic integer
+│   │   ├── interrupt/            -- fallback implementation based on disabling interrupts (for no-std)
+│   │   ├── msp430.rs             -- atomic implementation for MSP430 (by asm)
+│   │   ├── riscv.rs              -- atomic implementation for RISC-V without A-extension (by asm)
+│   │   └── x86.rs                -- atomic implementation for x86/x86_64 (by asm)
+│   ├── lib.rs                    -- definitions of public APIs
+│   ├── tests/                    -- unit tests and test helpers
+│   └── utils.rs                  -- common code
+├── target-specs/                 -- specs of custom targets used for tests
+├── tests/
+│   ├── api-test/                 -- API check
+│   ├── {avr,cortex-m,gba,riscv}/ -- tests for no-std targets
+│   └── helper/                   -- test helpers
+└── tools/                        -- tools for CI and/or development
 ```
 
 ## Testing powerpc64le using POWER Functional Simulator
