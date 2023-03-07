@@ -35,7 +35,7 @@ macro_rules! assert_cmpxchg16b {
 )]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     crate::utils::assert_load_ordering(order);
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_load_acquire(src),
@@ -53,7 +53,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 )]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     crate::utils::assert_store_ordering(order);
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Release => intrinsics::atomic_store_release(dst, val),
@@ -70,7 +70,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_xchg_acquire(dst, val),
@@ -96,7 +96,7 @@ unsafe fn atomic_compare_exchange(
     failure: Ordering,
 ) -> Result<u128, u128> {
     crate::utils::assert_compare_exchange_ordering(success, failure);
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // SAFETY: the caller must uphold the safety contract.
     let (val, ok) = unsafe {
         match (success, failure) {
             (Relaxed, Relaxed) => intrinsics::atomic_cxchg_relaxed_relaxed(dst, old, new),
@@ -137,7 +137,7 @@ unsafe fn atomic_compare_exchange_weak(
     failure: Ordering,
 ) -> Result<u128, u128> {
     crate::utils::assert_compare_exchange_ordering(success, failure);
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange_weak`.
+    // SAFETY: the caller must uphold the safety contract.
     let (val, ok) = unsafe {
         match (success, failure) {
             (Relaxed, Relaxed) => intrinsics::atomic_cxchgweak_relaxed_relaxed(dst, old, new),
@@ -171,7 +171,7 @@ unsafe fn atomic_compare_exchange_weak(
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_xadd_acquire(dst, val),
@@ -190,7 +190,7 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_xsub_acquire(dst, val),
@@ -209,7 +209,7 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_and`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_and_acquire(dst, val),
@@ -228,7 +228,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_nand`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_nand_acquire(dst, val),
@@ -247,7 +247,7 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_or`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_or_acquire(dst, val),
@@ -266,7 +266,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_xor`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_xor_acquire(dst, val),
@@ -284,7 +284,7 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // This is a private function and all instances of `f` only operate on the value
         // loaded, so there is no need to synchronize the first load/failed CAS.
@@ -309,12 +309,12 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
-    // SAFETY: the caller must uphold the safety contract for `atomic_max`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_update(dst.cast(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
     }
     #[cfg(not(target_arch = "powerpc64"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_max`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_max_acquire(dst, val),
@@ -337,12 +337,12 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
-    // SAFETY: the caller must uphold the safety contract for `atomic_min`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_update(dst.cast(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
     }
     #[cfg(not(target_arch = "powerpc64"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_min`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_min_acquire(dst, val),
@@ -364,12 +364,12 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
-    // SAFETY: the caller must uphold the safety contract for `atomic_umax`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_update(dst, order, |x| core::cmp::max(x, val))
     }
     #[cfg(not(target_arch = "powerpc64"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_umax`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_umax_acquire(dst, val),
@@ -391,12 +391,12 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // LLVM 15 doesn't support 128-bit atomic min/max for powerpc64.
     #[cfg(target_arch = "powerpc64")]
-    // SAFETY: the caller must uphold the safety contract for `atomic_umin`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_update(dst, order, |x| core::cmp::min(x, val))
     }
     #[cfg(not(target_arch = "powerpc64"))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_umin`
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Acquire => intrinsics::atomic_umin_acquire(dst, val),

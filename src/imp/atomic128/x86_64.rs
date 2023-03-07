@@ -131,12 +131,12 @@ unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
 
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(any(miri, portable_atomic_sanitize_thread))]
-    // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_load(src, Ordering::Relaxed)
     }
     #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
-    // SAFETY: the caller must uphold the safety contract for `byte_wise_atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let (prev_lo, prev_hi);
         asm!(
@@ -164,7 +164,7 @@ unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
 unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `_atomic_load_vmovdqa`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let out: core::arch::x86_64::__m128;
         asm!(
@@ -182,7 +182,7 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128, _order: Ordering) -> u128 {
 unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `_atomic_store_vmovdqa`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
         match order {
@@ -214,7 +214,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     #[inline]
     unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
         let fail_order = crate::utils::strongest_failure_ordering(order);
-        // SAFETY: the caller must uphold the safety contract for `_atomic_load_cmpxchg16b`.
+        // SAFETY: the caller must uphold the safety contract.
         unsafe {
             match atomic_compare_exchange(src, 0, 0, order, fail_order) {
                 Ok(v) | Err(v) => v,
@@ -233,7 +233,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         miri,
         portable_atomic_sanitize_thread,
     ))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         _atomic_load_cmpxchg16b(src, order)
     }
@@ -244,7 +244,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         miri,
         portable_atomic_sanitize_thread,
     )))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         ifunc!(unsafe fn(src: *mut u128, order: Ordering) -> u128 {
             // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
@@ -262,7 +262,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     #[inline]
     unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) {
-        // SAFETY: the caller must uphold the safety contract for `_atomic_store_cmpxchg16b`.
+        // SAFETY: the caller must uphold the safety contract.
         unsafe {
             atomic_swap(dst, val, order);
         }
@@ -279,7 +279,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         miri,
         portable_atomic_sanitize_thread,
     ))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         _atomic_store_cmpxchg16b(dst, val, order);
     }
@@ -290,7 +290,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         miri,
         portable_atomic_sanitize_thread,
     )))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) {
             // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
@@ -367,7 +367,7 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // This is based on the code generated for the first load in DW RMWs by LLVM,
         // but it is interesting that they generate code that does mixed-sized atomic access.
@@ -398,9 +398,11 @@ where
 
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe { atomic_update(dst, order, |_| val) }
 }
+
+atomic_rmw_by_atomic_update!();
 
 #[inline]
 fn is_lock_free() -> bool {
@@ -411,8 +413,8 @@ const fn is_always_lock_free() -> bool {
     cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
 }
 
-atomic128!(AtomicI128, i128);
-atomic128!(AtomicU128, u128);
+atomic128!(AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
@@ -579,14 +581,16 @@ mod tests_no_cmpxchg16b {
         unsafe { atomic_update(dst, order, |_| val) }
     }
 
+    atomic_rmw_by_atomic_update!();
+
     #[inline]
     const fn is_always_lock_free() -> bool {
         false
     }
     use is_always_lock_free as is_lock_free;
 
-    atomic128!(AtomicI128, i128);
-    atomic128!(AtomicU128, u128);
+    atomic128!(AtomicI128, i128, atomic_max, atomic_min);
+    atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
     // Do not put this in the nested tests module due to glob imports refer to super::super::Atomic*.
     test_atomic_int!(i128);

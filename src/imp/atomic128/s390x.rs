@@ -44,7 +44,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Ordering::Acquire => core::intrinsics::atomic_load_acquire(src),
@@ -57,7 +57,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         any(miri, portable_atomic_sanitize_thread),
         portable_atomic_new_atomic_intrinsics,
     )))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let _ = order;
         let (out_hi, out_lo);
@@ -80,7 +80,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
             Ordering::Release => core::intrinsics::atomic_store_release(dst, val),
@@ -93,7 +93,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         any(miri, portable_atomic_sanitize_thread),
         portable_atomic_new_atomic_intrinsics,
     )))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         match order {
@@ -136,7 +136,7 @@ unsafe fn atomic_compare_exchange(
 
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // SAFETY: the caller must uphold the safety contract.
     let res = unsafe {
         use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
         match (success, failure) {
@@ -163,7 +163,7 @@ unsafe fn atomic_compare_exchange(
         any(miri, portable_atomic_sanitize_thread),
         portable_atomic_new_atomic_intrinsics,
     )))]
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // SAFETY: the caller must uphold the safety contract.
     let res = unsafe {
         let _ = (success, failure);
         let old = U128 { whole: old };
@@ -196,7 +196,7 @@ unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_update`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // This is a private function and all instances of `f` only operate on the value
         // loaded, so there is no need to synchronize the first load/failed CAS.
@@ -213,9 +213,11 @@ where
 
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe { atomic_update(dst, order, |_| val) }
 }
+
+atomic_rmw_by_atomic_update!();
 
 #[inline]
 const fn is_always_lock_free() -> bool {
@@ -223,8 +225,8 @@ const fn is_always_lock_free() -> bool {
 }
 use is_always_lock_free as is_lock_free;
 
-atomic128!(AtomicI128, i128);
-atomic128!(AtomicU128, u128);
+atomic128!(AtomicI128, i128, atomic_max, atomic_min);
+atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
 #[cfg(test)]
 mod tests {

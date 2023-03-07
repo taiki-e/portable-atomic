@@ -72,7 +72,7 @@ macro_rules! atomic_rmw {
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
+    // SAFETY: the caller must uphold the safety contract.
     //
     // Refs: "3.3.4 Fixed Point Load and Store Quadword Instructions" of Power ISA
     unsafe {
@@ -139,7 +139,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+    // SAFETY: the caller must uphold the safety contract.
     //
     // Refs: "3.3.4 Fixed Point Load and Store Quadword Instructions" of Power ISA
     unsafe {
@@ -179,7 +179,7 @@ unsafe fn atomic_compare_exchange(
     debug_assert!(dst as usize % 16 == 0);
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_compare_exchange`.
+    // SAFETY: the caller must uphold the safety contract.
     //
     // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
     let res = unsafe {
@@ -235,7 +235,7 @@ use atomic_compare_exchange as atomic_compare_exchange_weak;
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_swap`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -274,7 +274,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_add`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -313,7 +313,7 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_sub`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -352,7 +352,7 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_and`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -391,7 +391,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_nand`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -430,7 +430,7 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_or`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -469,7 +469,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_xor`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -506,7 +506,7 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
-    // SAFETY: the caller must uphold the safety contract for `atomic_not`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe { atomic_xor(dst, core::u128::MAX, order) }
 }
 
@@ -514,7 +514,7 @@ unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
 unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_neg`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let (mut prev_hi, mut prev_lo);
         macro_rules! neg {
@@ -552,7 +552,7 @@ unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
 unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_max`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = I128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -598,7 +598,7 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_umax`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -643,7 +643,7 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_min`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = I128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -689,7 +689,7 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // SAFETY: the caller must uphold the safety contract for `atomic_umin`.
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
@@ -729,6 +729,12 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     }
 }
+
+#[inline]
+const fn is_always_lock_free() -> bool {
+    true
+}
+use is_always_lock_free as is_lock_free;
 
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
