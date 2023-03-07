@@ -105,7 +105,7 @@ extern "C" {
     fn _atomic_f64_ffi_safety(_: AtomicF64);
 }
 
-#[rustversion::since(1.60)]
+#[rustversion::since(1.60)] // cfg!(target_has_atomic) requires Rust 1.60
 #[test]
 fn test_is_lock_free() {
     assert!(AtomicI8::is_always_lock_free());
