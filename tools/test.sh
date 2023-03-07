@@ -34,6 +34,10 @@ x_cargo() {
     x "${cargo}" "$@"
     echo
 }
+bail() {
+    echo >&2 "error: $*"
+    exit 1
+}
 
 pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
@@ -67,6 +71,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 cargo="${cargo:-cargo}"
+rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
@@ -86,14 +91,22 @@ fi
 if [[ -n "${target}" ]]; then
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
-            echo "target '${target}' not available on ${rustc_version}"
-            exit 1
+            bail "target '${target}' not available on ${rustc_version}"
         fi
         target_flags=(--target "$(pwd)/target-specs/${target}.json")
     else
         target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
+    if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
+        rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
+    elif [[ -n "${nightly}" ]]; then
+        if [[ -z "${build_std}" ]]; then
+            args+=(-Z build-std)
+        fi
+    else
+        bail "target '${target}' requires nightly compiler"
+    fi
 fi
 args+=(
     --all-features

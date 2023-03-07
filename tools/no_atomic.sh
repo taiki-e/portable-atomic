@@ -12,6 +12,11 @@ trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 # USAGE:
 #    ./tools/no_atomic.sh
 
+bail() {
+    echo >&2 "error: $*"
+    exit 1
+}
+
 file="no_atomic.rs"
 
 # We don't refer to NO_ATOMIC_CAS and NO_ATOMIC_64 in nightly-2022-02-11+
@@ -31,14 +36,14 @@ for target in $(rustc --print target-list); do
         0) no_atomic+=("${target}") ;;
         32 | 64 | 128 | null) ;;
         # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
-        *) echo "'${target}' has max-atomic-width == ${max_atomic_width}" && exit 1 ;;
+        *) bail "'${target}' has max-atomic-width == ${max_atomic_width}" ;;
     esac
     case "${min_atomic_width}" in
         8 | null) ;;
         *)
             case "${target}" in
                 bpfeb-unknown-none | bpfel-unknown-none) ;;
-                *) echo "'${target}' has min-atomic-width == ${min_atomic_width}" && exit 1 ;;
+                *) bail "'${target}' has min-atomic-width == ${min_atomic_width}" ;;
             esac
             no_atomic+=("${target}")
             ;;
@@ -60,7 +65,7 @@ for target in $(rustc +nightly-2022-02-10 --print target-list); do
         0) no_atomic_64+=("${target}") ;;
         64 | 128) ;;
         # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
-        *) echo "${target}" && exit 1 ;;
+        *) bail "${target}" ;;
     esac
 done
 
