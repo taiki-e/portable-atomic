@@ -185,7 +185,8 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     clippy::naive_bytecount,
     clippy::similar_names,
     clippy::single_match,
-    clippy::type_complexity
+    clippy::type_complexity,
+    clippy::unreadable_literal,
 )]
 // asm_experimental_arch
 // AVR and MSP430 are tier 3 platforms and require nightly anyway.

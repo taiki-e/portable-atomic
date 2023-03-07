@@ -189,9 +189,9 @@ mod imp {
         // available on FreeBSD 13.0+ and 12.2+
         // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
         // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
-        pub(crate) const HWCAP_ATOMICS: c_ulong = 0x0000_0100;
+        pub(crate) const HWCAP_ATOMICS: c_ulong = 0x00000100;
         #[cfg(test)]
-        pub(crate) const HWCAP_USCAT: c_ulong = 0x0200_0000;
+        pub(crate) const HWCAP_USCAT: c_ulong = 0x02000000;
 
         extern "C" {
             // Defined in sys/auxv.h.
