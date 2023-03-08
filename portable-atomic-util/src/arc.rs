@@ -410,6 +410,7 @@ impl<T: ?Sized> Arc<T> {
     ///
     /// assert!(weak_five.upgrade().is_some());
     /// ```
+    #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub fn downgrade(this: &Self) -> Weak<T> {
         let mut cur = this.inner().weak().load(Relaxed);
@@ -421,6 +422,10 @@ impl<T: ?Sized> Arc<T> {
                 cur = this.inner().weak().load(Relaxed);
                 continue;
             }
+
+            // If the weak counter is greater than the maximum, panic.
+            // Panic instead of abort is okay because we didn't increment the weak counter yet.
+            assert!(cur <= MAX_REFCOUNT, "Arc counter overflow");
 
             // Try to increment the weak counter.
             match this.inner().weak().compare_exchange_weak(cur, cur + 1, Acquire, Relaxed) {
@@ -681,6 +686,7 @@ impl<T: ?Sized> Weak<T> {
     /// let weak = Arc::downgrade(&five);
     /// assert!(weak.upgrade().is_some());
     /// ```
+    #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub fn upgrade(&self) -> Option<Arc<T>> {
         let header = self.inner()?;
@@ -692,10 +698,9 @@ impl<T: ?Sized> Weak<T> {
                 return None;
             }
 
-            // If the strong count is greater than the maximum, abort.
-            if strong > MAX_REFCOUNT {
-                abort();
-            }
+            // If the strong count is greater than the maximum, panic.
+            // Panic instead of abort is okay because we didn't increment the strong counter yet.
+            assert!(strong <= MAX_REFCOUNT, "Arc counter overflow");
 
             // Try to increment the strong count.
             match header.strong.compare_exchange_weak(strong, strong + 1, Acquire, Relaxed) {
