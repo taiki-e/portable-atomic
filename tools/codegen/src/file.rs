@@ -128,7 +128,7 @@ pub fn write_raw(function_name: &str, path: &Path, contents: impl AsRef<[u8]>) -
     })?;
     let p = path.strip_prefix(&workspace_root()).unwrap();
     if !linguist_generated.iter().any(|m| m.is_match(p)) {
-        eprintln!("warning: you may want to mark {} linguist-generated", p.display())
+        eprintln!("warning: you may want to mark {} linguist-generated", p.display());
     }
 
     let mut out = header(function_name).into_bytes();
