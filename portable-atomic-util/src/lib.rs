@@ -64,7 +64,6 @@ See [#1] for other primitives being considered for addition to this crate.
     clippy::undocumented_unsafe_blocks,
     // misc
     clippy::inline_asm_x86_att_syntax,
-    clippy::rest_pat_in_fully_bound_structs,
 )]
 #![allow(
     clippy::cast_lossless,

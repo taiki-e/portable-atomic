@@ -172,7 +172,6 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
     // misc
     clippy::inline_asm_x86_att_syntax,
     clippy::missing_inline_in_public_items,
-    clippy::rest_pat_in_fully_bound_structs,
 )]
 #![allow(
     clippy::cast_lossless,
