@@ -320,8 +320,7 @@ mod tests {
             *mut ffi::c_void,
             ffi::c_int,
         ) -> ffi::c_int = ffi::elf_aux_info;
-        // libc has this, but unreleased as of 0.2.139: https://github.com/rust-lang/libc/commit/a4fd9d32c854417afa1acdbc922eeafac5fcbbfd
-        // _elf_aux_info = libc::elf_aux_info;
+        _elf_aux_info = libc::elf_aux_info;
         _elf_aux_info = sys::elf_aux_info;
         // static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP); // libc doesn't have this
         static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as ffi::c_int);
