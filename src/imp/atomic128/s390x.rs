@@ -10,7 +10,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/3865GPvY6
+// - s390x https://godbolt.org/z/fhzsvKM1z
 
 include!("macros.rs");
 
@@ -213,8 +213,42 @@ where
 
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
     // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_update(dst, order, |_| val) }
+    unsafe {
+        atomic_update(dst, order, |_| val)
+    }
+    #[cfg(not(all(
+        any(miri, portable_atomic_sanitize_thread),
+        portable_atomic_new_atomic_intrinsics,
+    )))]
+    // SAFETY: the caller must uphold the safety contract.
+    //
+    // We could use atomic_update here, but using an inline assembly allows omitting
+    // the comparison of results and the storing/comparing of condition flags.
+    unsafe {
+        // atomic swap is always SeqCst.
+        let _ = order;
+        let val = U128 { whole: val };
+        let (mut prev_hi, mut prev_lo);
+        asm!(
+            "lpq %r0, 0({dst})",
+            "2:",
+                "cdsg %r0, %r12, 0({dst})",
+                "jl 2b",
+            dst = in(reg) dst,
+            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+            out("r0") prev_hi,
+            out("r1") prev_lo,
+            in("r12") val.pair.hi,
+            in("r13") val.pair.lo,
+            options(nostack),
+        );
+        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+    }
 }
 
 atomic_rmw_by_atomic_update!();
