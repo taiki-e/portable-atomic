@@ -2,9 +2,10 @@
 //
 // Refs:
 // - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
+// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/h3qjTn5Wq
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/5j869v4dz
 
 include!("macros.rs");
 
@@ -102,12 +103,13 @@ unsafe fn _cmpxchg16b(
                     "xchg {rbx_tmp}, rbx",
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                     "sete r8b",
+                    // restore rbx
                     "mov rbx, {rbx_tmp}",
                     rbx_tmp = inout(reg) new.pair.lo => _,
-                    in("rdi") dst,
+                    in("rcx") new.pair.hi,
                     inout("rax") old.pair.lo => prev_lo,
                     inout("rdx") old.pair.hi => prev_hi,
-                    in("rcx") new.pair.hi,
+                    in($rdi) dst,
                     out("r8b") r,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
@@ -398,8 +400,63 @@ where
 
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(any(
+        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+        any(miri, portable_atomic_sanitize_thread),
+    ))]
     // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_update(dst, order, |_| val) }
+    unsafe {
+        atomic_update(dst, order, |_| val)
+    }
+    #[cfg(not(any(
+        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+        any(miri, portable_atomic_sanitize_thread),
+    )))]
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+    // cfg guarantees that the CPU supports CMPXCHG16B.
+    //
+    // See _cmpxchg16b for more.
+    //
+    // We could use atomic_update here, but using an inline assembly allows omitting
+    // the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
+    unsafe {
+        // atomic swap is always SeqCst.
+        let _ = order;
+        let val = U128 { whole: val };
+        let (mut prev_lo, mut prev_hi);
+        macro_rules! cmpxchg16b {
+            ($rdi:tt) => {
+                asm!(
+                    // rbx is reserved by LLVM
+                    "xchg {rbx_tmp}, rbx",
+                    // See atomic_update
+                    concat!("mov rax, qword ptr [", $rdi, "]"),
+                    concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                    "2:",
+                        concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                        "jne 2b",
+                    // restore rbx
+                    "mov rbx, {rbx_tmp}",
+                    rbx_tmp = inout(reg) val.pair.lo => _,
+                    in("rcx") val.pair.hi,
+                    out("rax") prev_lo,
+                    out("rdx") prev_hi,
+                    in($rdi) dst,
+                    // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
+                    options(nostack),
+                )
+            };
+        }
+        #[cfg(target_pointer_width = "32")]
+        cmpxchg16b!("edi");
+        #[cfg(target_pointer_width = "64")]
+        cmpxchg16b!("rdi");
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
 }
 
 atomic_rmw_by_atomic_update!();
