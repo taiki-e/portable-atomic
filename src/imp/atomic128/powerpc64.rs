@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/YoT1PK46x
-// - powerpc64le https://godbolt.org/z/4WYh6fxfb
+// - powerpc64 (pwr8) https://godbolt.org/z/a8xxWc1Wr
+// - powerpc64le https://godbolt.org/z/r1j975Pza
 
 include!("macros.rs");
 
@@ -36,12 +36,6 @@ use core::{arch::asm, sync::atomic::Ordering};
 #[repr(C)]
 union U128 {
     whole: u128,
-    pair: Pair,
-}
-#[derive(Clone, Copy)]
-#[repr(C)]
-union I128 {
-    whole: i128,
     pair: Pair,
 }
 
@@ -231,277 +225,94 @@ unsafe fn atomic_compare_exchange(
 // so we always use strong CAS for now.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
-#[inline]
-unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! swap {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "mr %r9, {val_lo}",
-                        "mr %r8, {val_hi}",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
+/// Atomic RMW by LL/SC loop (3 arguments)
+/// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
+///
+/// $op can use the following registers:
+/// - val_hi/val_lo pair: val argument
+/// - r6/r7 pair: previous value loaded by ll
+/// - r8/r9 pair: new value that will to stored by sc
+macro_rules! atomic_rmw_ll_sc_3 {
+    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+        #[inline]
+        unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                let val = U128 { whole: val };
+                let (mut prev_hi, mut prev_lo);
+                macro_rules! op {
+                    ($acquire:tt, $release:tt) => {
+                        asm!(
+                            $release,
+                            "2:",
+                                "lqarx %r6, 0, {dst}",
+                                $($op)*
+                                "stqcx. %r8, 0, {dst}",
+                                "bne %cr0, 2b",
+                            $acquire,
+                            dst = in(reg) dst,
+                            val_hi = in(reg) val.pair.hi,
+                            val_lo = in(reg) val.pair.lo,
+                            out("r0") _,
+                            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                            // We cannot use r1 and r2, so starting with r4.
+                            out("r6") prev_hi,
+                            out("r7") prev_lo,
+                            out("r8") _, // new (hi)
+                            out("r9") _, // new (lo)
+                            out("cr0") _,
+                            options($($options)*),
+                        )
+                    };
+                }
+                atomic_rmw!(op, order);
+                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+            }
         }
-        atomic_rmw!(swap, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+    };
 }
-
-#[inline]
-unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! add {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "addc %r9, {val_lo}, %r7",
-                        "adde %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(add, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_swap,
+    options(nostack),
+    "mr %r9, {val_lo}",
+    "mr %r8, {val_hi}",
 }
-
-#[inline]
-unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! sub {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "subc %r9, %r7, {val_lo}",
-                        "subfe %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(sub, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_add,
+    options(nostack),
+    "addc %r9, {val_lo}, %r7",
+    "adde %r8, {val_hi}, %r6",
 }
-
-#[inline]
-unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! and {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "and %r9, {val_lo}, %r7",
-                        "and %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(and, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_sub,
+    options(nostack),
+    "subc %r9, %r7, {val_lo}",
+    "subfe %r8, {val_hi}, %r6",
 }
-
-#[inline]
-unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! nand {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "nand %r9, {val_lo}, %r7",
-                        "nand %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(nand, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_and,
+    options(nostack),
+    "and %r9, {val_lo}, %r7",
+    "and %r8, {val_hi}, %r6",
 }
-
-#[inline]
-unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! or {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "or %r9, {val_lo}, %r7",
-                        "or %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(or, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_nand,
+    options(nostack),
+    "nand %r9, {val_lo}, %r7",
+    "nand %r8, {val_hi}, %r6",
 }
-
-#[inline]
-unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! xor {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "xor %r9, {val_lo}, %r7",
-                        "xor %r8, {val_hi}, %r6",
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(xor, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_3! {
+    atomic_or,
+    options(nostack),
+    "or %r9, {val_lo}, %r7",
+    "or %r8, {val_hi}, %r6",
+}
+atomic_rmw_ll_sc_3! {
+    atomic_xor,
+    options(nostack),
+    "xor %r9, {val_lo}, %r7",
+    "xor %r8, {val_hi}, %r6",
 }
 
 #[inline]
@@ -548,186 +359,103 @@ unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
     }
 }
 
-#[inline]
-unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = I128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! max {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-                        "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-                        "crandc 20, 5, 2",
-                        "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-                        "crand 21, 2, 5",
-                        "cror 20, 21, 20",
-                        "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-                        "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    out("cr1") _,
-                    options(nostack),
-                )
-            };
+/// Atomic RMW by LL/SC loop (min/max)
+/// `unsafe fn(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type;`
+///
+/// $op can use the following registers:
+/// - val_hi/val_lo pair: val argument
+/// - r6/r7 pair: previous value loaded by ll
+/// - r8/r9 pair: new value that will to stored by sc
+macro_rules! atomic_rmw_ll_sc_cmp {
+    ($name:ident, $int_type:ident, options($($options:tt)*), $($op:tt)*) => {
+        #[inline]
+        unsafe fn $name(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                let val = U128 { whole: val as u128 };
+                let (mut prev_hi, mut prev_lo);
+                macro_rules! op {
+                    ($acquire:tt, $release:tt) => {
+                        asm!(
+                            $release,
+                            "2:",
+                                "lqarx %r6, 0, {dst}",
+                                $($op)*
+                                "stqcx. %r8, 0, {dst}",
+                                "bne %cr0, 2b",
+                            $acquire,
+                            dst = in(reg) dst,
+                            val_hi = in(reg) val.pair.hi,
+                            val_lo = in(reg) val.pair.lo,
+                            out("r0") _,
+                            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                            // We cannot use r1 and r2, so starting with r4.
+                            out("r6") prev_hi,
+                            out("r7") prev_lo,
+                            out("r8") _, // new (hi)
+                            out("r9") _, // new (lo)
+                            out("cr0") _,
+                            out("cr1") _,
+                            options($($options)*),
+                        )
+                    };
+                }
+                atomic_rmw!(op, order);
+                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
+            }
         }
-        atomic_rmw!(max, order);
-        I128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+    };
 }
-
-#[inline]
-unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! umax {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-                        "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-                        "crandc 20, 1, 2",
-                        "crand 21, 2, 5",
-                        "cror 20, 21, 20",
-                        "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-                        "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    out("cr1") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(umax, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_cmp! {
+    atomic_max,
+    i128,
+    options(nostack),
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
+    "crandc 20, 5, 2",
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
+    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
 }
-
-#[inline]
-unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = I128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! min {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-                        "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-                        "crandc 20, 5, 2",
-                        "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-                        "crand 21, 2, 5",
-                        "cror 20, 21, 20",
-                        "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-                        "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    out("cr1") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(min, order);
-        I128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_cmp! {
+    atomic_umax,
+    u128,
+    options(nostack),
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crandc 20, 1, 2",
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
+    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
 }
-
-#[inline]
-unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
-
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let val = U128 { whole: val };
-        let (mut prev_hi, mut prev_lo);
-        macro_rules! umin {
-            ($acquire:tt, $release:tt) => {
-                asm!(
-                    $release,
-                    "2:",
-                        "lqarx %r6, 0, {dst}",
-                        "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-                        "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-                        "crandc 20, 1, 2",
-                        "crand 21, 2, 5",
-                        "cror 20, 21, 20",
-                        "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-                        "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
-                        "stqcx. %r8, 0, {dst}",
-                        "bne %cr0, 2b",
-                    $acquire,
-                    dst = in(reg) dst,
-                    val_hi = in(reg) val.pair.hi,
-                    val_lo = in(reg) val.pair.lo,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r6") prev_hi,
-                    out("r7") prev_lo,
-                    out("r8") _, // new (hi)
-                    out("r9") _, // new (lo)
-                    out("cr0") _,
-                    out("cr1") _,
-                    options(nostack),
-                )
-            };
-        }
-        atomic_rmw!(umin, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    }
+atomic_rmw_ll_sc_cmp! {
+    atomic_min,
+    i128,
+    options(nostack),
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
+    "crandc 20, 5, 2",
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
+    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+}
+atomic_rmw_ll_sc_cmp! {
+    atomic_umin,
+    u128,
+    options(nostack),
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crandc 20, 1, 2",
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
+    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
 }
 
 #[inline]
