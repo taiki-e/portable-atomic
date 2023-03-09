@@ -63,7 +63,7 @@ pub(super) unsafe fn restore(State(cpsr): State) {
 // have Data Memory Barrier).
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/9x4Ghe7ao
+// - armv5te https://godbolt.org/z/W7343aob8
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;
@@ -71,49 +71,51 @@ pub(crate) mod atomic {
 
     #[repr(transparent)]
     pub(crate) struct AtomicBool {
+        #[allow(dead_code)]
         v: UnsafeCell<u8>,
     }
 
     impl AtomicBool {
         #[inline]
         pub(crate) fn load(&self, order: Ordering) -> bool {
-            // SAFETY: any data races are prevented by atomic intrinsics and the raw
-            // pointer passed in is valid because we got it from a reference.
-            unsafe { u8::atomic_load(self.v.get(), order) != 0 }
+            self.as_atomic_u8().load(order) != 0
         }
 
         #[inline]
         pub(crate) fn store(&self, val: bool, order: Ordering) {
-            // SAFETY: any data races are prevented by atomic intrinsics and the raw
-            // pointer passed in is valid because we got it from a reference.
-            unsafe {
-                u8::atomic_store(self.v.get(), val as u8, order);
-            }
+            self.as_atomic_u8().store(val as u8, order);
+        }
+
+        #[inline]
+        fn as_atomic_u8(&self) -> &AtomicU8 {
+            // SAFETY: AtomicBool and AtomicU8 have the same layout,
+            unsafe { &*(self as *const AtomicBool).cast::<AtomicU8>() }
         }
     }
 
     #[repr(transparent)]
     pub(crate) struct AtomicPtr<T> {
+        #[allow(dead_code)]
         p: UnsafeCell<*mut T>,
     }
 
     impl<T> AtomicPtr<T> {
         #[inline]
         pub(crate) fn load(&self, order: Ordering) -> *mut T {
-            // SAFETY: any data races are prevented by atomic intrinsics and the raw
-            // pointer passed in is valid because we got it from a reference.
             // TODO: remove int to ptr cast
-            unsafe { usize::atomic_load(self.p.get().cast::<usize>(), order) as *mut T }
+            self.as_atomic_usize().load(order) as *mut T
         }
 
         #[inline]
         pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
-            // SAFETY: any data races are prevented by atomic intrinsics and the raw
-            // pointer passed in is valid because we got it from a reference.
             // TODO: remove int to ptr cast
-            unsafe {
-                usize::atomic_store(self.p.get().cast::<usize>(), ptr as usize, order);
-            }
+            self.as_atomic_usize().store(ptr as usize, order);
+        }
+
+        #[inline]
+        fn as_atomic_usize(&self) -> &AtomicUsize {
+            // SAFETY: AtomicPtr and AtomicUsize have the same layout,
+            unsafe { &*(self as *const AtomicPtr<T>).cast::<AtomicUsize>() }
         }
     }
 
@@ -127,25 +129,9 @@ pub(crate) mod atomic {
             impl $atomic_type {
                 #[inline]
                 pub(crate) fn load(&self, order: Ordering) -> $int_type {
+                    let src = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
-                    unsafe { $int_type::atomic_load(self.v.get(), order) }
-                }
-
-                #[inline]
-                pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                    // pointer passed in is valid because we got it from a reference.
-                    unsafe {
-                        $int_type::atomic_store(self.v.get(), val, order);
-                    }
-                }
-            }
-
-            impl AtomicOperations for $int_type {
-                #[inline]
-                unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self {
-                    // SAFETY: the caller must uphold the safety contract for `atomic_load`.
                     unsafe {
                         let out;
                         match order {
@@ -175,8 +161,10 @@ pub(crate) mod atomic {
                 }
 
                 #[inline]
-                unsafe fn atomic_store(dst: *mut Self, val: Self, _order: Ordering) {
-                    // SAFETY: the caller must uphold the safety contract for `atomic_store`.
+                pub(crate) fn store(&self, val: $int_type, _order: Ordering) {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         // inline asm without nomem/readonly implies compiler fence.
                         // And compiler fence is fine because the user explicitly declares that
@@ -190,7 +178,6 @@ pub(crate) mod atomic {
                     }
                 }
             }
-
         };
     }
 
@@ -202,9 +189,4 @@ pub(crate) mod atomic {
     atomic_int!(AtomicU32, u32, "");
     atomic_int!(AtomicIsize, isize, "");
     atomic_int!(AtomicUsize, usize, "");
-
-    trait AtomicOperations: Sized {
-        unsafe fn atomic_load(src: *const Self, order: Ordering) -> Self;
-        unsafe fn atomic_store(dst: *mut Self, val: Self, order: Ordering);
-    }
 }
