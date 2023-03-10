@@ -581,6 +581,16 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
             }
         }
+        #[cfg(test)]
+        paste::paste! {
+            // Helper to test $op separately.
+            unsafe fn [<$name_no_lse _op>](dst: *mut u128, val: u128) -> u128 {
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    $name(dst, val, Ordering::Relaxed)
+                }
+            }
+        }
     };
 }
 atomic_rmw_ll_sc_3! {
@@ -678,6 +688,16 @@ macro_rules! atomic_rmw_ll_sc_2 {
                 U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
             }
         }
+        #[cfg(test)]
+        paste::paste! {
+            // Helper to test $op separately.
+            unsafe fn [<$name_no_lse _op>](dst: *mut u128) -> u128 {
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    $name(dst, Ordering::Relaxed)
+                }
+            }
+        }
     };
 }
 atomic_rmw_ll_sc_2! {
@@ -740,6 +760,16 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                 }
                 atomic_rmw!(op, order);
                 U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole as $int_type
+            }
+        }
+        #[cfg(test)]
+        paste::paste! {
+            // Helper to test $op separately.
+            unsafe fn [<$name_no_lse _op>](dst: *mut $int_type, val: $int_type) -> $int_type {
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    $name(dst, val, Ordering::Relaxed)
+                }
             }
         }
     };
@@ -890,6 +920,8 @@ mod tests {
 
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+
+    test_atomic128_op!();
 }
 
 #[cfg(test)]

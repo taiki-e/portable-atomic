@@ -1875,6 +1875,167 @@ macro_rules! test_atomic_ptr_pub {
     };
 }
 
+macro_rules! test_atomic128_op {
+    () => {
+        #[allow(
+            clippy::alloc_instead_of_core,
+            clippy::std_instead_of_alloc,
+            clippy::std_instead_of_core,
+            clippy::undocumented_unsafe_blocks
+        )]
+        mod test_atomic128_op {
+            use super::*;
+            __test_atomic128_op!();
+        }
+    };
+}
+macro_rules! __test_atomic128_op {
+    () => {
+        ::quickcheck::quickcheck! {
+            #[cfg(not(target_arch = "aarch64"))]
+            fn quickcheck_atomic_swap_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_swap_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), y);
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_swap_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), x);
+                }
+                true
+            }
+            fn quickcheck_atomic_add_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_add_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_add(y));
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_add_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_add(x));
+                }
+                true
+            }
+            fn quickcheck_atomic_sub_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_sub_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_sub(y));
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_sub_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y.wrapping_sub(x));
+                }
+                true
+            }
+            fn quickcheck_atomic_and_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_and_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x & y);
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_and_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y & x);
+                }
+                true
+            }
+            fn quickcheck_atomic_nand_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_nand_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), !(x & y));
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_nand_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), !(y & x));
+                }
+                true
+            }
+            fn quickcheck_atomic_or_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_or_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x | y);
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_or_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y | x);
+                }
+                true
+            }
+            fn quickcheck_atomic_xor_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_xor_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_xor_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                }
+                true
+            }
+            fn quickcheck_atomic_max_op(x: i128, y: i128) -> bool {
+                unsafe {
+                    let a = AtomicI128::new(x);
+                    assert_eq!(atomic_max_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(x, y));
+                    let a = AtomicI128::new(y);
+                    assert_eq!(atomic_max_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(y, x));
+                }
+                true
+            }
+            fn quickcheck_atomic_umax_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_umax_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(x, y));
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_umax_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(y, x));
+                }
+                true
+            }
+            fn quickcheck_atomic_min_op(x: i128, y: i128) -> bool {
+                unsafe {
+                    let a = AtomicI128::new(x);
+                    assert_eq!(atomic_min_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(x, y));
+                    let a = AtomicI128::new(y);
+                    assert_eq!(atomic_min_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(y, x));
+                }
+                true
+            }
+            fn quickcheck_atomic_umin_op(x: u128, y: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_umin_op(a.as_ptr(), y), x);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(x, y));
+                    let a = AtomicU128::new(y);
+                    assert_eq!(atomic_umin_op(a.as_ptr(), x), y);
+                    assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(y, x));
+                }
+                true
+            }
+            #[cfg(not(target_arch = "powerpc64"))]
+            fn quickcheck_atomic_not_op(x: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_not_op(a.as_ptr()), x);
+                    assert_eq!(a.load(Ordering::Relaxed), !x);
+                }
+                true
+            }
+            #[cfg(not(target_arch = "powerpc64"))] // TODO
+            fn quickcheck_atomic_neg_op(x: u128) -> bool {
+                unsafe {
+                    let a = AtomicU128::new(x);
+                    assert_eq!(atomic_neg_op(a.as_ptr()), x);
+                    assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
+                }
+                true
+            }
+        }
+    };
+}
+
 // Asserts that `a` and `b` have performed equivalent operations.
 #[cfg(feature = "float")]
 macro_rules! assert_float_op_eq {

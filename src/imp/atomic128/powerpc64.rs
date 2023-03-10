@@ -270,6 +270,36 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
             }
         }
+        #[cfg(test)]
+        paste::paste! {
+            // Helper to test $op separately.
+            unsafe fn [<$name _op>](dst: *mut u128, val: u128) -> u128 {
+                debug_assert!(dst as usize % 16 == 0);
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    let val = U128 { whole: val };
+                    let (mut prev_hi, mut prev_lo);
+                    asm!(
+                        "lq %r6, 0({dst})",
+                        $($op)*
+                        "stq %r8, 0({dst})",
+                        dst = in(reg) dst,
+                        val_hi = in(reg) val.pair.hi,
+                        val_lo = in(reg) val.pair.lo,
+                        out("r0") _,
+                        // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                        // We cannot use r1 and r2, so starting with r4.
+                        out("r6") prev_hi,
+                        out("r7") prev_lo,
+                        out("r8") _, // new (hi)
+                        out("r9") _, // new (lo)
+                        out("cr0") _,
+                        options($($options)*),
+                    );
+                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+                }
+            }
+        }
     };
 }
 atomic_rmw_ll_sc_3! {
@@ -405,6 +435,37 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
             }
         }
+        #[cfg(test)]
+        paste::paste! {
+            // Helper to test $op separately.
+            unsafe fn [<$name _op>](dst: *mut $int_type, val: $int_type) -> $int_type {
+                debug_assert!(dst as usize % 16 == 0);
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    let val = U128 { whole: val as u128 };
+                    let (mut prev_hi, mut prev_lo);
+                    asm!(
+                        "lq %r6, 0({dst})",
+                        $($op)*
+                        "stq %r8, 0({dst})",
+                        dst = in(reg) dst,
+                        val_hi = in(reg) val.pair.hi,
+                        val_lo = in(reg) val.pair.lo,
+                        out("r0") _,
+                        // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                        // We cannot use r1 and r2, so starting with r4.
+                        out("r6") prev_hi,
+                        out("r7") prev_lo,
+                        out("r8") _, // new (hi)
+                        out("r9") _, // new (lo)
+                        out("cr0") _,
+                        out("cr1") _,
+                        options($($options)*),
+                    );
+                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
+                }
+            }
+        }
     };
 }
 atomic_rmw_ll_sc_cmp! {
@@ -482,4 +543,6 @@ mod tests {
     test_atomic_int_load_store!(i128);
     #[cfg(qemu)]
     test_atomic_int_load_store!(u128);
+
+    test_atomic128_op!();
 }
