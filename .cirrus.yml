@@ -46,7 +46,7 @@ aarch64_linux_test_task:
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
   test_script:
     - |
-      [ ! -f $HOME/.cargo/env ] || source $HOME/.cargo/env
+      [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
     - set -ex
     - ./tools/test.sh -vv
     # +lse
@@ -64,8 +64,9 @@ aarch64_macos_test_task:
     - sysctl hw.optional machdep.cpu
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
-    - source $HOME/.cargo/env
+    - . $HOME/.cargo/env
     - set -ex
+    # macOS is +lse,+lse2 by default
     - ./tools/test.sh -vv
 
 aarch64_linux_valgrind_task:
@@ -85,7 +86,7 @@ aarch64_linux_valgrind_task:
     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
   test_script:
-    - source $HOME/.cargo/env
+    - . $HOME/.cargo/env
     - set -ex
     # doctests on Valgrind are very slow
     - ./tools/test.sh -vv --tests
@@ -121,6 +122,6 @@ aarch64_linux_valgrind_task:
 #     - sysctl hw.optional machdep.cpu
 #     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
 #   bench_script:
-#     - source $HOME/.cargo/env
+#     - . $HOME/.cargo/env
 #     - set -ex
 #     - cargo bench -vv --manifest-path bench/Cargo.toml
