@@ -2651,22 +2651,22 @@ impl<T> AtomicPtr<T> {
 }
 
 macro_rules! atomic_int {
-    (AtomicU32, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
-        atomic_int!(int, AtomicU32, $int_type, $align, $neg_example);
+    (AtomicU32, $int_type:ident, $align:literal) => {
+        atomic_int!(int, AtomicU32, $int_type, $align);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
     };
-    (AtomicU64, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
-        atomic_int!(int, AtomicU64, $int_type, $align, $neg_example);
+    (AtomicU64, $int_type:ident, $align:literal) => {
+        atomic_int!(int, AtomicU64, $int_type, $align);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
     };
-    ($atomic_type:ident, $int_type:ident, $align:literal, neg_example = $neg_example:literal) => {
-        atomic_int!(int, $atomic_type, $int_type, $align, $neg_example);
+    ($atomic_type:ident, $int_type:ident, $align:literal) => {
+        atomic_int!(int, $atomic_type, $int_type, $align);
     };
 
     // Atomic{I,U}* impls
-    (int, $atomic_type:ident, $int_type:ident, $align:literal, $neg_example:literal) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
 
@@ -4102,8 +4102,8 @@ use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
 let foo = ", stringify!($atomic_type), "::new(5);
 assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5);
-assert_eq!(foo.load(Ordering::Relaxed), ", $neg_example, ");
-assert_eq!(foo.fetch_neg(Ordering::Relaxed), ", $neg_example, ");
+assert_eq!(foo.load(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_neg());
+assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_neg());
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
                 #[cfg_attr(
@@ -4152,7 +4152,7 @@ use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
 let foo = ", stringify!($atomic_type), "::new(5);
 foo.neg(Ordering::Relaxed);
-assert_eq!(foo.load(Ordering::Relaxed), ", $neg_example, ");
+assert_eq!(foo.load(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_neg());
 foo.neg(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
@@ -4806,31 +4806,31 @@ This is `const fn` on Rust 1.58+."),
 }
 
 #[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicIsize, isize, 2, neg_example = "-5");
+atomic_int!(AtomicIsize, isize, 2);
 #[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicUsize, usize, 2, neg_example = "65531");
+atomic_int!(AtomicUsize, usize, 2);
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicIsize, isize, 4, neg_example = "-5");
+atomic_int!(AtomicIsize, isize, 4);
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicUsize, usize, 4, neg_example = "4294967291");
+atomic_int!(AtomicUsize, usize, 4);
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicIsize, isize, 8, neg_example = "-5");
+atomic_int!(AtomicIsize, isize, 8);
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicUsize, usize, 8, neg_example = "18446744073709551611");
+atomic_int!(AtomicUsize, usize, 8);
 #[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicIsize, isize, 16, neg_example = "-5");
+atomic_int!(AtomicIsize, isize, 16);
 #[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicUsize, usize, 16, neg_example = "340282366920938463463374607431768211451");
+atomic_int!(AtomicUsize, usize, 16);
 
-atomic_int!(AtomicI8, i8, 1, neg_example = "-5");
-atomic_int!(AtomicU8, u8, 1, neg_example = "251");
-atomic_int!(AtomicI16, i16, 2, neg_example = "-5");
-atomic_int!(AtomicU16, u16, 2, neg_example = "65531");
+atomic_int!(AtomicI8, i8, 1);
+atomic_int!(AtomicU8, u8, 1);
+atomic_int!(AtomicI16, i16, 2);
+atomic_int!(AtomicU16, u16, 2);
 
 #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicI32, i32, 4, neg_example = "-5");
+atomic_int!(AtomicI32, i32, 4);
 #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicU32, u32, 4, neg_example = "4294967291");
+atomic_int!(AtomicU32, u32, 4);
 
 // cfg(any(target_has_atomic = "ptr", target_has_atomic_load_store = "64", all(feature = "fallback", portable_atomic_unsafe_assume_single_core)))
 #[cfg_attr(
@@ -4867,7 +4867,7 @@ atomic_int!(AtomicU32, u32, 4, neg_example = "4294967291");
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
     ))
 )]
-atomic_int!(AtomicI64, i64, 8, neg_example = "-5");
+atomic_int!(AtomicI64, i64, 8);
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
@@ -4902,7 +4902,7 @@ atomic_int!(AtomicI64, i64, 8, neg_example = "-5");
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
     ))
 )]
-atomic_int!(AtomicU64, u64, 8, neg_example = "18446744073709551611");
+atomic_int!(AtomicU64, u64, 8);
 
 #[cfg_attr(
     not(feature = "fallback"),
@@ -4956,7 +4956,7 @@ atomic_int!(AtomicU64, u64, 8, neg_example = "18446744073709551611");
         target_arch = "msp430",
     ))
 )]
-atomic_int!(AtomicI128, i128, 16, neg_example = "-5");
+atomic_int!(AtomicI128, i128, 16);
 #[cfg_attr(
     not(feature = "fallback"),
     cfg(any(
@@ -5009,7 +5009,7 @@ atomic_int!(AtomicI128, i128, 16, neg_example = "-5");
         target_arch = "msp430",
     ))
 )]
-atomic_int!(AtomicU128, u128, 16, neg_example = "340282366920938463463374607431768211451");
+atomic_int!(AtomicU128, u128, 16);
 
 /// Emulate strict provenance.
 ///
