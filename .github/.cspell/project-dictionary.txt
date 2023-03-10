@@ -143,3 +143,4 @@ xmmword
 xsave
 xsub
 Zbuild
+Zsanitizer

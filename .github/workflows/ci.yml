@@ -312,41 +312,12 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
-      # debug build + doctests is slow
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features           --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features --release         --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
-      # LTO + doctests is very slow on some platforms
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
+      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
       # +cmpxchg16b
-      # debug build + doctests is slow
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features           --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features --release         --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
-      # LTO + doctests is very slow on some platforms
-      - run: |
-          cargo -Z build-std test -vv --workspace --all-features --release --tests --target "$(rustc -Vv | grep host | sed 's/host: //')" $EXCLUDE 2>&1 | ts -i '%.s  '
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
 
   valgrind:
     env:

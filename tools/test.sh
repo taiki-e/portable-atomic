@@ -115,9 +115,20 @@ args+=(
 target="${target:-"${host}"}"
 
 run() {
-    x_cargo ${pre_args[@]+"${pre_args[@]}"} test ${tests[@]+"${tests[@]}"} "$@"
+    if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
+        # debug build + doctests is slow
+        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --tests "$@"
+    else
+        x_cargo ${pre_args[@]+"${pre_args[@]}"} test ${tests[@]+"${tests[@]}"} "$@"
+    fi
 
-    x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
+    if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
+        # Workaround https://github.com/google/sanitizers/issues/558
+        CARGO_PROFILE_RELEASE_OPT_LEVEL=1 \
+            x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
+    else
+        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
+    fi
 
     # LTO + doctests is very slow on some platforms
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
