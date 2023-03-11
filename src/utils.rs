@@ -1,6 +1,6 @@
 #![cfg_attr(not(all(test, feature = "float")), allow(dead_code, unused_macros))]
 
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 macro_rules! static_assert {
     ($cond:expr $(,)?) => {{
@@ -207,10 +207,6 @@ macro_rules! bit_opts_fetch_impl {
         }
     };
 }
-
-pub(crate) struct NoRefUnwindSafe(UnsafeCell<()>);
-// SAFETY: this is a marker type and we'll never access the value.
-unsafe impl Sync for NoRefUnwindSafe {}
 
 // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2956
 #[allow(dead_code)]

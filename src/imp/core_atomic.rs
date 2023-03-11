@@ -3,16 +3,31 @@
 // This is not a reexport, because we want to backport changes like
 // https://github.com/rust-lang/rust/pull/98383 to old compilers.
 
-use core::sync::atomic::Ordering;
+use core::{cell::UnsafeCell, marker::PhantomData, sync::atomic::Ordering};
+
+// core::panic::RefUnwindSafe is only available on Rust 1.56+, so on pre-1.56
+// Rust, we implement RefUnwindSafe when "std" feature is enabled.
+// However, on pre-1.56 Rust, the standard library's atomic types implement
+// RefUnwindSafe when "linked to std", and that's behavior that our other atomic
+// implementations can't emulate, so use PhantomData<NoRefUnwindSafe> to match
+// conditions where our other atomic implementations implement RefUnwindSafe.
+// If we do not do this, for example, downstream that is only tested on x86_64
+// may incorrectly assume that AtomicU64 always implements RefUnwindSafe even on
+// older rustc, and may be broken on platforms where std AtomicU64 is not available.
+struct NoRefUnwindSafe(UnsafeCell<()>);
+// SAFETY: this is a marker type and we'll never access the value.
+unsafe impl Sync for NoRefUnwindSafe {}
 
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     inner: core::sync::atomic::AtomicBool,
+    // Prevent RefUnwindSafe from being propagated from the std atomic type.
+    _marker: PhantomData<NoRefUnwindSafe>,
 }
 impl AtomicBool {
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
-        Self { inner: core::sync::atomic::AtomicBool::new(v) }
+        Self { inner: core::sync::atomic::AtomicBool::new(v), _marker: PhantomData }
     }
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
@@ -101,11 +116,13 @@ impl core::ops::Deref for AtomicBool {
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
     inner: core::sync::atomic::AtomicPtr<T>,
+    // Prevent RefUnwindSafe from being propagated from the std atomic type.
+    _marker: PhantomData<NoRefUnwindSafe>,
 }
 impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) const fn new(v: *mut T) -> Self {
-        Self { inner: core::sync::atomic::AtomicPtr::new(v) }
+        Self { inner: core::sync::atomic::AtomicPtr::new(v), _marker: PhantomData }
     }
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
@@ -191,6 +208,8 @@ macro_rules! atomic_int {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
+            // Prevent RefUnwindSafe from being propagated from the std atomic type.
+            _marker: PhantomData<NoRefUnwindSafe>,
         }
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,
@@ -212,7 +231,7 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
-                Self { inner: core::sync::atomic::$atomic_type::new(v) }
+                Self { inner: core::sync::atomic::$atomic_type::new(v), _marker: PhantomData }
             }
             #[inline]
             pub(crate) fn is_lock_free() -> bool {

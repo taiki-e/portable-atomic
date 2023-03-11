@@ -432,9 +432,7 @@ pub mod hint {
 
 #[cfg(doc)]
 use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
-use core::{fmt, marker::PhantomData, ptr};
-
-use crate::utils::NoRefUnwindSafe;
+use core::{fmt, ptr};
 
 /// A boolean type which can be safely shared between threads.
 ///
@@ -450,8 +448,6 @@ use crate::utils::NoRefUnwindSafe;
 #[repr(C, align(1))]
 pub struct AtomicBool {
     inner: imp::AtomicBool,
-    // Prevent RefUnwindSafe from being propagated from the std atomic type.
-    _marker: PhantomData<NoRefUnwindSafe>,
 }
 
 impl Default for AtomicBool {
@@ -501,7 +497,7 @@ impl AtomicBool {
     #[must_use]
     pub const fn new(v: bool) -> Self {
         static_assert_layout!(AtomicBool, bool);
-        Self { inner: imp::AtomicBool::new(v), _marker: PhantomData }
+        Self { inner: imp::AtomicBool::new(v) }
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -1452,8 +1448,6 @@ impl AtomicBool {
 #[cfg_attr(target_pointer_width = "128", repr(C, align(16)))]
 pub struct AtomicPtr<T> {
     inner: imp::AtomicPtr<T>,
-    // Prevent RefUnwindSafe from being propagated from the std atomic type.
-    _marker: PhantomData<NoRefUnwindSafe>,
 }
 
 impl<T> Default for AtomicPtr<T> {
@@ -1508,7 +1502,7 @@ impl<T> AtomicPtr<T> {
     #[must_use]
     pub const fn new(p: *mut T) -> Self {
         static_assert_layout!(AtomicPtr<()>, *mut ());
-        Self { inner: imp::AtomicPtr::new(p), _marker: PhantomData }
+        Self { inner: imp::AtomicPtr::new(p) }
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -2686,8 +2680,6 @@ atomic instructions or locks will be used.
             #[repr(C, align($align))]
             pub struct $atomic_type {
                 inner: imp::$atomic_type,
-                // Prevent RefUnwindSafe from being propagated from the std atomic type.
-                _marker: PhantomData<NoRefUnwindSafe>,
             }
         }
 
@@ -2738,7 +2730,7 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
                 #[must_use]
                 pub const fn new(v: $int_type) -> Self {
                     static_assert_layout!($atomic_type, $int_type);
-                    Self { inner: imp::$atomic_type::new(v), _marker: PhantomData }
+                    Self { inner: imp::$atomic_type::new(v) }
                 }
             }
 
