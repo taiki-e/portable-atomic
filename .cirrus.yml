@@ -1,5 +1,5 @@
 only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'dev' || $CIRRUS_BRANCH == 'staging')
-auto_cancellation: $CIRRUS_BRANCH != 'main'
+auto_cancellation: $CIRRUS_PR != ''
 env:
   CARGO_INCREMENTAL: '0'
   CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
