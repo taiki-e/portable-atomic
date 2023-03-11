@@ -12,67 +12,11 @@ pub(crate) const fn _assert_is_bool(v: bool) -> bool {
 }
 
 macro_rules! static_assert_layout {
-    ($atomic_type:ty, $value_type:ident, $align:literal) => {
+    ($atomic_type:ty, $value_type:ty) => {
         static_assert!(
             core::mem::align_of::<$atomic_type>() == core::mem::size_of::<$atomic_type>()
         );
         static_assert!(core::mem::size_of::<$atomic_type>() == core::mem::size_of::<$value_type>());
-        static_assert!(core::mem::align_of::<$atomic_type>() == $align);
-    };
-    ($atomic_type:ty, bool) => {
-        static_assert_layout!($atomic_type, u8);
-    };
-    ($atomic_type:ty, i8) => {
-        static_assert_layout!($atomic_type, u8);
-    };
-    ($atomic_type:ty, u8) => {
-        static_assert_layout!($atomic_type, u8, 1);
-    };
-    ($atomic_type:ty, i16) => {
-        static_assert_layout!($atomic_type, u16);
-    };
-    ($atomic_type:ty, u16) => {
-        static_assert_layout!($atomic_type, u16, 2);
-    };
-    ($atomic_type:ty, i32) => {
-        static_assert_layout!($atomic_type, u32);
-    };
-    ($atomic_type:ty, u32) => {
-        static_assert_layout!($atomic_type, u32, 4);
-    };
-    ($atomic_type:ty, f32) => {
-        static_assert_layout!($atomic_type, u32);
-    };
-    ($atomic_type:ty, i64) => {
-        static_assert_layout!($atomic_type, u64);
-    };
-    ($atomic_type:ty, u64) => {
-        static_assert_layout!($atomic_type, u64, 8);
-    };
-    ($atomic_type:ty, f64) => {
-        static_assert_layout!($atomic_type, u64);
-    };
-    ($atomic_type:ty, i128) => {
-        static_assert_layout!($atomic_type, u128);
-    };
-    ($atomic_type:ty, u128) => {
-        static_assert_layout!($atomic_type, u128, 16);
-    };
-    ($atomic_type:ty, *mut ()) => {
-        static_assert_layout!($atomic_type, usize);
-    };
-    ($atomic_type:ty, isize) => {
-        static_assert_layout!($atomic_type, usize);
-    };
-    ($atomic_type:ty, usize) => {
-        #[cfg(target_pointer_width = "16")]
-        static_assert_layout!($atomic_type, usize, 2);
-        #[cfg(target_pointer_width = "32")]
-        static_assert_layout!($atomic_type, usize, 4);
-        #[cfg(target_pointer_width = "64")]
-        static_assert_layout!($atomic_type, usize, 8);
-        #[cfg(target_pointer_width = "128")]
-        static_assert_layout!($atomic_type, usize, 16);
     };
 }
 
