@@ -123,8 +123,6 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_llvm_16");
     }
     if version.nightly {
-        println!("cargo:rustc-cfg=portable_atomic_nightly");
-
         // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
         if version.probe(64, 2022, 6, 29) {
             println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");

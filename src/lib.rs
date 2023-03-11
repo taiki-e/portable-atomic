@@ -273,17 +273,14 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
-        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread),
+        any(miri, portable_atomic_sanitize_thread),
     ),
     feature(core_intrinsics)
 )]
 // This feature will be unnecessary once stdarch submodule in rust-lang/rust is
 // updated to include https://github.com/rust-lang/stdarch/pull/1358.
 #![cfg_attr(
-    all(
-        target_arch = "x86_64",
-        any(all(test, portable_atomic_nightly), miri, portable_atomic_sanitize_thread),
-    ),
+    all(target_arch = "x86_64", any(miri, portable_atomic_sanitize_thread)),
     feature(stdsimd)
 )]
 // docs.rs only

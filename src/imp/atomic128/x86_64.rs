@@ -519,22 +519,6 @@ mod tests {
                         assert_eq!(res, x);
                         assert_eq!(*a.get(), x);
                     }
-
-                    #[cfg(portable_atomic_nightly)]
-                    {
-                        let b = Align16(UnsafeCell::new(x));
-                        assert_eq!(
-                            res,
-                            core::arch::x86_64::cmpxchg16b(
-                                b.get(),
-                                y,
-                                z,
-                                Ordering::SeqCst,
-                                Ordering::SeqCst,
-                            ),
-                        );
-                        assert_eq!(*a.get(), *b.get());
-                    }
                 }
                 true
             }
