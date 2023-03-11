@@ -4251,10 +4251,6 @@ This type has the same in-memory representation as the underlying floating point
             }
         }
 
-        // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by atomic operations.
-        unsafe impl Sync for $atomic_type {}
-
         // UnwindSafe is implicitly implemented.
         #[cfg(not(portable_atomic_no_core_unwind_safe))]
         impl core::panic::RefUnwindSafe for $atomic_type {}
