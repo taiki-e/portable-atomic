@@ -110,22 +110,6 @@ macro_rules! ifunc {
         // unsafe block here.)
         func($($arg_pat),*)
     }};
-    (fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{
-        type FnTy = fn($($arg_ty),*) $(-> $ret_ty)?;
-        static FUNC: core::sync::atomic::AtomicPtr<()>
-            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
-        #[cold]
-        fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
-            let func: FnTy = { $($if_block)* };
-            FUNC.store(func as *mut (), core::sync::atomic::Ordering::Relaxed);
-            func($($arg_pat),*)
-        }
-        // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
-        let func = unsafe {
-            core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
-        };
-        func($($arg_pat),*)
-    }};
 }
 
 macro_rules! const_fn {
