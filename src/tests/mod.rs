@@ -191,7 +191,7 @@ release: 1.34.2
 LLVM version: 8.0",
     )
     .unwrap();
-    assert_eq!(v, Version::stable(34));
+    assert_eq!(v, Version::stable(34, 8));
 
     // rustc 1.67 (rustup)
     let v = Version::parse(
@@ -204,7 +204,7 @@ release: 1.67.0
 LLVM version: 15.0.6",
     )
     .unwrap();
-    assert_eq!(v, Version::stable(67));
+    assert_eq!(v, Version::stable(67, 15));
 
     // rustc 1.68-beta (rustup)
     let v = Version::parse(
@@ -219,7 +219,7 @@ LLVM version: 15.0.6",
     .unwrap();
     // We do not distinguish between stable and beta because we are only
     // interested in whether unstable features are potentially available.
-    assert_eq!(v, Version::stable(68));
+    assert_eq!(v, Version::stable(68, 15));
 
     // rustc nightly-2019-01-27 (rustup)
     let v = Version::parse(
@@ -235,9 +235,9 @@ LLVM version: 8.0",
     assert_eq!(v.minor, 33);
     assert!(v.nightly);
     assert_eq!(v.llvm, 8);
-    assert_eq!(v.commit_date.year, 2019);
-    assert_eq!(v.commit_date.month, 1);
-    assert_eq!(v.commit_date.day, 26);
+    assert_eq!(v.commit_date().year, 2019);
+    assert_eq!(v.commit_date().month, 1);
+    assert_eq!(v.commit_date().day, 26);
 
     // rustc 1.69-nightly (rustup)
     let v = Version::parse(
@@ -253,9 +253,9 @@ LLVM version: 15.0.7",
     assert_eq!(v.minor, 69);
     assert!(v.nightly);
     assert_eq!(v.llvm, 15);
-    assert_eq!(v.commit_date.year, 2023);
-    assert_eq!(v.commit_date.month, 2);
-    assert_eq!(v.commit_date.day, 7);
+    assert_eq!(v.commit_date().year, 2023);
+    assert_eq!(v.commit_date().month, 2);
+    assert_eq!(v.commit_date().day, 7);
 
     // clippy-driver 1.69-nightly (rustup)
     let v = Version::parse(
@@ -271,9 +271,9 @@ LLVM version: 15.0.7",
     assert_eq!(v.minor, 69);
     assert!(v.nightly);
     assert_eq!(v.llvm, 15);
-    assert_eq!(v.commit_date.year, 2023);
-    assert_eq!(v.commit_date.month, 2);
-    assert_eq!(v.commit_date.day, 7);
+    assert_eq!(v.commit_date().year, 2023);
+    assert_eq!(v.commit_date().month, 2);
+    assert_eq!(v.commit_date().day, 7);
 
     // rustc 1.69-dev (from source: ./x.py build)
     let v = Version::parse(
@@ -289,9 +289,9 @@ LLVM version: 16.0.0",
     assert_eq!(v.minor, 69);
     assert!(v.nightly);
     assert_eq!(v.llvm, 16);
-    assert_eq!(v.commit_date.year, 0);
-    assert_eq!(v.commit_date.month, 0);
-    assert_eq!(v.commit_date.day, 0);
+    assert_eq!(v.commit_date().year, 0);
+    assert_eq!(v.commit_date().month, 0);
+    assert_eq!(v.commit_date().day, 0);
 
     // rustc 1.64 (debian: apt-get install cargo)
     let v = Version::parse(
@@ -304,7 +304,7 @@ release: 1.48.0
 LLVM version: 11.0",
     )
     .unwrap();
-    assert_eq!(v, Version::stable(48));
+    assert_eq!(v, Version::stable(48, 11));
 
     // rustc 1.67 (fedora: dnf install cargo)
     let v = Version::parse(
@@ -317,7 +317,7 @@ release: 1.67.0
 LLVM version: 15.0.7",
     )
     .unwrap();
-    assert_eq!(v, Version::stable(67));
+    assert_eq!(v, Version::stable(67, 15));
 
     // rustc 1.64 (alpine: apk add cargo)
     let v = Version::parse(
@@ -330,5 +330,5 @@ release: 1.64.0
 LLVM version: 15.0.3",
     )
     .unwrap();
-    assert_eq!(v, Version::stable(64));
+    assert_eq!(v, Version::stable(64, 15));
 }

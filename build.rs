@@ -30,7 +30,6 @@ fn main() {
     let mut target_upper = target.replace(|c: char| c == '-' || c == '.', "_");
     target_upper.make_ascii_uppercase();
     println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
-    println!("cargo:rerun-if-env-changed=RUSTC");
 
     let version = match rustc_version() {
         Some(version) => version,
@@ -67,6 +66,11 @@ fn main() {
     if !version.probe(58, 2021, 11, 14) {
         println!("cargo:rustc-cfg=portable_atomic_no_const_raw_ptr_deref");
     }
+    // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
+    if !version.probe(64, 2022, 7, 18) {
+        println!("cargo:rustc-cfg=portable_atomic_no_stronger_failure_ordering");
+    }
+
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     let no_asm = !version.probe(59, 2021, 12, 15);
     if no_asm {
@@ -85,10 +89,6 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
         }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
-    }
-    // https://github.com/rust-lang/rust/pull/98383 merged in Rust 1.64 (nightly-2022-07-19).
-    if !version.probe(64, 2022, 7, 18) {
-        println!("cargo:rustc-cfg=portable_atomic_no_stronger_failure_ordering");
     }
 
     // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824

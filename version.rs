@@ -12,7 +12,7 @@ pub(crate) fn rustc_version() -> Option<Version> {
 pub(crate) struct Version {
     pub(crate) minor: u32,
     pub(crate) nightly: bool,
-    pub(crate) commit_date: Date,
+    commit_date: Date,
     pub(crate) llvm: u32,
 }
 
@@ -20,10 +20,12 @@ impl Version {
     // The known latest stable version. If we unable to determine
     // the rustc version, we assume this is the current version.
     // It is no problem if this is older than the actual latest stable.
-    pub(crate) const LATEST: Self = Self::stable(68);
+    // LLVM version is assumed to be the minimum external LLVM version:
+    // https://github.com/rust-lang/rust/blob/1.68.0/src/bootstrap/native.rs#L567
+    pub(crate) const LATEST: Self = Self::stable(68, 13);
 
-    pub(crate) const fn stable(minor: u32) -> Self {
-        Self { minor, nightly: false, commit_date: Date::UNKNOWN, llvm: 0 }
+    pub(crate) const fn stable(rustc_minor: u32, llvm_major: u32) -> Self {
+        Self { minor: rustc_minor, nightly: false, commit_date: Date::UNKNOWN, llvm: llvm_major }
     }
 
     pub(crate) fn probe(&self, minor: u32, year: u16, month: u8, day: u8) -> bool {
@@ -32,6 +34,11 @@ impl Version {
         } else {
             self.minor >= minor
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn commit_date(&self) -> &Date {
+        &self.commit_date
     }
 
     pub(crate) fn parse(text: &str) -> Option<Self> {
@@ -51,20 +58,21 @@ impl Version {
         let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
         let nightly = channel == "nightly" || channel == "dev";
 
-        // we don't refer LLVM version and commit date on stable/beta.
-        if nightly {
-            let llvm_major = (|| {
-                let version = text
-                    .lines()
-                    .find(|line| line.starts_with("LLVM version: "))
-                    .map(|line| &line["LLVM version: ".len()..])?;
-                let mut digits = version.splitn(3, '.');
-                let major = digits.next()?.parse::<u32>().ok()?;
-                let _minor = digits.next()?.parse::<u32>().ok()?;
-                let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
-                Some(major)
-            })();
+        let llvm_major = (|| {
+            let version = text
+                .lines()
+                .find(|line| line.starts_with("LLVM version: "))
+                .map(|line| &line["LLVM version: ".len()..])?;
+            let mut digits = version.splitn(3, '.');
+            let major = digits.next()?.parse::<u32>().ok()?;
+            let _minor = digits.next()?.parse::<u32>().ok()?;
+            let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
+            Some(major)
+        })()
+        .unwrap_or(0);
 
+        // we don't refer commit date on stable/beta.
+        if nightly {
             let commit_date = (|| {
                 let mut commit_date = text
                     .lines()
@@ -83,10 +91,10 @@ impl Version {
                 minor,
                 nightly,
                 commit_date: commit_date.unwrap_or(Date::UNKNOWN),
-                llvm: llvm_major.unwrap_or(0),
+                llvm: llvm_major,
             })
         } else {
-            Some(Version::stable(minor))
+            Some(Version::stable(minor, llvm_major))
         }
     }
 }
