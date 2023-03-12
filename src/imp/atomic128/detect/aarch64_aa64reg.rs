@@ -143,7 +143,7 @@ mod imp {
 // https://github.com/golang/go/commit/cd54ef1f61945459486e9eea2f016d99ef1da925
 #[cfg(target_os = "openbsd")]
 mod imp {
-    use core::{mem::MaybeUninit, ptr};
+    use core::ptr;
 
     use super::AA64Reg;
 
@@ -211,7 +211,7 @@ mod imp {
     #[inline]
     fn sysctl64(mib: &[ffi::c_int]) -> Option<u64> {
         const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u64>() as ffi::c_size_t;
-        let mut out = MaybeUninit::<u64>::uninit();
+        let mut out = 0_u64;
         let mut out_len = OUT_LEN;
         #[allow(clippy::cast_possible_truncation)]
         // SAFETY:
@@ -222,17 +222,17 @@ mod imp {
             ffi::sysctl(
                 mib.as_ptr(),
                 mib.len() as ffi::c_uint,
-                out.as_mut_ptr().cast::<ffi::c_void>(),
+                (&mut out as *mut u64).cast::<ffi::c_void>(),
                 &mut out_len,
                 ptr::null_mut(),
                 0,
             )
         };
-        if res == -1 || out_len != OUT_LEN {
+        if res == -1 {
             return None;
         }
-        // SAFETY: we've checked that sysctl was successful and `out` was filled.
-        Some(unsafe { out.assume_init() })
+        debug_assert_eq!(out_len, OUT_LEN);
+        Some(out)
     }
 }
 

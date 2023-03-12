@@ -35,18 +35,15 @@ mod ffi {
     }
 }
 
-use core::mem::MaybeUninit;
-
 #[inline]
 fn zx_system_get_features(kind: u32) -> u32 {
-    let mut out = MaybeUninit::<u32>::uninit();
+    let mut out = 0_u32;
     // SAFETY: the pointer is valid because we got it from a reference.
-    let res = unsafe { ffi::zx_system_get_features(kind, out.as_mut_ptr()) };
+    let res = unsafe { ffi::zx_system_get_features(kind, &mut out) };
     if res != ffi::ZX_OK {
         return 0;
     }
-    // SAFETY: we've checked that zx_system_get_features was successful.
-    unsafe { out.assume_init() }
+    out
 }
 
 #[inline]

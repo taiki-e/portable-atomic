@@ -22,7 +22,7 @@
 
 include!("common.rs");
 
-use core::{mem::MaybeUninit, ptr};
+use core::ptr;
 
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
 #[allow(non_camel_case_types)]
@@ -59,7 +59,7 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
     debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
     debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
 
-    let mut out = MaybeUninit::<u32>::uninit();
+    let mut out = 0_u32;
     let mut out_len = OUT_LEN;
     // SAFETY:
     // - the caller must guarantee that `name` a valid C string.
@@ -68,17 +68,17 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
     let res = unsafe {
         ffi::sysctlbyname(
             name.as_ptr().cast::<ffi::c_char>(),
-            out.as_mut_ptr().cast::<ffi::c_void>(),
+            (&mut out as *mut u32).cast::<ffi::c_void>(),
             &mut out_len,
             ptr::null_mut(),
             0,
         )
     };
-    if res != 0 || out_len != OUT_LEN {
+    if res != 0 {
         return None;
     }
-    // SAFETY: we've checked that sysctl was successful and `out` was filled.
-    Some(unsafe { out.assume_init() })
+    debug_assert_eq!(out_len, OUT_LEN);
+    Some(out)
 }
 
 #[inline]
