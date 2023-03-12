@@ -42,6 +42,7 @@ case "${crate}" in
 esac
 tag="${tag_prefix}${version}"
 changelog="${dir}/CHANGELOG.md"
+manifest_path="${dir}/Cargo.toml"
 if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z\.-]+)?(\+[0-9A-Za-z\.-]+)?$ ]]; then
     bail "invalid version format '${version}'"
 fi
@@ -74,16 +75,18 @@ if [[ -n "${tags}" ]]; then
     fi
     # Update changelog.
     remote_url=$(grep -E '^\[Unreleased\]: https://' "${changelog}" | sed 's/^\[Unreleased\]: //; s/\.\.\.HEAD$//')
-    before_tag="${remote_url#*/compare/}"
+    prev_tag="${remote_url#*/compare/}"
     remote_url="${remote_url%/compare/*}"
     sed -i "s/^## \\[Unreleased\\]/## [Unreleased]\\n\\n## [${version}] - ${release_date}/" "${changelog}"
-    sed -i "s#^\[Unreleased\]: https://.*#[Unreleased]: ${remote_url}/compare/${tag}...HEAD\\n[${version}]: ${remote_url}/compare/${before_tag}...${tag}#" "${changelog}"
+    sed -i "s#^\[Unreleased\]: https://.*#[Unreleased]: ${remote_url}/compare/${tag}...HEAD\\n[${version}]: ${remote_url}/compare/${prev_tag}...${tag}#" "${changelog}"
     if ! grep -Eq "^## \\[${version//./\\.}\\] - ${release_date}$" "${changelog}"; then
         bail "failed to update ${changelog}"
     fi
     if ! grep -Eq "^\\[${version//./\\.}\\]: " "${changelog}"; then
         bail "failed to update ${changelog}"
     fi
+    prev_version="${prev_tag#"${tag_prefix}"}"
+    sed -i -e "s/version = \"${prev_version}\" #publish:version/version = \"${version}\" #publish:version/g" "${manifest_path}"
 else
     # Make sure the release exists in changelog.
     if ! grep -Eq "^## \\[${version//./\\.}\\] - ${release_date}$" "${changelog}"; then
@@ -106,7 +109,7 @@ echo "======================================="
 
 if [[ -n "${tags}" ]]; then
     # Create a release commit.
-    x git add "${changelog}"
+    x git add "${changelog}" "${manifest_path}"
     x git commit -m "Release ${crate} ${version}"
 fi
 
