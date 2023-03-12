@@ -87,16 +87,15 @@ macro_rules! serde_impls {
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_arch = "aarch64", all(target_arch = "x86_64", not(target_env = "sgx"))))]
 macro_rules! ifunc {
-    // if the functions are unsafe, this macro is also unsafe.
-    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($if_block:tt)* }) => {{
+    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
             = core::sync::atomic::AtomicPtr::new(detect as *mut ());
         #[cold]
         unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
-            let func: FnTy = { $($if_block)* };
+            let func: FnTy = { $($detect_body)* };
             FUNC.store(func as *mut (), core::sync::atomic::Ordering::Relaxed);
-            // SAFETY: the caller must uphold the safety contract.
+            // SAFETY: the caller must uphold the safety contract for the function returned by $detect_body.
             unsafe { func($($arg_pat),*) }
         }
         // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
@@ -105,7 +104,7 @@ macro_rules! ifunc {
         let func = {
             core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
         };
-        // SAFETY: the caller must uphold the safety contract.
+        // SAFETY: the caller must uphold the safety contract for the function returned by $body.
         // (To force the caller to use unsafe block for this macro, do not use
         // unsafe block here.)
         func($($arg_pat),*)
@@ -229,9 +228,9 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
 }
 
 // The function called in dynamic detection cannot be inlined, so we use
-// unreachable_unchecked! to remove the panic path (see also macro docs).
-// Since Ordering is non_exhaustive, such a function must use this assertion to
-// prevent UB due to the addition of new orderings.
+// unreachable_unchecked! macro to remove the panic path (see also macro docs).
+// Since Ordering is non_exhaustive, the caller of such a function must use this
+// assertion to prevent UB due to the addition of new orderings.
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn assert_swap_ordering(order: Ordering) {

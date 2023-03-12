@@ -10,7 +10,7 @@
 // libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/5c9b3eYf7
 //
 // Note that we cannot use this module on aarch64_be (big-endian) because LLVM
-// currently generates broken code. (on cfg(miri) it is fine though)
+// currently generates broken code. (on cfg(miri)/cfg(sanitize) it is fine though)
 
 use core::{
     cell::UnsafeCell,

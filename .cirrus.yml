@@ -50,8 +50,9 @@ aarch64_linux_test_task:
     - set -ex
     - ./tools/test.sh -vv
     # +lse
+    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+    # FEAT_LSE2 is tested on aarch64 macOS VM.
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
-    # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 
 aarch64_macos_test_task:
   name: test ($TARGET)
@@ -91,8 +92,8 @@ aarch64_linux_valgrind_task:
     # doctests on Valgrind are very slow
     - ./tools/test.sh -vv --tests
     # +lse
+    # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
-    # TODO: FEAT_LSE2 is not available on Graviton2 (armv8.2-a)
 #
 # aarch64_linux_bench_task:
 #   name: bench ($TARGET)

@@ -10,6 +10,8 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
 
+<!-- TODO: mention Atomic{I,U}*::fetch_neg, Atomic{I*,U*,Ptr}::bit_*, etc. -->
+
 ## Usage
 
 Add this to your `Cargo.toml`:
@@ -37,7 +39,7 @@ On x86_64, even if `cmpxchg16b` is not available at compile time (note: `cmpxchg
 
 They are usually implemented using inline assembly, and when using Miri or ThreadSanitizer that do not support inline assembly, core intrinsics are used instead of inline assembly if possible.
 
-See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
+See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Optional features
 
@@ -122,7 +124,7 @@ See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-a
   - This is compatible with no-std (as with all features except `std`).
   - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well.
 
-  See also [the `atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
+  See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 
 ## Related Projects
 

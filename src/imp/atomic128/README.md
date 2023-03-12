@@ -11,6 +11,8 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Little endian or target CPU pwr8+. <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires nightly |
 
+On compiler versions or platforms where these are not supported, the fallback implementation is used.
+
 See [aarch64.rs](aarch64.rs) module-level comments for more details on the instructions used on aarch64.
 
 ## Run-time feature detection

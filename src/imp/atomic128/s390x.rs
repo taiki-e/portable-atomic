@@ -59,9 +59,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     )))]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
+        // atomic load is always SeqCst.
         let _ = order;
         let (out_hi, out_lo);
-        // atomic load is always SeqCst.
         asm!(
             "lpq %r0, 0({src})",
             src = in(reg) src,
@@ -165,11 +165,11 @@ unsafe fn atomic_compare_exchange(
     )))]
     // SAFETY: the caller must uphold the safety contract.
     let res = unsafe {
+        // atomic CAS is always SeqCst.
         let _ = (success, failure);
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (prev_hi, prev_lo);
-        // atomic compare_exchange is always SeqCst.
         asm!(
             "cdsg %r0, %r12, 0({dst})",
             dst = in(reg) dst,

@@ -165,12 +165,13 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
       # +lse
+      # As of QEMU 7.2, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
+      # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
-      # TODO: As of QEMU 7.2, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
