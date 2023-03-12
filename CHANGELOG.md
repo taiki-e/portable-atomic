@@ -20,21 +20,21 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Make `AtomicF{32,64}::as_bits` const on Rust 1.58+. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
 
-- Relax ordering in `Serialize` impl to reflect [upstream change](https://github.com/serde-rs/serde/pull/2263).
-
-- Make `AtomicPtr::fetch_*` -Zmiri-strict-provenance compatible even on old nightly. Previously it was only recent nightly.
+- Relax ordering in `Serialize` impl to reflect the [upstream change](https://github.com/serde-rs/serde/pull/2263).
 
 - Optimize x86_64 outline-atomics for 128-bit atomics.
-  - Support outline-atomics for cmpxchg16b on Rust 1.69+. Previously it was only nightly. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
+  - Support outline-atomics for cmpxchg16b on Rust 1.69+ (i.e., on Rust 1.69+, x86_64 128-bit atomics is lock-free on all Intel chips and almost all AMD chips, even if cmpxchg16b is not available at compile-time.). Previously it was only nightly. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
   - portable-atomic no longer enables outline-atomics on target where run-time feature detection is not available. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
 
 - Optimize aarch64 outline-atomics for 128-bit atomics.
-  - Support more targets. ([#63](https://github.com/taiki-e/portable-atomic/pull/63), [#64](https://github.com/taiki-e/portable-atomic/pull/64), [#67](https://github.com/taiki-e/portable-atomic/pull/67), [#69](https://github.com/taiki-e/portable-atomic/pull/69), [#74](https://github.com/taiki-e/portable-atomic/pull/74), [#75](https://github.com/taiki-e/portable-atomic/pull/75), [#76](https://github.com/taiki-e/portable-atomic/pull/76), [#77](https://github.com/taiki-e/portable-atomic/pull/77))
-    Most of these improvements have already been [accepted upstream](https://github.com/rust-lang/stdarch/pulls?q=is%3Apr+author%3Ataiki-e+) and will soon be available in `std::arch::is_aarch64_feature_detected`.
+  - Support more targets and improve performance. ([#63](https://github.com/taiki-e/portable-atomic/pull/63), [#64](https://github.com/taiki-e/portable-atomic/pull/64), [#67](https://github.com/taiki-e/portable-atomic/pull/67), [#69](https://github.com/taiki-e/portable-atomic/pull/69), [#74](https://github.com/taiki-e/portable-atomic/pull/74), [#75](https://github.com/taiki-e/portable-atomic/pull/75), [#76](https://github.com/taiki-e/portable-atomic/pull/76), [#77](https://github.com/taiki-e/portable-atomic/pull/77))
+    See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md#run-time-feature-detection) for a list of platforms that support outline-atomics.
+    Most of these improvements have already been [accepted upstream](https://github.com/rust-lang/stdarch/pulls?q=is%3Apr+author%3Ataiki-e+std_detect) and will soon be available in `std::arch::is_aarch64_feature_detected`.
   - portable-atomic no longer enables outline-atomics on target where run-time feature detection is not available.
-  - Support old nightly. ([#73](https://github.com/taiki-e/portable-atomic/pull/73))
 
-- Optimize aarch64 128-bit atomics. ([#70](https://github.com/taiki-e/portable-atomic/pull/70))
+- Performance improvements. ([#70](https://github.com/taiki-e/portable-atomic/pull/70), [#81](https://github.com/taiki-e/portable-atomic/pull/81), [6c189ae](https://github.com/taiki-e/portable-atomic/commit/6c189ae1792ce0c08b4f56b6e6c256c223475ce2), [13c92b0](https://github.com/taiki-e/portable-atomic/commit/13c92b015a8e8646a4b885229157547354d03b9e), etc.)
+
+- Improve support for old nightly. ([#73](https://github.com/taiki-e/portable-atomic/pull/73), [872feb9](https://github.com/taiki-e/portable-atomic/commit/872feb9d7f3a4ca7cf9b63935265d46498fcae99))
 
 ## [1.0.1] - 2023-01-21
 
