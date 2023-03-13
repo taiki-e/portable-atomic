@@ -49,7 +49,7 @@ fn zx_system_get_features(kind: u32) -> u32 {
 #[inline]
 fn _detect(info: &mut CpuInfo) {
     let features = zx_system_get_features(ffi::ZX_FEATURE_KIND_CPU);
-    if (features & ffi::ZX_ARM64_FEATURE_ISA_ATOMICS) != 0 {
+    if features & ffi::ZX_ARM64_FEATURE_ISA_ATOMICS != 0 {
         info.set(CpuInfo::HAS_LSE);
     }
 }

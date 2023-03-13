@@ -774,7 +774,7 @@ macro_rules! __test_atomic_int {
                     let b = a.bit_set(bit, order);
                     let mask = (1 as $int_type).wrapping_shl(bit);
                     assert_eq!(a.load(Ordering::Relaxed), x | mask);
-                    assert_eq!(b, (x & mask) != 0);
+                    assert_eq!(b, x & mask != 0);
                 }
                 true
             }
@@ -784,7 +784,7 @@ macro_rules! __test_atomic_int {
                     let b = a.bit_clear(bit, order);
                     let mask = (1 as $int_type).wrapping_shl(bit);
                     assert_eq!(a.load(Ordering::Relaxed), x & !mask);
-                    assert_eq!(b, (x & mask) != 0);
+                    assert_eq!(b, x & mask != 0);
                 }
                 true
             }
@@ -794,7 +794,7 @@ macro_rules! __test_atomic_int {
                     let b = a.bit_toggle(bit, order);
                     let mask = (1 as $int_type).wrapping_shl(bit);
                     assert_eq!(a.load(Ordering::Relaxed), x ^ mask);
-                    assert_eq!(b, (x & mask) != 0);
+                    assert_eq!(b, x & mask != 0);
                 }
                 true
             }
