@@ -59,7 +59,7 @@ struct AuxVec {
     hwcap: ffi::c_ulong,
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     #[cfg(target_os = "android")]
     {
@@ -154,7 +154,6 @@ mod imp {
         pub(crate) const PROP_VALUE_MAX: c_int = 92;
     }
 
-    #[inline]
     pub(super) fn auxv() -> AuxVec {
         // SAFETY: `getauxval` is thread-safe and is available in all versions on
         // aarch64 linux-gnu/android. See also the module level docs.
@@ -201,7 +200,6 @@ mod imp {
         }
     }
 
-    #[inline]
     fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
         #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
         const OUT_LEN: ffi::c_int = core::mem::size_of::<ffi::c_ulong>() as ffi::c_int;
@@ -217,7 +215,6 @@ mod imp {
         out
     }
 
-    #[inline]
     pub(super) fn auxv() -> AuxVec {
         let hwcap = getauxval(ffi::AT_HWCAP);
         AuxVec { hwcap }

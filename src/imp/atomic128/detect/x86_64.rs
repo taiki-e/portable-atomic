@@ -25,7 +25,6 @@ use core::arch::x86_64::CpuidResult;
 // - https://www.felixcloutier.com/x86/cpuid
 // - https://en.wikipedia.org/wiki/CPUID
 // - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs
-#[inline]
 unsafe fn __cpuid(leaf: u32) -> CpuidResult {
     let eax;
     let mut ebx;
@@ -52,7 +51,6 @@ unsafe fn __cpuid(leaf: u32) -> CpuidResult {
 const VENDOR_ID_INTEL: [u8; 12] = *b"GenuineIntel";
 const VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD";
 
-#[inline]
 unsafe fn _vendor_id() -> [u8; 12] {
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L40-L59
     // SAFETY: the caller must guarantee that CPU supports `cpuid`.
@@ -62,7 +60,7 @@ unsafe fn _vendor_id() -> [u8; 12] {
     unsafe { core::mem::transmute(vendor_id) }
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     // Miri doesn't support inline assembly used in __cpuid
     #[cfg(miri)]

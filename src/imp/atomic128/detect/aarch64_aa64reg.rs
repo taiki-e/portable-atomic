@@ -45,7 +45,7 @@ struct AA64Reg {
     aa64mmfr2: u64,
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     let AA64Reg {
         aa64isar0,
@@ -84,7 +84,6 @@ fn _detect(info: &mut CpuInfo) {
     }
 }
 
-#[inline]
 fn extract(x: u64, high: usize, low: usize) -> u64 {
     (x >> low) & ((1 << (high - low + 1)) - 1)
 }
@@ -96,7 +95,6 @@ mod imp {
 
     use super::AA64Reg;
 
-    #[inline]
     pub(super) fn aa64reg() -> AA64Reg {
         // SAFETY: This is safe on FreeBSD 12.0+. FreeBSD 11 was EoL on 2021-09-30.
         // Note that stdarch has been doing the same thing since before FreeBSD 11 was EoL.
@@ -192,7 +190,6 @@ mod imp {
     // https://github.com/openbsd/src/commit/c7654cd65262d532212f65123ee3905ba200365c
     // sysctl returns an unsupported error if operation is not supported,
     // so we can safely use this function on older versions of OpenBSD.
-    #[inline]
     pub(super) fn aa64reg() -> AA64Reg {
         let aa64isar0 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR0]).unwrap_or(0);
         #[cfg(test)]
@@ -208,7 +205,6 @@ mod imp {
         }
     }
 
-    #[inline]
     fn sysctl64(mib: &[ffi::c_int]) -> Option<u64> {
         const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u64>() as ffi::c_size_t;
         let mut out = 0_u64;

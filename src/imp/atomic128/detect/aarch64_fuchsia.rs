@@ -35,7 +35,6 @@ mod ffi {
     }
 }
 
-#[inline]
 fn zx_system_get_features(kind: u32) -> u32 {
     let mut out = 0_u32;
     // SAFETY: the pointer is valid because we got it from a reference.
@@ -46,7 +45,7 @@ fn zx_system_get_features(kind: u32) -> u32 {
     out
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     let features = zx_system_get_features(ffi::ZX_FEATURE_KIND_CPU);
     if features & ffi::ZX_ARM64_FEATURE_ISA_ATOMICS != 0 {

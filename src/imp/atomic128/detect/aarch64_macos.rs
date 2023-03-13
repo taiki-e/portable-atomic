@@ -52,7 +52,6 @@ mod ffi {
     }
 }
 
-#[inline]
 unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
     const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u32>() as ffi::c_size_t;
 
@@ -81,7 +80,7 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
     Some(out)
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     // hw.optional.armv8_1_atomics is available on macOS 11+ (note: aarch64 support was added on macOS 11),
     // hw.optional.arm.FEAT_* are only available on macOS 12+.

@@ -32,7 +32,7 @@ mod ffi {
     }
 }
 
-#[inline]
+#[cold]
 fn _detect(info: &mut CpuInfo) {
     // SAFETY: calling IsProcessorFeaturePresent is safe, and FALSE is also
     // returned if the HAL does not support detection of the specified feature.
