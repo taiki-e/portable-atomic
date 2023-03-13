@@ -142,7 +142,7 @@ macro_rules! atomic_rmw {
             Ordering::Release => $op!("", "l"),
             // AcqRel and SeqCst RMWs are equivalent.
             Ordering::AcqRel | Ordering::SeqCst => $op!("a", "l"),
-            _ => unreachable_unchecked!("{:?}", $order),
+            _ => unreachable!("{:?}", $order),
         }
     };
 }
@@ -200,7 +200,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Relaxed => atomic_load!("", readonly),
             Ordering::Acquire => atomic_load!("dmb ishld"),
             Ordering::SeqCst => atomic_load!("dmb ish"),
-            _ => unreachable_unchecked!("{:?}", order),
+            _ => unreachable!("{:?}", order),
         }
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
@@ -232,7 +232,7 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Relaxed => atomic_load!("", ""),
             Ordering::Acquire => atomic_load!("a", ""),
             Ordering::SeqCst => atomic_load!("a", "l"),
-            _ => unreachable_unchecked!("{:?}", order),
+            _ => unreachable!("{:?}", order),
         }
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
@@ -284,7 +284,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::Relaxed => atomic_store!("", ""),
             Ordering::Release => atomic_store!("", "dmb ish"),
             Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
-            _ => unreachable_unchecked!("{:?}", order),
+            _ => unreachable!("{:?}", order),
         }
     }
 }
@@ -336,13 +336,46 @@ unsafe fn atomic_compare_exchange(
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
         // and we've checked if FEAT_LSE is available.
         unsafe {
-            ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128, success: Ordering) -> u128 {
-                if detect::has_lse() {
-                    _atomic_compare_exchange_casp
-                } else {
-                    _atomic_compare_exchange_ldxp_stxp
+            match success {
+                Ordering::Relaxed => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::has_lse() {
+                            _atomic_compare_exchange_casp_relaxed
+                        } else {
+                            _atomic_compare_exchange_ldxp_stxp_relaxed
+                        }
+                    })
                 }
-            })
+                Ordering::Acquire => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::has_lse() {
+                            _atomic_compare_exchange_casp_acquire
+                        } else {
+                            _atomic_compare_exchange_ldxp_stxp_acquire
+                        }
+                    })
+                }
+                Ordering::Release => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::has_lse() {
+                            _atomic_compare_exchange_casp_release
+                        } else {
+                            _atomic_compare_exchange_ldxp_stxp_release
+                        }
+                    })
+                }
+                // AcqRel and SeqCst RMWs are equivalent in both implementations.
+                Ordering::AcqRel | Ordering::SeqCst => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::has_lse() {
+                            _atomic_compare_exchange_casp_acqrel
+                        } else {
+                            _atomic_compare_exchange_ldxp_stxp_acqrel
+                        }
+                    })
+                }
+                _ => unreachable!("{:?}", success),
+            }
         }
     };
     if res == old {
@@ -350,6 +383,36 @@ unsafe fn atomic_compare_exchange(
     } else {
         Err(res)
     }
+}
+fn_alias! {
+    #[cfg(any(
+        target_feature = "lse",
+        portable_atomic_target_feature = "lse",
+        all(
+            not(portable_atomic_no_aarch64_target_feature),
+            not(portable_atomic_no_outline_atomics),
+        ),
+    ))]
+    #[cfg_attr(
+        not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
+        target_feature(enable = "lse")
+    )]
+    unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
+    _atomic_compare_exchange_casp_relaxed = _atomic_compare_exchange_casp(Ordering::Relaxed);
+    _atomic_compare_exchange_casp_acquire = _atomic_compare_exchange_casp(Ordering::Acquire);
+    _atomic_compare_exchange_casp_release = _atomic_compare_exchange_casp(Ordering::Release);
+    _atomic_compare_exchange_casp_acqrel = _atomic_compare_exchange_casp(Ordering::AcqRel);
+}
+fn_alias! {
+    unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
+    _atomic_compare_exchange_ldxp_stxp_relaxed
+        = _atomic_compare_exchange_ldxp_stxp(Ordering::Relaxed);
+    _atomic_compare_exchange_ldxp_stxp_acquire
+        = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire);
+    _atomic_compare_exchange_ldxp_stxp_release
+        = _atomic_compare_exchange_ldxp_stxp(Ordering::Release);
+    _atomic_compare_exchange_ldxp_stxp_acqrel
+        = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel);
 }
 #[cfg(any(
     target_feature = "lse",

@@ -188,6 +188,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
     unsafe {
         let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
         match order {
+            // Relaxed and Release stores are equivalent.
             Ordering::Relaxed | Ordering::Release => {
                 asm!(
                     concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
@@ -205,25 +206,13 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     options(nostack, preserves_flags),
                 );
             }
-            // If the function is not inlined, the compiler fails to remove panic: https://godbolt.org/z/sMqxeq438
-            _ => unreachable_unchecked!("{:?}", order),
+            _ => unreachable!("{:?}", order),
         }
     }
 }
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[inline]
-    unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
-        let fail_order = crate::utils::strongest_failure_ordering(order);
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            match atomic_compare_exchange(src, 0, 0, order, fail_order) {
-                Ok(v) | Err(v) => v,
-            }
-        }
-    }
-
     // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
     // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
     // SGX doesn't support CPUID.
@@ -259,17 +248,19 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         })
     }
 }
+#[inline]
+unsafe fn _atomic_load_cmpxchg16b(src: *mut u128, order: Ordering) -> u128 {
+    let fail_order = crate::utils::strongest_failure_ordering(order);
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        match atomic_compare_exchange(src, 0, 0, order, fail_order) {
+            Ok(v) | Err(v) => v,
+        }
+    }
+}
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[inline]
-    unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) {
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            atomic_swap(dst, val, order);
-        }
-    }
-
     // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
     // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
     // SGX doesn't support CPUID.
@@ -294,15 +285,53 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     )))]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        ifunc!(unsafe fn(dst: *mut u128, val: u128, order: Ordering) {
-            // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
-            let cpuid = detect::detect();
-            if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
-                _atomic_store_vmovdqa
-            } else {
-                _atomic_store_cmpxchg16b
+        match order {
+            // Relaxed and Release stores are equivalent in all implementations
+            // that may be called here (vmovdqa, asm-based cmpxchg16b, and fallback).
+            // Due to cfg, core::arch-based cmpxchg16b will never called here.
+            Ordering::Relaxed | Ordering::Release => {
+                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                    // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
+                    let cpuid = detect::detect();
+                    if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
+                        _atomic_store_vmovdqa_relaxed
+                    } else {
+                        _atomic_store_cmpxchg16b_relaxed
+                    }
+                });
             }
-        });
+            Ordering::SeqCst => {
+                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                    // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
+                    let cpuid = detect::detect();
+                    if cpuid.has_cmpxchg16b() && cpuid.has_vmovdqa_atomic() {
+                        _atomic_store_vmovdqa_seqcst
+                    } else {
+                        _atomic_store_cmpxchg16b_seqcst
+                    }
+                });
+            }
+            _ => unreachable!("{:?}", order),
+        }
+    }
+}
+fn_alias! {
+    #[cfg(target_feature = "sse")]
+    #[target_feature(enable = "avx")]
+    unsafe fn(dst: *mut u128, val: u128);
+    _atomic_store_vmovdqa_relaxed = _atomic_store_vmovdqa(Ordering::Relaxed);
+    _atomic_store_vmovdqa_seqcst = _atomic_store_vmovdqa(Ordering::SeqCst);
+}
+fn_alias! {
+    unsafe fn(dst: *mut u128, val: u128);
+    _atomic_store_cmpxchg16b_relaxed = _atomic_store_cmpxchg16b(Ordering::Relaxed);
+    _atomic_store_cmpxchg16b_seqcst = _atomic_store_cmpxchg16b(Ordering::SeqCst);
+}
+#[inline]
+unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) {
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        atomic_swap(dst, val, order);
     }
 }
 
@@ -322,25 +351,6 @@ unsafe fn atomic_compare_exchange(
     let (res, ok) = unsafe { _cmpxchg16b(dst, old, new, success, failure) };
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     let (res, ok) = {
-        #[cold]
-        unsafe fn _fallback(
-            dst: *mut u128,
-            old: u128,
-            new: u128,
-            success: Ordering,
-            failure: Ordering,
-        ) -> (u128, bool) {
-            #[allow(clippy::cast_ptr_alignment)]
-            // SAFETY: the caller must uphold the safety contract.
-            unsafe {
-                match (*(dst as *const super::fallback::AtomicU128))
-                    .compare_exchange(old, new, success, failure)
-                {
-                    Ok(v) => (v, true),
-                    Err(v) => (v, false),
-                }
-            }
-        }
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
         unsafe {
@@ -350,7 +360,7 @@ unsafe fn atomic_compare_exchange(
                 if detect::has_cmpxchg16b() {
                     _cmpxchg16b
                 } else {
-                    _fallback
+                    _atomic_compare_exchange_fallback
                 }
             })
         }
@@ -359,6 +369,29 @@ unsafe fn atomic_compare_exchange(
         Ok(res)
     } else {
         Err(res)
+    }
+}
+#[cfg(any(
+    test,
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+))]
+#[cold]
+unsafe fn _atomic_compare_exchange_fallback(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    success: Ordering,
+    failure: Ordering,
+) -> (u128, bool) {
+    #[allow(clippy::cast_ptr_alignment)]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        match (*(dst as *const super::fallback::AtomicU128))
+            .compare_exchange(old, new, success, failure)
+        {
+            Ok(v) => (v, true),
+            Err(v) => (v, false),
+        }
     }
 }
 
@@ -539,15 +572,7 @@ mod tests_no_cmpxchg16b {
         success: Ordering,
         failure: Ordering,
     ) -> (u128, bool) {
-        #[allow(clippy::cast_ptr_alignment)]
-        unsafe {
-            match (*(dst as *const super::super::fallback::AtomicU128))
-                .compare_exchange(old, new, success, failure)
-            {
-                Ok(v) => (v, true),
-                Err(v) => (v, false),
-            }
-        }
+        unsafe { super::_atomic_compare_exchange_fallback(dst, old, new, success, failure) }
     }
     #[inline]
     unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {

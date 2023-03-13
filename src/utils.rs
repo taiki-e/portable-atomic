@@ -20,33 +20,6 @@ macro_rules! static_assert_layout {
     };
 }
 
-/// Informs the compiler that this point in the code is not reachable, enabling
-/// further optimizations.
-///
-/// In release mode, this macro calls `core::hint::unreachable_unchecked`.
-/// In debug mode, this macro calls `unreachable!` just in case.
-///
-/// Note: When using `unreachable!`, the compiler cannot eliminate the
-/// unreachable branch in some compiler versions, even if the only pattern not
-/// covered is `#[non_exhaustive]`: <https://godbolt.org/z/68MnGa4o5>
-///
-/// # Safety
-///
-/// Reaching this function is completely undefined behavior.
-#[allow(unused_macros)]
-macro_rules! unreachable_unchecked {
-    ($($tt:tt)*) => {
-        if cfg!(debug_assertions) {
-            unreachable!($($tt)*);
-        } else {
-            // SAFETY: the caller must uphold the safety contract for `unreachable_unchecked`.
-            // (To force the caller to use unsafe block for this macro, do not use
-            // unsafe block here.)
-            core::hint::unreachable_unchecked()
-        }
-    };
-}
-
 macro_rules! doc_comment {
     ($doc:expr, $($tt:tt)*) => {
         #[doc = $doc]
@@ -109,6 +82,32 @@ macro_rules! ifunc {
         // unsafe block here.)
         func($($arg_pat),*)
     }};
+}
+
+#[allow(unused_macros)]
+#[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
+macro_rules! fn_alias {
+    (
+        $(#[$($attr:tt)*])*
+        unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
+        $new:ident = $from:ident($($last_args:tt)*);
+        $($rest:tt)*
+    ) => {
+        $(#[$($attr)*])*
+        unsafe fn $new($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe { $from($($arg_pat,)* $($last_args)*) }
+        }
+        fn_alias! {
+            $(#[$($attr)*])*
+            unsafe fn($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
+            $($rest)*
+        }
+    };
+    (
+        $(#[$($attr:tt)*])*
+        unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
+    ) => {}
 }
 
 macro_rules! const_fn {
@@ -223,23 +222,6 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
         Ordering::Release | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Acquire => panic!("there is no such thing as an acquire store"),
         Ordering::AcqRel => panic!("there is no such thing as an acquire-release store"),
-        _ => unreachable!("{:?}", order),
-    }
-}
-
-// The function called in dynamic detection cannot be inlined, so we use
-// unreachable_unchecked! macro to remove the panic path (see also macro docs).
-// Since Ordering is non_exhaustive, the caller of such a function must use this
-// assertion to prevent UB due to the addition of new orderings.
-#[allow(dead_code)]
-#[inline]
-pub(crate) fn assert_swap_ordering(order: Ordering) {
-    match order {
-        Ordering::AcqRel
-        | Ordering::Acquire
-        | Ordering::Relaxed
-        | Ordering::Release
-        | Ordering::SeqCst => {}
         _ => unreachable!("{:?}", order),
     }
 }

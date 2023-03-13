@@ -58,7 +58,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_swap(self.v.get().cast(), val as u128, order) as $int_type }
@@ -118,7 +117,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
@@ -126,7 +124,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
@@ -134,7 +131,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
@@ -142,7 +138,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
@@ -150,7 +145,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
@@ -158,7 +152,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
@@ -166,7 +159,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $atomic_max(self.v.get(), val, order) }
@@ -174,7 +166,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { $atomic_min(self.v.get(), val, order) }
@@ -182,7 +173,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_not(self.v.get().cast(), order) as $int_type }
@@ -194,7 +184,6 @@ macro_rules! atomic128 {
 
             #[inline]
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
-                crate::utils::assert_swap_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_neg(self.v.get().cast(), order) as $int_type }
