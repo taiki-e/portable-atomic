@@ -1957,7 +1957,6 @@ impl<T> AtomicPtr<T> {
     /// // Note: units of `size_of::<i64>()`.
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 8);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -1978,6 +1977,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
     }
@@ -2012,7 +2012,6 @@ impl<T> AtomicPtr<T> {
     /// assert!(core::ptr::eq(atom.fetch_ptr_sub(1, Ordering::Relaxed), &array[1],));
     /// assert!(core::ptr::eq(atom.load(Ordering::Relaxed), &array[0]));
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2033,6 +2032,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
     }
@@ -2063,7 +2063,6 @@ impl<T> AtomicPtr<T> {
     /// // Note: in units of bytes, not `size_of::<i64>()`.
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 1);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2084,6 +2083,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2126,7 +2126,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.fetch_byte_sub(1, Ordering::Relaxed).addr(), 1);
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 0);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2147,6 +2146,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2204,7 +2204,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(tagged.addr() & 1, 1);
     /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2225,6 +2224,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2280,7 +2280,6 @@ impl<T> AtomicPtr<T> {
     /// let untagged = atom.fetch_and(!1, Ordering::Relaxed).map_addr(|a| a & !1);
     /// assert_eq!(untagged, pointer);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2301,6 +2300,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2355,7 +2355,6 @@ impl<T> AtomicPtr<T> {
     /// atom.fetch_xor(1, Ordering::Relaxed);
     /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
     /// ```
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2376,6 +2375,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2589,7 +2589,6 @@ impl<T> AtomicPtr<T> {
     }
 
     #[cfg(not(miri))]
-    #[inline]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -2610,6 +2609,7 @@ impl<T> AtomicPtr<T> {
             target_arch = "msp430",
         ))
     )]
+    #[inline]
     fn as_atomic_usize(&self) -> &AtomicUsize {
         static_assert!(
             core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()
@@ -5011,16 +5011,16 @@ mod strict {
     use core::mem;
 
     /// Get the address of a pointer.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn addr<T>(ptr: *mut T) -> usize {
         // SAFETY: Every sized pointer is a valid integer for the time being.
         unsafe { mem::transmute(ptr) }
     }
 
     /// Replace the address portion of this pointer with a new address.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
         // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
         //
@@ -5036,8 +5036,8 @@ mod strict {
     }
 
     /// Run an operation of some kind on a pointer.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
         self::with_addr(ptr, f(addr(ptr)))
     }

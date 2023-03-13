@@ -807,24 +807,24 @@ mod strict {
     use core::mem;
 
     /// Get the address of a pointer.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn addr<T>(ptr: *mut T) -> usize {
         // SAFETY: Every sized pointer is a valid integer for the time being.
         unsafe { mem::transmute(ptr) }
     }
 
     /// Create a new, invalid pointer from an address.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn invalid<T>(addr: usize) -> *mut T {
         // SAFETY: Every integer is a valid pointer as long as it is not dereferenced.
         unsafe { mem::transmute(addr) }
     }
 
     /// Create a new pointer with the metadata of `other`.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *mut U) -> *mut U {
         let target = &mut other as *mut *mut U as *mut *mut u8;
 
@@ -837,8 +837,8 @@ mod strict {
     }
 
     /// Replace the address portion of this pointer with a new address.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
         // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
         //
@@ -854,8 +854,8 @@ mod strict {
     }
 
     /// Run an operation of some kind on a pointer.
-    #[must_use]
     #[inline]
+    #[must_use]
     pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
         self::with_addr(ptr, f(addr(ptr)))
     }
