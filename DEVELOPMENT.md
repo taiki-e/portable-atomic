@@ -3,6 +3,7 @@
 - [Project layout](#project-layout)
 - [Testing powerpc64le using POWER Functional Simulator](#testing-powerpc64le-using-power-functional-simulator)
 - [Testing Fuchsia](#testing-fuchsia)
+- [Testing NVPTX](#testing-nvptx)
 
 ## Project layout
 
@@ -162,3 +163,7 @@ Start simulator (Ctrl-C to stop).
 TODO: Reflects whether the test was successful in the exit code of the script.
 
 [fuchsia-platform-support-doc]: https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
+
+## Testing NVPTX
+
+TODO

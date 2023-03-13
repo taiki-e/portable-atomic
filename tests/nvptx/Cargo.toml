@@ -1,0 +1,19 @@
+[package]
+name = "nvptx-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[target.'cfg(target_arch = "nvptx64")'.dependencies]
+portable-atomic = { path = "../..", features = ["float"] }
+test-helper = { path = "../helper" }
+
+paste = "1"
+
+[target.'cfg(not(target_arch = "nvptx64"))'.dependencies]
+anyhow = "1"
+fs-err = "2"
+cuda = { path = "../../tmp/japaric-cuda" }
