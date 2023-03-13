@@ -71,7 +71,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 cargo="${cargo:-cargo}"
-rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+if type -P rustup &>/dev/null; then
+    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
@@ -80,7 +82,9 @@ rustc_minor_version="${rustc_minor_version%%.*}"
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
-    rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    if type -P rustup &>/dev/null; then
+        rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    fi
 fi
 export RUST_TEST_THREADS=1
 
@@ -98,14 +102,16 @@ if [[ -n "${target}" ]]; then
         target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
-    if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
-        rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
-    elif [[ -n "${nightly}" ]]; then
-        if [[ -z "${build_std}" ]]; then
-            args+=(-Z build-std)
+    if type -P rustup &>/dev/null; then
+        if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
+            rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
+        elif [[ -n "${nightly}" ]]; then
+            if [[ -z "${build_std}" ]]; then
+                args+=(-Z build-std)
+            fi
+        else
+            bail "target '${target}' requires nightly compiler"
         fi
-    else
-        bail "target '${target}' requires nightly compiler"
     fi
 fi
 args+=(
