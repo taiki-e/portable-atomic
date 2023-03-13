@@ -52,6 +52,13 @@ macro_rules! __test_atomic_int_load_store {
             assert_eq!(a.into_inner(), 5);
         }
         #[test]
+        fn static_load_only() {
+            static VAR: $atomic_type = <$atomic_type>::new(10);
+            for &order in &test_helper::LOAD_ORDERINGS {
+                assert_eq!(VAR.load(order), 10);
+            }
+        }
+        #[test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(10);
             test_load_ordering(|order| VAR.load(order));
@@ -128,6 +135,13 @@ macro_rules! __test_atomic_float_load_store {
             assert_eq!(a.into_inner(), 5.0);
         }
         #[test]
+        fn static_load_only() {
+            static VAR: $atomic_type = <$atomic_type>::new(10.0);
+            for &order in &test_helper::LOAD_ORDERINGS {
+                assert_eq!(VAR.load(order), 10.0);
+            }
+        }
+        #[test]
         fn load_store() {
             static VAR: $atomic_type = <$atomic_type>::new(10.0);
             test_load_ordering(|order| VAR.load(order));
@@ -162,6 +176,13 @@ macro_rules! __test_atomic_bool_load_store {
             *a.get_mut() = true;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), true);
+        }
+        #[test]
+        fn static_load_only() {
+            static VAR: $atomic_type = <$atomic_type>::new(false);
+            for &order in &test_helper::LOAD_ORDERINGS {
+                assert_eq!(VAR.load(order), false);
+            }
         }
         #[test]
         fn load_store() {
@@ -200,6 +221,13 @@ macro_rules! __test_atomic_ptr_load_store {
             *a.get_mut() = &mut v;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert!(!a.into_inner().is_null());
+        }
+        #[test]
+        fn static_load_only() {
+            static VAR: $atomic_type = <$atomic_type>::new(ptr::null_mut());
+            for &order in &test_helper::LOAD_ORDERINGS {
+                assert_eq!(VAR.load(order), ptr::null_mut());
+            }
         }
         #[test]
         fn load_store() {
