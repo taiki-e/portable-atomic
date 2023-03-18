@@ -142,8 +142,9 @@ mod semihosting {
     pub unsafe fn init(fdt_address: usize) {
         unsafe {
             let fdt = &fdt::Fdt::from_ptr(fdt_address as _).unwrap();
-            EXIT_HANDLE.store(find_compatible(fdt, "sifive,test0").cast(), Ordering::Release);
-            UART_HANDLE.store(find_compatible(fdt, "ns16550a").cast(), Ordering::Release);
+            EXIT_HANDLE
+                .store(find_compatible(fdt, "sifive,test0").cast::<u32>(), Ordering::Release);
+            UART_HANDLE.store(find_compatible(fdt, "ns16550a").cast::<u8>(), Ordering::Release);
         }
     }
 

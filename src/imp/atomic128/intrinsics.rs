@@ -311,7 +311,7 @@ unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        atomic_update(dst.cast(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
+        atomic_update(dst.cast::<u128>(), order, |x| core::cmp::max(x as i128, val) as u128) as i128
     }
     #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract.
@@ -339,7 +339,7 @@ unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        atomic_update(dst.cast(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
+        atomic_update(dst.cast::<u128>(), order, |x| core::cmp::min(x as i128, val) as u128) as i128
     }
     #[cfg(not(target_arch = "powerpc64"))]
     // SAFETY: the caller must uphold the safety contract.
@@ -453,7 +453,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_load(self.v.get().cast(), order) as $int_type }
+                unsafe { atomic_load(self.v.get().cast::<u128>(), order) as $int_type }
             }
 
             #[inline]
@@ -462,7 +462,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_store(self.v.get().cast(), val as u128, order) }
+                unsafe { atomic_store(self.v.get().cast::<u128>(), val as u128, order) }
             }
 
             #[inline]
@@ -470,7 +470,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_swap(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_swap(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -487,7 +487,7 @@ macro_rules! atomic128 {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     match atomic_compare_exchange(
-                        self.v.get().cast(),
+                        self.v.get().cast::<u128>(),
                         current as u128,
                         new as u128,
                         success,
@@ -513,7 +513,7 @@ macro_rules! atomic128 {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     match atomic_compare_exchange_weak(
-                        self.v.get().cast(),
+                        self.v.get().cast::<u128>(),
                         current as u128,
                         new as u128,
                         success,
@@ -530,7 +530,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_add(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_add(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -538,7 +538,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_sub(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_sub(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -546,7 +546,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_and(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_and(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -554,7 +554,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_nand(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_nand(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -562,7 +562,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_or(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_or(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -570,7 +570,7 @@ macro_rules! atomic128 {
                 assert_cmpxchg16b!();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_xor(self.v.get().cast(), val as u128, order) as $int_type }
+                unsafe { atomic_xor(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -605,7 +605,8 @@ macro_rules! atomic128 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    atomic_update(self.v.get().cast(), order, u128::wrapping_neg) as $int_type
+                    atomic_update(self.v.get().cast::<u128>(), order, u128::wrapping_neg)
+                        as $int_type
                 }
             }
             #[inline]
