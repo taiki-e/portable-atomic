@@ -208,9 +208,14 @@ mod imp {
         // - the pointer is valid because we got it from a reference.
         // - `OUT_LEN` is the same as the size of `out`.
         // - `elf_aux_info` is thread-safe.
-        // If elf_aux_info fails, `out` will be left at zero (which is the proper default value).
         unsafe {
-            ffi::elf_aux_info(aux, (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(), OUT_LEN);
+            let res = ffi::elf_aux_info(
+                aux,
+                (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                OUT_LEN,
+            );
+            // If elf_aux_info fails, `out` will be left at zero (which is the proper default value).
+            debug_assert!(res == 0 || out == 0);
         }
         out
     }
