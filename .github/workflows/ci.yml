@@ -129,6 +129,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
+      - run: lscpu
+        if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
+      - run: sysctl hw.optional machdep.cpu
+        if: startsWith(matrix.os, 'macos')
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update --component rust-src && rustup default ${{ matrix.rust }}
       - run: rustup toolchain add nightly --no-self-update
