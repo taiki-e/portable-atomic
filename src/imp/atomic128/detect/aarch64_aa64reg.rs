@@ -150,11 +150,11 @@ mod imp {
     pub(super) mod ffi {
         pub(crate) use core::ffi::c_void;
         // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
         pub(crate) type c_int = i32;
         pub(crate) type c_uint = u32;
         // c_size_t is usize
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L83-L88
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
         pub(crate) type c_size_t = usize;
 
         // Defined in sys/sysctl.h.

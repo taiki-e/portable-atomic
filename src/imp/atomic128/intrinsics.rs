@@ -1,6 +1,6 @@
 // Atomic{I,U}128 implementation using core::intrinsics.
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs
+// Refs: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs
 //
 // On aarch64 and powerpc64, this module is currently only enabled on Miri and ThreadSanitizer
 // which do not support inline assembly. (Note: on powerpc64, it requires LLVM 15+)

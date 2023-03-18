@@ -190,7 +190,7 @@ macro_rules! bit_opts_fetch_impl {
     };
 }
 
-// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2956
+// hthttps://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L2992
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
@@ -202,7 +202,7 @@ pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2983
+// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3019
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -214,7 +214,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L2968
+// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3004
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -227,7 +227,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
 }
 
 // https://github.com/rust-lang/rust/pull/98383
-// https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/sync/atomic.rs#L3049
+// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3085
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {

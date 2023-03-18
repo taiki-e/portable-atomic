@@ -105,15 +105,15 @@ mod imp {
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
         // c_char is u8 on aarch64 Linux/Android
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
         #[cfg(target_os = "android")]
         pub(crate) type c_char = u8;
         // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
         #[cfg(target_os = "android")]
         pub(crate) type c_int = i32;
         // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
         #[cfg(target_pointer_width = "64")]
         pub(crate) type c_ulong = u64;
         #[cfg(target_pointer_width = "32")]
@@ -170,10 +170,10 @@ mod imp {
     pub(super) mod ffi {
         pub(crate) use core::ffi::c_void;
         // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
         pub(crate) type c_int = i32;
         // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
-        // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L175-L190
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
         #[cfg(target_pointer_width = "64")]
         pub(crate) type c_ulong = u64;
         #[cfg(target_pointer_width = "32")]

@@ -26,8 +26,8 @@
 //
 // See also README.md of this module.
 //
-// [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#LL963
-// [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
+// [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#LL963
+// [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 
 #![cfg_attr(test, allow(dead_code))]
 

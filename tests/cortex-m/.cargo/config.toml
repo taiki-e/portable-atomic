@@ -1,4 +1,4 @@
-# Refs: https://github.com/rust-lang/rust/blob/1.67.0/src/test/run-make/thumb-none-qemu/example/.cargo/config
+# Refs: https://github.com/rust-lang/rust/blob/1.68.0/tests/run-make/thumb-none-qemu/example/.cargo/config
 
 [build]
 target-dir = "../../target"

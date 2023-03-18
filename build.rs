@@ -172,7 +172,7 @@ fn main() {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
             }
 
-            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
+            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
             let has_cmpxchg16b = target_os == "macos";
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
             // It is unlikely that rustc will support that name, so we ignore it.
@@ -192,12 +192,13 @@ fn main() {
                 }
             }
 
-            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.5-a: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
+            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
+            // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
             target_feature_if("lse", is_macos, &version, Some(61), true);
-            // As of rustc 1.67, target_feature "lse2" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_codegen_ssa/src/target_features.rs#L47
+            // As of rustc 1.68, target_feature "lse2" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
         }
         "arm" => {
@@ -217,7 +218,7 @@ fn main() {
                 "v6m" | "v7em" | "v7m" | "v8m" => is_mclass = true,
                 "v7r" | "v8r" => {} // rclass
                 // arm-linux-androideabi is v5te
-                // https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
+                // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => subarch = "v5te",
                 // v6 targets other than v6m don't have *class target feature.
                 "" | "v6" | "v6k" => subarch = "v6",
@@ -242,7 +243,7 @@ fn main() {
         "powerpc64" => {
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L663
+            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/PowerPC/PPC.td#L663
             // See also https://github.com/rust-lang/rust/issues/59932
             let mut has_pwr8_features = target_endian == "little";
             // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
@@ -253,14 +254,14 @@ fn main() {
                         has_pwr8_features = cpu_version >= 8;
                     }
                 } else {
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L663
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L445-L447
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/PowerPC/PPC.td#L663
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/PowerPC/PPC.td#L445-L447
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
             // lqarx and stqcx.
-            // Note: As of rustc 1.67, target_feature "quadword-atomics" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.67.0/compiler/rustc_codegen_ssa/src/target_features.rs#L215
+            // Note: As of rustc 1.68, target_feature "quadword-atomics" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
         _ => {}

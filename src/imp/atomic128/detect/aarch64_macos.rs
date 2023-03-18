@@ -1,7 +1,7 @@
 // Run-time feature detection on aarch64 macOS by using sysctl.
 //
 // This module is currently only enabled on tests because aarch64 macOS always supports FEAT_LSE and FEAT_LSE2.
-// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0-rc3/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
+// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
 //
 // If macOS supporting Armv9.4-a becomes popular in the future, this module will
 // be used to support outline atomics for FEAT_LSE128/FEAT_LRCPC3.
@@ -29,13 +29,13 @@ use core::ptr;
 mod ffi {
     pub(crate) use core::ffi::c_void;
     // c_char is {i,u}32 on darwin
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L104-L157
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
     pub(crate) type c_char = i8;
     // c_{,u}int is {i,u}32 on non-16-bit architectures
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L159-L173
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
     pub(crate) type c_int = i32;
     // c_size_t is usize
-    // https://github.com/rust-lang/rust/blob/1.67.0/library/core/src/ffi/mod.rs#L83-L88
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
     pub(crate) type c_size_t = usize;
 
     extern "C" {
