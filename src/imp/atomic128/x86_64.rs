@@ -288,7 +288,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         match order {
             // Relaxed and Release stores are equivalent in all implementations
             // that may be called here (vmovdqa, asm-based cmpxchg16b, and fallback).
-            // Due to cfg, core::arch-based cmpxchg16b will never called here.
+            // Due to cfg, core::arch's cmpxchg16b will never called here.
             Ordering::Relaxed | Ordering::Release => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                     // Check CMPXCHG16B anyway to prevent mixing atomic and non-atomic access.
