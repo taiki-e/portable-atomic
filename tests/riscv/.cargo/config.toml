@@ -1,8 +1,0 @@
-[build]
-target-dir = "../../target"
-
-# See https://github.com/taiki-e/semihosting/blob/main/tools/qemu-system-runner.sh
-[target.'cfg(all(target_arch = "riscv32", target_os = "none"))']
-runner = "qemu-system-riscv32 -M virt -display none -semihosting -kernel"
-[target.'cfg(all(target_arch = "riscv64", target_os = "none"))']
-runner = "qemu-system-riscv64 -M virt -display none -semihosting -kernel"

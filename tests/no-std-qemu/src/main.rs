@@ -11,8 +11,24 @@ use core::sync::atomic::Ordering;
 use portable_atomic::*;
 use semihosting::{print, println};
 
+#[cfg(all(target_arch = "arm", target_feature = "mclass"))]
 #[cortex_m_rt::entry]
 fn main() -> ! {
+    run();
+    semihosting::process::exit(0)
+}
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[no_mangle]
+unsafe fn _start(_: usize, _: usize) -> ! {
+    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+    unsafe {
+        core::arch::asm!("la sp, _stack");
+    }
+    run();
+    semihosting::process::exit(0)
+}
+
+fn run() {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
@@ -25,6 +41,10 @@ fn main() -> ! {
             }
         };
     }
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(any(target_feature = "f", target_feature = "d"))
+    )]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -77,8 +97,9 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+    // TODO
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "f"))]
     test_atomic_float!(f32);
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "d"))]
     test_atomic_float!(f64);
-
-    semihosting::process::exit(0)
 }

@@ -31,7 +31,7 @@ portable-atomic/
 ├── target-specs/                 -- specs of custom targets used for tests
 ├── tests/
 │   ├── api-test/                 -- API check
-│   ├── {avr,cortex-m,gba,riscv}/ -- tests for no-std targets
+│   ├── {avr,gba,no-std-qemu}/    -- tests for no-std targets
 │   └── helper/                   -- test helpers
 └── tools/                        -- tools for CI and/or development
 ```

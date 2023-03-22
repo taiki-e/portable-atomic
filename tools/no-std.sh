@@ -131,12 +131,12 @@ run() {
             target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         thumb*)
-            test_dir=tests/cortex-m
+            test_dir=tests/no-std-qemu
             linker=link.x
             target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         riscv*)
-            test_dir=tests/riscv
+            test_dir=tests/no-std-qemu
             case "${target}" in
                 riscv32*) linker=riscv32.ld ;;
                 riscv64*) linker=riscv64.ld ;;
