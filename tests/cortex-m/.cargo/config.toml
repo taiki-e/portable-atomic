@@ -1,26 +1,19 @@
-# Refs: https://github.com/rust-lang/rust/blob/1.68.0/tests/run-make/thumb-none-qemu/example/.cargo/config
-
 [build]
 target-dir = "../../target"
 
+# See https://github.com/taiki-e/semihosting/blob/main/tools/qemu-system-runner.sh
 [target.thumbv6m-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m0 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+runner = "qemu-system-arm -cpu cortex-m0 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv7m-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+runner = "qemu-system-arm -cpu cortex-m3 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv7em-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m4 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv7em-none-eabihf]
-runner = "qemu-system-arm -cpu cortex-m4 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.base-none-eabi]
-# FIXME: Should be the Cortex-M23, bt Qemu does not currently support it
-runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+# TODO: As of QEMU 7.2, QEMU doesn't support -cpu cortex-m23
+runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-
+runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabihf]
-runner = "qemu-system-arm -cpu cortex-m33 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
+runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"

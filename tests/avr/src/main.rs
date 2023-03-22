@@ -125,7 +125,7 @@ fn main() -> ! {
     test_atomic_int!(i128);
     test_atomic_int!(u128);
     // TODO
-    if cfg!(not(debug_assertions)) {
+    if cfg!(all(not(debug_assertions), not(qemu))) {
         test_atomic_float!(f32);
         test_atomic_float!(f64);
     }

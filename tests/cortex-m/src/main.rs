@@ -1,8 +1,6 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(panic_info_message)]
-#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -11,23 +9,7 @@ mod helper;
 use core::sync::atomic::Ordering;
 
 use portable_atomic::*;
-
-macro_rules! print {
-    ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hstdout() {
-            use core::fmt::Write as _;
-            let _ = write!(hstdout, $($tt)*);
-        }
-    };
-}
-macro_rules! println {
-    ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hstdout() {
-            use core::fmt::Write as _;
-            let _ = writeln!(hstdout, $($tt)*);
-        }
-    };
-}
+use semihosting::{print, println};
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
@@ -98,34 +80,5 @@ fn main() -> ! {
     test_atomic_float!(f32);
     test_atomic_float!(f64);
 
-    semihosting::exit(semihosting::EXIT_SUCCESS)
-}
-
-#[inline(never)]
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(m) = info.message() {
-        print!("panicked at '{m:?}'");
-    } else {
-        print!("panic occurred (no message)");
-    }
-    if let Some(l) = info.location() {
-        println!(", {l}");
-    } else {
-        println!(" (no location info)");
-    }
-
-    semihosting::exit(semihosting::EXIT_FAILURE)
-}
-
-mod semihosting {
-    pub use cortex_m_semihosting::{
-        debug::{EXIT_FAILURE, EXIT_SUCCESS},
-        hio::hstdout,
-    };
-
-    pub fn exit(status: cortex_m_semihosting::debug::ExitStatus) -> ! {
-        cortex_m_semihosting::debug::exit(status);
-        loop {}
-    }
+    semihosting::process::exit(0)
 }

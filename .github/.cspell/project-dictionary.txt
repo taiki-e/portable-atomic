@@ -124,7 +124,6 @@ syscall
 sysctlbyname
 systemsim
 tagme
-Tlink
 uapi
 uart
 umax
