@@ -127,19 +127,22 @@ run() {
     case "${target}" in
         thumbv4t* | armv4t*)
             test_dir=tests/gba
-            target_rustflags+=" -C link-arg=-Tlink.ld"
+            linker=link.ld
+            target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         thumb*)
             test_dir=tests/cortex-m
-            target_rustflags+=" -C link-arg=-Tlink.x"
+            linker=link.x
+            target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         riscv*)
             test_dir=tests/riscv
             case "${target}" in
-                riscv32*) target_rustflags+=" -C link-arg=-Tlink32.ld" ;;
-                riscv64*) target_rustflags+=" -C link-arg=-Tlink64.ld" ;;
+                riscv32*) linker=riscv32.ld ;;
+                riscv64*) linker=riscv64.ld ;;
                 *) bail "unrecognized target '${target}'" ;;
             esac
+            target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         avr*)
             test_dir=tests/avr

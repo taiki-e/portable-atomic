@@ -1,8 +1,6 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(panic_info_message)]
-#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -11,29 +9,12 @@ mod helper;
 use core::{arch::asm, sync::atomic::Ordering};
 
 use portable_atomic::*;
-
-macro_rules! print {
-    ($($tt:tt)*) => {
-        if let Some(mut uart) = $crate::semihosting::Uart::new() {
-            use core::fmt::Write as _;
-            let _ = write!(uart, $($tt)*);
-        }
-    };
-}
-macro_rules! println {
-    ($($tt:tt)*) => {
-        if let Some(mut uart) = $crate::semihosting::Uart::new() {
-            use core::fmt::Write as _;
-            let _ = writeln!(uart, $($tt)*);
-        }
-    };
-}
+use semihosting::{print, println};
 
 #[no_mangle]
-unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
+unsafe fn _start(_: usize, _: usize) -> ! {
     unsafe {
         asm!("la sp, _stack");
-        semihosting::init(fdt_address);
     }
 
     macro_rules! test_atomic_int {
@@ -107,78 +88,5 @@ unsafe fn _start(_hartid: usize, fdt_address: usize) -> ! {
     #[cfg(target_feature = "d")]
     test_atomic_float!(f64);
 
-    semihosting::exit(semihosting::EXIT_SUCCESS)
-}
-
-#[inline(never)]
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(m) = info.message() {
-        print!("panicked at '{m:?}'");
-    } else {
-        print!("panic occurred (no message)");
-    }
-    if let Some(l) = info.location() {
-        println!(", {l}");
-    } else {
-        println!(" (no location info)");
-    }
-
-    semihosting::exit(semihosting::EXIT_FAILURE)
-}
-
-mod semihosting {
-    // Inspired by https://github.com/SimonSapin/riscv-qemu-demo
-
-    use core::{
-        fmt,
-        ptr::{self, NonNull},
-        sync::atomic::Ordering,
-    };
-
-    use portable_atomic::AtomicPtr;
-
-    #[inline(always)]
-    pub unsafe fn init(fdt_address: usize) {
-        unsafe {
-            let fdt = &fdt::Fdt::from_ptr(fdt_address as _).unwrap();
-            EXIT_HANDLE
-                .store(find_compatible(fdt, "sifive,test0").cast::<u32>(), Ordering::Release);
-            UART_HANDLE.store(find_compatible(fdt, "ns16550a").cast::<u8>(), Ordering::Release);
-        }
-    }
-
-    #[inline(always)]
-    fn find_compatible(fdt: &fdt::Fdt<'_>, with: &str) -> *mut () {
-        let device = fdt.find_compatible(&[with]).unwrap();
-        let register = device.reg().unwrap().next().unwrap();
-        register.starting_address as _
-    }
-
-    static EXIT_HANDLE: AtomicPtr<u32> = AtomicPtr::new(ptr::null_mut());
-    pub const EXIT_SUCCESS: u32 = 0;
-    pub const EXIT_FAILURE: u32 = 1;
-    pub fn exit(code: u32) -> ! {
-        if let Some(ptr) = NonNull::new(EXIT_HANDLE.load(Ordering::Acquire)) {
-            unsafe { ptr.as_ptr().write_volatile(code << 16 | 0x3333) }
-        }
-        loop {}
-    }
-
-    static UART_HANDLE: AtomicPtr<u8> = AtomicPtr::new(ptr::null_mut());
-    pub struct Uart(NonNull<u8>);
-    impl Uart {
-        pub fn new() -> Option<Self> {
-            let ptr = UART_HANDLE.load(Ordering::Acquire);
-            NonNull::new(ptr).map(Self)
-        }
-    }
-    impl fmt::Write for Uart {
-        fn write_str(&mut self, s: &str) -> fmt::Result {
-            for b in s.bytes() {
-                unsafe { self.0.as_ptr().write_volatile(b) }
-            }
-            Ok(())
-        }
-    }
+    semihosting::process::exit(0)
 }

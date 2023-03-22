@@ -11,5 +11,5 @@ resolver = "2"
 portable-atomic = { path = "../..", features = ["float"] }
 test-helper = { path = "../helper" }
 
-fdt = "0.1"
 paste = "1"
+semihosting = { version = "0.1", features = ["stdio", "panic-handler"] }
