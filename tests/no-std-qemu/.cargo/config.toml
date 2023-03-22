@@ -2,6 +2,8 @@
 target-dir = "../../target"
 
 # See https://github.com/taiki-e/semihosting/blob/main/tools/qemu-system-runner.sh
+
+# Cortex-M
 [target.thumbv6m-none-eabi]
 runner = "qemu-system-arm -cpu cortex-m0 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv7m-none-eabi]
@@ -17,3 +19,9 @@ runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihost
 runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabihf]
 runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
+
+# RISC-V
+[target.'cfg(all(target_arch = "riscv32", target_os = "none"))']
+runner = "qemu-system-riscv32 -M virt -display none -semihosting -kernel"
+[target.'cfg(all(target_arch = "riscv64", target_os = "none"))']
+runner = "qemu-system-riscv64 -M virt -display none -semihosting -kernel"

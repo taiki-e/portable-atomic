@@ -1,5 +1,5 @@
 [package]
-name = "riscv-test"
+name = "no-std-qemu-test"
 version = "0.0.0"
 edition = "2021"
 publish = false
@@ -13,3 +13,12 @@ test-helper = { path = "../helper" }
 
 paste = "1"
 semihosting = { version = "0.1", features = ["stdio", "panic-handler"] }
+
+[target.'cfg(all(target_arch = "arm", target_feature = "mclass"))'.dependencies]
+cortex-m-rt = "0.7"
+
+[profile.dev]
+opt-level = "s"
+
+[profile.release]
+opt-level = "s"
