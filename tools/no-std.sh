@@ -5,14 +5,18 @@ cd "$(dirname "$0")"/..
 
 # shellcheck disable=SC2154
 trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'exit 0' SIGINT
+trap -- 'exit 1' SIGINT
 
 # USAGE:
 #    ./tools/no-std.sh [+toolchain] [target]...
 
 default_targets=(
     # armv4t
+    armv4t-none-eabi
     thumbv4t-none-eabi
+    # armv5te
+    armv5te-none-eabi
+    thumbv5te-none-eabi
     # armv6-m
     thumbv6m-none-eabi
     # armv7-m
@@ -96,7 +100,7 @@ run() {
     fi
     local subcmd=run
     case "${target}" in
-        thumbv4t* | armv4t*)
+        armv4t* | thumbv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
             if ! type -P mgba &>/dev/null; then
                 subcmd=build
@@ -125,10 +129,13 @@ run() {
     local test_dir
     # NB: sync with tools/build.sh
     case "${target}" in
-        thumbv4t* | armv4t*)
+        armv4t* | thumbv4t*)
             test_dir=tests/gba
             linker=link.ld
             target_rustflags+=" -C link-arg=-T${linker}"
+            ;;
+        armv5te* | thumbv5te*)
+            test_dir=tests/no-std-qemu
             ;;
         thumb*)
             test_dir=tests/no-std-qemu
@@ -153,8 +160,14 @@ run() {
 
     (
         cd "${test_dir}"
-        RUSTFLAGS="${target_rustflags}" \
-            x_cargo "${args[@]}" "$@"
+        case "${target}" in
+            # TODO: compiler_builtins overflow bug: https://github.com/rust-lang/compiler-builtins/pull/521
+            thumbv5te*) ;;
+            *)
+                RUSTFLAGS="${target_rustflags}" \
+                    x_cargo "${args[@]}" "$@"
+                ;;
+        esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --release "$@"
     )
