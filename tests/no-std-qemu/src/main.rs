@@ -17,12 +17,23 @@ fn main() -> ! {
     run();
     semihosting::process::exit(0)
 }
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(not(all(target_arch = "arm", target_feature = "mclass")))]
 #[no_mangle]
 unsafe fn _start(_: usize, _: usize) -> ! {
     #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
     unsafe {
         core::arch::asm!("la sp, _stack");
+    }
+    #[cfg(all(target_arch = "arm", not(target_feature = "v6"), target_feature = "v5te"))]
+    unsafe {
+        #[instruction_set(arm::a32)]
+        #[inline]
+        unsafe fn init() {
+            unsafe {
+                core::arch::asm!("mov sp, #0x8000");
+            }
+        }
+        init();
     }
     run();
     semihosting::process::exit(0)
@@ -78,9 +89,13 @@ fn run() {
         };
     }
 
-    for &order in &test_helper::FENCE_ORDERINGS {
-        fence(order);
-        compiler_fence(order);
+    // TODO: undefined reference to `__sync_synchronize'
+    #[cfg(not(all(target_arch = "arm", not(target_feature = "v6"))))]
+    {
+        for &order in &test_helper::FENCE_ORDERINGS {
+            fence(order);
+            compiler_fence(order);
+        }
     }
     hint::spin_loop();
     test_atomic_bool!();

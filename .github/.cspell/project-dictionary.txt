@@ -133,6 +133,7 @@ usart
 uscat
 uwrite
 uwriteln
+versatilepb
 virt
 vmlinux
 vmovdqa
