@@ -80,25 +80,33 @@ xous
 xtensa
 
 // Rust other
+aclass
 acqrel
 alloc
 bools
 builtins
 canonicalize
 consts
+ctypes
+dealloc
 deque
+docsrs
 doctest
 hasher
 impls
 inlateout
 intrinsics
 lateout
+mclass
 msrv
 nand
 nomem
+nonoverlapping
+noreturn
 nostack
 peekable
 punct
+rclass
 repr
 rfind
 rfold
@@ -116,9 +124,11 @@ unsized
 upcastable
 
 // Other
+binutils
 connrefused
 cygwin
 dpkg
+endianness
 euxo
 msys
 noninteractive
@@ -130,4 +140,8 @@ pipefail
 powerset
 proto
 readelf
+SIGABRT
+SIGILL
+SIGINT
+SIGTERM
 tlsv
