@@ -225,6 +225,41 @@ unsafe fn atomic_compare_exchange(
 // so we always use strong CAS for now.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
+// Do not use atomic_rmw_ll_sc_3 because it needs extra MR.
+#[inline]
+unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        let val = U128 { whole: val };
+        let (mut prev_hi, mut prev_lo);
+        macro_rules! op {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    $release,
+                    "2:",
+                        "lqarx %r6, 0, {dst}",
+                        "stqcx. %r8, 0, {dst}",
+                        "bne %cr0, 2b",
+                    $acquire,
+                    dst = in(reg) dst,
+                    out("r0") _,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 and r2, so starting with r4.
+                    out("r6") prev_hi,
+                    out("r7") prev_lo,
+                    in("r8") val.pair.hi,
+                    in("r9") val.pair.lo,
+                    out("cr0") _,
+                    options(nostack),
+                )
+            };
+        }
+        atomic_rmw!(op, order);
+        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+    }
+}
+
 /// Atomic RMW by LL/SC loop (3 arguments)
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
@@ -301,12 +336,6 @@ macro_rules! atomic_rmw_ll_sc_3 {
             }
         }
     };
-}
-atomic_rmw_ll_sc_3! {
-    atomic_swap,
-    options(nostack),
-    "mr %r9, {val_lo}",
-    "mr %r8, {val_hi}",
 }
 atomic_rmw_ll_sc_3! {
     atomic_add,

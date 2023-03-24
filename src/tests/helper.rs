@@ -1924,18 +1924,6 @@ macro_rules! test_atomic128_op {
 macro_rules! __test_atomic128_op {
     () => {
         ::quickcheck::quickcheck! {
-            #[cfg(not(target_arch = "aarch64"))]
-            fn quickcheck_atomic_swap_op(x: u128, y: u128) -> bool {
-                unsafe {
-                    let a = AtomicU128::new(x);
-                    assert_eq!(atomic_swap_op(a.as_ptr(), y), x);
-                    assert_eq!(a.load(Ordering::Relaxed), y);
-                    let a = AtomicU128::new(y);
-                    assert_eq!(atomic_swap_op(a.as_ptr(), x), y);
-                    assert_eq!(a.load(Ordering::Relaxed), x);
-                }
-                true
-            }
             fn quickcheck_atomic_add_op(x: u128, y: u128) -> bool {
                 unsafe {
                     let a = AtomicU128::new(x);
