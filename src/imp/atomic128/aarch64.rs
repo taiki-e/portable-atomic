@@ -568,11 +568,9 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                         "mov {tmp_lo}, x6",
                         "mov {tmp_hi}, x7",
                         concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
-                        // compare x6-x7 pair and tmp pair
-                        "eor {tmp_hi}, {tmp_hi}, x7",
-                        "eor {tmp_lo}, {tmp_lo}, x6",
-                        "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
-                        "cbnz {tmp_hi}, 2b",
+                        "cmp {tmp_hi}, x7",
+                        "ccmp {tmp_lo}, x6, #0, eq",
+                        "b.ne 2b",
                     dst = in(reg) dst,
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
@@ -582,7 +580,8 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                     // must be allocated to even/odd register pair
                     in("x4") val.pair.lo,
                     in("x5") val.pair.hi,
-                    options(nostack, preserves_flags),
+                    // Do not use `preserves_flags` because CMP and CCMP modify the condition flags.
+                    options(nostack),
                 )
             };
         }
@@ -688,7 +687,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
 /// - x6/x7 pair: previous value loaded
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_3 {
-    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident, $($op:tt)*) => {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -712,11 +711,9 @@ macro_rules! atomic_rmw_cas_3 {
                                 "mov {tmp_hi}, x7",
                                 $($op)*
                                 concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
-                                // compare x6-x7 pair and tmp pair
-                                "eor {tmp_hi}, {tmp_hi}, x7",
-                                "eor {tmp_lo}, {tmp_lo}, x6",
-                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
-                                "cbnz {tmp_hi}, 2b",
+                                "cmp {tmp_hi}, x7",
+                                "ccmp {tmp_lo}, x6, #0, eq",
+                                "b.ne 2b",
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -728,7 +725,8 @@ macro_rules! atomic_rmw_cas_3 {
                             // must be allocated to even/odd register pair
                             out("x4") _,
                             out("x5") _,
-                            options($($options)*),
+                            // Do not use `preserves_flags` because CMP and CCMP modify the condition flags.
+                            options(nostack),
                         )
                     };
                 }
@@ -753,8 +751,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_add,
-    // Do not use `preserves_flags` because ADDS and ADCS modify the condition flags.
-    options(nostack),
     concat!(
         "adds ",
         select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
@@ -779,8 +775,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_sub,
-    // Do not use `preserves_flags` because SUBS and SBCS modify the condition flags.
-    options(nostack),
     concat!(
         "subs ",
         select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
@@ -798,7 +792,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_and,
-    options(nostack, preserves_flags),
     "and x4, x6, {val_lo}",
     "and x5, x7, {val_hi}",
 }
@@ -812,7 +805,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_nand,
-    options(nostack, preserves_flags),
     "and x4, x6, {val_lo}",
     "mvn x4, x4",
     "and x5, x7, {val_hi}",
@@ -826,7 +818,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_or,
-    options(nostack, preserves_flags),
     "orr x4, x6, {val_lo}",
     "orr x5, x7, {val_hi}",
 }
@@ -838,7 +829,6 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_cas_3! {
     atomic_xor,
-    options(nostack, preserves_flags),
     "eor x4, x6, {val_lo}",
     "eor x5, x7, {val_hi}",
 }
@@ -904,7 +894,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
 /// - x6/x7 pair: previous value loaded
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_2 {
-    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident, $($op:tt)*) => {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
@@ -927,11 +917,9 @@ macro_rules! atomic_rmw_cas_2 {
                                 "mov {tmp_hi}, x7",
                                 $($op)*
                                 concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
-                                // compare x6-x7 pair and tmp pair
-                                "eor {tmp_hi}, {tmp_hi}, x7",
-                                "eor {tmp_lo}, {tmp_lo}, x6",
-                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
-                                "cbnz {tmp_hi}, 2b",
+                                "cmp {tmp_hi}, x7",
+                                "ccmp {tmp_lo}, x6, #0, eq",
+                                "b.ne 2b",
                             dst = in(reg) dst,
                             tmp_lo = out(reg) _,
                             tmp_hi = out(reg) _,
@@ -941,7 +929,8 @@ macro_rules! atomic_rmw_cas_2 {
                             // must be allocated to even/odd register pair
                             out("x4") _,
                             out("x5") _,
-                            options($($options)*),
+                            // Do not use `preserves_flags` because CMP and CCMP modify the condition flags.
+                            options(nostack),
                         )
                     };
                 }
@@ -959,7 +948,6 @@ atomic_rmw_ll_sc_2! {
 }
 atomic_rmw_cas_2! {
     atomic_not,
-    options(nostack, preserves_flags),
     "mvn x4, x6",
     "mvn x5, x7",
 }
@@ -972,8 +960,6 @@ atomic_rmw_ll_sc_2! {
 }
 atomic_rmw_cas_2! {
     atomic_neg,
-    // Do not use `preserves_flags` because NEGS modifies the condition flags.
-    options(nostack),
     concat!("negs ", select_le_or_be!("x4, x6", "x5, x7")),
     concat!("ngc ", select_le_or_be!("x5, x7", "x4, x6")),
 }
@@ -987,7 +973,7 @@ atomic_rmw_cas_2! {
 /// - new_lo/new_hi pair: new value that will to stored by sc
 /// - r_lo/r_hi: temp value
 macro_rules! atomic_rmw_ll_sc_cmp {
-    ($name:ident as $name_no_lse:ident, $int_type:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident as $name_no_lse:ident, $int_type:ident, $($op:tt)*) => {
         // If FEAT_LSE is available at compile-time, we use CAS based Atomic RMW
         // generated by atomic_rmw_by_atomic_update! macro.
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -1018,7 +1004,8 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                             new_hi = out(reg) _,
                             r_lo = out(reg) _,
                             r_hi = out(reg) _,
-                            options($($options)*),
+                            // Do not use `preserves_flags` because CMP (always used in $op) modifies the condition flags.
+                            options(nostack),
                         )
                     };
                 }
@@ -1047,7 +1034,7 @@ macro_rules! atomic_rmw_ll_sc_cmp {
 /// - x4/x5 pair: new value that will to stored
 /// - r_lo/r_hi: temp value
 macro_rules! atomic_rmw_cas_cmp {
-    ($name:ident, $int_type:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident, $int_type:ident, $($op:tt)*) => {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type {
@@ -1071,11 +1058,9 @@ macro_rules! atomic_rmw_cas_cmp {
                                 "mov {tmp_hi}, x7",
                                 $($op)*
                                 concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
-                                // compare x6-x7 pair and tmp pair
-                                "eor {tmp_hi}, {tmp_hi}, x7",
-                                "eor {tmp_lo}, {tmp_lo}, x6",
-                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
-                                "cbnz {tmp_hi}, 2b",
+                                "cmp {tmp_hi}, x7",
+                                "ccmp {tmp_lo}, x6, #0, eq",
+                                "b.ne 2b",
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -1089,7 +1074,8 @@ macro_rules! atomic_rmw_cas_cmp {
                             // must be allocated to even/odd register pair
                             out("x4") _,
                             out("x5") _,
-                            options($($options)*),
+                            // Do not use `preserves_flags` because CMP and CCMP modify the condition flags.
+                            options(nostack),
                         )
                     };
                 }
@@ -1104,8 +1090,6 @@ macro_rules! atomic_rmw_cas_cmp {
 atomic_rmw_ll_sc_cmp! {
     _atomic_max_ldxp_stxp as atomic_max,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
     "cset {r_lo:w}, hi",       // store comparison result
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
@@ -1119,8 +1103,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_max,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x6, {val_lo}",  // compare lo 64-bit
     "cset {r_lo:w}, hi", // store comparison result
     "cmp x7, {val_hi}",  // compare hi 64-bit
@@ -1134,8 +1116,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_max_ldxp_stxp as atomic_max,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
     "cset {r_hi:w}, hi",       // store comparison result
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
@@ -1149,8 +1129,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_max,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x7, {val_hi}",  // compare hi 64-bit
     "cset {r_hi:w}, hi", // store comparison result
     "cmp x6, {val_lo}",  // compare lo 64-bit
@@ -1165,8 +1143,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_umax_ldxp_stxp as atomic_umax,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
     "cset {r_lo:w}, hi",       // store comparison result
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
@@ -1180,8 +1156,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_umax,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x6, {val_lo}",  // compare lo 64-bit
     "cset {r_lo:w}, hi", // store comparison result
     "cmp x7, {val_hi}",  // compare hi 64-bit
@@ -1195,8 +1169,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_umax_ldxp_stxp as atomic_umax,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
     "cset {r_hi:w}, hi",       // store comparison result
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
@@ -1210,8 +1182,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_umax,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x7, {val_hi}",  // compare hi 64-bit
     "cset {r_hi:w}, hi", // store comparison result
     "cmp x6, {val_lo}",  // compare lo 64-bit
@@ -1226,8 +1196,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_min_ldxp_stxp as atomic_min,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
     "cset {r_lo:w}, ls",       // store comparison result
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
@@ -1241,8 +1209,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_min,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x6, {val_lo}",  // compare lo 64-bit
     "cset {r_lo:w}, ls", // store comparison result
     "cmp x7, {val_hi}",  // compare hi 64-bit
@@ -1256,8 +1222,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_min_ldxp_stxp as atomic_min,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
     "cset {r_hi:w}, hi",       // store comparison result
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
@@ -1271,8 +1235,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_min,
     i128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x7, {val_hi}",  // compare hi 64-bit
     "cset {r_hi:w}, hi", // store comparison result
     "cmp x6, {val_lo}",  // compare lo 64-bit
@@ -1287,8 +1249,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_umin_ldxp_stxp as atomic_umin,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
     "cset {r_lo:w}, ls",       // store comparison result
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
@@ -1302,8 +1262,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_umin,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x6, {val_lo}",  // compare lo 64-bit
     "cset {r_lo:w}, ls", // store comparison result
     "cmp x7, {val_hi}",  // compare hi 64-bit
@@ -1317,8 +1275,6 @@ atomic_rmw_cas_cmp! {
 atomic_rmw_ll_sc_cmp! {
     _atomic_umin_ldxp_stxp as atomic_umin,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp {prev_hi}, {val_hi}", // compare hi 64-bit
     "cset {r_hi:w}, ls",       // store comparison result
     "cmp {prev_lo}, {val_lo}", // compare lo 64-bit
@@ -1332,8 +1288,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_cas_cmp! {
     atomic_umin,
     u128,
-    // Do not use `preserves_flags` because CMP modifies the condition flags.
-    options(nostack),
     "cmp x7, {val_hi}",  // compare hi 64-bit
     "cset {r_hi:w}, ls", // store comparison result
     "cmp x6, {val_lo}",  // compare lo 64-bit

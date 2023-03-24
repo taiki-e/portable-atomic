@@ -12,6 +12,7 @@ bytecount
 callthru
 casp
 cbnz
+ccmp
 cdsg
 cfgs
 cinc
