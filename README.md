@@ -13,7 +13,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg-unsafe-assume-single-core) otherwise)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485), [`Atomic*::as_ptr`](https://github.com/rust-lang/rust/issues/66893).
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -88,11 +88,34 @@ See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-a
   - The MSRV when this feature is enabled depends on the MSRV of [critical-section].
   - It is usually *not* recommended to always enable this feature in dependencies of the library.
 
-    Enabling this feature will prevent the end user from having the chance to take advantage of other (potentially) efficient implementations ([Implementations provided by `--cfg portable_atomic_unsafe_assume_single_core`, default implementations on MSP430 and AVR](#optional-cfg-unsafe-assume-single-core), implementation proposed in [#60], etc. Other systems may also be supported in the future).
+    Enabling this feature will prevent the end user from having the chance to take advantage of other (potentially) efficient implementations ([Implementations provided by `--cfg portable_atomic_unsafe_assume_single_core`, default implementations on MSP430 and AVR](#optional-cfg), implementation proposed in [#60], etc. Other systems may also be supported in the future).
 
     The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where other implementations are known not to work.)
 
+    As an example, the end-user's `Cargo.toml` that uses a crate that provides a critical-section implementation and a crate that depends on portable-atomic as an option would be expected to look like this:
+
+    ```toml
+    [dependencies]
+    portable-atomic = { version = "1", default-features = false, features = ["critical-section"] }
+    crate-provides-critical-section-impl = "..."
+    crate-uses-portable-atomic-as-feature = { version = "...", features = ["portable-atomic"] }
+    ```
+
 ## Optional cfg
+
+One of the ways to enable cfg is to set [rustflags in the cargo config](https://doc.rust-lang.org/cargo/reference/config.html#targettriplerustflags):
+
+```toml
+# .cargo/config.toml
+[target.<target>]
+rustflags = ["--cfg", "portable_atomic_unsafe_assume_single_core"]
+```
+
+Or set environment variable:
+
+```sh
+RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
+```
 
 - <a name="optional-cfg-unsafe-assume-single-core"></a>**`--cfg portable_atomic_unsafe_assume_single_core`**<br>
   Assume that the target is single-core.
