@@ -90,6 +90,8 @@ fn extract(x: u64, high: usize, low: usize) -> u64 {
 
 #[cfg(not(target_os = "openbsd"))]
 mod imp {
+    // This module is test-only. See parent module docs for details.
+
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;
 
@@ -136,11 +138,12 @@ mod imp {
         }
     }
 }
-// OpenBSD doesn't trap the mrs instruction, but exposes the system registers through sysctl.
-// https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
-// https://github.com/golang/go/commit/cd54ef1f61945459486e9eea2f016d99ef1da925
 #[cfg(target_os = "openbsd")]
 mod imp {
+    // OpenBSD doesn't trap the mrs instruction, but exposes the system registers through sysctl.
+    // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
+    // https://github.com/golang/go/commit/cd54ef1f61945459486e9eea2f016d99ef1da925
+
     use core::ptr;
 
     use super::AA64Reg;

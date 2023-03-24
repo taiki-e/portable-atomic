@@ -601,7 +601,7 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
 /// Atomic RMW by LL/SC loop (3 arguments)
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
-/// $op can use the following registers:
+/// `$op` can use the following registers:
 /// - val_lo/val_hi pair: val argument
 /// - prev_lo/prev_hi pair: previous value loaded by ll
 /// - new_lo/new_hi pair: new value that will to stored by sc
@@ -712,7 +712,7 @@ atomic_rmw_ll_sc_3! {
 /// Atomic RMW by LL/SC loop (2 arguments)
 /// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
 ///
-/// $op can use the following registers:
+/// `$op` can use the following registers:
 /// - prev_lo/prev_hi pair: previous value loaded by ll
 /// - new_lo/new_hi pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
@@ -780,7 +780,7 @@ atomic_rmw_ll_sc_2! {
 /// Atomic RMW by LL/SC loop (min/max)
 /// `unsafe fn(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type;`
 ///
-/// $op can use the following registers:
+/// `$op` can use the following registers:
 /// - val_lo/val_hi pair: val argument
 /// - prev_lo/prev_hi pair: previous value loaded by ll
 /// - new_lo/new_hi pair: new value that will to stored by sc
