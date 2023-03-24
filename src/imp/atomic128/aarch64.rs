@@ -27,6 +27,9 @@
 // - https://yarchive.net/comp/linux/cmpxchg_ll_sc_portability.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
+// Also, even when using a CAS loop to implement atomic RMW, include the loop itself
+// in the asm block because it is more efficient for some codegen backends.
+// https://github.com/rust-lang/compiler-builtins/issues/339#issuecomment-1191260474
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use intrinsics.rs instead.
@@ -102,14 +105,12 @@ macro_rules! ptr_modifier {
         ""
     };
 }
-#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_endian = "little")]
 macro_rules! select_le_or_be {
     ($le:expr, $be:expr) => {
         $le
     };
 }
-#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_endian = "big")]
 macro_rules! select_le_or_be {
     ($le:expr, $be:expr) => {
@@ -530,36 +531,13 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
 // so we always use strong CAS for now.
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-#[inline(always)]
-unsafe fn atomic_update_casp<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
-where
-    F: FnMut(u128) -> u128,
-{
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
-        // This is not single-copy atomic reads, but this is ok because subsequent
-        // CAS will check for consistency.
-        let mut old = _atomic_load_ldp(dst, Ordering::Relaxed);
-        loop {
-            let next = f(old);
-            let x = _atomic_compare_exchange_casp(dst, old, next, order);
-            if x == old {
-                return x;
-            }
-            old = x;
-        }
-    }
-}
-
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantee that the CPU supports FEAT_LSE.
     unsafe {
-        atomic_update_casp(dst, order, |_| val)
+        _atomic_swap_casp(dst, val, order)
     }
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract.
@@ -567,6 +545,52 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         _atomic_swap_ldxp_stxp(dst, val, order)
     }
 }
+// Do not use atomic_rmw_cas_3 because it needs extra MOV.
+#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+#[inline]
+unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+    // SAFETY: the caller must uphold the safety contract.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        let val = U128 { whole: val };
+        let (mut prev_lo, mut prev_hi);
+        macro_rules! op {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+                    // This is not single-copy atomic reads, but this is ok because subsequent
+                    // CAS will check for consistency.
+                    concat!("ldp x6, x7, [{dst", ptr_modifier!(), "}]"),
+                    "2:",
+                        // casp writes the current value to the first register pair,
+                        // so copy the `out`'s value for later comparison.
+                        "mov {tmp_lo}, x6",
+                        "mov {tmp_hi}, x7",
+                        concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
+                        // compare x6-x7 pair and tmp pair
+                        "eor {tmp_hi}, {tmp_hi}, x7",
+                        "eor {tmp_lo}, {tmp_lo}, x6",
+                        "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
+                        "cbnz {tmp_hi}, 2b",
+                    dst = in(reg) dst,
+                    tmp_lo = out(reg) _,
+                    tmp_hi = out(reg) _,
+                    // must be allocated to even/odd register pair
+                    out("x6") prev_lo,
+                    out("x7") prev_hi,
+                    // must be allocated to even/odd register pair
+                    in("x4") val.pair.lo,
+                    in("x5") val.pair.hi,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(op, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
+}
+// Do not use atomic_rmw_ll_sc_3 because it needs extra MOV.
 #[inline]
 unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
@@ -656,6 +680,64 @@ macro_rules! atomic_rmw_ll_sc_3 {
         }
     };
 }
+/// Atomic RMW by CAS loop (3 arguments)
+/// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - val_lo/val_hi pair: val argument
+/// - x6/x7 pair: previous value loaded
+/// - x4/x5 pair: new value that will to stored
+macro_rules! atomic_rmw_cas_3 {
+    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            // cfg guarantee that the CPU supports FEAT_LSE.
+            unsafe {
+                let val = U128 { whole: val };
+                let (mut prev_lo, mut prev_hi);
+                macro_rules! op {
+                    ($acquire:tt, $release:tt) => {
+                        asm!(
+                            // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+                            // This is not single-copy atomic reads, but this is ok because subsequent
+                            // CAS will check for consistency.
+                            concat!("ldp x6, x7, [{dst", ptr_modifier!(), "}]"),
+                            "2:",
+                                // casp writes the current value to the first register pair,
+                                // so copy the `out`'s value for later comparison.
+                                "mov {tmp_lo}, x6",
+                                "mov {tmp_hi}, x7",
+                                $($op)*
+                                concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
+                                // compare x6-x7 pair and tmp pair
+                                "eor {tmp_hi}, {tmp_hi}, x7",
+                                "eor {tmp_lo}, {tmp_lo}, x6",
+                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
+                                "cbnz {tmp_hi}, 2b",
+                            dst = in(reg) dst,
+                            val_lo = in(reg) val.pair.lo,
+                            val_hi = in(reg) val.pair.hi,
+                            tmp_lo = out(reg) _,
+                            tmp_hi = out(reg) _,
+                            // must be allocated to even/odd register pair
+                            out("x6") prev_lo,
+                            out("x7") prev_hi,
+                            // must be allocated to even/odd register pair
+                            out("x4") _,
+                            out("x5") _,
+                            options($($options)*),
+                        )
+                    };
+                }
+                atomic_rmw!(op, order);
+                U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+            }
+        }
+    };
+}
 atomic_rmw_ll_sc_3! {
     _atomic_add_ldxp_stxp as atomic_add,
     // Do not use `preserves_flags` because ADDS and ADCS modify the condition flags.
@@ -667,6 +749,19 @@ atomic_rmw_ll_sc_3! {
     concat!(
         "adc ",
         select_le_or_be!("{new_hi}, {prev_hi}, {val_hi}", "{new_lo}, {prev_lo}, {val_lo}")
+    ),
+}
+atomic_rmw_cas_3! {
+    atomic_add,
+    // Do not use `preserves_flags` because ADDS and ADCS modify the condition flags.
+    options(nostack),
+    concat!(
+        "adds ",
+        select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
+    ),
+    concat!(
+        "adc ",
+        select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
     ),
 }
 atomic_rmw_ll_sc_3! {
@@ -682,11 +777,30 @@ atomic_rmw_ll_sc_3! {
         select_le_or_be!("{new_hi}, {prev_hi}, {val_hi}", "{new_lo}, {prev_lo}, {val_lo}")
     ),
 }
+atomic_rmw_cas_3! {
+    atomic_sub,
+    // Do not use `preserves_flags` because SUBS and SBCS modify the condition flags.
+    options(nostack),
+    concat!(
+        "subs ",
+        select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
+    ),
+    concat!(
+        "sbc ",
+        select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
+    ),
+}
 atomic_rmw_ll_sc_3! {
     _atomic_and_ldxp_stxp as atomic_and,
     options(nostack, preserves_flags),
     "and {new_lo}, {prev_lo}, {val_lo}",
     "and {new_hi}, {prev_hi}, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_and,
+    options(nostack, preserves_flags),
+    "and x4, x6, {val_lo}",
+    "and x5, x7, {val_hi}",
 }
 atomic_rmw_ll_sc_3! {
     _atomic_nand_ldxp_stxp as atomic_nand,
@@ -696,17 +810,37 @@ atomic_rmw_ll_sc_3! {
     "and {new_hi}, {prev_hi}, {val_hi}",
     "mvn {new_hi}, {new_hi}",
 }
+atomic_rmw_cas_3! {
+    atomic_nand,
+    options(nostack, preserves_flags),
+    "and x4, x6, {val_lo}",
+    "mvn x4, x4",
+    "and x5, x7, {val_hi}",
+    "mvn x5, x5",
+}
 atomic_rmw_ll_sc_3! {
     _atomic_or_ldxp_stxp as atomic_or,
     options(nostack, preserves_flags),
     "orr {new_lo}, {prev_lo}, {val_lo}",
     "orr {new_hi}, {prev_hi}, {val_hi}",
 }
+atomic_rmw_cas_3! {
+    atomic_or,
+    options(nostack, preserves_flags),
+    "orr x4, x6, {val_lo}",
+    "orr x5, x7, {val_hi}",
+}
 atomic_rmw_ll_sc_3! {
     _atomic_xor_ldxp_stxp as atomic_xor,
     options(nostack, preserves_flags),
     "eor {new_lo}, {prev_lo}, {val_lo}",
     "eor {new_hi}, {prev_hi}, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_xor,
+    options(nostack, preserves_flags),
+    "eor x4, x6, {val_lo}",
+    "eor x5, x7, {val_hi}",
 }
 
 /// Atomic RMW by LL/SC loop (2 arguments)
@@ -763,11 +897,71 @@ macro_rules! atomic_rmw_ll_sc_2 {
         }
     };
 }
+/// Atomic RMW by CAS loop (2 arguments)
+/// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - x6/x7 pair: previous value loaded
+/// - x4/x5 pair: new value that will to stored
+macro_rules! atomic_rmw_cas_2 {
+    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            // cfg guarantee that the CPU supports FEAT_LSE.
+            unsafe {
+                let (mut prev_lo, mut prev_hi);
+                macro_rules! op {
+                    ($acquire:tt, $release:tt) => {
+                        asm!(
+                            // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+                            // This is not single-copy atomic reads, but this is ok because subsequent
+                            // CAS will check for consistency.
+                            concat!("ldp x6, x7, [{dst", ptr_modifier!(), "}]"),
+                            "2:",
+                                // casp writes the current value to the first register pair,
+                                // so copy the `out`'s value for later comparison.
+                                "mov {tmp_lo}, x6",
+                                "mov {tmp_hi}, x7",
+                                $($op)*
+                                concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
+                                // compare x6-x7 pair and tmp pair
+                                "eor {tmp_hi}, {tmp_hi}, x7",
+                                "eor {tmp_lo}, {tmp_lo}, x6",
+                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
+                                "cbnz {tmp_hi}, 2b",
+                            dst = in(reg) dst,
+                            tmp_lo = out(reg) _,
+                            tmp_hi = out(reg) _,
+                            // must be allocated to even/odd register pair
+                            out("x6") prev_lo,
+                            out("x7") prev_hi,
+                            // must be allocated to even/odd register pair
+                            out("x4") _,
+                            out("x5") _,
+                            options($($options)*),
+                        )
+                    };
+                }
+                atomic_rmw!(op, order);
+                U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+            }
+        }
+    };
+}
 atomic_rmw_ll_sc_2! {
     _atomic_not_ldxp_stxp as atomic_not,
     options(nostack, preserves_flags),
     "mvn {new_lo}, {prev_lo}",
     "mvn {new_hi}, {prev_hi}",
+}
+atomic_rmw_cas_2! {
+    atomic_not,
+    options(nostack, preserves_flags),
+    "mvn x4, x6",
+    "mvn x5, x7",
 }
 atomic_rmw_ll_sc_2! {
     _atomic_neg_ldxp_stxp as atomic_neg,
@@ -775,6 +969,13 @@ atomic_rmw_ll_sc_2! {
     options(nostack),
     concat!("negs ", select_le_or_be!("{new_lo}, {prev_lo}", "{new_hi}, {prev_hi}")),
     concat!("ngc ", select_le_or_be!("{new_hi}, {prev_hi}", "{new_lo}, {prev_lo}")),
+}
+atomic_rmw_cas_2! {
+    atomic_neg,
+    // Do not use `preserves_flags` because NEGS modifies the condition flags.
+    options(nostack),
+    concat!("negs ", select_le_or_be!("x4, x6", "x5, x7")),
+    concat!("ngc ", select_le_or_be!("x5, x7", "x4, x6")),
 }
 
 /// Atomic RMW by LL/SC loop (min/max)
@@ -837,6 +1038,67 @@ macro_rules! atomic_rmw_ll_sc_cmp {
         }
     };
 }
+/// Atomic RMW by CAS loop (min/max)
+/// `unsafe fn(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type;`
+///
+/// `$op` can use the following registers:
+/// - val_lo/val_hi pair: val argument
+/// - x6/x7 pair: previous value loaded
+/// - x4/x5 pair: new value that will to stored
+/// - r_lo/r_hi: temp value
+macro_rules! atomic_rmw_cas_cmp {
+    ($name:ident, $int_type:ident, options($($options:tt)*), $($op:tt)*) => {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        #[inline]
+        unsafe fn $name(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            // cfg guarantee that the CPU supports FEAT_LSE.
+            unsafe {
+                let val = U128 { whole: val as u128 };
+                let (mut prev_lo, mut prev_hi);
+                macro_rules! op {
+                    ($acquire:tt, $release:tt) => {
+                        asm!(
+                            // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
+                            // This is not single-copy atomic reads, but this is ok because subsequent
+                            // CAS will check for consistency.
+                            concat!("ldp x6, x7, [{dst", ptr_modifier!(), "}]"),
+                            "2:",
+                                // casp writes the current value to the first register pair,
+                                // so copy the `out`'s value for later comparison.
+                                "mov {tmp_lo}, x6",
+                                "mov {tmp_hi}, x7",
+                                $($op)*
+                                concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
+                                // compare x6-x7 pair and tmp pair
+                                "eor {tmp_hi}, {tmp_hi}, x7",
+                                "eor {tmp_lo}, {tmp_lo}, x6",
+                                "orr {tmp_hi}, {tmp_lo}, {tmp_hi}",
+                                "cbnz {tmp_hi}, 2b",
+                            dst = in(reg) dst,
+                            val_lo = in(reg) val.pair.lo,
+                            val_hi = in(reg) val.pair.hi,
+                            tmp_lo = out(reg) _,
+                            tmp_hi = out(reg) _,
+                            r_lo = out(reg) _,
+                            r_hi = out(reg) _,
+                            // must be allocated to even/odd register pair
+                            out("x6") prev_lo,
+                            out("x7") prev_hi,
+                            // must be allocated to even/odd register pair
+                            out("x4") _,
+                            out("x5") _,
+                            options($($options)*),
+                        )
+                    };
+                }
+                atomic_rmw!(op, order);
+                U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole as $int_type
+            }
+        }
+    };
+}
 
 #[cfg(target_endian = "little")]
 atomic_rmw_ll_sc_cmp! {
@@ -853,6 +1115,21 @@ atomic_rmw_ll_sc_cmp! {
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
 }
+#[cfg(target_endian = "little")]
+atomic_rmw_cas_cmp! {
+    atomic_max,
+    i128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, hi", // store comparison result
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, gt", // store comparison result
+    "csel {r_lo:w}, {r_lo:w}, {r_hi:w}, eq",
+    "cmp {r_lo:w}, #0",
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+}
 #[cfg(target_endian = "big")]
 atomic_rmw_ll_sc_cmp! {
     _atomic_max_ldxp_stxp as atomic_max,
@@ -867,6 +1144,21 @@ atomic_rmw_ll_sc_cmp! {
     "cmp {r_hi:w}, #0",
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
+}
+#[cfg(target_endian = "big")]
+atomic_rmw_cas_cmp! {
+    atomic_max,
+    i128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, hi", // store comparison result
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, gt", // store comparison result
+    "csel {r_hi:w}, {r_hi:w}, {r_lo:w}, eq",
+    "cmp {r_hi:w}, #0",
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
 }
 
 #[cfg(target_endian = "little")]
@@ -884,6 +1176,21 @@ atomic_rmw_ll_sc_cmp! {
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
 }
+#[cfg(target_endian = "little")]
+atomic_rmw_cas_cmp! {
+    atomic_umax,
+    u128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, hi", // store comparison result
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, hi", // store comparison result
+    "csel {r_lo:w}, {r_lo:w}, {r_hi:w}, eq",
+    "cmp {r_lo:w}, #0",
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+}
 #[cfg(target_endian = "big")]
 atomic_rmw_ll_sc_cmp! {
     _atomic_umax_ldxp_stxp as atomic_umax,
@@ -898,6 +1205,21 @@ atomic_rmw_ll_sc_cmp! {
     "cmp {r_hi:w}, #0",
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
+}
+#[cfg(target_endian = "big")]
+atomic_rmw_cas_cmp! {
+    atomic_umax,
+    u128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, hi", // store comparison result
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, hi", // store comparison result
+    "csel {r_hi:w}, {r_hi:w}, {r_lo:w}, eq",
+    "cmp {r_hi:w}, #0",
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
 }
 
 #[cfg(target_endian = "little")]
@@ -915,6 +1237,21 @@ atomic_rmw_ll_sc_cmp! {
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
 }
+#[cfg(target_endian = "little")]
+atomic_rmw_cas_cmp! {
+    atomic_min,
+    i128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, ls", // store comparison result
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, le", // store comparison result
+    "csel {r_lo:w}, {r_lo:w}, {r_hi:w}, eq",
+    "cmp {r_lo:w}, #0",
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+}
 #[cfg(target_endian = "big")]
 atomic_rmw_ll_sc_cmp! {
     _atomic_min_ldxp_stxp as atomic_min,
@@ -929,6 +1266,21 @@ atomic_rmw_ll_sc_cmp! {
     "cmp {r_hi:w}, #0",
     "csel {new_lo}, {val_lo}, {prev_lo}, ne", // select lo 64-bit
     "csel {new_hi}, {val_hi}, {prev_hi}, ne", // select hi 64-bit
+}
+#[cfg(target_endian = "big")]
+atomic_rmw_cas_cmp! {
+    atomic_min,
+    i128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, hi", // store comparison result
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, gt", // store comparison result
+    "csel {r_hi:w}, {r_hi:w}, {r_lo:w}, eq",
+    "cmp {r_hi:w}, #0",
+    "csel x4, {val_lo}, x6, ne", // select lo 64-bit
+    "csel x5, {val_hi}, x7, ne", // select hi 64-bit
 }
 
 #[cfg(target_endian = "little")]
@@ -946,6 +1298,21 @@ atomic_rmw_ll_sc_cmp! {
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
 }
+#[cfg(target_endian = "little")]
+atomic_rmw_cas_cmp! {
+    atomic_umin,
+    u128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, ls", // store comparison result
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, ls", // store comparison result
+    "csel {r_lo:w}, {r_lo:w}, {r_hi:w}, eq",
+    "cmp {r_lo:w}, #0",
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+}
 #[cfg(target_endian = "big")]
 atomic_rmw_ll_sc_cmp! {
     _atomic_umin_ldxp_stxp as atomic_umin,
@@ -961,12 +1328,21 @@ atomic_rmw_ll_sc_cmp! {
     "csel {new_lo}, {prev_lo}, {val_lo}, ne", // select lo 64-bit
     "csel {new_hi}, {prev_hi}, {val_hi}, ne", // select hi 64-bit
 }
-
-// SAFETY: cfg guarantee that the CPU supports FEAT_LSE.
-#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-use atomic_update_casp as atomic_update;
-#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-atomic_rmw_by_atomic_update!();
+#[cfg(target_endian = "big")]
+atomic_rmw_cas_cmp! {
+    atomic_umin,
+    u128,
+    // Do not use `preserves_flags` because CMP modifies the condition flags.
+    options(nostack),
+    "cmp x7, {val_hi}",  // compare hi 64-bit
+    "cset {r_hi:w}, ls", // store comparison result
+    "cmp x6, {val_lo}",  // compare lo 64-bit
+    "cset {r_lo:w}, ls", // store comparison result
+    "csel {r_hi:w}, {r_hi:w}, {r_lo:w}, eq",
+    "cmp {r_hi:w}, #0",
+    "csel x4, x6, {val_lo}, ne", // select lo 64-bit
+    "csel x5, x7, {val_hi}, ne", // select hi 64-bit
+}
 
 #[inline]
 const fn is_always_lock_free() -> bool {
