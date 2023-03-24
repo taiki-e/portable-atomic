@@ -268,7 +268,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 /// - r6/r7 pair: previous value loaded by ll
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
-    ($name:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident, $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
@@ -297,7 +297,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                             out("r8") _, // new (hi)
                             out("r9") _, // new (lo)
                             out("cr0") _,
-                            options($($options)*),
+                            options(nostack),
                         )
                     };
                 }
@@ -329,7 +329,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                         out("r8") _, // new (hi)
                         out("r9") _, // new (lo)
                         out("cr0") _,
-                        options($($options)*),
+                        options(nostack),
                     );
                     U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
                 }
@@ -339,37 +339,31 @@ macro_rules! atomic_rmw_ll_sc_3 {
 }
 atomic_rmw_ll_sc_3! {
     atomic_add,
-    options(nostack),
     "addc %r9, {val_lo}, %r7",
     "adde %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
     atomic_sub,
-    options(nostack),
     "subc %r9, %r7, {val_lo}",
     "subfe %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
     atomic_and,
-    options(nostack),
     "and %r9, {val_lo}, %r7",
     "and %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
     atomic_nand,
-    options(nostack),
     "nand %r9, {val_lo}, %r7",
     "nand %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
     atomic_or,
-    options(nostack),
     "or %r9, {val_lo}, %r7",
     "or %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
     atomic_xor,
-    options(nostack),
     "xor %r9, {val_lo}, %r7",
     "xor %r8, {val_hi}, %r6",
 }
@@ -426,7 +420,7 @@ unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
 /// - r6/r7 pair: previous value loaded by ll
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_cmp {
-    ($name:ident, $int_type:ident, options($($options:tt)*), $($op:tt)*) => {
+    ($name:ident, $int_type:ident, $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type {
             debug_assert!(dst as usize % 16 == 0);
@@ -456,7 +450,7 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                             out("r9") _, // new (lo)
                             out("cr0") _,
                             out("cr1") _,
-                            options($($options)*),
+                            options(nostack),
                         )
                     };
                 }
@@ -489,7 +483,7 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                         out("r9") _, // new (lo)
                         out("cr0") _,
                         out("cr1") _,
-                        options($($options)*),
+                        options(nostack),
                     );
                     U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
                 }
@@ -500,7 +494,6 @@ macro_rules! atomic_rmw_ll_sc_cmp {
 atomic_rmw_ll_sc_cmp! {
     atomic_max,
     i128,
-    options(nostack),
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
     "crandc 20, 5, 2",
@@ -513,7 +506,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_ll_sc_cmp! {
     atomic_umax,
     u128,
-    options(nostack),
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
     "crandc 20, 1, 2",
@@ -525,7 +517,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_ll_sc_cmp! {
     atomic_min,
     i128,
-    options(nostack),
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
     "crandc 20, 5, 2",
@@ -538,7 +529,6 @@ atomic_rmw_ll_sc_cmp! {
 atomic_rmw_ll_sc_cmp! {
     atomic_umin,
     u128,
-    options(nostack),
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
     "crandc 20, 1, 2",
