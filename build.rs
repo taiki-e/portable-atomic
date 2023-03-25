@@ -200,6 +200,12 @@ fn main() {
             // As of rustc 1.68, target_feature "lse2" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
+
+            // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
+            // loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
+            if is_macos || target_os == "ios" || target_os == "tvos" || target_os == "watchos" {
+                println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
+            }
         }
         "arm" => {
             // #[cfg(target_feature = "v7")] and others don't work on stable.
