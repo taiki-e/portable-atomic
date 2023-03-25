@@ -70,6 +70,11 @@ default_targets=(
     # aarch64 ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
 
+    # pre-v6 arm linux-like
+    armv4t-unknown-linux-gnueabi
+    armv5te-unknown-linux-gnueabi
+    arm-linux-androideabi
+
     # riscv32 with atomic
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf

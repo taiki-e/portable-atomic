@@ -4,6 +4,7 @@ adde
 alcgr
 algr
 armasm
+armel
 autogen
 auxv
 auxvec
@@ -56,6 +57,7 @@ includepath
 isel
 ishld
 isync
+kuser
 ldaxp
 ldxp
 lghi

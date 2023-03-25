@@ -10,11 +10,19 @@
 // type and the value type must be the same.
 
 #![cfg_attr(
-    all(
-        target_arch = "x86_64",
-        portable_atomic_cmpxchg16b_target_feature,
-        not(portable_atomic_no_outline_atomics),
-        not(target_env = "sgx"),
+    any(
+        all(
+            target_arch = "x86_64",
+            portable_atomic_cmpxchg16b_target_feature,
+            not(portable_atomic_no_outline_atomics),
+            not(target_env = "sgx"),
+        ),
+        all(
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            target_arch = "arm",
+            any(target_os = "linux", target_os = "android"),
+            not(portable_atomic_no_outline_atomics),
+        ),
     ),
     allow(dead_code)
 )]

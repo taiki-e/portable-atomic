@@ -39,6 +39,10 @@ mod arch;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/s390x.rs"]
 mod arch;
+#[cfg(all(target_arch = "arm", any(target_os = "linux", target_os = "android")))]
+#[allow(dead_code, unused_imports)]
+#[path = "../../src/imp/arm_linux.rs"]
+mod arch;
 #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/intrinsics.rs"]
@@ -60,59 +64,69 @@ trait AtomicInt<T: Copy>: Sized + Send + Sync {
     fn load(&self) -> T;
     fn store(&self, val: T);
     fn swap(&self, val: T) -> T;
-    fn compare_exchange(&self, old: u128, new: u128) -> u128;
+    fn compare_exchange(&self, old: T, new: T) -> T;
     fn fetch_add(&self, val: T) -> T;
 }
-macro_rules! impl_atomic_u128 {
-    ($atomic_u128:path) => {
-        impl AtomicInt<u128> for $atomic_u128 {
-            fn new(v: u128) -> Self {
+macro_rules! impl_atomic {
+    ($atomic_type:path, $int_type:ident) => {
+        impl AtomicInt<$int_type> for $atomic_type {
+            #[inline]
+            fn new(v: $int_type) -> Self {
                 Self::new(v)
             }
-            fn load(&self) -> u128 {
+            #[inline]
+            fn load(&self) -> $int_type {
                 self.load(Ordering::Acquire)
             }
-            fn store(&self, val: u128) {
+            #[inline]
+            fn store(&self, val: $int_type) {
                 self.store(val, Ordering::Release);
             }
-            fn swap(&self, val: u128) -> u128 {
+            #[inline]
+            fn swap(&self, val: $int_type) -> $int_type {
                 self.swap(val, Ordering::AcqRel)
             }
-            fn compare_exchange(&self, old: u128, new: u128) -> u128 {
+            #[inline]
+            fn compare_exchange(&self, old: $int_type, new: $int_type) -> $int_type {
                 self.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire)
                     .unwrap_or_else(|x| x)
             }
-            fn fetch_add(&self, val: u128) -> u128 {
+            #[inline]
+            fn fetch_add(&self, val: $int_type) -> $int_type {
                 self.fetch_add(val, Ordering::AcqRel)
             }
         }
     };
 }
-#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
-impl_atomic_u128!(intrinsics::AtomicU128);
-impl_atomic_u128!(arch::AtomicU128);
-impl_atomic_u128!(seqlock_fallback::AtomicU128);
-impl_atomic_u128!(spinlock_fallback::AtomicU128);
-impl_atomic_u128!(atomic::Atomic<u128>);
-impl AtomicInt<u128> for crossbeam_utils::atomic::AtomicCell<u128> {
-    fn new(v: u128) -> Self {
-        Self::new(v)
-    }
-    fn load(&self) -> u128 {
-        self.load()
-    }
-    fn store(&self, val: u128) {
-        self.store(val);
-    }
-    fn swap(&self, val: u128) -> u128 {
-        self.swap(val)
-    }
-    fn compare_exchange(&self, old: u128, new: u128) -> u128 {
-        self.compare_exchange(old, new).unwrap_or_else(|x| x)
-    }
-    fn fetch_add(&self, val: u128) -> u128 {
-        self.fetch_add(val)
-    }
+macro_rules! impl_atomic_no_order {
+    ($atomic_type:path, $int_type:ident) => {
+        impl AtomicInt<$int_type> for $atomic_type {
+            #[inline]
+            fn new(v: $int_type) -> Self {
+                Self::new(v)
+            }
+            #[inline]
+            fn load(&self) -> $int_type {
+                self.load()
+            }
+            #[inline]
+            fn store(&self, val: $int_type) {
+                self.store(val);
+            }
+            #[inline]
+            fn swap(&self, val: $int_type) -> $int_type {
+                self.swap(val)
+            }
+            #[inline]
+            fn compare_exchange(&self, old: $int_type, new: $int_type) -> $int_type {
+                self.compare_exchange(old, new).unwrap_or_else(|x| x)
+            }
+            #[inline]
+            fn fetch_add(&self, val: $int_type) -> $int_type {
+                self.fetch_add(val)
+            }
+        }
+    };
 }
 
 fn bench_concurrent_load<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
@@ -264,75 +278,121 @@ fn bench_concurrent_fetch_add<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
 }
 
 macro_rules! benches {
-    ($name:ident, $atomic_u128:path) => {
-        fn $name(c: &mut Criterion) {
-            type A = $atomic_u128;
+    ($name:ident, $atomic_type:path, $int_type:ident) => {
+        pub fn $name(c: &mut Criterion) {
+            type A = $atomic_type;
             let mut g = c.benchmark_group(stringify!($name));
-            g.bench_function("u128_load", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_load"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::load(&a));
+                b.iter(|| AtomicInt::<$int_type>::load(&a));
             });
-            g.bench_function("u128_store", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_store"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::store(&a, black_box(2)));
+                b.iter(|| AtomicInt::<$int_type>::store(&a, black_box(2)));
                 black_box(a);
             });
-            g.bench_function("u128_swap", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_swap"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::swap(&a, black_box(2)));
+                b.iter(|| AtomicInt::<$int_type>::swap(&a, black_box(2)));
                 black_box(a);
             });
-            g.bench_function("u128_compare_exchange_success", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_compare_exchange_success"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::compare_exchange(&a, black_box(1), black_box(2)));
+                b.iter(|| AtomicInt::<$int_type>::compare_exchange(&a, black_box(1), black_box(2)));
                 black_box(a);
             });
-            g.bench_function("u128_compare_exchange_fail", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_compare_exchange_fail"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::compare_exchange(&a, black_box(2), black_box(3)));
+                b.iter(|| AtomicInt::<$int_type>::compare_exchange(&a, black_box(2), black_box(3)));
                 black_box(a);
             });
-            g.bench_function("u128_fetch_add", |b| {
+            g.bench_function(concat!(stringify!($int_type), "_fetch_add"), |b| {
                 let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<u128>::fetch_add(&a, black_box(2)));
+                b.iter(|| AtomicInt::<$int_type>::fetch_add(&a, black_box(2)));
                 black_box(a);
             });
-            g.bench_function("u128_concurrent_load", |b| {
-                b.iter(bench_concurrent_load::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_load"), |b| {
+                b.iter(bench_concurrent_load::<A, $int_type>);
             });
-            g.bench_function("u128_concurrent_load_store", |b| {
-                b.iter(bench_concurrent_load_store::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_load_store"), |b| {
+                b.iter(bench_concurrent_load_store::<A, $int_type>);
             });
-            g.bench_function("u128_concurrent_store", |b| {
-                b.iter(bench_concurrent_store::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_store"), |b| {
+                b.iter(bench_concurrent_store::<A, $int_type>);
             });
-            g.bench_function("u128_concurrent_swap", |b| {
-                b.iter(bench_concurrent_swap::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_swap"), |b| {
+                b.iter(bench_concurrent_swap::<A, $int_type>);
             });
-            g.bench_function("u128_concurrent_store_swap", |b| {
-                b.iter(bench_concurrent_store_swap::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_store_swap"), |b| {
+                b.iter(bench_concurrent_store_swap::<A, $int_type>);
             });
-            g.bench_function("u128_concurrent_fetch_add", |b| {
-                b.iter(bench_concurrent_fetch_add::<A, u128>);
+            g.bench_function(concat!(stringify!($int_type), "_concurrent_fetch_add"), |b| {
+                b.iter(bench_concurrent_fetch_add::<A, $int_type>);
             });
         }
     };
 }
-#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
-benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128);
-benches!(bench_portable_atomic_arch, arch::AtomicU128);
-benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128);
-benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128);
-benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u128>);
-benches!(bench_atomic_rs, atomic::Atomic<u128>);
+#[cfg(any(
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "powerpc64",
+    target_arch = "s390x",
+))]
+mod bench {
+    use super::*;
 
-criterion_group!(
-    benches,
-    bench_portable_atomic_arch,
-    bench_portable_atomic_intrinsics,
-    bench_portable_atomic_seqlock_fallback,
-    bench_portable_atomic_spinlock_fallback,
-    bench_atomic_cell,
-    bench_atomic_rs
-);
-criterion_main!(benches);
+    #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
+    impl_atomic!(intrinsics::AtomicU128, u128);
+    impl_atomic!(arch::AtomicU128, u128);
+    impl_atomic!(seqlock_fallback::AtomicU128, u128);
+    impl_atomic!(spinlock_fallback::AtomicU128, u128);
+    impl_atomic!(atomic::Atomic<u128>, u128);
+    impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u128>, u128);
+
+    #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
+    benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128, u128);
+    benches!(bench_portable_atomic_arch, arch::AtomicU128, u128);
+    benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128, u128);
+    benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128, u128);
+    benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u128>, u128);
+    benches!(bench_atomic_rs, atomic::Atomic<u128>, u128);
+
+    criterion_group!(
+        benches,
+        bench_portable_atomic_arch,
+        bench_portable_atomic_intrinsics,
+        bench_portable_atomic_seqlock_fallback,
+        bench_portable_atomic_spinlock_fallback,
+        bench_atomic_cell,
+        bench_atomic_rs
+    );
+}
+#[cfg(all(target_arch = "arm", any(target_os = "linux", target_os = "android")))]
+mod bench {
+    use super::*;
+
+    #[cfg(all(target_arch = "arm", any(target_os = "linux", target_os = "android")))]
+    impl_atomic!(arch::AtomicU64, u64);
+    impl_atomic!(seqlock_fallback::AtomicU64, u64);
+    impl_atomic!(spinlock_fallback::AtomicU64, u64);
+    impl_atomic!(atomic::Atomic<u64>, u64);
+    impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u64>, u64);
+
+    #[cfg(all(target_arch = "arm", any(target_os = "linux", target_os = "android")))]
+    benches!(bench_portable_atomic_arch, arch::AtomicU64, u64);
+    benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU64, u64);
+    benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU64, u64);
+    benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u64>, u64);
+    benches!(bench_atomic_rs, atomic::Atomic<u64>, u64);
+
+    criterion_group!(
+        benches,
+        bench_portable_atomic_arch,
+        bench_portable_atomic_seqlock_fallback,
+        bench_portable_atomic_spinlock_fallback,
+        bench_atomic_cell,
+        bench_atomic_rs
+    );
+}
+
+criterion_main!(bench::benches);

@@ -271,6 +271,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
                 any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"),
                 not(target_has_atomic = "ptr"),
             ),
+            all(target_arch = "arm", not(target_has_atomic = "64")),
             target_arch = "aarch64",
             target_arch = "x86",
             target_arch = "x86_64",
