@@ -264,8 +264,8 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
 /// $op can use the following registers:
-/// - val_hi/val_lo pair: val argument
-/// - r6/r7 pair: previous value loaded by ll
+/// - val_hi/val_lo pair: val argument (read-only for `$op`)
+/// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
     ($name:ident, $($op:tt)*) => {
@@ -416,8 +416,8 @@ unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
 /// `unsafe fn(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type;`
 ///
 /// $op can use the following registers:
-/// - val_hi/val_lo pair: val argument
-/// - r6/r7 pair: previous value loaded by ll
+/// - val_hi/val_lo pair: val argument (read-only for `$op`)
+/// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_cmp {
     ($name:ident, $($op:tt)*) => {

@@ -439,6 +439,12 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 1);
                 assert_eq!(a.fetch_max(0, order), 1);
                 assert_eq!(a.load(Ordering::Relaxed), 1);
+                let a = <$atomic_type>::new((0 as $int_type).wrapping_sub(1));
+                assert_eq!(a.fetch_max(0, order), (0 as $int_type).wrapping_sub(1));
+                assert_eq!(
+                    a.load(Ordering::Relaxed),
+                    core::cmp::max((0 as $int_type).wrapping_sub(1), 0)
+                );
             }
         }
         #[test]
@@ -456,6 +462,12 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0);
                 assert_eq!(a.fetch_min(1, order), 0);
                 assert_eq!(a.load(Ordering::Relaxed), 0);
+                let a = <$atomic_type>::new((0 as $int_type).wrapping_sub(1));
+                assert_eq!(a.fetch_min(0, order), (0 as $int_type).wrapping_sub(1));
+                assert_eq!(
+                    a.load(Ordering::Relaxed),
+                    core::cmp::min((0 as $int_type).wrapping_sub(1), 0)
+                );
             }
         }
         #[test]

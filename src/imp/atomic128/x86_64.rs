@@ -16,12 +16,14 @@ mod detect;
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
+#[allow(unused_macros)]
 #[cfg(target_pointer_width = "32")]
 macro_rules! ptr_modifier {
     () => {
         ":e"
     };
 }
+#[allow(unused_macros)]
 #[cfg(target_pointer_width = "64")]
 macro_rules! ptr_modifier {
     () => {
@@ -127,6 +129,11 @@ unsafe fn _cmpxchg16b(
 // 128-bit atomic load by two 64-bit atomic loads.
 //
 // See atomic_update for details.
+#[cfg(any(
+    test,
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    any(miri, portable_atomic_sanitize_thread),
+))]
 #[inline]
 unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {
     debug_assert!(src as usize % 16 == 0);
@@ -315,6 +322,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
 }
+#[cfg(not(portable_atomic_no_outline_atomics))]
 fn_alias! {
     #[cfg(target_feature = "sse")]
     #[target_feature(enable = "avx")]
@@ -322,6 +330,7 @@ fn_alias! {
     _atomic_store_vmovdqa_relaxed = _atomic_store_vmovdqa(Ordering::Relaxed);
     _atomic_store_vmovdqa_seqcst = _atomic_store_vmovdqa(Ordering::SeqCst);
 }
+#[cfg(not(portable_atomic_no_outline_atomics))]
 fn_alias! {
     unsafe fn(dst: *mut u128, val: u128);
     _atomic_store_cmpxchg16b_relaxed = _atomic_store_cmpxchg16b(Ordering::Relaxed);
@@ -397,6 +406,10 @@ unsafe fn _atomic_compare_exchange_fallback(
 
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
+#[cfg(any(
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    any(miri, portable_atomic_sanitize_thread),
+))]
 #[inline(always)]
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
@@ -456,6 +469,8 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     //
     // We could use atomic_update here, but using an inline assembly allows omitting
     // the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
+    //
+    // Do not use atomic_rmw_cas_3 because it needs extra MOV.
     unsafe {
         // atomic swap is always SeqCst.
         let _ = order;
@@ -492,6 +507,237 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
+/// Atomic RMW by CAS loop (3 arguments)
+/// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - rsi/r8 pair: val argument (read-only for `$op`)
+/// - rax/rdx pair: previous value loaded (read-only for `$op`)
+/// - rbx/rcx pair: new value that will to stored
+// We could use atomic_update here, but using an inline assembly allows omitting
+// the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
+#[rustfmt::skip] // buggy macro formatting
+macro_rules! atomic_rmw_cas_3 {
+    ($name:ident, $($op:tt)*) => {
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(not(any(
+            not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+            any(miri, portable_atomic_sanitize_thread),
+        )))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+            // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+            // cfg guarantees that the CPU supports CMPXCHG16B.
+            //
+            // See _cmpxchg16b for more.
+            unsafe {
+                // atomic swap is always SeqCst.
+                let val = U128 { whole: val };
+                let (mut prev_lo, mut prev_hi);
+                macro_rules! cmpxchg16b {
+                    ($rdi:tt) => {
+                        asm!(
+                            // rbx is reserved by LLVM
+                            "mov {rbx_tmp}, rbx",
+                            // See atomic_update
+                            concat!("mov rax, qword ptr [", $rdi, "]"),
+                            concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                            "2:",
+                                $($op)*
+                                concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                                "jne 2b",
+                            // restore rbx
+                            "mov rbx, {rbx_tmp}",
+                            rbx_tmp = out(reg) _,
+                            out("rcx") _,
+                            out("rax") prev_lo,
+                            out("rdx") prev_hi,
+                            in($rdi) dst,
+                            in("rsi") val.pair.lo,
+                            in("r8") val.pair.hi,
+                            // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
+                            options(nostack),
+                        )
+                    };
+                }
+                #[cfg(target_pointer_width = "32")]
+                cmpxchg16b!("edi");
+                #[cfg(target_pointer_width = "64")]
+                cmpxchg16b!("rdi");
+                U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+            }
+        }
+    };
+}
+/// Atomic RMW by CAS loop (2 arguments)
+/// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - rax/rdx pair: previous value loaded (read-only for `$op`)
+/// - rbx/rcx pair: new value that will to stored
+// We could use atomic_update here, but using an inline assembly allows omitting
+// the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
+#[rustfmt::skip] // buggy macro formatting
+macro_rules! atomic_rmw_cas_2 {
+    ($name:ident, $($op:tt)*) => {
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(not(any(
+            not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+            any(miri, portable_atomic_sanitize_thread),
+        )))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+            // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+            // cfg guarantees that the CPU supports CMPXCHG16B.
+            //
+            // See _cmpxchg16b for more.
+            unsafe {
+                // atomic swap is always SeqCst.
+                let (mut prev_lo, mut prev_hi);
+                macro_rules! cmpxchg16b {
+                    ($rdi:tt) => {
+                        asm!(
+                            // rbx is reserved by LLVM
+                            "mov {rbx_tmp}, rbx",
+                            // See atomic_update
+                            concat!("mov rax, qword ptr [", $rdi, "]"),
+                            concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                            "2:",
+                                $($op)*
+                                concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                                "jne 2b",
+                            // restore rbx
+                            "mov rbx, {rbx_tmp}",
+                            rbx_tmp = out(reg) _,
+                            out("rcx") _,
+                            out("rax") prev_lo,
+                            out("rdx") prev_hi,
+                            in($rdi) dst,
+                            // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
+                            options(nostack),
+                        )
+                    };
+                }
+                #[cfg(target_pointer_width = "32")]
+                cmpxchg16b!("edi");
+                #[cfg(target_pointer_width = "64")]
+                cmpxchg16b!("rdi");
+                U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+            }
+        }
+    };
+}
+
+atomic_rmw_cas_3! {
+    atomic_add,
+    "mov rbx, rax",
+    "add rbx, rsi",
+    "mov rcx, rdx",
+    "adc rcx, r8",
+}
+atomic_rmw_cas_3! {
+    atomic_sub,
+    "mov rbx, rax",
+    "sub rbx, rsi",
+    "mov rcx, rdx",
+    "sbb rcx, r8",
+}
+atomic_rmw_cas_3! {
+    atomic_and,
+    "mov rbx, rax",
+    "and rbx, rsi",
+    "mov rcx, rdx",
+    "and rcx, r8",
+}
+atomic_rmw_cas_3! {
+    atomic_nand,
+    "mov rbx, rax",
+    "and rbx, rsi",
+    "not rbx",
+    "mov rcx, rdx",
+    "and rcx, r8",
+    "not rcx",
+}
+atomic_rmw_cas_3! {
+    atomic_or,
+    "mov rbx, rax",
+    "or rbx, rsi",
+    "mov rcx, rdx",
+    "or rcx, r8",
+}
+atomic_rmw_cas_3! {
+    atomic_xor,
+    "mov rbx, rax",
+    "xor rbx, rsi",
+    "mov rcx, rdx",
+    "xor rcx, r8",
+}
+
+atomic_rmw_cas_2! {
+    atomic_not,
+    "mov rbx, rax",
+    "not rbx",
+    "mov rcx, rdx",
+    "not rcx",
+}
+atomic_rmw_cas_2! {
+    atomic_neg,
+    "mov rbx, rax",
+    "neg rbx",
+    "mov rcx, 0",
+    "sbb rcx, rdx",
+}
+
+atomic_rmw_cas_3! {
+    atomic_max,
+    "cmp rsi, rax",
+    "mov rcx, r8",
+    "sbb rcx, rdx",
+    "mov rcx, r8",
+    "cmovl rcx, rdx",
+    "mov rbx, rsi",
+    "cmovl rbx, rax",
+}
+atomic_rmw_cas_3! {
+    atomic_umax,
+    "cmp rsi, rax",
+    "mov rcx, r8",
+    "sbb rcx, rdx",
+    "mov rcx, r8",
+    "cmovb rcx, rdx",
+    "mov rbx, rsi",
+    "cmovb rbx, rax",
+}
+atomic_rmw_cas_3! {
+    atomic_min,
+    "cmp rsi, rax",
+    "mov rcx, r8",
+    "sbb rcx, rdx",
+    "mov rcx, r8",
+    "cmovge rcx, rdx",
+    "mov rbx, rsi",
+    "cmovge rbx, rax",
+}
+atomic_rmw_cas_3! {
+    atomic_umin,
+    "cmp rsi, rax",
+    "mov rcx, r8",
+    "sbb rcx, rdx",
+    "mov rcx, r8",
+    "cmovae rcx, rdx",
+    "mov rbx, rsi",
+    "cmovae rbx, rax",
+}
+
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(any(
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    any(miri, portable_atomic_sanitize_thread),
+))]
 atomic_rmw_by_atomic_update!();
 
 #[inline]

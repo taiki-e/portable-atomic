@@ -85,6 +85,7 @@ macro_rules! ifunc {
 }
 
 #[allow(unused_macros)]
+#[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
 macro_rules! fn_alias {
     (

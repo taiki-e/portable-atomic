@@ -201,7 +201,20 @@ macro_rules! atomic128 {
     };
 }
 
-#[cfg(any(target_arch = "s390x", target_arch = "x86_64"))]
+#[cfg(any(
+    target_arch = "s390x",
+    all(
+        target_arch = "x86_64",
+        any(
+            test,
+            not(any(
+                target_feature = "cmpxchg16b",
+                portable_atomic_target_feature = "cmpxchg16b"
+            )),
+            any(miri, portable_atomic_sanitize_thread),
+        )
+    )
+))]
 macro_rules! atomic_rmw_by_atomic_update {
     () => {
         #[inline]

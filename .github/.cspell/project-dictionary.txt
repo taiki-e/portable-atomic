@@ -17,6 +17,10 @@ cdsg
 cfgs
 cinc
 cirruslabs
+cmovae
+cmovb
+cmovge
+cmovl
 cmpd
 cmpld
 cmpxchg

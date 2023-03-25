@@ -385,6 +385,7 @@ unsafe fn atomic_compare_exchange(
         Err(res)
     }
 }
+#[cfg(not(portable_atomic_no_outline_atomics))]
 fn_alias! {
     #[cfg(any(
         target_feature = "lse",
@@ -404,6 +405,7 @@ fn_alias! {
     _atomic_compare_exchange_casp_release = _atomic_compare_exchange_casp(Ordering::Release);
     _atomic_compare_exchange_casp_acqrel = _atomic_compare_exchange_casp(Ordering::AcqRel);
 }
+#[cfg(not(portable_atomic_no_outline_atomics))]
 fn_alias! {
     unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
     _atomic_compare_exchange_ldxp_stxp_relaxed
@@ -625,8 +627,8 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
 /// `$op` can use the following registers:
-/// - val_lo/val_hi pair: val argument
-/// - prev_lo/prev_hi pair: previous value loaded by ll
+/// - val_lo/val_hi pair: val argument (read-only for `$op`)
+/// - prev_lo/prev_hi pair: previous value loaded by ll (read-only for `$op`)
 /// - new_lo/new_hi pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
     ($name:ident as $name_no_lse:ident, options($($options:tt)*), $($op:tt)*) => {
@@ -683,8 +685,8 @@ macro_rules! atomic_rmw_ll_sc_3 {
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
 /// `$op` can use the following registers:
-/// - val_lo/val_hi pair: val argument
-/// - x6/x7 pair: previous value loaded
+/// - val_lo/val_hi pair: val argument (read-only for `$op`)
+/// - x6/x7 pair: previous value loaded (read-only for `$op`)
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident, $($op:tt)*) => {
@@ -837,7 +839,7 @@ atomic_rmw_cas_3! {
 /// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
 ///
 /// `$op` can use the following registers:
-/// - prev_lo/prev_hi pair: previous value loaded by ll
+/// - prev_lo/prev_hi pair: previous value loaded by ll (read-only for `$op`)
 /// - new_lo/new_hi pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
     ($name:ident as $name_no_lse:ident, options($($options:tt)*), $($op:tt)*) => {
@@ -891,7 +893,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
 /// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
 ///
 /// `$op` can use the following registers:
-/// - x6/x7 pair: previous value loaded
+/// - x6/x7 pair: previous value loaded (read-only for `$op`)
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident, $($op:tt)*) => {
