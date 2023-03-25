@@ -44,9 +44,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/jY3f8Y7Kc
-// - aarch64 (+lse) https://godbolt.org/z/oc5qMYfs9
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/85eGrGxqE
+// - aarch64 https://godbolt.org/z/qKPb1asj4
+// - aarch64 (+lse) https://godbolt.org/z/dqxj9z9Ps
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/x4a135Psb
 
 include!("macros.rs");
 
