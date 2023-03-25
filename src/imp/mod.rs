@@ -75,6 +75,20 @@ mod powerpc64;
 #[path = "atomic128/s390x.rs"]
 mod s390x;
 
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(feature = "fallback")]
+#[cfg(all(
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    target_arch = "arm",
+    any(target_os = "linux", target_os = "android"),
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    not(portable_atomic_no_outline_atomics),
+))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
+mod arm_linux;
+
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
 
@@ -281,8 +295,29 @@ pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[cfg(target_arch = "riscv64")]
 pub(crate) use self::riscv::{AtomicI64, AtomicU64};
+// pre-v6 ARM Linux
+#[cfg(feature = "fallback")]
+#[cfg(all(
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    target_arch = "arm",
+    any(target_os = "linux", target_os = "android"),
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    not(portable_atomic_no_outline_atomics),
+))]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
+pub(crate) use self::arm_linux::{AtomicI64, AtomicU64};
 // no core Atomic{I,U}64 & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
+#[cfg(not(all(
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    target_arch = "arm",
+    any(target_os = "linux", target_os = "android"),
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    not(portable_atomic_no_outline_atomics),
+)))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(all(portable_atomic_no_atomic_64, not(portable_atomic_no_atomic_cas)))

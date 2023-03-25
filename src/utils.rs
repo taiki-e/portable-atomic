@@ -58,7 +58,11 @@ macro_rules! serde_impls {
 // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(target_arch = "aarch64", all(target_arch = "x86_64", not(target_env = "sgx"))))]
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    all(target_arch = "x86_64", not(target_env = "sgx")),
+))]
 macro_rules! ifunc {
     (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;

@@ -120,7 +120,21 @@ fn test_is_lock_free() {
     assert!(AtomicI32::is_lock_free());
     assert!(AtomicU32::is_always_lock_free());
     assert!(AtomicU32::is_lock_free());
-    if cfg!(target_has_atomic = "64") {
+    if cfg!(all(
+        feature = "fallback",
+        not(any(miri, portable_atomic_sanitize_thread)),
+        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+        target_arch = "arm",
+        any(target_os = "linux", target_os = "android"),
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+        not(portable_atomic_no_outline_atomics),
+        not(target_has_atomic = "64"),
+    )) {
+        assert!(!AtomicI64::is_always_lock_free());
+        assert!(AtomicI64::is_lock_free());
+        assert!(!AtomicU64::is_always_lock_free());
+        assert!(AtomicU64::is_lock_free());
+    } else if cfg!(target_has_atomic = "64") {
         assert!(AtomicI64::is_always_lock_free());
         assert!(AtomicI64::is_lock_free());
         assert!(AtomicU64::is_always_lock_free());
