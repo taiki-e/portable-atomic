@@ -1993,10 +1993,10 @@ macro_rules! __test_atomic128_op {
             fn quickcheck_atomic_max_op(x: i128, y: i128) -> bool {
                 unsafe {
                     let a = AtomicI128::new(x);
-                    assert_eq!(atomic_max_op(a.as_ptr(), y), x);
+                    assert_eq!(atomic_max_op(a.as_ptr().cast::<u128>(), y as u128) as i128, x);
                     assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(x, y));
                     let a = AtomicI128::new(y);
-                    assert_eq!(atomic_max_op(a.as_ptr(), x), y);
+                    assert_eq!(atomic_max_op(a.as_ptr().cast::<u128>(), x as u128) as i128, y);
                     assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(y, x));
                 }
                 true
@@ -2015,10 +2015,10 @@ macro_rules! __test_atomic128_op {
             fn quickcheck_atomic_min_op(x: i128, y: i128) -> bool {
                 unsafe {
                     let a = AtomicI128::new(x);
-                    assert_eq!(atomic_min_op(a.as_ptr(), y), x);
+                    assert_eq!(atomic_min_op(a.as_ptr().cast::<u128>(), y as u128) as i128, x);
                     assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(x, y));
                     let a = AtomicI128::new(y);
-                    assert_eq!(atomic_min_op(a.as_ptr(), x), y);
+                    assert_eq!(atomic_min_op(a.as_ptr().cast::<u128>(), x as u128) as i128, y);
                     assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(y, x));
                 }
                 true

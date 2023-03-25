@@ -161,14 +161,14 @@ macro_rules! atomic128 {
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { $atomic_max(self.v.get(), val, order) }
+                unsafe { $atomic_max(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { $atomic_min(self.v.get(), val, order) }
+                unsafe { $atomic_min(self.v.get().cast::<u128>(), val as u128, order) as $int_type }
             }
 
             #[inline]
@@ -245,12 +245,11 @@ macro_rules! atomic_rmw_by_atomic_update {
             unsafe { atomic_update(dst, order, u128::wrapping_neg) }
         }
         #[inline]
-        unsafe fn atomic_max(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+        unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                atomic_update(dst.cast::<u128>(), order, |x| core::cmp::max(x as i128, val) as u128)
-                    as i128
+                atomic_update(dst, order, |x| core::cmp::max(x as i128, val as i128) as u128)
             }
         }
         #[inline]
@@ -259,12 +258,11 @@ macro_rules! atomic_rmw_by_atomic_update {
             unsafe { atomic_update(dst, order, |x| core::cmp::max(x, val)) }
         }
         #[inline]
-        unsafe fn atomic_min(dst: *mut i128, val: i128, order: Ordering) -> i128 {
+        unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                atomic_update(dst.cast::<u128>(), order, |x| core::cmp::min(x as i128, val) as u128)
-                    as i128
+                atomic_update(dst, order, |x| core::cmp::min(x as i128, val as i128) as u128)
             }
         }
         #[inline]

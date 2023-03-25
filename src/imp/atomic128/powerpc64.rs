@@ -420,13 +420,13 @@ unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
 /// - r6/r7 pair: previous value loaded by ll
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_cmp {
-    ($name:ident, $int_type:ident, $($op:tt)*) => {
+    ($name:ident, $($op:tt)*) => {
         #[inline]
-        unsafe fn $name(dst: *mut $int_type, val: $int_type, order: Ordering) -> $int_type {
+        unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                let val = U128 { whole: val as u128 };
+                let val = U128 { whole: val };
                 let (mut prev_hi, mut prev_lo);
                 macro_rules! op {
                     ($acquire:tt, $release:tt) => {
@@ -455,17 +455,17 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                     };
                 }
                 atomic_rmw!(op, order);
-                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
+                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
             }
         }
         #[cfg(test)]
         paste::paste! {
             // Helper to test $op separately.
-            unsafe fn [<$name _op>](dst: *mut $int_type, val: $int_type) -> $int_type {
+            unsafe fn [<$name _op>](dst: *mut u128, val: u128) -> u128 {
                 debug_assert!(dst as usize % 16 == 0);
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    let val = U128 { whole: val as u128 };
+                    let val = U128 { whole: val };
                     let (mut prev_hi, mut prev_lo);
                     asm!(
                         "lq %r6, 0({dst})",
@@ -485,7 +485,7 @@ macro_rules! atomic_rmw_ll_sc_cmp {
                         out("cr1") _,
                         options(nostack),
                     );
-                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole as $int_type
+                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
                 }
             }
         }
@@ -493,7 +493,6 @@ macro_rules! atomic_rmw_ll_sc_cmp {
 }
 atomic_rmw_ll_sc_cmp! {
     atomic_max,
-    i128,
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
     "crandc 20, 5, 2",
@@ -505,7 +504,6 @@ atomic_rmw_ll_sc_cmp! {
 }
 atomic_rmw_ll_sc_cmp! {
     atomic_umax,
-    u128,
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
     "crandc 20, 1, 2",
@@ -516,7 +514,6 @@ atomic_rmw_ll_sc_cmp! {
 }
 atomic_rmw_ll_sc_cmp! {
     atomic_min,
-    i128,
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
     "crandc 20, 5, 2",
@@ -528,7 +525,6 @@ atomic_rmw_ll_sc_cmp! {
 }
 atomic_rmw_ll_sc_cmp! {
     atomic_umin,
-    u128,
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
     "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
     "crandc 20, 1, 2",
