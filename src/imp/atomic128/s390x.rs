@@ -229,6 +229,8 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     //
     // We could use atomic_update here, but using an inline assembly allows omitting
     // the comparison of results and the storing/comparing of condition flags.
+    //
+    // Do not use atomic_rmw_cas_3 because it needs extra LGR to implement swap.
     unsafe {
         // atomic swap is always SeqCst.
         let _ = order;
@@ -249,6 +251,159 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     }
+}
+
+/// Atomic RMW by CAS loop (3 arguments)
+/// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - val_hi/val_lo pair: val argument (read-only for `$op`)
+/// - r0/r1 pair: previous value loaded (read-only for `$op`)
+/// - r12/r13 pair: new value that will to stored
+// We could use atomic_update here, but using an inline assembly allows omitting
+// the comparison of results and the storing/comparing of condition flags.
+#[rustfmt::skip] // buggy macro formatting
+macro_rules! atomic_rmw_cas_3 {
+    ($name:ident, $($op:tt)*) => {
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(not(all(
+            any(miri, portable_atomic_sanitize_thread),
+            portable_atomic_new_atomic_intrinsics,
+        )))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                // atomic swap is always SeqCst.
+                let val = U128 { whole: val };
+                let (mut prev_hi, mut prev_lo);
+                asm!(
+                    "lpq %r0, 0({dst})",
+                    "2:",
+                        $($op)*
+                        "cdsg %r0, %r12, 0({dst})",
+                        "jl 2b",
+                    dst = in(reg) dst,
+                    val_hi = in(reg) val.pair.hi,
+                    val_lo = in(reg) val.pair.lo,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    out("r0") prev_hi,
+                    out("r1") prev_lo,
+                    out("r12") _,
+                    out("r13") _,
+                    options(nostack),
+                );
+                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+            }
+        }
+    };
+}
+/// Atomic RMW by CAS loop (2 arguments)
+/// `unsafe fn(dst: *mut u128, order: Ordering) -> u128;`
+///
+/// `$op` can use the following registers:
+/// - r0/r1 pair: previous value loaded (read-only for `$op`)
+/// - r12/r13 pair: new value that will to stored
+// We could use atomic_update here, but using an inline assembly allows omitting
+// the comparison of results and the storing/comparing of condition flags.
+#[rustfmt::skip] // buggy macro formatting
+macro_rules! atomic_rmw_cas_2 {
+    ($name:ident, $($op:tt)*) => {
+        // Miri and Sanitizer do not support inline assembly.
+        #[cfg(not(all(
+            any(miri, portable_atomic_sanitize_thread),
+            portable_atomic_new_atomic_intrinsics,
+        )))]
+        #[inline]
+        unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
+            debug_assert!(dst as usize % 16 == 0);
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe {
+                // atomic swap is always SeqCst.
+                let (mut prev_hi, mut prev_lo);
+                asm!(
+                    "lpq %r0, 0({dst})",
+                    "2:",
+                        $($op)*
+                        "cdsg %r0, %r12, 0({dst})",
+                        "jl 2b",
+                    dst = in(reg) dst,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    out("r0") prev_hi,
+                    out("r1") prev_lo,
+                    out("r12") _,
+                    out("r13") _,
+                    options(nostack),
+                );
+                U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+            }
+        }
+    };
+}
+
+atomic_rmw_cas_3! {
+    atomic_add,
+    "lgr %r13, %r1",
+    "algr %r13, {val_lo}",
+    "lgr %r12, %r0",
+    "alcgr %r12, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_sub,
+    "lgr %r13, %r1",
+    "slgr %r13, {val_lo}",
+    "lgr %r12, %r0",
+    "slbgr %r12, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_and,
+    "lgr %r13, %r1",
+    "ngr %r13, {val_lo}",
+    "lgr %r12, %r0",
+    "ngr %r12, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_nand,
+    "lgr %r13, %r1",
+    "ngr %r13, {val_lo}",
+    "xihf %r13, 4294967295",
+    "xilf %r13, 4294967295",
+    "lgr %r12, %r0",
+    "ngr %r12, {val_hi}",
+    "xihf %r12, 4294967295",
+    "xilf %r12, 4294967295",
+}
+atomic_rmw_cas_3! {
+    atomic_or,
+    "lgr %r13, %r1",
+    "ogr %r13, {val_lo}",
+    "lgr %r12, %r0",
+    "ogr %r12, {val_hi}",
+}
+atomic_rmw_cas_3! {
+    atomic_xor,
+    "lgr %r13, %r1",
+    "xgr %r13, {val_lo}",
+    "lgr %r12, %r0",
+    "xgr %r12, {val_hi}",
+}
+
+atomic_rmw_cas_2! {
+    atomic_not,
+    "lgr %r13, %r1",
+    "xihf %r13, 4294967295",
+    "xilf %r13, 4294967295",
+    "lgr %r12, %r0",
+    "xihf %r12, 4294967295",
+    "xilf %r12, 4294967295",
+}
+atomic_rmw_cas_2! {
+    atomic_neg,
+    "lghi %r13, 0",
+    "slgr %r13, %r1",
+    "lghi %r12, 0",
+    "slbgr %r12, %r0",
 }
 
 atomic_rmw_by_atomic_update!();

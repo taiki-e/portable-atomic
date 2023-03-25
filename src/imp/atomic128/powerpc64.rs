@@ -225,7 +225,7 @@ unsafe fn atomic_compare_exchange(
 // so we always use strong CAS for now.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
-// Do not use atomic_rmw_ll_sc_3 because it needs extra MR.
+// Do not use atomic_rmw_ll_sc_3 because it needs extra MR to implement swap.
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);

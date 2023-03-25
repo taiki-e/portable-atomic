@@ -217,41 +217,97 @@ macro_rules! atomic128 {
 ))]
 macro_rules! atomic_rmw_by_atomic_update {
     () => {
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x.wrapping_add(val)) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x.wrapping_sub(val)) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x & val) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| !(x & val)) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x | val) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x ^ val) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| !x) }
         }
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
         #[inline]
         unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.

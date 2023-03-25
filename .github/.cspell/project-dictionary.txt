@@ -1,6 +1,8 @@
 adcs
 addc
 adde
+alcgr
+algr
 armasm
 autogen
 auxv
@@ -56,6 +58,7 @@ ishld
 isync
 ldaxp
 ldxp
+lghi
 libcalls
 libdir
 libfdio
@@ -100,6 +103,8 @@ sete
 sifive
 simavr
 skiboot
+slbgr
+slgr
 sourceware
 spinlock
 sreg
@@ -136,6 +141,8 @@ vmovdqa
 xadd
 xchg
 xgetbv
+xihf
+xilf
 xmmword
 xsave
 xsub

@@ -470,7 +470,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // We could use atomic_update here, but using an inline assembly allows omitting
     // the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
     //
-    // Do not use atomic_rmw_cas_3 because it needs extra MOV.
+    // Do not use atomic_rmw_cas_3 because it needs extra MOV to implement swap.
     unsafe {
         // atomic swap is always SeqCst.
         let _ = order;

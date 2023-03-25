@@ -547,7 +547,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         _atomic_swap_ldxp_stxp(dst, val, order)
     }
 }
-// Do not use atomic_rmw_cas_3 because it needs extra MOV.
+// Do not use atomic_rmw_cas_3 because it needs extra MOV to implement swap.
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
 unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -591,7 +591,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
-// Do not use atomic_rmw_ll_sc_3 because it needs extra MOV.
+// Do not use atomic_rmw_ll_sc_3 because it needs extra MOV to implement swap.
 #[inline]
 unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
