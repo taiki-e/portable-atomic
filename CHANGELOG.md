@@ -10,7 +10,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Make 64-bit atomics lock-free on ARM Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi) with kernel 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))
+- Make 64-bit atomics lock-free on ARM Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi, etc.) when the kernel version is 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))
 
 - Fix aarch64 128-bit atomics performance regression on Apple hardware. ([#89](https://github.com/taiki-e/portable-atomic/pull/89))
 
