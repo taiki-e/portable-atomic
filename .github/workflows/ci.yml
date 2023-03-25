@@ -387,16 +387,3 @@ jobs:
             [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
           branch: update-no-atomic-rs
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
-
-  # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
-
-  ci-success:
-    name: ci
-    if: github.event_name == 'push' && success()
-    # prettier-ignore
-    needs: [check-external-types, deny, docs, msrv, tidy, test, build, no-std, miri, san, valgrind, codegen] # tidy:needs
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Mark the job as a success
-        run: exit 0
