@@ -2055,7 +2055,6 @@ macro_rules! __test_atomic128_op {
                 }
                 true
             }
-            #[cfg(not(target_arch = "powerpc64"))] // TODO
             fn quickcheck_atomic_neg_op(x: u128) -> bool {
                 unsafe {
                     let a = AtomicU128::new(x);
