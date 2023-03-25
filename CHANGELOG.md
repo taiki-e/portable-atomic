@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-03-25
+
 - Make 64-bit atomics lock-free on ARM Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi, etc.) when the kernel version is 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))
 
 - Fix aarch64 128-bit atomics performance regression on Apple hardware. ([#89](https://github.com/taiki-e/portable-atomic/pull/89))
@@ -281,7 +283,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/taiki-e/portable-atomic/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/taiki-e/portable-atomic/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...v1.0.0
