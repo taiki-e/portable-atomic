@@ -6,6 +6,15 @@ cd "$(dirname "$0")"/..
 # shellcheck disable=SC2154
 trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
 
+bail() {
+    echo >&2 "error: $*"
+    exit 1
+}
+
+if [[ -z "${CI:-}" ]]; then
+    bail "this script is intended to call from release workflow on CI"
+fi
+
 git config user.name "Taiki Endo"
 git config user.email "te316e89@gmail.com"
 
