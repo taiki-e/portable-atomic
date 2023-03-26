@@ -248,9 +248,9 @@ mod tests {
                 arch.as_mut_ptr().cast::<ffi::c_char>(),
             );
             assert!(len >= 0);
-            std::println!("len={}", len);
-            std::println!("arch={:?}", arch);
-            std::println!(
+            std::eprintln!("len={}", len);
+            std::eprintln!("arch={:?}", arch);
+            std::eprintln!(
                 "arch={:?}",
                 core::str::from_utf8(core::slice::from_raw_parts(arch.as_ptr(), len as usize))
                     .unwrap()

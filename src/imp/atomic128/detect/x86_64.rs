@@ -115,26 +115,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_bit_flags() {
-        let mut x = CpuInfo(0);
-        assert!(!x.test(CpuInfo::INIT));
-        assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        x.set(CpuInfo::INIT);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        x.set(CpuInfo::HAS_CMPXCHG16B);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        x.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-        assert!(x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-    }
-
-    #[test]
     // SGX doesn't support CPUID.
     // Miri doesn't support inline assembly.
     #[cfg_attr(any(target_env = "sgx", miri), ignore)]

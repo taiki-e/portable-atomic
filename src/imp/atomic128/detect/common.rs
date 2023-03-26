@@ -113,8 +113,6 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     }
 }
 
-// x86_64 tests are in x86_64.rs.
-#[cfg(target_arch = "aarch64")]
 #[allow(
     clippy::alloc_instead_of_core,
     clippy::std_instead_of_alloc,
@@ -123,56 +121,100 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     clippy::wildcard_imports
 )]
 #[cfg(test)]
-mod tests_aarch64_common {
+mod tests_common {
     use super::*;
 
     #[test]
     fn test_bit_flags() {
         let mut x = CpuInfo(0);
-        assert!(!x.test(CpuInfo::INIT));
-        assert!(!x.test(CpuInfo::HAS_LSE));
-        assert!(!x.test(CpuInfo::HAS_LSE2));
-        assert!(!x.test(CpuInfo::HAS_LSE128));
-        assert!(!x.test(CpuInfo::HAS_RCPC3));
-        x.set(CpuInfo::INIT);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(!x.test(CpuInfo::HAS_LSE));
-        assert!(!x.test(CpuInfo::HAS_LSE2));
-        assert!(!x.test(CpuInfo::HAS_LSE128));
-        assert!(!x.test(CpuInfo::HAS_RCPC3));
-        x.set(CpuInfo::HAS_LSE);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_LSE));
-        assert!(!x.test(CpuInfo::HAS_LSE2));
-        assert!(!x.test(CpuInfo::HAS_LSE128));
-        assert!(!x.test(CpuInfo::HAS_RCPC3));
-        x.set(CpuInfo::HAS_LSE2);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_LSE));
-        assert!(x.test(CpuInfo::HAS_LSE2));
-        assert!(!x.test(CpuInfo::HAS_LSE128));
-        assert!(!x.test(CpuInfo::HAS_RCPC3));
-        x.set(CpuInfo::HAS_LSE128);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_LSE));
-        assert!(x.test(CpuInfo::HAS_LSE2));
-        assert!(x.test(CpuInfo::HAS_LSE128));
-        assert!(!x.test(CpuInfo::HAS_RCPC3));
-        x.set(CpuInfo::HAS_RCPC3);
-        assert!(x.test(CpuInfo::INIT));
-        assert!(x.test(CpuInfo::HAS_LSE));
-        assert!(x.test(CpuInfo::HAS_LSE2));
-        assert!(x.test(CpuInfo::HAS_LSE128));
-        assert!(x.test(CpuInfo::HAS_RCPC3));
+        #[cfg(target_arch = "aarch64")]
+        {
+            assert!(!x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_LSE));
+            assert!(!x.test(CpuInfo::HAS_LSE2));
+            assert!(!x.test(CpuInfo::HAS_LSE128));
+            assert!(!x.test(CpuInfo::HAS_RCPC3));
+            x.set(CpuInfo::INIT);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_LSE));
+            assert!(!x.test(CpuInfo::HAS_LSE2));
+            assert!(!x.test(CpuInfo::HAS_LSE128));
+            assert!(!x.test(CpuInfo::HAS_RCPC3));
+            x.set(CpuInfo::HAS_LSE);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_LSE));
+            assert!(!x.test(CpuInfo::HAS_LSE2));
+            assert!(!x.test(CpuInfo::HAS_LSE128));
+            assert!(!x.test(CpuInfo::HAS_RCPC3));
+            x.set(CpuInfo::HAS_LSE2);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_LSE));
+            assert!(x.test(CpuInfo::HAS_LSE2));
+            assert!(!x.test(CpuInfo::HAS_LSE128));
+            assert!(!x.test(CpuInfo::HAS_RCPC3));
+            x.set(CpuInfo::HAS_LSE128);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_LSE));
+            assert!(x.test(CpuInfo::HAS_LSE2));
+            assert!(x.test(CpuInfo::HAS_LSE128));
+            assert!(!x.test(CpuInfo::HAS_RCPC3));
+            x.set(CpuInfo::HAS_RCPC3);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_LSE));
+            assert!(x.test(CpuInfo::HAS_LSE2));
+            assert!(x.test(CpuInfo::HAS_LSE128));
+            assert!(x.test(CpuInfo::HAS_RCPC3));
+        }
+        #[cfg(target_arch = "x86_64")]
+        {
+            assert!(!x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
+            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+            x.set(CpuInfo::INIT);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
+            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+            x.set(CpuInfo::HAS_CMPXCHG16B);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
+            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+            x.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
+            assert!(x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        }
     }
 
     #[test]
+    fn print_features() {
+        use std::{fmt::Write as _, io::Write, string::String};
+
+        let mut features = String::new();
+        #[cfg(target_arch = "aarch64")]
+        {
+            let _ = writeln!(features, "lse: {}", detect().test(CpuInfo::HAS_LSE));
+            let _ = writeln!(features, "lse2: {}", detect().test(CpuInfo::HAS_LSE2));
+            let _ = writeln!(features, "lse128: {}", detect().test(CpuInfo::HAS_LSE128));
+            let _ = writeln!(features, "rcpc3: {}", detect().test(CpuInfo::HAS_RCPC3));
+        }
+        #[cfg(target_arch = "x86_64")]
+        {
+            let _ = writeln!(features, "cmpxchg16b: {}", detect().test(CpuInfo::HAS_CMPXCHG16B));
+            let _ = writeln!(
+                features,
+                "vmovdqa-atomic: {}",
+                detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC)
+            );
+        }
+        let stdout = std::io::stderr();
+        let mut stdout = stdout.lock();
+        let _ = stdout.write_all(features.as_bytes());
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    #[test]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
-        std::println!("lse: {}", detect().test(CpuInfo::HAS_LSE));
-        std::println!("lse2: {}", detect().test(CpuInfo::HAS_LSE2));
-        std::println!("lse128: {}", detect().test(CpuInfo::HAS_LSE128));
-        std::println!("rcpc3: {}", detect().test(CpuInfo::HAS_RCPC3));
         if has_lse() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             #[cfg(any(
