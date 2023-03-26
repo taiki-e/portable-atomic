@@ -139,9 +139,11 @@ fi
 rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
-host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
+llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | (grep 'LLVM version: ' || true) | (sed 's/LLVM version: //' || true))
+llvm_version="${llvm_version%%.*}"
+host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 case "${TESTS:-}" in
@@ -154,7 +156,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     # -Z check-cfg requires 1.63.0-nightly
     # shellcheck disable=SC2207
-    if [[ "${rustc_minor_version}" -gt 62 ]] && [[ -n "${TESTS:-}" ]]; then
+    if [[ "${rustc_minor_version}" -ge 63 ]] && [[ -n "${TESTS:-}" ]]; then
         build_scripts=(build.rs portable-atomic-util/build.rs)
         check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(feature,"cargo-clippy")'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
@@ -175,7 +177,7 @@ export CARGO_TARGET_DIR="${target_dir}"
 has_asm=''
 # asm! requires 1.59
 # concat! in asm! requires 1.46.0-nightly (nightly-2020-06-21).
-if [[ "${rustc_minor_version}" -gt 58 ]] || [[ "${rustc_minor_version}" -gt 45 ]] && [[ -n "${nightly}" ]]; then
+if [[ "${rustc_minor_version}" -ge 59 ]] || [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; then
     has_asm='1'
 fi
 
@@ -193,6 +195,10 @@ build() {
             return 0
         fi
         local target_flags=(--target "$(pwd)/target-specs/${target}.json")
+        if [[ "${rustc_minor_version}" -lt 47 ]]; then
+            echo "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
+            return 0
+        fi
     else
         local target_flags=(--target "${target}")
     fi
@@ -201,12 +207,17 @@ build() {
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
-        if ! cargo ${pre_args[@]+"${pre_args[@]}"} -Z help | grep -Eq '\bZ build-std\b'; then
+        if [[ "${rustc_minor_version}" -lt 39 ]]; then
             echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
             return 0
         fi
         if is_no_std "${target}"; then
             args+=(-Z build-std="core,alloc")
+        elif [[ "${rustc_minor_version}" -lt 47 ]]; then
+            # Building std with the version before backtrace-sys was removed is painful.
+            # https://github.com/rust-lang/rust/commit/c058a8b8dc5dea0ed9b33e14da9e317e2749fcd7
+            args+=(-Z build-std="core,alloc")
+            args+=(--exclude-features "std")
         else
             args+=(-Z build-std)
         fi
@@ -221,7 +232,7 @@ build() {
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
     # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
-    if [[ "${rustc_minor_version}" -gt 39 ]]; then
+    if [[ "${rustc_minor_version}" -ge 40 ]]; then
         if ! grep <<<"${cfgs}" -q 'target_has_atomic='; then
             has_atomic_cas=''
         fi
@@ -233,6 +244,11 @@ build() {
     if [[ "${target}" == "riscv"* ]] && [[ -z "${has_atomic_cas}" ]] && [[ -z "${has_asm}" ]]; then
         # RISC-V without A-extension requires asm to implement atomics.
         echo "target '${target}' requires asm to implement atomics (skipped all checks)"
+        return 0
+    fi
+    if [[ "${target}" == "avr"* ]] && [[ "${llvm_version}" == "16" ]]; then
+        # TODO: LLVM 16 broke AVR.
+        echo "target '${target}' is broken with LLVM 16 (skipped all checks)"
         return 0
     fi
 
@@ -272,7 +288,7 @@ build() {
         )
     else
         # paste! on statements requires 1.45
-        if [[ "${rustc_minor_version}" -gt 44 ]]; then
+        if [[ "${rustc_minor_version}" -ge 45 ]]; then
             if [[ -n "${has_atomic_cas}" ]]; then
                 RUSTFLAGS="${target_rustflags}" \
                     x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"

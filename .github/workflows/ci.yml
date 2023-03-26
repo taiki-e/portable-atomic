@@ -223,6 +223,8 @@ jobs:
           - rust: nightly-2020-06-21
           # for AVR: https://github.com/rust-lang/compiler-builtins/issues/400
           - rust: nightly-2020-12-26
+          # for AVR: LLVM 16 broke AVR; nightly-2023-03-25 is the last version uses LLVM 15.
+          - rust: nightly-2023-03-25
           # Check that test suite can be built
           - rust: nightly
             tests: 1
