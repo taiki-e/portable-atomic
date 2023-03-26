@@ -18,6 +18,7 @@ portable-atomic/
 │   ├── imp/
 │   │   ├── atomic128/            -- 128-bit atomic implementations (mainly by asm)
 │   │   │   └── detect/           -- Run-time feature detection implementations used for outline-atomics
+│   │   ├── arm_linux.rs          -- 64-bit atomic implementation for pre-v6 ARM Linux/Android
 │   │   ├── core_atomic.rs        -- wrapper for core::sync::atomic types
 │   │   ├── fallback/             -- fallback implementation based on global locks
 │   │   ├── float.rs              -- atomic float implementation based on atomic integer
