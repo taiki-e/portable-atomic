@@ -69,6 +69,7 @@ libpthread
 libstd
 libtcl
 libtest
+linkall
 lqarx
 lrcpc
 lwsync
@@ -86,6 +87,7 @@ neoverse
 newrepo
 newtype
 nographic
+nostartfiles
 nostdinc
 opensbi
 osfmk
@@ -142,6 +144,7 @@ versatilepb
 virt
 vmlinux
 vmovdqa
+wokwi
 xadd
 xchg
 xgetbv
