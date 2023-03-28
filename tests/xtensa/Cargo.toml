@@ -1,0 +1,25 @@
+[package]
+name = "xtensa-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+portable-atomic = { path = "../..", features = ["float"] }
+test-helper = { path = "../helper" }
+
+paste = "1"
+
+[target.xtensa-esp32-none-elf.dependencies]
+esp-println = { version = "0.4", default-features = false, features = ["uart", "esp32"] }
+esp32-hal = "0.11"
+xtensa-lx-rt = { version = "0.15", features = ["esp32"] }
+
+[profile.dev]
+opt-level = 'z'
+
+[profile.release]
+opt-level = 'z'

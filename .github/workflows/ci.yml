@@ -273,7 +273,7 @@ jobs:
       - run: espup install
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32-none-elf
-      # - run: tools/no-std.sh +esp xtensa-esp32-none-elf # TODO: run test with simulator on CI
+      - run: tools/no-std.sh +esp xtensa-esp32-none-elf
 
   miri:
     strategy:

@@ -139,7 +139,10 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b100001);
             }
         }
+        // TODO: wrong result or compiler segfault
+        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_nand);
+        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_nand() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(0x13);
@@ -179,7 +182,10 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b011110);
             }
         }
+        // TODO: compiler bug "Undefined temporary symbol .LBB<num>"
+        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_max);
+        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_max() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23);
@@ -194,7 +200,10 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 1);
             }
         }
+        // TODO: compiler bug "Undefined temporary symbol .LBB<num>"
+        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_min);
+        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_min() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23);
@@ -384,7 +393,10 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), $float_type::MIN - 1.0);
             }
         }
+        // TODO: undefined reference to `f{max,min}{,f}' (fixed in https://github.com/rust-lang/compiler-builtins/pull/517)
+        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_max);
+        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_max() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.0);
@@ -399,7 +411,10 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 1.0);
             }
         }
+        // TODO: undefined reference to `f{max,min}{,f}' (fixed in https://github.com/rust-lang/compiler-builtins/pull/517)
+        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_min);
+        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_min() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.0);

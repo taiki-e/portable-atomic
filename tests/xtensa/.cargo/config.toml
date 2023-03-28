@@ -1,0 +1,5 @@
+[build]
+target-dir = "../../target"
+
+[target.xtensa-esp32-none-elf]
+runner = "wokwi-server --chip esp32"

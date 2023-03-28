@@ -117,6 +117,12 @@ run() {
                 subcmd=build
             fi
             ;;
+        xtensa*)
+            # TODO: run test with simulator on CI
+            if ! type -P wokwi-server &>/dev/null; then
+                subcmd=build
+            fi
+            ;;
     esac
     args+=("${subcmd}" "${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
@@ -164,6 +170,11 @@ run() {
             ;;
         avr*)
             test_dir=tests/avr
+            ;;
+        xtensa*)
+            test_dir=tests/xtensa
+            linker=linkall.x
+            target_rustflags+=" -C link-arg=-Wl,-T${linker} -C link-arg=-nostartfiles"
             ;;
         *) bail "unrecognized target '${target}'" ;;
     esac
