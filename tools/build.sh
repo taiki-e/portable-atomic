@@ -126,7 +126,11 @@ is_no_std() {
 }
 
 pre_args=()
+is_custom_toolchain=''
 if [[ "${1:-}" == "+"* ]]; then
+    if [[ "$1" == "+esp" ]]; then
+        is_custom_toolchain=1
+    fi
     pre_args+=("$1")
     shift
 fi
@@ -136,7 +140,10 @@ else
     targets=("${default_targets[@]}")
 fi
 
-rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+rustup_target_list=''
+if [[ -z "${is_custom_toolchain}" ]]; then
+    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 rustc_minor_version="${rustc_version#*.}"
@@ -153,12 +160,14 @@ esac
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
-    rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    if [[ -z "${is_custom_toolchain}" ]]; then
+        rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    fi
     # -Z check-cfg requires 1.63.0-nightly
     # shellcheck disable=SC2207
     if [[ "${rustc_minor_version}" -ge 63 ]] && [[ -n "${TESTS:-}" ]]; then
         build_scripts=(build.rs portable-atomic-util/build.rs)
-        check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(feature,"cargo-clippy")'
+        check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(target_arch,"xtensa") --check-cfg=values(feature,"cargo-clippy")'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
         check_cfg+=" --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}"))"
         # TODO: handle multi-line target_feature_if

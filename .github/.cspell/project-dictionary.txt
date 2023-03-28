@@ -46,6 +46,7 @@ dedup
 dlsym
 doctests
 DWCAS
+espup
 exynos
 FIQs
 getauxval
@@ -98,6 +99,7 @@ qword
 RAII
 rcpc
 reentrancy
+rsil
 sbcs
 seqlock
 setb
