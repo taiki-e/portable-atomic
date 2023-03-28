@@ -65,7 +65,13 @@ bail() {
 }
 
 pre_args=()
+is_custom_toolchain=''
 if [[ "${1:-}" == "+"* ]]; then
+    if [[ "$1" == "+esp" ]]; then
+        # shellcheck disable=SC1091
+        . "${HOME}/export-esp.sh"
+        is_custom_toolchain=1
+    fi
     pre_args+=("$1")
     shift
 fi
@@ -75,13 +81,18 @@ else
     targets=("${default_targets[@]}")
 fi
 
-rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+rustup_target_list=''
+if [[ -z "${is_custom_toolchain}" ]]; then
+    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
-    rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    if [[ -z "${is_custom_toolchain}" ]]; then
+        rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+    fi
 fi
 
 run() {

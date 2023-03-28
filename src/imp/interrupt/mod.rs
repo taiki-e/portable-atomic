@@ -60,6 +60,7 @@ use arch::atomic;
 #[cfg_attr(target_arch = "avr", path = "avr.rs")]
 #[cfg_attr(target_arch = "msp430", path = "msp430.rs")]
 #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), path = "riscv.rs")]
+#[cfg_attr(target_arch = "xtensa", path = "xtensa.rs")]
 mod arch;
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};

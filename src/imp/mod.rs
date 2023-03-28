@@ -166,6 +166,7 @@ mod fallback;
     target_arch = "msp430",
     target_arch = "riscv32",
     target_arch = "riscv64",
+    target_arch = "xtensa",
 ))]
 mod interrupt;
 
