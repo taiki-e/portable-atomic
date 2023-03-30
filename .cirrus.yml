@@ -69,7 +69,7 @@ armel_linux_test_task:
   test_script:
     - set -ex
     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
-    - ./tools/test.sh --target "$TARGET" -vv
+    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
 
 armhf_linux_test_task:
   name: test ($TARGET)
@@ -86,7 +86,7 @@ armhf_linux_test_task:
   test_script:
     - set -ex
     - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-    - ./tools/test.sh --target "$TARGET" -vv
+    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
 
 aarch64_macos_test_task:
   name: test ($TARGET)
