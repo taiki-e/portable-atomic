@@ -214,8 +214,8 @@ fn main() {
             let mut subarch =
                 strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb")).unwrap();
             subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
-            subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
-            subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
+            let full_subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
+            subarch = full_subarch.split('.').next().unwrap(); // ignore .base/.main suffix
             let mut known = true;
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
             let mut is_mclass = false;
@@ -240,10 +240,27 @@ fn main() {
                 }
             }
             target_feature_if("mclass", is_mclass, &version, None, true);
-            let v6 = known
-                && (subarch.starts_with("v6")
-                    || subarch.starts_with("v7")
-                    || subarch.starts_with("v8"));
+            let mut v6 = known && subarch.starts_with("v6");
+            let mut v7 = known && subarch.starts_with("v7");
+            let (v8, v8m) = if known && subarch.starts_with("v8") {
+                // ARMv8-M Mainline/Baseline are not considered as v8 by rustc.
+                // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
+                if subarch.starts_with("v8m") {
+                    // ARMv8-M Mainline is a superset of ARMv7-M.
+                    // ARMv8-M Baseline is a superset of ARMv6-M.
+                    // That said, it seems LLVM handles thumbv8m.main without v8m like v6m.
+                    // https://godbolt.org/z/j9r3Wzccz
+                    v7 = full_subarch == "v8m.main";
+                    (false, true)
+                } else {
+                    (true, false)
+                }
+            } else {
+                (false, false)
+            };
+            v7 |= target_feature_if("v8", v8, &version, None, true);
+            v6 |= target_feature_if("v8m", v8m, &version, None, false);
+            v6 |= target_feature_if("v7", v7, &version, None, true);
             target_feature_if("v6", v6, &version, None, true);
         }
         "powerpc64" => {
@@ -280,7 +297,7 @@ fn target_feature_if(
     version: &Version,
     stabilized: Option<u32>,
     is_rustc_target_feature: bool,
-) {
+) -> bool {
     // HACK: Currently, it seems that the only way to handle unstable target
     // features on the stable is to parse the `-C target-feature` in RUSTFLAGS.
     //
@@ -295,7 +312,7 @@ fn target_feature_if(
         && (version.nightly || stabilized.map_or(false, |stabilized| version.minor >= stabilized))
     {
         // In this case, cfg(target_feature = "...") would work, so skip emitting our own target_feature cfg.
-        return;
+        return false;
     } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             flag = strip_prefix(flag, "-C").unwrap_or(flag);
@@ -315,6 +332,7 @@ fn target_feature_if(
     if has_target_feature {
         println!("cargo:rustc-cfg=portable_atomic_target_feature=\"{}\"", name);
     }
+    has_target_feature
 }
 
 fn target_cpu() -> Option<String> {

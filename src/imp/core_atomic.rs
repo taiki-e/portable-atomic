@@ -102,7 +102,17 @@ impl AtomicBool {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
         #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
-        self.inner.compare_exchange_weak(current, new, success, failure)
+        if cfg!(all(
+            target_arch = "arm",
+            any(target_feature = "v6", portable_atomic_target_feature = "v6"),
+            not(any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+            not(any(target_feature = "v8m", portable_atomic_target_feature = "v8m")),
+        )) {
+            // Workaround for LLVM bug: https://github.com/rust-lang/rust/issues/60605
+            self.inner.compare_exchange(current, new, success, failure)
+        } else {
+            self.inner.compare_exchange_weak(current, new, success, failure)
+        }
     }
 }
 impl core::ops::Deref for AtomicBool {
@@ -192,7 +202,17 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
         #[cfg(portable_atomic_no_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
-        self.inner.compare_exchange_weak(current, new, success, failure)
+        if cfg!(all(
+            target_arch = "arm",
+            any(target_feature = "v6", portable_atomic_target_feature = "v6"),
+            not(any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+            not(any(target_feature = "v8m", portable_atomic_target_feature = "v8m")),
+        )) {
+            // Workaround for LLVM bug: https://github.com/rust-lang/rust/issues/60605
+            self.inner.compare_exchange(current, new, success, failure)
+        } else {
+            self.inner.compare_exchange_weak(current, new, success, failure)
+        }
     }
 }
 impl<T> core::ops::Deref for AtomicPtr<T> {
@@ -306,7 +326,17 @@ macro_rules! atomic_int {
                 crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
                 #[cfg(portable_atomic_no_stronger_failure_ordering)]
                 let success = crate::utils::upgrade_success_ordering(success, failure);
-                self.inner.compare_exchange_weak(current, new, success, failure)
+                if cfg!(all(
+                    target_arch = "arm",
+                    any(target_feature = "v6", portable_atomic_target_feature = "v6"),
+                    not(any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+                    not(any(target_feature = "v8m", portable_atomic_target_feature = "v8m")),
+                )) {
+                    // Workaround for LLVM bug: https://github.com/rust-lang/rust/issues/60605
+                    self.inner.compare_exchange(current, new, success, failure)
+                } else {
+                    self.inner.compare_exchange_weak(current, new, success, failure)
+                }
             }
             #[allow(dead_code)]
             #[inline]

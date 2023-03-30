@@ -56,8 +56,13 @@ aarch64_linux_test_task:
 
 armel_linux_test_task:
   name: test ($TARGET)
-  env:
-    TARGET: armv5te-unknown-linux-gnueabi
+  matrix:
+    - env:
+        TARGET: armv5te-unknown-linux-gnueabi
+    - env:
+        TARGET: arm-unknown-linux-gnueabi
+    - env:
+        TARGET: armv7-unknown-linux-gnueabi
   arm_container:
     image: rust:latest
   setup_script:
@@ -69,6 +74,8 @@ armel_linux_test_task:
   test_script:
     - set -ex
     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
+    - export CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
+    - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
     - ./tools/test.sh --target "$TARGET" -vv
 
 armhf_linux_test_task:
