@@ -4,14 +4,12 @@ adde
 alcgr
 algr
 armasm
-armel
 autogen
 auxv
 auxvec
 backoff
 bitops
 bstr
-bytecount
 callthru
 casp
 cbnz
@@ -74,7 +72,6 @@ lqarx
 lrcpc
 lwsync
 machdep
-memcpy
 metavar
 mfence
 mgba
