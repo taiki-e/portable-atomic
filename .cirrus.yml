@@ -54,7 +54,7 @@ aarch64_linux_test_task:
     # FEAT_LSE2 is tested on aarch64 macOS VM.
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
 
-arm_linux_test_task:
+armel_linux_test_task:
   name: test ($TARGET)
   env:
     TARGET: armv5te-unknown-linux-gnueabi
@@ -69,6 +69,23 @@ arm_linux_test_task:
   test_script:
     - set -ex
     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
+    - ./tools/test.sh --target "$TARGET" -vv
+
+armhf_linux_test_task:
+  name: test ($TARGET)
+  env:
+    TARGET: armv7-unknown-linux-gnueabihf
+  arm_container:
+    image: rust:latest
+  setup_script:
+    - set -ex
+    - lscpu
+    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+    - dpkg --add-architecture armhf
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabihf libc6-dev-armhf-cross libc6:armhf
+  test_script:
+    - set -ex
+    - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
     - ./tools/test.sh --target "$TARGET" -vv
 
 aarch64_macos_test_task:
@@ -129,7 +146,7 @@ aarch64_linux_valgrind_task:
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
-# arm_linux_bench_task:
+# armel_linux_bench_task:
 #   name: bench ($TARGET)
 #   env:
 #     TARGET: armv5te-unknown-linux-gnueabi
@@ -147,6 +164,26 @@ aarch64_linux_valgrind_task:
 #   test_script:
 #     - set -ex
 #     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
+#     - RUSTFLAGS="${RUSTFLAGS}" cargo bench --target "$TARGET" -vv --manifest-path bench/Cargo.toml
+
+# armhf_linux_bench_task:
+#   name: bench ($TARGET)
+#   env:
+#     TARGET: armv7-unknown-linux-gnueabihf
+#   arm_container:
+#     image: rust:latest
+#     cpu: 4
+#     memory: 12G
+#   setup_script:
+#     - set -ex
+#     - lscpu
+#     - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#     - rustup target add "$TARGET"
+#     - dpkg --add-architecture armhf
+#     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabihf libc6-dev-armhf-cross libc6:armhf
+#   test_script:
+#     - set -ex
+#     - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
 #     - RUSTFLAGS="${RUSTFLAGS}" cargo bench --target "$TARGET" -vv --manifest-path bench/Cargo.toml
 
 # aarch64_macos_bench_task:
