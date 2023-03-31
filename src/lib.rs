@@ -460,6 +460,9 @@ pub mod hint {
 use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
 use core::{fmt, ptr};
 
+#[cfg(miri)]
+use crate::utils::strict;
+
 /// A boolean type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a [`bool`].
@@ -5024,48 +5027,3 @@ atomic_int!(AtomicI128, i128, 16);
     ))
 )]
 atomic_int!(AtomicU128, u128, 16);
-
-/// Emulate strict provenance.
-///
-/// Once strict_provenance is stable, migrate to the standard library's APIs.
-#[cfg(miri)]
-#[allow(
-    clippy::cast_possible_wrap,
-    clippy::transmutes_expressible_as_ptr_casts,
-    clippy::useless_transmute
-)]
-mod strict {
-    use core::mem;
-
-    /// Get the address of a pointer.
-    #[inline]
-    #[must_use]
-    pub(super) fn addr<T>(ptr: *mut T) -> usize {
-        // SAFETY: Every sized pointer is a valid integer for the time being.
-        unsafe { mem::transmute(ptr) }
-    }
-
-    /// Replace the address portion of this pointer with a new address.
-    #[inline]
-    #[must_use]
-    pub(super) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
-        // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
-        //
-        // In the mean-time, this operation is defined to be "as if" it was
-        // a wrapping_offset, so we can emulate it as such. This should properly
-        // restore pointer provenance even under today's compiler.
-        let self_addr = self::addr(ptr) as isize;
-        let dest_addr = addr as isize;
-        let offset = dest_addr.wrapping_sub(self_addr);
-
-        // This is the canonical desugaring of this operation.
-        (ptr as *mut u8).wrapping_offset(offset) as *mut T
-    }
-
-    /// Run an operation of some kind on a pointer.
-    #[inline]
-    #[must_use]
-    pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
-        self::with_addr(ptr, f(addr(ptr)))
-    }
-}
