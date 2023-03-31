@@ -211,20 +211,15 @@ where
     }
 }
 
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(not(all(
+    any(miri, portable_atomic_sanitize_thread),
+    portable_atomic_new_atomic_intrinsics,
+)))]
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // Miri and Sanitizer do not support inline assembly.
-    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_update(dst, order, |_| val)
-    }
-    #[cfg(not(all(
-        any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics,
-    )))]
     // SAFETY: the caller must uphold the safety contract.
     //
     // We could use atomic_update here, but using an inline assembly allows omitting

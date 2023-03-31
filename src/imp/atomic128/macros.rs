@@ -209,14 +209,26 @@ macro_rules! atomic128 {
             test,
             not(any(
                 target_feature = "cmpxchg16b",
-                portable_atomic_target_feature = "cmpxchg16b"
+                portable_atomic_target_feature = "cmpxchg16b",
             )),
             any(miri, portable_atomic_sanitize_thread),
-        )
-    )
+        ),
+    ),
 ))]
 macro_rules! atomic_rmw_by_atomic_update {
     () => {
+        #[cfg_attr(
+            target_arch = "s390x",
+            cfg(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_new_atomic_intrinsics,
+            ))
+        )]
+        #[inline]
+        unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+            // SAFETY: the caller must uphold the safety contract.
+            unsafe { atomic_update(dst, order, |_| val) }
+        }
         #[cfg_attr(
             target_arch = "s390x",
             cfg(all(

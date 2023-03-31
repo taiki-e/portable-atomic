@@ -444,23 +444,15 @@ where
     }
 }
 
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(not(any(
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    any(miri, portable_atomic_sanitize_thread),
+)))]
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
-    // Miri and Sanitizer do not support inline assembly.
-    #[cfg(any(
-        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-        any(miri, portable_atomic_sanitize_thread),
-    ))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_update(dst, order, |_| val)
-    }
-    #[cfg(not(any(
-        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-        any(miri, portable_atomic_sanitize_thread),
-    )))]
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
     // cfg guarantees that the CPU supports CMPXCHG16B.
@@ -886,11 +878,6 @@ mod tests_no_cmpxchg16b {
                 }
             }
         }
-    }
-
-    #[inline]
-    unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-        unsafe { atomic_update(dst, order, |_| val) }
     }
 
     atomic_rmw_by_atomic_update!();
