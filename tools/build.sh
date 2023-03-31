@@ -376,8 +376,8 @@ build() {
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
     case "${target}" in
-        # portable_atomic_no_outline_atomics only affects x86_64 and aarch64.
-        x86_64* | aarch64* | arm64*)
+        # portable_atomic_no_outline_atomics only affects x86_64, aarch64, and arm.
+        x86_64* | aarch64* | arm*)
             CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
                 x_cargo "${args[@]}" "$@"

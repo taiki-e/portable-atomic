@@ -364,7 +364,7 @@ compile_error!(
 );
 
 #[cfg(portable_atomic_no_outline_atomics)]
-#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+#[cfg(not(any(target_arch = "aarch64", target_arch = "arm", target_arch = "x86_64")))]
 compile_error!("cfg(portable_atomic_no_outline_atomics) does not compatible with this target");
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(all(
