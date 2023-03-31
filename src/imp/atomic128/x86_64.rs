@@ -9,6 +9,13 @@
 
 include!("macros.rs");
 
+#[cfg(any(
+    test,
+    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+))]
+#[path = "../fallback/outline_atomics.rs"]
+mod fallback;
+
 #[path = "detect/x86_64.rs"]
 mod detect;
 
@@ -369,7 +376,7 @@ unsafe fn atomic_compare_exchange(
                 if detect::has_cmpxchg16b() {
                     _cmpxchg16b
                 } else {
-                    _atomic_compare_exchange_fallback
+                    fallback::atomic_compare_exchange
                 }
             })
         }
@@ -378,29 +385,6 @@ unsafe fn atomic_compare_exchange(
         Ok(res)
     } else {
         Err(res)
-    }
-}
-#[cfg(any(
-    test,
-    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-))]
-#[cold]
-unsafe fn _atomic_compare_exchange_fallback(
-    dst: *mut u128,
-    old: u128,
-    new: u128,
-    success: Ordering,
-    failure: Ordering,
-) -> (u128, bool) {
-    #[allow(clippy::cast_ptr_alignment)]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        match (*(dst as *const super::fallback::AtomicU128))
-            .compare_exchange(old, new, success, failure)
-        {
-            Ok(v) => (v, true),
-            Err(v) => (v, false),
-        }
     }
 }
 
@@ -810,7 +794,7 @@ mod tests_no_cmpxchg16b {
         success: Ordering,
         failure: Ordering,
     ) -> (u128, bool) {
-        unsafe { super::_atomic_compare_exchange_fallback(dst, old, new, success, failure) }
+        unsafe { fallback::atomic_compare_exchange(dst, old, new, success, failure) }
     }
     #[inline]
     unsafe fn byte_wise_atomic_load(src: *mut u128) -> u128 {

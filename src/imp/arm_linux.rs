@@ -11,6 +11,9 @@
 // be possible to omit the dynamic kernel version check if the std feature is enabled on Rust 1.64+.
 // https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 
+#[path = "fallback/outline_atomics.rs"]
+mod fallback;
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{mem, sync::atomic::Ordering};
@@ -34,43 +37,34 @@ struct Pair {
 
 // https://www.kernel.org/doc/Documentation/arm/kernel_user_helpers.txt
 const KUSER_HELPER_VERSION: usize = 0xFFFF0FFC;
-// kuser_helper_version >= 5 (kernel version 3.1+)
+// __kuser_helper_version >= 5 (kernel version 3.1+)
 const KUSER_CMPXCHG64: usize = 0xFFFF0F60;
 #[inline]
-fn kuser_helper_version() -> i32 {
-    // SAFETY: KUSER_HELPER_VERSION is always available on ARM Linux/Android.
-    unsafe { (KUSER_HELPER_VERSION as *const i32).read() }
+fn __kuser_helper_version() -> i32 {
+    use core::sync::atomic::AtomicI32;
+
+    static CACHE: AtomicI32 = AtomicI32::new(0);
+    let mut v = CACHE.load(Ordering::Relaxed);
+    if v != 0 {
+        return v;
+    }
+    // SAFETY: core assumes that at least __kuser_cmpxchg (__kuser_helper_version >= 2) is available
+    // on this platform. __kuser_helper_version is always available on such a platform.
+    v = unsafe { (KUSER_HELPER_VERSION as *const i32).read() };
+    CACHE.store(v, Ordering::Relaxed);
+    v
 }
 #[inline]
-unsafe fn kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-    unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
-                mem::transmute(KUSER_CMPXCHG64 as *const ());
-            f(old_val, new_val, ptr) == 0
-        }
-    }
-    #[cold]
-    unsafe fn _fallback(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            // Use SeqCst because __kuser_cmpxchg64 is SeqCst.
-            // https://github.com/torvalds/linux/blob/v6.1/arch/arm/kernel/entry-armv.S#L918-L925
-            (*(ptr as *const super::fallback::AtomicU64))
-                .compare_exchange(*old_val, *new_val, Ordering::SeqCst, Ordering::SeqCst)
-                .is_ok()
-        }
-    }
-    // SAFETY: we only calls __kuser_cmpxchg64 if it is available.
+fn has_kuser_cmpxchg64() -> bool {
+    __kuser_helper_version() >= 5
+}
+#[inline]
+unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
+    // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        ifunc!(unsafe fn(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-            if kuser_helper_version() >= 5 {
-                __kuser_cmpxchg64
-            } else {
-                _fallback
-            }
-        })
+        let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
+            mem::transmute(KUSER_CMPXCHG64 as *const ());
+        f(old_val, new_val, ptr) == 0
     }
 }
 
@@ -93,11 +87,12 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
 }
 
 #[inline(always)]
-unsafe fn atomic_update<F>(dst: *mut u64, mut f: F) -> u64
+unsafe fn atomic_update_kuser_cmpxchg64<F>(dst: *mut u64, mut f: F) -> u64
 where
     F: FnMut(u64) -> u64,
 {
     debug_assert!(dst as usize % 8 == 0);
+    debug_assert!(has_kuser_cmpxchg64());
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -105,53 +100,168 @@ where
             // This is not single-copy atomic reads, but this is ok because subsequent
             // CAS will check for consistency.
             //
-            // byte_wise_atomic_load works the same way as seqlock's byte-wise atomic memcpy,
-            // so it works well even when atomic_compare_exchange_weak calls global lock-based fallback.
-            //
             // Note that the C++20 memory model does not allow mixed-sized atomic access,
             // so we must use inline assembly to implement byte_wise_atomic_load.
             // (i.e., byte-wise atomic based on the standard library's atomic types
-            // cannot be used here). Since fallback's byte-wise atomic memcpy is per
-            // 32-bit on ARM, it's okay to use it together with this.
+            // cannot be used here).
             let old = byte_wise_atomic_load(dst);
             let next = f(old);
-            if kuser_cmpxchg64(&old, &next, dst) {
+            if __kuser_cmpxchg64(&old, &next, dst) {
                 return old;
             }
         }
     }
 }
 
-#[inline]
-unsafe fn atomic_load(src: *mut u64) -> u64 {
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_update(src, |old| old) }
+macro_rules! atomic_with_ifunc {
+    (
+        unsafe fn $name:ident($($arg:tt)*) $(-> $ret_ty:ty)? { $($kuser_cmpxchg64_fn_body:tt)* }
+        fallback = $seqcst_fallback_fn:ident
+    ) => {
+        #[inline]
+        unsafe fn $name($($arg)*) $(-> $ret_ty)? {
+            unsafe fn kuser_cmpxchg64_fn($($arg)*) $(-> $ret_ty)? {
+                $($kuser_cmpxchg64_fn_body)*
+            }
+            // SAFETY: the caller must uphold the safety contract.
+            // we only calls __kuser_cmpxchg64 if it is available.
+            unsafe {
+                ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                    if has_kuser_cmpxchg64() {
+                        kuser_cmpxchg64_fn
+                    } else {
+                        // Use SeqCst because __kuser_cmpxchg64 is SeqCst.
+                        // https://github.com/torvalds/linux/blob/v6.1/arch/arm/kernel/entry-armv.S#L918-L925
+                        fallback::$seqcst_fallback_fn
+                    }
+                })
+            }
+        }
+    };
 }
-#[inline]
-unsafe fn atomic_store(dst: *mut u64, val: u64) {
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_swap(dst, val);
+
+atomic_with_ifunc! {
+    unsafe fn atomic_load(src: *mut u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(src, |old| old) }
     }
+    fallback = atomic_load_seqcst
 }
-#[inline]
-unsafe fn atomic_swap(dst: *mut u64, val: u64) -> u64 {
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_update(dst, |_| val) }
-}
-#[inline]
-unsafe fn atomic_compare_exchange(dst: *mut u64, old: u64, new: u64) -> Result<u64, u64> {
-    // SAFETY: the caller must uphold the safety contract.
-    let res = unsafe { atomic_update(dst, |v| if v == old { new } else { v }) };
-    if res == old {
-        Ok(res)
-    } else {
-        Err(res)
+atomic_with_ifunc! {
+    unsafe fn atomic_store(dst: *mut u64, val: u64) {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |_| val); }
     }
+    fallback = atomic_store_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_swap(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |_| val) }
+    }
+    fallback = atomic_swap_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_compare_exchange(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
+        // SAFETY: the caller must uphold the safety contract.
+        let res = unsafe { atomic_update_kuser_cmpxchg64(dst, |v| if v == old { new } else { v }) };
+        (res, res == old)
+    }
+    fallback = atomic_compare_exchange_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_add(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| x.wrapping_add(val)) }
+    }
+    fallback = atomic_add_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_sub(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| x.wrapping_sub(val)) }
+    }
+    fallback = atomic_sub_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_and(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| x & val) }
+    }
+    fallback = atomic_and_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_nand(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| !(x & val)) }
+    }
+    fallback = atomic_nand_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_or(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| x | val) }
+    }
+    fallback = atomic_or_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_xor(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| x ^ val) }
+    }
+    fallback = atomic_xor_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_max(dst: *mut u64, val: u64) -> u64 {
+        #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            atomic_update_kuser_cmpxchg64(dst, |x| core::cmp::max(x as i64, val as i64) as u64)
+        }
+    }
+    fallback = atomic_max_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_umax(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| core::cmp::max(x, val)) }
+    }
+    fallback = atomic_umax_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_min(dst: *mut u64, val: u64) -> u64 {
+        #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            atomic_update_kuser_cmpxchg64(dst, |x| core::cmp::min(x as i64, val as i64) as u64)
+        }
+    }
+    fallback = atomic_min_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_umin(dst: *mut u64, val: u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| core::cmp::min(x, val)) }
+    }
+    fallback = atomic_umin_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_not(dst: *mut u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, |x| !x) }
+    }
+    fallback = atomic_not_seqcst
+}
+atomic_with_ifunc! {
+    unsafe fn atomic_neg(dst: *mut u64) -> u64 {
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe { atomic_update_kuser_cmpxchg64(dst, u64::wrapping_neg) }
+    }
+    fallback = atomic_neg_seqcst
 }
 
 macro_rules! atomic64 {
-    ($atomic_type:ident, $int_type:ident) => {
+    ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(8))]
         pub(crate) struct $atomic_type {
             v: core::cell::UnsafeCell<$int_type>,
@@ -171,7 +281,7 @@ macro_rules! atomic64 {
 
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
-                kuser_helper_version() >= 5
+                has_kuser_cmpxchg64()
             }
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
@@ -228,13 +338,15 @@ macro_rules! atomic64 {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    match atomic_compare_exchange(
+                    let (res, ok) = atomic_compare_exchange(
                         self.v.get().cast::<u64>(),
                         current as u64,
                         new as u64,
-                    ) {
-                        Ok(v) => Ok(v as $int_type),
-                        Err(v) => Err(v as $int_type),
+                    );
+                    if ok {
+                        Ok(res as $int_type)
+                    } else {
+                        Err(res as $int_type)
                     }
                 }
             }
@@ -255,88 +367,63 @@ macro_rules! atomic64 {
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| x.wrapping_add(val as u64))
-                        as $int_type
-                }
+                unsafe { atomic_add(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| x.wrapping_sub(val as u64))
-                        as $int_type
-                }
+                unsafe { atomic_sub(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| x & val as u64) as $int_type
-                }
+                unsafe { atomic_and(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| !(x & val as u64)) as $int_type
-                }
+                unsafe { atomic_nand(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| x | val as u64) as $int_type
-                }
+                unsafe { atomic_or(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| x ^ val as u64) as $int_type
-                }
+                unsafe { atomic_xor(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| {
-                        core::cmp::max(x as $int_type, val) as u64
-                    }) as $int_type
-                }
+                unsafe { $atomic_max(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| {
-                        core::cmp::min(x as $int_type, val) as u64
-                    }) as $int_type
-                }
+                unsafe { $atomic_min(self.v.get().cast::<u64>(), val as u64) as $int_type }
             }
 
             #[inline]
             pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_update(self.v.get().cast::<u64>(), |x| !(x as $int_type) as u64)
-                        as $int_type
-                }
+                unsafe { atomic_not(self.v.get().cast::<u64>()) as $int_type }
             }
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
@@ -347,7 +434,7 @@ macro_rules! atomic64 {
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_update(self.v.get().cast::<u64>(), u64::wrapping_neg) as $int_type }
+                unsafe { atomic_neg(self.v.get().cast::<u64>()) as $int_type }
             }
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
@@ -362,17 +449,25 @@ macro_rules! atomic64 {
     };
 }
 
-atomic64!(AtomicI64, i64);
-atomic64!(AtomicU64, u64);
+atomic64!(AtomicI64, i64, atomic_max, atomic_min);
+atomic64!(AtomicU64, u64, atomic_umax, atomic_umin);
 
+#[allow(
+    clippy::alloc_instead_of_core,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core,
+    clippy::undocumented_unsafe_blocks,
+    clippy::wildcard_imports
+)]
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn kuser_helper_version() {
-        let version = super::kuser_helper_version();
+        let version = __kuser_helper_version();
         assert!(version >= 5, "{:?}", version);
+        assert_eq!(version, unsafe { (KUSER_HELPER_VERSION as *const i32).read() });
     }
 
     test_atomic_int!(i64);

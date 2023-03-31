@@ -61,6 +61,7 @@ macro_rules! serde_impls {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
+    target_arch = "powerpc64",
     all(target_arch = "x86_64", not(target_env = "sgx")),
 ))]
 macro_rules! ifunc {
@@ -90,28 +91,30 @@ macro_rules! ifunc {
 
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
+#[cfg(any(target_arch = "aarch64", target_arch = "arm", target_arch = "x86_64"))]
 macro_rules! fn_alias {
     (
-        $(#[$($attr:tt)*])*
-        unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
+        $(#[$($fn_attr:tt)*])*
+        $vis:vis unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
+        $(#[$($alias_attr:tt)*])*
         $new:ident = $from:ident($($last_args:tt)*);
         $($rest:tt)*
     ) => {
-        $(#[$($attr)*])*
-        unsafe fn $new($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
+        $(#[$($fn_attr)*])*
+        $(#[$($alias_attr)*])*
+        $vis unsafe fn $new($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { $from($($arg_pat,)* $($last_args)*) }
         }
         fn_alias! {
-            $(#[$($attr)*])*
-            unsafe fn($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
+            $(#[$($fn_attr)*])*
+            $vis unsafe fn($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
             $($rest)*
         }
     };
     (
         $(#[$($attr:tt)*])*
-        unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
+        $vis:vis unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)?;
     ) => {}
 }
 
