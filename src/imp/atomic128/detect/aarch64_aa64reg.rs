@@ -151,14 +151,7 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use core::ffi::c_void;
-        // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
-        pub(crate) type c_int = i32;
-        pub(crate) type c_uint = u32;
-        // c_size_t is usize
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
-        pub(crate) type c_size_t = usize;
+        pub(crate) use super::super::c_types::{c_int, c_size_t, c_uint, c_void};
 
         // Defined in sys/sysctl.h.
         // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/sys/sysctl.h#L82
@@ -310,11 +303,6 @@ mod tests {
     const _: fn() = || {
         use imp::ffi;
         use test_helper::{libc, sys};
-        let _: ffi::c_int = 0 as std::os::raw::c_int;
-        let _: ffi::c_uint = 0 as std::os::raw::c_uint;
-        let _: ffi::c_int = 0 as libc::c_int;
-        let _: ffi::c_uint = 0 as libc::c_uint;
-        let _: ffi::c_size_t = 0 as libc::size_t;
         let mut _sysctl: unsafe extern "C" fn(
             *const ffi::c_int,
             ffi::c_uint,

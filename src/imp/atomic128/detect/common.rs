@@ -113,6 +113,49 @@ pub(crate) fn has_cmpxchg16b() -> bool {
     }
 }
 
+// core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+#[cfg(target_arch = "aarch64")]
+#[cfg(not(windows))]
+#[allow(dead_code, non_camel_case_types)]
+mod c_types {
+    pub(crate) type c_void = core::ffi::c_void;
+    // c_{,u}int is {i,u}32 on non-16-bit architectures
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
+    pub(crate) type c_int = i32;
+    pub(crate) type c_uint = u32;
+    // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise is {i,u}32
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
+    // (Windows currently doesn't use this module.)
+    #[cfg(target_pointer_width = "64")]
+    pub(crate) type c_ulong = u64;
+    #[cfg(not(target_pointer_width = "64"))]
+    pub(crate) type c_ulong = u32;
+    // c_size_t is usize
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
+    pub(crate) type c_size_t = usize;
+    // c_char is u8 on most non-Apple/non-Windows ARM/PowerPC targets
+    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/Horizon)
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
+    // (macOS is currently the only Apple target that uses this module, and Windows currently doesn't use this module)
+    #[cfg(not(target_os = "macos"))]
+    pub(crate) type c_char = u8;
+    // c_char is i8 on all Apple targets
+    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
+    #[cfg(target_os = "macos")]
+    pub(crate) type c_char = i8;
+
+    // Static assertions for C type definitions.
+    #[cfg(test)]
+    const _: fn() = || {
+        use test_helper::libc;
+        let _: c_int = 0 as std::os::raw::c_int;
+        let _: c_uint = 0 as std::os::raw::c_uint;
+        let _: c_ulong = 0 as std::os::raw::c_ulong;
+        let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
+        let _: c_char = 0 as std::os::raw::c_char;
+    };
+}
+
 #[allow(
     clippy::alloc_instead_of_core,
     clippy::std_instead_of_alloc,

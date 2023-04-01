@@ -27,16 +27,7 @@ use core::ptr;
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
 #[allow(non_camel_case_types)]
 mod ffi {
-    pub(crate) use core::ffi::c_void;
-    // c_char is {i,u}32 on darwin
-    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
-    pub(crate) type c_char = i8;
-    // c_{,u}int is {i,u}32 on non-16-bit architectures
-    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
-    pub(crate) type c_int = i32;
-    // c_size_t is usize
-    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
-    pub(crate) type c_size_t = usize;
+    pub(crate) use super::c_types::{c_char, c_int, c_size_t, c_void};
 
     extern "C" {
         // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname
@@ -154,9 +145,6 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::{libc, sys};
-        let _: ffi::c_int = 0 as std::os::raw::c_int;
-        let _: ffi::c_int = 0 as libc::c_int;
-        let _: ffi::c_size_t = 0 as libc::size_t;
         let mut _sysctlbyname: unsafe extern "C" fn(
             *const ffi::c_char,
             *mut ffi::c_void,

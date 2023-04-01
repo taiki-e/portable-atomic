@@ -104,20 +104,9 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        // c_char is u8 on aarch64 Linux/Android
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
+        pub(crate) use super::super::c_types::c_ulong;
         #[cfg(target_os = "android")]
-        pub(crate) type c_char = u8;
-        // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
-        #[cfg(target_os = "android")]
-        pub(crate) type c_int = i32;
-        // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
-        #[cfg(target_pointer_width = "64")]
-        pub(crate) type c_ulong = u64;
-        #[cfg(target_pointer_width = "32")]
-        pub(crate) type c_ulong = u32;
+        pub(crate) use super::super::c_types::{c_char, c_int};
 
         extern "C" {
             // https://man7.org/linux/man-pages/man3/getauxval.3.html
@@ -135,10 +124,7 @@ mod imp {
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
             #[cfg(target_os = "android")]
-            pub(crate) fn __system_property_get(
-                __name: *const c_char,
-                __value: *mut c_char,
-            ) -> c_int;
+            pub(crate) fn __system_property_get(name: *const c_char, value: *mut c_char) -> c_int;
         }
 
         // https://github.com/torvalds/linux/blob/v6.1/include/uapi/linux/auxvec.h
@@ -168,16 +154,7 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use core::ffi::c_void;
-        // c_{,u}int is {i,u}32 on non-16-bit architectures
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L159-L173
-        pub(crate) type c_int = i32;
-        // c_{,u}long is {i,u}64 on non-windows 64-bit targets, otherwise is {i,u}32
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
-        #[cfg(target_pointer_width = "64")]
-        pub(crate) type c_ulong = u64;
-        #[cfg(target_pointer_width = "32")]
-        pub(crate) type c_ulong = u32;
+        pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 
         // Defined in sys/elf_common.h.
         // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/elf_common.h
@@ -276,16 +253,6 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::{libc, sys};
-        #[cfg(target_os = "android")]
-        let _: ffi::c_char = 0 as std::os::raw::c_char;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_char = 0 as libc::c_char;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_int = 0 as std::os::raw::c_int;
-        #[cfg(target_os = "android")]
-        let _: ffi::c_int = 0 as libc::c_int;
-        let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
-        let _: ffi::c_ulong = 0 as libc::c_ulong;
         let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
         _getauxval = libc::getauxval;
         #[cfg(target_os = "android")]
@@ -314,9 +281,6 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::{libc, sys};
-        let _: ffi::c_int = 0 as libc::c_int;
-        let _: ffi::c_ulong = 0 as std::os::raw::c_ulong;
-        let _: ffi::c_ulong = 0 as libc::c_ulong;
         let mut _elf_aux_info: unsafe extern "C" fn(
             ffi::c_int,
             *mut ffi::c_void,
