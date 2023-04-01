@@ -205,38 +205,6 @@ macro_rules! atomic_float {
 
 atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
 
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        all(
-            feature = "fallback",
-            any(
-                not(portable_atomic_no_atomic_cas),
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-                target_arch = "avr",
-                target_arch = "msp430",
-            ),
-        ),
-        not(portable_atomic_no_atomic_64),
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    ))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        all(
-            feature = "fallback",
-            any(
-                target_has_atomic = "ptr",
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-                target_arch = "avr",
-                target_arch = "msp430",
-            ),
-        ),
-        target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    ))
-)]
-atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
+cfg_atomic_64! {
+    atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
+}

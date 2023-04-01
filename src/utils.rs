@@ -198,6 +198,103 @@ macro_rules! bit_opts_fetch_impl {
     };
 }
 
+macro_rules! cfg_atomic_64 {
+    ($($tt:tt)*) => {
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(any(
+                all(
+                    feature = "fallback",
+                    any(
+                        not(portable_atomic_no_atomic_cas),
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ),
+                ),
+                not(portable_atomic_no_atomic_64),
+                not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            ))
+        )]
+        #[cfg_attr(
+            not(portable_atomic_no_cfg_target_has_atomic),
+            cfg(any(
+                all(
+                    feature = "fallback",
+                    any(
+                        target_has_atomic = "ptr",
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                        target_arch = "avr",
+                        target_arch = "msp430",
+                    ),
+                ),
+                target_has_atomic = "64",
+                not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            ))
+        )]
+        $($tt)*
+    };
+}
+macro_rules! cfg_atomic_128 {
+    ($($tt:tt)*) => {
+        #[cfg_attr(
+            not(feature = "fallback"),
+            cfg(any(
+                all(
+                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                    target_arch = "aarch64",
+                ),
+                all(
+                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                    any(
+                        target_feature = "cmpxchg16b",
+                        portable_atomic_target_feature = "cmpxchg16b",
+                        all(
+                            feature = "fallback",
+                            portable_atomic_cmpxchg16b_target_feature,
+                            not(portable_atomic_no_outline_atomics),
+                            not(target_env = "sgx"),
+                        ),
+                    ),
+                    target_arch = "x86_64",
+                ),
+                all(
+                    portable_atomic_unstable_asm_experimental_arch,
+                    any(
+                        target_feature = "quadword-atomics",
+                        portable_atomic_target_feature = "quadword-atomics",
+                    ),
+                    target_arch = "powerpc64",
+                ),
+                all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
+            ))
+        )]
+        #[cfg_attr(
+            all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
+            cfg(any(
+                not(portable_atomic_no_atomic_cas),
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+                target_arch = "avr",
+                target_arch = "msp430",
+            ))
+        )]
+        #[cfg_attr(
+            all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
+            cfg(any(
+                target_has_atomic = "ptr",
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+                target_arch = "avr",
+                target_arch = "msp430",
+            ))
+        )]
+        $($tt)*
+    };
+}
+
 // hthttps://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L2992
 #[allow(dead_code)]
 #[inline]
