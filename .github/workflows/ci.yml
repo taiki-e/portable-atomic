@@ -166,6 +166,12 @@ jobs:
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      # -crt-static
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
+        if: contains(matrix.target, '-musl')
       # +cmpxchg16b
       # macOS is skipped because it is +cmpxchg16b by default
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD

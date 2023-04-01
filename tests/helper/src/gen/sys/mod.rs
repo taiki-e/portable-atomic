@@ -46,6 +46,24 @@ mod aarch64_linux_gnu_ilp32;
     )
 )]
 pub use aarch64_linux_gnu_ilp32::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "musl",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_linux_musl;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "musl",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_linux_musl::*;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
 mod aarch64_linux_android;
 #[cfg(all(target_arch = "aarch64", target_os = "android"))]

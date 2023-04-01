@@ -8,20 +8,23 @@
 //
 // - On glibc (*-linux-gnu*), [aarch64 support is available on glibc 2.17+](https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html)
 //   and is newer than [glibc 2.16 that added getauxval](https://sourceware.org/legacy-ml/libc-announce/2012/msg00000.html).
+// - On musl (*-linux-musl*, *-linux-ohos*), [aarch64 support is available on musl 1.1.7+](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.7#n1422)
+//   and is newer than [musl 1.1.0 that added getauxval](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.0#n1197).
+//   https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c
 // - On bionic (*-android*), [64-bit architecture support is available on Android 5.0+ (API level 21+)](https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
 //   and is newer than [Android 4.3 (API level 18) that added getauxval](https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49).
 //
-// On other Linux targets, we cannot assume that getauxval is always available,
-// so we use is_aarch64_feature_detected which uses dlsym (+io fallback) instead
-// of this module.
+// However, on musl with static linking, it seems that getauxval is not always available, independent of version requirements: https://github.com/rust-lang/rust/issues/89626
+// (That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
+// but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
+// of the same error.)
 //
-// - On musl (*-linux-musl*), [aarch64 support is available on musl 1.1.7+](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.7#n1422)
-//   and is newer than [musl 1.1.0 that added getauxval](https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.0#n1197).
-//   However, it seems that getauxval is not always available, independent of version requirements: https://github.com/rust-lang/rust/issues/89626
-//   (That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
-//   but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
-//   of the same error.)
-// - On uClibc-ng (*-linux-uclibc*), they [recently added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647)
+// On other Linux targets, we cannot assume that getauxval is always available, so we don't support
+// outline-atomics for now.
+//
+// - On musl with static linking. See the above for more.
+//   Also, in this case, dlsym(getauxval) always returns null.
+// - On uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*), they [recently added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647)
 //   but have not released it yet (as of 2023-02-09).
 // - On Picolibc, [Picolibc 1.4.6 added getauxval stub](https://github.com/picolibc/picolibc#picolibc-version-146).
 //

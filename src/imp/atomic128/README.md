@@ -26,11 +26,12 @@ Here is the table of targets that support run-time feature detection and the ins
 | target_arch | target_os/target_env | instruction/API |
 | ----------- | -------------------- | --------------- |
 | x86_64      | all (except for sgx) | cpuid           |
-| aarch64     | linux-gnu/android    | getauxval       |
-| aarch64     | other linux          | dlsym(getauxval) (via is_aarch64_feature_detected) |
+| aarch64     | linux/android        | getauxval       |
 | aarch64     | freebsd              | elf_aux_info    |
 | aarch64     | macos/openbsd        | sysctl          |
 | aarch64     | windows              | IsProcessorFeaturePresent |
 | aarch64     | fuchsia              | zx_system_get_features |
 
 For targets not included in the above table, run-time detections are disabled and work the same as when `--cfg portable_atomic_no_outline_atomics` is set.
+
+See [detect/aarch64_auxv.rs](detect/aarch64_auxv.rs) module-level comments for more details on Linux/Android/FreeBSD.

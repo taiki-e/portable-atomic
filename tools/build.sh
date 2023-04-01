@@ -384,6 +384,14 @@ build() {
             ;;
     esac
     case "${target}" in
+        mips*-linux-musl*) ;; # -crt-static by default
+        *-linux-musl*)
+            CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
+                RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
+                x_cargo "${args[@]}" "$@"
+            ;;
+    esac
+    case "${target}" in
         x86_64*)
             # macOS is skipped because it is +cmpxchg16b by default
             case "${target}" in

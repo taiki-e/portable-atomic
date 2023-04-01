@@ -52,9 +52,17 @@
 
 include!("macros.rs");
 
+// On musl with static linking, it seems that getauxval is not always available.
+// See detect/aarch64_auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
-    all(target_os = "linux", target_env = "gnu"),
+    all(
+        target_os = "linux",
+        any(
+            target_env = "gnu",
+            all(any(target_env = "musl", target_env = "ohos"), not(target_feature = "crt-static")),
+        ),
+    ),
     target_os = "android",
     target_os = "freebsd",
 ))]
@@ -71,10 +79,6 @@ mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_os = "windows")]
 #[path = "detect/aarch64_windows.rs"]
-mod detect;
-#[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(all(target_os = "linux", not(target_env = "gnu")))]
-#[path = "detect/aarch64_std.rs"]
 mod detect;
 
 // test only
@@ -310,7 +314,16 @@ unsafe fn atomic_compare_exchange(
         not(portable_atomic_no_aarch64_target_feature),
         not(portable_atomic_no_outline_atomics),
         any(
-            target_os = "linux",
+            all(
+                target_os = "linux",
+                any(
+                    target_env = "gnu",
+                    all(
+                        any(target_env = "musl", target_env = "ohos"),
+                        not(target_feature = "crt-static"),
+                    ),
+                ),
+            ),
             target_os = "android",
             target_os = "freebsd",
             target_os = "openbsd",
@@ -325,7 +338,16 @@ unsafe fn atomic_compare_exchange(
         not(portable_atomic_no_aarch64_target_feature),
         not(portable_atomic_no_outline_atomics),
         any(
-            target_os = "linux",
+            all(
+                target_os = "linux",
+                any(
+                    target_env = "gnu",
+                    all(
+                        any(target_env = "musl", target_env = "ohos"),
+                        not(target_feature = "crt-static"),
+                    ),
+                ),
+            ),
             target_os = "android",
             target_os = "freebsd",
             target_os = "openbsd",

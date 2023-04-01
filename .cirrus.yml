@@ -12,11 +12,11 @@ env:
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
 
-aarch64_linux_test_task:
+aarch64_linux_gnu_test_task:
+  env:
+    TARGET: aarch64-unknown-linux-gnu
   matrix:
     - name: test ($TARGET)
-      env:
-        TARGET: aarch64-unknown-linux-gnu
       arm_container:
         image: rust:latest
       setup_script:
@@ -24,8 +24,6 @@ aarch64_linux_test_task:
         - lscpu
         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
     - name: test ($TARGET, glibc 2.17)
-      env:
-        TARGET: aarch64-unknown-linux-gnu
       arm_container:
         # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
         image: centos:7
@@ -34,21 +32,32 @@ aarch64_linux_test_task:
         - lscpu
         - yum install -y gcc git
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
-    - name: test ($TARGET)
-      env:
-        TARGET: aarch64-unknown-linux-musl
-      arm_container:
-        image: rust:alpine
-      setup_script:
-        - set -ex
-        - apk --no-cache add bash git musl-dev util-linux
-        - lscpu
-        - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
   test_script:
     - |
       [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
     - set -ex
     - ./tools/test.sh -vv
+    # +lse
+    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+    # FEAT_LSE2 is tested on aarch64 macOS VM.
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
+
+aarch64_linux_musl_test_task:
+  name: test ($TARGET)
+  env:
+    TARGET: aarch64-unknown-linux-musl
+  arm_container:
+    image: rust:alpine
+  setup_script:
+    - set -ex
+    - apk --no-cache add bash git musl-dev util-linux
+    - lscpu
+    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+  test_script:
+    - set -ex
+    - ./tools/test.sh -vv
+    # -crt-static
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=-crt-static" ./tools/test.sh -vv
     # +lse
     # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
