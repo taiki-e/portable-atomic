@@ -22,3 +22,9 @@ pub use arch_arm64_include_uapi_asm_hwcap::{
     HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
     HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
 };
+mod bionic_libc_include_sys_auxv;
+pub use bionic_libc_include_sys_auxv::getauxval;
+mod bionic_libc_include_sys_system_properties;
+pub use bionic_libc_include_sys_system_properties::{
+    PROP_VALUE_MAX, __system_property_get,
+};

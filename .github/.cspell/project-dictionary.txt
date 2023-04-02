@@ -3,12 +3,15 @@ addc
 adde
 alcgr
 algr
+alltypes
+aosp
 armasm
 autogen
 auxv
 auxvec
 backoff
 bitops
+bminor
 bstr
 callthru
 casp
@@ -76,6 +79,7 @@ metavar
 mfence
 mgba
 miscompilation
+mkalltypes
 mmfr
 moreutils
 mstatus

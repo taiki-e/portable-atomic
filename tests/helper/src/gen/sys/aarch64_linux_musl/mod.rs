@@ -22,3 +22,5 @@ pub use arch_arm64_include_uapi_asm_hwcap::{
     HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
     HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
 };
+mod musl_include_sys_auxv;
+pub use musl_include_sys_auxv::getauxval;

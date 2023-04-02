@@ -127,6 +127,10 @@ mod c_types {
     // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L175-L190
     // (Windows currently doesn't use this module.)
     #[cfg(target_pointer_width = "64")]
+    pub(crate) type c_long = i64;
+    #[cfg(not(target_pointer_width = "64"))]
+    pub(crate) type c_long = i32;
+    #[cfg(target_pointer_width = "64")]
     pub(crate) type c_ulong = u64;
     #[cfg(not(target_pointer_width = "64"))]
     pub(crate) type c_ulong = u32;
@@ -150,6 +154,7 @@ mod c_types {
         use test_helper::libc;
         let _: c_int = 0 as std::os::raw::c_int;
         let _: c_uint = 0 as std::os::raw::c_uint;
+        let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
         let _: c_char = 0 as std::os::raw::c_char;

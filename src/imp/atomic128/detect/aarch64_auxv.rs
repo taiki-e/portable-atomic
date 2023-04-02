@@ -109,7 +109,7 @@ mod tests {
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
-    // TODO: auto-generate this test
+    // TODO(codegen): auto-generate this test
     #[cfg(target_os = "android")]
     #[allow(
         clippy::cast_possible_wrap,
@@ -118,14 +118,14 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use test_helper::libc;
+        use test_helper::{libc, sys};
         let mut ___system_property_get: unsafe extern "C" fn(
             *const ffi::c_char,
             *mut ffi::c_char,
         ) -> ffi::c_int = ffi::__system_property_get;
         ___system_property_get = libc::__system_property_get;
-        // ___system_property_get = sys::__system_property_get; // TODO
+        ___system_property_get = sys::__system_property_get;
         static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
-        // static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX); // TODO
+        static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as _);
     };
 }

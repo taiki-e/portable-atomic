@@ -13,6 +13,7 @@ use std::{collections::BTreeSet, ffi::OsStr};
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use duct::cmd;
+use fs::os::unix::fs::symlink;
 use fs_err as fs;
 use quote::{format_ident, quote};
 use regex::Regex;
@@ -34,18 +35,16 @@ static TARGETS: &[Target] = &[
         headers: &[
             // TODO: getauxval
             // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
-            // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
             // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
-            // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/auxv.h
-            // https://github.com/picolibc/picolibc/blob/HEAD/newlib/libc/picolib/getauxval.c
-            // TODO(android): __system_property_get, PROP_VALUE_MAX
-            // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/system_properties.h
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "include/uapi/linux/auxvec.h",
                 types: &[],
                 vars: &["AT_HWCAP.*"],
                 functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
@@ -53,6 +52,39 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["HWCAP.*"],
                 functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
+                path: "musl:include/sys/auxv.h",
+                types: &[],
+                vars: &[],
+                functions: &["getauxval"],
+                arch: &[],
+                os: &[linux],
+                env: &["musl"],
+            },
+            Header {
+                // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/auxv.h
+                path: "bionic:libc/include/sys/auxv.h",
+                types: &[],
+                vars: &[],
+                functions: &["getauxval"],
+                arch: &[],
+                os: &[android],
+                env: &[],
+            },
+            Header {
+                // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/system_properties.h
+                path: "bionic:libc/include/sys/system_properties.h",
+                types: &[],
+                vars: &["PROP_VALUE_MAX"],
+                functions: &["__system_property_get"],
+                arch: &[aarch64],
+                os: &[android],
+                env: &[],
             },
         ],
     },
@@ -65,6 +97,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &[],
                 functions: &["sysctlbyname"],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
         ],
     },
@@ -77,6 +112,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &[],
                 functions: &["elf_aux_info"],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
             Header {
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/elf_common.h
@@ -84,6 +122,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["AT_HWCAP.*"],
                 functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
             Header {
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/arm64/include/elf.h
@@ -91,6 +132,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["HWCAP.*"],
                 functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
             },
         ],
     },
@@ -103,6 +147,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["CTL_MACHDEP"],
                 functions: &["sysctl"],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
             Header {
                 // https://github.com/openbsd/src/blob/HEAD/sys/arch/arm64/include/cpu.h
@@ -110,6 +157,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["CPU_ID_.*"],
                 functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
             },
         ],
     },
@@ -125,6 +175,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["ZX_OK"],
                 functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
             },
             Header {
                 // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
@@ -132,6 +185,9 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_ISA_ATOMICS"],
                 functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
             },
         ],
     },
@@ -149,6 +205,11 @@ struct Header {
     types: &'static [&'static str],
     vars: &'static [&'static str],
     functions: &'static [&'static str],
+
+    // If not empty, code is generated only for the specified targets.
+    arch: &'static [TargetArch],
+    os: &'static [TargetOs],
+    env: &'static [&'static str],
 }
 
 pub(crate) fn gen() -> Result<()> {
@@ -156,6 +217,7 @@ pub(crate) fn gen() -> Result<()> {
     let download_cache_dir = &workspace_root.join("tools/codegen/tmp/cache");
     fs::create_dir_all(download_cache_dir)?;
     let out_dir = &workspace_root.join("tests/helper/src/gen/sys");
+    fs::remove_dir_all(out_dir)?;
     let raw_line = file::header(function_name!());
     let raw_line = raw_line.strip_suffix("\n\n#![cfg_attr(rustfmt, rustfmt::skip)]\n").unwrap();
 
@@ -199,25 +261,40 @@ pub(crate) fn gen() -> Result<()> {
                 }
                 _ => {}
             }
-            let include = match target.os {
+            let mut include;
+            match target.os {
                 linux | android => {
+                    // https://github.com/torvalds/linux/tree/HEAD/arch
                     let arch = match target.arch {
                         aarch64 => "arm64",
                         _ => todo!("{target:?}"),
                     };
-                    vec![src_dir.join("arch").join(arch).join("include/uapi")]
+                    include = vec![src_dir.join("arch").join(arch).join("include/uapi")];
+                    if target.os == android {
+                        let libc_dir =
+                            src_dir.join("../../aosp-mirror/platform_bionic").join("libc");
+                        include.push(libc_dir.join("include"));
+                        include.push(libc_dir.join("kernel/uapi/linux"));
+                        include.push(libc_dir.join("kernel/uapi"));
+                        include.push(libc_dir.join("kernel/android/uapi"));
+                    } else if target.env.as_deref() == Some("musl") {
+                        let libc_dir = src_dir.join("../../bminor/musl");
+                        include.push(libc_dir.join("include"));
+                    }
                 }
-                macos => vec![
-                    src_dir.join("bsd"),
-                    src_dir.join("EXTERNAL_HEADERS"),
-                    src_dir.join("osfmk"),
-                    src_dir.parent().unwrap().join("Libc/include"),
-                    src_dir.parent().unwrap().join("libpthread/include"),
-                ],
-                freebsd | openbsd => vec![src_dir.join("sys")],
-                fuchsia => vec![src_dir.join("zircon/system/public")],
+                macos => {
+                    include = vec![
+                        src_dir.join("bsd"),
+                        src_dir.join("EXTERNAL_HEADERS"),
+                        src_dir.join("osfmk"),
+                        src_dir.parent().unwrap().join("Libc/include"),
+                        src_dir.parent().unwrap().join("libpthread/include"),
+                    ]
+                }
+                freebsd | openbsd => include = vec![src_dir.join("include")],
+                fuchsia => include = vec![src_dir.join("zircon/system/public")],
                 _ => todo!("{target:?}"),
-            };
+            }
             for include in &include {
                 clang_args.push("-I");
                 clang_args.push(include.as_str());
@@ -225,20 +302,40 @@ pub(crate) fn gen() -> Result<()> {
 
             let mut files = vec![];
             for &header in headers {
+                if !header.arch.is_empty() && !header.arch.contains(&target.arch) {
+                    continue;
+                }
+                if !header.os.is_empty() && !header.os.contains(&target.os) {
+                    continue;
+                }
+                if !header.env.is_empty()
+                    && !header.env.contains(&target.env.as_deref().unwrap_or_default())
+                {
+                    continue;
+                }
+
                 let functions = header.functions.join("|");
                 let types = header.types.join("|");
                 let vars = header.vars.join("|");
 
                 let out_file = format!(
                     "{}.rs",
-                    Utf8PathBuf::from(header.path.replace('/', "_")).file_stem().unwrap()
+                    Utf8PathBuf::from(header.path.replace(['/', ':'], "_")).file_stem().unwrap()
                 );
                 let out_path = out_dir.join(&out_file);
 
                 let header_path = match target.os {
-                    linux | android => src_dir.join(header.path),
-                    macos => src_dir.join(format!("bsd/{}", header.path)),
-                    freebsd | openbsd => src_dir.join(format!("sys/{}", header.path)),
+                    linux | android => {
+                        if let Some(path) = header.path.strip_prefix("musl:") {
+                            src_dir.join("../../bminor/musl").join(path)
+                        } else if let Some(path) = header.path.strip_prefix("bionic:") {
+                            src_dir.join("../../aosp-mirror/platform_bionic").join(path)
+                        } else {
+                            src_dir.join(header.path)
+                        }
+                    }
+                    macos => src_dir.join("bsd").join(header.path),
+                    freebsd | openbsd => src_dir.join("include").join(header.path),
                     fuchsia => src_dir.join(header.path),
                     _ => todo!("{target:?}"),
                 };
@@ -289,6 +386,12 @@ pub(crate) fn gen() -> Result<()> {
                                 }
                             }
                         }
+                        syn::Item::Struct(i)
+                            if matches!(i.vis, syn::Visibility::Public(..))
+                                && types.is_match(&i.ident.to_string()) =>
+                        {
+                            uses.insert(format_ident!("{}", i.ident));
+                        }
                         syn::Item::Type(i)
                             if matches!(i.vis, syn::Visibility::Public(..))
                                 && types.is_match(&i.ident.to_string()) =>
@@ -316,6 +419,7 @@ pub(crate) fn gen() -> Result<()> {
         #![allow(
             dead_code,
             non_camel_case_types,
+            non_upper_case_globals,
             unreachable_pub,
             unused_imports,
             clippy::unreadable_literal,
@@ -343,7 +447,14 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
         Ok(src_dir)
     }
     let src_dir = match target.os {
-        linux | android => clone(download_cache_dir, "https://github.com/torvalds/linux.git")?,
+        linux | android => {
+            if target.os == android {
+                clone(download_cache_dir, "https://github.com/aosp-mirror/platform_bionic.git")?;
+            } else if target.env.as_deref() == Some("musl") {
+                clone(download_cache_dir, "https://github.com/bminor/musl.git")?;
+            }
+            clone(download_cache_dir, "https://github.com/torvalds/linux.git")?
+        }
         macos => {
             clone(download_cache_dir, "https://github.com/apple-oss-distributions/Libc.git")?;
             clone(download_cache_dir, "https://github.com/apple-oss-distributions/libpthread.git")?;
@@ -357,20 +468,55 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
     // TODO: remove needs of patches.
     for e in fs::read_dir("tools/codegen/patches")?.filter_map(Result::ok) {
         let path = e.path();
-        if path.file_stem() == Some(OsStr::new(target.os.as_str())) {
-            cmd!("patch", "-p1")
-                .stdin_file(fs::File::open(path)?.into_parts().0)
-                .dir(&src_dir)
-                .run()?;
+        if path.file_stem() == Some(OsStr::new(target.os.as_str()))
+            || path.file_stem()
+                == Some(OsStr::new(&format!(
+                    "{}-{}",
+                    target.os.as_str(),
+                    target.env.as_deref().unwrap_or_default()
+                )))
+        {
+            let dir = match target.os {
+                linux | android => src_dir.parent().unwrap().parent().unwrap(),
+                _ => &src_dir,
+            };
+            cmd!("patch", "-p1").stdin_file(fs::File::open(path)?.into_parts().0).dir(dir).run()?;
         }
     }
     Ok(src_dir)
 }
 
 // TODO: They should have a script included in their repository that does this automatically, so use it.
+// https://github.com/bminor/musl/blob/HEAD/Makefile
+// https://github.com/freebsd/freebsd-src/blob/HEAD/include/Makefile
+// https://github.com/openbsd/src/blob/HEAD/include/Makefile
 fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
     match target.os {
-        linux | android => {}
+        linux | android => {
+            if target.env.as_deref() == Some("musl") {
+                let libc_dir = src_dir.join("../../bminor/musl");
+                // https://github.com/bminor/musl/tree/HEAD/arch
+                let arch = match target.arch {
+                    aarch64 => "aarch64",
+                    _ => todo!("{target:?}"),
+                };
+                for path in ["bits"] {
+                    symlink(
+                        libc_dir.join("arch").join(arch).join(path),
+                        libc_dir.join("include").join(path),
+                    )?;
+                }
+                let alltypes = cmd!(
+                    "sed",
+                    "-f",
+                    libc_dir.join("tools/mkalltypes.sed"),
+                    libc_dir.join("arch").join(arch).join("bits/alltypes.h.in"),
+                    libc_dir.join("include/alltypes.h.in")
+                )
+                .read()?;
+                fs::write(libc_dir.join("arch").join(arch).join("bits/alltypes.h"), alltypes)?;
+            }
+        }
         macos => {
             // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_symbol_aliasing.sh
             // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_posix_availability.sh
@@ -378,20 +524,32 @@ fn arch_symlink(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
             fs::write(src_dir.join("bsd/sys/_posix_availability.h"), "")?;
         }
         freebsd => {
+            // https://github.com/freebsd/freebsd-src/tree/HEAD/sys
             let arch = match target.arch {
                 aarch64 => "arm64",
                 _ => todo!("{target:?}"),
             };
-            let link = &src_dir.join("sys/machine");
-            fs::os::unix::fs::symlink(src_dir.join("sys").join(arch).join("include"), link)?;
+            for path in ["sys"] {
+                symlink(src_dir.join("sys").join(path), src_dir.join("include").join(path))?;
+            }
+            symlink(
+                src_dir.join("sys").join(arch).join("include"),
+                src_dir.join("include/machine"),
+            )?;
         }
         openbsd => {
+            // https://github.com/openbsd/src/tree/HEAD/sys/arch
             let arch = match target.arch {
                 aarch64 => "arm64",
                 _ => todo!("{target:?}"),
             };
-            let link = &src_dir.join("sys/machine");
-            fs::os::unix::fs::symlink(src_dir.join("sys/arch").join(arch).join("include"), link)?;
+            for path in ["sys", "uvm"] {
+                symlink(src_dir.join("sys").join(path), src_dir.join("include").join(path))?;
+            }
+            symlink(
+                src_dir.join("sys/arch").join(arch).join("include"),
+                src_dir.join("include/machine"),
+            )?;
         }
         fuchsia => {}
         _ => todo!("{target:?}"),

@@ -79,7 +79,7 @@ mod tests {
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
-    // TODO: auto-generate this test
+    // TODO(codegen): auto-generate this test
     #[allow(
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss,
@@ -88,7 +88,7 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::sys;
-        // TODO: zx_status_t, zx_system_get_features
+        // TODO(codegen): zx_status_t, zx_system_get_features
         static_assert!(ffi::ZX_OK == sys::ZX_OK as ffi::zx_status_t);
         static_assert!(ffi::ZX_FEATURE_KIND_CPU == sys::ZX_FEATURE_KIND_CPU);
         static_assert!(ffi::ZX_ARM64_FEATURE_ISA_ATOMICS == sys::ZX_ARM64_FEATURE_ISA_ATOMICS);

@@ -293,7 +293,7 @@ mod tests {
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
-    // TODO: auto-generate this test
+    // TODO(codegen): auto-generate this test
     #[cfg(target_os = "openbsd")]
     #[allow(
         clippy::cast_possible_wrap,

@@ -64,7 +64,7 @@ mod tests {
     // API metadata, so it should be enough to check compatibility with the
     // windows-sys' signatures/values.)
     // See also tools/codegen/src/ffi.rs.
-    // TODO: auto-generate this test
+    // TODO(codegen): auto-generate this test
     #[allow(
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss,

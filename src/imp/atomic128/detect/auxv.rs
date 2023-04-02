@@ -157,7 +157,7 @@ mod tests {
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
-    // TODO: auto-generate this test
+    // TODO(codegen): auto-generate this test
     #[allow(
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss,
@@ -170,6 +170,10 @@ mod tests {
         {
             let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
             _getauxval = libc::getauxval;
+            #[cfg(any(target_env = "musl", target_os = "android"))] // TODO(codegen)
+            {
+                _getauxval = sys::getauxval;
+            }
         }
         #[cfg(target_os = "freebsd")]
         {
