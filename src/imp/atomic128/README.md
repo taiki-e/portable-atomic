@@ -34,4 +34,4 @@ Here is the table of targets that support run-time feature detection and the ins
 
 For targets not included in the above table, run-time detections are disabled and work the same as when `--cfg portable_atomic_no_outline_atomics` is set.
 
-See [detect/aarch64_auxv.rs](detect/aarch64_auxv.rs) module-level comments for more details on Linux/Android/FreeBSD.
+See [detect/auxv.rs](detect/auxv.rs) module-level comments for more details on Linux/Android/FreeBSD.
