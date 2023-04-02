@@ -264,7 +264,6 @@ jobs:
           set -euxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
             avr-libc \
-            binutils-arm-none-eabi \
             gcc-avr \
             qemu-system-arm \
             qemu-system-misc \
