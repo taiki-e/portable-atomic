@@ -11,8 +11,6 @@ camino = "1"
 duct = "0.13"
 fs-err = "2"
 globset = "=0.4.9" # globset 0.4.10 depends on bstr 1 which may cause https://github.com/rust-lang/cargo/issues/10623
-ignore = "0.4"
-indexmap = { version = "1", features = ["std"] }
 prettyplease = "0.2"
 proc-macro2 = "1"
 quote = "1"

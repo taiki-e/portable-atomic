@@ -3,10 +3,10 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-mod include_uapi_linux_auxvec;
-pub use include_uapi_linux_auxvec::{AT_HWCAP, AT_HWCAP2};
-mod arch_arm64_include_uapi_asm_hwcap;
-pub use arch_arm64_include_uapi_asm_hwcap::{
+mod linux_headers_linux_auxvec;
+pub use linux_headers_linux_auxvec::{AT_HWCAP, AT_HWCAP2};
+mod linux_headers_asm_hwcap;
+pub use linux_headers_asm_hwcap::{
     HWCAP2_AFP, HWCAP2_BF16, HWCAP2_BTI, HWCAP2_CSSC, HWCAP2_DCPODP, HWCAP2_DGH,
     HWCAP2_EBF16, HWCAP2_ECV, HWCAP2_FLAGM2, HWCAP2_FRINT, HWCAP2_I8MM, HWCAP2_MTE,
     HWCAP2_MTE3, HWCAP2_RNG, HWCAP2_RPRES, HWCAP2_RPRFM, HWCAP2_SME, HWCAP2_SME2,
@@ -22,9 +22,7 @@ pub use arch_arm64_include_uapi_asm_hwcap::{
     HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
     HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
 };
-mod bionic_libc_include_sys_auxv;
-pub use bionic_libc_include_sys_auxv::getauxval;
-mod bionic_libc_include_sys_system_properties;
-pub use bionic_libc_include_sys_system_properties::{
-    PROP_VALUE_MAX, __system_property_get,
-};
+mod bionic_sys_auxv;
+pub use bionic_sys_auxv::getauxval;
+mod bionic_sys_system_properties;
+pub use bionic_sys_system_properties::{PROP_VALUE_MAX, __system_property_get};

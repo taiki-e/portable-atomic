@@ -3,7 +3,6 @@ addc
 adde
 alcgr
 algr
-alltypes
 aosp
 armasm
 autogen
@@ -44,6 +43,7 @@ cxchg
 cxchgweak
 datatypes
 dedup
+DESTDIR
 dlsym
 doctests
 DWCAS
@@ -78,13 +78,14 @@ machdep
 metavar
 mfence
 mgba
+mipsn
 miscompilation
-mkalltypes
 mmfr
 moreutils
 mstatus
 negs
 neoverse
+newlib
 newrepo
 newtype
 nographic
@@ -102,6 +103,7 @@ qword
 RAII
 rcpc
 reentrancy
+relibc
 rsil
 sbcs
 seqlock

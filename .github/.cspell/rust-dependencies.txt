@@ -5,7 +5,6 @@ bindgen
 camino
 fastrand
 globset
-indexmap
 libc
 prettyplease
 quickcheck
