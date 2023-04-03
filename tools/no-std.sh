@@ -182,14 +182,8 @@ run() {
 
     (
         cd "${test_dir}"
-        case "${target}" in
-            # TODO: compiler_builtins overflow bug: https://github.com/rust-lang/compiler-builtins/pull/521
-            thumbv5te*) ;;
-            *)
-                RUSTFLAGS="${target_rustflags}" \
-                    x_cargo "${args[@]}" "$@"
-                ;;
-        esac
+        RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" "$@"
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --release "$@"
     )
