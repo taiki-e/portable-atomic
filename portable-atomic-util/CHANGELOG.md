@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.1.2] - 2023-04-04
+
 - Implement `AsRef`, `Borrow`, and `Unpin` on `Arc`. ([#92](https://github.com/taiki-e/portable-atomic/pull/92) [#93](https://github.com/taiki-e/portable-atomic/pull/93), thanks @notgull)
 
 ## [0.1.1] - 2023-03-24
@@ -22,6 +24,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.2...HEAD
+[0.1.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.1...portable-atomic-util-0.1.2
 [0.1.1]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.0...portable-atomic-util-0.1.1
 [0.1.0]: https://github.com/taiki-e/portable-atomic/releases/tag/portable-atomic-util-0.1.0
