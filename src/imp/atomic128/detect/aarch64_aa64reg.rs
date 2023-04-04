@@ -18,14 +18,13 @@
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
 // For now, this module is only used on OpenBSD.
-// - On Linux, this module is test-only because this approach requires a higher
-//   kernel version than Rust supports, and also does not work with qemu-user
-//   (as of QEMU 7.2) and Valgrind. (Looking into HWCAP_CPUID in auxvec, it
-//   appears that Valgrind is setting it to false correctly, but qemu-user is
-//   setting it to true.)
-// - On FreeBSD, this module is test-only because this approach does not work on
-//   FreeBSD 12 on QEMU (confirmed on FreeBSD 12.{2,3,4}), and we got SIGILL
-//   (worked on FreeBSD 13 and 14).
+// On Linux/FreeBSD, this module is test-only:
+// - On Linux, this approach requires a higher kernel version than Rust supports,
+//   and also does not work with qemu-user (as of QEMU 7.2) and Valgrind.
+//   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
+//   to false correctly, but qemu-user is setting it to true.)
+// - On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
+//   FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
 
 #![cfg_attr(
     any(
