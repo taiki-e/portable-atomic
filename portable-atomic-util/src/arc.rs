@@ -8,6 +8,7 @@ use portable_atomic::{
 use alloc::boxed::Box;
 
 use core::{
+    borrow::Borrow,
     fmt,
     hash::Hash,
     marker::PhantomData,
@@ -598,6 +599,18 @@ impl<T: ?Sized> Deref for Arc<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
+        &self.inner().value
+    }
+}
+
+impl<T: ?Sized> AsRef<T> for Arc<T> {
+    fn as_ref(&self) -> &T {
+        &self.inner().value
+    }
+}
+
+impl<T: ?Sized> Borrow<T> for Arc<T> {
+    fn borrow(&self) -> &T {
         &self.inner().value
     }
 }
