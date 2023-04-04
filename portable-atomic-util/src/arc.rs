@@ -141,6 +141,8 @@ unsafe impl<T: ?Sized + Send + Sync> Send for Weak<T> {}
 // SAFETY: This value is accessible from many threads, it has to be Sync.
 unsafe impl<T: ?Sized + Send + Sync> Sync for Weak<T> {}
 
+impl<T: ?Sized> Unpin for Arc<T> {}
+
 impl<T: ?Sized + fmt::Debug> fmt::Debug for Arc<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&**self, f)
