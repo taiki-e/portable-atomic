@@ -5,7 +5,6 @@ alcgr
 algr
 aosp
 armasm
-autogen
 auxv
 auxvec
 backoff
@@ -27,7 +26,6 @@ cmovl
 cmpd
 cmpld
 cmpxchg
-concat
 cpsid
 cpsie
 CPSR
@@ -42,17 +40,13 @@ csrsi
 cxchg
 cxchgweak
 datatypes
-dedup
 DESTDIR
 dlsym
-doctests
 DWCAS
 espup
 exynos
 FIQs
 getauxval
-hartid
-hstdout
 HWCAP
 ifunc
 includepath
@@ -79,7 +73,6 @@ metavar
 mfence
 mgba
 mipsn
-miscompilation
 mmfr
 moreutils
 mstatus
@@ -88,7 +81,6 @@ neoverse
 newlib
 newrepo
 newtype
-nographic
 nostartfiles
 nostdinc
 opensbi
@@ -109,12 +101,10 @@ sbcs
 seqlock
 setb
 sete
-sifive
 simavr
 skiboot
 slbgr
 slgr
-sourceware
 spinlock
 sreg
 sstatus
