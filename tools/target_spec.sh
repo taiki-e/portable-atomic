@@ -47,9 +47,12 @@ pub enum TargetArch {
 $(sed <<<"${target_arch[*]}" -E 's/^/    /g; s/$/,/g')
     // Architectures that do not included in builtin targets.
     // See also https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/abi/call/mod.rs#L663
+    // and https://github.com/rust-lang/rust/blob/540a50df0fb23127edf0b35b0e497748e24bba1a/src/bootstrap/lib.rs#L132.
     amdgpu,
     asmjs,
     loongarch64,
+    nvptx,
+    spirv,
     xtensa,
 }
 pub use TargetArch::*;
@@ -78,6 +81,9 @@ impl Default for TargetOs {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Display, IntoStaticStr)]
 pub enum TargetEnv {
 $(sed <<<"${target_env[*]}" -E 's/^/    /g; s/$/,/g; s/null/none/g')
+    // Environments that do not included in builtin targets.
+    // See also https://github.com/rust-lang/rust/blob/540a50df0fb23127edf0b35b0e497748e24bba1a/src/bootstrap/lib.rs#L130.
+    libnx,
 }
 pub use TargetEnv::*;
 impl TargetEnv {

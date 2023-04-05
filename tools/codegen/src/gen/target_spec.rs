@@ -31,9 +31,12 @@ pub enum TargetArch {
     x86_64,
     // Architectures that do not included in builtin targets.
     // See also https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/abi/call/mod.rs#L663
+    // and https://github.com/rust-lang/rust/blob/540a50df0fb23127edf0b35b0e497748e24bba1a/src/bootstrap/lib.rs#L132.
     amdgpu,
     asmjs,
     loongarch64,
+    nvptx,
+    spirv,
     xtensa,
 }
 pub use TargetArch::*;
@@ -106,6 +109,9 @@ pub enum TargetEnv {
     relibc,
     sgx,
     uclibc,
+    // Environments that do not included in builtin targets.
+    // See also https://github.com/rust-lang/rust/blob/540a50df0fb23127edf0b35b0e497748e24bba1a/src/bootstrap/lib.rs#L130.
+    libnx,
 }
 pub use TargetEnv::*;
 impl TargetEnv {

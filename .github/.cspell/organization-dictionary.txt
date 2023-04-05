@@ -67,6 +67,7 @@ openwrt
 riscv
 softfloat
 sparcv
+spirv
 thumbeb
 thumbebv
 thumbv

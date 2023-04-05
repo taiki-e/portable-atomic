@@ -60,6 +60,7 @@ lghi
 libcalls
 libdir
 libfdio
+libnx
 libpthread
 libstd
 libtcl
