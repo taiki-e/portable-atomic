@@ -117,6 +117,6 @@ fn main() -> ! {
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    println!("{info}");
+    fatal!("{info}");
     loop {}
 }
