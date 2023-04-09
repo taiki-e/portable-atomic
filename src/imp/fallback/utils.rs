@@ -1,5 +1,49 @@
 use core::ops;
 
+// Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
+// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
+// so use it to implement normal sequence lock.
+// Known architectures that have such ABI are x86_64, aarch64, and mips64. However,
+// we list all 64-bit architectures because similar ABIs may exist for other architectures.
+// Script to get the list:
+// $ (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    target_arch = "/g; s/$/",/g'
+macro_rules! cfg_fast_atomic_64 {
+    ($($tt:tt)*) => {
+        #[cfg(any(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            target_arch = "aarch64",
+            target_arch = "bpf",
+            target_arch = "mips64",
+            target_arch = "nvptx64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "sparc64",
+            target_arch = "wasm64",
+            target_arch = "x86_64",
+        ))]
+        $($tt)*
+    };
+}
+macro_rules! cfg_no_fast_atomic_64 {
+    ($($tt:tt)*) => {
+        #[cfg(not(any(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            target_arch = "aarch64",
+            target_arch = "bpf",
+            target_arch = "mips64",
+            target_arch = "nvptx64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "sparc64",
+            target_arch = "wasm64",
+            target_arch = "x86_64",
+        )))]
+        $($tt)*
+    };
+}
+
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/d49a0f8454499ced8af0b61aeb661379c4eb0588/crossbeam-utils/src/cache_padded.rs.
 /// Pads and aligns a value to the length of a cache line.
 // Starting from Intel's Sandy Bridge, spatial prefetcher is now pulling pairs of 64-byte cache

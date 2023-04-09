@@ -27,6 +27,7 @@
     allow(dead_code)
 )]
 
+#[macro_use]
 pub(crate) mod utils;
 
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
@@ -39,39 +40,13 @@ pub(crate) mod utils;
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock.
-// Known architectures that have such ABI are x86_64, aarch64, and mips64. However,
-// we list all 64-bit architectures because similar ABIs may exist for other architectures.
-// Script to get the list:
-// $ (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    target_arch = "/g; s/$/",/g'
-#[cfg(any(
-    not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    target_arch = "aarch64",
-    target_arch = "bpf",
-    target_arch = "mips64",
-    target_arch = "nvptx64",
-    target_arch = "powerpc64",
-    target_arch = "riscv64",
-    target_arch = "s390x",
-    target_arch = "sparc64",
-    target_arch = "wasm64",
-    target_arch = "x86_64",
-))]
-mod seq_lock;
-#[cfg(not(any(
-    not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    target_arch = "aarch64",
-    target_arch = "bpf",
-    target_arch = "mips64",
-    target_arch = "nvptx64",
-    target_arch = "powerpc64",
-    target_arch = "riscv64",
-    target_arch = "s390x",
-    target_arch = "sparc64",
-    target_arch = "wasm64",
-    target_arch = "x86_64",
-)))]
-#[path = "seq_lock_wide.rs"]
-mod seq_lock;
+cfg_fast_atomic_64! {
+    mod seq_lock;
+}
+cfg_no_fast_atomic_64! {
+    #[path = "seq_lock_wide.rs"]
+    mod seq_lock;
+}
 
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
@@ -393,44 +368,28 @@ macro_rules! atomic {
     };
 }
 
-#[cfg(not(any(
-    not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    target_arch = "aarch64",
-    target_arch = "bpf",
-    target_arch = "mips64",
-    target_arch = "nvptx64",
-    target_arch = "powerpc64",
-    target_arch = "riscv64",
-    target_arch = "s390x",
-    target_arch = "sparc64",
-    target_arch = "wasm64",
-    target_arch = "x86_64",
-)))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "64")))
-)]
-atomic!(AtomicI64, i64, 8);
-#[cfg(not(any(
-    not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    target_arch = "aarch64",
-    target_arch = "bpf",
-    target_arch = "mips64",
-    target_arch = "nvptx64",
-    target_arch = "powerpc64",
-    target_arch = "riscv64",
-    target_arch = "s390x",
-    target_arch = "sparc64",
-    target_arch = "wasm64",
-    target_arch = "x86_64",
-)))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "64")))
-)]
-atomic!(AtomicU64, u64, 8);
+cfg_no_fast_atomic_64! {
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(test, portable_atomic_no_atomic_64))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(test, not(target_has_atomic = "64")))
+    )]
+    atomic!(AtomicI64, i64, 8);
+}
+cfg_no_fast_atomic_64! {
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(test, portable_atomic_no_atomic_64))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(test, not(target_has_atomic = "64")))
+    )]
+    atomic!(AtomicU64, u64, 8);
+}
 
 atomic!(AtomicI128, i128, 16);
 atomic!(AtomicU128, u128, 16);
@@ -439,34 +398,12 @@ atomic!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    #[cfg(not(any(
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-        target_arch = "aarch64",
-        target_arch = "bpf",
-        target_arch = "mips64",
-        target_arch = "nvptx64",
-        target_arch = "powerpc64",
-        target_arch = "riscv64",
-        target_arch = "s390x",
-        target_arch = "sparc64",
-        target_arch = "wasm64",
-        target_arch = "x86_64",
-    )))]
-    test_atomic_int!(i64);
-    #[cfg(not(any(
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
-        target_arch = "aarch64",
-        target_arch = "bpf",
-        target_arch = "mips64",
-        target_arch = "nvptx64",
-        target_arch = "powerpc64",
-        target_arch = "riscv64",
-        target_arch = "s390x",
-        target_arch = "sparc64",
-        target_arch = "wasm64",
-        target_arch = "x86_64",
-    )))]
-    test_atomic_int!(u64);
+    cfg_no_fast_atomic_64! {
+        test_atomic_int!(i64);
+    }
+    cfg_no_fast_atomic_64! {
+        test_atomic_int!(u64);
+    }
     test_atomic_int!(i128);
     test_atomic_int!(u128);
 }
