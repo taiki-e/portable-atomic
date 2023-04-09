@@ -3,7 +3,6 @@
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![feature(lang_items)]
 #![feature(macro_metavar_expr)]
-#![feature(panic_info_message)]
 #![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
@@ -142,12 +141,6 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = semihosting::Usart(arduino_hal::default_serial!(dp, pins, 57600));
 
-    macro_rules! print {
-        ($($tt:tt)*) => {{
-            use core::fmt::Write as _;
-            let _ = write!(serial, $($tt)*);
-        }};
-    }
     macro_rules! println {
         ($($tt:tt)*) => {{
             use core::fmt::Write as _;
@@ -155,17 +148,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         }};
     }
 
-    if let Some(m) = info.message() {
-        print!("panicked at '{m:?}'");
-    } else {
-        print!("panic occurred (no message)");
-    }
-    if let Some(l) = info.location() {
-        println!(", {l}");
-    } else {
-        println!(" (no location info)");
-    }
-
+    println!("{info}");
     semihosting::exit(semihosting::EXIT_FAILURE)
 }
 #[lang = "eh_personality"]
