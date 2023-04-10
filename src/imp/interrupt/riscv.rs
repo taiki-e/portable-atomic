@@ -3,7 +3,7 @@
 // - https://five-embeddev.com/riscv-isa-manual/latest/supervisor.html#sstatus
 //
 // Generated asm:
-// - riscv64gc https://godbolt.org/z/TnPvPa4c4
+// - riscv64gc https://godbolt.org/z/a78zxf5sW
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -43,8 +43,7 @@ macro_rules! mask {
     };
 }
 
-#[derive(Clone, Copy)]
-pub(super) struct State(usize);
+pub(super) type State = usize;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
@@ -56,12 +55,16 @@ pub(super) fn disable() -> State {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(concat!("csrrci {0}, ", status!(), ", ", mask!()), out(reg) r, options(nostack, preserves_flags));
     }
-    State(r)
+    r
 }
 
 /// Restores the previous interrupt state.
+///
+/// # Safety
+///
+/// The state must be the one retrieved by the previous `disable`.
 #[inline]
-pub(super) unsafe fn restore(State(r): State) {
+pub(super) unsafe fn restore(r: State) {
     if r & MASK != 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.

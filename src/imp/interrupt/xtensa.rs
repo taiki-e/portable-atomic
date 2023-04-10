@@ -25,6 +25,10 @@ pub(super) fn disable() -> State {
 }
 
 /// Restores the previous interrupt state.
+///
+/// # Safety
+///
+/// The state must be the one retrieved by the previous `disable`.
 #[inline]
 pub(super) unsafe fn restore(r: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,

@@ -3,8 +3,7 @@
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 
-#[derive(Clone, Copy)]
-pub(super) struct State(u8);
+pub(super) type State = u8;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
@@ -29,12 +28,16 @@ pub(super) fn disable() -> State {
             llvm_asm!("cli" ::: "memory" : "volatile");
         }
     }
-    State(sreg)
+    sreg
 }
 
 /// Restores the previous interrupt state.
+///
+/// # Safety
+///
+/// The state must be the one retrieved by the previous `disable`.
 #[inline]
-pub(super) unsafe fn restore(State(sreg): State) {
+pub(super) unsafe fn restore(sreg: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
         // This clobbers the entire status register. See msp430.rs to safety on this.

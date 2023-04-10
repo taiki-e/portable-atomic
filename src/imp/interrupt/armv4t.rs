@@ -1,7 +1,7 @@
 // Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en#CIHJBHJA
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/4z8ahWd4T
+// - armv5te https://godbolt.org/z/5arYrfzYc
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -19,8 +19,7 @@ macro_rules! if_disable_fiq {
     };
 }
 
-#[derive(Clone, Copy)]
-pub(super) struct State(u32);
+pub(super) type State = u32;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
@@ -42,13 +41,17 @@ pub(super) fn disable() -> State {
             options(nostack, preserves_flags),
         );
     }
-    State(cpsr)
+    cpsr
 }
 
 /// Restores the previous interrupt state.
+///
+/// # Safety
+///
+/// The state must be the one retrieved by the previous `disable`.
 #[inline]
 #[instruction_set(arm::a32)]
-pub(super) unsafe fn restore(State(cpsr): State) {
+pub(super) unsafe fn restore(cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
         // This clobbers the entire CPSR. See msp430.rs to safety on this.
