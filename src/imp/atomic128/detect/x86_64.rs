@@ -1,16 +1,9 @@
 // Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(
-    any(
-        not(target_feature = "sse"),
-        portable_atomic_no_outline_atomics,
-        target_env = "sgx",
-        miri,
-        portable_atomic_sanitize_thread,
-    ),
+    any(not(target_feature = "sse"), miri, portable_atomic_sanitize_thread),
     allow(dead_code)
 )]
-#![cfg_attr(target_env = "sgx", allow(unused_variables))]
 
 include!("common.rs");
 
@@ -119,7 +112,7 @@ mod tests {
     // Miri doesn't support inline assembly.
     #[cfg_attr(any(target_env = "sgx", miri), ignore)]
     fn test_cpuid() {
-        assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), has_cmpxchg16b());
+        assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());
         let vendor_id = unsafe { _vendor_id() };
         if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
             assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());

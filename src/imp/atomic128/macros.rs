@@ -23,7 +23,7 @@ macro_rules! atomic128 {
             }
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
-                is_always_lock_free()
+                IS_ALWAYS_LOCK_FREE
             }
 
             #[inline]

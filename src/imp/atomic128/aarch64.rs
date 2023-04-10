@@ -364,7 +364,7 @@ unsafe fn atomic_compare_exchange(
             match success {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::has_lse() {
+                        if detect::detect().has_lse() {
                             _atomic_compare_exchange_casp_relaxed
                         } else {
                             _atomic_compare_exchange_ldxp_stxp_relaxed
@@ -373,7 +373,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Acquire => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::has_lse() {
+                        if detect::detect().has_lse() {
                             _atomic_compare_exchange_casp_acquire
                         } else {
                             _atomic_compare_exchange_ldxp_stxp_acquire
@@ -382,7 +382,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Release => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::has_lse() {
+                        if detect::detect().has_lse() {
                             _atomic_compare_exchange_casp_release
                         } else {
                             _atomic_compare_exchange_ldxp_stxp_release
@@ -392,7 +392,7 @@ unsafe fn atomic_compare_exchange(
                 // AcqRel and SeqCst RMWs are equivalent in both implementations.
                 Ordering::AcqRel | Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::has_lse() {
+                        if detect::detect().has_lse() {
                             _atomic_compare_exchange_casp_acqrel
                         } else {
                             _atomic_compare_exchange_ldxp_stxp_acqrel
@@ -1081,10 +1081,10 @@ atomic_rmw_cas_3! {
 }
 
 #[inline]
-const fn is_always_lock_free() -> bool {
-    true
+const fn is_lock_free() -> bool {
+    IS_ALWAYS_LOCK_FREE
 }
-use is_always_lock_free as is_lock_free;
+const IS_ALWAYS_LOCK_FREE: bool = true;
 
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);

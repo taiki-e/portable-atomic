@@ -500,10 +500,10 @@ atomic_rmw_ll_sc_3! {
 }
 
 #[inline]
-const fn is_always_lock_free() -> bool {
-    true
+const fn is_lock_free() -> bool {
+    IS_ALWAYS_LOCK_FREE
 }
-use is_always_lock_free as is_lock_free;
+const IS_ALWAYS_LOCK_FREE: bool = true;
 
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);

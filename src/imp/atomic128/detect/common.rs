@@ -54,18 +54,19 @@ impl CpuInfo {
     // This is currently only used in tests.
     #[cfg(test)]
     const HAS_RCPC3: u32 = 4;
-}
-#[cfg(target_arch = "aarch64")]
-#[inline]
-pub(crate) fn has_lse() -> bool {
-    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-    {
-        // FEAT_LSE is statically available.
-        true
-    }
-    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-    {
-        detect().test(CpuInfo::HAS_LSE)
+
+    #[allow(clippy::unused_self)]
+    #[inline]
+    pub(crate) fn has_lse(self) -> bool {
+        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+        {
+            // FEAT_LSE is statically available.
+            true
+        }
+        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+        {
+            self.test(CpuInfo::HAS_LSE)
+        }
     }
 }
 
@@ -95,21 +96,6 @@ impl CpuInfo {
     #[inline]
     pub(crate) fn has_vmovdqa_atomic(self) -> bool {
         self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)
-    }
-}
-/// Equivalent to `detect().has_cmpxchg16b()`, but avoids calling `detect()`
-/// if CMPXCHG16B is statically available.
-#[cfg(target_arch = "x86_64")]
-#[inline]
-pub(crate) fn has_cmpxchg16b() -> bool {
-    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-    {
-        // CMPXCHG16B is statically available.
-        true
-    }
-    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
-    {
-        detect().has_cmpxchg16b()
     }
 }
 
@@ -263,7 +249,7 @@ mod tests_common {
     #[test]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
-        if has_lse() {
+        if detect().has_lse() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             #[cfg(any(
                 target_feature = "lse",

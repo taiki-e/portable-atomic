@@ -16,6 +16,8 @@ include!("macros.rs");
 #[path = "../fallback/outline_atomics.rs"]
 mod fallback;
 
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(not(target_env = "sgx"))]
 #[path = "detect/x86_64.rs"]
 mod detect;
 
@@ -373,7 +375,7 @@ unsafe fn atomic_compare_exchange(
             ifunc!(unsafe fn(
                 dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
             ) -> (u128, bool) {
-                if detect::has_cmpxchg16b() {
+                if detect::detect().has_cmpxchg16b() {
                     _cmpxchg16b
                 } else {
                     fallback::atomic_compare_exchange
@@ -718,12 +720,18 @@ atomic_rmw_by_atomic_update!();
 
 #[inline]
 fn is_lock_free() -> bool {
-    detect::has_cmpxchg16b()
+    #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
+    {
+        // CMPXCHG16B is statically available.
+        true
+    }
+    #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
+    {
+        detect::detect().has_cmpxchg16b()
+    }
 }
-#[inline]
-const fn is_always_lock_free() -> bool {
-    cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
-}
+const IS_ALWAYS_LOCK_FREE: bool =
+    cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"));
 
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
@@ -867,10 +875,10 @@ mod tests_no_cmpxchg16b {
     atomic_rmw_by_atomic_update!();
 
     #[inline]
-    const fn is_always_lock_free() -> bool {
-        false
+    const fn is_lock_free() -> bool {
+        IS_ALWAYS_LOCK_FREE
     }
-    use is_always_lock_free as is_lock_free;
+    const IS_ALWAYS_LOCK_FREE: bool = false;
 
     atomic128!(AtomicI128, i128, atomic_max, atomic_min);
     atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
