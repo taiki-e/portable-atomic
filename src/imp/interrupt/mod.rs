@@ -29,8 +29,6 @@
 // [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#LL963
 // [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 
-#![cfg_attr(test, allow(dead_code))]
-
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts. On MSP430, some RMWs that do not return the
 // previous value can also be optimized.
@@ -143,11 +141,8 @@ impl AtomicBool {
     pub(crate) fn load(&self, order: Ordering) -> bool {
         crate::utils::assert_load_ordering(order);
         #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        // SAFETY: any data races are prevented by atomic intrinsics (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicBool)).load(order)
+        {
+            self.as_native().load(order)
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -161,11 +156,8 @@ impl AtomicBool {
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        // SAFETY: any data races are prevented by atomic intrinsics (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicBool)).store(val, order);
+        {
+            self.as_native().store(val, order);
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -258,6 +250,14 @@ impl AtomicBool {
     pub(crate) const fn as_ptr(&self) -> *mut bool {
         self.v.get() as *mut bool
     }
+
+    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+    #[inline]
+    fn as_native(&self) -> &atomic::AtomicBool {
+        // SAFETY: AtomicBool and atomic::AtomicBool have the same layout and
+        // guarantee atomicity in a compatible way. (see module-level comments)
+        unsafe { &*(self as *const Self as *const atomic::AtomicBool) }
+    }
 }
 
 #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
@@ -266,24 +266,15 @@ no_fetch_ops_impl!(AtomicBool, bool);
 impl AtomicBool {
     #[inline]
     pub(crate) fn and(&self, val: bool, order: Ordering) {
-        // SAFETY: Self and atomic::AtomicBool have the same layout,
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicBool)).and(val, order);
-        }
+        self.as_native().and(val, order);
     }
     #[inline]
     pub(crate) fn or(&self, val: bool, order: Ordering) {
-        // SAFETY: Self and atomic::AtomicBool have the same layout,
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicBool)).or(val, order);
-        }
+        self.as_native().or(val, order);
     }
     #[inline]
     pub(crate) fn xor(&self, val: bool, order: Ordering) {
-        // SAFETY: Self and atomic::AtomicBool have the same layout,
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicBool)).xor(val, order);
-        }
+        self.as_native().xor(val, order);
     }
 }
 
@@ -334,11 +325,8 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
         #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        // SAFETY: any data races are prevented by atomic intrinsics (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicPtr<T>)).load(order)
+        {
+            self.as_native().load(order)
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -352,11 +340,8 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
         #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        // SAFETY: any data races are prevented by atomic intrinsics (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        unsafe {
-            (*(self as *const Self as *const atomic::AtomicPtr<T>)).store(ptr, order);
+        {
+            self.as_native().store(ptr, order);
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -412,6 +397,14 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) const fn as_ptr(&self) -> *mut *mut T {
         self.p.get()
+    }
+
+    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+    #[inline]
+    fn as_native(&self) -> &atomic::AtomicPtr<T> {
+        // SAFETY: AtomicPtr and atomic::AtomicPtr have the same layout and
+        // guarantee atomicity in a compatible way. (see module-level comments)
+        unsafe { &*(self as *const Self as *const atomic::AtomicPtr<T>) }
     }
 }
 
@@ -469,11 +462,8 @@ macro_rules! atomic_int {
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-                // SAFETY: any data races are prevented by atomic intrinsics (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).load(order)
+                {
+                    self.as_native().load(order)
                 }
                 #[cfg(any(target_arch = "avr", feature = "critical-section"))]
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -487,17 +477,22 @@ macro_rules! atomic_int {
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-                // SAFETY: any data races are prevented by atomic intrinsics (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).store(val, order);
+                {
+                    self.as_native().store(val, order);
                 }
                 #[cfg(any(target_arch = "avr", feature = "critical-section"))]
                 // SAFETY: any data races are prevented by disabling interrupts (see
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe { self.v.get().write(val) });
+            }
+
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+            #[inline]
+            fn as_native(&self) -> &atomic::$atomic_type {
+                // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
+                // guarantee atomicity in a compatible way. (see module-level comments)
+                unsafe { &*(self as *const Self as *const atomic::$atomic_type) }
             }
         }
 
@@ -515,45 +510,27 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn add(&self, val: $int_type, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).add(val, order);
-                }
+                self.as_native().add(val, order);
             }
             #[inline]
             pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).sub(val, order);
-                }
+                self.as_native().sub(val, order);
             }
             #[inline]
             pub(crate) fn and(&self, val: $int_type, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).and(val, order);
-                }
+                self.as_native().and(val, order);
             }
             #[inline]
             pub(crate) fn or(&self, val: $int_type, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).or(val, order);
-                }
+                self.as_native().or(val, order);
             }
             #[inline]
             pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).xor(val, order);
-                }
+                self.as_native().xor(val, order);
             }
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
-                // SAFETY: Self and atomic::$atomic_type have the same layout,
-                unsafe {
-                    (*(self as *const Self as *const atomic::$atomic_type)).not(order);
-                }
+                self.as_native().not(order);
             }
         }
     };
@@ -825,6 +802,8 @@ mod tests {
     test_atomic_int_single_thread!(u32);
     test_atomic_int_single_thread!(i64);
     test_atomic_int_single_thread!(u64);
+    test_atomic_int_single_thread!(i128);
+    test_atomic_int_single_thread!(u128);
     test_atomic_int_single_thread!(isize);
     test_atomic_int_single_thread!(usize);
 }
