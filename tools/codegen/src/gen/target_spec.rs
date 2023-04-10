@@ -102,6 +102,7 @@ pub enum TargetEnv {
     msvc,
     musl,
     newlib,
+    nto70,
     nto71,
     none,
     ohos,
