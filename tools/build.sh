@@ -203,11 +203,11 @@ build() {
             echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
             return 0
         fi
-        local target_flags=(--target "$(pwd)/target-specs/${target}.json")
         if [[ "${rustc_minor_version}" -lt 47 ]]; then
             echo "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
             return 0
         fi
+        local target_flags=(--target "$(pwd)/target-specs/${target}.json")
     else
         local target_flags=(--target "${target}")
     fi
@@ -234,10 +234,6 @@ build() {
         echo "target '${target}' requires nightly compiler (skipped all checks)"
         return 0
     fi
-    if [[ "${target}" == "avr-"* ]]; then
-        # https://github.com/rust-lang/rust/issues/88252
-        target_rustflags+=" -C opt-level=s"
-    fi
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
     # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
@@ -255,10 +251,14 @@ build() {
         echo "target '${target}' requires asm to implement atomics (skipped all checks)"
         return 0
     fi
-    if [[ "${target}" == "avr"* ]] && [[ "${llvm_version}" == "16" ]]; then
-        # TODO: LLVM 16 broke AVR.
-        echo "target '${target}' is broken with LLVM 16 (skipped all checks)"
-        return 0
+    if [[ "${target}" == "avr"* ]]; then
+        if [[ "${llvm_version}" == "16" ]]; then
+            # TODO: LLVM 16 broke AVR.
+            echo "target '${target}' is broken with LLVM 16 (skipped all checks)"
+            return 0
+        fi
+        # https://github.com/rust-lang/rust/issues/88252
+        target_rustflags+=" -C opt-level=s"
     fi
 
     if [[ -n "${TESTS:-}" ]]; then
