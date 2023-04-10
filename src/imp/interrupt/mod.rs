@@ -231,19 +231,6 @@ impl AtomicBool {
     }
 
     #[inline]
-    pub(crate) fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        if val {
-            // !(x & true) == !x
-            // We must invert the bool.
-            self.fetch_xor(true, order)
-        } else {
-            // !(x & false) == true
-            // We must set the bool to true.
-            self.swap(true, order)
-        }
-    }
-
-    #[inline]
     pub(crate) fn fetch_or(&self, val: bool, _order: Ordering) -> bool {
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it

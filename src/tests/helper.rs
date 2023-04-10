@@ -1262,26 +1262,6 @@ macro_rules! __test_atomic_bool {
             }
         }
         #[test]
-        fn fetch_nand() {
-            let a = <$atomic_type>::new(true);
-            test_swap_ordering(|order| assert_eq!(a.fetch_nand(false, order), true));
-            for &order in &test_helper::SWAP_ORDERINGS {
-                let a = <$atomic_type>::new(true);
-                assert_eq!(a.fetch_nand(false, order), true);
-                assert_eq!(a.load(Ordering::Relaxed), true);
-                let a = <$atomic_type>::new(true);
-                assert_eq!(a.fetch_nand(true, order), true);
-                assert_eq!(a.load(Ordering::Relaxed) as usize, 0);
-                assert_eq!(a.load(Ordering::Relaxed), false);
-                let a = <$atomic_type>::new(false);
-                assert_eq!(a.fetch_nand(false, order), false);
-                assert_eq!(a.load(Ordering::Relaxed), true);
-                let a = <$atomic_type>::new(false);
-                assert_eq!(a.fetch_nand(true, order), false);
-                assert_eq!(a.load(Ordering::Relaxed), true);
-            }
-        }
-        #[test]
         fn fetch_or() {
             let a = <$atomic_type>::new(true);
             test_swap_ordering(|order| assert_eq!(a.fetch_or(false, order), true));
@@ -1491,6 +1471,26 @@ macro_rules! __test_atomic_float_pub {
 macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
+        #[test]
+        fn fetch_nand() {
+            let a = <$atomic_type>::new(true);
+            test_swap_ordering(|order| assert_eq!(a.fetch_nand(false, order), true));
+            for &order in &test_helper::SWAP_ORDERINGS {
+                let a = <$atomic_type>::new(true);
+                assert_eq!(a.fetch_nand(false, order), true);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(true);
+                assert_eq!(a.fetch_nand(true, order), true);
+                assert_eq!(a.load(Ordering::Relaxed) as usize, 0);
+                assert_eq!(a.load(Ordering::Relaxed), false);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_nand(false, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+                let a = <$atomic_type>::new(false);
+                assert_eq!(a.fetch_nand(true, order), false);
+                assert_eq!(a.load(Ordering::Relaxed), true);
+            }
+        }
         #[test]
         fn fetch_not() {
             let a = <$atomic_type>::new(true);

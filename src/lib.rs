@@ -1008,7 +1008,16 @@ impl AtomicBool {
     )]
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        self.inner.fetch_nand(val, order)
+        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L767-L781
+        if val {
+            // !(x & true) == !x
+            // We must invert the bool.
+            self.fetch_xor(true, order)
+        } else {
+            // !(x & false) == true
+            // We must set the bool to true.
+            self.swap(true, order)
+        }
     }
 
     /// Logical "or" with a boolean value.
