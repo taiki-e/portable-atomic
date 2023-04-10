@@ -261,7 +261,7 @@ impl AtomicBool {
 }
 
 #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-no_fetch_ops_impl!(AtomicBool, bool);
+impl_default_no_fetch_ops!(AtomicBool, bool);
 #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
 impl AtomicBool {
     #[inline]
@@ -497,8 +497,8 @@ macro_rules! atomic_int {
         }
 
         #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-        no_fetch_ops_impl!($atomic_type, $int_type);
-        bit_opts_fetch_impl!($atomic_type, $int_type);
+        impl_default_no_fetch_ops!($atomic_type, $int_type);
+        impl_default_bit_opts!($atomic_type, $int_type);
         #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         impl $atomic_type {
             #[inline]
@@ -537,8 +537,8 @@ macro_rules! atomic_int {
     (load_store_critical_session, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
         atomic_int!(cas, $atomic_type, $int_type);
-        no_fetch_ops_impl!($atomic_type, $int_type);
-        bit_opts_fetch_impl!($atomic_type, $int_type);
+        impl_default_no_fetch_ops!($atomic_type, $int_type);
+        impl_default_bit_opts!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]

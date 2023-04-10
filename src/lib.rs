@@ -495,21 +495,13 @@ impl From<bool> for AtomicBool {
     }
 }
 
-impl fmt::Debug for AtomicBool {
-    #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
-        fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
-    }
-}
-
 // UnwindSafe is implicitly implemented.
 #[cfg(not(portable_atomic_no_core_unwind_safe))]
 impl core::panic::RefUnwindSafe for AtomicBool {}
 #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
 impl std::panic::RefUnwindSafe for AtomicBool {}
 
-serde_impls!(AtomicBool);
+impl_debug_and_serde!(AtomicBool);
 
 impl AtomicBool {
     /// Creates a new `AtomicBool`.
@@ -2735,21 +2727,13 @@ atomic instructions or locks will be used.
             }
         }
 
-        impl fmt::Debug for $atomic_type {
-            #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
-                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
-            }
-        }
-
         // UnwindSafe is implicitly implemented.
         #[cfg(not(portable_atomic_no_core_unwind_safe))]
         impl core::panic::RefUnwindSafe for $atomic_type {}
         #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
         impl std::panic::RefUnwindSafe for $atomic_type {}
 
-        serde_impls!($atomic_type);
+        impl_debug_and_serde!($atomic_type);
 
         impl $atomic_type {
             doc_comment! {
@@ -4273,21 +4257,13 @@ This type has the same in-memory representation as the underlying floating point
             }
         }
 
-        impl fmt::Debug for $atomic_type {
-            #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
-                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
-            }
-        }
-
         // UnwindSafe is implicitly implemented.
         #[cfg(not(portable_atomic_no_core_unwind_safe))]
         impl core::panic::RefUnwindSafe for $atomic_type {}
         #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
         impl std::panic::RefUnwindSafe for $atomic_type {}
 
-        serde_impls!($atomic_type);
+        impl_debug_and_serde!($atomic_type);
 
         impl $atomic_type {
             /// Creates a new atomic float.

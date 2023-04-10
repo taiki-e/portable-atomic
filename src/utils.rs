@@ -27,34 +27,6 @@ macro_rules! doc_comment {
     };
 }
 
-macro_rules! serde_impls {
-    ($atomic_type:ident) => {
-        #[cfg(feature = "serde")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-        impl serde::Serialize for $atomic_type {
-            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where
-                S: serde::Serializer,
-            {
-                // https://github.com/serde-rs/serde/blob/v1.0.152/serde/src/ser/impls.rs#L958-L959
-                self.load(Ordering::Relaxed).serialize(serializer)
-            }
-        }
-        #[cfg(feature = "serde")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-        impl<'de> serde::Deserialize<'de> for $atomic_type {
-            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: serde::Deserializer<'de>,
-            {
-                serde::Deserialize::deserialize(deserializer).map(Self::new)
-            }
-        }
-    };
-}
-
 // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -132,9 +104,44 @@ macro_rules! const_fn {
     };
 }
 
+macro_rules! impl_debug_and_serde {
+    ($atomic_type:ident) => {
+        impl fmt::Debug for $atomic_type {
+            #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
+                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
+            }
+        }
+        #[cfg(feature = "serde")]
+        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+        impl serde::Serialize for $atomic_type {
+            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                // https://github.com/serde-rs/serde/blob/v1.0.152/serde/src/ser/impls.rs#L958-L959
+                self.load(Ordering::Relaxed).serialize(serializer)
+            }
+        }
+        #[cfg(feature = "serde")]
+        #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
+        impl<'de> serde::Deserialize<'de> for $atomic_type {
+            #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                serde::Deserialize::deserialize(deserializer).map(Self::new)
+            }
+        }
+    };
+}
+
 // We do not provide `nand` because it cannot be optimized on neither x86 nor MSP430.
 // https://godbolt.org/z/x88voWGov
-macro_rules! no_fetch_ops_impl {
+macro_rules! impl_default_no_fetch_ops {
     ($atomic_type:ident, bool) => {
         impl $atomic_type {
             #[inline]
@@ -176,7 +183,7 @@ macro_rules! no_fetch_ops_impl {
         }
     };
 }
-macro_rules! bit_opts_fetch_impl {
+macro_rules! impl_default_bit_opts {
     ($atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]

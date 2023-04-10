@@ -120,7 +120,7 @@ macro_rules! atomic_bit_opts {
         // https://github.com/taiki-e/portable-atomic/issues/48#issuecomment-1453473831
         // So, use fetch_* based implementations on LLVM 16+, otherwise use asm based implementations.
         #[cfg(portable_atomic_llvm_16)]
-        bit_opts_fetch_impl!($atomic_type, $int_type);
+        impl_default_bit_opts!($atomic_type, $int_type);
         #[cfg(not(portable_atomic_llvm_16))]
         impl $atomic_type {
             // `<integer>::BITS` is not available on old nightly.
@@ -201,8 +201,8 @@ macro_rules! atomic_bit_opts {
     };
 }
 
-bit_opts_fetch_impl!(AtomicI8, i8);
-bit_opts_fetch_impl!(AtomicU8, u8);
+impl_default_bit_opts!(AtomicI8, i8);
+impl_default_bit_opts!(AtomicU8, u8);
 atomic_bit_opts!(AtomicI16, i16, ":x", "word");
 atomic_bit_opts!(AtomicU16, u16, ":x", "word");
 atomic_bit_opts!(AtomicI32, i32, ":e", "dword");
@@ -212,9 +212,9 @@ atomic_bit_opts!(AtomicI64, i64, "", "qword");
 #[cfg(target_arch = "x86_64")]
 atomic_bit_opts!(AtomicU64, u64, "", "qword");
 #[cfg(target_arch = "x86")]
-bit_opts_fetch_impl!(AtomicI64, i64);
+impl_default_bit_opts!(AtomicI64, i64);
 #[cfg(target_arch = "x86")]
-bit_opts_fetch_impl!(AtomicU64, u64);
+impl_default_bit_opts!(AtomicU64, u64);
 #[cfg(target_pointer_width = "32")]
 atomic_bit_opts!(AtomicIsize, isize, ":e", "dword");
 #[cfg(target_pointer_width = "32")]

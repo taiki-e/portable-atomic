@@ -170,8 +170,8 @@ macro_rules! atomic {
         // SAFETY: any data races are prevented by the lock and atomic operation.
         unsafe impl Sync for $atomic_type {}
 
-        no_fetch_ops_impl!($atomic_type, $int_type);
-        bit_opts_fetch_impl!($atomic_type, $int_type);
+        impl_default_no_fetch_ops!($atomic_type, $int_type);
+        impl_default_bit_opts!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
