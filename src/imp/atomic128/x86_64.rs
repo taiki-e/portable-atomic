@@ -301,6 +301,17 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     )))]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
+        fn_alias! {
+            #[target_feature(enable = "avx")]
+            unsafe fn(dst: *mut u128, val: u128);
+            _atomic_store_vmovdqa_relaxed = _atomic_store_vmovdqa(Ordering::Relaxed);
+            _atomic_store_vmovdqa_seqcst = _atomic_store_vmovdqa(Ordering::SeqCst);
+        }
+        fn_alias! {
+            unsafe fn(dst: *mut u128, val: u128);
+            _atomic_store_cmpxchg16b_relaxed = _atomic_store_cmpxchg16b(Ordering::Relaxed);
+            _atomic_store_cmpxchg16b_seqcst = _atomic_store_cmpxchg16b(Ordering::SeqCst);
+        }
         match order {
             // Relaxed and Release stores are equivalent in all implementations
             // that may be called here (vmovdqa, asm-based cmpxchg16b, and fallback).
@@ -330,20 +341,6 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             _ => unreachable!("{:?}", order),
         }
     }
-}
-#[cfg(not(portable_atomic_no_outline_atomics))]
-fn_alias! {
-    #[cfg(target_feature = "sse")]
-    #[target_feature(enable = "avx")]
-    unsafe fn(dst: *mut u128, val: u128);
-    _atomic_store_vmovdqa_relaxed = _atomic_store_vmovdqa(Ordering::Relaxed);
-    _atomic_store_vmovdqa_seqcst = _atomic_store_vmovdqa(Ordering::SeqCst);
-}
-#[cfg(not(portable_atomic_no_outline_atomics))]
-fn_alias! {
-    unsafe fn(dst: *mut u128, val: u128);
-    _atomic_store_cmpxchg16b_relaxed = _atomic_store_cmpxchg16b(Ordering::Relaxed);
-    _atomic_store_cmpxchg16b_seqcst = _atomic_store_cmpxchg16b(Ordering::SeqCst);
 }
 #[inline]
 unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) {

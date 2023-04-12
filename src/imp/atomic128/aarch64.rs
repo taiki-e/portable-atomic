@@ -162,7 +162,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantee that the CPU supports FEAT_LSE2.
     unsafe {
-        _atomic_load_ldp(src, order)
+        atomic_load_ldp(src, order)
     }
     #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
     {
@@ -182,8 +182,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 // If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
 #[inline]
-unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
+unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
@@ -253,7 +254,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantee that the CPU supports FEAT_LSE2.
     unsafe {
-        _atomic_store_stp(dst, val, order);
+        atomic_store_stp(dst, val, order);
     }
     #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
     // SAFETY: the caller must uphold the safety contract.
@@ -264,9 +265,9 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 // If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
 // otherwise it is two single-copy atomic writes.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2", test))]
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
 #[inline]
-unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
+unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
@@ -359,6 +360,32 @@ unsafe fn atomic_compare_exchange(
     ))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let res = {
+        fn_alias! {
+            #[cfg_attr(
+                not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
+                target_feature(enable = "lse")
+            )]
+            unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
+            _atomic_compare_exchange_casp_relaxed
+                = _atomic_compare_exchange_casp(Ordering::Relaxed);
+            _atomic_compare_exchange_casp_acquire
+                = _atomic_compare_exchange_casp(Ordering::Acquire);
+            _atomic_compare_exchange_casp_release
+                = _atomic_compare_exchange_casp(Ordering::Release);
+            _atomic_compare_exchange_casp_acqrel
+                = _atomic_compare_exchange_casp(Ordering::AcqRel);
+        }
+        fn_alias! {
+            unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
+            _atomic_compare_exchange_ldxp_stxp_relaxed
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Relaxed);
+            _atomic_compare_exchange_ldxp_stxp_acquire
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire);
+            _atomic_compare_exchange_ldxp_stxp_release
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Release);
+            _atomic_compare_exchange_ldxp_stxp_acqrel
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel);
+        }
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
         // and we've checked if FEAT_LSE is available.
@@ -410,38 +437,6 @@ unsafe fn atomic_compare_exchange(
     } else {
         Err(res)
     }
-}
-#[cfg(not(portable_atomic_no_outline_atomics))]
-fn_alias! {
-    #[cfg(any(
-        target_feature = "lse",
-        portable_atomic_target_feature = "lse",
-        all(
-            not(portable_atomic_no_aarch64_target_feature),
-            not(portable_atomic_no_outline_atomics),
-        ),
-    ))]
-    #[cfg_attr(
-        not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
-        target_feature(enable = "lse")
-    )]
-    unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
-    _atomic_compare_exchange_casp_relaxed = _atomic_compare_exchange_casp(Ordering::Relaxed);
-    _atomic_compare_exchange_casp_acquire = _atomic_compare_exchange_casp(Ordering::Acquire);
-    _atomic_compare_exchange_casp_release = _atomic_compare_exchange_casp(Ordering::Release);
-    _atomic_compare_exchange_casp_acqrel = _atomic_compare_exchange_casp(Ordering::AcqRel);
-}
-#[cfg(not(portable_atomic_no_outline_atomics))]
-fn_alias! {
-    unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
-    _atomic_compare_exchange_ldxp_stxp_relaxed
-        = _atomic_compare_exchange_ldxp_stxp(Ordering::Relaxed);
-    _atomic_compare_exchange_ldxp_stxp_acquire
-        = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire);
-    _atomic_compare_exchange_ldxp_stxp_release
-        = _atomic_compare_exchange_ldxp_stxp(Ordering::Release);
-    _atomic_compare_exchange_ldxp_stxp_acqrel
-        = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel);
 }
 #[cfg(any(
     target_feature = "lse",
@@ -921,6 +916,7 @@ atomic_rmw_cas_3! {
         select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
     ),
 }
+
 atomic_rmw_ll_sc_3! {
     _atomic_sub_ldxp_stxp as atomic_sub,
     // Do not use `preserves_flags` because SUBS and SBCS modify the condition flags.
@@ -945,6 +941,7 @@ atomic_rmw_cas_3! {
         select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
     ),
 }
+
 atomic_rmw_ll_sc_3! {
     _atomic_and_ldxp_stxp as atomic_and,
     options(nostack, preserves_flags),
@@ -956,6 +953,7 @@ atomic_rmw_cas_3! {
     "and x4, x6, {val_lo}",
     "and x5, x7, {val_hi}",
 }
+
 atomic_rmw_ll_sc_3! {
     _atomic_nand_ldxp_stxp as atomic_nand,
     options(nostack, preserves_flags),
@@ -971,6 +969,7 @@ atomic_rmw_cas_3! {
     "and x5, x7, {val_hi}",
     "mvn x5, x5",
 }
+
 atomic_rmw_ll_sc_3! {
     _atomic_or_ldxp_stxp as atomic_or,
     options(nostack, preserves_flags),
@@ -982,6 +981,7 @@ atomic_rmw_cas_3! {
     "orr x4, x6, {val_lo}",
     "orr x5, x7, {val_hi}",
 }
+
 atomic_rmw_ll_sc_3! {
     _atomic_xor_ldxp_stxp as atomic_xor,
     options(nostack, preserves_flags),
@@ -1005,6 +1005,7 @@ atomic_rmw_cas_2! {
     "mvn x4, x6",
     "mvn x5, x7",
 }
+
 atomic_rmw_ll_sc_2! {
     _atomic_neg_ldxp_stxp as atomic_neg,
     // Do not use `preserves_flags` because NEGS modifies the condition flags.

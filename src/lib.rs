@@ -215,6 +215,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
     clippy::naive_bytecount,
     clippy::similar_names,
     clippy::single_match,
+    clippy::too_many_lines,
     clippy::type_complexity,
     clippy::unreadable_literal,
 )]
