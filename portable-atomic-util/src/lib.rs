@@ -1,4 +1,5 @@
 /*!
+<!-- tidy:crate-doc:start -->
 Synchronization primitives built with [portable-atomic].
 
 - Provide `Arc`. (optional, requires the `std` or `alloc` feature)
@@ -29,6 +30,8 @@ See [#1] for other primitives being considered for addition to this crate.
 
 [portable-atomic]: https://github.com/taiki-e/portable-atomic
 [#1]: https://github.com/taiki-e/portable-atomic/issues/1
+
+<!-- tidy:crate-doc:end -->
 */
 
 #![no_std]

@@ -5,6 +5,7 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
 [![rustc](https://img.shields.io/badge/rustc-1.34+-blue?style=flat-square&logo=rust)](https://www.rust-lang.org)
 
+<!-- tidy:crate-doc:start -->
 Synchronization primitives built with [portable-atomic].
 
 - Provide `Arc`. (optional, requires the `std` or `alloc` feature)
@@ -35,6 +36,8 @@ See [#1] for other primitives being considered for addition to this crate.
 
 [portable-atomic]: https://github.com/taiki-e/portable-atomic
 [#1]: https://github.com/taiki-e/portable-atomic/issues/1
+
+<!-- tidy:crate-doc:end -->
 
 ## License
 
