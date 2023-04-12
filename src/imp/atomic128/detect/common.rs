@@ -124,8 +124,8 @@ mod c_types {
     // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L83-L88
     pub(crate) type c_size_t = usize;
     // c_char is u8 on most non-Apple/non-Windows ARM/PowerPC targets
-    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/Horizon)
-    // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/ffi/mod.rs#L104-L157
+    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon)
+    // https://github.com/rust-lang/rust/blob/87a2408b06e7651f078a09f627940554da6137d5/library/core/src/ffi/mod.rs#L104-L158
     // (macOS is currently the only Apple target that uses this module, and Windows currently doesn't use this module)
     #[cfg(not(target_os = "macos"))]
     pub(crate) type c_char = u8;

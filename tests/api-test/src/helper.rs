@@ -1,3 +1,5 @@
+// TODO: merge this and src/tests/helper.rs in test-helper crate.
+
 macro_rules! __run_test {
     ($test_name:ident) => {{
         $test_name();

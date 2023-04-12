@@ -51,6 +51,7 @@ macro_rules! __test_atomic_int_load_store {
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), 5);
         }
+        // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
         fn static_load_only() {
             static VAR: $atomic_type = <$atomic_type>::new(10);
@@ -134,6 +135,7 @@ macro_rules! __test_atomic_float_load_store {
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), 5.0);
         }
+        // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
         fn static_load_only() {
             static VAR: $atomic_type = <$atomic_type>::new(10.0);
@@ -177,6 +179,7 @@ macro_rules! __test_atomic_bool_load_store {
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert_eq!(a.into_inner(), true);
         }
+        // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
         fn static_load_only() {
             static VAR: $atomic_type = <$atomic_type>::new(false);
@@ -222,6 +225,7 @@ macro_rules! __test_atomic_ptr_load_store {
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
             assert!(!a.into_inner().is_null());
         }
+        // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
         fn static_load_only() {
             static VAR: $atomic_type = <$atomic_type>::new(ptr::null_mut());
@@ -575,9 +579,9 @@ macro_rules! __test_atomic_int {
                     not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
                 ))]
                 {
-                    // HACK: the following operations are currently broken (at least on qemu):
-                    // - armv5te's `Atomic{I,U}{8,16}::compare_exchange`
-                    // See also https://github.com/taiki-e/portable-atomic/issues/2
+                    // TODO: LLVM bug:
+                    // https://github.com/llvm/llvm-project/issues/61880
+                    // https://github.com/taiki-e/portable-atomic/issues/2
                     if core::mem::size_of::<$int_type>() <= 2 {
                         return true;
                     }
@@ -1098,6 +1102,7 @@ macro_rules! __test_atomic_float {
             }
             fn quickcheck_fetch_add(x: $float_type, y: $float_type) -> bool {
                 if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
+                    // TODO: rustc bug:
                     // https://github.com/rust-lang/rust/issues/72327
                     // https://github.com/rust-lang/rust/issues/73288
                     return true;
@@ -1114,6 +1119,7 @@ macro_rules! __test_atomic_float {
             }
             fn quickcheck_fetch_sub(x: $float_type, y: $float_type) -> bool {
                 if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
+                    // TODO: rustc bug:
                     // https://github.com/rust-lang/rust/issues/72327
                     // https://github.com/rust-lang/rust/issues/73288
                     return true;
@@ -1821,7 +1827,7 @@ macro_rules! test_atomic_ptr {
             clippy::std_instead_of_core,
             clippy::undocumented_unsafe_blocks
         )]
-        #[allow(unstable_name_collisions)]
+        #[allow(unstable_name_collisions)] // for sptr crate
         mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
@@ -1909,7 +1915,7 @@ macro_rules! test_atomic_ptr_pub {
             clippy::std_instead_of_core,
             clippy::undocumented_unsafe_blocks
         )]
-        #[allow(unstable_name_collisions)]
+        #[allow(unstable_name_collisions)] // for sptr crate
         mod test_atomic_ptr {
             use super::*;
             __test_atomic_ptr_load_store!(AtomicPtr<u8>);
@@ -1919,6 +1925,10 @@ macro_rules! test_atomic_ptr_pub {
     };
 }
 
+/// Test operation parts of LL/SC-based atomic RMW implementations separately.
+///
+/// This allows testing more code on QEMU while avoiding the problem of some
+/// atomic instructions not working on QEMU.
 macro_rules! test_atomic128_op {
     () => {
         #[allow(
@@ -2046,7 +2056,7 @@ macro_rules! __test_atomic128_op {
                 }
                 true
             }
-            #[cfg(not(target_arch = "powerpc64"))]
+            #[cfg(not(target_arch = "powerpc64"))] // powerpc64's atomic_not is implemented by using atomic_xor
             fn quickcheck_atomic_not_op(x: u128) -> bool {
                 unsafe {
                     let a = AtomicU128::new(x);

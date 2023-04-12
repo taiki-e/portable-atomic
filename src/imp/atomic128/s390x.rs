@@ -22,15 +22,15 @@ use core::arch::asm;
 use core::sync::atomic::Ordering;
 
 /// A 128-bit value represented as a pair of 64-bit values.
-// This type is #[repr(C)], both fields have the same in-memory representation
-// and are plain old datatypes, so access to the fields is always safe.
+///
+/// This type is `#[repr(C)]`, both fields have the same in-memory representation
+/// and are plain old datatypes, so access to the fields is always safe.
 #[derive(Clone, Copy)]
 #[repr(C)]
 union U128 {
     whole: u128,
     pair: Pair,
 }
-
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {

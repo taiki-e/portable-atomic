@@ -22,7 +22,7 @@ See [#1] for other primitives being considered for addition to this crate.
   Note:
   - The MSRV when this feature is enabled and the `std` feature is *not* enabled is Rust 1.36 that `alloc` crate stabilized.
 
-<!-- TODO
+<!-- TODO: https://github.com/taiki-e/portable-atomic/issues/1
 - **`generic`**<br>
   Provides generic `Atomic<T>` type.
 -->

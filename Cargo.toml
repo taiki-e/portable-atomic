@@ -13,7 +13,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 """
 
 [package.metadata.docs.rs]
-all-features = true
+features = ["float", "std", "serde"]
 rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
 

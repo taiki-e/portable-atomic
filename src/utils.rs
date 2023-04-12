@@ -20,6 +20,7 @@ macro_rules! static_assert_layout {
     };
 }
 
+// #[doc = concat!(...)] requires Rust 1.54
 macro_rules! doc_comment {
     ($doc:expr, $($tt:tt)*) => {
         #[doc = $doc]
@@ -28,12 +29,18 @@ macro_rules! doc_comment {
 }
 
 // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
+/// # Safety
+///
+/// - the caller must uphold the safety contract for the function returned by $detect_body.
+/// - the memory pointed by the function pointer returned by $detect_body must be visible from any threads.
+///
+/// The second requirement is always met if the function pointer is to the function definition.
+/// (Currently, all uses of this macro in our code are in this case.)
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
-    target_arch = "powerpc64",
     all(target_arch = "x86_64", not(target_env = "sgx")),
 ))]
 macro_rules! ifunc {
@@ -54,7 +61,7 @@ macro_rules! ifunc {
         let func = {
             core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
         };
-        // SAFETY: the caller must uphold the safety contract for the function returned by $body.
+        // SAFETY: the caller must uphold the safety contract for the function returned by $detect_body.
         // (To force the caller to use unsafe block for this macro, do not use
         // unsafe block here.)
         func($($arg_pat),*)
@@ -90,10 +97,12 @@ macro_rules! fn_alias {
     ) => {}
 }
 
+/// Make the given function const if the given condition is true.
 macro_rules! const_fn {
     (
         const_if: #[cfg($($cfg:tt)+)];
-        $(#[$($attr:tt)*])* $vis:vis const fn $($rest:tt)*
+        $(#[$($attr:tt)*])*
+        $vis:vis const fn $($rest:tt)*
     ) => {
         #[cfg($($cfg)+)]
         $(#[$($attr)*])*
@@ -104,6 +113,8 @@ macro_rules! const_fn {
     };
 }
 
+/// Implements `core::fmt::Debug` and `serde::{Serialize, Deserialize}` (when serde
+/// feature is enabled) for atomic bool, integer, or float.
 macro_rules! impl_debug_and_serde {
     ($atomic_type:ident) => {
         impl fmt::Debug for $atomic_type {

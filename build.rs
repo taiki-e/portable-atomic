@@ -176,6 +176,7 @@ fn main() {
             let has_cmpxchg16b = target_os == "macos";
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
             // It is unlikely that rustc will support that name, so we ignore it.
+            // cmpxchg16b_target_feature stabilized in Rust 1.69.
             target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, Some(69), true);
         }
         "aarch64" => {

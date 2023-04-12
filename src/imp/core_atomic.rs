@@ -357,7 +357,12 @@ macro_rules! atomic_int {
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
-                        // See also https://github.com/taiki-e/portable-atomic/issues/2
+                        // See also:
+                        // https://github.com/llvm/llvm-project/issues/61880
+                        // https://github.com/llvm/llvm-project/issues/61881
+                        // https://github.com/llvm/llvm-project/issues/61882
+                        // https://github.com/taiki-e/portable-atomic/issues/2
+                        // https://github.com/rust-lang/rust/issues/100650
                         if core::mem::size_of::<$int_type>() <= 2 {
                             return self.fetch_update_(order, |x| core::cmp::max(x, val));
                         }
@@ -401,7 +406,12 @@ macro_rules! atomic_int {
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
-                        // See also https://github.com/taiki-e/portable-atomic/issues/2
+                        // See also:
+                        // https://github.com/llvm/llvm-project/issues/61880
+                        // https://github.com/llvm/llvm-project/issues/61881
+                        // https://github.com/llvm/llvm-project/issues/61882
+                        // https://github.com/taiki-e/portable-atomic/issues/2
+                        // https://github.com/rust-lang/rust/issues/100650
                         if core::mem::size_of::<$int_type>() <= 2 {
                             return self.fetch_update_(order, |x| core::cmp::min(x, val));
                         }
@@ -457,9 +467,9 @@ atomic_int!(AtomicI8, i8);
 atomic_int!(AtomicU8, u8);
 atomic_int!(AtomicI16, i16);
 atomic_int!(AtomicU16, u16);
-#[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
+#[cfg(not(target_pointer_width = "16"))]
 atomic_int!(AtomicI32, i32);
-#[cfg(not(target_pointer_width = "16"))] // cfg(target_has_atomic_load_store = "32")
+#[cfg(not(target_pointer_width = "16"))]
 atomic_int!(AtomicU32, u32);
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
 #[cfg_attr(
@@ -467,7 +477,7 @@ atomic_int!(AtomicU32, u32);
     cfg(any(
         target_has_atomic = "64",
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    )) // cfg(target_has_atomic_load_store = "64")
+    ))
 )]
 atomic_int!(AtomicI64, i64);
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
@@ -476,6 +486,6 @@ atomic_int!(AtomicI64, i64);
     cfg(any(
         target_has_atomic = "64",
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
-    )) // cfg(target_has_atomic_load_store = "64")
+    ))
 )]
 atomic_int!(AtomicU64, u64);

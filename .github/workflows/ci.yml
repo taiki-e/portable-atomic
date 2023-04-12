@@ -40,6 +40,8 @@ jobs:
     uses: taiki-e/workflows/.github/workflows/deny.yml@main
   docs:
     uses: taiki-e/workflows/.github/workflows/docs.yml@main
+    with:
+      target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
   msrv:
     uses: taiki-e/workflows/.github/workflows/msrv.yml@main
     with:

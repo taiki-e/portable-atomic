@@ -4,8 +4,8 @@ pub(crate) fn rustc_version() -> Option<Version> {
     let rustc = env::var_os("RUSTC")?;
     // Use verbose version output because the packagers add extra strings to the normal version output.
     let output = Command::new(rustc).args(&["--version", "--verbose"]).output().ok()?;
-    let output = str::from_utf8(&output.stdout).ok()?;
-    Version::parse(output)
+    let verbose_version = str::from_utf8(&output.stdout).ok()?;
+    Version::parse(verbose_version)
 }
 
 #[cfg_attr(test, derive(Debug, PartialEq))]
@@ -21,7 +21,7 @@ impl Version {
     // the rustc version, we assume this is the current version.
     // It is no problem if this is older than the actual latest stable.
     // LLVM version is assumed to be the minimum external LLVM version:
-    // https://github.com/rust-lang/rust/blob/1.68.0/src/bootstrap/native.rs#L567
+    // https://github.com/rust-lang/rust/blob/1.68.0/src/bootstrap/native.rs#L571
     pub(crate) const LATEST: Self = Self::stable(68, 13);
 
     pub(crate) const fn stable(rustc_minor: u32, llvm_major: u32) -> Self {
@@ -41,8 +41,8 @@ impl Version {
         &self.commit_date
     }
 
-    pub(crate) fn parse(text: &str) -> Option<Self> {
-        let mut release = text
+    pub(crate) fn parse(verbose_version: &str) -> Option<Self> {
+        let mut release = verbose_version
             .lines()
             .find(|line| line.starts_with("release: "))
             .map(|line| &line["release: ".len()..])?
@@ -59,7 +59,7 @@ impl Version {
         let nightly = channel == "nightly" || channel == "dev";
 
         let llvm_major = (|| {
-            let version = text
+            let version = verbose_version
                 .lines()
                 .find(|line| line.starts_with("LLVM version: "))
                 .map(|line| &line["LLVM version: ".len()..])?;
@@ -74,7 +74,7 @@ impl Version {
         // we don't refer commit date on stable/beta.
         if nightly {
             let commit_date = (|| {
-                let mut commit_date = text
+                let mut commit_date = verbose_version
                     .lines()
                     .find(|line| line.starts_with("commit-date: "))
                     .map(|line| &line["commit-date: ".len()..])?

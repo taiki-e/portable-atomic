@@ -41,15 +41,15 @@ macro_rules! ptr_modifier {
 }
 
 /// A 128-bit value represented as a pair of 64-bit values.
-// This type is #[repr(C)], both fields have the same in-memory representation
-// and are plain old datatypes, so access to the fields is always safe.
+///
+/// This type is `#[repr(C)]`, both fields have the same in-memory representation
+/// and are plain old datatypes, so access to the fields is always safe.
 #[derive(Clone, Copy)]
 #[repr(C)]
 union U128 {
     whole: u128,
     pair: Pair,
 }
-
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
@@ -430,7 +430,8 @@ where
     }
 }
 
-// Miri and Sanitizer do not support inline assembly.
+// We use atomic_rmw_by_atomic_update when cmpxchg16b is not available at compile-time, or
+// on Miri and Sanitizer that do not support inline assembly.
 #[cfg(not(any(
     not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
     any(miri, portable_atomic_sanitize_thread),
@@ -497,7 +498,8 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[rustfmt::skip] // buggy macro formatting
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident, $($op:tt)*) => {
-        // Miri and Sanitizer do not support inline assembly.
+        // We use atomic_rmw_by_atomic_update when cmpxchg16b is not available at compile-time, or
+        // on Miri and Sanitizer that do not support inline assembly.
         #[cfg(not(any(
             not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
             any(miri, portable_atomic_sanitize_thread),
@@ -560,7 +562,8 @@ macro_rules! atomic_rmw_cas_3 {
 #[rustfmt::skip] // buggy macro formatting
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident, $($op:tt)*) => {
-        // Miri and Sanitizer do not support inline assembly.
+        // We use atomic_rmw_by_atomic_update when cmpxchg16b is not available at compile-time, or
+        // on Miri and Sanitizer that do not support inline assembly.
         #[cfg(not(any(
             not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
             any(miri, portable_atomic_sanitize_thread),
@@ -711,7 +714,8 @@ atomic_rmw_cas_3! {
     "cmovae rbx, rax",
 }
 
-// Miri and Sanitizer do not support inline assembly.
+// We use atomic_rmw_by_atomic_update when cmpxchg16b is not available at compile-time, or
+// on Miri and Sanitizer that do not support inline assembly.
 #[cfg(any(
     not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
     any(miri, portable_atomic_sanitize_thread),

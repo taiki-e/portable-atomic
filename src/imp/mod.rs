@@ -1,7 +1,6 @@
 // -----------------------------------------------------------------------------
 // Lock-free implementations
 
-// cfg(target_has_atomic_load_store = "ptr")
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     portable_atomic_unsafe_assume_single_core,

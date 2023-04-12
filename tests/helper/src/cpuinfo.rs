@@ -6,13 +6,15 @@ use fs_err as fs;
 
 type Result<T, E = Box<dyn std::error::Error + Send + Sync>> = std::result::Result<T, E>;
 
-// CPU feature detection using reading a file or calling a command.
-// - On Linux/NetBSD, reading /proc/cpuinfo
-// - On FreeBSD/OpenBSD, reading /var/run/dmesg.boot
-// - On macOS, calling sysctl hw.optional
-// This is used for testing to ensure that the result of the CPU feature
-// detection we are using matches the information we get from the other
-// approaches.
+/// CPU feature detection by reading a file or calling a command.
+///
+/// - On Linux/NetBSD, reading `/proc/cpuinfo`.
+/// - On FreeBSD/OpenBSD, reading `/var/run/dmesg.boot`.
+/// - On macOS, calling `sysctl hw.optional` command.
+///
+/// This is used for testing to ensure that the result of the CPU feature
+/// detection we are using matches the information we get from the other
+/// approaches.
 #[derive(Debug, Clone, Copy)]
 pub struct ProcCpuinfo {
     pub lse: bool,
@@ -24,7 +26,7 @@ impl ProcCpuinfo {
             let text = fs::read_to_string("/proc/cpuinfo")?;
             let features = text
                     .lines()
-                    // on qemu-user, there is not 'Features' section
+                    // On qemu-user, there is not 'Features' section because the host's /proc/cpuinfo will be referred to.
                     // TODO: check whether a runner is set instead.
                     .find_map(|line| line.strip_prefix("Features")).ok_or("no 'Features' section in /proc/cpuinfo")?
                     .splitn(2, ':')

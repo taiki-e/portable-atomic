@@ -12,9 +12,9 @@
 // compile-time, we use CASP for CAS if FEAT_LSE is available
 // at run-time, otherwise, use LDXP/STXP loop.
 // If FEAT_LSE is available at compile-time, we use CASP for load/store/CAS/RMW.
+// However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
+// loop for RMW (by default, it is set on Apple hardware; see build script for details).
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
-// When portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
-// loop for RMW. (by default, it is set on Apple hardware; see build script for details)
 //
 // Note: FEAT_LSE2 doesn't imply FEAT_LSE.
 //
@@ -22,13 +22,15 @@
 // them within a single asm block. This is because it is theoretically possible
 // for the compiler to insert operations that might clear the reservation between
 // LL and SC. Considering the type of operations we are providing and the fact
-// that progress64 (https://github.com/ARM-software/progress64) uses such code,
+// that [progress64](https://github.com/ARM-software/progress64) uses such code,
 // this is probably not a problem for aarch64, but it seems that aarch64 doesn't
-// guarantee it and hexagon is the only architecture that has hardware guarantees
-// that such code will work. See also:
+// guarantee it and hexagon is the only architecture with hardware guarantees
+// that such code works. See also:
+//
 // - https://yarchive.net/comp/linux/cmpxchg_ll_sc_portability.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
 // - https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
+//
 // Also, even when using a CAS loop to implement atomic RMW, include the loop itself
 // in the asm block because it is more efficient for some codegen backends.
 // https://github.com/rust-lang/compiler-builtins/issues/339#issuecomment-1191260474
@@ -40,7 +42,7 @@
 // - ARM Compiler armasm User Guide
 //   https://developer.arm.com/documentation/dui0801/latest
 // - Arm A-profile A64 Instruction Set Architecture
-//   https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions?lang=en
+//   https://developer.arm.com/documentation/ddi0602/latest
 // - Arm Architecture Reference Manual for A-profile architecture
 //   https://developer.arm.com/documentation/ddi0487/latest
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
@@ -53,7 +55,7 @@
 include!("macros.rs");
 
 // On musl with static linking, it seems that getauxval is not always available.
-// See detect/aarch64_auxv.rs for more.
+// See detect/auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
     all(
@@ -125,15 +127,15 @@ macro_rules! select_le_or_be {
 }
 
 /// A 128-bit value represented as a pair of 64-bit values.
-// This type is #[repr(C)], both fields have the same in-memory representation
-// and are plain old datatypes, so access to the fields is always safe.
+///
+/// This type is `#[repr(C)]`, both fields have the same in-memory representation
+/// and are plain old datatypes, so access to the fields is always safe.
 #[derive(Clone, Copy)]
 #[repr(C)]
 union U128 {
     whole: u128,
     pair: Pair,
 }
-
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
@@ -188,7 +190,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
-    // - LDP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/LDP
+    // - LDP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDP--A64-
     unsafe {
         let (prev_lo, prev_hi);
         macro_rules! atomic_load {
@@ -271,7 +273,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
     // Refs:
-    // - STP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STP
+    // - STP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STP--A64-
     unsafe {
         let val = U128 { whole: val };
         macro_rules! atomic_store {
@@ -464,8 +466,8 @@ unsafe fn _atomic_compare_exchange_casp(
     // and the CPU supports FEAT_LSE.
     //
     // Refs:
-    // - https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL
-    // - https://developer.arm.com/documentation/ddi0602/2022-12/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-Swap-Pair-of-words-or-doublewords-in-memory-
+    // - https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL--A64-
+    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-Swap-Pair-of-words-or-doublewords-in-memory-
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -502,10 +504,10 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
     //
     // Refs:
-    // - LDXP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/LDXP
-    // - LDAXP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/LDAXP
-    // - STXP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STXP
-    // - STLXP: https://developer.arm.com/documentation/dui0801/g/A64-Data-Transfer-Instructions/STLXP
+    // - LDXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDXP--A64-
+    // - LDAXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDAXP--A64-
+    // - STXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STXP--A64-
+    // - STLXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STLXP--A64-
     //
     // Note: Load-Exclusive pair (by itself) does not guarantee atomicity; to complete an atomic
     // operation (even load/store), a corresponding Store-Exclusive pair must succeed.
@@ -662,8 +664,8 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
 /// - new_lo/new_hi pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
     ($name:ident as $reexport_name:ident, options($($options:tt)*), $($op:tt)*) => {
-        // If FEAT_LSE is available at compile-time, we use CAS based Atomic RMW
-        // generated by atomic_rmw_cas_3! macro.
+        // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
+        // we use CAS-based atomic RMW generated by atomic_rmw_cas_3! macro instead.
         #[cfg(not(all(
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
@@ -722,6 +724,8 @@ macro_rules! atomic_rmw_ll_sc_3 {
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
+        // If FEAT_LSE is not available at compile-time or portable_atomic_ll_sc_rmw cfg is set,
+        // we use LL/SC-based atomic RMW generated by atomic_rmw_ll_sc_3! macro instead.
         #[cfg(all(
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
@@ -784,8 +788,8 @@ macro_rules! atomic_rmw_cas_3 {
 /// - new_lo/new_hi pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
     ($name:ident as $reexport_name:ident, options($($options:tt)*), $($op:tt)*) => {
-        // If FEAT_LSE is available at compile-time, we use CAS based Atomic RMW
-        // generated by atomic_rmw_cas_2! macro.
+        // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
+        // we use CAS-based atomic RMW generated by atomic_rmw_cas_2! macro instead.
         #[cfg(not(all(
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
@@ -840,6 +844,8 @@ macro_rules! atomic_rmw_ll_sc_2 {
 /// - x4/x5 pair: new value that will to stored
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
+        // If FEAT_LSE is not available at compile-time or portable_atomic_ll_sc_rmw cfg is set,
+        // we use LL/SC-based atomic RMW generated by atomic_rmw_ll_sc_3! macro instead.
         #[cfg(all(
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),

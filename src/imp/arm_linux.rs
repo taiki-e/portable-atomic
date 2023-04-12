@@ -19,15 +19,15 @@ use core::arch::asm;
 use core::{mem, sync::atomic::Ordering};
 
 /// A 64-bit value represented as a pair of 32-bit values.
-// This type is #[repr(C)], both fields have the same in-memory representation
-// and are plain old datatypes, so access to the fields is always safe.
+///
+/// This type is `#[repr(C)]`, both fields have the same in-memory representation
+/// and are plain old datatypes, so access to the fields is always safe.
 #[derive(Clone, Copy)]
 #[repr(C)]
 union U64 {
     whole: u64,
     pair: Pair,
 }
-
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
