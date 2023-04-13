@@ -24,3 +24,4 @@ pub use linux_headers_asm_hwcap::{
 };
 mod musl_sys_auxv;
 pub use musl_sys_auxv::getauxval;
+pub type c_char = u8;

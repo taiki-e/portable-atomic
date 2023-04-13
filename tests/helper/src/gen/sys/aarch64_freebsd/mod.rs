@@ -19,3 +19,4 @@ pub use machine_elf::{
     HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
     HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
 };
+pub type c_char = u8;

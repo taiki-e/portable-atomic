@@ -24,5 +24,8 @@ pub struct TargetSpec {
     #[serde(default)]
     pub env: TargetEnv,
     pub os: TargetOs,
+    #[serde(default)]
+    pub target_endian: TargetEndian,
     pub target_pointer_width: String,
+    pub llvm_target: String,
 }

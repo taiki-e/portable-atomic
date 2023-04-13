@@ -28,7 +28,9 @@ static TARGETS: &[Target] = &[
     Target {
         triples: &[
             "aarch64-unknown-linux-gnu",
+            "aarch64_be-unknown-linux-gnu",
             "aarch64-unknown-linux-gnu_ilp32",
+            "aarch64_be-unknown-linux-gnu_ilp32",
             "aarch64-unknown-linux-musl",
             "aarch64-linux-android",
         ],
@@ -183,7 +185,7 @@ static TARGETS: &[Target] = &[
                 // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
                 path: "zircon/system/public/zircon/features.h",
                 types: &[],
-                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_ISA_ATOMICS"],
+                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_ISA_.*"],
                 functions: &[],
                 arch: &[aarch64],
                 os: &[],
@@ -223,7 +225,7 @@ pub(crate) fn gen() -> Result<()> {
 
     let mut target_modules = vec![];
     for &Target { triples, headers } in TARGETS {
-        for triple in triples {
+        for &triple in triples {
             eprintln!("\ninfo: generating bindings for {triple}");
             let target = &target_spec_json(triple)?;
             let module_name = triple.replace("-unknown", "").replace('-', "_");
@@ -239,10 +241,10 @@ pub(crate) fn gen() -> Result<()> {
                     let env = target.env.as_str();
                     cfg.extend(quote! { , target_env = #env });
                 }
-                if target.os == linux && matches!(target.arch, aarch64 | x86_64 | mips64) {
-                    let width = &target.target_pointer_width;
-                    cfg.extend(quote! { , target_pointer_width = #width });
-                }
+                let endian = target.target_endian.as_str();
+                cfg.extend(quote! { , target_endian = #endian });
+                let width = &target.target_pointer_width;
+                cfg.extend(quote! { , target_pointer_width = #width });
                 target_modules.push(quote! {
                     #[cfg(all(#cfg))]
                     mod #module_name;
@@ -412,7 +414,19 @@ pub(crate) fn gen() -> Result<()> {
                     pub use #module_name::{#(#uses),*};
                 });
             }
-            file::write(function_name!(), out_dir.join("mod.rs"), quote! { #(#modules)* })?;
+            // e.g., clang -E -dM -x c /dev/null -target aarch64-unknown-linux-gnu | grep __CHAR_
+            let clang_defs =
+                cmd!("clang", "-E", "-dM", "-x", "c", "/dev/null", "-target", &target.llvm_target)
+                    .read()?;
+            let c_char_type = if clang_defs.lines().any(|l| l == "#define __CHAR_UNSIGNED__ 1") {
+                quote! { u8 }
+            } else {
+                quote! { i8 }
+            };
+            file::write(function_name!(), out_dir.join("mod.rs"), quote! {
+                #(#modules)*
+                pub type c_char = #c_char_type;
+            })?;
         }
     }
     file::write(function_name!(), out_dir.join("mod.rs"), quote! {

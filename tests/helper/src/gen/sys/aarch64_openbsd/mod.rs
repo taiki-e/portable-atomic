@@ -11,3 +11,4 @@ pub use machine_cpu::{
     CPU_ID_AA64MMFR1, CPU_ID_AA64MMFR2, CPU_ID_AA64PFR0, CPU_ID_AA64PFR1,
     CPU_ID_AA64SMFR0, CPU_ID_AA64ZFR0,
 };
+pub type c_char = u8;

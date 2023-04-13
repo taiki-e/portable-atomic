@@ -26,3 +26,4 @@ mod bionic_sys_auxv;
 pub use bionic_sys_auxv::getauxval;
 mod bionic_sys_system_properties;
 pub use bionic_sys_system_properties::{PROP_VALUE_MAX, __system_property_get};
+pub type c_char = u8;
