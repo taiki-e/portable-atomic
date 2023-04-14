@@ -88,7 +88,8 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::sys;
-        // TODO(codegen): zx_status_t, zx_system_get_features
+        // TODO(codegen): zx_system_get_features
+        let _: ffi::zx_status_t = 0 as sys::zx_status_t;
         static_assert!(ffi::ZX_OK == sys::ZX_OK as ffi::zx_status_t);
         static_assert!(ffi::ZX_FEATURE_KIND_CPU == sys::ZX_FEATURE_KIND_CPU);
         static_assert!(ffi::ZX_ARM64_FEATURE_ISA_ATOMICS == sys::ZX_ARM64_FEATURE_ISA_ATOMICS);

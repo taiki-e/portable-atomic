@@ -75,3 +75,37 @@ diff --git a/zircon/system/public/zircon/features.h b/zircon/system/public/zirco
 +#define ZX_ARM64_FEATURE_ADDRESS_TAGGING_TBI  (1u << 0)
 
  #elif defined(__riscv)
+
+diff --git a/zircon/system/public/zircon/types.h b/zircon/system/public/zirc
+on/types.h
+--- a/zircon/system/public/zircon/types.h
++++ b/zircon/system/public/zircon/types.h
+@@ -5,8 +5,8 @@
+ #ifndef SYSROOT_ZIRCON_TYPES_H_
+ #define SYSROOT_ZIRCON_TYPES_H_
+
+-#include <stdbool.h>
+-#include <stddef.h>
++// #include <stdbool.h>
++// #include <stddef.h>
+ #include <stdint.h>
+ #include <zircon/compiler.h>
+ #include <zircon/errors.h>
+@@ -23,7 +23,7 @@
+ // A better solution would be to use <stdatomic.h> and C11 atomic operation
+ // even in the kernel, but that would require modifying all the code that uses
+ // the existing homegrown atomics.
+-#include <stdatomic.h>
++// #include <stdatomic.h>
+ #endif
+ #endif
+
+@@ -563,7 +563,7 @@ typedef int zx_futex_t;
+ #ifdef _KERNEL
+ typedef int zx_futex_t;
+ #else
+-typedef atomic_int zx_futex_t;
++// typedef atomic_int zx_futex_t;
+ #endif
+ #endif
+ typedef int zx_futex_storage_t;

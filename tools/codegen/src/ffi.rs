@@ -8,7 +8,7 @@
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
-use std::{collections::BTreeSet, ffi::OsStr, sync::Mutex};
+use std::{collections::BTreeSet, ffi::OsStr};
 
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -169,8 +169,16 @@ static TARGETS: &[Target] = &[
         triples: &["aarch64-unknown-fuchsia"],
         headers: &[
             // TODO: zx_system_get_features
-            // TODO: zx_status_t
-            // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/types.h
+            Header {
+                // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/types.h
+                path: "zircon/system/public/zircon/types.h",
+                types: &["zx_status_t"],
+                vars: &[],
+                functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
             Header {
                 // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/errors.h
                 path: "zircon/system/public/zircon/errors.h",
@@ -258,10 +266,18 @@ pub(crate) fn gen() -> Result<()> {
 
             let target_flag = &*format!("--target={triple}");
             let mut clang_args = vec![target_flag, "-nostdinc"];
+            macro_rules! define {
+                ($name:ident, $value:literal) => {{
+                    clang_args.push(concat!("-D", stringify!($name), "=", $value));
+                }};
+            }
             match target.os {
                 macos => {
                     // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
-                    clang_args.push("-D_POSIX_C_SOURCE=200112L");
+                    define!(_POSIX_C_SOURCE, "200112L");
+                }
+                fuchsia => {
+                    define!(size_t, "unsigned long");
                 }
                 _ => {}
             }
@@ -333,7 +349,10 @@ pub(crate) fn gen() -> Result<()> {
                     }
                     fuchsia => {
                         header_path = src_dir.join(header.path);
-                        include = vec![src_dir.join("zircon/system/public")];
+                        include = vec![
+                            src_dir.join("zircon/system/public"),
+                            src_dir.join("zircon/kernel/lib/libc/include"),
+                        ];
                     }
                     _ => todo!("{target:?}"),
                 }
@@ -555,14 +574,9 @@ fn bionic_dir(src_dir: &Utf8Path) -> Utf8PathBuf {
 fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
     match target.os {
         linux | android => {
-            static LINUX_HEADERS_INSTALLED: Mutex<BTreeSet<&'static str>> =
-                Mutex::new(BTreeSet::new());
             let linux_arch = linux_arch(target);
-            if LINUX_HEADERS_INSTALLED.lock().unwrap().insert(linux_arch) {
-                let linux_headers_dir = &linux_headers_dir(target, src_dir);
-                if linux_headers_dir.exists() {
-                    fs::remove_dir_all(linux_headers_dir)?;
-                }
+            let linux_headers_dir = &linux_headers_dir(target, src_dir);
+            if !linux_headers_dir.exists() {
                 // https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt
                 cmd!(
                     "make",
@@ -575,15 +589,10 @@ fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
                 .run()?;
             }
             if target.env == musl {
-                static MUSL_HEADERS_INSTALLED: Mutex<BTreeSet<&'static str>> =
-                    Mutex::new(BTreeSet::new());
                 let musl_arch = musl_arch(target);
-                if MUSL_HEADERS_INSTALLED.lock().unwrap().insert(musl_arch) {
-                    let musl_src_dir = &src_dir.join("../..").join(MUSL_REPO);
-                    let musl_headers_dir = &musl_headers_dir(target, src_dir);
-                    if musl_headers_dir.exists() {
-                        fs::remove_dir_all(musl_headers_dir)?;
-                    }
+                let musl_src_dir = &src_dir.join("../..").join(MUSL_REPO);
+                let musl_headers_dir = &musl_headers_dir(target, src_dir);
+                if !musl_headers_dir.exists() {
                     // https://github.com/bminor/musl/blob/HEAD/Makefile
                     cmd!(
                         "make",

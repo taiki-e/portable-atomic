@@ -3,6 +3,8 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
+mod zircon_system_public_zircon_types;
+pub use zircon_system_public_zircon_types::zx_status_t;
 mod zircon_system_public_zircon_errors;
 pub use zircon_system_public_zircon_errors::ZX_OK;
 mod zircon_system_public_zircon_features;
