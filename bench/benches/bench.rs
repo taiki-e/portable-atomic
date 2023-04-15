@@ -65,16 +65,16 @@ trait AtomicInt<T: Copy>: Sized + Send + Sync {
     fn store(&self, val: T);
     fn swap(&self, val: T) -> T;
     fn compare_exchange(&self, old: T, new: T) -> T;
-    fn compare_exchange_weak(&self, old: T, new: T) -> Result<T, T>;
+    fn compare_exchange_weak_(&self, old: T, new: T, s: Ordering, f: Ordering) -> Result<T, T>;
     fn fetch_add(&self, val: T) -> T;
     #[inline]
-    fn fetch_update<F>(&self, mut f: F) -> Result<T, T>
+    fn fetch_update<F>(&self, s_o: Ordering, f_o: Ordering, mut f: F) -> Result<T, T>
     where
         F: FnMut(T) -> Option<T>,
     {
         let mut prev = self.load();
         while let Some(next) = f(prev) {
-            match self.compare_exchange_weak(prev, next) {
+            match self.compare_exchange_weak_(prev, next, s_o, f_o) {
                 x @ Ok(_) => return x,
                 Err(next_prev) => prev = next_prev,
             }
@@ -107,12 +107,14 @@ macro_rules! impl_atomic {
                     .unwrap_or_else(|x| x)
             }
             #[inline]
-            fn compare_exchange_weak(
+            fn compare_exchange_weak_(
                 &self,
                 old: $int_type,
                 new: $int_type,
+                s: Ordering,
+                f: Ordering,
             ) -> Result<$int_type, $int_type> {
-                self.compare_exchange_weak(old, new, Ordering::AcqRel, Ordering::Acquire)
+                self.compare_exchange_weak(old, new, s, f)
             }
             #[inline]
             fn fetch_add(&self, val: $int_type) -> $int_type {
@@ -145,10 +147,12 @@ macro_rules! impl_atomic_no_order {
                 self.compare_exchange(old, new).unwrap_or_else(|x| x)
             }
             #[inline]
-            fn compare_exchange_weak(
+            fn compare_exchange_weak_(
                 &self,
                 old: $int_type,
                 new: $int_type,
+                _: Ordering,
+                _: Ordering,
             ) -> Result<$int_type, $int_type> {
                 self.compare_exchange(old, new)
             }
@@ -318,13 +322,25 @@ fn bench_concurrent_fetch_update<
             s.spawn(|| {
                 barrier.wait();
                 for i in 0..N {
-                    let _ = black_box(a.fetch_update(|v| Some(v + T::from(i))));
+                    let (s, f) = match i % 4 {
+                        0 => (Ordering::AcqRel, Ordering::Acquire),
+                        1 => (Ordering::Acquire, Ordering::Acquire),
+                        2 => (Ordering::Release, Ordering::Relaxed),
+                        _ => (Ordering::Relaxed, Ordering::Relaxed),
+                    };
+                    let _ = black_box(a.fetch_update(s, f, |v| Some(v + T::from(i))));
                 }
             });
             s.spawn(|| {
                 barrier.wait();
                 for i in (0..N).rev() {
-                    let _ = black_box(a.fetch_update(|v| Some(v + T::from(i))));
+                    let (s, f) = match i % 4 {
+                        0 => (Ordering::AcqRel, Ordering::Acquire),
+                        1 => (Ordering::Acquire, Ordering::Acquire),
+                        2 => (Ordering::Release, Ordering::Relaxed),
+                        _ => (Ordering::Relaxed, Ordering::Relaxed),
+                    };
+                    let _ = black_box(a.fetch_update(s, f, |v| Some(v + T::from(i))));
                 }
             });
         }

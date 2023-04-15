@@ -46,8 +46,12 @@ macro_rules! doc_comment {
 macro_rules! ifunc {
     (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
+        #[cfg(not(case2))]
         static FUNC: crate::utils::CachePadded<core::sync::atomic::AtomicPtr<()>>
             = crate::utils::CachePadded::new(core::sync::atomic::AtomicPtr::new(detect as *mut ()));
+        #[cfg(case2)]
+        static FUNC: core::sync::atomic::AtomicPtr<()>
+            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
         #[cold]
         unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
             let func: FnTy = { $($detect_body)* };
@@ -478,7 +482,7 @@ impl<T> CachePadded<T> {
 impl<T> ops::Deref for CachePadded<T> {
     type Target = T;
 
-    #[inline]
+    #[inline(always)]
     fn deref(&self) -> &T {
         &self.value
     }

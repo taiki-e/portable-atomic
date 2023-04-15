@@ -152,13 +152,8 @@ aarch64_linux_bench_task:
     - rustup toolchain add nightly --no-self-update && rustup default nightly
   bench_script:
     - set -ex
-    - git clone https://github.com/taiki-e/portable-atomic.git
-    - cd portable-atomic
-    - git checkout tmp
     - cargo bench -vv --manifest-path bench/Cargo.toml
-    - git checkout main
-    - cargo clean
-    - cargo bench -vv --manifest-path bench/Cargo.toml
+    - RUSTFLAGS="${RUSTFLAGS} --cfg case2" cargo bench -vv --manifest-path bench/Cargo.toml
     # - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
     # - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
