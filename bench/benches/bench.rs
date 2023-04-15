@@ -434,7 +434,7 @@ mod bench {
     criterion_group!(
         benches,
         bench_portable_atomic_arch,
-        // bench_portable_atomic_intrinsics,
+        bench_portable_atomic_intrinsics,
         // bench_portable_atomic_seqlock_fallback,
         // bench_portable_atomic_spinlock_fallback,
         // bench_atomic_cell,
