@@ -46,8 +46,8 @@ macro_rules! doc_comment {
 macro_rules! ifunc {
     (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
-        static FUNC: core::sync::atomic::AtomicPtr<()>
-            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
+        static FUNC: crate::utils::CachePadded<core::sync::atomic::AtomicPtr<()>>
+            = crate::utils::CachePadded::new(core::sync::atomic::AtomicPtr::new(detect as *mut ()));
         #[cold]
         unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
             let func: FnTy = { $($detect_body)* };

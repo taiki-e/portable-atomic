@@ -1,4 +1,4 @@
-only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'dev')
+only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'tmp')
 auto_cancellation: $CIRRUS_PR != ''
 env:
   CARGO_INCREMENTAL: '0'
@@ -12,148 +12,155 @@ env:
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
 
-aarch64_linux_gnu_test_task:
-  env:
-    TARGET: aarch64-unknown-linux-gnu
-  matrix:
-    - name: test ($TARGET)
-      arm_container:
-        image: rust:latest
-      setup_script:
-        - set -ex
-        - lscpu
-        - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-    - name: test ($TARGET, glibc 2.17)
-      arm_container:
-        # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
-        image: centos:7
-      setup_script:
-        - set -ex
-        - lscpu
-        - yum install -y gcc git
-        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
-  test_script:
-    - |
-      [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
-    - set -ex
-    - ./tools/test.sh -vv
-    # +lse
-    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
-    # FEAT_LSE2 is tested on aarch64 macOS VM.
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
-
-aarch64_linux_musl_test_task:
-  name: test ($TARGET)
-  env:
-    TARGET: aarch64-unknown-linux-musl
-  arm_container:
-    image: rust:alpine
-  setup_script:
-    - set -ex
-    - apk --no-cache add bash git musl-dev util-linux
-    - lscpu
-    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-  test_script:
-    - set -ex
-    - ./tools/test.sh -vv
-    # -crt-static
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=-crt-static" ./tools/test.sh -vv
-    # +lse
-    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
-    # FEAT_LSE2 is tested on aarch64 macOS VM.
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
-
-armel_linux_test_task:
-  name: test ($TARGET)
-  env:
-    TARGET: armv5te-unknown-linux-gnueabi
-  arm_container:
-    image: rust:latest
-  setup_script:
-    - set -ex
-    - lscpu
-    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-    - dpkg --add-architecture armel
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabi libc6-dev-armel-cross libc6:armel
-  test_script:
-    - set -ex
-    - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
-    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
-
-armhf_linux_test_task:
-  name: test ($TARGET)
-  env:
-    TARGET: armv7-unknown-linux-gnueabihf
-  arm_container:
-    image: rust:latest
-  setup_script:
-    - set -ex
-    - lscpu
-    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
-    - dpkg --add-architecture armhf
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabihf libc6-dev-armhf-cross libc6:armhf
-  test_script:
-    - set -ex
-    - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
-
-aarch64_macos_test_task:
-  name: test ($TARGET)
-  env:
-    TARGET: aarch64-apple-darwin
-  macos_instance:
-    image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
-  setup_script:
-    - set -ex
-    - sysctl hw.optional machdep.cpu
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
-  test_script:
-    - . $HOME/.cargo/env
-    - set -ex
-    # macOS is +lse,+lse2 by default
-    - ./tools/test.sh -vv
-
-aarch64_linux_valgrind_task:
-  name: valgrind ($TARGET)
-  env:
-    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
-    RUSTDOCFLAGS: -D warnings --cfg valgrind
-    RUSTFLAGS: -D warnings --cfg valgrind
-    TARGET: aarch64-unknown-linux-gnu
-  arm_container:
-    # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
-    # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
-    image: debian:bookworm
-  setup_script:
-    - set -ex
-    - lscpu
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
-  test_script:
-    - . $HOME/.cargo/env
-    - set -ex
-    # doctests on Valgrind are very slow
-    - ./tools/test.sh -vv --tests
-    # +lse
-    # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
-#
-# aarch64_linux_bench_task:
-#   name: bench ($TARGET)
+# aarch64_linux_gnu_test_task:
 #   env:
 #     TARGET: aarch64-unknown-linux-gnu
+#   matrix:
+#     - name: test ($TARGET)
+#       arm_container:
+#         image: rust:latest
+#       setup_script:
+#         - set -ex
+#         - lscpu
+#         - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#     - name: test ($TARGET, glibc 2.17)
+#       arm_container:
+#         # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
+#         image: centos:7
+#       setup_script:
+#         - set -ex
+#         - lscpu
+#         - yum install -y gcc git
+#         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+#   test_script:
+#     - |
+#       [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
+#     - set -ex
+#     - ./tools/test.sh -vv
+#     # +lse
+#     # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+#     # FEAT_LSE2 is tested on aarch64 macOS VM.
+#     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
+
+# aarch64_linux_musl_test_task:
+#   name: test ($TARGET)
+#   env:
+#     TARGET: aarch64-unknown-linux-musl
+#   arm_container:
+#     image: rust:alpine
+#   setup_script:
+#     - set -ex
+#     - apk --no-cache add bash git musl-dev util-linux
+#     - lscpu
+#     - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#   test_script:
+#     - set -ex
+#     - ./tools/test.sh -vv
+#     # -crt-static
+#     - RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=-crt-static" ./tools/test.sh -vv
+#     # +lse
+#     # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+#     # FEAT_LSE2 is tested on aarch64 macOS VM.
+#     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv
+
+# armel_linux_test_task:
+#   name: test ($TARGET)
+#   env:
+#     TARGET: armv5te-unknown-linux-gnueabi
 #   arm_container:
 #     image: rust:latest
-#     cpu: 4
-#     memory: 12G
 #   setup_script:
 #     - set -ex
 #     - lscpu
-#     - rustup toolchain add nightly --no-self-update && rustup default nightly
-#   bench_script:
+#     - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#     - dpkg --add-architecture armel
+#     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabi libc6-dev-armel-cross libc6:armel
+#   test_script:
 #     - set -ex
-#     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
-#     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
+#     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
+#     - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
+
+# armhf_linux_test_task:
+#   name: test ($TARGET)
+#   env:
+#     TARGET: armv7-unknown-linux-gnueabihf
+#   arm_container:
+#     image: rust:latest
+#   setup_script:
+#     - set -ex
+#     - lscpu
+#     - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#     - dpkg --add-architecture armhf
+#     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-arm-linux-gnueabihf libc6-dev-armhf-cross libc6:armhf
+#   test_script:
+#     - set -ex
+#     - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
+#     - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
+
+# aarch64_macos_test_task:
+#   name: test ($TARGET)
+#   env:
+#     TARGET: aarch64-apple-darwin
+#   macos_instance:
+#     image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+#   setup_script:
+#     - set -ex
+#     - sysctl hw.optional machdep.cpu
+#     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+#   test_script:
+#     - . $HOME/.cargo/env
+#     - set -ex
+#     # macOS is +lse,+lse2 by default
+#     - ./tools/test.sh -vv
+
+# aarch64_linux_valgrind_task:
+#   name: valgrind ($TARGET)
+#   env:
+#     CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+#     RUSTDOCFLAGS: -D warnings --cfg valgrind
+#     RUSTFLAGS: -D warnings --cfg valgrind
+#     TARGET: aarch64-unknown-linux-gnu
+#   arm_container:
+#     # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
+#     # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
+#     image: debian:bookworm
+#   setup_script:
+#     - set -ex
+#     - lscpu
+#     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind
+#     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+#   test_script:
+#     - . $HOME/.cargo/env
+#     - set -ex
+#     # doctests on Valgrind are very slow
+#     - ./tools/test.sh -vv --tests
+#     # +lse
+#     # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
+#     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
+#
+aarch64_linux_bench_task:
+  name: bench ($TARGET)
+  env:
+    TARGET: aarch64-unknown-linux-gnu
+  arm_container:
+    image: rust:latest
+    cpu: 8
+    memory: 16G
+  setup_script:
+    - set -ex
+    - lscpu
+    - rustup toolchain add nightly --no-self-update && rustup default nightly
+  bench_script:
+    - set -ex
+    - git clone https://github.com/taiki-e/portable-atomic.git
+    - cd portable-atomic
+    - git checkout tmp
+    - cargo bench -vv --manifest-path bench/Cargo.toml
+    - git checkout main
+    - cargo clean
+    - cargo bench -vv --manifest-path bench/Cargo.toml
+    # - RUSTFLAGS="${RUSTFLAGS} -C target-feature=-outline-atomics --cfg portable_atomic_no_outline_atomics" cargo bench -vv --manifest-path bench/Cargo.toml
+    # - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" cargo bench -vv --manifest-path bench/Cargo.toml
 
 # armel_linux_bench_task:
 #   name: bench ($TARGET)
