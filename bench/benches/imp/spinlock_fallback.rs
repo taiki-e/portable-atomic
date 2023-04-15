@@ -12,7 +12,7 @@ use core::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use super::fallback::utils::{Backoff, CachePadded};
+use crate::{fallback::utils::Backoff, utils::CachePadded};
 
 struct Spinlock {
     state: AtomicUsize,
