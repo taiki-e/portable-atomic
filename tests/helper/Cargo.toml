@@ -8,13 +8,15 @@ publish = false
 [lib]
 doctest = false
 doc = false
+test = false
 
 [features]
-std = ["critical-section", "fs-err", "serde", "libc", "windows-sys"]
+std = ["critical-section", "fs-err", "rustversion", "serde", "libc", "windows-sys"]
 
 [dependencies]
 critical-section = { version = "1", optional = true, features = ["restore-state-bool"] }
 fs-err = { version = "2", optional = true }
+rustversion = { version = "1", optional = true }
 serde = { version = "1", optional = true }
 
 [target.'cfg(unix)'.dependencies]

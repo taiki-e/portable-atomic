@@ -15,6 +15,19 @@ On compiler versions or platforms where these are not supported, the fallback im
 
 See [aarch64.rs](aarch64.rs) module-level comments for more details on the instructions used on aarch64.
 
+## Comparison with core::intrinsics::atomic_\* (core::sync::atomic::Atomic{I,U}128)
+
+This directory has target-specific implementations with inline assembly ([aarch64.rs](aarch64.rs), [x86_64.rs](x86_64.rs), [powerpc64.rs](powerpc64.rs), [s390x.rs](s390x.rs)) and an implementation without inline assembly ([intrinsics.rs](intrinsics.rs)). The latter currently always needs nightly compilers and is only used for Miri and ThreadSanitizer, which do not support inline assembly.
+
+Implementations with inline assembly generate assemblies almost equivalent to the `core::intrinsics::atomic_*` (used in `core::sync::atomic::Atomic{I,U}128`) for many operations, but some operations may or may not generate more efficient code. For example:
+
+- On x86_64, implementation with inline assembly contains additional optimizations (e.g., [#16](https://github.com/taiki-e/portable-atomic/pull/16)) and is much faster for some operations.
+- On aarch64, implementation with inline assembly supports outline-atomics on more operating systems, and may be faster in environments where outline-atomics can improve performance.
+- On powerpc64 and s390x, LLVM does not support generating some 128-bit atomic operations (see [intrinsics.rs](intrinsics.rs) module-level comments), and we use CAS loop to implement them, so implementation with inline assembly may be faster for those operations.
+- In implementations without inline assembly, the compiler may reuse condition flags that have changed as a result of the operation, or use immediate values instead of registers, depending on the situation.
+
+As 128-bit atomics-related APIs stabilize in the standard library, implementations with inline assembly are planned to be updated to get the benefits of both.
+
 ## Run-time feature detection
 
 [detect](detect) module has run-time feature detection implementations.

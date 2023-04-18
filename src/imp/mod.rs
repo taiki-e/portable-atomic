@@ -20,21 +20,21 @@
 )]
 mod core_atomic;
 
-// Miri and Sanitizer do not support inline assembly.
-#[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-#[cfg(target_arch = "aarch64")]
-#[path = "atomic128/intrinsics.rs"]
-mod aarch64;
-#[cfg(not(all(
-    any(miri, portable_atomic_sanitize_thread),
-    portable_atomic_new_atomic_intrinsics,
-)))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[cfg(target_arch = "aarch64")]
-#[path = "atomic128/aarch64.rs"]
+// Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
+#[cfg_attr(
+    all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics),
+    path = "atomic128/intrinsics.rs"
+)]
+#[cfg_attr(
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics)),
+    path = "atomic128/aarch64.rs"
+)]
 mod aarch64;
 
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
+#[cfg(target_arch = "x86_64")]
 #[cfg(any(
     target_feature = "cmpxchg16b",
     portable_atomic_target_feature = "cmpxchg16b",
@@ -45,33 +45,39 @@ mod aarch64;
         not(target_env = "sgx"),
     ),
 ))]
-#[cfg(target_arch = "x86_64")]
-#[path = "atomic128/x86_64.rs"]
+// Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
+#[cfg_attr(any(miri, portable_atomic_sanitize_thread), path = "atomic128/intrinsics.rs")]
+#[cfg_attr(not(any(miri, portable_atomic_sanitize_thread)), path = "atomic128/x86_64.rs")]
 mod x86_64;
 
-// Miri and Sanitizer do not support inline assembly.
-#[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm_15))]
 #[cfg(portable_atomic_unstable_asm_experimental_arch)]
+#[cfg(target_arch = "powerpc64")]
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 ))]
-#[cfg(target_arch = "powerpc64")]
-#[path = "atomic128/intrinsics.rs"]
-mod powerpc64;
-#[cfg(not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm_15)))]
-#[cfg(portable_atomic_unstable_asm_experimental_arch)]
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics",
-))]
-#[cfg(target_arch = "powerpc64")]
-#[path = "atomic128/powerpc64.rs"]
+// Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
+#[cfg_attr(
+    all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm_15),
+    path = "atomic128/intrinsics.rs"
+)]
+#[cfg_attr(
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm_15)),
+    path = "atomic128/powerpc64.rs"
+)]
 mod powerpc64;
 
 #[cfg(portable_atomic_unstable_asm_experimental_arch)]
 #[cfg(target_arch = "s390x")]
-#[path = "atomic128/s390x.rs"]
+// Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
+#[cfg_attr(
+    all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics),
+    path = "atomic128/intrinsics.rs"
+)]
+#[cfg_attr(
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics)),
+    path = "atomic128/s390x.rs"
+)]
 mod s390x;
 
 // Miri and Sanitizer do not support inline assembly.

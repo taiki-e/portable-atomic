@@ -65,7 +65,7 @@ impl AtomicBool {
             // See also https://github.com/rust-lang/rust/pull/66705 and
             // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
             unsafe {
-                (*(self as *const Self as *const core::cell::UnsafeCell<u8>)).get() as *mut bool
+                (*(self as *const Self as *const UnsafeCell<u8>)).get() as *mut bool
             }
         }
     }
@@ -159,7 +159,7 @@ impl<T> AtomicPtr<T> {
             // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
             // See also https://github.com/rust-lang/rust/pull/66705 and
             // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-            unsafe { (*(self as *const Self as *const core::cell::UnsafeCell<*mut T>)).get() }
+            unsafe { (*(self as *const Self as *const UnsafeCell<*mut T>)).get() }
         }
     }
 }
@@ -269,7 +269,7 @@ macro_rules! atomic_int {
                     // See also https://github.com/rust-lang/rust/pull/66705 and
                     // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
                     unsafe {
-                        (*(self as *const Self as *const core::cell::UnsafeCell<$int_type>)).get()
+                        (*(self as *const Self as *const UnsafeCell<$int_type>)).get()
                     }
                 }
             }

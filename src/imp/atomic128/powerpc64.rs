@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/xo6EWKojK
-// - powerpc64le https://godbolt.org/z/z8ToMza5e
+// - powerpc64 (pwr8) https://godbolt.org/z/4aGs41dEn
+// - powerpc64le https://godbolt.org/z/oE3rPoqz4
 
 include!("macros.rs");
 
@@ -229,6 +229,7 @@ use atomic_compare_exchange as atomic_compare_exchange_weak;
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
+
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
@@ -524,5 +525,9 @@ mod tests {
     #[cfg(qemu)]
     test_atomic_int_load_store!(u128);
 
+    // Test operation parts of LL/SC-based atomic RMW implementations separately.
+    //
+    // This allows testing more code on QEMU while avoiding the problem of some
+    // atomic instructions not working on QEMU.
     test_atomic128_op!();
 }

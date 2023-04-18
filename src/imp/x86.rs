@@ -117,7 +117,7 @@ macro_rules! atomic_bit_opts {
         // LLVM 15 only supports generating `lock bt{s,r,c}` for immediate bit offsets.
         // https://godbolt.org/z/dzzhr81z6
         // LLVM 16 can generate `lock bt{s,r,c}` for both immediate and register bit offsets.
-        // https://github.com/taiki-e/portable-atomic/issues/48#issuecomment-1453473831
+        // https://godbolt.org/z/7YTvsorn1
         // So, use fetch_* based implementations on LLVM 16+, otherwise use asm based implementations.
         #[cfg(portable_atomic_llvm_16)]
         impl_default_bit_opts!($atomic_type, $int_type);

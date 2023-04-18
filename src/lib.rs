@@ -4798,7 +4798,9 @@ This is `const fn` on Rust 1.58+."),
                 /// Returning an `*mut` pointer from a shared reference to this atomic is
                 /// safe because the atomic types work with interior mutability. Any use of
                 /// the returned raw pointer requires an `unsafe` block and has to uphold
-                /// the safety requirements:
+                /// the safety requirements. If there is concurrent access, note the following
+                /// additional safety requirements:
+                ///
                 /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
                 ///   operations on it must be atomic.
                 /// - Otherwise, any concurrent operations on it must be compatible with

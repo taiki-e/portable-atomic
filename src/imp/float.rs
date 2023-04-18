@@ -11,7 +11,7 @@
 
 #![cfg(any(not(target_pointer_width = "16"), feature = "fallback"))] // See lib.rs's AtomicU32 definition
 
-use core::sync::atomic::Ordering;
+use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 macro_rules! atomic_float {
     (
@@ -23,7 +23,7 @@ macro_rules! atomic_float {
     ) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
-            v: core::cell::UnsafeCell<$float_type>,
+            v: UnsafeCell<$float_type>,
         }
 
         // Send is implicitly implemented.
@@ -33,7 +33,7 @@ macro_rules! atomic_float {
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $float_type) -> Self {
-                Self { v: core::cell::UnsafeCell::new(v) }
+                Self { v: UnsafeCell::new(v) }
             }
 
             #[inline]

@@ -96,8 +96,6 @@ jobs:
           - rust: nightly
             target: armv7-unknown-linux-gnueabihf
           - rust: nightly
-            target: armv5te-unknown-linux-musleabi
-          - rust: nightly
             target: arm-linux-androideabi
           - rust: nightly
             target: i586-unknown-linux-gnu
@@ -163,20 +161,31 @@ jobs:
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
+      - run: echo "REPORT_TIME=-- -Z unstable-options --report-time" >>"${GITHUB_ENV}"
+        if: startsWith(matrix.rust, 'nightly')
         # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on windows causes segfault.
       - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      # macOS is skipped because it is +cmpxchg16b by default
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        env:
+          # Note: This cfg is intended to make it easy for portable-atomic developers
+          # to test has_cmpxchg16b == false, has_lse == false, or __kuser_helper_version < 5 cases,
+          # and is not a public API.
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') || startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       # -crt-static
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
         if: contains(matrix.target, '-musl')
       # +cmpxchg16b
       # macOS is skipped because it is +cmpxchg16b by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
@@ -184,21 +193,21 @@ jobs:
       # +lse
       # As of QEMU 7.2, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
       # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
@@ -303,8 +312,7 @@ jobs:
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
-      - run: |
-          cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
+      - run: cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
@@ -351,7 +359,7 @@ jobs:
 
   valgrind:
     env:
-      CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+      VALGRIND: valgrind
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -360,17 +368,14 @@ jobs:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+      - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
-      # doctests on Valgrind are very slow
-      - run: tools/test.sh -vv --tests
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
+      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
       # +cmpxchg16b
-      - run: tools/test.sh -vv --tests
+      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
 
   codegen:
     runs-on: ubuntu-latest

@@ -16,7 +16,7 @@ mod fallback;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::{mem, sync::atomic::Ordering};
+use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 /// A 64-bit value represented as a pair of 32-bit values.
 ///
@@ -56,10 +56,17 @@ fn __kuser_helper_version() -> i32 {
 }
 #[inline]
 fn has_kuser_cmpxchg64() -> bool {
+    // Note: This cfg is intended to make it easy for portable-atomic developers
+    // to test __kuser_helper_version < 5 cases, and is not a public API.
+    if cfg!(portable_atomic_test_outline_atomics_detect_false) {
+        return false;
+    }
     __kuser_helper_version() >= 5
 }
 #[inline]
 unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
+    debug_assert!(ptr as usize % 8 == 0);
+    debug_assert!(has_kuser_cmpxchg64());
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
@@ -91,9 +98,6 @@ unsafe fn atomic_update_kuser_cmpxchg64<F>(dst: *mut u64, mut f: F) -> u64
 where
     F: FnMut(u64) -> u64,
 {
-    debug_assert!(dst as usize % 8 == 0);
-    debug_assert!(has_kuser_cmpxchg64());
-
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         loop {
@@ -130,7 +134,7 @@ macro_rules! atomic_with_ifunc {
                     if has_kuser_cmpxchg64() {
                         kuser_cmpxchg64_fn
                     } else {
-                        // Use SeqCst because __kuser_cmpxchg64 is SeqCst.
+                        // Use SeqCst because __kuser_cmpxchg64 is always SeqCst.
                         // https://github.com/torvalds/linux/blob/v6.1/arch/arm/kernel/entry-armv.S#L918-L925
                         fallback::$seqcst_fallback_fn
                     }
@@ -264,7 +268,7 @@ macro_rules! atomic64 {
     ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(8))]
         pub(crate) struct $atomic_type {
-            v: core::cell::UnsafeCell<$int_type>,
+            v: UnsafeCell<$int_type>,
         }
 
         // Send is implicitly implemented.
@@ -276,7 +280,7 @@ macro_rules! atomic64 {
         impl $atomic_type {
             #[inline]
             pub(crate) const fn new(v: $int_type) -> Self {
-                Self { v: core::cell::UnsafeCell::new(v) }
+                Self { v: UnsafeCell::new(v) }
             }
 
             #[inline]

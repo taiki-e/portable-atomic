@@ -24,7 +24,7 @@ mod once_lock;
 #[cfg(feature = "std")]
 pub mod serde;
 
-use core::{ops, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 pub const LOAD_ORDERINGS: [Ordering; 3] = [Ordering::Relaxed, Ordering::Acquire, Ordering::SeqCst];
 pub const STORE_ORDERINGS: [Ordering; 3] = [Ordering::Relaxed, Ordering::Release, Ordering::SeqCst];
@@ -50,15 +50,14 @@ pub const COMPARE_EXCHANGE_ORDERINGS: [(Ordering, Ordering); 15] = [
 pub const FENCE_ORDERINGS: [Ordering; 4] =
     [Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst];
 
-#[derive(Debug, Clone, Copy, Default)]
-#[repr(C, align(16))]
-pub struct Align16<T>(pub T);
-
-impl<T> ops::Deref for Align16<T> {
-    type Target = T;
-
-    #[inline]
-    fn deref(&self) -> &T {
-        &self.0
-    }
+// For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
+#[cfg(feature = "std")]
+#[rustversion::since(1.60)] // cfg!(panic) requires Rust 1.60
+pub fn is_panic_abort() -> bool {
+    cfg!(panic = "abort")
+}
+#[cfg(feature = "std")]
+#[rustversion::before(1.60)] // cfg!(panic) requires Rust 1.60
+pub fn is_panic_abort() -> bool {
+    false
 }

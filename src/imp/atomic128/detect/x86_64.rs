@@ -1,7 +1,12 @@
 // Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(
-    any(not(target_feature = "sse"), miri, portable_atomic_sanitize_thread),
+    any(
+        not(target_feature = "sse"),
+        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+        miri,
+        portable_atomic_sanitize_thread,
+    ),
     allow(dead_code)
 )]
 
@@ -29,7 +34,7 @@ unsafe fn __cpuid(leaf: u32) -> CpuidResult {
             // rbx is reserved by LLVM
             "mov {ebx_tmp:r}, rbx",
             "cpuid",
-            "xchg {ebx_tmp:r}, rbx",
+            "xchg {ebx_tmp:r}, rbx", // restore rbx
             ebx_tmp = out(reg) ebx,
             inout("eax") leaf => eax,
             inout("ecx") 0 => ecx,
@@ -105,8 +110,10 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
+    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     use super::*;
 
+    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     #[test]
     // SGX doesn't support CPUID.
     // Miri doesn't support inline assembly.

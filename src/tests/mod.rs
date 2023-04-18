@@ -105,7 +105,6 @@ extern "C" {
     fn _atomic_f64_ffi_safety(_: AtomicF64);
 }
 
-#[rustversion::since(1.60)] // cfg!(target_has_atomic) requires Rust 1.60
 #[test]
 fn test_is_lock_free() {
     assert!(AtomicI8::is_always_lock_free());
@@ -120,30 +119,34 @@ fn test_is_lock_free() {
     assert!(AtomicI32::is_lock_free());
     assert!(AtomicU32::is_always_lock_free());
     assert!(AtomicU32::is_lock_free());
-    if cfg!(all(
-        feature = "fallback",
-        not(any(miri, portable_atomic_sanitize_thread)),
-        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-        target_arch = "arm",
-        any(target_os = "linux", target_os = "android"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-        not(portable_atomic_no_outline_atomics),
-        not(target_has_atomic = "64"),
-    )) {
-        assert!(!AtomicI64::is_always_lock_free());
-        assert!(AtomicI64::is_lock_free());
-        assert!(!AtomicU64::is_always_lock_free());
-        assert!(AtomicU64::is_lock_free());
-    } else if cfg!(target_has_atomic = "64") {
-        assert!(AtomicI64::is_always_lock_free());
-        assert!(AtomicI64::is_lock_free());
-        assert!(AtomicU64::is_always_lock_free());
-        assert!(AtomicU64::is_lock_free());
-    } else {
-        assert!(!AtomicI64::is_always_lock_free());
-        assert!(!AtomicI64::is_lock_free());
-        assert!(!AtomicU64::is_always_lock_free());
-        assert!(!AtomicU64::is_lock_free());
+    #[cfg(not(portable_atomic_no_cfg_target_has_atomic))]
+    {
+        if cfg!(all(
+            feature = "fallback",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            target_arch = "arm",
+            any(target_os = "linux", target_os = "android"),
+            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+            not(portable_atomic_no_outline_atomics),
+            not(target_has_atomic = "64"),
+            not(portable_atomic_test_outline_atomics_detect_false),
+        )) {
+            assert!(!AtomicI64::is_always_lock_free());
+            assert!(AtomicI64::is_lock_free());
+            assert!(!AtomicU64::is_always_lock_free());
+            assert!(AtomicU64::is_lock_free());
+        } else if cfg!(target_has_atomic = "64") {
+            assert!(AtomicI64::is_always_lock_free());
+            assert!(AtomicI64::is_lock_free());
+            assert!(AtomicU64::is_always_lock_free());
+            assert!(AtomicU64::is_lock_free());
+        } else {
+            assert!(!AtomicI64::is_always_lock_free());
+            assert!(!AtomicI64::is_lock_free());
+            assert!(!AtomicU64::is_always_lock_free());
+            assert!(!AtomicU64::is_lock_free());
+        }
     }
     if cfg!(any(
         target_arch = "aarch64",
@@ -182,6 +185,7 @@ fn test_is_lock_free() {
                 portable_atomic_cmpxchg16b_target_feature,
                 not(portable_atomic_no_outline_atomics),
                 not(target_env = "sgx"),
+                not(portable_atomic_test_outline_atomics_detect_false),
             )) && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);

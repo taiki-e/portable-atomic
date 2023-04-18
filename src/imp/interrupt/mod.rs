@@ -24,7 +24,7 @@
 // interrupts [^avr2] in atomic ops by default, is considered the latter.
 // MSP430 as well.
 //
-// See also README.md of this module.
+// See also README.md of this directory.
 //
 // [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#LL963
 // [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5

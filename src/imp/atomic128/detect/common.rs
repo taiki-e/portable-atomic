@@ -33,7 +33,12 @@ pub(crate) fn detect() -> CpuInfo {
         return info;
     }
     info.set(CpuInfo::INIT);
-    _detect(&mut info);
+    // Note: This cfg is intended to make it easy for portable-atomic developers
+    // to test has_cmpxchg16b == false or has_lse == false cases,
+    // and is not a public API.
+    if !cfg!(portable_atomic_test_outline_atomics_detect_false) {
+        _detect(&mut info);
+    }
     CACHE.store(info.0, Ordering::Relaxed);
     info
 }
@@ -60,7 +65,7 @@ impl CpuInfo {
     pub(crate) fn has_lse(self) -> bool {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         {
-            // FEAT_LSE is statically available.
+            // FEAT_LSE is available at compile-time.
             true
         }
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -82,7 +87,7 @@ impl CpuInfo {
     pub(crate) fn has_cmpxchg16b(self) -> bool {
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         {
-            // CMPXCHG16B is statically available.
+            // CMPXCHG16B is available at compile-time.
             true
         }
         #[cfg(not(any(
@@ -246,6 +251,7 @@ mod tests_common {
         let _ = stdout.write_all(features.as_bytes());
     }
 
+    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     #[cfg(target_arch = "aarch64")]
     #[test]
     fn test_detect() {

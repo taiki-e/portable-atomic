@@ -3,23 +3,19 @@
 // s390x supports 128-bit atomic load/store/cmpxchg:
 // https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
 //
-// Note that LLVM currently generates libcalls for other operations: https://godbolt.org/z/5c9b3eYf7
+// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+// this module and use intrinsics.rs instead.
 //
 // Refs:
 // - z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/4Ms3M8x6c
+// - s390x https://godbolt.org/z/oP5bhbqce
 
 include!("macros.rs");
 
-#[cfg(not(all(
-    any(miri, portable_atomic_sanitize_thread),
-    portable_atomic_new_atomic_intrinsics,
-)))]
-use core::arch::asm;
-use core::sync::atomic::Ordering;
+use core::{arch::asm, sync::atomic::Ordering};
 
 /// A 128-bit value represented as a pair of 64-bit values.
 ///
@@ -42,21 +38,6 @@ struct Pair {
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
-    // Miri and Sanitizer do not support inline assembly.
-    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        match order {
-            Ordering::Acquire => core::intrinsics::atomic_load_acquire(src),
-            Ordering::Relaxed => core::intrinsics::atomic_load_relaxed(src),
-            Ordering::SeqCst => core::intrinsics::atomic_load_seqcst(src),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-    #[cfg(not(all(
-        any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics,
-    )))]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // atomic load is always SeqCst.
@@ -78,21 +59,6 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
 
-    // Miri and Sanitizer do not support inline assembly.
-    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        match order {
-            Ordering::Release => core::intrinsics::atomic_store_release(dst, val),
-            Ordering::Relaxed => core::intrinsics::atomic_store_relaxed(dst, val),
-            Ordering::SeqCst => core::intrinsics::atomic_store_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
-        }
-    }
-    #[cfg(not(all(
-        any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics,
-    )))]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
@@ -134,35 +100,6 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     debug_assert!(dst as usize % 16 == 0);
 
-    // Miri and Sanitizer do not support inline assembly.
-    #[cfg(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_new_atomic_intrinsics))]
-    // SAFETY: the caller must uphold the safety contract.
-    let res = unsafe {
-        use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
-        match (success, failure) {
-            (Relaxed, Relaxed) => core::intrinsics::atomic_cxchg_relaxed_relaxed(dst, old, new),
-            (Relaxed, Acquire) => core::intrinsics::atomic_cxchg_relaxed_acquire(dst, old, new),
-            (Relaxed, SeqCst) => core::intrinsics::atomic_cxchg_relaxed_seqcst(dst, old, new),
-            (Acquire, Relaxed) => core::intrinsics::atomic_cxchg_acquire_relaxed(dst, old, new),
-            (Acquire, Acquire) => core::intrinsics::atomic_cxchg_acquire_acquire(dst, old, new),
-            (Acquire, SeqCst) => core::intrinsics::atomic_cxchg_acquire_seqcst(dst, old, new),
-            (Release, Relaxed) => core::intrinsics::atomic_cxchg_release_relaxed(dst, old, new),
-            (Release, Acquire) => core::intrinsics::atomic_cxchg_release_acquire(dst, old, new),
-            (Release, SeqCst) => core::intrinsics::atomic_cxchg_release_seqcst(dst, old, new),
-            (AcqRel, Relaxed) => core::intrinsics::atomic_cxchg_acqrel_relaxed(dst, old, new),
-            (AcqRel, Acquire) => core::intrinsics::atomic_cxchg_acqrel_acquire(dst, old, new),
-            (AcqRel, SeqCst) => core::intrinsics::atomic_cxchg_acqrel_seqcst(dst, old, new),
-            (SeqCst, Relaxed) => core::intrinsics::atomic_cxchg_seqcst_relaxed(dst, old, new),
-            (SeqCst, Acquire) => core::intrinsics::atomic_cxchg_seqcst_acquire(dst, old, new),
-            (SeqCst, SeqCst) => core::intrinsics::atomic_cxchg_seqcst_seqcst(dst, old, new),
-            _ => unreachable!("{:?}, {:?}", success, failure),
-        }
-        .0
-    };
-    #[cfg(not(all(
-        any(miri, portable_atomic_sanitize_thread),
-        portable_atomic_new_atomic_intrinsics,
-    )))]
     // SAFETY: the caller must uphold the safety contract.
     let res = unsafe {
         // atomic CAS is always SeqCst.
@@ -211,11 +148,6 @@ where
     }
 }
 
-// Miri and Sanitizer do not support inline assembly.
-#[cfg(not(all(
-    any(miri, portable_atomic_sanitize_thread),
-    portable_atomic_new_atomic_intrinsics,
-)))]
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
@@ -257,20 +189,14 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 /// - r12/r13 pair: new value that will to stored
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
-#[rustfmt::skip] // buggy macro formatting
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident, $($op:tt)*) => {
-        // Miri and Sanitizer do not support inline assembly.
-        #[cfg(not(all(
-            any(miri, portable_atomic_sanitize_thread),
-            portable_atomic_new_atomic_intrinsics,
-        )))]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                // atomic swap is always SeqCst.
+                // atomic RMW is always SeqCst.
                 let val = U128 { whole: val };
                 let (mut prev_hi, mut prev_lo);
                 asm!(
@@ -302,20 +228,14 @@ macro_rules! atomic_rmw_cas_3 {
 /// - r12/r13 pair: new value that will to stored
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
-#[rustfmt::skip] // buggy macro formatting
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident, $($op:tt)*) => {
-        // Miri and Sanitizer do not support inline assembly.
-        #[cfg(not(all(
-            any(miri, portable_atomic_sanitize_thread),
-            portable_atomic_new_atomic_intrinsics,
-        )))]
         #[inline]
         unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                // atomic swap is always SeqCst.
+                // atomic RMW is always SeqCst.
                 let (mut prev_hi, mut prev_lo);
                 asm!(
                     "lpq %r0, 0({dst})",
@@ -401,7 +321,12 @@ atomic_rmw_cas_2! {
     "slbgr %r12, %r0",
 }
 
-atomic_rmw_by_atomic_update!();
+// We use atomic_update for atomic min/max in all cases because
+// pre-z13 doesn't seem to have a good way to implement 128-bit min/max.
+// https://godbolt.org/z/53fnrET7o
+// (LLVM 16's minimal supported architecture level is z10:
+// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td)
+atomic_rmw_by_atomic_update!(cmp);
 
 #[inline]
 const fn is_lock_free() -> bool {

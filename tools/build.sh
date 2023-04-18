@@ -91,14 +91,18 @@ default_targets=(
     s390x-unknown-linux-gnu
 )
 known_cfgs=(
-    docsrs
-    qemu
-    valgrind
-    rustfmt
+    # Public APIs
     portable_atomic_unsafe_assume_single_core
     portable_atomic_s_mode
     portable_atomic_disable_fiq
     portable_atomic_no_outline_atomics
+
+    # Not public APIs
+    portable_atomic_test_outline_atomics_detect_false
+    docsrs
+    qemu
+    rustfmt
+    valgrind
 )
 
 x() {

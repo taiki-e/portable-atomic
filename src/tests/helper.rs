@@ -2209,17 +2209,8 @@ pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
 fn skip_should_panic_test() -> bool {
     // Miri's panic handling is slow
     // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
-    is_panic_abort()
+    test_helper::is_panic_abort()
         || cfg!(miri)
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
             && option_env!("MSAN_OPTIONS").is_some()
-}
-// For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
-#[rustversion::since(1.60)] // cfg!(panic) requires Rust 1.60
-fn is_panic_abort() -> bool {
-    cfg!(panic = "abort")
-}
-#[rustversion::before(1.60)] // cfg!(panic) requires Rust 1.60
-fn is_panic_abort() -> bool {
-    false
 }
