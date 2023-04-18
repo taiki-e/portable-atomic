@@ -143,7 +143,7 @@ run() {
 
     if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
-        CARGO_PROFILE_RELEASE_OPT_LEVEL=1 \
+        CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
             x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
     else
         x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"

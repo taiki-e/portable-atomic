@@ -525,6 +525,12 @@ mod tests {
     #[cfg(qemu)]
     test_atomic_int_load_store!(u128);
 
+    // load/store/swap implementation is not affected by signedness, so it is
+    // enough to test only unsigned types.
+    stress_test_load_store!(u128);
+    #[cfg(not(qemu))]
+    stress_test_load_swap!(u128);
+
     // Test operation parts of LL/SC-based atomic RMW implementations separately.
     //
     // This allows testing more code on QEMU while avoiding the problem of some

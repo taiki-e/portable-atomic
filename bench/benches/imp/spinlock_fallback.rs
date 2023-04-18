@@ -344,4 +344,11 @@ mod tests {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+
+    // load/store/swap implementation is not affected by signedness, so it is
+    // enough to test only unsigned types.
+    stress_test_load_store!(u64);
+    stress_test_load_swap!(u64);
+    stress_test_load_store!(u128);
+    stress_test_load_swap!(u128);
 }

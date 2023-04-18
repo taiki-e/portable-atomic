@@ -2214,3 +2214,331 @@ fn skip_should_panic_test() -> bool {
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
             && option_env!("MSAN_OPTIONS").is_some()
 }
+
+// Test the cases that should not fail if the memory ordering is implemented correctly.
+// This is still not exhaustive and only tests a few cases.
+// This currently only supports 32-bit or more integers.
+macro_rules! __stress_test_acquire_release {
+    ($atomic_type:ident, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
+        use super::*;
+        use crossbeam_utils::thread;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        const N: usize = if cfg!(miri) { 10 } else { 50_000 };
+        #[allow(clippy::checked_conversions)]
+        {
+            // This currently only supports 32-bit or more integers.
+            static_assert!($int_type::MAX as usize >= N);
+        }
+        let a = &$atomic_type::new(0);
+        let b = &AtomicUsize::new(0);
+        thread::scope(|s| {
+            s.spawn(|_| {
+                for i in 0..N {
+                    b.store(i, Ordering::Relaxed);
+                    a.$write(i as _, Ordering::$store_order);
+                }
+            });
+            loop {
+                let a = a.load(Ordering::$load_order);
+                let b = b.load(Ordering::Relaxed);
+                assert!(a as usize <= b, "a={},b={}", a, b);
+                if a as usize == N - 1 {
+                    break;
+                }
+            }
+        })
+        .unwrap();
+    }};
+}
+macro_rules! __stress_test_seqcst {
+    ($atomic_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
+        use super::*;
+        use crossbeam_utils::thread;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        const N: usize = if cfg!(miri) { 8 } else { 50_000 };
+        let a = &$atomic_type::new(0);
+        let b = &$atomic_type::new(0);
+        let c = &AtomicUsize::new(0);
+        thread::scope(|s| {
+            for _ in 0..N {
+                a.store(0, Ordering::Relaxed);
+                b.store(0, Ordering::Relaxed);
+                c.store(0, Ordering::Relaxed);
+                let h_a = s.spawn(|_| {
+                    a.$write(1, Ordering::$store_order);
+                    if b.load(Ordering::$load_order) == 0 {
+                        c.fetch_add(1, Ordering::Relaxed);
+                    }
+                });
+                let h_b = s.spawn(|_| {
+                    b.$write(1, Ordering::$store_order);
+                    if a.load(Ordering::$load_order) == 0 {
+                        c.fetch_add(1, Ordering::Relaxed);
+                    }
+                });
+                h_a.join().unwrap();
+                h_b.join().unwrap();
+                let c = c.load(Ordering::Relaxed);
+                assert!(c == 0 || c == 1, "c={}", c);
+            }
+        })
+        .unwrap();
+    }};
+}
+// Catches unwinding panic on architectures with weak memory models.
+#[allow(dead_code, clippy::used_underscore_binding)]
+pub(crate) fn catch_unwind_on_weak_memory_arch(f: impl Fn()) {
+    // With x86 TSO, RISC-V TSO (optional, not default), SPARC TSO (optional, default),
+    // and IBM-370 memory models should never be a panic here.
+    // Miri emulates weak memory models regardless of target architectures.
+    if cfg!(all(
+        any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            target_arch = "s390x",
+            target_arch = "sparc",
+            target_arch = "sparc64",
+        ),
+        not(any(miri)),
+    )) {
+        f();
+    } else if !test_helper::is_panic_abort() {
+        let _res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+        // This could be is_err on architectures with weak memory models.
+        // However, this does not necessarily mean that it will always be panic,
+        // and implementing it with stronger orderings is also okay.
+        // assert!(_res.is_err());
+    }
+}
+// Catches unwinding panic on architectures with non-sequentially consistent memory models.
+#[allow(dead_code, clippy::used_underscore_binding)]
+pub(crate) fn catch_unwind_on_non_seqcst_arch(f: impl Fn()) {
+    if !test_helper::is_panic_abort() {
+        let _res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+        // This could be is_err on architectures with non-sequentially consistent memory models.
+        // However, this does not necessarily mean that it will always be panic,
+        // and implementing it with stronger orderings is also okay.
+        // assert!(_res.is_err());
+    }
+}
+macro_rules! stress_test_load_store {
+    ($int_type:ident) => {
+        // debug mode and Valgrind are slow.
+        #[cfg(any(not(any(debug_assertions, valgrind)), miri))]
+        paste::paste! {
+            #[allow(
+                clippy::alloc_instead_of_core,
+                clippy::std_instead_of_alloc,
+                clippy::std_instead_of_core,
+                clippy::undocumented_unsafe_blocks
+            )]
+            mod [<stress_acquire_release_load_store_ $int_type>] {
+                use crate::tests::helper::catch_unwind_on_weak_memory_arch as can_panic;
+                #[test]
+                fn load_relaxed_store_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Relaxed, Relaxed));
+                }
+                #[test]
+                fn load_relaxed_store_release() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Relaxed, Release));
+                }
+                #[test]
+                fn load_relaxed_store_seqcst() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Relaxed, SeqCst));
+                }
+                #[test]
+                fn load_acquire_store_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Acquire, Relaxed));
+                }
+                #[test]
+                fn load_acquire_store_release() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Acquire, Release);
+                }
+                #[test]
+                fn load_acquire_store_seqcst() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, Acquire, SeqCst);
+                }
+                #[test]
+                fn load_seqcst_store_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, SeqCst, Relaxed));
+                }
+                #[test]
+                fn load_seqcst_store_release() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, SeqCst, Release);
+                }
+                #[test]
+                fn load_seqcst_store_seqcst() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, store, SeqCst, SeqCst);
+                }
+            }
+            #[allow(
+                clippy::alloc_instead_of_core,
+                clippy::std_instead_of_alloc,
+                clippy::std_instead_of_core,
+                clippy::undocumented_unsafe_blocks
+            )]
+            mod [<stress_seqcst_load_store_ $int_type>] {
+                use crate::tests::helper::catch_unwind_on_non_seqcst_arch as can_panic;
+                // Currently, to make this test work well enough outside of Miri, tens of thousands
+                // of iterations are needed, but this test is very slow in some environments because
+                // it creates two threads for each iteration.
+                // So, ignore on non-Miri environments by default.
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_relaxed_store_relaxed() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Relaxed, Relaxed));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_relaxed_store_release() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Relaxed, Release));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_relaxed_store_seqcst() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Relaxed, SeqCst));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_acquire_store_relaxed() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Acquire, Relaxed));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_acquire_store_release() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Acquire, Release));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_acquire_store_seqcst() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, Acquire, SeqCst));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_seqcst_store_relaxed() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, SeqCst, Relaxed));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_seqcst_store_release() {
+                    can_panic(|| __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, SeqCst, Release));
+                }
+                #[test]
+                #[cfg_attr(not(miri), ignore)]
+                fn load_seqcst_store_seqcst() {
+                    __stress_test_seqcst!([<Atomic $int_type:camel>],
+                        store, SeqCst, SeqCst);
+                }
+            }
+        }
+    };
+}
+macro_rules! stress_test_load_swap {
+    ($int_type:ident) => {
+        // debug mode and Valgrind are slow.
+        #[cfg(any(not(any(debug_assertions, valgrind)), miri))]
+        paste::paste! {
+            #[allow(
+                clippy::alloc_instead_of_core,
+                clippy::std_instead_of_alloc,
+                clippy::std_instead_of_core,
+                clippy::undocumented_unsafe_blocks
+            )]
+            mod [<stress_acquire_release_load_swap_ $int_type>] {
+                use crate::tests::helper::catch_unwind_on_weak_memory_arch as can_panic;
+                #[test]
+                fn load_relaxed_swap_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Relaxed, Relaxed));
+                }
+                #[test]
+                fn load_relaxed_swap_acquire() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Relaxed, Acquire));
+                }
+                #[test]
+                fn load_relaxed_swap_release() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Relaxed, Release));
+                }
+                #[test]
+                fn load_relaxed_swap_acqrel() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Relaxed, AcqRel));
+                }
+                #[test]
+                fn load_relaxed_swap_seqcst() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Relaxed, SeqCst));
+                }
+                #[test]
+                fn load_acquire_swap_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Acquire, Relaxed));
+                }
+                #[test]
+                fn load_acquire_swap_acquire() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Acquire, Acquire));
+                }
+                #[test]
+                fn load_acquire_swap_release() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Acquire, Release);
+                }
+                #[test]
+                fn load_acquire_swap_acqrel() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Acquire, AcqRel);
+                }
+                #[test]
+                fn load_acquire_swap_seqcst() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, Acquire, SeqCst);
+                }
+                #[test]
+                fn load_seqcst_swap_relaxed() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, SeqCst, Relaxed));
+                }
+                #[test]
+                fn load_seqcst_swap_acquire() {
+                    can_panic(|| __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, SeqCst, Acquire));
+                }
+                #[test]
+                fn load_seqcst_swap_release() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, SeqCst, Release);
+                }
+                #[test]
+                fn load_seqcst_swap_acqrel() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, SeqCst, AcqRel);
+                }
+                #[test]
+                fn load_seqcst_swap_seqcst() {
+                    __stress_test_acquire_release!([<Atomic $int_type:camel>],
+                        $int_type, swap, SeqCst, SeqCst);
+                }
+            }
+        }
+    };
+}

@@ -102,6 +102,7 @@ sbcs
 seqlock
 setb
 sete
+signedness
 simavr
 skiboot
 slbgr
