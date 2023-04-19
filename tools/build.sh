@@ -257,7 +257,7 @@ build() {
     fi
     if [[ "${target}" == "avr"* ]]; then
         if [[ "${llvm_version}" == "16" ]]; then
-            # TODO: LLVM 16 broke AVR.
+            # TODO: LLVM 16 broke AVR: https://github.com/rust-lang/compiler-builtins/issues/523
             echo "target '${target}' is broken with LLVM 16 (skipped all checks)"
             return 0
         fi
