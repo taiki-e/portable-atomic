@@ -54,6 +54,7 @@ isel
 ishld
 isync
 kuser
+ldar
 ldaxp
 ldxp
 lghi

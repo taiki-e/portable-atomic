@@ -48,12 +48,12 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/znoaYzvq8
-// - aarch64 (msvc) https://godbolt.org/z/9baxfaj54
-// - aarch64 (+lse) https://godbolt.org/z/9vfqGG1fW
-// - aarch64 (+lse, msvc) https://godbolt.org/z/eEYWMT7n9
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/qEz547GhT
-// - aarch64 (+lse,+lse2, msvc) https://godbolt.org/z/W9qEnzMaM
+// - aarch64 https://godbolt.org/z/fzWhsbKsd
+// - aarch64 (msvc) https://godbolt.org/z/chMK1G8vc
+// - aarch64 (+lse) https://godbolt.org/z/n8Tv7a8eh
+// - aarch64 (+lse, msvc) https://godbolt.org/z/GMsYs41MG
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/bs18YP7Ph
+// - aarch64 (+lse,+lse2, msvc) https://godbolt.org/z/4YT8dYs3n
 
 include!("macros.rs");
 
@@ -252,7 +252,20 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
         match order {
             Ordering::Relaxed => atomic_load!("", readonly),
             Ordering::Acquire => atomic_load!("dmb ishld"),
-            Ordering::SeqCst => atomic_load!("dmb ish"),
+            Ordering::SeqCst => {
+                asm!(
+                    // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
+                    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891
+                    concat!("ldar {tmp}, [{src", ptr_modifier!(), "}]"),
+                    concat!("ldp {prev_lo}, {prev_hi}, [{src", ptr_modifier!(), "}]"),
+                    "dmb ishld",
+                    src = in(reg) src,
+                    prev_hi = lateout(reg) prev_hi,
+                    prev_lo = lateout(reg) prev_lo,
+                    tmp = out(reg) _,
+                    options(nostack, preserves_flags),
+                );
+            }
             _ => unreachable!("{:?}", order),
         }
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
