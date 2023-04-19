@@ -78,6 +78,10 @@ pub(crate) mod atomic {
         v: UnsafeCell<u8>,
     }
 
+    // Send is implicitly implemented.
+    // SAFETY: any data races are prevented by atomic operations.
+    unsafe impl Sync for AtomicBool {}
+
     impl AtomicBool {
         #[inline]
         pub(crate) fn load(&self, order: Ordering) -> bool {
@@ -96,42 +100,22 @@ pub(crate) mod atomic {
         }
     }
 
-    #[repr(transparent)]
-    pub(crate) struct AtomicPtr<T> {
-        #[allow(dead_code)]
-        p: UnsafeCell<*mut T>,
-    }
-
-    impl<T> AtomicPtr<T> {
-        #[inline]
-        pub(crate) fn load(&self, order: Ordering) -> *mut T {
-            // TODO: remove int to ptr cast
-            self.as_atomic_usize().load(order) as *mut T
-        }
-
-        #[inline]
-        pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
-            // TODO: remove int to ptr cast
-            self.as_atomic_usize().store(ptr as usize, order);
-        }
-
-        #[inline]
-        fn as_atomic_usize(&self) -> &AtomicUsize {
-            // SAFETY: AtomicPtr and AtomicUsize have the same layout,
-            unsafe { &*(self as *const AtomicPtr<T>).cast::<AtomicUsize>() }
-        }
-    }
-
-    macro_rules! atomic_int {
-        ($atomic_type:ident, $int_type:ident, $asm_suffix:tt) => {
+    macro_rules! atomic {
+        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
             #[repr(transparent)]
-            pub(crate) struct $atomic_type {
-                v: UnsafeCell<$int_type>,
+            pub(crate) struct $atomic_type $(<$($generics)*>)? {
+                v: UnsafeCell<$value_type>,
             }
 
-            impl $atomic_type {
+            // Send is implicitly implemented for atomic integers, but not for atomic pointers.
+            // SAFETY: any data races are prevented by atomic operations.
+            unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
+            // SAFETY: any data races are prevented by atomic operations.
+            unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
+
+            impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
-                pub(crate) fn load(&self, order: Ordering) -> $int_type {
+                pub(crate) fn load(&self, order: Ordering) -> $value_type {
                     let src = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
@@ -164,7 +148,7 @@ pub(crate) mod atomic {
                 }
 
                 #[inline]
-                pub(crate) fn store(&self, val: $int_type, _order: Ordering) {
+                pub(crate) fn store(&self, val: $value_type, _order: Ordering) {
                     let dst = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
@@ -184,12 +168,13 @@ pub(crate) mod atomic {
         };
     }
 
-    atomic_int!(AtomicI8, i8, "b");
-    atomic_int!(AtomicU8, u8, "b");
-    atomic_int!(AtomicI16, i16, "h");
-    atomic_int!(AtomicU16, u16, "h");
-    atomic_int!(AtomicI32, i32, "");
-    atomic_int!(AtomicU32, u32, "");
-    atomic_int!(AtomicIsize, isize, "");
-    atomic_int!(AtomicUsize, usize, "");
+    atomic!(AtomicI8, i8, "b");
+    atomic!(AtomicU8, u8, "b");
+    atomic!(AtomicI16, i16, "h");
+    atomic!(AtomicU16, u16, "h");
+    atomic!(AtomicI32, i32, "");
+    atomic!(AtomicU32, u32, "");
+    atomic!(AtomicIsize, isize, "");
+    atomic!(AtomicUsize, usize, "");
+    atomic!([T] AtomicPtr, *mut T, "");
 }
