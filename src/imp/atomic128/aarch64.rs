@@ -48,9 +48,12 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/jz7rGK8hc
-// - aarch64 (+lse) https://godbolt.org/z/sK3sEa8jP
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/P564r3EG9
+// - aarch64 https://godbolt.org/z/znoaYzvq8
+// - aarch64 (msvc) https://godbolt.org/z/9baxfaj54
+// - aarch64 (+lse) https://godbolt.org/z/9vfqGG1fW
+// - aarch64 (+lse, msvc) https://godbolt.org/z/eEYWMT7n9
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/qEz547GhT
+// - aarch64 (+lse,+lse2, msvc) https://godbolt.org/z/W9qEnzMaM
 
 include!("macros.rs");
 
@@ -180,11 +183,17 @@ struct Pair {
 macro_rules! atomic_rmw {
     ($op:ident, $order:ident) => {
         match $order {
-            Ordering::Relaxed => $op!("", ""),
-            Ordering::Acquire => $op!("a", ""),
-            Ordering::Release => $op!("", "l"),
-            // AcqRel and SeqCst RMWs are equivalent.
-            Ordering::AcqRel | Ordering::SeqCst => $op!("a", "l"),
+            Ordering::Relaxed => $op!("", "", ""),
+            Ordering::Acquire => $op!("a", "", ""),
+            Ordering::Release => $op!("", "l", ""),
+            Ordering::AcqRel => $op!("a", "l", ""),
+            // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
+            #[cfg(not(target_env = "msvc"))]
+            Ordering::SeqCst => $op!("a", "l", ""),
+            // In MSVC environments, SeqCst stores/writes needs fences after writes.
+            // https://reviews.llvm.org/D141748
+            #[cfg(target_env = "msvc")]
+            Ordering::SeqCst => $op!("a", "l", "dmb ish"),
             _ => unreachable!("{:?}", $order),
         }
     };
@@ -446,9 +455,12 @@ unsafe fn atomic_compare_exchange(
                 = _atomic_compare_exchange_casp(Ordering::Acquire);
             atomic_compare_exchange_casp_release
                 = _atomic_compare_exchange_casp(Ordering::Release);
-            // AcqRel and SeqCst RMWs are equivalent.
             atomic_compare_exchange_casp_acqrel
                 = _atomic_compare_exchange_casp(Ordering::AcqRel);
+            // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
+            #[cfg(target_env = "msvc")]
+            atomic_compare_exchange_casp_seqcst
+                = _atomic_compare_exchange_casp(Ordering::SeqCst);
         }
         fn_alias! {
             unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
@@ -458,9 +470,12 @@ unsafe fn atomic_compare_exchange(
                 = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire);
             atomic_compare_exchange_ldxp_stxp_release
                 = _atomic_compare_exchange_ldxp_stxp(Ordering::Release);
-            // AcqRel and SeqCst RMWs are equivalent.
             atomic_compare_exchange_ldxp_stxp_acqrel
                 = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel);
+            // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
+            #[cfg(target_env = "msvc")]
+            atomic_compare_exchange_ldxp_stxp_seqcst
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::SeqCst);
         }
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
@@ -494,13 +509,34 @@ unsafe fn atomic_compare_exchange(
                         }
                     })
                 }
-                // AcqRel and SeqCst RMWs are equivalent in both implementations.
+                // AcqRel and SeqCst RMWs are equivalent in both implementations in non-MSVC environments.
+                #[cfg(not(target_env = "msvc"))]
                 Ordering::AcqRel | Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
                         if detect::detect().has_lse() {
                             atomic_compare_exchange_casp_acqrel
                         } else {
                             atomic_compare_exchange_ldxp_stxp_acqrel
+                        }
+                    })
+                }
+                #[cfg(target_env = "msvc")]
+                Ordering::SeqCst => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::detect().has_lse() {
+                            atomic_compare_exchange_casp_acqrel
+                        } else {
+                            atomic_compare_exchange_ldxp_stxp_acqrel
+                        }
+                    })
+                }
+                #[cfg(target_env = "msvc")]
+                Ordering::AcqRel => {
+                    ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
+                        if detect::detect().has_lse() {
+                            atomic_compare_exchange_casp_seqcst
+                        } else {
+                            atomic_compare_exchange_ldxp_stxp_seqcst
                         }
                     })
                 }
@@ -545,9 +581,10 @@ unsafe fn _atomic_compare_exchange_casp(
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg {
-            ($acquire:tt, $release:tt) => {
+            ($acquire:tt, $release:tt, $release_fence:tt) => {
                 asm!(
                     concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
+                    $release_fence,
                     dst = in(reg) dst,
                     // must be allocated to even/odd register pair
                     inout("x6") old.pair.lo => prev_lo,
@@ -592,7 +629,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
         let new = U128 { whole: new };
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg {
-            ($acquire:tt, $release:tt) => {
+            ($acquire:tt, $release:tt, $release_fence:tt) => {
                 asm!(
                     "2:",
                         concat!("ld", $acquire, "xp {out_lo}, {out_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -610,6 +647,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
                     "4:",
+                    $release_fence,
                     dst = in(reg) dst,
                     old_lo = in(reg) old.pair.lo,
                     old_hi = in(reg) old.pair.hi,
@@ -664,7 +702,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
         macro_rules! op {
-            ($acquire:tt, $release:tt) => {
+            ($acquire:tt, $release:tt, $release_fence:tt) => {
                 asm!(
                     // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                     // This is not single-copy atomic reads, but this is ok because subsequent
@@ -679,6 +717,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                         "cmp {tmp_hi}, x7",
                         "ccmp {tmp_lo}, x6, #0, eq",
                         "b.ne 2b",
+                    $release_fence,
                     dst = in(reg) dst,
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
@@ -714,13 +753,14 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
         macro_rules! swap {
-            ($acquire:tt, $release:tt) => {
+            ($acquire:tt, $release:tt, $release_fence:tt) => {
                 asm!(
                     "2:",
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
                         concat!("st", $release, "xp {r:w}, {val_lo}, {val_hi}, [{dst", ptr_modifier!(), "}]"),
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
+                    $release_fence,
                     dst = in(reg) dst,
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
@@ -767,7 +807,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 let val = U128 { whole: val };
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt) => {
+                    ($acquire:tt, $release:tt, $release_fence:tt) => {
                         asm!(
                             "2:",
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -775,6 +815,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                                 concat!("st", $release, "xp {r:w}, {new_lo}, {new_hi}, [{dst", ptr_modifier!(), "}]"),
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
+                            $release_fence,
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -827,7 +868,7 @@ macro_rules! atomic_rmw_cas_3 {
                 let val = U128 { whole: val };
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt) => {
+                    ($acquire:tt, $release:tt, $release_fence:tt) => {
                         asm!(
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -843,6 +884,7 @@ macro_rules! atomic_rmw_cas_3 {
                                 "cmp {tmp_hi}, x7",
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
+                            $release_fence,
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -895,7 +937,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
             unsafe {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt) => {
+                    ($acquire:tt, $release:tt, $release_fence:tt) => {
                         asm!(
                             "2:",
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -903,6 +945,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                                 concat!("st", $release, "xp {r:w}, {new_lo}, {new_hi}, [{dst", ptr_modifier!(), "}]"),
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
+                            $release_fence,
                             dst = in(reg) dst,
                             prev_lo = out(reg) prev_lo,
                             prev_hi = out(reg) prev_hi,
@@ -951,7 +994,7 @@ macro_rules! atomic_rmw_cas_2 {
             unsafe {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt) => {
+                    ($acquire:tt, $release:tt, $release_fence:tt) => {
                         asm!(
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -967,6 +1010,7 @@ macro_rules! atomic_rmw_cas_2 {
                                 "cmp {tmp_hi}, x7",
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
+                            $release_fence,
                             dst = in(reg) dst,
                             tmp_lo = out(reg) _,
                             tmp_hi = out(reg) _,
