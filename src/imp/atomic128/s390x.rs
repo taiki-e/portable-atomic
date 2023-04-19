@@ -35,13 +35,12 @@ struct Pair {
 }
 
 #[inline]
-unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // atomic load is always SeqCst.
-        let _ = order;
         let (out_hi, out_lo);
         asm!(
             "lpq %r0, 0({src})",
@@ -95,15 +94,14 @@ unsafe fn atomic_compare_exchange(
     dst: *mut u128,
     old: u128,
     new: u128,
-    success: Ordering,
-    failure: Ordering,
+    _success: Ordering,
+    _failure: Ordering,
 ) -> Result<u128, u128> {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     let res = unsafe {
         // atomic CAS is always SeqCst.
-        let _ = (success, failure);
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (prev_hi, prev_lo);
@@ -149,7 +147,7 @@ where
 }
 
 #[inline]
-unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
@@ -160,7 +158,6 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // Do not use atomic_rmw_cas_3 because it needs extra LGR to implement swap.
     unsafe {
         // atomic swap is always SeqCst.
-        let _ = order;
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
         asm!(

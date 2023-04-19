@@ -237,7 +237,7 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     // - LDP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDP--A64-
     unsafe {
         let (prev_lo, prev_hi);
-        macro_rules! atomic_load {
+        macro_rules! atomic_load_relaxed {
             ($acquire:tt $(, $readonly:tt)?) => {
                 asm!(
                     concat!("ldp {prev_lo}, {prev_hi}, [{src", ptr_modifier!(), "}]"),
@@ -250,8 +250,8 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
             };
         }
         match order {
-            Ordering::Relaxed => atomic_load!("", readonly),
-            Ordering::Acquire => atomic_load!("dmb ishld"),
+            Ordering::Relaxed => atomic_load_relaxed!("", readonly),
+            Ordering::Acquire => atomic_load_relaxed!("dmb ishld"),
             Ordering::SeqCst => {
                 asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.

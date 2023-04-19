@@ -430,7 +430,7 @@ use atomic_swap_cmpxchg16b as atomic_swap;
     target_feature(enable = "cmpxchg16b")
 )]
 #[inline]
-unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
     debug_assert_cmpxchg16b!();
 
@@ -446,7 +446,6 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, order: Ordering) -> 
     // Do not use atomic_rmw_cas_3 because it needs extra MOV to implement swap.
     unsafe {
         // cmpxchg16b is always SeqCst.
-        let _ = order;
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg16b {

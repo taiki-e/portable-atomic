@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/4aGs41dEn
-// - powerpc64le https://godbolt.org/z/oE3rPoqz4
+// - powerpc64 (pwr8) https://godbolt.org/z/Wr8qvxq5M
+// - powerpc64le https://godbolt.org/z/dP4EeMh36
 
 include!("macros.rs");
 
@@ -71,6 +71,28 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     // Refs: "3.3.4 Fixed Point Load and Store Quadword Instructions" of Power ISA
     unsafe {
         let (out_hi, out_lo);
+        macro_rules! atomic_load_acquire {
+            ($release:tt) => {
+                asm!(
+                    $release,
+                    "lq %r4, 0({src})",
+                    // Lightweight acquire sync
+                    // Refs: https://github.com/boostorg/atomic/blob/boost-1.79.0/include/boost/atomic/detail/core_arch_ops_gcc_ppc.hpp#L47-L62
+                    "cmpd %cr7, %r4, %r4",
+                    "bne- %cr7, 2f",
+                    "2:",
+                    "isync",
+                    src = in(reg) src,
+                    out("r0") _,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 and r2, so starting with r4.
+                    out("r4") out_hi,
+                    out("r5") out_lo,
+                    out("cr7") _,
+                    options(nostack),
+                )
+            };
+        }
         match order {
             Ordering::Relaxed => {
                 asm!(
@@ -84,45 +106,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     options(nostack, readonly),
                 );
             }
-            Ordering::Acquire => {
-                asm!(
-                    "lq %r4, 0({src})",
-                    // Lightweight acquire sync
-                    // Refs: https://github.com/boostorg/atomic/blob/boost-1.79.0/include/boost/atomic/detail/core_arch_ops_gcc_ppc.hpp#L47-L62
-                    "cmpd %cr7, %r4, %r4",
-                    "bne- %cr7, 2f",
-                    "2:",
-                    "isync",
-                    src = in(reg) src,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r4") out_hi,
-                    out("r5") out_lo,
-                    out("cr7") _,
-                    options(nostack),
-                );
-            }
-            Ordering::SeqCst => {
-                asm!(
-                    "sync",
-                    "lq %r4, 0({src})",
-                    // Lightweight acquire sync
-                    // Refs: https://github.com/boostorg/atomic/blob/boost-1.79.0/include/boost/atomic/detail/core_arch_ops_gcc_ppc.hpp#L47-L62
-                    "cmpd %cr7, %r4, %r4",
-                    "bne- %cr7, 2f",
-                    "2:",
-                    "isync",
-                    src = in(reg) src,
-                    out("r0") _,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 and r2, so starting with r4.
-                    out("r4") out_hi,
-                    out("r5") out_lo,
-                    out("cr7") _,
-                    options(nostack),
-                );
-            }
+            Ordering::Acquire => atomic_load_acquire!(""),
+            Ordering::SeqCst => atomic_load_acquire!("sync"),
             _ => unreachable!("{:?}", order),
         }
         U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
