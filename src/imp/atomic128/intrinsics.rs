@@ -22,7 +22,7 @@
 // - On powerpc64, LLVM (as of 16) doesn't support 128-bit atomic min/max:
 //   https://godbolt.org/z/3rebKcbdf
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs
+// Refs: https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs
 
 include!("macros.rs");
 

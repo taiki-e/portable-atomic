@@ -172,7 +172,7 @@ fn main() {
                 println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
             }
 
-            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
+            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
             let has_cmpxchg16b = target_os == "macos";
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
             // It is unlikely that rustc will support that name, so we ignore it.
@@ -198,8 +198,8 @@ fn main() {
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
             target_feature_if("lse", is_macos, &version, Some(61), true);
-            // As of rustc 1.68, target_feature "lse2" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
+            // As of rustc 1.69, target_feature "lse2" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
@@ -225,7 +225,7 @@ fn main() {
                 "v6m" | "v7em" | "v7m" | "v8m" => is_mclass = true,
                 "v7r" | "v8r" => {} // rclass
                 // arm-linux-androideabi is v5te
-                // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
+                // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => subarch = "v5te",
                 // v6 targets other than v6m don't have *class target feature.
                 "" | "v6" | "v6k" => subarch = "v6",
@@ -267,8 +267,8 @@ fn main() {
                 }
             }
             // lqarx and stqcx.
-            // Note: As of rustc 1.68, target_feature "quadword-atomics" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
+            // Note: As of rustc 1.69, target_feature "quadword-atomics" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
         _ => {}

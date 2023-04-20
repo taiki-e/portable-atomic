@@ -120,7 +120,7 @@ macro_rules! impl_debug_and_serde {
         impl fmt::Debug for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L2023
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
@@ -313,7 +313,7 @@ macro_rules! cfg_atomic_128 {
     };
 }
 
-// hthttps://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L2992
+// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3129
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
@@ -325,7 +325,7 @@ pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3019
+// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3156
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -337,7 +337,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3004
+// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3141
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -349,8 +349,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/pull/98383
-// https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L3085
+// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3226
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
@@ -371,6 +370,7 @@ pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Order
 }
 
 // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0418r2.html
+// https://github.com/rust-lang/rust/pull/98383
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> Ordering {

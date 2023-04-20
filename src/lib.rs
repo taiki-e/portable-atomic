@@ -589,8 +589,9 @@ impl AtomicBool {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
+    // https://github.com/rust-lang/rust/issues/108652
 
     /// Consumes the atomic and returns the contained value.
     ///
@@ -1007,7 +1008,7 @@ impl AtomicBool {
     )]
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L767-L781
+        // https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L811-L825
         if val {
             // !(x & true) == !x
             // We must invert the bool.
@@ -1505,7 +1506,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L2023
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -1513,7 +1514,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.68.0/library/core/src/sync/atomic.rs#L1934
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L2023
         fmt::Pointer::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -1604,8 +1605,9 @@ impl<T> AtomicPtr<T> {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
+    // https://github.com/rust-lang/rust/issues/108652
 
     /// Consumes the atomic and returns the contained value.
     ///
@@ -2829,8 +2831,9 @@ assert_eq!(some_var.load(Ordering::SeqCst), 5);
                 }
             }
 
-            // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
+            // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
+            // https://github.com/rust-lang/rust/issues/108652
 
             doc_comment! {
                 concat!("Consumes the atomic and returns the contained value.
