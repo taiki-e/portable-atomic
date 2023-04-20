@@ -9,6 +9,9 @@ trap -- 'exit 1' SIGINT
 
 # USAGE:
 #    ./tools/build.sh [+toolchain] [target]...
+#    TESTS=1 ./tools/build.sh [+toolchain] [target]...
+#    TARGET_GROUP=tier1/tier2 ./tools/build.sh [+toolchain]
+#    TARGET_GROUP=tier3 ./tools/build.sh [+toolchain]
 
 default_targets=(
     # no atomic load/store (16-bit)
@@ -121,6 +124,10 @@ x_cargo() {
         x cargo "$@"
     echo
 }
+bail() {
+    echo "error: $*" >&2
+    exit 1
+}
 is_no_std() {
     case "$1" in
         # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
@@ -138,15 +145,43 @@ if [[ "${1:-}" == "+"* ]]; then
     pre_args+=("$1")
     shift
 fi
+if [[ -z "${is_custom_toolchain}" ]]; then
+    # shellcheck disable=SC2207
+    rustup_targets=($(rustup ${pre_args[@]+"${pre_args[@]}"} target list | sed 's/ .*//g'))
+fi
+# shellcheck disable=SC2207
+all_targets=($(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list))
+if [[ -n "${TARGET_GROUP:-}" ]] && [[ -n "${TESTS:-}" ]]; then
+    bail "when TARGET_GROUP is set, you cannot use TESTS"
+fi
 if [[ $# -gt 0 ]]; then
     targets=("$@")
+elif [[ -n "${TARGET_GROUP:-}" ]]; then
+    case "${TARGET_GROUP:-}" in
+        tier1/tier2) targets=("${rustup_targets[@]}") ;;
+        tier3)
+            targets=()
+            for target in "${all_targets[@]}"; do
+                for t in "${rustup_targets[@]}"; do
+                    if [[ "${target}" == "${t}" ]]; then
+                        target=""
+                        break
+                    fi
+                done
+                if [[ -n "${target}" ]]; then
+                    targets+=("${target}")
+                fi
+            done
+            ;;
+        *) bail "unrecognized target group '${TARGET_GROUP}'" ;;
+    esac
 else
     targets=("${default_targets[@]}")
 fi
 
 rustup_target_list=''
 if [[ -z "${is_custom_toolchain}" ]]; then
-    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list | sed 's/ .*//g')
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
@@ -157,10 +192,14 @@ llvm_version="${llvm_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
-case "${TESTS:-}" in
-    '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
-    *) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
-esac
+if [[ -n "${TARGET_GROUP:-}" ]]; then
+    base_args=(${pre_args[@]+"${pre_args[@]}"} no-dev-deps --no-private check)
+else
+    case "${TESTS:-}" in
+        '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
+        *) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
+    esac
+fi
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
@@ -169,7 +208,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
     # -Z check-cfg requires 1.63.0-nightly
     # shellcheck disable=SC2207
-    if [[ "${rustc_minor_version}" -ge 63 ]] && [[ -n "${TESTS:-}" ]]; then
+    if [[ "${rustc_minor_version}" -ge 63 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
         build_scripts=(build.rs portable-atomic-util/build.rs)
         check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(target_arch,"xtensa") --check-cfg=values(feature,"cargo-clippy")'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
@@ -216,7 +255,7 @@ build() {
         local target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
-    if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
+    if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
@@ -224,7 +263,9 @@ build() {
             echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
             return 0
         fi
-        if is_no_std "${target}"; then
+        if [[ -n "${TARGET_GROUP:-}" ]]; then
+            args+=(-Z build-std="core")
+        elif is_no_std "${target}"; then
             args+=(-Z build-std="core,alloc")
         elif [[ "${rustc_minor_version}" -lt 47 ]]; then
             # Building std with the version before backtrace-sys was removed is painful.
@@ -299,6 +340,20 @@ build() {
             --all-features --tests
             --workspace --exclude bench --exclude portable-atomic-internal-codegen
         )
+    elif [[ -n "${TARGET_GROUP:-}" ]]; then
+        case "${target}" in
+            # TODO: rustc bug: thread 'rustc' panicked at 'called `Result::unwrap()` on an `Err` value: Error("unimplemented architecture Aarch64_Ilp32")', compiler/rustc_codegen_ssa/src/back/metadata.rs:290:19
+            arm64_32-apple-watchos) return 0 ;;
+            # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
+            m68k-unknown-linux-gnu) return 0 ;;
+            # TODO: rustc bug: error: internal compiler error: compiler/rustc_codegen_llvm/src/context.rs:188:13: data-layout for target `x86_64-apple-tvos`, `e-m:o-i64:64-f80:128-n8:16:32:64-S128`, differs from LLVM target's `x86_64-apple-tvos` default layout, `e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128`
+            x86_64-apple-tvos) return 0 ;;
+            # TODO: handle targets without AtomicU8
+            bpfeb-unknown-none | bpfel-unknown-none | mipsel-sony-psx) args+=(--features critical-section) ;;
+        esac
+        RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
+        return 0
     else
         # paste! on statements requires 1.45
         if [[ "${rustc_minor_version}" -ge 45 ]]; then

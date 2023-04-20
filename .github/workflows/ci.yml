@@ -220,7 +220,7 @@ jobs:
         if: matrix.rust != '1.54'
 
   build:
-    name: build (${{ matrix.rust }}${{ matrix.tests && ', --tests' }})
+    name: build (${{ matrix.name || matrix.rust }})
     strategy:
       fail-fast: false
       matrix:
@@ -244,8 +244,19 @@ jobs:
           # nightly-2023-03-25 is the last version uses LLVM 15.
           - rust: nightly-2023-03-25
           # Check that test suite can be built
-          - rust: nightly
+          - name: nightly, --tests
+            rust: nightly
             tests: 1
+          # Check that this crate can be built for all builtin targets
+          - name: stable, tier1/tier2
+            rust: stable
+            target-group: tier1/tier2
+          - name: nightly, tier1/tier2
+            rust: nightly
+            target-group: tier1/tier2
+          - name: nightly, tier3
+            rust: nightly
+            target-group: tier3
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -255,9 +266,11 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update --component rust-src && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@cargo-no-dev-deps
       - run: tools/build.sh
         env:
           TESTS: ${{ matrix.tests }}
+          TARGET_GROUP: ${{ matrix.target-group }}
 
   no-std:
     runs-on: ubuntu-latest
