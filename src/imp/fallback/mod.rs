@@ -410,12 +410,16 @@ mod tests {
 
     // load/store/swap implementation is not affected by signedness, so it is
     // enough to test only unsigned types.
+    #[cfg(not(valgrind))] // Valgrind is slow.
     cfg_no_fast_atomic_64! {
         stress_test_load_store!(u64);
     }
+    #[cfg(not(valgrind))] // Valgrind is slow.
     cfg_no_fast_atomic_64! {
         stress_test_load_swap!(u64);
     }
+    #[cfg(not(valgrind))] // Valgrind is slow.
     stress_test_load_store!(u128);
+    #[cfg(not(valgrind))] // Valgrind is slow.
     stress_test_load_swap!(u128);
 }

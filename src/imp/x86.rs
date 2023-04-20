@@ -5,6 +5,9 @@
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use CAS loop instead.
+//
+// Generated asm:
+// - x86_64 https://godbolt.org/z/8fve4YP1G
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

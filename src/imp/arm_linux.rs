@@ -1,4 +1,4 @@
-// 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 ARM Linux/Android
+// 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 ARM Linux/Android.
 //
 // Refs:
 // - https://www.kernel.org/doc/Documentation/arm/kernel_user_helpers.txt

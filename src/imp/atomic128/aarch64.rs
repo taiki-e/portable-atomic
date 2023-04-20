@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation for AArch64.
+// Atomic{I,U}128 implementation on AArch64.
 //
 // There are a few ways to implement 128-bit atomic operations in AArch64.
 //
@@ -49,11 +49,10 @@
 //
 // Generated asm:
 // - aarch64 https://godbolt.org/z/fzWhsbKsd
-// - aarch64 (msvc) https://godbolt.org/z/chMK1G8vc
+// - aarch64 msvc https://godbolt.org/z/chMK1G8vc
 // - aarch64 (+lse) https://godbolt.org/z/n8Tv7a8eh
-// - aarch64 (+lse, msvc) https://godbolt.org/z/GMsYs41MG
+// - aarch64 msvc (+lse) https://godbolt.org/z/GMsYs41MG
 // - aarch64 (+lse,+lse2) https://godbolt.org/z/bs18YP7Ph
-// - aarch64 (+lse,+lse2, msvc) https://godbolt.org/z/4YT8dYs3n
 
 include!("macros.rs");
 
@@ -255,7 +254,7 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::SeqCst => {
                 asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
-                    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891
+                    // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
                     concat!("ldar {tmp}, [{src", ptr_modifier!(), "}]"),
                     concat!("ldp {prev_lo}, {prev_hi}, [{src", ptr_modifier!(), "}]"),
                     "dmb ishld",
@@ -594,10 +593,10 @@ unsafe fn _atomic_compare_exchange_casp(
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg {
-            ($acquire:tt, $release:tt, $release_fence:tt) => {
+            ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
                     concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst", ptr_modifier!(), "}]"),
-                    $release_fence,
+                    $fence,
                     dst = in(reg) dst,
                     // must be allocated to even/odd register pair
                     inout("x6") old.pair.lo => prev_lo,
@@ -642,7 +641,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
         let new = U128 { whole: new };
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg {
-            ($acquire:tt, $release:tt, $release_fence:tt) => {
+            ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
                     "2:",
                         concat!("ld", $acquire, "xp {out_lo}, {out_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -660,7 +659,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
                     "4:",
-                    $release_fence,
+                    $fence,
                     dst = in(reg) dst,
                     old_lo = in(reg) old.pair.lo,
                     old_hi = in(reg) old.pair.hi,
@@ -714,8 +713,8 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
-        macro_rules! op {
-            ($acquire:tt, $release:tt, $release_fence:tt) => {
+        macro_rules! swap {
+            ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
                     // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                     // This is not single-copy atomic reads, but this is ok because subsequent
@@ -730,7 +729,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                         "cmp {tmp_hi}, x7",
                         "ccmp {tmp_lo}, x6, #0, eq",
                         "b.ne 2b",
-                    $release_fence,
+                    $fence,
                     dst = in(reg) dst,
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
@@ -745,7 +744,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                 )
             };
         }
-        atomic_rmw!(op, order);
+        atomic_rmw!(swap, order);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
@@ -766,14 +765,14 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
         macro_rules! swap {
-            ($acquire:tt, $release:tt, $release_fence:tt) => {
+            ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
                     "2:",
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
                         concat!("st", $release, "xp {r:w}, {val_lo}, {val_hi}, [{dst", ptr_modifier!(), "}]"),
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
-                    $release_fence,
+                    $fence,
                     dst = in(reg) dst,
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
@@ -820,7 +819,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 let val = U128 { whole: val };
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt, $release_fence:tt) => {
+                    ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
                             "2:",
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -828,7 +827,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                                 concat!("st", $release, "xp {r:w}, {new_lo}, {new_hi}, [{dst", ptr_modifier!(), "}]"),
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
-                            $release_fence,
+                            $fence,
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -881,7 +880,7 @@ macro_rules! atomic_rmw_cas_3 {
                 let val = U128 { whole: val };
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt, $release_fence:tt) => {
+                    ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -897,7 +896,7 @@ macro_rules! atomic_rmw_cas_3 {
                                 "cmp {tmp_hi}, x7",
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
-                            $release_fence,
+                            $fence,
                             dst = in(reg) dst,
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
@@ -950,7 +949,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
             unsafe {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt, $release_fence:tt) => {
+                    ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
                             "2:",
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst", ptr_modifier!(), "}]"),
@@ -958,7 +957,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                                 concat!("st", $release, "xp {r:w}, {new_lo}, {new_hi}, [{dst", ptr_modifier!(), "}]"),
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
-                            $release_fence,
+                            $fence,
                             dst = in(reg) dst,
                             prev_lo = out(reg) prev_lo,
                             prev_hi = out(reg) prev_hi,
@@ -1007,7 +1006,7 @@ macro_rules! atomic_rmw_cas_2 {
             unsafe {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
-                    ($acquire:tt, $release:tt, $release_fence:tt) => {
+                    ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -1023,7 +1022,7 @@ macro_rules! atomic_rmw_cas_2 {
                                 "cmp {tmp_hi}, x7",
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
-                            $release_fence,
+                            $fence,
                             dst = in(reg) dst,
                             tmp_lo = out(reg) _,
                             tmp_hi = out(reg) _,

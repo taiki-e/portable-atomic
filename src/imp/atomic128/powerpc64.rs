@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation on powerpc64.
+// Atomic{I,U}128 implementation on PowerPC64.
 //
 // powerpc64 on pwr8+ support 128-bit atomics:
 // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
@@ -219,7 +219,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     unsafe {
         let val = U128 { whole: val };
         let (mut prev_hi, mut prev_lo);
-        macro_rules! op {
+        macro_rules! swap {
             ($acquire:tt, $release:tt) => {
                 asm!(
                     $release,
@@ -241,7 +241,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                 )
             };
         }
-        atomic_rmw!(op, order);
+        atomic_rmw!(swap, order);
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     }
 }

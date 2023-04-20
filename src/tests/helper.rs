@@ -11,7 +11,7 @@ macro_rules! __test_atomic_common {
         }
         #[test]
         fn alignment() {
-            // https://github.com/rust-lang/rust/blob/1.68.0/library/core/tests/atomic.rs#L250
+            // https://github.com/rust-lang/rust/blob/1.69.0/library/core/tests/atomic.rs#L250
             assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
             assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
         }
@@ -1570,7 +1570,7 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
             assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
         }
-        // https://github.com/rust-lang/rust/blob/1.68.0/library/core/tests/atomic.rs#L130-L213
+        // https://github.com/rust-lang/rust/blob/1.69.0/library/core/tests/atomic.rs#L130-L213
         #[test]
         fn ptr_add_null() {
             let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
@@ -2244,18 +2244,27 @@ macro_rules! __stress_test_acquire_release {
     ($atomic_type:ident, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
         use super::*;
         use crossbeam_utils::thread;
-        use std::sync::atomic::{AtomicUsize, Ordering};
-        const N: usize = if cfg!(miri) { 10 } else { 50_000 };
-        #[allow(clippy::checked_conversions)]
-        {
-            // This currently only supports 32-bit or more integers.
-            static_assert!($int_type::MAX as usize >= N);
+        use std::{
+            convert::TryFrom,
+            sync::atomic::{AtomicUsize, Ordering},
+        };
+        let mut n: usize = if cfg!(miri) {
+            10
+        } else if cfg!(valgrind) {
+            50
+        } else {
+            50_000
+        };
+        // This test is relatively fast because it spawns only one thread, but
+        // the iterations are limited to a maximum value of integers.
+        if $int_type::try_from(n).is_err() {
+            n = $int_type::MAX as usize;
         }
         let a = &$atomic_type::new(0);
         let b = &AtomicUsize::new(0);
         thread::scope(|s| {
             s.spawn(|_| {
-                for i in 0..N {
+                for i in 0..n {
                     b.store(i, Ordering::Relaxed);
                     a.$write(i as _, Ordering::$store_order);
                 }
@@ -2264,7 +2273,7 @@ macro_rules! __stress_test_acquire_release {
                 let a = a.load(Ordering::$load_order);
                 let b = b.load(Ordering::Relaxed);
                 assert!(a as usize <= b, "a={},b={}", a, b);
-                if a as usize == N - 1 {
+                if a as usize == n - 1 {
                     break;
                 }
             }
@@ -2305,7 +2314,16 @@ macro_rules! __stress_test_seqcst {
         use super::*;
         use crossbeam_utils::thread;
         use std::sync::atomic::{AtomicUsize, Ordering};
-        const N: usize = if cfg!(miri) { 8 } else { 50_000 };
+        const N: usize = if cfg!(miri) {
+            8
+        } else if cfg!(valgrind)
+            || option_env!("ASAN_OPTIONS").is_some()
+            || option_env!("MSAN_OPTIONS").is_some()
+        {
+            50
+        } else {
+            50_000
+        };
         let a = &$atomic_type::new(0);
         let b = &$atomic_type::new(0);
         let c = &AtomicUsize::new(0);
@@ -2397,8 +2415,8 @@ pub(crate) fn catch_unwind_on_non_seqcst_arch(pat: &str, f: impl Fn()) {
 }
 macro_rules! stress_test_load_store {
     ($int_type:ident) => {
-        // debug mode and Valgrind are slow.
-        #[cfg(any(not(any(debug_assertions, valgrind)), miri))]
+        // debug mode is slow.
+        #[cfg(any(not(debug_assertions), miri))]
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,
@@ -2441,8 +2459,8 @@ macro_rules! stress_test_load_store {
 }
 macro_rules! stress_test_load_swap {
     ($int_type:ident) => {
-        // debug mode and Valgrind are slow.
-        #[cfg(any(not(any(debug_assertions, valgrind)), miri))]
+        // debug mode is slow.
+        #[cfg(any(not(debug_assertions), miri))]
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,

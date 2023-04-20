@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation for s390x.
+// Atomic{I,U}128 implementation on s390x.
 //
 // s390x supports 128-bit atomic load/store/cmpxchg:
 // https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc

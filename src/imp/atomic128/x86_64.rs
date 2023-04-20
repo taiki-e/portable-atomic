@@ -1,4 +1,4 @@
-// Atomic{I,U}128 implementation for x86_64 using CMPXCHG16B (DWCAS).
+// Atomic{I,U}128 implementation on x86_64 using CMPXCHG16B (DWCAS).
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use intrinsics.rs instead.
@@ -133,7 +133,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 }
 
 // VMOVDQA is atomic on Intel and AMD CPUs with AVX.
-// See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
 //
 // Refs: https://www.felixcloutier.com/x86/movdqa:vmovdqa32:vmovdqa64
 //

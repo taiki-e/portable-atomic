@@ -82,7 +82,7 @@ fn _detect(info: &mut CpuInfo) {
         }
 
         // VMOVDQA is atomic on Intel and AMD CPUs with AVX.
-        // See https://gcc.gnu.org/bugzilla//show_bug.cgi?id=104688 for details.
+        // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
         if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
             // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L131-L224
             let cpu_xsave = test(proc_info_ecx, 26);
