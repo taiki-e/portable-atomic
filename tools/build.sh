@@ -111,6 +111,7 @@ known_cfgs=(
     portable_atomic_disable_fiq
     portable_atomic_no_outline_atomics
     portable_atomic_outline_atomics
+    portable_atomic_vmovdqa_atomic
 
     # Not public APIs
     portable_atomic_test_outline_atomics_detect_false
@@ -567,6 +568,9 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     ;;
             esac
+            # Sandy Bridge (the first Intel chip that introduced AVX) with portable_atomic_vmovdqa_atomic cfg
+            RUSTFLAGS="${target_rustflags} -C target-cpu=sandybridge -C target-feature=+cmpxchg16b --cfg portable_atomic_vmovdqa_atomic" \
+                x_cargo "${args[@]}" --target-dir target/vmovdqa_atomic "$@"
             ;;
         aarch64* | arm64*)
             # macOS is skipped because it is +lse,+lse2 by default

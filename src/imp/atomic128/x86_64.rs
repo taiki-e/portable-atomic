@@ -8,7 +8,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/WPvfn16sY
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/f9rT3eEs8
+// - x86_64 (+cmpxchg16b,+avx,vmovdqa_atomic) https://godbolt.org/z/feWx41Moa
 
 include!("macros.rs");
 
@@ -37,12 +38,18 @@ macro_rules! debug_assert_cmpxchg16b {
         }
     };
 }
-#[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
+#[cfg(any(
+    not(any(portable_atomic_no_outline_atomics, target_env = "sgx")),
+    all(portable_atomic_vmovdqa_atomic, target_feature = "avx"),
+))]
 #[cfg(target_feature = "sse")]
 macro_rules! debug_assert_vmovdqa_atomic {
     () => {{
         debug_assert_cmpxchg16b!();
-        debug_assert!(detect::detect().has_vmovdqa_atomic());
+        #[cfg(not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")))]
+        {
+            debug_assert!(detect::detect().has_vmovdqa_atomic());
+        }
     }};
 }
 
@@ -140,7 +147,10 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 //
 // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
 // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
-#[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
+#[cfg(any(
+    not(any(portable_atomic_no_outline_atomics, target_env = "sgx")),
+    all(portable_atomic_vmovdqa_atomic, target_feature = "avx"),
+))]
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]
 #[inline]
@@ -162,7 +172,10 @@ unsafe fn atomic_load_vmovdqa(src: *mut u128) -> u128 {
         core::mem::transmute(out)
     }
 }
-#[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
+#[cfg(any(
+    not(any(portable_atomic_no_outline_atomics, target_env = "sgx")),
+    all(portable_atomic_vmovdqa_atomic, target_feature = "avx"),
+))]
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]
 #[inline]
@@ -199,8 +212,15 @@ unsafe fn atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
 
 #[cfg(not(all(
     any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-    any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+    any(
+        all(
+            any(portable_atomic_no_outline_atomics, target_env = "sgx"),
+            not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")),
+        ),
+        not(target_feature = "sse"),
+    ),
 )))]
+#[cfg(not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")))]
 macro_rules! load_store_detect {
     (
         vmovdqa = $vmovdqa:ident
@@ -250,28 +270,48 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
     // SGX doesn't support CPUID.
     #[cfg(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+        any(
+            all(
+                any(portable_atomic_no_outline_atomics, target_env = "sgx"),
+                not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")),
+            ),
+            not(target_feature = "sse"),
+        ),
     ))]
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantees that CMPXCHG16B is available at compile-time.
     unsafe {
         // cmpxchg16b is always SeqCst.
-        atomic_load_cmpxchg16b(src)
+        _atomic_load_cmpxchg16b(src)
     }
     #[cfg(not(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+        any(
+            all(
+                any(portable_atomic_no_outline_atomics, target_env = "sgx"),
+                not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")),
+            ),
+            not(target_feature = "sse"),
+        ),
     )))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        ifunc!(unsafe fn(src: *mut u128) -> u128 {
-            load_store_detect! {
-                vmovdqa = atomic_load_vmovdqa
-                cmpxchg16b = atomic_load_cmpxchg16b
-                // Use SeqCst because cmpxchg16b and atomic load by vmovdqa is always SeqCst.
-                fallback = atomic_load_seqcst
-            }
-        })
+    {
+        #[cfg(all(portable_atomic_vmovdqa_atomic, target_feature = "avx"))]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            atomic_load_vmovdqa(src)
+        }
+        #[cfg(not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")))]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                load_store_detect! {
+                    vmovdqa = atomic_load_vmovdqa
+                    cmpxchg16b = _atomic_load_cmpxchg16b
+                    // Use SeqCst because cmpxchg16b and atomic load by vmovdqa is always SeqCst.
+                    fallback = atomic_load_seqcst
+                }
+            })
+        }
     }
 }
 #[cfg_attr(
@@ -279,7 +319,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
     target_feature(enable = "cmpxchg16b")
 )]
 #[inline]
-unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
+unsafe fn _atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
     debug_assert!(src as usize % 16 == 0);
     debug_assert_cmpxchg16b!();
 
@@ -328,52 +368,72 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     // SGX doesn't support CPUID.
     #[cfg(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+        any(
+            all(
+                any(portable_atomic_no_outline_atomics, target_env = "sgx"),
+                not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")),
+            ),
+            not(target_feature = "sse"),
+        ),
     ))]
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantees that CMPXCHG16B is available at compile-time.
     unsafe {
         // cmpxchg16b is always SeqCst.
         let _ = order;
-        atomic_store_cmpxchg16b(dst, val);
+        _atomic_store_cmpxchg16b(dst, val);
     }
     #[cfg(not(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+        any(
+            all(
+                any(portable_atomic_no_outline_atomics, target_env = "sgx"),
+                not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")),
+            ),
+            not(target_feature = "sse"),
+        ),
     )))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        #[cfg(target_feature = "sse")]
-        fn_alias! {
-            #[target_feature(enable = "avx")]
-            unsafe fn(dst: *mut u128, val: u128);
-            // atomic store by vmovdqa has at least release semantics.
-            atomic_store_vmovdqa_non_seqcst = atomic_store_vmovdqa(Ordering::Release);
-            atomic_store_vmovdqa_seqcst = atomic_store_vmovdqa(Ordering::SeqCst);
+    {
+        #[cfg(all(portable_atomic_vmovdqa_atomic, target_feature = "avx"))]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            atomic_store_vmovdqa(dst, val, order);
         }
-        match order {
-            // Relaxed and Release stores are equivalent in all implementations
-            // that may be called here (vmovdqa, asm-based cmpxchg16b, and fallback).
-            // core::arch's cmpxchg16b will never called here.
-            Ordering::Relaxed | Ordering::Release => {
-                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                    load_store_detect! {
-                        vmovdqa = atomic_store_vmovdqa_non_seqcst
-                        cmpxchg16b = atomic_store_cmpxchg16b
-                        fallback = atomic_store_non_seqcst
-                    }
-                });
+        #[cfg(not(all(portable_atomic_vmovdqa_atomic, target_feature = "avx")))]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            #[cfg(target_feature = "sse")]
+            fn_alias! {
+                #[target_feature(enable = "avx")]
+                unsafe fn(dst: *mut u128, val: u128);
+                // atomic store by vmovdqa has at least release semantics.
+                atomic_store_vmovdqa_non_seqcst = atomic_store_vmovdqa(Ordering::Release);
+                atomic_store_vmovdqa_seqcst = atomic_store_vmovdqa(Ordering::SeqCst);
             }
-            Ordering::SeqCst => {
-                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                    load_store_detect! {
-                        vmovdqa = atomic_store_vmovdqa_seqcst
-                        cmpxchg16b = atomic_store_cmpxchg16b
-                        fallback = atomic_store_seqcst
-                    }
-                });
+            match order {
+                // Relaxed and Release stores are equivalent in all implementations
+                // that may be called here (vmovdqa, asm-based cmpxchg16b, and fallback).
+                // core::arch's cmpxchg16b will never called here.
+                Ordering::Relaxed | Ordering::Release => {
+                    ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                        load_store_detect! {
+                            vmovdqa = atomic_store_vmovdqa_non_seqcst
+                            cmpxchg16b = _atomic_store_cmpxchg16b
+                            fallback = atomic_store_non_seqcst
+                        }
+                    });
+                }
+                Ordering::SeqCst => {
+                    ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                        load_store_detect! {
+                            vmovdqa = atomic_store_vmovdqa_seqcst
+                            cmpxchg16b = _atomic_store_cmpxchg16b
+                            fallback = atomic_store_seqcst
+                        }
+                    });
+                }
+                _ => unreachable!("{:?}", order),
             }
-            _ => unreachable!("{:?}", order),
         }
     }
 }
@@ -381,7 +441,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
     target_feature(enable = "cmpxchg16b")
 )]
-unsafe fn atomic_store_cmpxchg16b(dst: *mut u128, val: u128) {
+unsafe fn _atomic_store_cmpxchg16b(dst: *mut u128, val: u128) {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // cmpxchg16b is always SeqCst.

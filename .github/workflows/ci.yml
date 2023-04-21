@@ -275,6 +275,12 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
+      # Sandy Bridge (the first Intel chip that introduced AVX) with portable_atomic_vmovdqa_atomic cfg
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge -C target-feature=+cmpxchg16b --cfg portable_atomic_vmovdqa_atomic
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge -C target-feature=+cmpxchg16b --cfg portable_atomic_vmovdqa_atomic
+        if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
       # aarch64 +lse
       # As of QEMU 8.0, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
       # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
@@ -510,6 +516,11 @@ jobs:
           # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+      # Sandy Bridge (the first Intel chip that introduced AVX) with portable_atomic_vmovdqa_atomic cfg
+      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=sandybridge -C target-feature=+cmpxchg16b --cfg portable_atomic_vmovdqa_atomic
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=sandybridge -C target-feature=+cmpxchg16b --cfg portable_atomic_vmovdqa_atomic
 
   codegen:
     needs: tidy

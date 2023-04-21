@@ -1,6 +1,13 @@
 // Adapted from https://github.com/rust-lang/stdarch.
 
-#![cfg_attr(any(not(target_feature = "sse"), portable_atomic_sanitize_thread), allow(dead_code))]
+#![cfg_attr(
+    any(
+        not(target_feature = "sse"),
+        portable_atomic_vmovdqa_atomic,
+        portable_atomic_sanitize_thread,
+    ),
+    allow(dead_code)
+)]
 
 // Miri doesn't support inline assembly used in __cpuid: https://github.com/rust-lang/miri/issues/932
 // SGX doesn't support CPUID: https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L105
