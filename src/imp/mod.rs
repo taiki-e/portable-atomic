@@ -40,7 +40,7 @@ mod aarch64;
     portable_atomic_target_feature = "cmpxchg16b",
     all(
         feature = "fallback",
-        portable_atomic_cmpxchg16b_target_feature,
+        not(portable_atomic_no_cmpxchg16b_target_feature),
         not(portable_atomic_no_outline_atomics),
         not(target_env = "sgx"),
     ),
@@ -363,7 +363,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
         portable_atomic_target_feature = "cmpxchg16b",
         all(
             feature = "fallback",
-            portable_atomic_cmpxchg16b_target_feature,
+            not(portable_atomic_no_cmpxchg16b_target_feature),
             not(portable_atomic_no_outline_atomics),
             not(target_env = "sgx"),
         ),
@@ -394,7 +394,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
             portable_atomic_target_feature = "cmpxchg16b",
             all(
                 feature = "fallback",
-                portable_atomic_cmpxchg16b_target_feature,
+                not(portable_atomic_no_cmpxchg16b_target_feature),
                 not(portable_atomic_no_outline_atomics),
                 not(target_env = "sgx"),
             ),

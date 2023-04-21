@@ -271,7 +271,7 @@ macro_rules! cfg_atomic_128 {
                         portable_atomic_target_feature = "cmpxchg16b",
                         all(
                             feature = "fallback",
-                            portable_atomic_cmpxchg16b_target_feature,
+                            not(portable_atomic_no_cmpxchg16b_target_feature),
                             not(portable_atomic_no_outline_atomics),
                             not(target_env = "sgx"),
                         ),

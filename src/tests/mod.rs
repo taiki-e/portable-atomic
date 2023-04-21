@@ -182,7 +182,7 @@ fn test_is_lock_free() {
         {
             let has_cmpxchg16b = cfg!(all(
                 feature = "fallback",
-                portable_atomic_cmpxchg16b_target_feature,
+                not(portable_atomic_no_cmpxchg16b_target_feature),
                 not(portable_atomic_no_outline_atomics),
                 not(target_env = "sgx"),
                 not(portable_atomic_test_outline_atomics_detect_false),

@@ -163,13 +163,9 @@ fn main() {
                     // until it was stabilized in nightly-2023-03-01, so it can be safely enabled in
                     // nightly, which is older than nightly-2023-03-01.
                     println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_target_feature");
-                    println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
                 } else {
-                    // println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
+                    println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
                 }
-            } else {
-                // TODO: invert flag once 1.69 became stable
-                println!("cargo:rustc-cfg=portable_atomic_cmpxchg16b_target_feature");
             }
 
             // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
