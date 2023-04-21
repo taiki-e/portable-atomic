@@ -6,14 +6,6 @@
 //
 // Refs: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
 
-#![cfg_attr(
-    any(
-        portable_atomic_no_aarch64_target_feature,
-        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    ),
-    allow(dead_code)
-)]
-
 include!("common.rs");
 
 // windows-sys requires Rust 1.48

@@ -12,14 +12,6 @@
 // - https://developer.apple.com/forums/thread/9440
 // - https://nabla-c0d3.github.io/blog/2015/06/16/ios9-security-privacy
 
-#![cfg_attr(
-    any(
-        portable_atomic_no_aarch64_target_feature,
-        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    ),
-    allow(dead_code)
-)]
-
 include!("common.rs");
 
 use core::ptr;

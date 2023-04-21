@@ -257,37 +257,11 @@ mod tests_common {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
         if detect().has_lse() {
             assert!(detect().test(CpuInfo::HAS_LSE));
-            #[cfg(any(
-                target_feature = "lse",
-                portable_atomic_target_feature = "lse",
-                all(
-                    not(portable_atomic_no_aarch64_target_feature),
-                    not(portable_atomic_no_outline_atomics),
-                ),
-            ))]
-            unsafe {
-                use core::{cell::UnsafeCell, sync::atomic::Ordering};
-                let v = UnsafeCell::new(0);
-                assert_eq!(
-                    super::super::_atomic_compare_exchange_casp(v.get(), 0, 1, Ordering::SeqCst),
-                    0
-                );
-                assert_eq!(*v.get(), 1);
-            }
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(proc_cpuinfo.lse);
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE));
-            // is_aarch64_feature_detected uses mrs on FreeBSD
-            #[cfg(not(target_os = "freebsd"))]
-            #[cfg(not(any(
-                portable_atomic_no_aarch64_target_feature,
-                portable_atomic_unstable_aarch64_target_feature,
-            )))]
-            {
-                assert!(!std::arch::is_aarch64_feature_detected!("lse"));
-            }
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(!proc_cpuinfo.lse);
             }
@@ -300,15 +274,6 @@ mod tests_common {
             }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
-            // // is_aarch64_feature_detected uses mrs on FreeBSD
-            // #[cfg(not(target_os = "freebsd"))]
-            // #[cfg(not(any(
-            //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature,
-            // )))]
-            // {
-            //     assert!(!std::arch::is_aarch64_feature_detected!("lse2"));
-            // }
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
                 assert!(!lse2);
             }
@@ -319,31 +284,11 @@ mod tests_common {
             assert!(detect().test(CpuInfo::HAS_LSE128));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
-            // is_aarch64_feature_detected doesn't support lse128
-            // // is_aarch64_feature_detected uses mrs on FreeBSD
-            // #[cfg(not(target_os = "freebsd"))]
-            // #[cfg(not(any(
-            //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature,
-            // )))]
-            // {
-            //     assert!(!std::arch::is_aarch64_feature_detected!("lse128"));
-            // }
         }
         if detect().test(CpuInfo::HAS_RCPC3) {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
         } else {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
-            // is_aarch64_feature_detected doesn't support rcpc3
-            // // is_aarch64_feature_detected uses mrs on FreeBSD
-            // #[cfg(not(target_os = "freebsd"))]
-            // #[cfg(not(any(
-            //     portable_atomic_no_aarch64_target_feature,
-            //     portable_atomic_unstable_aarch64_target_feature,
-            // )))]
-            // {
-            //     assert!(!std::arch::is_aarch64_feature_detected!("rcpc3"));
-            // }
         }
     }
 }

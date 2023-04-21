@@ -189,7 +189,8 @@ fn main() {
                     // nightly, which is older than nightly-2022-03-16.
                     println!("cargo:rustc-cfg=portable_atomic_unstable_aarch64_target_feature");
                 } else {
-                    println!("cargo:rustc-cfg=portable_atomic_no_aarch64_target_feature");
+                    // On aarch64, when aarch64_target_feature is not available, outline-atomics is also not available.
+                    println!("cargo:rustc-cfg=portable_atomic_no_outline_atomics");
                 }
             }
 

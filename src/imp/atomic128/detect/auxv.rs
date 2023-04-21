@@ -80,7 +80,6 @@ mod os {
     }
 }
 #[cfg(target_os = "freebsd")]
-#[allow(dead_code)]
 mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
     pub(super) mod ffi {

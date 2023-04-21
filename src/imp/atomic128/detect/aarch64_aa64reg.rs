@@ -26,14 +26,6 @@
 // - On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
 //   FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
 
-#![cfg_attr(
-    any(
-        portable_atomic_no_aarch64_target_feature,
-        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    ),
-    allow(dead_code)
-)]
-
 include!("common.rs");
 
 struct AA64Reg {

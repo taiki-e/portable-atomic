@@ -59,6 +59,7 @@ include!("macros.rs");
 // On musl with static linking, it seems that getauxval is not always available.
 // See detect/auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(any(
     all(
         target_os = "linux",
@@ -74,14 +75,17 @@ include!("macros.rs");
 #[path = "detect/aarch64_auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "openbsd")]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "fuchsia")]
 #[path = "detect/aarch64_fuchsia.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "windows")]
 #[path = "detect/aarch64_windows.rs"]
 mod detect;
@@ -107,7 +111,7 @@ use core::sync::atomic::Ordering;
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
-    all(not(portable_atomic_no_aarch64_target_feature), not(portable_atomic_no_outline_atomics)),
+    not(portable_atomic_no_outline_atomics),
 ))]
 macro_rules! debug_assert_lse {
     () => {
@@ -411,7 +415,6 @@ unsafe fn atomic_compare_exchange(
     // cfg guarantee that the CPU supports FEAT_LSE.
     let res = unsafe { _atomic_compare_exchange_casp(dst, old, new, success) };
     #[cfg(not(all(
-        not(portable_atomic_no_aarch64_target_feature),
         not(portable_atomic_no_outline_atomics),
         any(
             all(
@@ -436,7 +439,6 @@ unsafe fn atomic_compare_exchange(
     // SAFETY: the caller must uphold the safety contract.
     let res = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) };
     #[cfg(all(
-        not(portable_atomic_no_aarch64_target_feature),
         not(portable_atomic_no_outline_atomics),
         any(
             all(
@@ -460,10 +462,7 @@ unsafe fn atomic_compare_exchange(
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let res = {
         fn_alias! {
-            #[cfg_attr(
-                not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
-                target_feature(enable = "lse")
-            )]
+            #[target_feature(enable = "lse")]
             unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
             atomic_compare_exchange_casp_relaxed
                 = _atomic_compare_exchange_casp(Ordering::Relaxed);
@@ -537,7 +536,7 @@ unsafe fn atomic_compare_exchange(
                     })
                 }
                 #[cfg(target_env = "msvc")]
-                Ordering::SeqCst => {
+                Ordering::AcqRel => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
                         if detect::detect().has_lse() {
                             atomic_compare_exchange_casp_acqrel
@@ -547,7 +546,7 @@ unsafe fn atomic_compare_exchange(
                     })
                 }
                 #[cfg(target_env = "msvc")]
-                Ordering::AcqRel => {
+                Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
                         if detect::detect().has_lse() {
                             atomic_compare_exchange_casp_seqcst
@@ -569,7 +568,7 @@ unsafe fn atomic_compare_exchange(
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
-    all(not(portable_atomic_no_aarch64_target_feature), not(portable_atomic_no_outline_atomics)),
+    not(portable_atomic_no_outline_atomics),
 ))]
 #[cfg_attr(
     not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),

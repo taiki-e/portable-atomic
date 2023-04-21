@@ -7,14 +7,6 @@
 // - https://fuchsia.dev/fuchsia-src/reference/syscalls/system_get_features
 // - https://github.com/llvm/llvm-project/commit/4e731abc55681751b5d736b613f7720e50eb1ad4
 
-#![cfg_attr(
-    any(
-        portable_atomic_no_aarch64_target_feature,
-        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    ),
-    allow(dead_code)
-)]
-
 include!("common.rs");
 
 #[allow(non_camel_case_types)]
