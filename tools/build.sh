@@ -434,6 +434,7 @@ build() {
     fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
+    # Check no-outline-atomics
     case "${target}" in
         # portable_atomic_no_outline_atomics only affects x86_64, aarch64, and arm.
         x86_64* | aarch64* | arm*)
@@ -442,6 +443,7 @@ build() {
                 x_cargo "${args[@]}" "$@"
             ;;
     esac
+    # Check target features
     case "${target}" in
         mips*-linux-musl*) ;; # -crt-static by default
         *-linux-musl*)
@@ -458,6 +460,10 @@ build() {
                 *)
                     CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
+                        x_cargo "${args[@]}" "$@"
+                    # Check no-outline-atomics
+                    CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-no-outline-atomics" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics" \
                         x_cargo "${args[@]}" "$@"
                     ;;
             esac
