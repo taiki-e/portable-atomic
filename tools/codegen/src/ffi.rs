@@ -32,6 +32,7 @@ static TARGETS: &[Target] = &[
             "aarch64-unknown-linux-gnu_ilp32",
             "aarch64_be-unknown-linux-gnu_ilp32",
             "aarch64-unknown-linux-musl",
+            "aarch64-unknown-linux-uclibc",
             "aarch64-linux-android",
         ],
         headers: &[

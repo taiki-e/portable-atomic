@@ -19,8 +19,8 @@
 // but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
 // of the same error.)
 //
-// On other Linux targets, we cannot assume that getauxval is always available, so we don't support
-// outline-atomics for now.
+// On other Linux targets, we cannot assume that getauxval is always available, so we don't enable
+// outline-atomics by default (can be enabled by `--cfg portable_atomic_outline_atomics`).
 //
 // - On musl with static linking. See the above for more.
 //   Also, in this case, dlsym(getauxval) always returns null.

@@ -99,6 +99,7 @@ known_cfgs=(
     portable_atomic_s_mode
     portable_atomic_disable_fiq
     portable_atomic_no_outline_atomics
+    portable_atomic_outline_atomics
 
     # Not public APIs
     portable_atomic_test_outline_atomics_detect_false
@@ -434,12 +435,23 @@ build() {
     fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
-    # Check no-outline-atomics
+    # Check {,no-}outline-atomics
     case "${target}" in
         # portable_atomic_no_outline_atomics only affects x86_64, aarch64, and arm.
         x86_64* | aarch64* | arm*)
             CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
+                x_cargo "${args[@]}" "$@"
+            ;;
+    esac
+    case "${target}" in
+        # portable_atomic_outline_atomics only affects aarch64 Linux.
+        aarch64*-linux-*)
+            CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics" \
+                x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/outline-atomics-no-outline-atomics" \
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics --cfg portable_atomic_no_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
             ;;
     esac
@@ -449,6 +461,9 @@ build() {
         *-linux-musl*)
             CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
                 RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
+                x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
+                RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
             ;;
     esac

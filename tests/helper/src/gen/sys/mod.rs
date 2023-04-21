@@ -114,6 +114,26 @@ pub use aarch64_linux_musl::*;
 #[cfg(
     all(
         target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "uclibc",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_linux_uclibc;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "linux",
+        target_env = "uclibc",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_linux_uclibc::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
         target_os = "android",
         target_endian = "little",
         target_pointer_width = "64"

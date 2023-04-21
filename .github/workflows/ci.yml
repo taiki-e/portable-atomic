@@ -175,13 +175,21 @@ jobs:
           # and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+        # outline-atomics is disabled by default on aarch64 musl with static linking
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-musl') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       # -crt-static
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
         if: contains(matrix.target, '-musl')
+      # +crt-static + outline-atomics
+      # outline-atomics is disabled by default on aarch64 musl with static linking
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
+        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl')
       # +cmpxchg16b
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:

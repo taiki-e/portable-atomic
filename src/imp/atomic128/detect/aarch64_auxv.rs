@@ -1,4 +1,6 @@
 // Run-time feature detection on aarch64 Linux/Android/FreeBSD by parsing ELF auxiliary vectors.
+//
+// See auxv.rs for more.
 
 #![cfg_attr(
     any(
