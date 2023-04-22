@@ -313,18 +313,6 @@ macro_rules! cfg_atomic_128 {
     };
 }
 
-// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3129
-#[allow(dead_code)]
-#[inline]
-pub(crate) fn strongest_failure_ordering(order: Ordering) -> Ordering {
-    match order {
-        Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
-        Ordering::SeqCst => Ordering::SeqCst,
-        Ordering::Acquire | Ordering::AcqRel => Ordering::Acquire,
-        _ => unreachable!("{:?}", order),
-    }
-}
-
 // https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3156
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]

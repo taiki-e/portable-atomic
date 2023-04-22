@@ -2,6 +2,7 @@
 
 #![warn(rust_2018_idioms, single_use_lifetimes)]
 
+// version.rs is shared with portable-atomic's build script, and portable-atomic-util only uses a part of it.
 #[allow(dead_code)]
 #[path = "version.rs"]
 mod version;

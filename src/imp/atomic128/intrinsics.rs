@@ -26,7 +26,7 @@
 
 include!("macros.rs");
 
-#[allow(dead_code)] // we only use compare_exchange
+#[allow(dead_code)] // we only use compare_exchange.
 #[cfg(target_arch = "x86_64")]
 #[cfg(not(target_feature = "cmpxchg16b"))]
 #[path = "../fallback/outline_atomics.rs"]
@@ -44,12 +44,24 @@ use core::{
     sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst},
 };
 
+// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3129
+#[cfg(target_arch = "x86_64")]
+#[inline]
+fn strongest_failure_ordering(order: Ordering) -> Ordering {
+    match order {
+        Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
+        Ordering::SeqCst => Ordering::SeqCst,
+        Ordering::Acquire | Ordering::AcqRel => Ordering::Acquire,
+        _ => unreachable!("{:?}", order),
+    }
+}
+
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     #[cfg(target_arch = "x86_64")]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let fail_order = crate::utils::strongest_failure_ordering(order);
+        let fail_order = strongest_failure_ordering(order);
         match atomic_compare_exchange(src, 0, 0, order, fail_order) {
             Ok(v) | Err(v) => v,
         }
