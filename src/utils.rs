@@ -70,7 +70,11 @@ macro_rules! ifunc {
 
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(target_arch = "aarch64", target_arch = "arm", target_arch = "x86_64"))]
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    all(target_arch = "x86_64", not(target_env = "sgx")),
+))]
 macro_rules! fn_alias {
     (
         $(#[$($fn_attr:tt)*])*

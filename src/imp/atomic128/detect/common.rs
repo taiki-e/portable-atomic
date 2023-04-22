@@ -33,9 +33,9 @@ pub(crate) fn detect() -> CpuInfo {
         return info;
     }
     info.set(CpuInfo::INIT);
-    // Note: This cfg is intended to make it easy for portable-atomic developers
-    // to test has_cmpxchg16b == false or has_lse == false cases,
-    // and is not a public API.
+    // Note: detect_false cfg is intended to make it easy for portable-atomic developers to
+    // test cases such as has_cmpxchg16b == false, has_lse == false,
+    // __kuser_helper_version < 5, etc., and is not a public API.
     if !cfg!(portable_atomic_test_outline_atomics_detect_false) {
         _detect(&mut info);
     }
@@ -229,20 +229,40 @@ mod tests_common {
         use std::{fmt::Write as _, io::Write, string::String};
 
         let mut features = String::new();
+        macro_rules! print_feature {
+            ($name:expr, $enabled:expr $(,)?) => {{
+                let _ = writeln!(features, "  {}: {}", $name, $enabled);
+            }};
+        }
         #[cfg(target_arch = "aarch64")]
         {
-            let _ = writeln!(features, "lse: {}", detect().test(CpuInfo::HAS_LSE));
-            let _ = writeln!(features, "lse2: {}", detect().test(CpuInfo::HAS_LSE2));
-            let _ = writeln!(features, "lse128: {}", detect().test(CpuInfo::HAS_LSE128));
-            let _ = writeln!(features, "rcpc3: {}", detect().test(CpuInfo::HAS_RCPC3));
+            features.push_str("run-time:\n");
+            print_feature!("lse", detect().test(CpuInfo::HAS_LSE));
+            print_feature!("lse2", detect().test(CpuInfo::HAS_LSE2));
+            print_feature!("lse128", detect().test(CpuInfo::HAS_LSE128));
+            print_feature!("rcpc3", detect().test(CpuInfo::HAS_RCPC3));
+            features.push_str("compile-time:\n");
+            print_feature!(
+                "lse",
+                cfg!(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
+            );
+            print_feature!(
+                "lse2",
+                cfg!(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
+            );
         }
         #[cfg(target_arch = "x86_64")]
         {
-            let _ = writeln!(features, "cmpxchg16b: {}", detect().test(CpuInfo::HAS_CMPXCHG16B));
-            let _ = writeln!(
-                features,
-                "vmovdqa-atomic: {}",
-                detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC)
+            features.push_str("run-time:\n");
+            print_feature!("cmpxchg16b", detect().test(CpuInfo::HAS_CMPXCHG16B));
+            print_feature!("vmovdqa-atomic", detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+            features.push_str("compile-time:\n");
+            print_feature!(
+                "cmpxchg16b",
+                cfg!(any(
+                    target_feature = "cmpxchg16b",
+                    portable_atomic_target_feature = "cmpxchg16b",
+                )),
             );
         }
         let stdout = std::io::stderr();

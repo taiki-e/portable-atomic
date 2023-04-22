@@ -170,26 +170,33 @@ jobs:
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
-          # Note: This cfg is intended to make it easy for portable-atomic developers
-          # to test has_cmpxchg16b == false, has_vmovdqa_atomic = false, has_lse == false, or __kuser_helper_version < 5 cases,
-          # and is not a public API.
+          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
+          # test cases such as has_cmpxchg16b == false, has_lse == false,
+          # __kuser_helper_version < 5, etc., and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
         # outline-atomics is disabled by default on aarch64 musl with static linking
         if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-musl') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
-      # -crt-static
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
-        if: contains(matrix.target, '-musl')
-      # +crt-static + outline-atomics
       # outline-atomics is disabled by default on aarch64 musl with static linking
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
         if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl')
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        env:
+          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
+          # test cases such as has_cmpxchg16b == false, has_lse == false,
+          # __kuser_helper_version < 5, etc., and is not a public API.
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
+        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl')
+      # -crt-static
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
+        if: contains(matrix.target, '-musl')
       # +cmpxchg16b
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
