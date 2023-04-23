@@ -663,6 +663,7 @@ impl AtomicBool {
         self.inner.store(val, order);
     }
 
+    cfg_atomic_cas! {
     /// Stores a value into the bool, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -680,26 +681,6 @@ impl AtomicBool {
     /// assert_eq!(some_bool.swap(false, Ordering::Relaxed), true);
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
         self.inner.swap(val, order)
@@ -741,26 +722,6 @@ impl AtomicBool {
     /// );
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -809,26 +770,6 @@ impl AtomicBool {
     ///     }
     /// }
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -871,26 +812,6 @@ impl AtomicBool {
     /// assert_eq!(foo.fetch_and(false, Ordering::SeqCst), false);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_and(val, order)
@@ -934,26 +855,6 @@ impl AtomicBool {
     /// foo.and(false, Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn and(&self, val: bool, order: Ordering) {
         self.inner.and(val, order);
@@ -989,26 +890,6 @@ impl AtomicBool {
     /// assert_eq!(foo.fetch_nand(false, Ordering::SeqCst), false);
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
         // https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L811-L825
@@ -1052,26 +933,6 @@ impl AtomicBool {
     /// assert_eq!(foo.fetch_or(false, Ordering::SeqCst), false);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_or(val, order)
@@ -1115,26 +976,6 @@ impl AtomicBool {
     /// foo.or(false, Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn or(&self, val: bool, order: Ordering) {
         self.inner.or(val, order);
@@ -1169,26 +1010,6 @@ impl AtomicBool {
     /// assert_eq!(foo.fetch_xor(false, Ordering::SeqCst), false);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_xor(val, order)
@@ -1232,26 +1053,6 @@ impl AtomicBool {
     /// foo.xor(false, Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn xor(&self, val: bool, order: Ordering) {
         self.inner.xor(val, order);
@@ -1282,26 +1083,6 @@ impl AtomicBool {
     /// assert_eq!(foo.fetch_not(Ordering::SeqCst), false);
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_not(&self, order: Ordering) -> bool {
         self.fetch_xor(true, order)
@@ -1341,26 +1122,6 @@ impl AtomicBool {
     /// foo.not(Ordering::SeqCst);
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn not(&self, order: Ordering) {
         self.xor(true, order);
@@ -1410,26 +1171,6 @@ impl AtomicBool {
     /// assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(!x)), Ok(true));
     /// assert_eq!(x.load(Ordering::SeqCst), false);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn fetch_update<F>(
@@ -1450,6 +1191,7 @@ impl AtomicBool {
         }
         Err(prev)
     }
+    } // cfg_atomic_cas!
 
     const_fn! {
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -1458,7 +1200,9 @@ impl AtomicBool {
         /// Returning an `*mut` pointer from a shared reference to this atomic is
         /// safe because the atomic types work with interior mutability. Any use of
         /// the returned raw pointer requires an `unsafe` block and has to uphold
-        /// the safety requirements:
+        /// the safety requirements. If there is concurrent access, note the following
+        /// additional safety requirements:
+        ///
         /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
         ///   operations on it must be atomic.
         /// - Otherwise, any concurrent operations on it must be compatible with
@@ -1683,6 +1427,7 @@ impl<T> AtomicPtr<T> {
         self.inner.store(ptr, order);
     }
 
+    cfg_atomic_cas! {
     /// Stores a value into the pointer, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -1702,26 +1447,6 @@ impl<T> AtomicPtr<T> {
     ///
     /// let value = some_ptr.swap(other_ptr, Ordering::Relaxed);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         self.inner.swap(ptr, order)
@@ -1756,26 +1481,6 @@ impl<T> AtomicPtr<T> {
     ///
     /// let value = some_ptr.compare_exchange(ptr, other_ptr, Ordering::SeqCst, Ordering::Relaxed);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -1824,26 +1529,6 @@ impl<T> AtomicPtr<T> {
     ///     }
     /// }
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -1910,26 +1595,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(result, Ok(ptr));
     /// assert_eq!(some_ptr.load(Ordering::SeqCst), new);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub fn fetch_update<F>(
@@ -2000,26 +1665,6 @@ impl<T> AtomicPtr<T> {
     /// // Note: units of `size_of::<i64>()`.
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 8);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -2055,26 +1700,6 @@ impl<T> AtomicPtr<T> {
     /// assert!(core::ptr::eq(atom.fetch_ptr_sub(1, Ordering::Relaxed), &array[1],));
     /// assert!(core::ptr::eq(atom.load(Ordering::Relaxed), &array[0]));
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
@@ -2106,26 +1731,6 @@ impl<T> AtomicPtr<T> {
     /// // Note: in units of bytes, not `size_of::<i64>()`.
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 1);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2169,26 +1774,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.fetch_byte_sub(1, Ordering::Relaxed).addr(), 1);
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 0);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2225,7 +1810,7 @@ impl<T> AtomicPtr<T> {
     /// and using [`Release`] makes the load part [`Relaxed`].
     ///
     /// This API and its claimed semantics are part of the Strict Provenance
-    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// experiment, see the [module documentation for `ptr`][core::ptr] for
     /// details.
     ///
     /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
@@ -2247,26 +1832,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(tagged.addr() & 1, 1);
     /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2303,7 +1868,7 @@ impl<T> AtomicPtr<T> {
     /// and using [`Release`] makes the load part [`Relaxed`].
     ///
     /// This API and its claimed semantics are part of the Strict Provenance
-    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// experiment, see the [module documentation for `ptr`][core::ptr] for
     /// details.
     ///
     /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
@@ -2323,26 +1888,6 @@ impl<T> AtomicPtr<T> {
     /// let untagged = atom.fetch_and(!1, Ordering::Relaxed).map_addr(|a| a & !1);
     /// assert_eq!(untagged, pointer);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2379,7 +1924,7 @@ impl<T> AtomicPtr<T> {
     /// and using [`Release`] makes the load part [`Relaxed`].
     ///
     /// This API and its claimed semantics are part of the Strict Provenance
-    /// experiment, see the [module documentation for `ptr`][crate::ptr] for
+    /// experiment, see the [module documentation for `ptr`][core::ptr] for
     /// details.
     ///
     /// [`map_addr`]: https://doc.rust-lang.org/std/primitive.pointer.html#method.map_addr
@@ -2398,26 +1943,6 @@ impl<T> AtomicPtr<T> {
     /// atom.fetch_xor(1, Ordering::Relaxed);
     /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2464,26 +1989,6 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(tagged.addr() & 1, 1);
     /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2528,26 +2033,6 @@ impl<T> AtomicPtr<T> {
     /// // Untag
     /// assert!(atom.bit_clear(0, Ordering::Relaxed));
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2592,26 +2077,6 @@ impl<T> AtomicPtr<T> {
     /// atom.bit_toggle(0, Ordering::Relaxed);
     /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
     /// ```
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
@@ -2632,26 +2097,6 @@ impl<T> AtomicPtr<T> {
     }
 
     #[cfg(not(miri))]
-    #[cfg_attr(
-        portable_atomic_no_cfg_target_has_atomic,
-        cfg(any(
-            not(portable_atomic_no_atomic_cas),
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
-    #[cfg_attr(
-        not(portable_atomic_no_cfg_target_has_atomic),
-        cfg(any(
-            target_has_atomic = "ptr",
-            portable_atomic_unsafe_assume_single_core,
-            feature = "critical-section",
-            target_arch = "avr",
-            target_arch = "msp430",
-        ))
-    )]
     #[inline]
     fn as_atomic_usize(&self) -> &AtomicUsize {
         static_assert!(
@@ -2664,6 +2109,7 @@ impl<T> AtomicPtr<T> {
         // and both access data in the same way.
         unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
     }
+    } // cfg_atomic_cas!
 
     const_fn! {
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -2672,7 +2118,9 @@ impl<T> AtomicPtr<T> {
         /// Returning an `*mut` pointer from a shared reference to this atomic is
         /// safe because the atomic types work with interior mutability. Any use of
         /// the returned raw pointer requires an `unsafe` block and has to uphold
-        /// the safety requirements:
+        /// the safety requirements. If there is concurrent access, note the following
+        /// additional safety requirements:
+        ///
         /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
         ///   operations on it must be atomic.
         /// - Otherwise, any concurrent operations on it must be compatible with
@@ -2917,6 +2365,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 }
             }
 
+            cfg_atomic_cas! {
             doc_comment! {
                 concat!("Stores a value into the atomic integer, returning the previous value.
 
@@ -2934,26 +2383,6 @@ let some_var = ", stringify!($atomic_type), "::new(5);
 
 assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.swap(val, order)
@@ -2999,26 +2428,6 @@ assert_eq!(
 );
 assert_eq!(some_var.load(Ordering::Relaxed), 10);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
@@ -3073,26 +2482,6 @@ loop {
     }
 }
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
@@ -3129,26 +2518,6 @@ let foo = ", stringify!($atomic_type), "::new(0);
 assert_eq!(foo.fetch_add(10, Ordering::SeqCst), 0);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_add(val, order)
@@ -3180,26 +2549,6 @@ let foo = ", stringify!($atomic_type), "::new(0);
 foo.add(10, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn add(&self, val: $int_type, order: Ordering) {
                     self.inner.add(val, order);
@@ -3225,26 +2574,6 @@ let foo = ", stringify!($atomic_type), "::new(20);
 assert_eq!(foo.fetch_sub(10, Ordering::SeqCst), 20);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_sub(val, order)
@@ -3276,26 +2605,6 @@ let foo = ", stringify!($atomic_type), "::new(20);
 foo.sub(10, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn sub(&self, val: $int_type, order: Ordering) {
                     self.inner.sub(val, order);
@@ -3324,26 +2633,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_and(val, order)
@@ -3381,26 +2670,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn and(&self, val: $int_type, order: Ordering) {
                     self.inner.and(val, order);
@@ -3429,26 +2698,6 @@ let foo = ", stringify!($atomic_type), "::new(0x13);
 assert_eq!(foo.fetch_nand(0x31, Ordering::SeqCst), 0x13);
 assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_nand(val, order)
@@ -3477,26 +2726,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_or(val, order)
@@ -3534,26 +2763,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn or(&self, val: $int_type, order: Ordering) {
                     self.inner.or(val, order);
@@ -3582,26 +2791,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 assert_eq!(foo.fetch_xor(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_xor(val, order)
@@ -3639,26 +2828,6 @@ let foo = ", stringify!($atomic_type), "::new(0b101101);
 foo.xor(0b110011, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn xor(&self, val: $int_type, order: Ordering) {
                     self.inner.xor(val, order);
@@ -3707,26 +2876,6 @@ assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), 
 assert_eq!(x.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |x| Some(x + 1)), Ok(8));
 assert_eq!(x.load(Ordering::SeqCst), 9);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 #[cfg_attr(
                     all(debug_assertions, not(portable_atomic_no_track_caller)),
@@ -3785,26 +2934,6 @@ let bar = 42;
 let max_foo = foo.fetch_max(bar, Ordering::SeqCst).max(bar);
 assert!(max_foo == 42);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_max(val, order)
@@ -3846,26 +2975,6 @@ let bar = 12;
 let min_foo = foo.fetch_min(bar, Ordering::SeqCst).min(bar);
 assert_eq!(min_foo, 12);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_min(val, order)
@@ -3895,26 +3004,6 @@ assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
 assert!(foo.bit_set(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_set(bit, order)
@@ -3942,26 +3031,6 @@ let foo = ", stringify!($atomic_type), "::new(0b0001);
 assert!(foo.bit_clear(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_clear(bit, order)
@@ -3991,26 +3060,6 @@ assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
 assert!(foo.bit_toggle(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_toggle(bit, order)
@@ -4036,26 +3085,6 @@ let foo = ", stringify!($atomic_type), "::new(0);
 assert_eq!(foo.fetch_not(Ordering::Relaxed), 0);
 assert_eq!(foo.load(Ordering::Relaxed), !0);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_not(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_not(order)
@@ -4085,26 +3114,6 @@ let foo = ", stringify!($atomic_type), "::new(0);
 foo.not(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), !0);
 ```"),
-                    #[cfg_attr(
-                        portable_atomic_no_cfg_target_has_atomic,
-                        cfg(any(
-                            not(portable_atomic_no_atomic_cas),
-                            portable_atomic_unsafe_assume_single_core,
-                            feature = "critical-section",
-                            target_arch = "avr",
-                            target_arch = "msp430",
-                        ))
-                    )]
-                    #[cfg_attr(
-                        not(portable_atomic_no_cfg_target_has_atomic),
-                        cfg(any(
-                            target_has_atomic = "ptr",
-                            portable_atomic_unsafe_assume_single_core,
-                            feature = "critical-section",
-                            target_arch = "avr",
-                            target_arch = "msp430",
-                        ))
-                    )]
                     #[inline]
                     pub fn not(&self, order: Ordering) {
                         self.inner.not(order);
@@ -4133,26 +3142,6 @@ assert_eq!(foo.load(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_n
 assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_neg());
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
-                #[cfg_attr(
-                    portable_atomic_no_cfg_target_has_atomic,
-                    cfg(any(
-                        not(portable_atomic_no_atomic_cas),
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
-                #[cfg_attr(
-                    not(portable_atomic_no_cfg_target_has_atomic),
-                    cfg(any(
-                        target_has_atomic = "ptr",
-                        portable_atomic_unsafe_assume_single_core,
-                        feature = "critical-section",
-                        target_arch = "avr",
-                        target_arch = "msp430",
-                    ))
-                )]
                 #[inline]
                 pub fn fetch_neg(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_neg(order)
@@ -4183,32 +3172,13 @@ assert_eq!(foo.load(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_n
 foo.neg(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
-                    #[cfg_attr(
-                        portable_atomic_no_cfg_target_has_atomic,
-                        cfg(any(
-                            not(portable_atomic_no_atomic_cas),
-                            portable_atomic_unsafe_assume_single_core,
-                            feature = "critical-section",
-                            target_arch = "avr",
-                            target_arch = "msp430",
-                        ))
-                    )]
-                    #[cfg_attr(
-                        not(portable_atomic_no_cfg_target_has_atomic),
-                        cfg(any(
-                            target_has_atomic = "ptr",
-                            portable_atomic_unsafe_assume_single_core,
-                            feature = "critical-section",
-                            target_arch = "avr",
-                            target_arch = "msp430",
-                        ))
-                    )]
                     #[inline]
                     pub fn neg(&self, order: Ordering) {
                         self.inner.neg(order);
                     }
                 }
             }
+            } // cfg_atomic_cas!
 
             const_fn! {
                 const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -4217,7 +3187,9 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                 /// Returning an `*mut` pointer from a shared reference to this atomic is
                 /// safe because the atomic types work with interior mutability. Any use of
                 /// the returned raw pointer requires an `unsafe` block and has to uphold
-                /// the safety requirements:
+                /// the safety requirements. If there is concurrent access, note the following
+                /// additional safety requirements:
+                ///
                 /// - If this atomic type is [lock-free](Self::is_lock_free), any concurrent
                 ///   operations on it must be atomic.
                 /// - Otherwise, any concurrent operations on it must be compatible with
@@ -4361,32 +3333,13 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.store(val, order)
             }
 
+            cfg_atomic_cas! {
             /// Stores a value into the atomic float, returning the previous value.
             ///
             /// `swap` takes an [`Ordering`] argument which describes the memory ordering
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.swap(val, order)
@@ -4410,26 +3363,6 @@ This type has the same in-memory representation as the underlying floating point
             /// # Panics
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -4462,26 +3395,6 @@ This type has the same in-memory representation as the underlying floating point
             /// # Panics
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -4503,26 +3416,6 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_add(val, order)
@@ -4536,26 +3429,6 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_sub(val, order)
@@ -4590,26 +3463,6 @@ This type has the same in-memory representation as the underlying floating point
             /// In particular, this method will not circumvent the [ABA Problem].
             ///
             /// [ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub fn fetch_update<F>(
@@ -4642,26 +3495,6 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_max(val, order)
@@ -4678,26 +3511,6 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_min(val, order)
@@ -4711,26 +3524,6 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_neg(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_neg(order)
@@ -4745,30 +3538,11 @@ This type has the same in-memory representation as the underlying floating point
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
-            #[cfg_attr(
-                portable_atomic_no_cfg_target_has_atomic,
-                cfg(any(
-                    not(portable_atomic_no_atomic_cas),
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
-            #[cfg_attr(
-                not(portable_atomic_no_cfg_target_has_atomic),
-                cfg(any(
-                    target_has_atomic = "ptr",
-                    portable_atomic_unsafe_assume_single_core,
-                    feature = "critical-section",
-                    target_arch = "avr",
-                    target_arch = "msp430",
-                ))
-            )]
             #[inline]
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_abs(order)
             }
+            } // cfg_atomic_cas!
 
             #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
@@ -4779,7 +3553,7 @@ portability of this operation (there are almost no issues).
 
 This is `const fn` on Rust 1.58+."),
                 #[inline]
-                pub const fn as_bits(&self) -> &crate::$atomic_int_type {
+                pub const fn as_bits(&self) -> &$atomic_int_type {
                     self.inner.as_bits()
                 }
             }
@@ -4792,7 +3566,7 @@ portability of this operation (there are almost no issues).
 
 This is `const fn` on Rust 1.58+."),
                 #[inline]
-                pub fn as_bits(&self) -> &crate::$atomic_int_type {
+                pub fn as_bits(&self) -> &$atomic_int_type {
                     self.inner.as_bits()
                 }
             }

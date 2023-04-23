@@ -259,6 +259,7 @@ macro_rules! cfg_atomic_64 {
         $($tt)*
     };
 }
+
 macro_rules! cfg_atomic_128 {
     ($($tt:tt)*) => {
         #[cfg_attr(
@@ -315,6 +316,55 @@ macro_rules! cfg_atomic_128 {
         )]
         $($tt)*
     };
+}
+
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(
+        not(portable_atomic_no_atomic_cas),
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    ))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(
+        target_has_atomic = "ptr",
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    ))
+)]
+macro_rules! cfg_atomic_cas {
+    ($($tt:tt)*) => {
+        $($tt)*
+    };
+}
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(any(
+        not(portable_atomic_no_atomic_cas),
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    )))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(not(any(
+        target_has_atomic = "ptr",
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    )))
+)]
+macro_rules! cfg_atomic_cas {
+    ($($tt:tt)*) => {};
 }
 
 // https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3156

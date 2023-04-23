@@ -85,26 +85,7 @@ macro_rules! atomic_float {
             }
         }
 
-        #[cfg_attr(
-            portable_atomic_no_cfg_target_has_atomic,
-            cfg(any(
-                not(portable_atomic_no_atomic_cas),
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-                target_arch = "avr",
-                target_arch = "msp430",
-            ))
-        )]
-        #[cfg_attr(
-            not(portable_atomic_no_cfg_target_has_atomic),
-            cfg(any(
-                target_has_atomic = "ptr",
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-                target_arch = "avr",
-                target_arch = "msp430",
-            ))
-        )]
+        cfg_atomic_cas! {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -200,6 +181,7 @@ macro_rules! atomic_float {
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
             }
         }
+        } // cfg_atomic_cas!
     };
 }
 
