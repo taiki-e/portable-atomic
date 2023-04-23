@@ -347,7 +347,7 @@ macro_rules! atomic_int {
                         target_arch = "powerpc64",
                     ))]
                     {
-                        // HACK: the following operations are currently broken (at least on qemu):
+                        // HACK: the following operations are currently broken (at least on qemu-user):
                         // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
                         // - mips's `AtomicI8::fetch_{max,min}` (release mode)
@@ -396,7 +396,7 @@ macro_rules! atomic_int {
                         target_arch = "powerpc64",
                     ))]
                     {
-                        // HACK: the following operations are currently broken (at least on qemu):
+                        // HACK: the following operations are currently broken (at least on qemu-user):
                         // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
                         // - mips's `AtomicI8::fetch_{max,min}` (release mode)

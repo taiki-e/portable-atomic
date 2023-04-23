@@ -32,48 +32,8 @@ test_atomic_int_pub!(i32);
 test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
-
-// As of QEMU 7.2, using lqarx/stqcx. with qemu-user hangs.
-// To test this, use real powerpc64 hardware or use POWER Functional
-// Simulator. See DEVELOPMENT.md for more.
-#[cfg_attr(
-    all(
-        target_arch = "powerpc64",
-        portable_atomic_unstable_asm_experimental_arch,
-        any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics",
-        ),
-    ),
-    cfg(not(qemu))
-)]
 test_atomic_int_pub!(i128);
-#[cfg_attr(
-    all(
-        target_arch = "powerpc64",
-        portable_atomic_unstable_asm_experimental_arch,
-        any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics",
-        ),
-    ),
-    cfg(not(qemu))
-)]
 test_atomic_int_pub!(u128);
-#[cfg(qemu)]
-#[cfg(all(
-    target_arch = "powerpc64",
-    portable_atomic_unstable_asm_experimental_arch,
-    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
-))]
-test_atomic_int_load_store_pub!(i128);
-#[cfg(qemu)]
-#[cfg(all(
-    target_arch = "powerpc64",
-    portable_atomic_unstable_asm_experimental_arch,
-    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
-))]
-test_atomic_int_load_store_pub!(u128);
 
 #[cfg(feature = "float")]
 test_atomic_float_pub!(f32);

@@ -39,7 +39,9 @@ portable-atomic/
 
 ## Testing powerpc64le using POWER Functional Simulator
 
-We mainly use qemu to test for targets other than x86_64/aarch64, but some instructions do not work well in qemu, so we sometimes use other tools. This section describes testing powerpc64le using IBM [POWER Functional Simulator](https://www.ibm.com/support/pages/node/6491145).
+We mainly use QEMU to test for targets other than x86_64/aarch64, but some instructions do not work well in QEMU, so we sometimes use other tools. This section describes testing powerpc64le using IBM [POWER Functional Simulator](https://www.ibm.com/support/pages/node/6491145).
+
+Note: Since QEMU 8.0, QEMU now supports all the instructions we use.
 
 <!-- omit in toc -->
 ### Setup

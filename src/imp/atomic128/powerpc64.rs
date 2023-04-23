@@ -292,37 +292,6 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
             }
         }
-        #[cfg(test)]
-        paste::paste! {
-            // Helper to test $op separately.
-            unsafe fn [<$name _op>](dst: *mut u128, val: u128) -> u128 {
-                debug_assert!(dst as usize % 16 == 0);
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    let val = U128 { whole: val };
-                    let (mut prev_hi, mut prev_lo);
-                    asm!(
-                        "lq %r6, 0({dst})",
-                        $($op)*
-                        "stq %r8, 0({dst})",
-                        dst = in(reg) dst,
-                        val_hi = in(reg) val.pair.hi,
-                        val_lo = in(reg) val.pair.lo,
-                        $($reg)*
-                        out("r0") _,
-                        // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                        // We cannot use r1 and r2, so starting with r4.
-                        out("r6") prev_hi,
-                        out("r7") prev_lo,
-                        out("r8") _, // new (hi)
-                        out("r9") _, // new (lo)
-                        out("cr0") _,
-                        options(nostack),
-                    );
-                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-                }
-            }
-        }
     };
 }
 /// Atomic RMW by LL/SC loop (2 arguments)
@@ -365,34 +334,6 @@ macro_rules! atomic_rmw_ll_sc_2 {
                 }
                 atomic_rmw!(op, order);
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-            }
-        }
-        #[cfg(test)]
-        paste::paste! {
-            // Helper to test $op separately.
-            unsafe fn [<$name _op>](dst: *mut u128) -> u128 {
-                debug_assert!(dst as usize % 16 == 0);
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    let (mut prev_hi, mut prev_lo);
-                    asm!(
-                        "lq %r6, 0({dst})",
-                        $($op)*
-                        "stq %r8, 0({dst})",
-                        dst = in(reg) dst,
-                        $($reg)*
-                        out("r0") _,
-                        // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                        // We cannot use r1 and r2, so starting with r4.
-                        out("r6") prev_hi,
-                        out("r7") prev_lo,
-                        out("r8") _, // new (hi)
-                        out("r9") _, // new (lo)
-                        out("cr0") _,
-                        options(nostack),
-                    );
-                    U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-                }
             }
         }
     };
@@ -498,27 +439,11 @@ atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 mod tests {
     use super::*;
 
-    #[cfg(not(qemu))]
     test_atomic_int!(i128);
-    #[cfg(not(qemu))]
     test_atomic_int!(u128);
-    // As of QEMU 7.2, using lqarx/stqcx. with qemu-user hangs.
-    // To test this, use real powerpc64 hardware or use POWER Functional
-    // Simulator. See DEVELOPMENT.md for more.
-    #[cfg(qemu)]
-    test_atomic_int_load_store!(i128);
-    #[cfg(qemu)]
-    test_atomic_int_load_store!(u128);
 
     // load/store/swap implementation is not affected by signedness, so it is
     // enough to test only unsigned types.
     stress_test_load_store!(u128);
-    #[cfg(not(qemu))]
     stress_test_load_swap!(u128);
-
-    // Test operation parts of LL/SC-based atomic RMW implementations separately.
-    //
-    // This allows testing more code on QEMU while avoiding the problem of some
-    // atomic instructions not working on QEMU.
-    test_atomic128_op!();
 }
