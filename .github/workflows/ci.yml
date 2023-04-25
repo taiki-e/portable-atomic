@@ -139,7 +139,7 @@ jobs:
       - run: sysctl hw.optional machdep.cpu
         if: startsWith(matrix.os, 'macos')
       - name: Install Rust
-        run: rustup toolchain add ${{ matrix.rust }} --no-self-update --component rust-src && rustup default ${{ matrix.rust }}
+        run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - run: rustup toolchain add nightly --no-self-update
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
@@ -278,7 +278,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Rust
-        run: rustup toolchain add ${{ matrix.rust }} --no-self-update --component rust-src && rustup default ${{ matrix.rust }}
+        run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-no-dev-deps
       - run: tools/build.sh
@@ -362,7 +362,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+        run: rustup toolchain add nightly --no-self-update && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
           echo "ASAN_OPTIONS=detect_stack_use_after_return=1" >>"${GITHUB_ENV}"
@@ -395,7 +395,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+        run: rustup toolchain add nightly --no-self-update && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
       - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '

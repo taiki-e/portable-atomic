@@ -2305,8 +2305,9 @@ macro_rules! stress_test_load_store {
         }
     };
 }
-macro_rules! stress_test_load_swap {
+macro_rules! stress_test {
     ($int_type:ident) => {
+        stress_test_load_store!($int_type);
         // debug mode is slow.
         #[cfg(any(not(debug_assertions), miri))]
         paste::paste! {

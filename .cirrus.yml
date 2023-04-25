@@ -22,7 +22,7 @@ aarch64_linux_gnu_test_task:
       setup_script:
         - set -ex
         - lscpu
-        - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+        - rustup toolchain add nightly --no-self-update && rustup default nightly
     - name: test ($TARGET, glibc 2.17)
       arm_container:
         # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
@@ -31,7 +31,7 @@ aarch64_linux_gnu_test_task:
         - set -ex
         - lscpu
         - yum install -y gcc git
-        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+        - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
   test_script:
     - |
       [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
@@ -52,7 +52,7 @@ aarch64_linux_musl_test_task:
     - set -ex
     - apk --no-cache add bash git musl-dev util-linux
     - lscpu
-    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+    - rustup toolchain add nightly --no-self-update && rustup default nightly
   test_script:
     - set -ex
     - ./tools/test.sh -vv -- -Z unstable-options --report-time
@@ -77,7 +77,7 @@ arm_linux_test_task:
   setup_script:
     - set -ex
     - lscpu
-    - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+    - rustup toolchain add nightly --no-self-update && rustup default nightly
     - dpkg --add-architecture "$DPKG_ARCH"
     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH"
   test_script:
@@ -95,7 +95,7 @@ aarch64_macos_test_task:
   setup_script:
     - set -ex
     - sysctl hw.optional machdep.cpu
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
   test_script:
     - . $HOME/.cargo/env
     - set -ex
@@ -105,8 +105,8 @@ aarch64_macos_test_task:
 aarch64_linux_valgrind_task:
   name: valgrind ($TARGET)
   env:
-    VALGRIND: valgrind
     TARGET: aarch64-unknown-linux-gnu
+    VALGRIND: valgrind
   arm_container:
     # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
     # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
@@ -114,7 +114,7 @@ aarch64_linux_valgrind_task:
   setup_script:
     - set -ex
     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind moreutils
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
   test_script:
     - . $HOME/.cargo/env
     - set -ex
@@ -174,7 +174,7 @@ aarch64_linux_valgrind_task:
 #   setup_script:
 #     - set -ex
 #     - lscpu
-#     - rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+#     - rustup toolchain add nightly --no-self-update && rustup default nightly
 #     - rustup target add "$TARGET"
 #     - dpkg --add-architecture "$DPKG_ARCH"
 #     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH"
@@ -193,7 +193,7 @@ aarch64_linux_valgrind_task:
 #   setup_script:
 #     - set -ex
 #     - sysctl hw.optional machdep.cpu
-#     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --component rust-src
+#     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
 #   bench_script:
 #     - . $HOME/.cargo/env
 #     - set -ex

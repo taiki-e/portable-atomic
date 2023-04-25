@@ -218,7 +218,7 @@ fn main() {
             // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
             let mut is_mclass = false;
             match subarch {
-                "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8a" => {} // aclass
+                "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8a" | "v9a" => {} // aclass
                 "v6m" | "v7em" | "v7m" | "v8m" => is_mclass = true,
                 "v7r" | "v8r" => {} // rclass
                 // arm-linux-androideabi is v5te
@@ -241,7 +241,8 @@ fn main() {
             let v6 = known
                 && (subarch.starts_with("v6")
                     || subarch.starts_with("v7")
-                    || subarch.starts_with("v8"));
+                    || subarch.starts_with("v8")
+                    || subarch.starts_with("v9"));
             target_feature_if("v6", v6, &version, None, true);
         }
         "powerpc64" => {
@@ -263,9 +264,9 @@ fn main() {
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
-            // lqarx and stqcx.
             // Note: As of rustc 1.69, target_feature "quadword-atomics" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
+            // lqarx and stqcx.
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
         _ => {}

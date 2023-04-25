@@ -10,9 +10,10 @@ use core::ops;
 macro_rules! cfg_fast_atomic_64 {
     ($($tt:tt)*) => {
         #[cfg(any(
-            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
             target_arch = "aarch64",
             target_arch = "bpf",
+            target_arch = "loongarch64",
             target_arch = "mips64",
             target_arch = "nvptx64",
             target_arch = "powerpc64",
@@ -28,9 +29,10 @@ macro_rules! cfg_fast_atomic_64 {
 macro_rules! cfg_no_fast_atomic_64 {
     ($($tt:tt)*) => {
         #[cfg(not(any(
-            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
             target_arch = "aarch64",
             target_arch = "bpf",
+            target_arch = "loongarch64",
             target_arch = "mips64",
             target_arch = "nvptx64",
             target_arch = "powerpc64",
