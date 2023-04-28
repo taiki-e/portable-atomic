@@ -67,6 +67,9 @@ See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-a
 - **`std`**<br>
   Use `std`.
 
+- **`require-cas`**<br>
+  Emit compile error if atomic CAS is not available. See [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.
+
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
 
