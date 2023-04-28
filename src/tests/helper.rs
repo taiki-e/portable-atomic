@@ -2172,9 +2172,9 @@ macro_rules! __stress_test_seqcst {
             || option_env!("MSAN_OPTIONS").is_some()
         {
             50
-        } else if env::var_os("CI").is_some() && cfg!(not(target_os = "linux")) {
+        } else if env::var_os("GITHUB_ACTIONS").is_some() && cfg!(not(target_os = "linux")) {
             // GitHub Actions' macOS and Windows runners are slow.
-            10_000
+            5_000
         } else {
             50_000
         };
