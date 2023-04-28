@@ -10,3 +10,32 @@ updates:
       # see tools/codegen/Cargo.toml
       - dependency-name: globset
     labels: []
+  # crates with [workspace] table are not recognized by the above 'directory: /'
+  - package-ecosystem: cargo
+    directory: /tests/avr
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ''
+    labels: []
+  - package-ecosystem: cargo
+    directory: /tests/gba
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ''
+    labels: []
+  - package-ecosystem: cargo
+    directory: /tests/no-std-qemu
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ''
+    labels: []
+  - package-ecosystem: cargo
+    directory: /tests/xtensa
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: ''
+    labels: []
