@@ -2161,14 +2161,20 @@ macro_rules! __stress_test_seqcst {
     ($atomic_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
         use super::*;
         use crossbeam_utils::thread;
-        use std::sync::atomic::{AtomicUsize, Ordering};
-        const N: usize = if cfg!(miri) {
+        use std::{
+            env,
+            sync::atomic::{AtomicUsize, Ordering},
+        };
+        let n: usize = if cfg!(miri) {
             8
         } else if cfg!(valgrind)
             || option_env!("ASAN_OPTIONS").is_some()
             || option_env!("MSAN_OPTIONS").is_some()
         {
             50
+        } else if env::var_os("CI").is_some() && cfg!(not(target_os = "linux")) {
+            // GitHub Actions' macOS and Windows runners are slow.
+            10_000
         } else {
             50_000
         };
@@ -2177,7 +2183,7 @@ macro_rules! __stress_test_seqcst {
         let c = &AtomicUsize::new(0);
         let ready = &AtomicUsize::new(0);
         thread::scope(|s| {
-            for n in 0..N {
+            for n in 0..n {
                 a.store(0, Ordering::Relaxed);
                 b.store(0, Ordering::Relaxed);
                 c.store(0, Ordering::Relaxed);
