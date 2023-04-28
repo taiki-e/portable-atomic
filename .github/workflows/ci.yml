@@ -299,6 +299,8 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: espup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           set -euxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
@@ -315,6 +317,8 @@ jobs:
           sudo mv "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
           rm -rf "opensbi-${OPENSBI_VERSION}-rv-bin"
       - run: espup install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32-none-elf
       - run: tools/no-std.sh +esp xtensa-esp32-none-elf

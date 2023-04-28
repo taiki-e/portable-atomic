@@ -141,15 +141,16 @@ run() {
         x_cargo ${pre_args[@]+"${pre_args[@]}"} test ${tests[@]+"${tests[@]}"} "$@"
     fi
 
+    # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
     if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-            x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
+            x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests "$@"
     else
-        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release ${tests[@]+"${tests[@]}"} "$@"
+        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests "$@"
     fi
 
-    # LTO + doctests is very slow on some platforms
+    # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
         CARGO_PROFILE_RELEASE_LTO=fat \
         x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests --target-dir target/fat-lto "$@"
