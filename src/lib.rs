@@ -365,8 +365,8 @@ compile_error!(
     ))
 )]
 compile_error!(
-    "cfg(portable_atomic_unsafe_assume_single_core) does not compatible with this target; \
-     if you need cfg(portable_atomic_unsafe_assume_single_core) support for this target, \
+    "cfg(portable_atomic_unsafe_assume_single_core) does not compatible with this target;\n\
+     if you need cfg(portable_atomic_unsafe_assume_single_core) support for this target,\n\
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
@@ -400,6 +400,33 @@ compile_error!(
 #[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]
 compile_error!(
     "you may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time"
+);
+
+#[cfg(feature = "require-cas")]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(not(any(
+        not(portable_atomic_no_atomic_cas),
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    )))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(not(any(
+        target_has_atomic = "ptr",
+        portable_atomic_unsafe_assume_single_core,
+        feature = "critical-section",
+        target_arch = "avr",
+        target_arch = "msp430",
+    )))
+)]
+compile_error!(
+    "dependents require atomic CAS but not available on this target by default;\n\
+    consider using portable_atomic_unsafe_assume_single_core cfg or critical-section feature.\n\
+    see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-cfg> for more."
 );
 
 #[cfg(any(test, feature = "std"))]

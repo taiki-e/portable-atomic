@@ -44,6 +44,9 @@ float = []
 # Use `std`.
 std = []
 
+# Emit compile error if atomic CAS is not available.
+require-cas = []
+
 # Note: serde and critical-section are public dependencies.
 [dependencies]
 # Implements serde::{Serialize,Deserialize} for atomic types.

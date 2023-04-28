@@ -427,9 +427,13 @@ build() {
                 else
                     echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
-                # portable-atomic-util uses atomic CAS, so doesn't work on
-                # this target without portable_atomic_unsafe_assume_single_core cfg.
-                args+=(--exclude portable-atomic-util)
+                # portable-atomic-util crate and portable-atomic's require-cas feature require atomic CAS,
+                # so doesn't work on this target without portable_atomic_unsafe_assume_single_core cfg
+                # or critical-section feature.
+                args+=(
+                    --exclude portable-atomic-util
+                    --exclude-features require-cas
+                )
             fi
         fi
     fi
