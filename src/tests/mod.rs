@@ -131,7 +131,7 @@ fn test_is_lock_free() {
     } else {
         assert!(!AtomicI128::is_always_lock_free());
         assert!(!AtomicU128::is_always_lock_free());
-        #[cfg(not(target_arch = "x86_64"))]
+        #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64")))]
         {
             assert!(!AtomicI128::is_lock_free());
             assert!(!AtomicU128::is_lock_free());
@@ -149,6 +149,10 @@ fn test_is_lock_free() {
             )) && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);
+        }
+        #[cfg(target_arch = "powerpc64")]
+        {
+            // TODO(powerpc64): is_powerpc_feature_detected is unstable
         }
     }
 }

@@ -30,6 +30,7 @@ cpsid
 cpsie
 CPSR
 cpuid
+cputable
 crand
 crandc
 cror

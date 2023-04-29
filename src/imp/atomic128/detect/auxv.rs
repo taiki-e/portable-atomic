@@ -47,13 +47,23 @@
 // but FreeBSD 11 (11.4) was EoL on 2021-09-30, and FreeBSD 11.3 was EoL on 2020-09-30:
 // https://www.freebsd.org/security/unsupported
 // See also https://github.com/rust-lang/stdarch/pull/611#issuecomment-445464613
+//
+// # PowerPC64
+//
+// On PowerPC64, outline-atomics is currently disabled by default mainly for
+// compatibility with older versions of operating systems
+// (can be enabled by `--cfg portable_atomic_outline_atomics`).
 
+#[cfg(target_arch = "aarch64")]
 pub(crate) use ffi::AT_HWCAP;
+#[cfg(target_arch = "powerpc64")]
+pub(crate) use ffi::AT_HWCAP2;
 use os::ffi;
 pub(crate) use os::getauxval;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    #[allow(dead_code)]
     pub(super) mod ffi {
         pub(crate) use super::super::super::c_types::c_ulong;
 
@@ -72,6 +82,7 @@ mod os {
 
         // https://github.com/torvalds/linux/blob/v6.1/include/uapi/linux/auxvec.h
         pub(crate) const AT_HWCAP: c_ulong = 16;
+        pub(crate) const AT_HWCAP2: c_ulong = 26;
     }
 
     pub(crate) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
@@ -82,6 +93,7 @@ mod os {
 #[cfg(target_os = "freebsd")]
 mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    #[allow(dead_code)]
     pub(super) mod ffi {
         pub(crate) use super::super::super::c_types::{c_int, c_ulong, c_void};
 
@@ -95,6 +107,7 @@ mod os {
         // Defined in sys/elf_common.h.
         // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/elf_common.h
         pub(crate) const AT_HWCAP: c_int = 25;
+        pub(crate) const AT_HWCAP2: c_int = 26;
     }
 
     pub(crate) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
@@ -135,6 +148,19 @@ pub(crate) mod arch {
     pub(crate) const HWCAP_ATOMICS: c_ulong = 1 << 8;
     #[cfg(test)]
     pub(crate) const HWCAP_USCAT: c_ulong = 1 << 25;
+}
+#[cfg(target_arch = "powerpc64")]
+pub(crate) mod arch {
+    pub(crate) use super::ffi::c_ulong;
+
+    // Linux
+    // https://github.com/torvalds/linux/blob/v6.1/arch/powerpc/include/uapi/asm/cputable.h
+    // FreeBSD
+    // Defined in machine/cpu.h.
+    // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/powerpc/include/cpu.h
+    // available on FreeBSD 11.0+
+    // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
+    pub(crate) const PPC_FEATURE2_ARCH_2_07: c_ulong = 0x80000000;
 }
 
 #[allow(
@@ -187,12 +213,22 @@ mod tests {
         #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
         static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
         static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as _);
+        #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
+        static_assert!(ffi::AT_HWCAP2 == libc::AT_HWCAP2);
+        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as _);
         #[cfg(target_arch = "aarch64")]
         {
             // static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS); // libc doesn't have this
             static_assert!(arch::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
             // static_assert!(HWCAP_USCAT == libc::HWCAP_USCAT); // libc doesn't have this
             static_assert!(arch::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
+        }
+        #[cfg(target_arch = "powerpc64")]
+        {
+            // static_assert!(arch::PPC_FEATURE2_ARCH_2_07 == libc::PPC_FEATURE2_ARCH_2_07); // libc doesn't have this
+            static_assert!(
+                arch::PPC_FEATURE2_ARCH_2_07 == sys::PPC_FEATURE2_ARCH_2_07 as ffi::c_ulong
+            );
         }
     };
 }
