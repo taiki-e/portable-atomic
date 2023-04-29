@@ -27,7 +27,89 @@
 
 include!("macros.rs");
 
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
+#[path = "../fallback/outline_atomics.rs"]
+mod fallback;
+
+// On musl with static linking, it seems that getauxval is not always available.
+// See detect/auxv.rs for more.
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(test, portable_atomic_outline_atomics))] // TODO(powerpc64): currently disabled by default
+#[cfg(any(
+    test,
+    not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )),
+))]
+#[cfg(any(
+    all(
+        target_os = "linux",
+        any(
+            target_env = "gnu",
+            all(target_env = "musl", not(target_feature = "crt-static")),
+            portable_atomic_outline_atomics,
+        ),
+    ),
+    target_os = "freebsd",
+))]
+#[path = "detect/powerpc64_auxv.rs"]
+mod detect;
+
 use core::{arch::asm, sync::atomic::Ordering};
+
+macro_rules! debug_assert_pwr8 {
+    () => {
+        #[cfg(not(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        )))]
+        {
+            debug_assert!(detect::detect().has_quadword_atomics());
+        }
+    };
+}
+
+// https://www.ibm.com/docs/en/aix/7.3?topic=ops-machine-pseudo-op
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
+macro_rules! start_pwr8 {
+    () => {
+        ".machine push\n.machine power8"
+    };
+}
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
+macro_rules! end_pwr8 {
+    () => {
+        ".machine pop"
+    };
+}
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+macro_rules! start_pwr8 {
+    () => {
+        ""
+    };
+}
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+macro_rules! end_pwr8 {
+    () => {
+        ""
+    };
+}
 
 /// A 128-bit value represented as a pair of 64-bit values.
 ///
@@ -64,7 +146,64 @@ macro_rules! atomic_rmw {
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+    #[cfg(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    ))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        atomic_load_pwr8(src, order)
+    }
+    #[cfg(not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        fn_alias! {
+            // inline(never) is not strictly necessary, but is used for clarity.
+            #[inline(never)]
+            unsafe fn(src: *mut u128) -> u128;
+            atomic_load_pwr8_relaxed = atomic_load_pwr8(Ordering::Relaxed);
+            atomic_load_pwr8_acquire = atomic_load_pwr8(Ordering::Acquire);
+            atomic_load_pwr8_seqcst = atomic_load_pwr8(Ordering::SeqCst);
+        }
+        match order {
+            Ordering::Relaxed => {
+                ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_load_pwr8_relaxed
+                    } else {
+                        fallback::atomic_load_non_seqcst
+                    }
+                })
+            }
+            Ordering::Acquire => {
+                ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_load_pwr8_acquire
+                    } else {
+                        fallback::atomic_load_non_seqcst
+                    }
+                })
+            }
+            Ordering::SeqCst => {
+                ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_load_pwr8_seqcst
+                    } else {
+                        fallback::atomic_load_seqcst
+                    }
+                })
+            }
+            _ => unreachable!("{:?}", order),
+        }
+    }
+}
+#[inline]
+unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
+    debug_assert_pwr8!();
 
     // SAFETY: the caller must uphold the safety contract.
     //
@@ -74,6 +213,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         macro_rules! atomic_load_acquire {
             ($release:tt) => {
                 asm!(
+                    start_pwr8!(),
                     $release,
                     "lq %r4, 0({src})",
                     // Lightweight acquire sync
@@ -82,6 +222,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     "bne- %cr7, 2f",
                     "2:",
                     "isync",
+                    end_pwr8!(),
                     src = in(reg) src,
                     out("r0") _,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
@@ -96,7 +237,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         match order {
             Ordering::Relaxed => {
                 asm!(
+                    start_pwr8!(),
                     "lq %r4, 0({src})",
+                    end_pwr8!(),
                     src = in(reg) src,
                     out("r0") _,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
@@ -116,7 +259,64 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+    #[cfg(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    ))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        atomic_store_pwr8(dst, val, order);
+    }
+    #[cfg(not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        fn_alias! {
+            // inline(never) is not strictly necessary, but is used for clarity.
+            #[inline(never)]
+            unsafe fn(dst: *mut u128, val: u128);
+            atomic_store_pwr8_relaxed = atomic_store_pwr8(Ordering::Relaxed);
+            atomic_store_pwr8_release = atomic_store_pwr8(Ordering::Release);
+            atomic_store_pwr8_seqcst = atomic_store_pwr8(Ordering::SeqCst);
+        }
+        match order {
+            Ordering::Relaxed => {
+                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_store_pwr8_relaxed
+                    } else {
+                        fallback::atomic_store_non_seqcst
+                    }
+                });
+            }
+            Ordering::Release => {
+                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_store_pwr8_release
+                    } else {
+                        fallback::atomic_store_non_seqcst
+                    }
+                });
+            }
+            Ordering::SeqCst => {
+                ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                    if detect::detect().has_quadword_atomics() {
+                        atomic_store_pwr8_seqcst
+                    } else {
+                        fallback::atomic_store_seqcst
+                    }
+                });
+            }
+            _ => unreachable!("{:?}", order),
+        }
+    }
+}
+#[inline]
+unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
+    debug_assert_pwr8!();
 
     // SAFETY: the caller must uphold the safety contract.
     //
@@ -126,8 +326,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         macro_rules! atomic_store {
             ($release:tt) => {
                 asm!(
+                    start_pwr8!(),
                     $release,
                     "stq %r4, 0({dst})",
+                    end_pwr8!(),
                     dst = in(reg) dst,
                     out("r0") _,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
@@ -155,8 +357,35 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
+    let success = crate::utils::upgrade_success_ordering(success, failure);
+
+    #[cfg(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    ))]
+    // SAFETY: the caller must uphold the safety contract.
+    let (res, ok) = unsafe { atomic_compare_exchange_pwr8(dst, old, new, success) };
+    #[cfg(not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )))]
+    // SAFETY: the caller must uphold the safety contract.
+    let (res, ok) = unsafe { atomic_compare_exchange_ifunc(dst, old, new, success) };
+    if ok {
+        Ok(res)
+    } else {
+        Err(res)
+    }
+}
+#[inline]
+unsafe fn atomic_compare_exchange_pwr8(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    order: Ordering,
+) -> (u128, bool) {
     debug_assert!(dst as usize % 16 == 0);
-    let order = crate::utils::upgrade_success_ordering(success, failure);
+    debug_assert_pwr8!();
 
     // SAFETY: the caller must uphold the safety contract.
     //
@@ -168,6 +397,7 @@ unsafe fn atomic_compare_exchange(
         macro_rules! cmpxchg {
             ($acquire:tt, $release:tt) => {
                 asm!(
+                    start_pwr8!(),
                     $release,
                     "2:",
                         "lqarx %r8, 0, {dst}",
@@ -179,6 +409,7 @@ unsafe fn atomic_compare_exchange(
                         "bne %cr0, 2b",
                     "3:",
                     $acquire,
+                    end_pwr8!(),
                     dst = in(reg) dst,
                     old_hi = in(reg) old.pair.hi,
                     old_lo = in(reg) old.pair.lo,
@@ -199,21 +430,23 @@ unsafe fn atomic_compare_exchange(
         atomic_rmw!(cmpxchg, order);
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if res == old {
-        Ok(res)
-    } else {
-        Err(res)
-    }
+    (res, res == old)
 }
 
 // LLVM appears to generate strong CAS for powerpc64 128-bit weak CAS,
 // so we always use strong CAS for now.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+use atomic_swap_pwr8 as atomic_swap;
 // Do not use atomic_rmw_ll_sc_3 because it needs extra MR to implement swap.
 #[inline]
-unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+unsafe fn atomic_swap_pwr8(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
+    debug_assert_pwr8!();
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -222,12 +455,14 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! swap {
             ($acquire:tt, $release:tt) => {
                 asm!(
+                    start_pwr8!(),
                     $release,
                     "2:",
                         "lqarx %r6, 0, {dst}",
                         "stqcx. %r8, 0, {dst}",
                         "bne %cr0, 2b",
                     $acquire,
+                    end_pwr8!(),
                     dst = in(reg) dst,
                     out("r0") _,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
@@ -254,10 +489,16 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 /// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
-    ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
+    ($name:ident as $reexport_name:ident, [$($reg:tt)*], $($op:tt)*) => {
+        #[cfg(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        ))]
+        use $name as $reexport_name;
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
+            debug_assert_pwr8!();
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
                 let val = U128 { whole: val };
@@ -265,6 +506,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 macro_rules! op {
                     ($acquire:tt, $release:tt) => {
                         asm!(
+                            start_pwr8!(),
                             $release,
                             "2:",
                                 "lqarx %r6, 0, {dst}",
@@ -272,6 +514,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                                 "stqcx. %r8, 0, {dst}",
                                 "bne %cr0, 2b",
                             $acquire,
+                            end_pwr8!(),
                             dst = in(reg) dst,
                             val_hi = in(reg) val.pair.hi,
                             val_lo = in(reg) val.pair.lo,
@@ -301,16 +544,23 @@ macro_rules! atomic_rmw_ll_sc_3 {
 /// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
 /// - r8/r9 pair: new value that will to stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
-    ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
+    ($name:ident as $reexport_name:ident, [$($reg:tt)*], $($op:tt)*) => {
+        #[cfg(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        ))]
+        use $name as $reexport_name;
         #[inline]
         unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
+            debug_assert_pwr8!();
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
                 let (mut prev_hi, mut prev_lo);
                 macro_rules! op {
                     ($acquire:tt, $release:tt) => {
                         asm!(
+                            start_pwr8!(),
                             $release,
                             "2:",
                                 "lqarx %r6, 0, {dst}",
@@ -318,6 +568,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                                 "stqcx. %r8, 0, {dst}",
                                 "bne %cr0, 2b",
                             $acquire,
+                            end_pwr8!(),
                             dst = in(reg) dst,
                             $($reg)*
                             out("r0") _,
@@ -340,97 +591,282 @@ macro_rules! atomic_rmw_ll_sc_2 {
 }
 
 atomic_rmw_ll_sc_3! {
-    atomic_add, [],
+    atomic_add_pwr8 as atomic_add, [],
     "addc %r9, {val_lo}, %r7",
     "adde %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_sub, [],
+    atomic_sub_pwr8 as atomic_sub, [],
     "subc %r9, %r7, {val_lo}",
     "subfe %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_and, [],
+    atomic_and_pwr8 as atomic_and, [],
     "and %r9, {val_lo}, %r7",
     "and %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_nand, [],
+    atomic_nand_pwr8 as atomic_nand, [],
     "nand %r9, {val_lo}, %r7",
     "nand %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_or, [],
+    atomic_or_pwr8 as atomic_or, [],
     "or %r9, {val_lo}, %r7",
     "or %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_xor, [],
+    atomic_xor_pwr8 as atomic_xor, [],
     "xor %r9, {val_lo}, %r7",
     "xor %r8, {val_hi}, %r6",
 }
+atomic_rmw_ll_sc_3! {
+    atomic_max_pwr8 as atomic_max, [out("cr1") _,],
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
+    "crandc 20, 5, 2",
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
+    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+}
+atomic_rmw_ll_sc_3! {
+    atomic_umax_pwr8 as atomic_umax, [out("cr1") _,],
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crandc 20, 1, 2",
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
+    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+}
+atomic_rmw_ll_sc_3! {
+    atomic_min_pwr8 as atomic_min, [out("cr1") _,],
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
+    "crandc 20, 5, 2",
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
+    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+}
+atomic_rmw_ll_sc_3! {
+    atomic_umin_pwr8 as atomic_umin, [out("cr1") _,],
+    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
+    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
+    "crandc 20, 1, 2",
+    "crand 21, 2, 5",
+    "cror 20, 21, 20",
+    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
+    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+}
 
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+use atomic_not_pwr8 as atomic_not;
 #[inline]
-unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
+unsafe fn atomic_not_pwr8(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_xor(dst, core::u128::MAX, order) }
+    unsafe { atomic_xor_pwr8(dst, core::u128::MAX, order) }
 }
 
 atomic_rmw_ll_sc_2! {
-    atomic_neg, [zero = in(reg) 0_u64,],
+    atomic_neg_pwr8 as atomic_neg, [zero = in(reg) 0_u64,],
     // TODO: can we use subfic (Subtract from Immediate Carrying) here?
     "subc %r9, {zero}, %r7",
     "subfze %r8, %r6",
 }
 
-atomic_rmw_ll_sc_3! {
-    atomic_max, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-    "crandc 20, 5, 2",
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+macro_rules! atomic_rmw_with_ifunc {
+    (
+        unsafe fn $name:ident($($arg:tt)*) $(-> $ret_ty:ty)?;
+        pwr8 = $pwr8_fn:ident;
+        non_seqcst_fallback = $non_seqcst_fallback_fn:ident;
+        seqcst_fallback = $seqcst_fallback_fn:ident;
+    ) => {
+        #[cfg(not(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        )))]
+        #[inline]
+        unsafe fn $name($($arg)*, order: Ordering) $(-> $ret_ty)? {
+            fn_alias! {
+                // inline(never) is not strictly necessary, but is used for clarity.
+                #[inline(never)]
+                unsafe fn($($arg)*) $(-> $ret_ty)?;
+                pwr8_relaxed_fn = $pwr8_fn(Ordering::Relaxed);
+                pwr8_acquire_fn = $pwr8_fn(Ordering::Acquire);
+                pwr8_release_fn = $pwr8_fn(Ordering::Release);
+                pwr8_acqrel_fn = $pwr8_fn(Ordering::AcqRel);
+                pwr8_seqcst_fn = $pwr8_fn(Ordering::SeqCst);
+            }
+            // SAFETY: the caller must uphold the safety contract.
+            // we only calls pwr8_fn if quadword-atomics is available.
+            unsafe {
+                match order {
+                    Ordering::Relaxed => {
+                        ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                            if detect::detect().has_quadword_atomics() {
+                                pwr8_relaxed_fn
+                            } else {
+                                fallback::$non_seqcst_fallback_fn
+                            }
+                        })
+                    }
+                    Ordering::Acquire => {
+                        ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                            if detect::detect().has_quadword_atomics() {
+                                pwr8_acquire_fn
+                            } else {
+                                fallback::$non_seqcst_fallback_fn
+                            }
+                        })
+                    }
+                    Ordering::Release => {
+                        ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                            if detect::detect().has_quadword_atomics() {
+                                pwr8_release_fn
+                            } else {
+                                fallback::$non_seqcst_fallback_fn
+                            }
+                        })
+                    }
+                    Ordering::AcqRel => {
+                        ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                            if detect::detect().has_quadword_atomics() {
+                                pwr8_acqrel_fn
+                            } else {
+                                fallback::$non_seqcst_fallback_fn
+                            }
+                        })
+                    }
+                    Ordering::SeqCst => {
+                        ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
+                            if detect::detect().has_quadword_atomics() {
+                                pwr8_seqcst_fn
+                            } else {
+                                fallback::$seqcst_fallback_fn
+                            }
+                        })
+                    }
+                    _ => unreachable!("{:?}", order),
+                }
+            }
+        }
+    };
 }
-atomic_rmw_ll_sc_3! {
-    atomic_umax, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crandc 20, 1, 2",
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_compare_exchange_ifunc(dst: *mut u128, old: u128, new: u128) -> (u128, bool);
+    pwr8 = atomic_compare_exchange_pwr8;
+    non_seqcst_fallback = atomic_compare_exchange_non_seqcst;
+    seqcst_fallback = atomic_compare_exchange_seqcst;
 }
-atomic_rmw_ll_sc_3! {
-    atomic_min, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-    "crandc 20, 5, 2",
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_swap(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_swap_pwr8;
+    non_seqcst_fallback = atomic_swap_non_seqcst;
+    seqcst_fallback = atomic_swap_seqcst;
 }
-atomic_rmw_ll_sc_3! {
-    atomic_umin, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crandc 20, 1, 2",
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_add(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_add_pwr8;
+    non_seqcst_fallback = atomic_add_non_seqcst;
+    seqcst_fallback = atomic_add_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_sub(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_sub_pwr8;
+    non_seqcst_fallback = atomic_sub_non_seqcst;
+    seqcst_fallback = atomic_sub_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_and(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_and_pwr8;
+    non_seqcst_fallback = atomic_and_non_seqcst;
+    seqcst_fallback = atomic_and_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_nand(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_nand_pwr8;
+    non_seqcst_fallback = atomic_nand_non_seqcst;
+    seqcst_fallback = atomic_nand_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_or(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_or_pwr8;
+    non_seqcst_fallback = atomic_or_non_seqcst;
+    seqcst_fallback = atomic_or_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_xor(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_xor_pwr8;
+    non_seqcst_fallback = atomic_xor_non_seqcst;
+    seqcst_fallback = atomic_xor_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_max(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_max_pwr8;
+    non_seqcst_fallback = atomic_max_non_seqcst;
+    seqcst_fallback = atomic_max_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_umax(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_umax_pwr8;
+    non_seqcst_fallback = atomic_umax_non_seqcst;
+    seqcst_fallback = atomic_umax_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_min(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_min_pwr8;
+    non_seqcst_fallback = atomic_min_non_seqcst;
+    seqcst_fallback = atomic_min_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_umin(dst: *mut u128, val: u128) -> u128;
+    pwr8 = atomic_umin_pwr8;
+    non_seqcst_fallback = atomic_umin_non_seqcst;
+    seqcst_fallback = atomic_umin_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_not(dst: *mut u128) -> u128;
+    pwr8 = atomic_not_pwr8;
+    non_seqcst_fallback = atomic_not_non_seqcst;
+    seqcst_fallback = atomic_not_seqcst;
+}
+atomic_rmw_with_ifunc! {
+    unsafe fn atomic_neg(dst: *mut u128) -> u128;
+    pwr8 = atomic_neg_pwr8;
+    non_seqcst_fallback = atomic_neg_non_seqcst;
+    seqcst_fallback = atomic_neg_seqcst;
 }
 
 #[inline]
-const fn is_lock_free() -> bool {
-    IS_ALWAYS_LOCK_FREE
+fn is_lock_free() -> bool {
+    #[cfg(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    ))]
+    {
+        // lqarx and stqcx. instructions are statically available.
+        true
+    }
+    #[cfg(not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )))]
+    {
+        detect::detect().has_quadword_atomics()
+    }
 }
-const IS_ALWAYS_LOCK_FREE: bool = true;
+const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+));
 
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);

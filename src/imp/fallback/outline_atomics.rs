@@ -8,11 +8,11 @@
 
 use core::sync::atomic::Ordering;
 
-#[cfg(target_arch = "x86_64")]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
 pub(crate) type Udw = u128;
-#[cfg(target_arch = "x86_64")]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
 pub(crate) type AtomicUdw = super::super::fallback::AtomicU128;
-#[cfg(target_arch = "x86_64")]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
 pub(crate) type AtomicIdw = super::super::fallback::AtomicI128;
 
 #[cfg(target_arch = "arm")]
@@ -28,6 +28,10 @@ macro_rules! debug_assert_outline_atomics {
         #[cfg(target_arch = "x86_64")]
         {
             debug_assert!(!super::detect::detect().has_cmpxchg16b());
+        }
+        #[cfg(target_arch = "powerpc64")]
+        {
+            debug_assert!(!super::detect::detect().has_quadword_atomics());
         }
         #[cfg(target_arch = "arm")]
         {

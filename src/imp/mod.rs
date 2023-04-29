@@ -55,6 +55,23 @@ mod x86_64;
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
+    all(
+        feature = "fallback",
+        not(portable_atomic_no_outline_atomics),
+        any(test, portable_atomic_outline_atomics), // TODO(powerpc64): currently disabled by default
+        any(
+            all(
+                target_os = "linux",
+                any(
+                    target_env = "gnu",
+                    all(target_env = "musl", not(target_feature = "crt-static")),
+                    portable_atomic_outline_atomics,
+                ),
+            ),
+            target_os = "freebsd",
+        ),
+        not(any(miri, portable_atomic_sanitize_thread)),
+    ),
 ))]
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
 #[cfg_attr(
@@ -376,6 +393,23 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
+    all(
+        feature = "fallback",
+        not(portable_atomic_no_outline_atomics),
+        portable_atomic_outline_atomics, // TODO(powerpc64): currently disabled by default
+        any(
+            all(
+                target_os = "linux",
+                any(
+                    target_env = "gnu",
+                    all(target_env = "musl", not(target_feature = "crt-static")),
+                    portable_atomic_outline_atomics,
+                ),
+            ),
+            target_os = "freebsd",
+        ),
+        not(any(miri, portable_atomic_sanitize_thread)),
+    ),
 ))]
 #[cfg(target_arch = "powerpc64")]
 pub(crate) use self::powerpc64::{AtomicI128, AtomicU128};
@@ -406,6 +440,23 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
         any(
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics",
+            all(
+                feature = "fallback",
+                not(portable_atomic_no_outline_atomics),
+                portable_atomic_outline_atomics, // TODO(powerpc64): currently disabled by default
+                any(
+                    all(
+                        target_os = "linux",
+                        any(
+                            target_env = "gnu",
+                            all(target_env = "musl", not(target_feature = "crt-static")),
+                            portable_atomic_outline_atomics,
+                        ),
+                    ),
+                    target_os = "freebsd",
+                ),
+                not(any(miri, portable_atomic_sanitize_thread)),
+            ),
         ),
         target_arch = "powerpc64",
     ),

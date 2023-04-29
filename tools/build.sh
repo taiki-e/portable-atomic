@@ -88,6 +88,10 @@ default_targets=(
     # rustc --print target-list | grep -E '^powerpc64'
     powerpc64-unknown-linux-gnu
     powerpc64le-unknown-linux-gnu
+    powerpc64-unknown-linux-musl
+    powerpc64le-unknown-linux-musl
+    powerpc64-unknown-freebsd
+    powerpc64le-unknown-freebsd
 
     # s390x
     # rustc --print target-list | grep -E '^s390x'
@@ -268,9 +272,10 @@ build() {
             args+=(-Z build-std="core")
         elif is_no_std "${target}"; then
             args+=(-Z build-std="core,alloc")
-        elif [[ "${rustc_minor_version}" -lt 47 ]]; then
-            # Building std with the version before backtrace-sys was removed is painful.
+        elif [[ "${rustc_minor_version}" -lt 59 ]]; then
+            # On most targets, building std with the version before backtrace-sys was removed is painful.
             # https://github.com/rust-lang/rust/commit/c058a8b8dc5dea0ed9b33e14da9e317e2749fcd7
+            # On musl, building std with pre-1.59 nightly requires musl toolchain.
             args+=(-Z build-std="core,alloc")
             args+=(--exclude-features "std")
         else
@@ -441,7 +446,8 @@ build() {
         x_cargo "${args[@]}" "$@"
     # Check {,no-}outline-atomics
     case "${target}" in
-        # portable_atomic_no_outline_atomics only affects x86_64, aarch64, and arm.
+        # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.
+        # powerpc64 is skipped because outline-atomics is currently disabled by default on powerpc64.
         x86_64* | aarch64* | arm*)
             CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
@@ -449,8 +455,9 @@ build() {
             ;;
     esac
     case "${target}" in
-        # portable_atomic_outline_atomics only affects aarch64 Linux.
-        aarch64*-linux-*)
+        # portable_atomic_outline_atomics only affects aarch64 Linux and powerpc64.
+        # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+        aarch64*-linux-* | powerpc64-*)
             CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics" \
                 x_cargo "${args[@]}" "$@"

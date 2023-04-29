@@ -104,8 +104,34 @@ impl CpuInfo {
     }
 }
 
+#[cfg(target_arch = "powerpc64")]
+impl CpuInfo {
+    /// Whether lqarx and stqcx. instructions are available
+    const HAS_QUADWORD_ATOMICS: u32 = 1;
+
+    #[allow(clippy::unused_self)]
+    #[inline]
+    pub(crate) fn has_quadword_atomics(self) -> bool {
+        #[cfg(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        ))]
+        {
+            // lqarx and stqcx. instructions are statically available.
+            true
+        }
+        #[cfg(not(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        )))]
+        {
+            self.test(CpuInfo::HAS_QUADWORD_ATOMICS)
+        }
+    }
+}
+
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
-#[cfg(target_arch = "aarch64")]
+#[cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 #[cfg(not(windows))]
 #[allow(dead_code, non_camel_case_types)]
 mod c_types {
@@ -222,6 +248,17 @@ mod tests_common {
             assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
             assert!(x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         }
+        #[cfg(target_arch = "powerpc64")]
+        {
+            assert!(!x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
+            x.set(CpuInfo::INIT);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(!x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
+            x.set(CpuInfo::HAS_QUADWORD_ATOMICS);
+            assert!(x.test(CpuInfo::INIT));
+            assert!(x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
+        }
     }
 
     #[test]
@@ -262,6 +299,19 @@ mod tests_common {
                 cfg!(any(
                     target_feature = "cmpxchg16b",
                     portable_atomic_target_feature = "cmpxchg16b",
+                )),
+            );
+        }
+        #[cfg(target_arch = "powerpc64")]
+        {
+            features.push_str("run-time:\n");
+            print_feature!("quadword-atomics", detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
+            features.push_str("compile-time:\n");
+            print_feature!(
+                "quadword-atomics",
+                cfg!(any(
+                    target_feature = "quadword-atomics",
+                    portable_atomic_target_feature = "quadword-atomics",
                 )),
             );
         }
@@ -309,6 +359,22 @@ mod tests_common {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
         } else {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
+        }
+    }
+    #[cfg(target_arch = "powerpc64")]
+    #[test]
+    fn test_detect() {
+        let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
+        if detect().has_quadword_atomics() {
+            assert!(detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
+            if let Ok(proc_cpuinfo) = proc_cpuinfo {
+                assert!(proc_cpuinfo.power8);
+            }
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
+            if let Ok(proc_cpuinfo) = proc_cpuinfo {
+                assert!(!proc_cpuinfo.power8);
+            }
         }
     }
 }

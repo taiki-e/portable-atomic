@@ -8,7 +8,7 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | ----------- | ---- | ----- | --- | --- | ---- |
 | x86_64 | cmpxchg16b or vmovdqa | cmpxchg16b or vmovdqa | cmpxchg16b | cmpxchg16b | cmpxchg16b target feature required. vmovdqa requires Intel or AMD CPU with AVX. <br> Both compile-time and run-time detection are supported for cmpxchg16b. vmovdqa is currently run-time detection only.  <br> Requires rustc 1.59+ when cmpxchg16b target feature is enabled at compile-time, otherwise requires rustc 1.69+ |
 | aarch64 | ldxp/stxp or casp or ldp | ldxp/stxp or casp or stp | ldxp/stxp or casp | ldxp/stxp or casp | casp requires lse target feature, ldp/stp requires lse2 target feature. <br> Both compile-time and run-time detection are supported for lse. lse2 is currently compile-time detection only.  <br> Requires rustc 1.59+ |
-| powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Little endian or target CPU pwr8+. <br> Requires nightly |
+| powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Little endian or target CPU pwr8+. Both compile-time and run-time detection are supported (run-time detection is currently disabled by default). <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires nightly |
 
 On compiler versions or platforms where these are not supported, the fallback implementation is used.
@@ -44,11 +44,15 @@ Here is the table of targets that support run-time feature detection and the ins
 | aarch64     | macos                | sysctl          | Currently test-only because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
 | aarch64     | windows              | IsProcessorFeaturePresent | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | Enabled by default |
+| powerpc64   | linux                | getauxval       | Disabled by default |
+| powerpc64   | freebsd              | elf_aux_info    | Disabled by default |
 
 Run-time detection is enabled by default on most targets and can be disabled with `--cfg portable_atomic_no_outline_atomics`.
 
-For targets such as `*-linux-musl*` with static linking enabled, where `getauxval` is not always available, so run-time detection is disabled by default and can be enabled by `--cfg portable_atomic_outline_atomics`. (When both cfg are enabled `*_no_*` cfg is preferred.)
+On some targets, run-time detection is disabled by default mainly for compatibility with older versions of operating systems or incomplete build environments, and can be enabled by `--cfg portable_atomic_outline_atomics`. (When both cfg are enabled, `*_no_*` cfg is preferred.)
 
 For targets not included in the above table, run-time detection is always disabled and works the same as when `--cfg portable_atomic_no_outline_atomics` is set.
 
 See [detect/auxv.rs](detect/auxv.rs) module-level comments for more details on Linux/Android/FreeBSD.
+
+See also [docs on `portable_atomic_no_outline_atomics`](https://github.com/taiki-e/portable-atomic/blob/HEAD/README.md#optional-cfg-no-outline-atomics) in the top-level readme.

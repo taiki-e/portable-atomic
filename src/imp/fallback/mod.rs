@@ -18,6 +18,24 @@
             not(target_env = "sgx"),
         ),
         all(
+            target_arch = "powerpc64",
+            feature = "fallback",
+            not(portable_atomic_no_outline_atomics),
+            portable_atomic_outline_atomics, // TODO(powerpc64): currently disabled by default
+            any(
+                all(
+                    target_os = "linux",
+                    any(
+                        target_env = "gnu",
+                        all(target_env = "musl", not(target_feature = "crt-static")),
+                        portable_atomic_outline_atomics,
+                    ),
+                ),
+                target_os = "freebsd",
+            ),
+            not(any(miri, portable_atomic_sanitize_thread)),
+        ),
+        all(
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             target_arch = "arm",
             any(target_os = "linux", target_os = "android"),

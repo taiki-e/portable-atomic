@@ -151,6 +151,86 @@ mod aarch64_linux_android;
 pub use aarch64_linux_android::*;
 #[cfg(
     all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_linux_gnu;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_linux_gnu::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64le_linux_gnu;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64le_linux_gnu::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_linux_musl;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_linux_musl::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64le_linux_musl;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64le_linux_musl::*;
+#[cfg(
+    all(
         target_arch = "aarch64",
         target_os = "macos",
         target_endian = "little",
@@ -185,6 +265,42 @@ mod aarch64_freebsd;
     )
 )]
 pub use aarch64_freebsd::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "freebsd",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_freebsd;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "freebsd",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_freebsd::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "freebsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64le_freebsd;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "freebsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64le_freebsd::*;
 #[cfg(
     all(
         target_arch = "aarch64",

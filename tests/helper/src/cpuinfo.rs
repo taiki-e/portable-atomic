@@ -1,6 +1,6 @@
-#![cfg(target_arch = "aarch64")]
+#![cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 
-use std::{boxed::Box, path::Path, process::Command, vec::Vec};
+use std::{boxed::Box, path::Path, vec::Vec};
 
 use fs_err as fs;
 
@@ -17,11 +17,17 @@ type Result<T, E = Box<dyn std::error::Error + Send + Sync>> = std::result::Resu
 /// approaches.
 #[derive(Debug, Clone, Copy)]
 pub struct ProcCpuinfo {
+    #[cfg(target_arch = "aarch64")]
     pub lse: bool,
+    #[cfg(target_arch = "aarch64")]
     pub lse2: Option<bool>,
+    #[cfg(target_arch = "powerpc64")]
+    pub power8: bool,
 }
 impl ProcCpuinfo {
+    #[cfg(target_arch = "aarch64")]
     pub fn new() -> Result<Self> {
+        use std::process::Command;
         if cfg!(any(target_os = "linux", target_os = "android", target_os = "netbsd")) {
             let text = fs::read_to_string("/proc/cpuinfo")?;
             let features = text
@@ -104,6 +110,50 @@ impl ProcCpuinfo {
                     || sysctl("hw.optional.armv8_1_atomics") != 0,
                 lse2: Some(sysctl("hw.optional.arm.FEAT_LSE2") != 0),
             })
+        } else {
+            assert!(!Path::new("/proc/cpuinfo").exists());
+            assert!(!Path::new("/var/run/dmesg.boot").exists());
+            Err("unsupported OS".into())
+        }
+    }
+    #[cfg(target_arch = "powerpc64")]
+    pub fn new() -> Result<Self> {
+        if cfg!(any(target_os = "linux", target_os = "android", target_os = "netbsd")) {
+            let text = fs::read_to_string("/proc/cpuinfo")?;
+            let cpu = text
+                    .lines()
+                    // On qemu-user, there is not 'cpu' section because the host's /proc/cpuinfo will be referred to.
+                    // TODO: check whether a runner is set instead.
+                    .find_map(|line| line.strip_prefix("cpu")).ok_or("no 'cpu' section in /proc/cpuinfo")?
+                    .splitn(2, ':')
+                    .nth(1)
+                    .unwrap()
+                    .split(' ')
+                    .map(str::trim)
+                    .collect::<Vec<_>>();
+            std::eprintln!("cpu={:?}", cpu);
+            let v = cpu.iter().find(|v| v.starts_with("POWER")).ok_or("cpu is not POWER")?;
+            Ok(Self {
+                power8: v.starts_with("POWER8")
+                    || v.starts_with("POWER9")
+                    || v.starts_with("POWER10"),
+            })
+        } else if cfg!(target_os = "freebsd") {
+            let text = fs::read_to_string("/var/run/dmesg.boot")?;
+            let features2 = text
+                .lines()
+                .find(|line| line.contains("Features2"))
+                .ok_or("no 'Features2' section in /var/run/dmesg.boot")?
+                .splitn(2, '<')
+                .nth(1)
+                .unwrap()
+                .trim()
+                .strip_suffix('>')
+                .unwrap()
+                .split(',')
+                .collect::<Vec<_>>();
+            std::eprintln!("features2={:?}", features2);
+            Ok(Self { power8: features2.contains(&"ARCH207") })
         } else {
             assert!(!Path::new("/proc/cpuinfo").exists());
             assert!(!Path::new("/var/run/dmesg.boot").exists());

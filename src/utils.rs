@@ -41,6 +41,7 @@ macro_rules! doc_comment {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
+    target_arch = "powerpc64",
     all(target_arch = "x86_64", not(target_env = "sgx")),
 ))]
 macro_rules! ifunc {
@@ -73,6 +74,7 @@ macro_rules! ifunc {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
+    target_arch = "powerpc64",
     all(target_arch = "x86_64", not(target_env = "sgx")),
 ))]
 macro_rules! fn_alias {
@@ -288,6 +290,23 @@ macro_rules! cfg_atomic_128 {
                     any(
                         target_feature = "quadword-atomics",
                         portable_atomic_target_feature = "quadword-atomics",
+                        all(
+                            feature = "fallback",
+                            not(portable_atomic_no_outline_atomics),
+                            portable_atomic_outline_atomics, // TODO(powerpc64): currently disabled by default
+                            any(
+                                all(
+                                    target_os = "linux",
+                                    any(
+                                        target_env = "gnu",
+                                        all(target_env = "musl", not(target_feature = "crt-static")),
+                                        portable_atomic_outline_atomics,
+                                    ),
+                                ),
+                                target_os = "freebsd",
+                            ),
+                            not(any(miri, portable_atomic_sanitize_thread)),
+                        ),
                     ),
                     target_arch = "powerpc64",
                 ),

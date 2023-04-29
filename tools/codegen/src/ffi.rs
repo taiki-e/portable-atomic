@@ -34,6 +34,10 @@ static TARGETS: &[Target] = &[
             "aarch64-unknown-linux-musl",
             "aarch64-unknown-linux-uclibc",
             "aarch64-linux-android",
+            "powerpc64-unknown-linux-gnu",
+            "powerpc64le-unknown-linux-gnu",
+            "powerpc64-unknown-linux-musl",
+            "powerpc64le-unknown-linux-musl",
         ],
         headers: &[
             // TODO: getauxval
@@ -56,6 +60,16 @@ static TARGETS: &[Target] = &[
                 vars: &["HWCAP.*"],
                 functions: &[],
                 arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/torvalds/linux/blob/HEAD/arch/powerpc/include/uapi/asm/cputable.h
+                path: "linux-headers:asm/cputable.h",
+                types: &[],
+                vars: &["PPC_FEATURE.*"],
+                functions: &[],
+                arch: &[powerpc64],
                 os: &[],
                 env: &[],
             },
@@ -107,7 +121,11 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
-        triples: &["aarch64-unknown-freebsd"],
+        triples: &[
+            "aarch64-unknown-freebsd",
+            "powerpc64-unknown-freebsd",
+            "powerpc64le-unknown-freebsd",
+        ],
         headers: &[
             Header {
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/auxv.h
@@ -136,6 +154,16 @@ static TARGETS: &[Target] = &[
                 vars: &["HWCAP.*"],
                 functions: &[],
                 arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/powerpc/include/cpu.h
+                path: "machine/cpu.h",
+                types: &[],
+                vars: &["PPC_FEATURE.*"],
+                functions: &[],
+                arch: &[powerpc64],
                 os: &[],
                 env: &[],
             },
