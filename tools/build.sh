@@ -280,7 +280,11 @@ build() {
             args+=(-Z build-std="core,alloc")
             args+=(--exclude-features "std")
         else
-            args+=(-Z build-std)
+            case "${target}" in
+                # panic=abort
+                *-espidf*) args+=(-Z build-std="panic_abort,std") ;;
+                *) args+=(-Z build-std) ;;
+            esac
         fi
     else
         echo "target '${target}' requires nightly compiler (skipped all checks)"
