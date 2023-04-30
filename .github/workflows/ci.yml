@@ -273,7 +273,7 @@ jobs:
             rust: nightly
             target-group: tier3
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120 # TODO
     steps:
       - uses: actions/checkout@v3
         with:
