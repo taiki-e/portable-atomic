@@ -72,7 +72,7 @@ done
 
 cargo="${cargo:-cargo}"
 if type -P rustup &>/dev/null; then
-    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list)
+    rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list | sed 's/ .*//g')
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
@@ -103,7 +103,7 @@ if [[ -n "${target}" ]]; then
     fi
     args+=("${target_flags[@]}")
     if type -P rustup &>/dev/null; then
-        if grep <<<"${rustup_target_list}" -Eq "^${target}( |$)"; then
+        if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
             rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
         elif [[ -n "${nightly}" ]]; then
             if [[ -z "${build_std}" ]]; then

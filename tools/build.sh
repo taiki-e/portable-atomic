@@ -261,6 +261,7 @@ build() {
         local target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
@@ -279,18 +280,15 @@ build() {
             # On musl, building std with pre-1.59 nightly requires musl toolchain.
             args+=(-Z build-std="core,alloc")
             args+=(--exclude-features "std")
+        elif grep <<<"${cfgs}" -q 'panic="abort"'; then
+            args+=(-Z build-std="panic_abort,std")
         else
-            case "${target}" in
-                # panic=abort
-                *-espidf*) args+=(-Z build-std="panic_abort,std") ;;
-                *) args+=(-Z build-std) ;;
-            esac
+            args+=(-Z build-std)
         fi
     else
         echo "target '${target}' requires nightly compiler (skipped all checks)"
         return 0
     fi
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
     # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
     if [[ "${rustc_minor_version}" -ge 40 ]]; then
