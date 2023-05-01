@@ -66,6 +66,7 @@ critical-section = { version = "1", optional = true }
 [dev-dependencies]
 test-helper = { path = "tests/helper", features = ["std"] }
 
+build-context = "0.1"
 crossbeam-utils = "0.8"
 fastrand = "1"
 paste = "1"

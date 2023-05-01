@@ -2060,7 +2060,7 @@ fn skip_should_panic_test() -> bool {
     test_helper::is_panic_abort()
         || cfg!(miri)
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
-            && option_env!("MSAN_OPTIONS").is_some()
+            && build_context::SANITIZE.contains("memory")
 }
 
 // Test the cases that should not fail if the memory ordering is implemented correctly.
@@ -2161,18 +2161,15 @@ macro_rules! __stress_test_seqcst {
     ($atomic_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
         use super::*;
         use crossbeam_utils::thread;
-        use std::{
-            env,
-            sync::atomic::{AtomicUsize, Ordering},
-        };
+        use std::sync::atomic::{AtomicUsize, Ordering};
         let n: usize = if cfg!(miri) {
             8
         } else if cfg!(valgrind)
-            || option_env!("ASAN_OPTIONS").is_some()
-            || option_env!("MSAN_OPTIONS").is_some()
+            || build_context::SANITIZE.contains("address")
+            || build_context::SANITIZE.contains("memory")
         {
             50
-        } else if env::var_os("GITHUB_ACTIONS").is_some() && cfg!(not(target_os = "linux")) {
+        } else if option_env!("GITHUB_ACTIONS").is_some() && cfg!(not(target_os = "linux")) {
             // GitHub Actions' macOS and Windows runners are slow.
             5_000
         } else {

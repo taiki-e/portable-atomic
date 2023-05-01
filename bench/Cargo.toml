@@ -14,6 +14,7 @@ std = []
 test-helper = { path = "../tests/helper", features = ["std"] }
 
 atomic = "0.5"
+build-context = "0.1"
 criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # reduce deps
 crossbeam-utils = "0.8"
 fastrand = "1"
