@@ -73,7 +73,23 @@ macro_rules! debug_assert_pwr8 {
     };
 }
 
-// https://www.ibm.com/docs/en/aix/7.3?topic=ops-machine-pseudo-op
+// Refs: https://www.ibm.com/docs/en/aix/7.3?topic=ops-machine-pseudo-op
+//
+// This is similar to #[target_feature(enable = "quadword-atomics")], except that there are
+// no compiler guarantees regarding (un)inlining, and the scope is within an asm
+// block rather than a function. We use this directive because #[target_feature(enable = "quadword-atomics")]
+// is not supported as of Rust 1.70-nightly.
+//
+// start_pwr8 and end_pwr8 must be used in pairs.
+//
+// Note: If power8 instructions are not available at compile-time, we must guarantee that
+// the function that uses it is not inlined into a function where it is not
+// clear whether power8 instructions are available. Otherwise, (even if we checked whether
+// power8 instructions are available at run-time) optimizations that reorder its
+// instructions across the if condition might introduce undefined behavior.
+// (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
+// However, our code uses the ifunc helper macro, so we usually don't have to
+// worry about this.
 #[cfg(not(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
@@ -161,7 +177,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         fn_alias! {
-            // inline(never) is not strictly necessary, but is used for clarity.
+            // inline(never) is just a hint and also not strictly necessary
+            // because we use ifunc helper macro, but used for clarity.
             #[inline(never)]
             unsafe fn(src: *mut u128) -> u128;
             atomic_load_pwr8_relaxed = atomic_load_pwr8(Ordering::Relaxed);
@@ -274,7 +291,8 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         fn_alias! {
-            // inline(never) is not strictly necessary, but is used for clarity.
+            // inline(never) is just a hint and also not strictly necessary
+            // because we use ifunc helper macro, but used for clarity.
             #[inline(never)]
             unsafe fn(dst: *mut u128, val: u128);
             atomic_store_pwr8_relaxed = atomic_store_pwr8(Ordering::Relaxed);
@@ -695,7 +713,8 @@ macro_rules! atomic_rmw_with_ifunc {
         #[inline]
         unsafe fn $name($($arg)*, order: Ordering) $(-> $ret_ty)? {
             fn_alias! {
-                // inline(never) is not strictly necessary, but is used for clarity.
+                // inline(never) is just a hint and also not strictly necessary
+                // because we use ifunc helper macro, but used for clarity.
                 #[inline(never)]
                 unsafe fn($($arg)*) $(-> $ret_ty)?;
                 pwr8_relaxed_fn = $pwr8_fn(Ordering::Relaxed);
