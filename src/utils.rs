@@ -229,6 +229,8 @@ macro_rules! impl_default_bit_opts {
 )))]
 #[macro_use]
 mod atomic_ptr_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_ptr {
         ($($tt:tt)*) => {
             $($tt)*
@@ -242,6 +244,8 @@ mod atomic_ptr_macros {
 ))]
 #[macro_use]
 mod atomic_ptr_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_ptr {
         ($($tt:tt)*) => {};
     }
@@ -254,11 +258,15 @@ mod atomic_ptr_macros {
 )))]
 #[macro_use]
 mod atomic_8_16_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_8 {
         ($($tt:tt)*) => {
             $($tt)*
         };
     }
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_16 {
         ($($tt:tt)*) => {
             $($tt)*
@@ -272,9 +280,13 @@ mod atomic_8_16_macros {
 ))]
 #[macro_use]
 mod atomic_8_16_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_8 {
         ($($tt:tt)*) => {};
     }
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_16 {
         ($($tt:tt)*) => {};
     }
@@ -290,6 +302,8 @@ mod atomic_8_16_macros {
 ))]
 #[macro_use]
 mod atomic_32_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_32 {
         ($($tt:tt)*) => {
             $($tt)*
@@ -306,6 +320,8 @@ mod atomic_32_macros {
 )))]
 #[macro_use]
 mod atomic_32_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_32 {
         ($($tt:tt)*) => {};
     }
@@ -347,6 +363,8 @@ mod atomic_32_macros {
 )]
 #[macro_use]
 mod atomic_64_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_64 {
         ($($tt:tt)*) => {
             $($tt)*
@@ -389,6 +407,8 @@ mod atomic_64_macros {
 )]
 #[macro_use]
 mod atomic_64_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_64 {
         ($($tt:tt)*) => {};
     }
@@ -465,6 +485,8 @@ mod atomic_64_macros {
 )]
 #[macro_use]
 mod atomic_128_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_128 {
         ($($tt:tt)*) => {
             $($tt)*
@@ -542,6 +564,8 @@ mod atomic_128_macros {
 )]
 #[macro_use]
 mod atomic_128_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_128 {
         ($($tt:tt)*) => {};
     }
@@ -569,6 +593,8 @@ mod atomic_128_macros {
 )]
 #[macro_use]
 mod atomic_cas_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_cas {
         ($($tt:tt)*) => {
             $($tt)*
@@ -597,6 +623,8 @@ mod atomic_cas_macros {
 )]
 #[macro_use]
 mod atomic_cas_macros {
+    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
     macro_rules! cfg_has_atomic_cas {
         ($($tt:tt)*) => {};
     }
