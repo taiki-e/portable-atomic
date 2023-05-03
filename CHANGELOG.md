@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Support `portable_atomic_unsafe_assume_single_core` cfg on Xtensa targets without atomic CAS. ([#86](https://github.com/taiki-e/portable-atomic/pull/86))
 
+- Fix compile error on bpf{eb,el}-unknown-none and mipsel-sony-psx when `critical-section` feature is disabled.
+
 ## [1.2.0] - 2023-03-25
 
 - Make 64-bit atomics lock-free on ARM Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi, etc.) when the kernel version is 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))

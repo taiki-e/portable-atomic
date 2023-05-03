@@ -316,6 +316,14 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 )]
 // docs.rs only
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(
+    all(
+        target_arch = "mips",
+        portable_atomic_no_atomic_load_store,
+        not(feature = "critical-section"),
+    ),
+    allow(unused_imports, unused_macros)
+)]
 
 // There are currently no 8-bit, 128-bit, or higher builtin targets.
 // (Although some of our generic code is written with the future
@@ -502,6 +510,7 @@ use core::{fmt, ptr};
 #[cfg(miri)]
 use crate::utils::strict;
 
+cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a [`bool`].
@@ -692,7 +701,7 @@ impl AtomicBool {
         self.inner.store(val, order);
     }
 
-    cfg_atomic_cas! {
+    cfg_has_atomic_cas! {
     /// Stores a value into the bool, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -1220,7 +1229,7 @@ impl AtomicBool {
         }
         Err(prev)
     }
-    } // cfg_atomic_cas!
+    } // cfg_has_atomic_cas!
 
     const_fn! {
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -1244,7 +1253,9 @@ impl AtomicBool {
         }
     }
 }
+} // cfg_has_atomic_8!
 
+cfg_has_atomic_ptr! {
 /// A raw pointer type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a `*mut T`.
@@ -1456,7 +1467,7 @@ impl<T> AtomicPtr<T> {
         self.inner.store(ptr, order);
     }
 
-    cfg_atomic_cas! {
+    cfg_has_atomic_cas! {
     /// Stores a value into the pointer, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -2138,7 +2149,7 @@ impl<T> AtomicPtr<T> {
         // and both access data in the same way.
         unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
     }
-    } // cfg_atomic_cas!
+    } // cfg_has_atomic_cas!
 
     const_fn! {
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -2162,6 +2173,7 @@ impl<T> AtomicPtr<T> {
         }
     }
 }
+} // cfg_has_atomic_ptr!
 
 macro_rules! atomic_int {
     (AtomicU32, $int_type:ident, $align:literal) => {
@@ -2394,7 +2406,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 }
             }
 
-            cfg_atomic_cas! {
+            cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Stores a value into the atomic integer, returning the previous value.
 
@@ -3207,7 +3219,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                     }
                 }
             }
-            } // cfg_atomic_cas!
+            } // cfg_has_atomic_cas!
 
             const_fn! {
                 const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -3362,7 +3374,7 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.store(val, order)
             }
 
-            cfg_atomic_cas! {
+            cfg_has_atomic_cas! {
             /// Stores a value into the atomic float, returning the previous value.
             ///
             /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -3571,7 +3583,7 @@ This type has the same in-memory representation as the underlying floating point
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_abs(order)
             }
-            } // cfg_atomic_cas!
+            } // cfg_has_atomic_cas!
 
             #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
@@ -3625,43 +3637,42 @@ This is `const fn` on Rust 1.58+."),
     };
 }
 
-#[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicIsize, isize, 2);
-#[cfg(target_pointer_width = "16")]
-atomic_int!(AtomicUsize, usize, 2);
-#[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicIsize, isize, 4);
-#[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicUsize, usize, 4);
-#[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicIsize, isize, 8);
-#[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicUsize, usize, 8);
-#[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicIsize, isize, 16);
-#[cfg(target_pointer_width = "128")]
-atomic_int!(AtomicUsize, usize, 16);
-
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
-
-#[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicI32, i32, 4);
-#[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
-atomic_int!(AtomicU32, u32, 4);
-
-cfg_atomic_64! {
-    atomic_int!(AtomicI64, i64, 8);
+cfg_has_atomic_ptr! {
+    #[cfg(target_pointer_width = "16")]
+    atomic_int!(AtomicIsize, isize, 2);
+    #[cfg(target_pointer_width = "16")]
+    atomic_int!(AtomicUsize, usize, 2);
+    #[cfg(target_pointer_width = "32")]
+    atomic_int!(AtomicIsize, isize, 4);
+    #[cfg(target_pointer_width = "32")]
+    atomic_int!(AtomicUsize, usize, 4);
+    #[cfg(target_pointer_width = "64")]
+    atomic_int!(AtomicIsize, isize, 8);
+    #[cfg(target_pointer_width = "64")]
+    atomic_int!(AtomicUsize, usize, 8);
+    #[cfg(target_pointer_width = "128")]
+    atomic_int!(AtomicIsize, isize, 16);
+    #[cfg(target_pointer_width = "128")]
+    atomic_int!(AtomicUsize, usize, 16);
 }
-cfg_atomic_64! {
+
+cfg_has_atomic_8! {
+    atomic_int!(AtomicI8, i8, 1);
+    atomic_int!(AtomicU8, u8, 1);
+}
+cfg_has_atomic_16! {
+    atomic_int!(AtomicI16, i16, 2);
+    atomic_int!(AtomicU16, u16, 2);
+}
+cfg_has_atomic_32! {
+    atomic_int!(AtomicI32, i32, 4);
+    atomic_int!(AtomicU32, u32, 4);
+}
+cfg_has_atomic_64! {
+    atomic_int!(AtomicI64, i64, 8);
     atomic_int!(AtomicU64, u64, 8);
 }
-
-cfg_atomic_128! {
+cfg_has_atomic_128! {
     atomic_int!(AtomicI128, i128, 16);
-}
-cfg_atomic_128! {
     atomic_int!(AtomicU128, u128, 16);
 }

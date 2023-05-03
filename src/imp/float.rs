@@ -9,7 +9,10 @@
 // architecture-specific implementations instead of this implementation in the
 // future: https://github.com/taiki-e/portable-atomic/issues/34
 
-#![cfg(any(not(target_pointer_width = "16"), feature = "fallback"))] // See lib.rs's AtomicU32 definition
+#![cfg_attr(
+    all(target_pointer_width = "16", not(feature = "fallback")),
+    allow(unused_imports, unused_macros)
+)]
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
@@ -85,7 +88,7 @@ macro_rules! atomic_float {
             }
         }
 
-        cfg_atomic_cas! {
+        cfg_has_atomic_cas! {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
@@ -181,12 +184,13 @@ macro_rules! atomic_float {
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
             }
         }
-        } // cfg_atomic_cas!
+        } // cfg_has_atomic_cas!
     };
 }
 
-atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
-
-cfg_atomic_64! {
+cfg_has_atomic_32! {
+    atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
+}
+cfg_has_atomic_64! {
     atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
 }

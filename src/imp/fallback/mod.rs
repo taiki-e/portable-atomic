@@ -58,7 +58,7 @@ pub(crate) mod utils;
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock.
-cfg_fast_atomic_64! {
+cfg_has_fast_atomic_64! {
     mod seq_lock;
 }
 cfg_no_fast_atomic_64! {
@@ -400,13 +400,6 @@ macro_rules! atomic {
 )]
 cfg_no_fast_atomic_64! {
     atomic!(AtomicI64, i64, 8);
-}
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "64")))
-)]
-cfg_no_fast_atomic_64! {
     atomic!(AtomicU64, u64, 8);
 }
 
@@ -419,8 +412,6 @@ mod tests {
 
     cfg_no_fast_atomic_64! {
         test_atomic_int!(i64);
-    }
-    cfg_no_fast_atomic_64! {
         test_atomic_int!(u64);
     }
     test_atomic_int!(i128);

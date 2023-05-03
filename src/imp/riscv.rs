@@ -22,37 +22,39 @@ pub(crate) struct AtomicBool {
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl Sync for AtomicBool {}
 
+#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
 impl AtomicBool {
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
         Self { v: UnsafeCell::new(v as u8) }
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
         Self::is_always_lock_free()
     }
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) const fn is_always_lock_free() -> bool {
         true
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut bool {
         // SAFETY: the mutable reference guarantees unique ownership.
         unsafe { &mut *self.v.get().cast::<bool>() }
     }
 
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
     #[inline]
     pub(crate) fn into_inner(self) -> bool {
         self.v.into_inner() != 0
     }
 
+    #[inline]
+    pub(crate) const fn as_ptr(&self) -> *mut bool {
+        self.v.get().cast::<bool>()
+    }
+}
+impl AtomicBool {
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {
@@ -63,12 +65,6 @@ impl AtomicBool {
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         self.as_atomic_u8().store(val as u8, order);
-    }
-
-    #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
-    #[inline]
-    pub(crate) const fn as_ptr(&self) -> *mut bool {
-        self.v.get().cast::<bool>()
     }
 
     #[inline]
@@ -91,25 +87,22 @@ macro_rules! atomic {
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
 
+        #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) const fn new(v: $value_type) -> Self {
                 Self { v: UnsafeCell::new(v) }
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
                 Self::is_always_lock_free()
             }
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
                 true
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $value_type {
                 // SAFETY: the mutable reference guarantees unique ownership.
@@ -117,12 +110,17 @@ macro_rules! atomic {
                 unsafe { &mut *self.v.get() }
             }
 
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
             #[inline]
             pub(crate) fn into_inner(self) -> $value_type {
                  self.v.into_inner()
             }
 
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $value_type {
+                self.v.get()
+            }
+        }
+        impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $value_type {
@@ -196,12 +194,6 @@ macro_rules! atomic {
                         _ => unreachable!("{:?}", order),
                     }
                 }
-            }
-
-            #[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
-            #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $value_type {
-                self.v.get()
             }
         }
     };

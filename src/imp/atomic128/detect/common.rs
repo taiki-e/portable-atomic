@@ -60,18 +60,10 @@ impl CpuInfo {
     #[cfg(test)]
     const HAS_RCPC3: u32 = 4;
 
-    #[allow(clippy::unused_self)]
+    #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
     #[inline]
     pub(crate) fn has_lse(self) -> bool {
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        {
-            // FEAT_LSE is available at compile-time.
-            true
-        }
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        {
-            self.test(CpuInfo::HAS_LSE)
-        }
+        self.test(CpuInfo::HAS_LSE)
     }
 }
 
@@ -82,21 +74,13 @@ impl CpuInfo {
     /// Whether VMOVDQA is atomic
     const HAS_VMOVDQA_ATOMIC: u32 = 2;
 
-    #[allow(clippy::unused_self)]
+    #[cfg(any(
+        test,
+        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    ))]
     #[inline]
     pub(crate) fn has_cmpxchg16b(self) -> bool {
-        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        {
-            // CMPXCHG16B is available at compile-time.
-            true
-        }
-        #[cfg(not(any(
-            target_feature = "cmpxchg16b",
-            portable_atomic_target_feature = "cmpxchg16b",
-        )))]
-        {
-            self.test(CpuInfo::HAS_CMPXCHG16B)
-        }
+        self.test(CpuInfo::HAS_CMPXCHG16B)
     }
     #[inline]
     pub(crate) fn has_vmovdqa_atomic(self) -> bool {
@@ -109,24 +93,16 @@ impl CpuInfo {
     /// Whether lqarx and stqcx. instructions are available
     const HAS_QUADWORD_ATOMICS: u32 = 1;
 
-    #[allow(clippy::unused_self)]
+    #[cfg(any(
+        test,
+        not(any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        )),
+    ))]
     #[inline]
     pub(crate) fn has_quadword_atomics(self) -> bool {
-        #[cfg(any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics",
-        ))]
-        {
-            // lqarx and stqcx. instructions are statically available.
-            true
-        }
-        #[cfg(not(any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics",
-        )))]
-        {
-            self.test(CpuInfo::HAS_QUADWORD_ATOMICS)
-        }
+        self.test(CpuInfo::HAS_QUADWORD_ATOMICS)
     }
 }
 
@@ -320,9 +296,24 @@ mod tests_common {
         let _ = stdout.write_all(features.as_bytes());
     }
 
-    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    fn test_detect() {
+        if detect().has_cmpxchg16b() {
+            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
+        }
+        if detect().has_vmovdqa_atomic() {
+            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        }
+    }
     #[cfg(target_arch = "aarch64")]
     #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
         if detect().has_lse() {
@@ -363,6 +354,7 @@ mod tests_common {
     }
     #[cfg(target_arch = "powerpc64")]
     #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
         if detect().has_quadword_atomics() {

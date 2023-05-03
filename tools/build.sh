@@ -21,6 +21,7 @@ default_targets=(
     msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
     # no atomic load/store (32-bit)
     riscv32i-unknown-none-elf
+    mipsel-sony-psx
     # no atomic load/store (64-bit)
     riscv64i-unknown-none-elf # custom target
 
@@ -28,9 +29,8 @@ default_targets=(
     thumbv4t-none-eabi
     thumbv6m-none-eabi
     # no atomic CAS (64-bit)
-    # TODO: since https://github.com/rust-lang/rust/pull/105708, build of core is broken on bpf.
-    # bpfeb-unknown-none
-    # bpfel-unknown-none
+    bpfeb-unknown-none
+    bpfel-unknown-none
 
     # no-std 32-bit with 32-bit atomic
     thumbv7m-none-eabi
@@ -137,7 +137,7 @@ is_no_std() {
     case "$1" in
         # https://github.com/rust-lang/rust/blob/1.69.0/library/std/build.rs#L38
         # TODO: aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-        *-none* | *-uefi* | *-cuda* | avr-* | aarch64-unknown-linux-uclibc) return 0 ;;
+        *-none* | *-uefi* | *-psp* | *-psx* | *-cuda* | avr-* | aarch64-unknown-linux-uclibc) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -320,15 +320,24 @@ build() {
         # Some no-std targets have target-specific test crates, so build public
         # crates' library part and (if they exist) target-specific test crates.
         if is_no_std "${target}"; then
-            case "${target}" in
-                thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??i-*-none* | riscv??im-*-none* | riscv??imc-*-none*)
-                    target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
-                    ;;
-            esac
+            local build_util_with_critical_section=''
+            if [[ -z "${has_atomic_cas}" ]]; then
+                case "${target}" in
+                    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??i-*-none* | riscv??im-*-none* | riscv??imc-*-none*)
+                        target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
+                        ;;
+                    bpf* | mips*) build_util_with_critical_section='1' ;;
+                esac
+            fi
             RUSTFLAGS="${target_rustflags}" \
                 x_cargo "${args[@]}" --features float --manifest-path Cargo.toml "$@"
-            RUSTFLAGS="${target_rustflags}" \
-                x_cargo "${args[@]}" --features alloc --manifest-path portable-atomic-util/Cargo.toml "$@"
+            if [[ -z "${build_util_with_critical_section}" ]]; then
+                RUSTFLAGS="${target_rustflags}" \
+                    x_cargo "${args[@]}" --features alloc --manifest-path portable-atomic-util/Cargo.toml "$@"
+            else
+                RUSTFLAGS="${target_rustflags}" \
+                    x_cargo "${args[@]}" --features alloc,portable-atomic/critical-section --manifest-path portable-atomic-util/Cargo.toml "$@"
+            fi
             # target-specific test crates are nightly-only.
             if [[ -n "${nightly}" ]]; then
                 local test_dir=''
@@ -357,8 +366,6 @@ build() {
             m68k-unknown-linux-gnu) return 0 ;;
             # TODO: rustc bug: error: internal compiler error: compiler/rustc_codegen_llvm/src/context.rs:188:13: data-layout for target `x86_64-apple-tvos`, `e-m:o-i64:64-f80:128-n8:16:32:64-S128`, differs from LLVM target's `x86_64-apple-tvos` default layout, `e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128`
             x86_64-apple-tvos) return 0 ;;
-            # TODO: handle targets without AtomicU8
-            bpfeb-unknown-none | bpfel-unknown-none | mipsel-sony-psx) args+=(--features critical-section) ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
@@ -372,12 +379,17 @@ build() {
             else
                 # target without CAS requires asm to implement CAS.
                 if [[ -n "${has_asm}" ]]; then
+                    # critical-section requires 1.54
+                    if [[ "${rustc_minor_version}" -ge 54 ]]; then
+                        RUSTFLAGS="${target_rustflags}" \
+                            x_cargo "${args[@]}" --feature-powerset --features portable-atomic/critical-section --manifest-path tests/api-test/Cargo.toml "$@"
+                    fi
                     case "${target}" in
                         avr-* | msp430-*) # always single-core
                             RUSTFLAGS="${target_rustflags}" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                             ;;
-                        bpf*) ;; # TODO
+                        bpf* | mips*) ;;
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
@@ -412,8 +424,8 @@ build() {
             if [[ -z "${has_atomic_cas}" ]]; then
                 if [[ -n "${has_asm}" ]]; then
                     case "${target}" in
-                        avr-* | msp430-*) ;;                            # always single-core
-                        bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                        avr-* | msp430-*) ;; # always single-core
+                        bpf* | mips*) ;;     # TODO, Arc can't be used here yet
                         *)
                             CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
@@ -435,13 +447,18 @@ build() {
                 else
                     echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
-                # portable-atomic-util crate and portable-atomic's require-cas feature require atomic CAS,
-                # so doesn't work on this target without portable_atomic_unsafe_assume_single_core cfg
-                # or critical-section feature.
-                args+=(
-                    --exclude portable-atomic-util
-                    --exclude-features require-cas
-                )
+                case "${target}" in
+                    avr-* | msp430-*) ;; # always single-core
+                    *)
+                        # portable-atomic-util crate and portable-atomic's require-cas feature require atomic CAS,
+                        # so doesn't work on this target without portable_atomic_unsafe_assume_single_core cfg
+                        # or critical-section feature.
+                        args+=(
+                            --exclude portable-atomic-util
+                            --exclude-features require-cas
+                        )
+                        ;;
+                esac
             fi
         fi
     fi

@@ -18,12 +18,14 @@ struct NoRefUnwindSafe(UnsafeCell<()>);
 // SAFETY: this is a marker type and we'll never access the value.
 unsafe impl Sync for NoRefUnwindSafe {}
 
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
     inner: core::sync::atomic::AtomicBool,
     // Prevent RefUnwindSafe from being propagated from the std atomic type.
     _marker: PhantomData<NoRefUnwindSafe>,
 }
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 impl AtomicBool {
     #[inline]
     pub(crate) const fn new(v: bool) -> Self {
@@ -70,9 +72,11 @@ impl AtomicBool {
         }
     }
 }
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 impl_default_no_fetch_ops!(AtomicBool, bool);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 impl AtomicBool {
@@ -105,6 +109,7 @@ impl AtomicBool {
         self.inner.compare_exchange_weak(current, new, success, failure)
     }
 }
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 impl core::ops::Deref for AtomicBool {
     type Target = core::sync::atomic::AtomicBool;
     #[inline]
@@ -463,12 +468,18 @@ macro_rules! atomic_int {
 
 atomic_int!(AtomicIsize, isize);
 atomic_int!(AtomicUsize, usize);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 atomic_int!(AtomicI8, i8);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 atomic_int!(AtomicU8, u8);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 atomic_int!(AtomicI16, i16);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 atomic_int!(AtomicU16, u16);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 #[cfg(not(target_pointer_width = "16"))]
 atomic_int!(AtomicI32, i32);
+#[cfg(not(portable_atomic_no_atomic_load_store))]
 #[cfg(not(target_pointer_width = "16"))]
 atomic_int!(AtomicU32, u32);
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]

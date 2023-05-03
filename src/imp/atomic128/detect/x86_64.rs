@@ -1,12 +1,7 @@
 // Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(
-    any(
-        not(target_feature = "sse"),
-        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        miri,
-        portable_atomic_sanitize_thread,
-    ),
+    any(not(target_feature = "sse"), miri, portable_atomic_sanitize_thread),
     allow(dead_code)
 )]
 

@@ -2,7 +2,10 @@
 // Lock-free implementations
 
 #[cfg(not(any(
-    portable_atomic_no_atomic_load_store,
+    all(
+        portable_atomic_no_atomic_load_store,
+        not(all(target_arch = "bpf", not(feature = "critical-section"))),
+    ),
     portable_atomic_unsafe_assume_single_core,
     target_arch = "avr",
     target_arch = "msp430",
@@ -241,6 +244,13 @@ pub(crate) use self::riscv::{
 pub(crate) use self::interrupt::{
     AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
+// bpf
+#[cfg(all(
+    target_arch = "bpf",
+    portable_atomic_no_atomic_load_store,
+    not(feature = "critical-section"),
+))]
+pub(crate) use self::core_atomic::{AtomicI64, AtomicIsize, AtomicPtr, AtomicU64, AtomicUsize};
 
 // Atomic{I,U}32
 #[cfg(not(any(

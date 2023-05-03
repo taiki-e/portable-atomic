@@ -7,43 +7,55 @@ use core::ops;
 // we list all 64-bit architectures because similar ABIs may exist for other architectures.
 // Script to get the list:
 // $ (for target in $(rustc --print target-list); do target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}"); [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]] && jq <<<"${target_spec}" -r '.arch'; done) | LC_ALL=C sort -u | sed -E 's/^/    target_arch = "/g; s/$/",/g'
-macro_rules! cfg_fast_atomic_64 {
-    ($($tt:tt)*) => {
-        #[cfg(any(
-            not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
-            target_arch = "aarch64",
-            target_arch = "bpf",
-            target_arch = "loongarch64",
-            target_arch = "mips64",
-            target_arch = "nvptx64",
-            target_arch = "powerpc64",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "sparc64",
-            target_arch = "wasm64",
-            target_arch = "x86_64",
-        ))]
-        $($tt)*
-    };
+#[cfg(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
+    target_arch = "aarch64",
+    target_arch = "bpf",
+    target_arch = "loongarch64",
+    target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
+    target_arch = "x86_64",
+))]
+#[macro_use]
+mod fast_atomic_64_macros {
+    macro_rules! cfg_has_fast_atomic_64 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    macro_rules! cfg_no_fast_atomic_64 {
+        ($($tt:tt)*) => {};
+    }
 }
-macro_rules! cfg_no_fast_atomic_64 {
-    ($($tt:tt)*) => {
-        #[cfg(not(any(
-            not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
-            target_arch = "aarch64",
-            target_arch = "bpf",
-            target_arch = "loongarch64",
-            target_arch = "mips64",
-            target_arch = "nvptx64",
-            target_arch = "powerpc64",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "sparc64",
-            target_arch = "wasm64",
-            target_arch = "x86_64",
-        )))]
-        $($tt)*
-    };
+#[cfg(not(any(
+    not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
+    target_arch = "aarch64",
+    target_arch = "bpf",
+    target_arch = "loongarch64",
+    target_arch = "mips64",
+    target_arch = "nvptx64",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm64",
+    target_arch = "x86_64",
+)))]
+#[macro_use]
+mod fast_atomic_64_macros {
+    macro_rules! cfg_has_fast_atomic_64 {
+        ($($tt:tt)*) => {};
+    }
+    macro_rules! cfg_no_fast_atomic_64 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
 }
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/d49a0f8454499ced8af0b61aeb661379c4eb0588/crossbeam-utils/src/cache_padded.rs.
