@@ -63,6 +63,7 @@ fn _detect(info: &mut CpuInfo) {
     // Miri doesn't support inline assembly used in __cpuid
     #[cfg(miri)]
     {
+        // Miri supports core::arch::x86_64::cmpxchg16b.
         info.set(CpuInfo::HAS_CMPXCHG16B);
     }
     // SGX doesn't support CPUID: https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L105
@@ -89,7 +90,8 @@ fn _detect(info: &mut CpuInfo) {
             if cpu_xsave {
                 let cpu_osxsave = test(proc_info_ecx, 27);
                 if cpu_osxsave {
-                    // SAFETY: Calling `_xgetbv`` is safe because the CPU has `xsave` support.
+                    // SAFETY: Calling `_xgetbv`` is safe because the CPU has `xsave` support
+                    // and OS has set `osxsave`.
                     let xcr0 = unsafe { _xgetbv(0) };
                     let os_avx_support = xcr0 & 6 == 6;
                     if os_avx_support && test(proc_info_ecx, 28) {

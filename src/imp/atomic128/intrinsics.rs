@@ -19,6 +19,7 @@
 //   (on cfg(miri)/cfg(sanitize) it is fine though)
 // - On s390x, LLVM (as of 16) generates libcalls for operations other than load/store/cmpxchg:
 //   https://godbolt.org/z/5a5T4hxMh
+//   https://github.com/llvm/llvm-project/blob/2cc0c0de802178dc7e5408497e2ec53b6c9728fa/llvm/test/CodeGen/SystemZ/atomicrmw-ops-i128.ll
 // - On powerpc64, LLVM (as of 16) doesn't support 128-bit atomic min/max:
 //   https://godbolt.org/z/3rebKcbdf
 //
