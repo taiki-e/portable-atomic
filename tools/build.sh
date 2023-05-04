@@ -360,11 +360,11 @@ build() {
         )
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
         case "${target}" in
-            # TODO: rustc bug: thread 'rustc' panicked at 'called `Result::unwrap()` on an `Err` value: Error("unimplemented architecture Aarch64_Ilp32")', compiler/rustc_codegen_ssa/src/back/metadata.rs:290:19
+            # TODO: rustc bug: https://github.com/rust-lang/rust/issues/111217
             arm64_32-apple-watchos) return 0 ;;
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
             m68k-unknown-linux-gnu) return 0 ;;
-            # TODO: rustc bug: error: internal compiler error: compiler/rustc_codegen_llvm/src/context.rs:188:13: data-layout for target `x86_64-apple-tvos`, `e-m:o-i64:64-f80:128-n8:16:32:64-S128`, differs from LLVM target's `x86_64-apple-tvos` default layout, `e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128`
+            # TODO: rustc bug: will be fixed by https://github.com/rust-lang/rust/pull/103503
             x86_64-apple-tvos) return 0 ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
