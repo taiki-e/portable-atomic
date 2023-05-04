@@ -132,6 +132,7 @@ unsafe fn atomic_compare_exchange(
             let res = unsafe { core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure) };
             (res, res == old)
         }
+        #[cfg(portable_atomic_no_cmpxchg16b_intrinsic_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
         #[cfg(target_feature = "cmpxchg16b")]
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
