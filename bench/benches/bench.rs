@@ -47,14 +47,21 @@ mod arch;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/intrinsics.rs"]
 mod intrinsics;
-#[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/fallback/mod.rs"]
-mod seqlock_fallback;
-#[allow(unused_imports)]
-use seqlock_fallback as fallback;
-#[allow(dead_code, unused_imports)]
-#[path = "imp/spinlock_fallback.rs"]
-mod spinlock_fallback;
+#[path = "../../src/imp/fallback"]
+mod fallback {
+    #[macro_use]
+    #[allow(unused_macros)]
+    mod utils;
+    #[allow(dead_code, unused_imports)]
+    #[path = "seq_lock_fallback.rs"]
+    pub(crate) mod seqlock_fallback;
+    #[allow(dead_code, unused_imports)]
+    #[path = "spinlock_fallback.rs"]
+    pub(crate) mod spinlock_fallback;
+    #[allow(unused_imports)]
+    pub(crate) use spinlock_fallback::*;
+}
+use fallback::{seqlock_fallback, spinlock_fallback};
 
 const THREADS: usize = 2;
 const N: u32 = 5000;

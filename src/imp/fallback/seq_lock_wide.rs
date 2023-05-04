@@ -1,11 +1,13 @@
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/seq_lock_wide.rs.
+//
+// This module is currently only enabled on benchmark.
 
 use core::{
     mem::ManuallyDrop,
     sync::atomic::{self, AtomicUsize, Ordering},
 };
 
-use super::utils::Backoff;
+use super::super::utils::Backoff;
 
 // See mod.rs for details.
 pub(super) type AtomicChunk = AtomicUsize;

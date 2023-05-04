@@ -1,6 +1,6 @@
 #![allow(unused_macros)]
 
-use core::sync::atomic::Ordering;
+pub(crate) use core::sync::atomic::Ordering;
 
 macro_rules! __test_atomic_common {
     ($atomic_type:ty, $value_type:ty) => {

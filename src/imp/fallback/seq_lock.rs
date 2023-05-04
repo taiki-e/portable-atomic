@@ -5,7 +5,7 @@ use core::{
     sync::atomic::{self, Ordering},
 };
 
-use super::utils::Backoff;
+use super::super::utils::Backoff;
 
 // See mod.rs for details.
 #[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]

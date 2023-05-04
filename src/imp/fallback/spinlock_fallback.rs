@@ -4,15 +4,13 @@
 //
 // Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
 // type and the value type must be the same.
-//
-// This module is currently only enabled on benchmark.
 
 use core::{
     cell::UnsafeCell,
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use super::fallback::utils::{Backoff, CachePadded};
+use super::utils::{Backoff, CachePadded};
 
 struct Spinlock {
     state: AtomicUsize,
@@ -319,13 +317,17 @@ macro_rules! atomic_int {
     };
 }
 
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
-atomic_int!(AtomicI32, i32, 4);
-atomic_int!(AtomicU32, u32, 4);
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(test, not(target_has_atomic = "64")))
+)]
 atomic_int!(AtomicI64, i64, 8);
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(test, not(target_has_atomic = "64")))
+)]
 atomic_int!(AtomicU64, u64, 8);
 atomic_int!(AtomicI128, i128, 16);
 atomic_int!(AtomicU128, u128, 16);
@@ -334,12 +336,6 @@ atomic_int!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    test_atomic_int!(i8);
-    test_atomic_int!(u8);
-    test_atomic_int!(i16);
-    test_atomic_int!(u16);
-    test_atomic_int!(i32);
-    test_atomic_int!(u32);
     test_atomic_int!(i64);
     test_atomic_int!(u64);
     test_atomic_int!(i128);
