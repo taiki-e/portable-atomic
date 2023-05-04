@@ -671,7 +671,10 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), true);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn load(&self, order: Ordering) -> bool {
         self.inner.load(order)
     }
@@ -696,7 +699,10 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn store(&self, val: bool, order: Ordering) {
         self.inner.store(val, order);
     }
@@ -720,6 +726,7 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
         self.inner.swap(val, order)
     }
@@ -762,7 +769,10 @@ impl AtomicBool {
     /// ```
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn compare_exchange(
         &self,
         current: bool,
@@ -810,7 +820,10 @@ impl AtomicBool {
     /// ```
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn compare_exchange_weak(
         &self,
         current: bool,
@@ -851,6 +864,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_and(val, order)
     }
@@ -894,6 +908,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
         self.inner.and(val, order);
     }
@@ -929,6 +944,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
         // https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L811-L825
         if val {
@@ -972,6 +988,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_or(val, order)
     }
@@ -1015,6 +1032,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn or(&self, val: bool, order: Ordering) {
         self.inner.or(val, order);
     }
@@ -1049,6 +1067,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
         self.inner.fetch_xor(val, order)
     }
@@ -1092,6 +1111,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
         self.inner.xor(val, order);
     }
@@ -1122,6 +1142,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_not(&self, order: Ordering) -> bool {
         self.fetch_xor(true, order)
     }
@@ -1161,6 +1182,7 @@ impl AtomicBool {
     /// assert_eq!(foo.load(Ordering::SeqCst), true);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn not(&self, order: Ordering) {
         self.xor(true, order);
     }
@@ -1210,7 +1232,10 @@ impl AtomicBool {
     /// assert_eq!(x.load(Ordering::SeqCst), false);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn fetch_update<F>(
         &self,
         set_order: Ordering,
@@ -1435,7 +1460,10 @@ impl<T> AtomicPtr<T> {
     /// let value = some_ptr.load(Ordering::Relaxed);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn load(&self, order: Ordering) -> *mut T {
         self.inner.load(order)
     }
@@ -1462,7 +1490,10 @@ impl<T> AtomicPtr<T> {
     /// some_ptr.store(other_ptr, Ordering::Relaxed);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn store(&self, ptr: *mut T, order: Ordering) {
         self.inner.store(ptr, order);
     }
@@ -1488,6 +1519,7 @@ impl<T> AtomicPtr<T> {
     /// let value = some_ptr.swap(other_ptr, Ordering::Relaxed);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         self.inner.swap(ptr, order)
     }
@@ -1523,7 +1555,10 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn compare_exchange(
         &self,
         current: *mut T,
@@ -1571,7 +1606,10 @@ impl<T> AtomicPtr<T> {
     /// ```
     #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn compare_exchange_weak(
         &self,
         current: *mut T,
@@ -1636,7 +1674,10 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(some_ptr.load(Ordering::SeqCst), new);
     /// ```
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub fn fetch_update<F>(
         &self,
         set_order: Ordering,
@@ -1658,6 +1699,7 @@ impl<T> AtomicPtr<T> {
 
     #[cfg(miri)]
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> *mut T
     where
         F: FnMut(*mut T) -> *mut T,
@@ -1706,6 +1748,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 8);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
     }
@@ -1741,6 +1784,7 @@ impl<T> AtomicPtr<T> {
     /// assert!(core::ptr::eq(atom.load(Ordering::Relaxed), &array[0]));
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
         self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
     }
@@ -1772,6 +1816,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 1);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -1815,6 +1860,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.load(Ordering::Relaxed).addr(), 0);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -1873,6 +1919,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -1929,6 +1976,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(untagged, pointer);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -1984,6 +2032,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2030,6 +2079,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(tagged.map_addr(|p| p & !1), pointer);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2074,6 +2124,7 @@ impl<T> AtomicPtr<T> {
     /// assert!(atom.bit_clear(0, Ordering::Relaxed));
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2118,6 +2169,7 @@ impl<T> AtomicPtr<T> {
     /// assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
     /// ```
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
         // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
         // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
@@ -2368,7 +2420,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 5);
 ```"),
                 #[inline]
                 #[cfg_attr(
-                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
                 )]
                 pub fn load(&self, order: Ordering) -> $int_type {
@@ -2398,7 +2450,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
 ```"),
                 #[inline]
                 #[cfg_attr(
-                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
                 )]
                 pub fn store(&self, val: $int_type, order: Ordering) {
@@ -2425,6 +2477,7 @@ let some_var = ", stringify!($atomic_type), "::new(5);
 assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.swap(val, order)
                 }
@@ -2472,7 +2525,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
-                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
                 )]
                 pub fn compare_exchange(
@@ -2526,7 +2579,7 @@ loop {
                 #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
-                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
                 )]
                 pub fn compare_exchange_weak(
@@ -2560,6 +2613,7 @@ assert_eq!(foo.fetch_add(10, Ordering::SeqCst), 0);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_add(val, order)
                 }
@@ -2591,6 +2645,7 @@ foo.add(10, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn add(&self, val: $int_type, order: Ordering) {
                     self.inner.add(val, order);
                 }
@@ -2616,6 +2671,7 @@ assert_eq!(foo.fetch_sub(10, Ordering::SeqCst), 20);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_sub(val, order)
                 }
@@ -2647,6 +2703,7 @@ foo.sub(10, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 10);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn sub(&self, val: $int_type, order: Ordering) {
                     self.inner.sub(val, order);
                 }
@@ -2675,6 +2732,7 @@ assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_and(val, order)
                 }
@@ -2712,6 +2770,7 @@ assert_eq!(foo.fetch_and(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn and(&self, val: $int_type, order: Ordering) {
                     self.inner.and(val, order);
                 }
@@ -2740,6 +2799,7 @@ assert_eq!(foo.fetch_nand(0x31, Ordering::SeqCst), 0x13);
 assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_nand(val, order)
                 }
@@ -2768,6 +2828,7 @@ assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_or(val, order)
                 }
@@ -2805,6 +2866,7 @@ assert_eq!(foo.fetch_or(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b111111);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn or(&self, val: $int_type, order: Ordering) {
                     self.inner.or(val, order);
                 }
@@ -2833,6 +2895,7 @@ assert_eq!(foo.fetch_xor(0b110011, Ordering::SeqCst), 0b101101);
 assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_xor(val, order)
                 }
@@ -2870,6 +2933,7 @@ foo.xor(0b110011, Ordering::SeqCst);
 assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn xor(&self, val: $int_type, order: Ordering) {
                     self.inner.xor(val, order);
                 }
@@ -2919,7 +2983,7 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
 ```"),
                 #[inline]
                 #[cfg_attr(
-                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
                 )]
                 pub fn fetch_update<F>(
@@ -2976,6 +3040,7 @@ let max_foo = foo.fetch_max(bar, Ordering::SeqCst).max(bar);
 assert!(max_foo == 42);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_max(val, order)
                 }
@@ -3017,6 +3082,7 @@ let min_foo = foo.fetch_min(bar, Ordering::SeqCst).min(bar);
 assert_eq!(min_foo, 12);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                     self.inner.fetch_min(val, order)
                 }
@@ -3046,6 +3112,7 @@ assert!(foo.bit_set(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_set(bit, order)
                 }
@@ -3073,6 +3140,7 @@ assert!(foo.bit_clear(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_clear(bit, order)
                 }
@@ -3102,6 +3170,7 @@ assert!(foo.bit_toggle(0, Ordering::Relaxed));
 assert_eq!(foo.load(Ordering::Relaxed), 0b0000);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
                     self.inner.bit_toggle(bit, order)
                 }
@@ -3127,6 +3196,7 @@ assert_eq!(foo.fetch_not(Ordering::Relaxed), 0);
 assert_eq!(foo.load(Ordering::Relaxed), !0);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_not(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_not(order)
                 }
@@ -3156,6 +3226,7 @@ foo.not(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), !0);
 ```"),
                     #[inline]
+                    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                     pub fn not(&self, order: Ordering) {
                         self.inner.not(order);
                     }
@@ -3184,6 +3255,7 @@ assert_eq!(foo.fetch_neg(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapp
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
                 #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                 pub fn fetch_neg(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_neg(order)
                 }
@@ -3214,6 +3286,7 @@ foo.neg(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
                     #[inline]
+                    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                     pub fn neg(&self, order: Ordering) {
                         self.inner.neg(order);
                     }
@@ -3355,7 +3428,10 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `order` is [`Release`] or [`AcqRel`].
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub fn load(&self, order: Ordering) -> $float_type {
                 self.inner.load(order)
             }
@@ -3369,7 +3445,10 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `order` is [`Acquire`] or [`AcqRel`].
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub fn store(&self, val: $float_type, order: Ordering) {
                 self.inner.store(val, order)
             }
@@ -3382,6 +3461,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.swap(val, order)
             }
@@ -3406,7 +3486,10 @@ This type has the same in-memory representation as the underlying floating point
             /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub fn compare_exchange(
                 &self,
                 current: $float_type,
@@ -3438,7 +3521,10 @@ This type has the same in-memory representation as the underlying floating point
             /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub fn compare_exchange_weak(
                 &self,
                 current: $float_type,
@@ -3458,6 +3544,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_add(val, order)
             }
@@ -3471,6 +3558,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_sub(val, order)
             }
@@ -3505,7 +3593,10 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// [ABA Problem]: https://en.wikipedia.org/wiki/ABA_problem
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub fn fetch_update<F>(
                 &self,
                 set_order: Ordering,
@@ -3537,6 +3628,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_max(val, order)
             }
@@ -3553,6 +3645,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_min(val, order)
             }
@@ -3566,6 +3659,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_neg(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_neg(order)
             }
@@ -3580,6 +3674,7 @@ This type has the same in-memory representation as the underlying floating point
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
             /// using [`Release`] makes the load part [`Relaxed`].
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_abs(order)
             }

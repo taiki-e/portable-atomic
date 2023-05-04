@@ -162,14 +162,17 @@ macro_rules! impl_default_no_fetch_ops {
     ($atomic_type:ident, bool) => {
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn and(&self, val: bool, order: Ordering) {
                 self.fetch_and(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn or(&self, val: bool, order: Ordering) {
                 self.fetch_or(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn xor(&self, val: bool, order: Ordering) {
                 self.fetch_xor(val, order);
             }
@@ -178,22 +181,27 @@ macro_rules! impl_default_no_fetch_ops {
     ($atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn add(&self, val: $int_type, order: Ordering) {
                 self.fetch_add(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
                 self.fetch_sub(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn and(&self, val: $int_type, order: Ordering) {
                 self.fetch_and(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn or(&self, val: $int_type, order: Ordering) {
                 self.fetch_or(val, order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
                 self.fetch_xor(val, order);
             }
@@ -204,16 +212,19 @@ macro_rules! impl_default_bit_opts {
     ($atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_set(&self, bit: u32, order: Ordering) -> bool {
                 let mask = (1 as $int_type).wrapping_shl(bit);
                 self.fetch_or(mask, order) & mask != 0
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
                 let mask = (1 as $int_type).wrapping_shl(bit);
                 self.fetch_and(!mask, order) & mask != 0
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
                 let mask = (1 as $int_type).wrapping_shl(bit);
                 self.fetch_xor(mask, order) & mask != 0

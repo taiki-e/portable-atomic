@@ -48,13 +48,19 @@ impl AtomicBool {
         self.inner.into_inner()
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn load(&self, order: Ordering) -> bool {
         crate::utils::assert_load_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.load(order)
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(val, order);
@@ -81,7 +87,10 @@ impl_default_no_fetch_ops!(AtomicBool, bool);
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 impl AtomicBool {
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn compare_exchange(
         &self,
         current: bool,
@@ -95,7 +104,10 @@ impl AtomicBool {
         self.inner.compare_exchange(current, new, success, failure)
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn compare_exchange_weak(
         &self,
         current: bool,
@@ -113,6 +125,7 @@ impl AtomicBool {
 impl core::ops::Deref for AtomicBool {
     type Target = core::sync::atomic::AtomicBool;
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
@@ -146,13 +159,19 @@ impl<T> AtomicPtr<T> {
         self.inner.into_inner()
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.load(order)
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(ptr, order);
@@ -172,7 +191,10 @@ impl<T> AtomicPtr<T> {
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 impl<T> AtomicPtr<T> {
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn compare_exchange(
         &self,
         current: *mut T,
@@ -186,7 +208,10 @@ impl<T> AtomicPtr<T> {
         self.inner.compare_exchange(current, new, success, failure)
     }
     #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    #[cfg_attr(
+        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+        track_caller
+    )]
     pub(crate) fn compare_exchange_weak(
         &self,
         current: *mut T,
@@ -203,6 +228,7 @@ impl<T> AtomicPtr<T> {
 impl<T> core::ops::Deref for AtomicPtr<T> {
     type Target = core::sync::atomic::AtomicPtr<T>;
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
@@ -255,13 +281,19 @@ macro_rules! atomic_int {
                 self.inner.into_inner()
             }
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.load(order)
             }
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.store(val, order);
@@ -286,7 +318,10 @@ macro_rules! atomic_int {
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         impl $atomic_type {
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $int_type,
@@ -300,7 +335,10 @@ macro_rules! atomic_int {
                 self.inner.compare_exchange(current, new, success, failure)
             }
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $int_type,
@@ -315,6 +353,7 @@ macro_rules! atomic_int {
             }
             #[allow(dead_code)]
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> $int_type
             where
                 F: FnMut($int_type) -> $int_type,
@@ -331,6 +370,7 @@ macro_rules! atomic_int {
                 }
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
@@ -380,6 +420,7 @@ macro_rules! atomic_int {
                 }
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 #[cfg(not(portable_atomic_no_atomic_min_max))]
                 {
@@ -429,6 +470,7 @@ macro_rules! atomic_int {
                 }
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
                 const NOT_MASK: $int_type = (0 as $int_type).wrapping_sub(1);
                 self.fetch_xor(NOT_MASK, order)
@@ -439,10 +481,12 @@ macro_rules! atomic_int {
                 any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
                 self.fetch_update_(order, $int_type::wrapping_neg)
             }
@@ -452,6 +496,7 @@ macro_rules! atomic_int {
                 any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
             }
@@ -459,6 +504,7 @@ macro_rules! atomic_int {
         impl core::ops::Deref for $atomic_type {
             type Target = core::sync::atomic::$atomic_type;
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             fn deref(&self) -> &Self::Target {
                 &self.inner
             }

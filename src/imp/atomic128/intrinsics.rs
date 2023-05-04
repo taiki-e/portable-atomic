@@ -58,6 +58,7 @@ fn strongest_failure_ordering(order: Ordering) -> Ordering {
 }
 
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     #[cfg(target_arch = "x86_64")]
     // SAFETY: the caller must uphold the safety contract.
@@ -80,6 +81,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 }
 
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     #[cfg(target_arch = "x86_64")]
     // SAFETY: the caller must uphold the safety contract.
@@ -99,6 +101,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 }
 
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_compare_exchange(
     dst: *mut u128,
     old: u128,
@@ -185,6 +188,7 @@ unsafe fn atomic_compare_exchange(
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 #[cfg(not(target_arch = "x86_64"))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_compare_exchange_weak(
     dst: *mut u128,
     old: u128,
@@ -221,6 +225,7 @@ unsafe fn atomic_compare_exchange_weak(
 }
 
 #[inline(always)]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
     F: FnMut(u128) -> u128,
@@ -250,6 +255,7 @@ atomic_rmw_by_atomic_update!(cmp);
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -266,6 +272,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -282,6 +289,7 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -298,6 +306,7 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -314,6 +323,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -330,6 +340,7 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -346,6 +357,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -362,6 +374,7 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -378,6 +391,7 @@ unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -394,6 +408,7 @@ unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -410,6 +425,7 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -426,6 +442,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe { atomic_xor(dst, core::u128::MAX, order) }
@@ -433,6 +450,7 @@ unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
 
 #[cfg(not(any(target_arch = "x86_64", target_arch = "s390x")))]
 #[inline]
+#[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe { atomic_update(dst, order, u128::wrapping_neg) }

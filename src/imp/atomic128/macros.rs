@@ -39,7 +39,10 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -48,7 +51,10 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -57,6 +63,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -64,7 +71,10 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $int_type,
@@ -90,7 +100,10 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $int_type,
@@ -116,6 +129,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -123,6 +137,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -130,6 +145,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -137,6 +153,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -144,6 +161,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -151,6 +169,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -158,6 +177,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -165,6 +185,7 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -172,23 +193,27 @@ macro_rules! atomic128 {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_not(self.v.get().cast::<u128>(), order) as $int_type }
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_neg(self.v.get().cast::<u128>(), order) as $int_type }
             }
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn neg(&self, order: Ordering) {
                 self.fetch_neg(order);
             }
@@ -206,46 +231,55 @@ macro_rules! atomic128 {
 macro_rules! atomic_rmw_by_atomic_update {
     () => {
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |_| val) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x.wrapping_add(val)) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x.wrapping_sub(val)) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x & val) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| !(x & val)) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x | val) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| x ^ val) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| !x) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, u128::wrapping_neg) }
@@ -254,6 +288,7 @@ macro_rules! atomic_rmw_by_atomic_update {
     };
     (cmp) => {
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
             // SAFETY: the caller must uphold the safety contract.
@@ -262,11 +297,13 @@ macro_rules! atomic_rmw_by_atomic_update {
             }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| core::cmp::max(x, val)) }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
             // SAFETY: the caller must uphold the safety contract.
@@ -275,6 +312,7 @@ macro_rules! atomic_rmw_by_atomic_update {
             }
         }
         #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
         unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             // SAFETY: the caller must uphold the safety contract.
             unsafe { atomic_update(dst, order, |x| core::cmp::min(x, val)) }

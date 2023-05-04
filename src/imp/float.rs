@@ -61,13 +61,19 @@ macro_rules! atomic_float {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn load(&self, order: Ordering) -> $float_type {
                 $float_type::from_bits(self.as_bits().load(order))
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn store(&self, val: $float_type, order: Ordering) {
                 self.as_bits().store(val.to_bits(), order)
             }
@@ -91,12 +97,16 @@ macro_rules! atomic_float {
         cfg_has_atomic_cas! {
         impl $atomic_type {
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 $float_type::from_bits(self.as_bits().swap(val.to_bits(), order))
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange(
                 &self,
                 current: $float_type,
@@ -116,7 +126,10 @@ macro_rules! atomic_float {
             }
 
             #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
             pub(crate) fn compare_exchange_weak(
                 &self,
                 current: $float_type,
@@ -136,16 +149,19 @@ macro_rules! atomic_float {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x + val)
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x - val)
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> $float_type
             where
                 F: FnMut($float_type) -> $float_type,
@@ -163,22 +179,26 @@ macro_rules! atomic_float {
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x.max(val))
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x.min(val))
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $float_type {
                 const NEG_MASK: $int_type = !0 / 2 + 1;
                 $float_type::from_bits(self.as_bits().fetch_xor(NEG_MASK, order))
             }
 
             #[inline]
+            #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_abs(&self, order: Ordering) -> $float_type {
                 const ABS_MASK: $int_type = !0 / 2;
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
