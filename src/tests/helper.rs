@@ -86,7 +86,7 @@ macro_rules! __test_atomic_int_load_store {
         fn stress_load_store() {
             let iterations = if cfg!(miri) {
                 50
-            } else if cfg!(valgrind) && cfg!(debug_assertions) {
+            } else if (cfg!(valgrind) || cfg!(qemu)) && cfg!(debug_assertions) {
                 5_000
             } else {
                 25_000
@@ -2096,13 +2096,7 @@ macro_rules! __stress_test_acquire_release {
             convert::TryFrom,
             sync::atomic::{AtomicUsize, Ordering},
         };
-        let mut n: usize = if cfg!(miri) {
-            10
-        } else if cfg!(valgrind) {
-            50
-        } else {
-            50_000
-        };
+        let mut n: usize = if cfg!(miri) { 10 } else { 50_000 };
         // This test is relatively fast because it spawns only one thread, but
         // the iterations are limited to a maximum value of integers.
         if $int_type::try_from(n).is_err() {

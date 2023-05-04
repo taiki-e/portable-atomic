@@ -133,7 +133,7 @@ target_lower="${target_lower//./_}"
 target_upper="$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")"
 
 if [[ -n "${VALGRIND:-}" ]]; then
-    export "CARGO_TARGET_${target_upper}_RUNNER"="${VALGRIND} -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes"
+    export "CARGO_TARGET_${target_upper}_RUNNER"="${VALGRIND} -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes"
     export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
     export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
     # doctest on Valgrind is very slow

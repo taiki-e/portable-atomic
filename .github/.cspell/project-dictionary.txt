@@ -103,6 +103,7 @@ reentrancy
 relibc
 rsil
 sbcs
+sched
 seqlock
 setb
 sete
