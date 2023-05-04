@@ -84,11 +84,13 @@ neoverse
 newlib
 newrepo
 newtype
+noconfirm
 nostartfiles
 nostdinc
 opensbi
 osfmk
 osxsave
+pacman
 picolibc
 posix
 prefetcher

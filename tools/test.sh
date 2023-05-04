@@ -31,7 +31,11 @@ x_cargo() {
     if [[ -n "${CARGO_PROFILE_RELEASE_LTO:-}" ]]; then
         echo "+ CARGO_PROFILE_RELEASE_LTO='${CARGO_PROFILE_RELEASE_LTO}' \\"
     fi
-    x "${cargo}" "$@"
+    if [[ -n "${TS:-}" ]]; then
+        x "${cargo}" "$@" 2>&1 | "${TS}" -i '%.s  '
+    else
+        x "${cargo}" "$@"
+    fi
     echo
 }
 bail() {
@@ -87,6 +91,11 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
 fi
 export RUST_TEST_THREADS=1
+if type -P ts &>/dev/null; then
+    TS=ts
+elif [[ -e C:/msys64/usr/bin/ts ]]; then
+    TS=C:/msys64/usr/bin/ts
+fi
 
 args=()
 if [[ -z "${target}" ]] && [[ -n "${build_std}" ]]; then

@@ -43,6 +43,7 @@ jobs:
     with:
       target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
   msrv:
+    needs: tidy
     uses: taiki-e/workflows/.github/workflows/msrv.yml@main
     with:
       event_name: ${{ github.event_name }}
@@ -50,8 +51,12 @@ jobs:
       args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
+    with:
+      # clippy is covered by TESTS=1 ./tools/build.sh
+      clippy: false
 
   test:
+    needs: tidy
     env:
       cargo: cargo
     strategy:
@@ -79,8 +84,14 @@ jobs:
             target: aarch64_be-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-musl
+          - rust: stable
+            target: aarch64-unknown-linux-musl
+            flags: -C target-feature=-crt-static
           - rust: nightly
             target: aarch64-unknown-linux-musl
+          - rust: nightly
+            target: aarch64-unknown-linux-musl
+            flags: -C target-feature=-crt-static
           - rust: stable
             target: aarch64-linux-android
           - rust: nightly
@@ -129,15 +140,22 @@ jobs:
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - run: lscpu
+      - run: |
+          lscpu
+          sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
         if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
-      - run: sysctl hw.optional machdep.cpu
+      - run: |
+          sysctl hw.optional machdep.cpu
+          brew install moreutils
         if: startsWith(matrix.os, 'macos')
+      - run: |
+          C:/msys64/usr/bin/pacman -S --noconfirm moreutils
+        if: startsWith(matrix.os, 'windows')
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - run: rustup toolchain add nightly --no-self-update
@@ -159,16 +177,26 @@ jobs:
         if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
+      - run: |
+          echo "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+        if: matrix.flags != ''
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
-      - run: echo "REPORT_TIME=-- -Z unstable-options --report-time" >>"${GITHUB_ENV}"
-        if: startsWith(matrix.rust, 'nightly')
-        # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on windows causes segfault.
+      # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on windows causes segfault.
       - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
+        # outline-atomics is disabled by default on aarch64 musl with static linking
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
           # test cases such as has_cmpxchg16b == false, has_lse == false,
@@ -176,30 +204,24 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
         # outline-atomics is disabled by default on aarch64 musl with static linking
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-musl') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       # outline-atomics is disabled by default on aarch64 musl with static linking and powerpc64
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') || startsWith(matrix.target, 'powerpc64-')
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
           # test cases such as has_cmpxchg16b == false, has_lse == false,
           # __kuser_helper_version < 5, etc., and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') || startsWith(matrix.target, 'powerpc64-')
-      # -crt-static
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=-crt-static
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-crt-static
-        if: contains(matrix.target, '-musl')
+        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
       # +cmpxchg16b
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
@@ -208,21 +230,21 @@ jobs:
       # +lse
       # As of QEMU 8.0, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
       # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
@@ -235,6 +257,7 @@ jobs:
         if: matrix.rust != '1.54'
 
   build:
+    needs: tidy
     name: build (${{ matrix.name || matrix.rust }})
     strategy:
       fail-fast: false
@@ -288,6 +311,7 @@ jobs:
           TARGET_GROUP: ${{ matrix.target-group }}
 
   no-std:
+    needs: tidy
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -325,15 +349,18 @@ jobs:
       - run: tools/no-std.sh +esp xtensa-esp32-none-elf
 
   miri:
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - '' # x86_64-unknown-linux-gnu
-          - aarch64-unknown-linux-gnu
-          - i686-unknown-linux-gnu
-          - powerpc64le-unknown-linux-gnu
-          - s390x-unknown-linux-gnu
+        include:
+          - target: x86_64-unknown-linux-gnu
+          - target: x86_64-unknown-linux-gnu
+            flags: -C target-feature=+cmpxchg16b
+          - target: aarch64-unknown-linux-gnu
+          - target: i686-unknown-linux-gnu
+          - target: powerpc64le-unknown-linux-gnu
+          - target: s390x-unknown-linux-gnu
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -344,7 +371,11 @@ jobs:
         run: rustup toolchain add nightly --no-self-update --component miri && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
-        if: matrix.target != ''
+        if: matrix.target != 'x86_64-unknown-linux-gnu'
+      - run: |
+          echo "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+        if: matrix.flags != ''
       - run: cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
@@ -353,6 +384,7 @@ jobs:
           QUICKCHECK_TESTS: 10
 
   san:
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -383,14 +415,17 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
-      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -Z build-std
+      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # +cmpxchg16b
-      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -Z build-std -vv --tests
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
   valgrind:
+    needs: tidy
     env:
       VALGRIND: valgrind
     runs-on: ubuntu-latest
@@ -403,15 +438,18 @@ jobs:
         run: rustup toolchain add nightly --no-self-update && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
-      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -vv
+      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # +cmpxchg16b
-      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -vv --tests
         env:
           # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
   codegen:
+    needs: tidy
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:

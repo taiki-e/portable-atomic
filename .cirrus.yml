@@ -12,37 +12,56 @@ env:
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
 
-aarch64_linux_gnu_test_task:
-  env:
-    TARGET: aarch64-unknown-linux-gnu
+aarch64_linux_dynamic_linking_test_task:
   matrix:
     - name: test ($TARGET)
+      env:
+        TARGET: aarch64-unknown-linux-gnu
       arm_container:
         image: rust:latest
       setup_script:
         - set -ex
         - lscpu
         - rustup toolchain add nightly --no-self-update && rustup default nightly
+        - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
     - name: test ($TARGET, glibc 2.17)
+      env:
+        TARGET: aarch64-unknown-linux-gnu
       arm_container:
         # glibc 2.17 is the minimum glibc version that aarch64 support is available: https://sourceware.org/legacy-ml/libc-announce/2012/msg00001.html
         image: centos:7
       setup_script:
         - set -ex
         - lscpu
-        - yum install -y gcc git
+        - yum install -y gcc git moreutils
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
+    - name: test ($TARGET, -C target-feature=-crt-static)
+      env:
+        TARGET: aarch64-unknown-linux-musl
+        RUSTDOCFLAGS: -D warnings -C target-feature=-crt-static
+        RUSTFLAGS: -D warnings -C target-feature=-crt-static
+      arm_container:
+        image: rust:alpine
+      setup_script:
+        - set -ex
+        - apk --no-cache add bash git musl-dev util-linux moreutils
+        - lscpu
+        - rustup toolchain add nightly --no-self-update && rustup default nightly
   test_script:
     - |
       [ ! -f $HOME/.cargo/env ] || . $HOME/.cargo/env
     - set -ex
-    - ./tools/test.sh -vv -- -Z unstable-options --report-time
+    - ./tools/test.sh -vv
+    # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+    # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+    # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
+    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
     # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv -- -Z unstable-options --report-time
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 
-aarch64_linux_musl_test_task:
+aarch64_linux_static_linking_test_task:
   name: test ($TARGET)
   env:
     TARGET: aarch64-unknown-linux-musl
@@ -50,18 +69,20 @@ aarch64_linux_musl_test_task:
     image: rust:alpine
   setup_script:
     - set -ex
-    - apk --no-cache add bash git musl-dev util-linux
+    - apk --no-cache add bash git musl-dev util-linux moreutils
     - lscpu
     - rustup toolchain add nightly --no-self-update && rustup default nightly
   test_script:
     - set -ex
-    - ./tools/test.sh -vv -- -Z unstable-options --report-time
-    # -crt-static
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=-crt-static" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=-crt-static" ./tools/test.sh -vv -- -Z unstable-options --report-time
+    - ./tools/test.sh -vv
+    # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+    # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+    # outline-atomics is disabled by default on linux-musl with static linking.
+    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
     # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv -- -Z unstable-options --report-time
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 
 arm_linux_test_task:
   name: test ($TARGET)
@@ -79,12 +100,12 @@ arm_linux_test_task:
     - lscpu
     - rustup toolchain add nightly --no-self-update && rustup default nightly
     - dpkg --add-architecture "$DPKG_ARCH"
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH"
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH" moreutils
   test_script:
     - set -ex
     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
     - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv -- -Z unstable-options --report-time
+    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
 
 aarch64_macos_test_task:
   name: test ($TARGET)
@@ -95,12 +116,13 @@ aarch64_macos_test_task:
   setup_script:
     - set -ex
     - sysctl hw.optional machdep.cpu
+    - brew install moreutils
     - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
   test_script:
     - . $HOME/.cargo/env
     - set -ex
     # macOS is +lse,+lse2 by default
-    - ./tools/test.sh -vv -- -Z unstable-options --report-time
+    - ./tools/test.sh -vv
 
 aarch64_linux_valgrind_task:
   name: valgrind ($TARGET)
@@ -118,10 +140,14 @@ aarch64_linux_valgrind_task:
   test_script:
     - . $HOME/.cargo/env
     - set -ex
-    - ./tools/test.sh -vv 2>&1 | ts -i '%.s  '
+    - ./tools/test.sh -vv
+    # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
+    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
+    # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+    # and src/tests have extended copies of doctest, so this will not reduce test coverage.
     # +lse
     # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv 2>&1 | ts -i '%.s  '
+    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 #
 # aarch64_linux_bench_task:
 #   name: bench ($TARGET)
