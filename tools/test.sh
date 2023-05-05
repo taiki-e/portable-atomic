@@ -91,10 +91,12 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
 fi
 export RUST_TEST_THREADS=1
-if type -P ts &>/dev/null; then
-    TS=ts
-elif [[ -e C:/msys64/usr/bin/ts ]]; then
-    TS=C:/msys64/usr/bin/ts
+if [[ -n "${CI:-}" ]]; then
+    if type -P ts &>/dev/null; then
+        TS=ts
+    elif [[ -e C:/msys64/usr/bin/ts ]]; then
+        TS=C:/msys64/usr/bin/ts
+    fi
 fi
 
 args=()
