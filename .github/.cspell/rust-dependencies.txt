@@ -8,7 +8,6 @@ globset
 libc
 prettyplease
 quickcheck
-rustversion
 semihosting
 sptr
 ufmt

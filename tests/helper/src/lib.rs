@@ -49,15 +49,3 @@ pub const COMPARE_EXCHANGE_ORDERINGS: [(Ordering, Ordering); 15] = [
 ];
 pub const FENCE_ORDERINGS: [Ordering; 4] =
     [Ordering::Release, Ordering::Acquire, Ordering::AcqRel, Ordering::SeqCst];
-
-// For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
-#[cfg(feature = "std")]
-#[rustversion::since(1.60)] // cfg!(panic) requires Rust 1.60
-pub fn is_panic_abort() -> bool {
-    cfg!(panic = "abort")
-}
-#[cfg(feature = "std")]
-#[rustversion::before(1.60)] // cfg!(panic) requires Rust 1.60
-pub fn is_panic_abort() -> bool {
-    false
-}

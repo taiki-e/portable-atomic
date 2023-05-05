@@ -2057,10 +2057,15 @@ pub(crate) fn test_swap_ordering<T: std::fmt::Debug>(f: impl Fn(Ordering) -> T) 
 fn skip_should_panic_test() -> bool {
     // Miri's panic handling is slow
     // MSAN false positive: https://gist.github.com/taiki-e/dd6269a8ffec46284fdc764a4849f884
-    test_helper::is_panic_abort()
+    is_panic_abort()
         || cfg!(miri)
         || option_env!("CARGO_PROFILE_RELEASE_LTO").map_or(false, |v| v == "fat")
             && build_context::SANITIZE.contains("memory")
+}
+
+// For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
+fn is_panic_abort() -> bool {
+    build_context::PANIC.contains("abort")
 }
 
 // Test the cases that should not fail if the memory ordering is implemented correctly.
@@ -2219,7 +2224,7 @@ pub(crate) fn catch_unwind_on_weak_memory_arch(pat: &str, f: impl Fn()) {
         not(any(miri)),
     )) {
         f();
-    } else if !test_helper::is_panic_abort() {
+    } else if !is_panic_abort() {
         // This could be is_err on architectures with weak memory models.
         // However, this does not necessarily mean that it will always be panic,
         // and implementing it with stronger orderings is also okay.
@@ -2240,7 +2245,7 @@ pub(crate) fn catch_unwind_on_weak_memory_arch(pat: &str, f: impl Fn()) {
 // Catches unwinding panic on architectures with non-sequentially consistent memory models.
 #[allow(dead_code, clippy::used_underscore_binding)]
 pub(crate) fn catch_unwind_on_non_seqcst_arch(pat: &str, f: impl Fn()) {
-    if !test_helper::is_panic_abort() {
+    if !is_panic_abort() {
         // This could be Err on architectures with non-sequentially consistent memory models.
         // However, this does not necessarily mean that it will always be panic,
         // and implementing it with stronger orderings is also okay.
