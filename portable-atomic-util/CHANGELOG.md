@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.1.3] - 2023-05-06
+
 - Enable `portable-atomic`'s `require-cas` feature to display helpful error messages to users on targets requiring additional action on the user side to provide atomic CAS. ([#100](https://github.com/taiki-e/portable-atomic/pull/100))
 
 ## [0.1.2] - 2023-04-04
@@ -26,7 +28,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.3...HEAD
+[0.1.3]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.2...portable-atomic-util-0.1.3
 [0.1.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.1...portable-atomic-util-0.1.2
 [0.1.1]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.0...portable-atomic-util-0.1.1
 [0.1.0]: https://github.com/taiki-e/portable-atomic/releases/tag/portable-atomic-util-0.1.0
