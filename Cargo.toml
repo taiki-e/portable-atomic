@@ -38,29 +38,28 @@ default = ["fallback"]
 fallback = []
 
 # Provide `AtomicF{32,64}`.
-# Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
+#
+# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-float
 float = []
 
 # Use `std`.
 std = []
 
 # Emit compile error if atomic CAS is not available.
+#
+# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-require-cas
 require-cas = []
 
 # Note: serde and critical-section are public dependencies.
 [dependencies]
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
-# Note:
-# - The MSRV when this feature is enabled depends on the MSRV of serde.
+# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-serde
 serde = { version = "1.0.103", optional = true, default-features = false }
 
 # Use `critical-section`.
 #
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-critical-section
-#
-# Note:
-# - The MSRV when this feature is enabled depends on the MSRV of critical-section.
 critical-section = { version = "1", optional = true }
 
 [dev-dependencies]

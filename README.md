@@ -69,15 +69,16 @@ See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-a
 
 - <a name="optional-features-float"></a>**`float`**<br>
   Provide `AtomicF{32,64}`.
-  Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
+
+  Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers. ([GPU targets have atomic instructions for float, so we plan to use these instructions for GPU targets in the future.](https://github.com/taiki-e/portable-atomic/issues/34))
 
 - **`std`**<br>
   Use `std`.
 
-- **`require-cas`**<br>
+- <a name="optional-features-require-cas"></a>**`require-cas`**<br>
   Emit compile error if atomic CAS is not available. See [Usage](#usage) section and [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.
 
-- **`serde`**<br>
+- <a name="optional-features-serde"></a>**`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
 
   Note:
