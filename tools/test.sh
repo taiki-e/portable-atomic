@@ -133,6 +133,7 @@ target="${target:-"${host}"}"
 target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
 target_upper="$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")"
+randomize_layout=' -Z randomize-layout'
 
 if [[ -n "${VALGRIND:-}" ]]; then
     export "CARGO_TARGET_${target_upper}_RUNNER"="${VALGRIND} -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes"
@@ -167,8 +168,8 @@ run() {
         x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests --target-dir target/fat-lto "$@"
 
     if [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
-        RUSTFLAGS="${RUSTFLAGS:-} ${RANDOMIZE_LAYOUT:-}" \
-            RUSTDOCFLAGS="${RUSTDOCFLAGS:-} ${RANDOMIZE_LAYOUT:-}" \
+        RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout:-}" \
+            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout:-}" \
             x_cargo ${pre_args[@]+"${pre_args[@]}"} careful test ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
     fi
 }

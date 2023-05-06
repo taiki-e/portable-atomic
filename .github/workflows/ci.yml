@@ -183,9 +183,6 @@ jobs:
         if: matrix.flags != ''
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
-      # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on windows causes segfault.
-      - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
-        if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
