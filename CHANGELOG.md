@@ -18,7 +18,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   ```toml
   [dependencies]
-  portable-atomic = { version = "1", default-features = false, features = ["require-cas"] }
+  portable-atomic = { version = "1.3", default-features = false, features = ["require-cas"] }
   ```
 
   See [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.

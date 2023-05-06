@@ -37,7 +37,7 @@ If your crate supports no-std environment and requires atomic CAS, enabling the 
 
 ```toml
 [dependencies]
-portable-atomic = { version = "1", default-features = false, features = ["require-cas"] }
+portable-atomic = { version = "1.3", default-features = false, features = ["require-cas"] }
 ```
 
 *Compiler support: requires rustc 1.34+*
