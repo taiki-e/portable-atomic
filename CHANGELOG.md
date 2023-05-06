@@ -10,9 +10,30 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `require-cas` feature. ([#100](https://github.com/taiki-e/portable-atomic/pull/100))
+
+  If your crate supports no-std environment and requires atomic CAS, enabling this feature will allow the `portable-atomic` to display helpful error messages to users on targets requiring additional action on the user side to provide atomic CAS.
+
+  ```toml
+  [dependencies]
+  portable-atomic = { version = "1", default-features = false, features = ["require-cas"] }
+  ```
+
+  See [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.
+
 - Support `portable_atomic_unsafe_assume_single_core` cfg on Xtensa targets without atomic CAS. ([#86](https://github.com/taiki-e/portable-atomic/pull/86))
 
-- Fix compile error on bpf{eb,el}-unknown-none and mipsel-sony-psx when `critical-section` feature is disabled.
+- Fix bug in AArch64 128-bit SeqCst load when FEAT_LSE2 is enabled at compile-time. This is [the same bug that was fixed in the recently released GCC 13.1](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891). LLVM also has the same bug, which had not yet been fixed when the patch was created; I will open a bug report if necessary after looking into the situation in LLVM. ([a29154b](https://github.com/taiki-e/portable-atomic/commit/a29154b21da270e90cb86f6865b591ab36eade7d))
+
+- Fix compile error on `bpf{eb,el}-unknown-none` (tier 3) and `mipsel-sony-psx` (tier 3) when `critical-section` feature is disabled.
+
+- Various optimizations
+  - Optimize x86_64 128-bit outline-atomics. This improves performance by up to 15% in concurrent RMW/store. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
+  - Optimize x86_64 128-bit load that uses cmpxchg16b. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
+  - Optimize aarch64 128-bit load that uses FEAT_LSE. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
+  - Optimize pre-ARMv6 Linux/Android atomics. ([efacc89](https://github.com/taiki-e/portable-atomic/commit/efacc89c210d7a34ef5e879821112189da5d1901))
+  - Support outline-atomics for powerpc64 128-bit atomics. This is currently disabled by default, and can be enabled by `--cfg portable_atomic_outline_atomics`. ([90](https://github.com/taiki-e/portable-atomic/pull/90))
+  - Optimize aarch64 outline-atomics on linux-musl. On linux-musl, outline-atomics is enabled by default only when dynamic linking is enabled. When static linking is enabled, this can be enabled by `--cfg portable_atomic_outline_atomics`. See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md#run-time-feature-detection) for more. ([8418235](https://github.com/taiki-e/portable-atomic/commit/84182354e4a149074e28bda4683d538e5fb617ce), [31d0862](https://github.com/taiki-e/portable-atomic/commit/31d08623d4e21af207ff2343f5553b9b5a030452))
 
 ## [1.2.0] - 2023-03-25
 

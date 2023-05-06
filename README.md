@@ -41,6 +41,13 @@ If you don't need them, disabling the default features may reduce code size and 
 portable-atomic = { version = "1", default-features = false }
 ```
 
+If your crate supports no-std environment and requires atomic CAS, enabling the `require-cas` feature will allow the `portable-atomic` to display helpful error messages to users on targets requiring additional action on the user side to provide atomic CAS.
+
+```toml
+[dependencies]
+portable-atomic = { version = "1", default-features = false, features = ["require-cas"] }
+```
+
 *Compiler support: requires rustc 1.34+*
 
 ## 128-bit atomics support
@@ -68,7 +75,7 @@ See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-a
   Use `std`.
 
 - **`require-cas`**<br>
-  Emit compile error if atomic CAS is not available. See [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.
+  Emit compile error if atomic CAS is not available. See [Usage](#usage) section and [#100](https://github.com/taiki-e/portable-atomic/pull/100) for more.
 
 - **`serde`**<br>
   Implement `serde::{Serialize,Deserialize}` for atomic types.
