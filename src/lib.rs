@@ -213,7 +213,6 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
     clippy::doc_markdown,
     clippy::float_cmp,
     clippy::inline_always,
-    clippy::let_underscore_untyped, // https://github.com/rust-lang/rust-clippy/issues/10410
     clippy::missing_errors_doc,
     clippy::module_inception,
     clippy::naive_bytecount,
@@ -221,7 +220,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
     clippy::single_match,
     clippy::too_many_lines,
     clippy::type_complexity,
-    clippy::unreadable_literal,
+    clippy::unreadable_literal
 )]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
