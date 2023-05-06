@@ -198,12 +198,13 @@ llvm_version="${llvm_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
+subcmd=check
 if [[ -n "${TARGET_GROUP:-}" ]]; then
-    base_args=(${pre_args[@]+"${pre_args[@]}"} no-dev-deps --no-private check)
+    base_args=(${pre_args[@]+"${pre_args[@]}"} no-dev-deps --no-private "${subcmd}")
 else
     case "${TESTS:-}" in
-        '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack check) ;;
-        *) base_args=(${pre_args[@]+"${pre_args[@]}"} check) ;;
+        '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}") ;;
+        *) base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}") ;;
     esac
 fi
 nightly=''
@@ -218,15 +219,16 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         build_scripts=(build.rs portable-atomic-util/build.rs)
         check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(target_arch,"xtensa") --check-cfg=values(feature,"cargo-clippy")'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
-        check_cfg+=" --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}"))"
         # TODO: handle multi-line target_feature_if
         known_target_feature_values+=($(grep -E 'target_feature_if\("' "${build_scripts[@]}" | sed -E 's/^.*target_feature_if\(//; s/",.*$/"/' | LC_ALL=C sort -u))
         check_cfg+=" --check-cfg=values(portable_atomic_target_feature,$(IFS=',' && echo "${known_target_feature_values[*]}"))"
+        check_cfg+=" --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}"))"
+        subcmd=clippy
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         case "${TESTS:-}" in
-            '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features") ;;
-            *) base_args=(${pre_args[@]+"${pre_args[@]}"} clippy -Z check-cfg="names,values,output,features") ;;
+            '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}" -Z check-cfg="names,values,output,features") ;;
+            *) base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}" -Z check-cfg="names,values,output,features") ;;
         esac
     fi
 fi
