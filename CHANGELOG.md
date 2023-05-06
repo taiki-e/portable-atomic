@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-05-06
+
 - Add `require-cas` feature. ([#100](https://github.com/taiki-e/portable-atomic/pull/100))
 
   If your crate supports no-std environment and requires atomic CAS, enabling this feature will allow the `portable-atomic` to display helpful error messages to users on targets requiring additional action on the user side to provide atomic CAS.
@@ -308,7 +310,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/taiki-e/portable-atomic/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/taiki-e/portable-atomic/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/taiki-e/portable-atomic/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...v1.0.1
