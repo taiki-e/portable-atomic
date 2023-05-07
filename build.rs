@@ -51,7 +51,17 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_min_max");
     }
     // track_caller stabilized in Rust 1.46 (nightly-2020-07-02): https://github.com/rust-lang/rust/pull/72445
-    if !version.probe(46, 2020, 7, 1) {
+    // Also, disable track_caller on no-std targets to avoid impact on binary size.
+    // (https://github.com/rust-lang/rust/blob/1.69.0/library/std/build.rs#L38)
+    // On other targets, track_caller is used only when debug assertions are enabled.
+    // The behavior here can be controlled by cfg.
+    // - To disable track_caller on all targets: --cfg portable_atomic_no_track_caller
+    // - To enable track_caller on all targets: --cfg portable_atomic_force_track_caller
+    // Both cfgs are *not* considered stable APIs and may be changed in the future.
+    if !version.probe(46, 2020, 7, 1)
+        || (target_os == "cuda" || target_os == "none" || target_os == "uefi")
+            && env::var_os("CARGO_CFG_PORTABLE_ATOMIC_FORCE_TRACK_CALLER").is_none()
+    {
         println!("cargo:rustc-cfg=portable_atomic_no_track_caller");
     }
     // unsafe_op_in_unsafe_fn stabilized in Rust 1.52 (nightly-2021-03-11): https://github.com/rust-lang/rust/pull/79208
