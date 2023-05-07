@@ -13,16 +13,15 @@ trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 #
 # Note: This script requires the following tools:
 # - parse-changelog <https://github.com/taiki-e/parse-changelog>
-# - cargo-workspaces <https://github.com/pksunkara/cargo-workspaces>
 
-x() {
-    local cmd="$1"
-    shift
-    (
-        set -x
-        "${cmd}" "$@"
-    )
-}
+# x() {
+#     local cmd="$1"
+#     shift
+#     (
+#         set -x
+#         "${cmd}" "$@"
+#     )
+# }
 bail() {
     echo >&2 "error: $*"
     exit 1
@@ -120,15 +119,18 @@ for id in $(jq <<<"${metadata}" '.workspace_members[]'); do
     manifest_paths+=("${manifest_path}")
 done
 
-# Update version.
-x cargo workspaces version --force '*' --no-git-commit --exact -y custom "${version}"
+# cargo-workspaces is broken for our case as it downgrades portable-atomic 1.x.
+exit 1
 
-if [[ -n "${tags}" ]]; then
-    # Create a release commit.
-    x git add "${changelog}" "${manifest_paths[@]}"
-    x git commit -m "Release ${version}"
-fi
+# # Update version.
+# x cargo workspaces version --force '*' --no-git-commit --exact -y custom "${version}"
 
-x git tag "${tag}"
-x git push origin "v0.3"
-x git push origin --tags
+# if [[ -n "${tags}" ]]; then
+#     # Create a release commit.
+#     x git add "${changelog}" "${manifest_paths[@]}"
+#     x git commit -m "Release ${version}"
+# fi
+
+# x git tag "${tag}"
+# x git push origin "v0.3"
+# x git push origin --tags
