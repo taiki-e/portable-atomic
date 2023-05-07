@@ -9,6 +9,7 @@ updates:
     ignore:
       # see tools/codegen/Cargo.toml
       - dependency-name: globset
+      - dependency-name: regex
     labels: []
   # crates with [workspace] table are not recognized by the above 'directory: /'
   - package-ecosystem: cargo
