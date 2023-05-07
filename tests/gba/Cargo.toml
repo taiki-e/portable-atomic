@@ -7,13 +7,10 @@ publish = false
 [workspace]
 resolver = "2"
 
-[features]
-float = ["portable-atomic/float"]
-
 [dependencies]
-portable-atomic = { path = "../.." }
+portable-atomic = { path = "../..", features = ["float"] }
 
-gba = "0.10"
+gba = "0.11"
 paste = "1"
 
 [profile.dev]

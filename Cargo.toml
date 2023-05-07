@@ -19,8 +19,6 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [workspace]
 members = [
-    "bench",
-    "portable-atomic-util",
     "tests/api-test",
 ]
 
@@ -33,25 +31,22 @@ default = ["fallback"]
 # (enabled by default) Enable fallback implementations.
 #
 # Disabling this allows only atomic types for which the platform natively supports atomic operations.
-fallback = []
+fallback = ["portable-atomic-v1/fallback"]
 
 # Provide `AtomicF{32,64}`.
 # Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers.
-float = []
-
-# TODO
-# # Provides generic `atomic<t>` type.
-# generic = []
+float = ["portable-atomic-v1/float"]
 
 # Use `std`.
-std = []
+std = ["portable-atomic-v1/std"]
 
-# no-op since 0.3.19
-# TODO: remove in next breaking release (0.4 or 1.0).
+# no-op since 0.3.19 (removed in 1.0)
 outline-atomics = []
 
 # Note: serde is public dependencies.
 [dependencies]
+portable-atomic-v1 = { package = "portable-atomic", version = "1.3", default-features = false }
+
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
 # Note:

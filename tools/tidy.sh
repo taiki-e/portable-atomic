@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 # shellcheck disable=SC2046
 set -euo pipefail
 IFS=$'\n\t'
@@ -14,7 +15,7 @@ trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 # - shfmt
 # - shellcheck
 # - npm
-# - jq and yq (if this repository uses bors)
+# - jq and yq
 # - rustup (if Rust code exists)
 # - clang-format (if C/C++ code exists)
 #
@@ -33,11 +34,22 @@ check_diff() {
         fi
     fi
 }
+info() {
+    echo >&2 "info: $*"
+}
 warn() {
     if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
         echo "::warning::$*"
     else
         echo >&2 "warning: $*"
+    fi
+    should_fail=1
+}
+error() {
+    if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+        echo "::error::$*"
+    else
+        echo >&2 "error: $*"
     fi
     should_fail=1
 }
@@ -52,6 +64,7 @@ fi
 
 # Rust (if exists)
 if [[ -n "$(git ls-files '*.rs')" ]]; then
+    info "checking Rust code style"
     if type -P rustup &>/dev/null; then
         # `cargo fmt` cannot recognize files not included in the current workspace and modules
         # defined inside macros, so run rustfmt directly.
@@ -70,10 +83,40 @@ if [[ -n "$(git ls-files '*.rs')" ]]; then
     else
         warn "'rustup' is not installed"
     fi
+    cast_without_turbofish=$(grep -n -E '\.cast\(\)' $(git ls-files '*.rs') || true)
+    if [[ -n "${cast_without_turbofish}" ]]; then
+        error "please replace \`.cast()\` with \`.cast::<type_name>()\`:"
+        echo "${cast_without_turbofish}"
+    fi
+    first='1'
+    for readme in $(git ls-files '*README.md'); do
+        if ! grep -q '^<!-- tidy:crate-doc:start -->' "${readme}"; then
+            continue
+        fi
+        lib="$(dirname "${readme}")/src/lib.rs"
+        if [[ -n "${first}" ]]; then
+            first=''
+            info "checking readme and crate-level doc are synchronized"
+        fi
+        if ! grep -q '^<!-- tidy:crate-doc:end -->' "${readme}"; then
+            bail "missing '<!-- tidy:crate-doc:end -->' comment in ${readme}"
+        fi
+        if ! grep -q '^<!-- tidy:crate-doc:start -->' "${lib}"; then
+            bail "missing '<!-- tidy:crate-doc:start -->' comment in ${lib}"
+        fi
+        if ! grep -q '^<!-- tidy:crate-doc:end -->' "${lib}"; then
+            bail "missing '<!-- tidy:crate-doc:end -->' comment in ${lib}"
+        fi
+        new=$(tr <"${readme}" '\n' '\a' | grep -o '<!-- tidy:crate-doc:start -->.*<!-- tidy:crate-doc:end -->' | sed 's/\&/\\\&/g; s/\\/\\\\/g')
+        new=$(tr <"${lib}" '\n' '\a' | awk -v new="${new}" 'gsub("<!-- tidy:crate-doc:start -->.*<!-- tidy:crate-doc:end -->",new)' | tr '\a' '\n')
+        echo "${new}" >"${lib}"
+        check_diff "${lib}"
+    done
 fi
 
 # C/C++ (if exists)
 if [[ -n "$(git ls-files '*.c')$(git ls-files '*.cpp')" ]]; then
+    info "checking C/C++ code style"
     if [[ ! -e .clang-format ]]; then
         warn "could not fount .clang-format in the repository root"
     fi
@@ -88,6 +131,7 @@ fi
 
 # YAML/JavaScript/JSON (if exists)
 if [[ -n "$(git ls-files '*.yml')$(git ls-files '*.js')$(git ls-files '*.json')" ]]; then
+    info "checking YAML/JavaScript/JSON code style"
     if type -P npm &>/dev/null; then
         echo "+ npx prettier -l -w \$(git ls-files '*.yml') \$(git ls-files '*.js') \$(git ls-files '*.json')"
         npx prettier -l -w $(git ls-files '*.yml') $(git ls-files '*.js') $(git ls-files '*.json')
@@ -95,30 +139,45 @@ if [[ -n "$(git ls-files '*.yml')$(git ls-files '*.js')$(git ls-files '*.json')"
     else
         warn "'npm' is not installed"
     fi
-    if [[ -e .github/workflows/ci.yml ]] && grep -q '# tidy:needs' .github/workflows/ci.yml && ! grep -Eq '# *needs: \[' .github/workflows/ci.yml; then
+    # Check GitHub workflows.
+    if [[ -d .github/workflows ]]; then
+        info "checking GitHub workflows"
         if type -P jq &>/dev/null && type -P yq &>/dev/null; then
-            # shellcheck disable=SC2207
-            jobs_actual=($(yq '.jobs' .github/workflows/ci.yml | jq -r 'keys_unsorted[]'))
-            unset 'jobs_actual[${#jobs_actual[@]}-1]'
-            # shellcheck disable=SC2207
-            jobs_expected=($(yq -r '.jobs."ci-success".needs[]' .github/workflows/ci.yml))
-            if [[ "${jobs_actual[*]}" != "${jobs_expected[*]+"${jobs_expected[*]}"}" ]]; then
-                printf -v jobs '%s, ' "${jobs_actual[@]}"
-                sed -i "s/needs: \[.*\] # tidy:needs/needs: [${jobs%, }] # tidy:needs/" .github/workflows/ci.yml
-                check_diff .github/workflows/ci.yml
-                warn "please update 'needs' section in 'ci-success' job"
-            fi
+            for workflow in .github/workflows/*.yml; do
+                # The top-level permissions must be weak as they are referenced by all jobs.
+                permissions=$(yq '.permissions' "${workflow}" | jq -c)
+                case "${permissions}" in
+                    '{"contents":"read"}' | '{"contents":"none"}' | '{}') ;;
+                    null) error "${workflow}: top level permissions not found; it must be 'contents: read' or weaker permissions" ;;
+                    *) error "${workflow}: only 'contents: read' and weaker permissions are allowed at top level; if you want to use stronger permissions, please set job-level permissions" ;;
+                esac
+                # Make sure the 'needs' section is not out of date.
+                if grep -q '# tidy:needs' "${workflow}" && ! grep -Eq '# *needs: \[' "${workflow}"; then
+                    # shellcheck disable=SC2207
+                    jobs_actual=($(yq '.jobs' "${workflow}" | jq -r 'keys_unsorted[]'))
+                    unset 'jobs_actual[${#jobs_actual[@]}-1]'
+                    # shellcheck disable=SC2207
+                    jobs_expected=($(yq -r '.jobs."ci-success".needs[]' "${workflow}"))
+                    if [[ "${jobs_actual[*]}" != "${jobs_expected[*]+"${jobs_expected[*]}"}" ]]; then
+                        printf -v jobs '%s, ' "${jobs_actual[@]}"
+                        sed -i "s/needs: \[.*\] # tidy:needs/needs: [${jobs%, }] # tidy:needs/" "${workflow}"
+                        check_diff "${workflow}"
+                        error "${workflow}: please update 'needs' section in 'ci-success' job"
+                    fi
+                fi
+            done
         else
             warn "'jq' or 'yq' is not installed"
         fi
     fi
 fi
 if [[ -n "$(git ls-files '*.yaml')" ]]; then
-    warn "please use '.yml' instead of '.yaml' for consistency"
+    error "please use '.yml' instead of '.yaml' for consistency"
     git ls-files '*.yaml'
 fi
 
 # Shell scripts
+info "checking Shell scripts"
 if type -P shfmt &>/dev/null; then
     echo "+ shfmt -l -w \$(git ls-files '*.sh')"
     shfmt -l -w $(git ls-files '*.sh')
@@ -144,41 +203,77 @@ fi
 
 # Spell check (if config exists)
 if [[ -f .cspell.json ]]; then
+    info "spell checking"
     if type -P npm &>/dev/null; then
-        if [[ -f Cargo.toml ]]; then
-            metadata=$(cargo metadata --format-version=1 --all-features --no-deps)
+        has_rust=''
+        if [[ -n "$(git ls-files '*Cargo.toml')" ]]; then
+            has_rust='1'
             dependencies=''
-            for id in $(jq <<<"${metadata}" '.workspace_members[]'); do
-                dependencies+=$'\n'
-                dependencies+=$(jq <<<"${metadata}" ".packages[] | select(.id == ${id})" | jq -r '.dependencies[].name')
+            for manifest_path in $(git ls-files '*Cargo.toml'); do
+                if [[ "${manifest_path}" != "Cargo.toml" ]] && ! grep -Eq '\[workspace\]' "${manifest_path}"; then
+                    continue
+                fi
+                metadata=$(cargo metadata --format-version=1 --all-features --no-deps --manifest-path "${manifest_path}")
+                for id in $(jq <<<"${metadata}" '.workspace_members[]'); do
+                    dependencies+="$(jq <<<"${metadata}" ".packages[] | select(.id == ${id})" | jq -r '.dependencies[].name')"$'\n'
+                done
             done
-            cat >.github/.cspell/rust-dependencies.txt <<EOF
+            # shellcheck disable=SC2001
+            dependencies=$(sed <<<"${dependencies}" 's/[0-9_-]/\n/g' | LC_ALL=C sort -f -u)
+        fi
+        config_old=$(<.cspell.json)
+        config_new=$(grep <<<"${config_old}" -v ' *//' | jq 'del(.dictionaries[] | select(index("organization-dictionary") | not))' | jq 'del(.dictionaryDefinitions[] | select(.name == "organization-dictionary" | not))')
+        echo "${config_new}" >.cspell.json
+        if [[ -n "${has_rust}" ]]; then
+            dependencies_words=$(npx <<<"${dependencies}" cspell stdin --no-progress --no-summary --words-only --unique || true)
+        fi
+        all_words=$(npx cspell --no-progress --no-summary --words-only --unique $(git ls-files | (grep -v '\.github/\.cspell/project-dictionary\.txt' || true)) || true)
+        # TODO: handle SIGINT
+        echo "${config_old}" >.cspell.json
+        cat >.github/.cspell/rust-dependencies.txt <<EOF
 // This file is @generated by $(basename "$0").
 // It is not intended for manual editing.
-
 EOF
-            # shellcheck disable=SC2001
-            sed <<<"${dependencies}" 's/[0-9_-]/\n/g' | LC_ALL=C sort -f -u | (grep -E '.{4,}' || true) >>.github/.cspell/rust-dependencies.txt
-            check_diff .github/.cspell/rust-dependencies.txt
-        else
-            touch .github/.cspell/rust-dependencies.txt
+        if [[ -n "${dependencies_words:-}" ]]; then
+            echo $'\n'"${dependencies_words}" >>.github/.cspell/rust-dependencies.txt
+        fi
+        check_diff .github/.cspell/rust-dependencies.txt
+        if ! grep -Eq "^\.github/\.cspell/rust-dependencies.txt linguist-generated" .gitattributes; then
+            echo "warning: you may want to mark .github/.cspell/rust-dependencies.txt linguist-generated"
         fi
 
-        echo "+ npx cspell --no-progress \$(git ls-files)"
-        npx cspell --no-progress $(git ls-files)
+        echo "+ npx cspell --no-progress --no-summary \$(git ls-files)"
+        if ! npx cspell --no-progress --no-summary $(git ls-files); then
+            error "spellcheck failed: please fix uses of above words or add to .github/.cspell/project-dictionary.txt if correct"
+        fi
 
+        # Make sure the project-specific dictionary does not contain duplicated words.
         for dictionary in .github/.cspell/*.txt; do
             if [[ "${dictionary}" == .github/.cspell/project-dictionary.txt ]]; then
                 continue
             fi
             dup=$(sed '/^$/d' .github/.cspell/project-dictionary.txt "${dictionary}" | LC_ALL=C sort -f | uniq -d -i | (grep -v '//.*' || true))
             if [[ -n "${dup}" ]]; then
-                warn "duplicated words in dictionaries; please remove the following words from .github/.cspell/project-dictionary.txt"
+                error "duplicated words in dictionaries; please remove the following words from .github/.cspell/project-dictionary.txt"
                 echo "======================================="
                 echo "${dup}"
                 echo "======================================="
             fi
         done
+
+        # Make sure the project-specific dictionary does not contain unused words.
+        unused=''
+        for word in $(grep -v '//.*' .github/.cspell/project-dictionary.txt || true); do
+            if ! grep <<<"${all_words}" -Eq -i "^${word}$"; then
+                unused+="${word}"$'\n'
+            fi
+        done
+        if [[ -n "${unused}" ]]; then
+            error "unused words in dictionaries; please remove the following words from .github/.cspell/project-dictionary.txt"
+            echo "======================================="
+            echo -n "${unused}"
+            echo "======================================="
+        fi
     else
         warn "'npm' is not installed"
     fi

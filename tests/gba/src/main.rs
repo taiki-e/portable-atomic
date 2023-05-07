@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(panic_info_message)]
+#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -51,7 +51,6 @@ fn main() -> ! {
             }
         };
     }
-    #[cfg(feature = "float")]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -87,6 +86,7 @@ fn main() -> ! {
 
     println!("starting tests...");
 
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);
@@ -101,9 +101,7 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    #[cfg(feature = "float")]
     test_atomic_float!(f32);
-    #[cfg(feature = "float")]
     test_atomic_float!(f64);
 
     println!("all tests passed");
@@ -114,16 +112,6 @@ fn main() -> ! {
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(m) = info.message() {
-        if let Some(l) = info.location() {
-            fatal!("panicked at '{m:?}', {l}");
-        } else {
-            fatal!("panicked at '{m:?}' (no location info)");
-        }
-    } else if let Some(l) = info.location() {
-        fatal!("panic occurred (no message), {l}");
-    } else {
-        fatal!("panic occurred (no message) (no location info)");
-    }
+    fatal!("{info}");
     loop {}
 }

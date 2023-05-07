@@ -1,18 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
 cd "$(dirname "$0")"/..
 
 # shellcheck disable=SC2154
 trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'exit 0' SIGINT
+trap -- 'exit 1' SIGINT
 
 # USAGE:
 #    ./tools/no-std.sh [+toolchain] [target]...
 
 default_targets=(
     # armv4t
+    armv4t-none-eabi
     thumbv4t-none-eabi
+    # armv5te
+    armv5te-none-eabi
+    thumbv5te-none-eabi
     # armv6-m
     thumbv6m-none-eabi
     # armv7-m
@@ -24,15 +28,16 @@ default_targets=(
     thumbv8m.main-none-eabi
     thumbv8m.main-none-eabihf
 
-    # riscv64
-    riscv64i-unknown-none-elf
-    riscv64imac-unknown-none-elf
-    riscv64gc-unknown-none-elf
     # riscv32
     riscv32i-unknown-none-elf
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
     riscv32imac-unknown-none-elf
+    riscv32gc-unknown-none-elf
+    # riscv64
+    riscv64i-unknown-none-elf
+    riscv64imac-unknown-none-elf
+    riscv64gc-unknown-none-elf
 
     # avr
     avr-unknown-gnu-atmega2560
@@ -55,7 +60,7 @@ x_cargo() {
     echo
 }
 bail() {
-    echo "error: $*" >&2
+    echo >&2 "error: $*"
     exit 1
 }
 
@@ -95,7 +100,7 @@ run() {
     fi
     local subcmd=run
     case "${target}" in
-        thumbv4t* | armv4t*)
+        armv4t* | thumbv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
             if ! type -P mgba &>/dev/null; then
                 subcmd=build
@@ -112,6 +117,7 @@ run() {
         return 0
     fi
 
+    # NB: sync with tools/build.sh
     case "${target}" in
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
@@ -121,40 +127,35 @@ run() {
             ;;
     esac
     local test_dir
+    # NB: sync with tools/build.sh
     case "${target}" in
-        thumbv4t* | armv4t*)
+        armv4t* | thumbv4t*)
             test_dir=tests/gba
-            target_rustflags+=" -C link-arg=-Tlink.ld"
+            linker=link.ld
+            target_rustflags+=" -C link-arg=-T${linker}"
+            ;;
+        armv5te* | thumbv5te*)
+            test_dir=tests/no-std-qemu
             ;;
         thumb*)
-            test_dir=tests/cortex-m
-            target_rustflags+=" -C link-arg=-Tlink.x"
-            (
-                # In debug mode, the float-related code is so large that the memory layout
-                # we use for testing does not allow us to run float and int tests together.
-                # So, in debug mode, test float and int separately.
-                cd "${test_dir}"
-                RUSTFLAGS="${target_rustflags}" \
-                    x_cargo "${args[@]}" --no-default-features --features=float "$@"
-            )
+            test_dir=tests/no-std-qemu
+            linker=link.x
+            target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         riscv*)
-            test_dir=tests/riscv
+            test_dir=tests/no-std-qemu
             case "${target}" in
-                riscv32*) target_rustflags+=" -C link-arg=-Tlink32.ld" ;;
-                riscv64*) target_rustflags+=" -C link-arg=-Tlink64.ld" ;;
+                riscv32*) linker=riscv32.ld ;;
+                riscv64*) linker=riscv64.ld ;;
                 *) bail "unrecognized target '${target}'" ;;
             esac
+            target_rustflags+=" -C link-arg=-T${linker}"
             ;;
         avr*)
             test_dir=tests/avr
             ;;
-        *) bail "unrecognized target '${target}'" ;;
     esac
-    case "${target}" in
-        riscv??i-* | riscv??im-* | riscv??imc-* | riscv??imac-*) ;; # TODO: float
-        *) args+=(--all-features) ;;
-    esac
+    args+=(--all-features)
 
     (
         cd "${test_dir}"

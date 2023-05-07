@@ -88,12 +88,15 @@ default_targets=(
     thumbv7neon-unknown-linux-gnueabihf
 )
 known_cfgs=(
-    docsrs
-    qemu
+    # Public APIs
     portable_atomic_unsafe_assume_single_core
     portable_atomic_s_mode
     portable_atomic_disable_fiq
     portable_atomic_no_outline_atomics
+
+    # Not public APIs
+    docsrs
+    qemu
 )
 
 x() {
@@ -129,6 +132,8 @@ rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
+llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | (grep 'LLVM version: ' || true) | (sed 's/LLVM version: //' || true))
+llvm_version="${llvm_version%%.*}"
 base_args=(${pre_args[@]+"${pre_args[@]}"} hack build)
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
@@ -138,7 +143,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     if [[ "${rustc_minor_version}" -gt 62 ]]; then
         # TODO: handle key-value cfg from build script as --check-cfg=values(name, "value1", "value2", ... "valueN")
         # shellcheck disable=SC2207
-        known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs portable-atomic-util/build.rs | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
+        known_cfgs+=($(grep -E 'cargo:rustc-cfg=' build.rs | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
         check_cfg="-Z unstable-options --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}")) --check-cfg=values(target_pointer_width,\"128\") --check-cfg=values(feature,\"cargo-clippy\")"
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         base_args=(${pre_args[@]+"${pre_args[@]}"} hack clippy -Z check-cfg="names,values,output,features")
@@ -183,10 +188,6 @@ build() {
         echo "target '${target}' requires nightly compiler (skipped all checks)"
         return 0
     fi
-    if [[ "${target}" == "avr-"* ]]; then
-        # https://github.com/rust-lang/rust/issues/88252
-        target_rustflags+=" -C opt-level=s"
-    fi
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
     has_atomic_cas='1'
     # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
@@ -203,6 +204,15 @@ build() {
         # RISC-V without A-extension requires asm to implement atomics.
         echo "target '${target}' requires asm to implement atomics (skipped all checks)"
         return 0
+    fi
+    if [[ "${target}" == "avr"* ]]; then
+        if [[ "${llvm_version}" == "16" ]]; then
+            # TODO: LLVM 16 broke AVR: https://github.com/rust-lang/compiler-builtins/issues/523
+            echo "target '${target}' is broken with LLVM 16 (skipped all checks)"
+            return 0
+        fi
+        # https://github.com/rust-lang/rust/issues/88252
+        target_rustflags+=" -C opt-level=s"
     fi
 
     # paste! on statements requires 1.45
@@ -252,8 +262,8 @@ build() {
             if [[ -z "${has_atomic_cas}" ]]; then
                 if [[ -n "${has_asm}" ]]; then
                     case "${target}" in
-                        avr-* | msp430-*) ;;                            # always single-core
-                        bpf*) args+=(--exclude portable-atomic-util) ;; # TODO, Arc can't be used here yet
+                        avr-* | msp430-*) ;; # always single-core
+                        bpf*) ;;             # TODO
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x_cargo "${args[@]}" --target-dir target/assume-single-core "$@"
@@ -272,9 +282,6 @@ build() {
                 else
                     echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
-                # portable-atomic-util uses atomic CAS, so doesn't work on
-                # this target without portable_atomic_unsafe_assume_single_core cfg.
-                args+=(--exclude portable-atomic-util)
             fi
             ;;
     esac

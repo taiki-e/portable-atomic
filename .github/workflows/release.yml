@@ -1,8 +1,7 @@
 name: Release
 
 permissions:
-  # TODO: once `releases: write` is supported, use it instead.
-  contents: write
+  contents: read
 
 on:
   push:
@@ -11,6 +10,7 @@ on:
 
 env:
   CARGO_INCREMENTAL: 0
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
   CARGO_NET_RETRY: 10
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -25,6 +25,9 @@ jobs:
   create-release:
     if: github.repository_owner == 'taiki-e'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,7 +39,9 @@ jobs:
         with:
           changelog: CHANGELOG.md
           title: $version
-          branch: main
+          branch: v0.3
+          # TODO
+          # latest: false
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: cargo publish
         env:

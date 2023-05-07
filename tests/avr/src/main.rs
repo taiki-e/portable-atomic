@@ -4,6 +4,7 @@
 #![feature(lang_items)]
 #![feature(macro_metavar_expr)]
 #![feature(panic_info_message)]
+#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -41,7 +42,6 @@ fn main() -> ! {
             }
         };
     }
-    #[cfg(feature = "float")]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -105,6 +105,7 @@ fn main() -> ! {
         };
     }
 
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);
@@ -120,10 +121,8 @@ fn main() -> ! {
     test_atomic_int!(i128);
     test_atomic_int!(u128);
     // TODO
-    if cfg!(not(debug_assertions)) {
-        #[cfg(feature = "float")]
+    if cfg!(all(not(debug_assertions), not(qemu))) {
         test_atomic_float!(f32);
-        #[cfg(feature = "float")]
         test_atomic_float!(f64);
     }
 

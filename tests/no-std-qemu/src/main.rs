@@ -1,7 +1,6 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(panic_info_message)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -10,29 +9,39 @@ mod helper;
 use core::sync::atomic::Ordering;
 
 use portable_atomic::*;
+use semihosting::{print, println};
 
-macro_rules! print {
-    ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hstdout() {
-            use core::fmt::Write as _;
-            let _ = write!(hstdout, $($tt)*);
-        }
-    };
-}
-macro_rules! println {
-    ($($tt:tt)*) => {
-        if let Ok(mut hstdout) = semihosting::hstdout() {
-            use core::fmt::Write as _;
-            let _ = writeln!(hstdout, $($tt)*);
-        }
-    };
-}
-
+#[cfg(all(target_arch = "arm", target_feature = "mclass"))]
 #[cortex_m_rt::entry]
 fn main() -> ! {
+    run();
+    semihosting::process::exit(0)
+}
+#[cfg(not(all(target_arch = "arm", target_feature = "mclass")))]
+#[no_mangle]
+unsafe fn _start(_: usize, _: usize) -> ! {
+    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+    unsafe {
+        core::arch::asm!("la sp, _stack");
+    }
+    #[cfg(all(target_arch = "arm", not(target_feature = "v6"), target_feature = "v5te"))]
+    unsafe {
+        #[instruction_set(arm::a32)]
+        #[inline]
+        unsafe fn init() {
+            unsafe {
+                core::arch::asm!("mov sp, #0x8000");
+            }
+        }
+        init();
+    }
+    run();
+    semihosting::process::exit(0)
+}
+
+fn run() {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
-            #[cfg(feature = "int")]
             paste::paste! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
@@ -43,9 +52,12 @@ fn main() -> ! {
             }
         };
     }
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(any(target_feature = "f", target_feature = "d"))
+    )]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
-            #[cfg(feature = "float")]
             paste::paste! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
@@ -77,6 +89,7 @@ fn main() -> ! {
         };
     }
 
+    hint::spin_loop();
     test_atomic_bool!();
     test_atomic_ptr!();
     test_atomic_int!(isize);
@@ -91,42 +104,9 @@ fn main() -> ! {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    // In debug mode, the float-related code is so large that the memory layout
-    // we use for testing does not allow us to run float and int tests together.
-    // So, in debug mode, test float and int separately.
-    if cfg!(any(not(debug_assertions), not(feature = "int"))) {
-        test_atomic_float!(f32);
-        test_atomic_float!(f64);
-    }
-
-    semihosting::exit(semihosting::EXIT_SUCCESS)
-}
-
-#[inline(never)]
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
-    if let Some(m) = info.message() {
-        print!("panicked at '{m:?}'");
-    } else {
-        print!("panic occurred (no message)");
-    }
-    if let Some(l) = info.location() {
-        println!(", {l}");
-    } else {
-        println!(" (no location info)");
-    }
-
-    semihosting::exit(semihosting::EXIT_FAILURE)
-}
-
-mod semihosting {
-    pub use cortex_m_semihosting::{
-        debug::{EXIT_FAILURE, EXIT_SUCCESS},
-        hio::hstdout,
-    };
-
-    pub fn exit(status: cortex_m_semihosting::debug::ExitStatus) -> ! {
-        cortex_m_semihosting::debug::exit(status);
-        loop {}
-    }
+    // TODO
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "f"))]
+    test_atomic_float!(f32);
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "d"))]
+    test_atomic_float!(f64);
 }
