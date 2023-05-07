@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Documentation improvements.
+
 ## [1.3.0] - 2023-05-06
 
 - Add `require-cas` feature. ([#100](https://github.com/taiki-e/portable-atomic/pull/100))
