@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/Wr8qvxq5M
-// - powerpc64le https://godbolt.org/z/dP4EeMh36
+// - powerpc64 (pwr8) https://godbolt.org/z/eTcaMs93h
+// - powerpc64le https://godbolt.org/z/Eqs49dYE1
 
 include!("macros.rs");
 
@@ -685,9 +685,16 @@ unsafe fn atomic_not_pwr8(dst: *mut u128, order: Ordering) -> u128 {
     unsafe { atomic_xor_pwr8(dst, core::u128::MAX, order) }
 }
 
+#[cfg(portable_atomic_llvm_16)]
+atomic_rmw_ll_sc_2! {
+    atomic_neg_pwr8 as atomic_neg, [],
+    "subfic %r9, %r7, 0",
+    "subfze %r8, %r6",
+}
+// LLVM 15 miscompiles subfic.
+#[cfg(not(portable_atomic_llvm_16))]
 atomic_rmw_ll_sc_2! {
     atomic_neg_pwr8 as atomic_neg, [zero = in(reg_nonzero) 0_u64,],
-    // TODO: can we use subfic (Subtract from Immediate Carrying) here?
     "subc %r9, {zero}, %r7",
     "subfze %r8, %r6",
 }

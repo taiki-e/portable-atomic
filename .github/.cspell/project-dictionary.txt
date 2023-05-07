@@ -76,6 +76,7 @@ metavar
 mfence
 mgba
 mipsn
+miscompiles
 mmfr
 moreutils
 mstatus
