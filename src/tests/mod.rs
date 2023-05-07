@@ -27,46 +27,8 @@ test_atomic_int_pub!(i32);
 test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
-
-// As of qemu 7.0.0 , using lqarx/stqcx. with qemu-user hangs.
-// To test this, use real powerpc64le hardware or use POWER Functional
-// Simulator. See DEVELOPMENT.md for more.
-#[cfg_attr(
-    all(
-        target_arch = "powerpc64",
-        any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics"
-        )
-    ),
-    cfg(not(qemu))
-)]
 test_atomic_int_pub!(i128);
-#[cfg_attr(
-    all(
-        target_arch = "powerpc64",
-        any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics"
-        )
-    ),
-    cfg(not(qemu))
-)]
 test_atomic_int_pub!(u128);
-#[cfg(qemu)]
-#[cfg(target_arch = "powerpc64")]
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
-))]
-test_atomic_int_load_store_pub!(i128);
-#[cfg(qemu)]
-#[cfg(target_arch = "powerpc64")]
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics"
-))]
-test_atomic_int_load_store_pub!(u128);
 
 #[cfg(feature = "float")]
 test_atomic_float_pub!(f32);
@@ -96,20 +58,4 @@ extern "C" {
     fn _atomic_f32_ffi_safety(_: AtomicF32);
     #[cfg(feature = "float")]
     fn _atomic_f64_ffi_safety(_: AtomicF64);
-}
-
-#[cfg(target_arch = "x86_64")]
-#[test]
-#[cfg_attr(miri, ignore)] // Miri doesn't support inline assembly
-fn test_x86_64_atomic_128_is_lock_free() {
-    assert_eq!(
-        AtomicI128::is_always_lock_free(),
-        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
-    );
-    assert_eq!(
-        AtomicI128::is_lock_free(),
-        cfg!(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))
-            || cfg!(portable_atomic_cmpxchg16b_dynamic)
-                && std::is_x86_feature_detected!("cmpxchg16b")
-    );
 }

@@ -472,7 +472,8 @@ macro_rules! __test_atomic_int {
             fn quickcheck_compare_exchange(x: $int_type, y: $int_type) -> bool {
                 #[cfg(all(
                     target_arch = "arm",
-                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                    // this cfg is only available on nightly, but we don't want to generate our cfg only for test code.
+                    not(target_feature = "v6"),
                 ))]
                 {
                     // HACK: the following operations are currently broken (at least on qemu):

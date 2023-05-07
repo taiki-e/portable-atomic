@@ -10,7 +10,13 @@ ignore = []
 [bans]
 multiple-versions = "deny"
 wildcards = "allow" # https://github.com/EmbarkStudios/cargo-deny/issues/448
-skip = []
+skip = [
+    # The latest version of portable-atomic is 1.x. portable-atomic 0.3 (this branch)
+    # is now (since 0.3.20) built on top of portable-atomic 1.x to make bug fixes and
+    # improvements such as support for new targets in 1.x available to the ecosystem
+    # that depends on older portable-atomic.
+    { name = "portable-atomic", version = "=1" },
+]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
 [licenses]

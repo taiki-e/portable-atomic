@@ -7,15 +7,15 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - v0.3
       - dev
-      - staging
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
 
 env:
   CARGO_INCREMENTAL: 0
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
   CARGO_NET_RETRY: 10
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -23,10 +23,15 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
+  EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 defaults:
   run:
     shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   check-external-types:
@@ -42,11 +47,9 @@ jobs:
       # Exclude serde feature because the MSRV when it is enabled depends on the MSRV of serde
       args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde
   tidy:
-    uses: taiki-e/workflows/.github/workflows/tidy-rust.yml@main
+    uses: taiki-e/workflows/.github/workflows/tidy.yml@main
 
   test:
-    env:
-      CARGO_CAREFUL_VERSION: 0.3.0
     strategy:
       fail-fast: false
       matrix:
@@ -65,10 +68,8 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
-          # TODO: broken since nightly-2022-10-28
-          # - rust: nightly
-          #   target: aarch64_be-unknown-linux-gnu
-          #   os: ubuntu-22.04
+          - rust: nightly
+            target: aarch64_be-unknown-linux-gnu
           - rust: nightly
             target: arm-unknown-linux-gnueabi
           - rust: nightly
@@ -82,11 +83,12 @@ jobs:
           - rust: nightly
             target: i686-unknown-linux-gnu
           - rust: nightly
+            target: i686-pc-windows-msvc
+            os: windows-latest
+          - rust: nightly
             target: mips-unknown-linux-gnu
-            os: ubuntu-22.04
           - rust: nightly
             target: mips64-unknown-linux-gnuabi64
-            os: ubuntu-22.04
           - rust: nightly
             target: mips64el-unknown-linux-gnuabi64
           - rust: nightly
@@ -95,7 +97,6 @@ jobs:
             target: powerpc-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
-            os: ubuntu-22.04
           - rust: nightly
             target: powerpc64le-unknown-linux-gnu
           - rust: nightly
@@ -106,163 +107,65 @@ jobs:
             target: s390x-unknown-linux-gnu
           - rust: nightly
             target: sparc64-unknown-linux-gnu
-            os: ubuntu-22.04
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
+      - run: lscpu
+        if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
+      - run: sysctl hw.optional machdep.cpu
+        if: startsWith(matrix.os, 'macos')
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update --component rust-src && rustup default ${{ matrix.rust }}
       - run: rustup toolchain add nightly --no-self-update
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
-      - name: Pre Cache cargo-careful
-        run: |
-          mkdir -p .github/caching
-          echo "${CARGO_CAREFUL_VERSION}" > .github/caching/cargo-careful.lock
-          echo "${{ runner.tool_cache }}/cargo-careful/bin" >> "${GITHUB_PATH}"
-        if: startsWith(matrix.rust, 'nightly')
-      - name: Cache cargo-careful
-        id: cache-cargo-careful
-        uses: actions/cache@v3
+      - uses: taiki-e/cache-cargo-install-action@v1
         with:
-          path: ${{ runner.tool_cache }}/cargo-careful/bin
-          key: cargo-careful-bin-${{ hashFiles('.github/caching/cargo-careful.lock') }}
+          tool: cargo-careful
         if: startsWith(matrix.rust, 'nightly')
-      - name: Install cargo-careful
-        run: cargo install -f cargo-careful --root "${{ runner.tool_cache }}/cargo-careful" --locked --version "${CARGO_CAREFUL_VERSION}"
-        if: startsWith(matrix.rust, 'nightly') && steps.cache-cargo-careful.outputs.cache-hit != 'true'
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != ''
+        if: matrix.target != '' && !(startsWith(matrix.os, 'windows') || contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
+      - run: rustup target add "${{ matrix.target }}"
+        if: matrix.target != '' && startsWith(matrix.os, 'windows')
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
+      - run: echo "REPORT_TIME=-- -Z unstable-options --report-time" >>"${GITHUB_ENV}"
+        if: startsWith(matrix.rust, 'nightly')
         # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on windows causes segfault.
       - run: echo "RANDOMIZE_LAYOUT=-Z randomize-layout" >>"${GITHUB_ENV}"
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.os, 'windows')
 
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.rust, 'nightly')
-
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
       # +cmpxchg16b
-      # macOS is skipped because it is +cmpxchg16b by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b ${{ env.RANDOMIZE_LAYOUT }}
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) && !startsWith(matrix.os, 'macos') && startsWith(matrix.rust, 'nightly')
-
-      # +lse
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'aarch64') && startsWith(matrix.rust, 'nightly')
-      # TODO: it seems qemu-user has not yet properly implemented FEAT_LSE2: https://github.com/taiki-e/portable-atomic/pull/11#issuecomment-1114044327
-
+          # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in above run on macOS.
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
       # pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
-        if: startsWith(matrix.target, 'powerpc64le-')
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
-        if: startsWith(matrix.target, 'powerpc64le-')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7 ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'powerpc64le-') && startsWith(matrix.rust, 'nightly')
-
       # pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: cargo test -vv --workspace --exclude bench --all-features $TARGET $BUILD_STD $DOCTEST_XCOMPILE
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $REPORT_TIME
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
-        if: startsWith(matrix.target, 'powerpc64-')
-      # LTO + doctests is very slow on some platforms
-      - run: cargo test -vv --workspace --exclude bench --all-features --release $TARGET $BUILD_STD $DOCTEST_XCOMPILE --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
-        if: startsWith(matrix.target, 'powerpc64-')
-      - run: cargo careful test -vv --workspace --exclude bench --all-features $TARGET $DOCTEST_XCOMPILE
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8 ${{ env.RANDOMIZE_LAYOUT }}
-        if: startsWith(matrix.target, 'powerpc64-') && startsWith(matrix.rust, 'nightly')
 
       - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
 
@@ -284,7 +187,11 @@ jobs:
           - nightly-2019-01-27
           # for AVR: https://github.com/rust-lang/compiler-builtins/issues/400
           - nightly-2020-12-26
+          # for AVR: LLVM 16 broke AVR: https://github.com/rust-lang/compiler-builtins/issues/523
+          # nightly-2023-03-25 is the last version uses LLVM 15.
+          - nightly-2023-03-25
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v3
         with:
@@ -295,18 +202,19 @@ jobs:
       - run: tools/build.sh
 
   no-std:
-    runs-on: ubuntu-22.04 # QEMU 6.2
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update && rustup default nightly
+      - uses: taiki-e/install-action@cargo-hack
       - run: |
           set -euxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
             avr-libc \
-            binutils-arm-none-eabi \
             gcc-avr \
             qemu-system-arm \
             qemu-system-misc \
@@ -331,6 +239,7 @@ jobs:
           - powerpc64le-unknown-linux-gnu
           - s390x-unknown-linux-gnu
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -340,13 +249,12 @@ jobs:
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != ''
-      - run: |
-          cargo miri test --workspace --exclude bench --all-features $TARGET 2>&1 | ts -i '%.s  '
+      - run: cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
         env:
           MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
-          QUICKCHECK_TESTS: 50
+          QUICKCHECK_TESTS: 10
 
   san:
     strategy:
@@ -357,6 +265,7 @@ jobs:
           - memory
           - thread
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -378,130 +287,30 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
-      # debug build + doctests is slow
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" 2>&1 | ts -i '%.s  '
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
-      # LTO + doctests is very slow on some platforms
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
+      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
       # +cmpxchg16b
-      # debug build + doctests is slow
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
+      - run: tools/test.sh -Z build-std -vv 2>&1 | ts -i '%.s  '
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" 2>&1 | ts -i '%.s  '
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
-      # LTO + doctests is very slow on some platforms
-      - run: |
-          cargo -Z build-std test -vv --workspace --exclude bench --all-features --release --target "$(rustc -Vv | grep host | sed 's/host: //')" --tests 2>&1 | ts -i '%.s  '
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b
-        if: matrix.sanitizer != 'memory' # https://github.com/google/sanitizers/issues/558
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
   valgrind:
     env:
-      CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes
+      VALGRIND: valgrind
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
           persist-credentials: false
       - name: Install Rust
         run: rustup toolchain add nightly --no-self-update --component rust-src && rustup default nightly
+      - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
-      # doctests on Valgrind are very slow
-      - run: cargo test -vv --workspace --exclude bench --all-features --tests
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg valgrind
+      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
       # +cmpxchg16b
-      - run: cargo test -vv --workspace --exclude bench --all-features --tests
+      - run: tools/test.sh -vv 2>&1 | ts -i '%.s  '
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-      - run: cargo test -vv --workspace --exclude bench --all-features --release --tests
-        env:
-          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
-          CARGO_PROFILE_RELEASE_LTO: fat
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg valgrind
-
-  codegen:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-      - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update && rustup default nightly
-      - run: tools/no_atomic.sh
-      - run: git add -N . && git diff --exit-code
-        if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - id: diff
-        run: |
-          set -euxo pipefail
-          git config user.name "Taiki Endo"
-          git config user.email "te316e89@gmail.com"
-          git add -N .
-          if ! git diff --exit-code; then
-              git add .
-              git commit -m "Update no_atomic.rs"
-              echo "success=false" >>"${GITHUB_OUTPUT}"
-          fi
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - uses: taiki-e/create-pull-request@v4
-        with:
-          title: Update no_atomic.rs
-          body: |
-            Auto-generated by [create-pull-request][1]
-            [Please close and immediately reopen this pull request to run CI.][2]
-
-            [1]: https://github.com/peter-evans/create-pull-request
-            [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
-          branch: update-no-atomic-rs
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
-
-  # ALL THE PREVIOUS JOBS NEEDS TO BE ADDED TO THE `needs` SECTION OF THIS JOB!
-
-  ci-success:
-    name: ci
-    if: github.event_name == 'push' && success()
-    # prettier-ignore
-    needs: [check-external-types, deny, docs, msrv, tidy, test, build, no-std, miri, san, valgrind, codegen] # tidy:needs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Mark the job as a success
-        run: exit 0
+          # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics

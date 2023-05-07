@@ -19,6 +19,8 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Make features that require newer compilers, such as [fetch_max](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [fetch_min](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_min), [fetch_update](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_update), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
 
+**Note:** The latest version of portable-atomic is 1.x. portable-atomic 0.3 (this branch) is now (since 0.3.20) built on top of portable-atomic 1.x to make bug fixes and improvements such as [support for new targets](https://github.com/taiki-e/portable-atomic/pull/86) in 1.x available to the ecosystem that depends on older portable-atomic. portable-atomic 0.3 is still maintained passively, but upgrading to portable-atomic 1.x is recommended. (There are no breaking changes from 0.3, except that a deprecated no-op `outline-atomics` Cargo feature has been removed.)
+
 ## Usage
 
 Add this to your `Cargo.toml`:
