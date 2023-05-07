@@ -95,6 +95,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Documentation improvements.
 
+## [0.3.20] - 2023-05-07
+
+The latest version of portable-atomic is 1.x. This release makes portable-atomic 0.3 is built on top of portable-atomic 1.x to make bug fixes and improvements such as [support for new targets](https://github.com/taiki-e/portable-atomic/pull/86) in 1.x available to the ecosystem that depends on older portable-atomic. portable-atomic 0.3 is still maintained passively, but upgrading to portable-atomic 1.x is recommended. (There are no breaking changes from 0.3, except that a deprecated no-op `outline-atomics` Cargo feature has been removed.) ([#99](https://github.com/taiki-e/portable-atomic/pull/99))
+
 ## [0.3.19] - 2022-12-25
 
 - Add `AtomicI*::{fetch_neg,neg}` and `AtomicF*::fetch_neg` methods. ([#54](https://github.com/taiki-e/portable-atomic/pull/54))
@@ -321,6 +325,7 @@ Initial release
 [1.1.0]: https://github.com/taiki-e/portable-atomic/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/taiki-e/portable-atomic/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...v1.0.0
+[0.3.20]: https://github.com/taiki-e/portable-atomic/compare/v0.3.19...v0.3.20
 [0.3.19]: https://github.com/taiki-e/portable-atomic/compare/v0.3.18...v0.3.19
 [0.3.18]: https://github.com/taiki-e/portable-atomic/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/taiki-e/portable-atomic/compare/v0.3.16...v0.3.17
