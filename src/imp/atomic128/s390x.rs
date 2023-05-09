@@ -48,7 +48,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             out("r0") out_hi,
             out("r1") out_lo,
-            options(nostack),
+            options(nostack, preserves_flags),
         );
         U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
     }
@@ -70,7 +70,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     in("r0") val.pair.hi,
                     in("r1") val.pair.lo,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             Ordering::SeqCst => {
@@ -81,7 +81,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     in("r0") val.pair.hi,
                     in("r1") val.pair.lo,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 );
             }
             _ => unreachable!("{:?}", order),
@@ -320,7 +320,7 @@ atomic_rmw_cas_2! {
 
 // We use atomic_update for atomic min/max in all cases because
 // pre-z13 doesn't seem to have a good way to implement 128-bit min/max.
-// https://godbolt.org/z/53fnrET7o
+// https://godbolt.org/z/nEqTnMa35
 // (LLVM 16's minimal supported architecture level is z10:
 // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td)
 atomic_rmw_by_atomic_update!(cmp);

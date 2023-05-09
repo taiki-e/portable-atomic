@@ -167,7 +167,13 @@ run() {
         CARGO_PROFILE_RELEASE_LTO=fat \
         x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests --target-dir target/fat-lto "$@"
 
-    if [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
+    # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
+    if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
+        # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on Windows
+        # sometimes causes segfault in build script or proc-macro.
+        if [[ -z "${cargo_options[*]+"${cargo_options[*]}"}" ]] && [[ "${target}" == *"-windows"* ]]; then
+            args+=(--target "${target}")
+        fi
         RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout:-}" \
             RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout:-}" \
             x_cargo ${pre_args[@]+"${pre_args[@]}"} careful test ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"

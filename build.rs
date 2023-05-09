@@ -128,13 +128,13 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");
         }
         // https://github.com/rust-lang/rust/pull/100911 (includes https://github.com/rust-lang/stdarch/pull/1315) merged in Rust 1.65 (nightly-2022-08-26).
-        if !version.probe(65, 2022, 8, 25) {
+        if target_arch == "x86_64" && !version.probe(65, 2022, 8, 25) {
             println!(
                 "cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_intrinsic_stronger_failure_ordering"
             );
         }
         // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
-        if !version.probe(67, 2022, 11, 5) {
+        if target_arch == "arm" && !version.probe(67, 2022, 11, 5) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
         }
 
@@ -151,8 +151,11 @@ fn main() {
         if version.llvm >= 15 {
             println!("cargo:rustc-cfg=portable_atomic_llvm_15");
         }
+        // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
+        // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
         if !no_asm
-            && (target_arch == "powerpc64" || target_arch == "s390x")
+            && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 13)
+                || target_arch == "s390x" && version.probe(71, 2023, 5, 8))
             && is_allowed_feature("asm_experimental_arch")
         {
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");

@@ -64,15 +64,18 @@ jobs:
       matrix:
         include:
           - rust: '1.54'
-          - rust: '1.59'
-          - rust: stable
+          - rust: '1.59' # LLVM 13
+          - rust: '1.64' # LLVM 14
+          - rust: stable # LLVM 15 (as of 1.69)
           - rust: beta
           - rust: nightly
           - rust: nightly
             os: macos-latest
           - rust: nightly
             os: windows-latest
-          - rust: '1.59'
+          - rust: '1.59' # LLVM 13
+            target: aarch64-unknown-linux-gnu
+          - rust: '1.64' # LLVM 14
             target: aarch64-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-gnu
@@ -127,13 +130,43 @@ jobs:
             target: powerpc-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2023-03-26 # Rust 1.70, LLVM 16
+          #   target: powerpc64-unknown-linux-gnu
+          - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
+            target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2022-08-13 # Rust 1.65, LLVM 15
+          #   target: powerpc64-unknown-linux-gnu
+          - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
+            target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2022-02-18 # Rust 1.60, LLVM 14
+          #   target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2022-02-17 # Rust 1.60, LLVM 13
+          #   target: powerpc64-unknown-linux-gnu
+          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
+            target: powerpc64-unknown-linux-gnu
           - rust: nightly
+            target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2023-03-26 # Rust 1.70, LLVM 16
+          #   target: powerpc64le-unknown-linux-gnu
+          - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
+            target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2022-08-13 # Rust 1.65, LLVM 15
+          #   target: powerpc64le-unknown-linux-gnu
+          - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
+            target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2022-02-18 # Rust 1.60, LLVM 14
+          #   target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2022-02-17 # Rust 1.60, LLVM 13
+          #   target: powerpc64le-unknown-linux-gnu
+          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
             target: powerpc64le-unknown-linux-gnu
           - rust: nightly
             target: riscv32gc-unknown-linux-gnu
           - rust: nightly
             target: riscv64gc-unknown-linux-gnu
           - rust: nightly
+            target: s390x-unknown-linux-gnu
+          - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
             target: s390x-unknown-linux-gnu
           - rust: nightly
             target: sparc64-unknown-linux-gnu

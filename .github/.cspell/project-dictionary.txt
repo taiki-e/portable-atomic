@@ -31,9 +31,6 @@ cpsie
 CPSR
 cpuid
 cputable
-crand
-crandc
-cror
 csel
 cset
 csrrci
@@ -52,6 +49,9 @@ HWCAP
 ifunc
 includepath
 isel
+iseleq
+iselgt
+isellt
 ishld
 isync
 kuser

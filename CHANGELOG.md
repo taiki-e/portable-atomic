@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix powerpc64/s390x 128-bit atomics on old nightly.
+
 ## [1.3.1] - 2023-05-07
 
 - Documentation improvements.

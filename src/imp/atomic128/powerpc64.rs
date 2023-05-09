@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/eTcaMs93h
-// - powerpc64le https://godbolt.org/z/Eqs49dYE1
+// - powerpc64 (pwr8) https://godbolt.org/z/c6ao6oe83
+// - powerpc64le https://godbolt.org/z/z3er5MMv9
 
 include!("macros.rs");
 
@@ -246,7 +246,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
                     out("r4") out_hi,
                     out("r5") out_lo,
                     out("cr7") _,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
@@ -261,7 +261,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
                     // We cannot use r1 and r2, so starting with r4.
                     out("r4") out_hi,
                     out("r5") out_lo,
-                    options(nostack, readonly),
+                    options(nostack, preserves_flags, readonly),
                 );
             }
             Ordering::Acquire => atomic_load_acquire!(""),
@@ -351,7 +351,7 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
                     // We cannot use r1 and r2, so starting with r4.
                     in("r4") val.pair.hi,
                     in("r5") val.pair.lo,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
@@ -437,7 +437,7 @@ unsafe fn atomic_compare_exchange_pwr8(
                     out("r8") prev_hi,
                     out("r9") prev_lo,
                     out("cr0") _,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
@@ -485,7 +485,7 @@ unsafe fn atomic_swap_pwr8(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                     in("r8") val.pair.hi,
                     in("r9") val.pair.lo,
                     out("cr0") _,
-                    options(nostack),
+                    options(nostack, preserves_flags),
                 )
             };
         }
@@ -539,7 +539,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                             out("r8") _, // new (hi)
                             out("r9") _, // new (lo)
                             out("cr0") _,
-                            options(nostack),
+                            options(nostack, preserves_flags),
                         )
                     };
                 }
@@ -590,7 +590,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                             out("r8") _, // new (hi)
                             out("r9") _, // new (lo)
                             out("cr0") _,
-                            options(nostack),
+                            options(nostack, preserves_flags),
                         )
                     };
                 }
@@ -602,12 +602,12 @@ macro_rules! atomic_rmw_ll_sc_2 {
 }
 
 atomic_rmw_ll_sc_3! {
-    atomic_add_pwr8 as atomic_add, [],
+    atomic_add_pwr8 as atomic_add, [out("xer") _,],
     "addc %r9, {val_lo}, %r7",
     "adde %r8, {val_hi}, %r6",
 }
 atomic_rmw_ll_sc_3! {
-    atomic_sub_pwr8 as atomic_sub, [],
+    atomic_sub_pwr8 as atomic_sub, [out("xer") _,],
     "subc %r9, %r7, {val_lo}",
     "subfe %r8, {val_hi}, %r6",
 }
@@ -633,45 +633,41 @@ atomic_rmw_ll_sc_3! {
 }
 atomic_rmw_ll_sc_3! {
     atomic_max_pwr8 as atomic_max, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-    "crandc 20, 5, 2",
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+    "cmpld %r7, {val_lo}",        // (unsigned) compare lo 64-bit, store result to cr0
+    "iselgt %r9, %r7, {val_lo}",  // select lo 64-bit based on GT bit in cr0
+    "cmpd %cr1, %r6, {val_hi}",   // (signed) compare hi 64-bit, store result to cr1
+    "isel %r8, %r7, {val_lo}, 5", // select lo 64-bit based on GT bit in cr1
+    "cmpld %r6, {val_hi}",        // (unsigned) compare hi 64-bit, store result to cr0
+    "iseleq %r9, %r9, %r8",       // select lo 64-bit based on EQ bit in cr0
+    "isel %r8, %r6, {val_hi}, 5", // select hi 64-bit based on GT bit in cr1
 }
 atomic_rmw_ll_sc_3! {
-    atomic_umax_pwr8 as atomic_umax, [out("cr1") _,],
+    atomic_umax_pwr8 as atomic_umax, [],
+    "cmpld %r7, {val_lo}",       // compare lo 64-bit, store result to cr0
+    "iselgt %r9, %r7, {val_lo}", // select lo 64-bit based on GT bit in cr0
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crandc 20, 1, 2",
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, %r6, {val_hi}, 20", // select hi 64-bit
-    "isel %r9, %r7, {val_lo}, 20", // select lo 64-bit
+    "iselgt %r8, %r7, {val_lo}", // select lo 64-bit based on GT bit in cr0
+    "iseleq %r9, %r9, %r8",      // select lo 64-bit based on EQ bit in cr0
+    "iselgt %r8, %r6, {val_hi}", // select hi 64-bit based on GT bit in cr0
 }
 atomic_rmw_ll_sc_3! {
     atomic_min_pwr8 as atomic_min, [out("cr1") _,],
-    "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpd %cr1, %r6, {val_hi}",  // (signed) compare hi 64-bit, store result to cr1
-    "crandc 20, 5, 2",
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+    "cmpld %r7, {val_lo}",        // (unsigned) compare lo 64-bit, store result to cr0
+    "isellt %r9, %r7, {val_lo}",  // select lo 64-bit based on LT bit in cr0
+    "cmpd %cr1, %r6, {val_hi}",   // (signed) compare hi 64-bit, store result to cr1
+    "isel %r8, %r7, {val_lo}, 4", // select lo 64-bit based on LT bit in cr1
+    "cmpld %r6, {val_hi}",        // (unsigned) compare hi 64-bit, store result to cr0
+    "iseleq %r9, %r9, %r8",       // select lo 64-bit based on EQ bit in cr0
+    "isel %r8, %r6, {val_hi}, 4", // select hi 64-bit based on LT bit in cr1
 }
 atomic_rmw_ll_sc_3! {
-    atomic_umin_pwr8 as atomic_umin, [out("cr1") _,],
+    atomic_umin_pwr8 as atomic_umin, [],
+    "cmpld %r7, {val_lo}",       // compare lo 64-bit, store result to cr0
+    "isellt %r9, %r7, {val_lo}", // select lo 64-bit based on LT bit in cr0
     "cmpld %r6, {val_hi}",       // compare hi 64-bit, store result to cr0
-    "cmpld %cr1, %r7, {val_lo}", // compare lo 64-bit, store result to cr1
-    "crandc 20, 1, 2",
-    "crand 21, 2, 5",
-    "cror 20, 21, 20",
-    "isel %r8, {val_hi}, %r6, 20", // select hi 64-bit
-    "isel %r9, {val_lo}, %r7, 20", // select lo 64-bit
+    "isellt %r8, %r7, {val_lo}", // select lo 64-bit based on LT bit in cr0
+    "iseleq %r9, %r9, %r8",      // select lo 64-bit based on EQ bit in cr0
+    "isellt %r8, %r6, {val_hi}", // select hi 64-bit based on LT bit in cr0
 }
 
 #[cfg(any(
@@ -687,14 +683,14 @@ unsafe fn atomic_not_pwr8(dst: *mut u128, order: Ordering) -> u128 {
 
 #[cfg(portable_atomic_llvm_16)]
 atomic_rmw_ll_sc_2! {
-    atomic_neg_pwr8 as atomic_neg, [],
+    atomic_neg_pwr8 as atomic_neg, [out("xer") _,],
     "subfic %r9, %r7, 0",
     "subfze %r8, %r6",
 }
 // LLVM 15 miscompiles subfic.
 #[cfg(not(portable_atomic_llvm_16))]
 atomic_rmw_ll_sc_2! {
-    atomic_neg_pwr8 as atomic_neg, [zero = in(reg_nonzero) 0_u64,],
+    atomic_neg_pwr8 as atomic_neg, [zero = in(reg_nonzero) 0_u64, out("xer") _,],
     "subc %r9, {zero}, %r7",
     "subfze %r8, %r6",
 }
