@@ -8,7 +8,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/KahrWeW9G
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/WPvfn16sY
 
 include!("macros.rs");
 
@@ -71,6 +71,7 @@ union U128 {
     whole: u128,
     pair: Pair,
 }
+// A pair of 64-bit values in native-endian (little-endian) order.
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
@@ -421,6 +422,7 @@ unsafe fn atomic_compare_exchange(
     }
 }
 
+// cmpxchg16b is always strong.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]

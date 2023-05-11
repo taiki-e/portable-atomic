@@ -22,8 +22,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/c6ao6oe83
-// - powerpc64le https://godbolt.org/z/z3er5MMv9
+// - powerpc64 (pwr8) https://godbolt.org/z/nsMPvWbev
+// - powerpc64le https://godbolt.org/z/r5hr96bcM
 
 include!("macros.rs");
 
@@ -137,6 +137,7 @@ union U128 {
     whole: u128,
     pair: Pair,
 }
+// A pair of 64-bit values in native-endian order.
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
@@ -447,7 +448,7 @@ unsafe fn atomic_compare_exchange_pwr8(
     (res, res == old)
 }
 
-// LLVM appears to generate strong CAS for powerpc64 128-bit weak CAS,
+// TODO: LLVM appears to generate strong CAS for powerpc64 128-bit weak CAS,
 // so we always use strong CAS for now.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 

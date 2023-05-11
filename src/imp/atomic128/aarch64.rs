@@ -48,11 +48,11 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/fzWhsbKsd
-// - aarch64 msvc https://godbolt.org/z/chMK1G8vc
-// - aarch64 (+lse) https://godbolt.org/z/n8Tv7a8eh
-// - aarch64 msvc (+lse) https://godbolt.org/z/GMsYs41MG
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/bs18YP7Ph
+// - aarch64 https://godbolt.org/z/vWPvTEan1
+// - aarch64 msvc https://godbolt.org/z/hsb18WdG6
+// - aarch64 (+lse) https://godbolt.org/z/d6MaqnvYe
+// - aarch64 msvc (+lse) https://godbolt.org/z/PWY5dsbcr
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/4aT57vYns
 
 include!("macros.rs");
 
@@ -178,6 +178,7 @@ union U128 {
     whole: u128,
     pair: Pair,
 }
+// A pair of 64-bit values in little-endian order (even on big-endian targets).
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
@@ -681,8 +682,9 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     }
 }
 
-// LLVM appears to generate strong CAS for aarch64 128-bit weak CAS,
-// so we always use strong CAS for now.
+// casp is always strong, and ldxp requires a corresponding (succeed) stxp for
+// its atomicity (see code comment in _atomic_compare_exchange_ldxp_stxp).
+// (i.e., aarch64 doesn't have 128-bit weak CAS)
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
