@@ -278,6 +278,26 @@ fn main() {
             // lqarx and stqcx.
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
+        "s390x" => {
+            // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L37
+            let mut has_arch9_features = false;
+            if let Some(cpu) = target_cpu() {
+                // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                match &*cpu {
+                    "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14"
+                    | "arch13" | "z15" | "arch14" | "z16" => has_arch9_features = true,
+                    _ => {}
+                }
+            }
+            // Note: As of rustc 1.69, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs
+            // bcr 14,0
+            target_feature_if("fast-serialization", has_arch9_features, &version, None, false);
+            // {l,st}oc{,g}{,r}
+            target_feature_if("load-store-on-cond", has_arch9_features, &version, None, false);
+            // {al,sl,n,o,x}{,g}rk
+            target_feature_if("distinct-ops", has_arch9_features, &version, None, false);
+        }
         _ => {}
     }
 }

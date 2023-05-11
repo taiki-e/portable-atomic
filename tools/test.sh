@@ -171,7 +171,7 @@ run() {
     if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
         # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on Windows
         # sometimes causes segfault in build script or proc-macro.
-        if [[ -z "${cargo_options[*]+"${cargo_options[*]}"}" ]] && [[ "${target}" == *"-windows"* ]]; then
+        if [[ -z "${target_flags[*]+"${target_flags[*]}"}" ]] && [[ "${target}" == *"-windows"* ]]; then
             args+=(--target "${target}")
         fi
         RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout:-}" \

@@ -279,6 +279,12 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
+      # z196 (arch9)
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
+        if: startsWith(matrix.target, 's390x')
 
       - run: tools/build.sh ${{ matrix.target || 'host' }}
       - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}

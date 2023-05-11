@@ -3,15 +3,22 @@
 // s390x supports 128-bit atomic load/store/cmpxchg:
 // https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
 //
+// As of LLVM 16, LLVM's minimal supported architecture level is z10:
+// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td)
+// This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
+// https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
+//
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use intrinsics.rs instead.
 //
 // Refs:
+// - z/Architecture Principles of Operation https://publibfp.dhe.ibm.com/epubs/pdf/a227832d.pdf
 // - z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/oP5bhbqce
+// - s390x https://godbolt.org/z/cGhqxe3f7
+// - s390x (z196) https://godbolt.org/z/cqrvno3cv
 
 include!("macros.rs");
 
@@ -27,11 +34,26 @@ union U128 {
     whole: u128,
     pair: Pair,
 }
+// A pair of 64-bit values in native-endian (big-endian) order.
 #[derive(Clone, Copy)]
 #[repr(C)]
 struct Pair {
     hi: u64,
     lo: u64,
+}
+
+// Use distinct operands on z196 or later, otherwise split to lgr and $op.
+#[cfg(any(target_feature = "distinct-ops", portable_atomic_target_feature = "distinct-ops"))]
+macro_rules! distinct_op {
+    ($op:tt, $a0:tt, $a1:tt, $a2:tt) => {
+        concat!($op, "k ", $a0, ", ", $a1, ", ", $a2)
+    };
+}
+#[cfg(not(any(target_feature = "distinct-ops", portable_atomic_target_feature = "distinct-ops")))]
+macro_rules! distinct_op {
+    ($op:tt, $a0:tt, $a1:tt, $a2:tt) => {
+        concat!("lgr ", $a0, ", ", $a1, "\n", $op, " ", $a0, ", ", $a2)
+    };
 }
 
 #[inline]
@@ -61,29 +83,33 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let val = U128 { whole: val };
+        macro_rules! atomic_store {
+            ($fence:tt) => {
+                asm!(
+                    "stpq %r0, 0({dst})",
+                    $fence,
+                    dst = in(reg) dst,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    in("r0") val.pair.hi,
+                    in("r1") val.pair.lo,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
         match order {
             // Relaxed and Release stores are equivalent.
-            Ordering::Relaxed | Ordering::Release => {
-                asm!(
-                    "stpq %r0, 0({dst})",
-                    dst = in(reg) dst,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    in("r0") val.pair.hi,
-                    in("r1") val.pair.lo,
-                    options(nostack, preserves_flags),
-                );
-            }
-            Ordering::SeqCst => {
-                asm!(
-                    "stpq %r0, 0({dst})",
-                    "bcr 15, %r0",
-                    dst = in(reg) dst,
-                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    in("r0") val.pair.hi,
-                    in("r1") val.pair.lo,
-                    options(nostack, preserves_flags),
-                );
-            }
+            Ordering::Relaxed | Ordering::Release => atomic_store!(""),
+            // bcr 14,0 (fast-BCR-serialization) requires z196 or later.
+            #[cfg(any(
+                target_feature = "fast-serialization",
+                portable_atomic_target_feature = "fast-serialization",
+            ))]
+            Ordering::SeqCst => atomic_store!("bcr 14, 0"),
+            #[cfg(not(any(
+                target_feature = "fast-serialization",
+                portable_atomic_target_feature = "fast-serialization",
+            )))]
+            Ordering::SeqCst => atomic_store!("bcr 15, 0"),
             _ => unreachable!("{:?}", order),
         }
     }
@@ -126,6 +152,10 @@ unsafe fn atomic_compare_exchange(
 
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
+#[cfg(not(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+)))]
 #[inline(always)]
 unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
 where
@@ -187,7 +217,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_3 {
-    ($name:ident, $($op:tt)*) => {
+    ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
@@ -205,6 +235,7 @@ macro_rules! atomic_rmw_cas_3 {
                     dst = in(reg) dst,
                     val_hi = in(reg) val.pair.hi,
                     val_lo = in(reg) val.pair.lo,
+                    $($reg)*
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     out("r0") prev_hi,
                     out("r1") prev_lo,
@@ -255,51 +286,118 @@ macro_rules! atomic_rmw_cas_2 {
 }
 
 atomic_rmw_cas_3! {
-    atomic_add,
-    "lgr %r13, %r1",
-    "algr %r13, {val_lo}",
+    atomic_add, [],
+    distinct_op!("algr", "%r13", "%r1", "{val_lo}"),
     "lgr %r12, %r0",
     "alcgr %r12, {val_hi}",
 }
 atomic_rmw_cas_3! {
-    atomic_sub,
-    "lgr %r13, %r1",
-    "slgr %r13, {val_lo}",
+    atomic_sub, [],
+    distinct_op!("slgr", "%r13", "%r1", "{val_lo}"),
     "lgr %r12, %r0",
     "slbgr %r12, {val_hi}",
 }
 atomic_rmw_cas_3! {
-    atomic_and,
-    "lgr %r13, %r1",
-    "ngr %r13, {val_lo}",
-    "lgr %r12, %r0",
-    "ngr %r12, {val_hi}",
+    atomic_and, [],
+    distinct_op!("ngr", "%r13", "%r1", "{val_lo}"),
+    distinct_op!("ngr", "%r12", "%r0", "{val_hi}"),
 }
+// TODO: Use nngrk on z15+
 atomic_rmw_cas_3! {
-    atomic_nand,
-    "lgr %r13, %r1",
-    "ngr %r13, {val_lo}",
+    atomic_nand, [],
+    distinct_op!("ngr", "%r13", "%r1", "{val_lo}"),
     "xihf %r13, 4294967295",
     "xilf %r13, 4294967295",
-    "lgr %r12, %r0",
-    "ngr %r12, {val_hi}",
+    distinct_op!("ngr", "%r12", "%r0", "{val_hi}"),
     "xihf %r12, 4294967295",
     "xilf %r12, 4294967295",
 }
 atomic_rmw_cas_3! {
-    atomic_or,
-    "lgr %r13, %r1",
-    "ogr %r13, {val_lo}",
-    "lgr %r12, %r0",
-    "ogr %r12, {val_hi}",
+    atomic_or, [],
+    distinct_op!("ogr", "%r13", "%r1", "{val_lo}"),
+    distinct_op!("ogr", "%r12", "%r0", "{val_hi}"),
 }
 atomic_rmw_cas_3! {
-    atomic_xor,
-    "lgr %r13, %r1",
-    "xgr %r13, {val_lo}",
-    "lgr %r12, %r0",
-    "xgr %r12, {val_hi}",
+    atomic_xor, [],
+    distinct_op!("xgr", "%r13", "%r1", "{val_lo}"),
+    distinct_op!("xgr", "%r12", "%r0", "{val_hi}"),
 }
+
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+atomic_rmw_cas_3! {
+    atomic_max, [],
+    "clgr %r1, {val_lo}",
+    "lgr %r12, {val_lo}",
+    "locgrh %r12, %r1",
+    "cgr %r0, {val_hi}",
+    "lgr %r13, {val_lo}",
+    "locgrh %r13, %r1",
+    "locgre %r13, %r12",
+    "lgr %r12, {val_hi}",
+    "locgrh %r12, %r0",
+}
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+atomic_rmw_cas_3! {
+    atomic_umax, [tmp = out(reg) _,],
+    "clgr %r1, {val_lo}",
+    "lgr {tmp}, {val_lo}",
+    "locgrh {tmp}, %r1",
+    "clgr %r0, {val_hi}",
+    "lgr %r12, {val_hi}",
+    "locgrh %r12, %r0",
+    "lgr %r13, {val_lo}",
+    "locgrh %r13, %r1",
+    "cgr %r0, {val_hi}",
+    "locgre %r13, {tmp}",
+}
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+atomic_rmw_cas_3! {
+    atomic_min, [],
+    "clgr %r1, {val_lo}",
+    "lgr %r12, {val_lo}",
+    "locgrl %r12, %r1",
+    "cgr %r0, {val_hi}",
+    "lgr %r13, {val_lo}",
+    "locgrl %r13, %r1",
+    "locgre %r13, %r12",
+    "lgr %r12, {val_hi}",
+    "locgrl %r12, %r0",
+}
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+atomic_rmw_cas_3! {
+    atomic_umin, [tmp = out(reg) _,],
+    "clgr %r1, {val_lo}",
+    "lgr {tmp}, {val_lo}",
+    "locgrl {tmp}, %r1",
+    "clgr %r0, {val_hi}",
+    "lgr %r12, {val_hi}",
+    "locgrl %r12, %r0",
+    "lgr %r13, {val_lo}",
+    "locgrl %r13, %r1",
+    "cgr %r0, {val_hi}",
+    "locgre %r13, {tmp}",
+}
+// We use atomic_update for atomic min/max on pre-z196 because
+// z10 doesn't seem to have a good way to implement 128-bit min/max.
+// loc{,g}r requires z196 or later.
+// https://godbolt.org/z/qodPK45qz
+#[cfg(not(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+)))]
+atomic_rmw_by_atomic_update!(cmp);
 
 atomic_rmw_cas_2! {
     atomic_not,
@@ -317,13 +415,6 @@ atomic_rmw_cas_2! {
     "lghi %r12, 0",
     "slbgr %r12, %r0",
 }
-
-// We use atomic_update for atomic min/max in all cases because
-// pre-z13 doesn't seem to have a good way to implement 128-bit min/max.
-// https://godbolt.org/z/nEqTnMa35
-// (LLVM 16's minimal supported architecture level is z10:
-// https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td)
-atomic_rmw_by_atomic_update!(cmp);
 
 #[inline]
 const fn is_lock_free() -> bool {

@@ -19,6 +19,7 @@ cdsg
 cfgs
 cinc
 cirruslabs
+clgr
 cmovae
 cmovb
 cmovge
@@ -68,6 +69,9 @@ libstd
 libtcl
 libtest
 linkall
+locgre
+locgrh
+locgrl
 lqarx
 lrcpc
 lwsync
@@ -85,6 +89,7 @@ neoverse
 newlib
 newrepo
 newtype
+nngrk
 noconfirm
 nostartfiles
 nostdinc
