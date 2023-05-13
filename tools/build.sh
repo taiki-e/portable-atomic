@@ -371,6 +371,8 @@ build() {
             m68k-unknown-linux-gnu) return 0 ;;
             # TODO: rustc bug: will be fixed by https://github.com/rust-lang/rust/pull/103503
             x86_64-apple-tvos) return 0 ;;
+            # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/348
+            armeb* | aarch64_be*) return 0 ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
