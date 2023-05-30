@@ -139,39 +139,18 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {
-        crate::utils::assert_load_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        {
-            self.as_native().load(order)
-        }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe { self.v.get().read() != 0 })
+        self.as_atomic_u8().load(order) != 0
     }
 
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, val: bool, order: Ordering) {
-        crate::utils::assert_store_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        {
-            self.as_native().store(val, order);
-        }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe { self.v.get().write(val as u8) });
+        self.as_atomic_u8().store(val as u8, order);
     }
 
     #[inline]
-    pub(crate) fn swap(&self, val: bool, _order: Ordering) -> bool {
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe { self.v.get().replace(val as u8) != 0 })
+    pub(crate) fn swap(&self, val: bool, order: Ordering) -> bool {
+        self.as_atomic_u8().swap(val as u8, order) != 0
     }
 
     #[inline]
@@ -183,19 +162,10 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        crate::utils::assert_compare_exchange_ordering(success, failure);
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let result = self.v.get().read();
-            if result == current as u8 {
-                self.v.get().write(new as u8);
-                Ok(result != 0)
-            } else {
-                Err(result != 0)
-            }
-        })
+        match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
+            Ok(x) => Ok(x != 0),
+            Err(x) => Err(x != 0),
+        }
     }
 
     #[inline]
@@ -211,39 +181,29 @@ impl AtomicBool {
     }
 
     #[inline]
-    pub(crate) fn fetch_and(&self, val: bool, _order: Ordering) -> bool {
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let result = self.v.get().read();
-            self.v.get().write(result & val as u8);
-            result != 0
-        })
+    pub(crate) fn fetch_and(&self, val: bool, order: Ordering) -> bool {
+        self.as_atomic_u8().fetch_and(val as u8, order) != 0
+    }
+    #[inline]
+    pub(crate) fn fetch_or(&self, val: bool, order: Ordering) -> bool {
+        self.as_atomic_u8().fetch_or(val as u8, order) != 0
+    }
+    #[inline]
+    pub(crate) fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
+        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
     }
 
     #[inline]
-    pub(crate) fn fetch_or(&self, val: bool, _order: Ordering) -> bool {
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let result = self.v.get().read();
-            self.v.get().write(result | val as u8);
-            result != 0
-        })
+    pub(crate) fn and(&self, val: bool, order: Ordering) {
+        self.as_atomic_u8().and(val as u8, order);
     }
-
     #[inline]
-    pub(crate) fn fetch_xor(&self, val: bool, _order: Ordering) -> bool {
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let result = self.v.get().read();
-            self.v.get().write(result ^ val as u8);
-            result != 0
-        })
+    pub(crate) fn or(&self, val: bool, order: Ordering) {
+        self.as_atomic_u8().or(val as u8, order);
+    }
+    #[inline]
+    pub(crate) fn xor(&self, val: bool, order: Ordering) {
+        self.as_atomic_u8().xor(val as u8, order);
     }
 
     #[inline]
@@ -251,30 +211,10 @@ impl AtomicBool {
         self.v.get() as *mut bool
     }
 
-    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
     #[inline]
-    fn as_native(&self) -> &atomic::AtomicBool {
-        // SAFETY: AtomicBool and atomic::AtomicBool have the same layout and
-        // guarantee atomicity in a compatible way. (see module-level comments)
-        unsafe { &*(self as *const Self as *const atomic::AtomicBool) }
-    }
-}
-
-#[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-impl_default_no_fetch_ops!(AtomicBool, bool);
-#[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
-impl AtomicBool {
-    #[inline]
-    pub(crate) fn and(&self, val: bool, order: Ordering) {
-        self.as_native().and(val, order);
-    }
-    #[inline]
-    pub(crate) fn or(&self, val: bool, order: Ordering) {
-        self.as_native().or(val, order);
-    }
-    #[inline]
-    pub(crate) fn xor(&self, val: bool, order: Ordering) {
-        self.as_native().xor(val, order);
+    fn as_atomic_u8(&self) -> &AtomicU8 {
+        // SAFETY: AtomicBool and AtomicU8 have the same layout,
+        unsafe { &*(self as *const AtomicBool).cast::<AtomicU8>() }
     }
 }
 

@@ -12,12 +12,13 @@
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
+#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
 #[repr(transparent)]
 pub(crate) struct AtomicBool {
-    #[allow(dead_code)]
     v: UnsafeCell<u8>,
 }
 
+#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
 // Send is implicitly implemented.
 // SAFETY: any data races are prevented by atomic operations.
 unsafe impl Sync for AtomicBool {}
@@ -53,8 +54,7 @@ impl AtomicBool {
     pub(crate) const fn as_ptr(&self) -> *mut bool {
         self.v.get().cast::<bool>()
     }
-}
-impl AtomicBool {
+
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> bool {

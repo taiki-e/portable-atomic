@@ -72,34 +72,6 @@ pub(crate) mod atomic {
     use core::arch::asm;
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-    #[repr(transparent)]
-    pub(crate) struct AtomicBool {
-        #[allow(dead_code)]
-        v: UnsafeCell<u8>,
-    }
-
-    // Send is implicitly implemented.
-    // SAFETY: any data races are prevented by atomic operations.
-    unsafe impl Sync for AtomicBool {}
-
-    impl AtomicBool {
-        #[inline]
-        pub(crate) fn load(&self, order: Ordering) -> bool {
-            self.as_atomic_u8().load(order) != 0
-        }
-
-        #[inline]
-        pub(crate) fn store(&self, val: bool, order: Ordering) {
-            self.as_atomic_u8().store(val as u8, order);
-        }
-
-        #[inline]
-        fn as_atomic_u8(&self) -> &AtomicU8 {
-            // SAFETY: AtomicBool and AtomicU8 have the same layout,
-            unsafe { &*(self as *const AtomicBool).cast::<AtomicU8>() }
-        }
-    }
-
     macro_rules! atomic {
         ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
             #[repr(transparent)]
