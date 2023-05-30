@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 OR MIT */
-/* Adapted from https://github.com/taiki-e/semihosting/blob/main/tests/no-std/riscv64.ld. */
+/* Adapted from https://github.com/taiki-e/semihosting/blob/HEAD/tests/no-std/riscv64.ld. */
 
 /* Linker script for RISC-V RV64 test with QEMU */
 

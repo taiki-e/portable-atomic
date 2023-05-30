@@ -1,7 +1,7 @@
 [build]
 target-dir = "../../target"
 
-# See https://github.com/taiki-e/semihosting/blob/main/tools/qemu-system-runner.sh
+# See https://github.com/taiki-e/semihosting/blob/HEAD/tools/qemu-system-runner.sh
 
 # Cortex-M
 [target.thumbv6m-none-eabi]
