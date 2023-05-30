@@ -84,8 +84,8 @@ jobs:
           - rust: nightly
             target: aarch64-unknown-linux-gnu
           # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/348
-          # - rust: nightly
-          #   target: aarch64_be-unknown-linux-gnu
+          - rust: nightly-2023-05-12
+            target: aarch64_be-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-musl
           - rust: stable
