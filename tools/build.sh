@@ -370,8 +370,6 @@ build() {
         )
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
         case "${target}" in
-            # TODO: rustc bug: https://github.com/rust-lang/rust/issues/111217
-            arm64_32-apple-watchos) return 0 ;;
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
             m68k-unknown-linux-gnu) return 0 ;;
             # TODO: rustc bug: will be fixed by https://github.com/rust-lang/rust/pull/103503
