@@ -200,13 +200,18 @@ llvm_version="${llvm_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
-subcmd=check
+# Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
+subcmd=build
 if [[ -n "${TARGET_GROUP:-}" ]]; then
     base_args=(${pre_args[@]+"${pre_args[@]}"} no-dev-deps --no-private "${subcmd}")
 else
     case "${TESTS:-}" in
         '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}") ;;
-        *) base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}") ;;
+        *)
+            # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
+            subcmd=check
+            base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}")
+            ;;
     esac
 fi
 nightly=''

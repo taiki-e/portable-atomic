@@ -91,11 +91,9 @@ fn run() {
 
     // TODO: undefined reference to `__sync_synchronize'
     #[cfg(not(all(target_arch = "arm", not(target_feature = "v6"))))]
-    {
-        for &order in &test_helper::FENCE_ORDERINGS {
-            fence(order);
-            compiler_fence(order);
-        }
+    for &order in &test_helper::FENCE_ORDERINGS {
+        fence(order);
+        compiler_fence(order);
     }
     hint::spin_loop();
     test_atomic_bool!();
