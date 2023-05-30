@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix build error on aarch64 ILP32 ABI targets (tier 3).
+
 - Optimize 128-bit atomics on s390x.
 
 ## [1.3.2] - 2023-05-09
