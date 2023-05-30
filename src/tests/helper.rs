@@ -1424,6 +1424,37 @@ macro_rules! __test_atomic_int_pub {
                 assert_eq!(a.load(Ordering::SeqCst), 9);
             }
         }
+        ::quickcheck::quickcheck! {
+            fn quickcheck_fetch_update(x: $int_type, y: $int_type) -> bool {
+                let z = loop {
+                    let z = fastrand::$int_type(..);
+                    if z != y {
+                        break z;
+                    }
+                };
+                for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(
+                        a.fetch_update(success, failure, |_| Some(y))
+                        .unwrap(),
+                        x
+                    );
+                    assert_eq!(
+                        a.fetch_update(success, failure, |_| Some(z))
+                        .unwrap(),
+                        y
+                    );
+                    assert_eq!(a.load(Ordering::Relaxed), z);
+                    assert_eq!(
+                        a.fetch_update(success, failure, |z| if z == y { Some(z) } else { None })
+                        .unwrap_err(),
+                        z
+                    );
+                    assert_eq!(a.load(Ordering::Relaxed), z);
+                }
+                true
+            }
+        }
     };
 }
 macro_rules! __test_atomic_float_pub {
