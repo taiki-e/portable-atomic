@@ -229,7 +229,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
         # TODO: handle multi-line target_feature_if
         known_target_feature_values+=($(grep -E 'target_feature_if\("' "${build_scripts[@]}" | sed -E 's/^.*target_feature_if\(//; s/",.*$/"/' | LC_ALL=C sort -u))
-        check_cfg+=" --check-cfg=values(portable_atomic_target_feature,$(IFS=',' && echo "${known_target_feature_values[*]}"))"
+        check_cfg+=" --check-cfg=values(portable_atomic_target_feature,\"miscellaneous-extensions-3\",$(IFS=',' && echo "${known_target_feature_values[*]}"))"
         check_cfg+=" --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}"))"
         subcmd=clippy
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
@@ -554,6 +554,9 @@ build() {
         s390x*)
             CARGO_TARGET_DIR="${target_dir}/z196" \
                 RUSTFLAGS="${target_rustflags} -C target-cpu=z196" \
+                x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/z15" \
+                RUSTFLAGS="${target_rustflags} -C target-cpu=z15" \
                 x_cargo "${args[@]}" "$@"
             ;;
     esac

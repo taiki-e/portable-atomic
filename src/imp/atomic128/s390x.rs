@@ -17,8 +17,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/cGhqxe3f7
-// - s390x (z196) https://godbolt.org/z/cqrvno3cv
+// - s390x https://godbolt.org/z/KnaK5EWoM
+// - s390x (z196) https://godbolt.org/z/1ooWfjMKs
+// - s390x (z15) https://godbolt.org/z/oPxT5zecG
 
 include!("macros.rs");
 
@@ -53,6 +54,34 @@ macro_rules! distinct_op {
 macro_rules! distinct_op {
     ($op:tt, $a0:tt, $a1:tt, $a2:tt) => {
         concat!("lgr ", $a0, ", ", $a1, "\n", $op, " ", $a0, ", ", $a2)
+    };
+}
+
+// Use selgr$cond on z15 or later, otherwise split to locgr$cond and $op.
+#[cfg(any(
+    target_feature = "miscellaneous-extensions-3",
+    portable_atomic_target_feature = "miscellaneous-extensions-3",
+))]
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+macro_rules! select_op {
+    ($cond:tt, $a0:tt, $a1:tt, $a2:tt) => {
+        concat!("selgr", $cond, " ", $a0, ", ", $a1, ", ", $a2)
+    };
+}
+#[cfg(not(any(
+    target_feature = "miscellaneous-extensions-3",
+    portable_atomic_target_feature = "miscellaneous-extensions-3",
+)))]
+#[cfg(any(
+    target_feature = "load-store-on-cond",
+    portable_atomic_target_feature = "load-store-on-cond",
+))]
+macro_rules! select_op {
+    ($cond:tt, $a0:tt, $a1:tt, $a2:tt) => {
+        concat!("lgr ", $a0, ", ", $a2, "\n", "locgr", $cond, " ", $a0, ", ", $a1)
     };
 }
 
@@ -303,7 +332,21 @@ atomic_rmw_cas_3! {
     distinct_op!("ngr", "%r13", "%r1", "{val_lo}"),
     distinct_op!("ngr", "%r12", "%r0", "{val_hi}"),
 }
-// TODO: Use nngrk on z15+
+
+// Use nngrk on z15 or later.
+#[cfg(any(
+    target_feature = "miscellaneous-extensions-3",
+    portable_atomic_target_feature = "miscellaneous-extensions-3",
+))]
+atomic_rmw_cas_3! {
+    atomic_nand, [],
+    "nngrk %r13, %r1, {val_lo}",
+    "nngrk %r12, %r0, {val_hi}",
+}
+#[cfg(not(any(
+    target_feature = "miscellaneous-extensions-3",
+    portable_atomic_target_feature = "miscellaneous-extensions-3",
+)))]
 atomic_rmw_cas_3! {
     atomic_nand, [],
     distinct_op!("ngr", "%r13", "%r1", "{val_lo}"),
@@ -313,6 +356,7 @@ atomic_rmw_cas_3! {
     "xihf %r12, 4294967295",
     "xilf %r12, 4294967295",
 }
+
 atomic_rmw_cas_3! {
     atomic_or, [],
     distinct_op!("ogr", "%r13", "%r1", "{val_lo}"),
@@ -331,14 +375,11 @@ atomic_rmw_cas_3! {
 atomic_rmw_cas_3! {
     atomic_max, [],
     "clgr %r1, {val_lo}",
-    "lgr %r12, {val_lo}",
-    "locgrh %r12, %r1",
+    select_op!("h", "%r12", "%r1", "{val_lo}"),
     "cgr %r0, {val_hi}",
-    "lgr %r13, {val_lo}",
-    "locgrh %r13, %r1",
+    select_op!("h", "%r13", "%r1", "{val_lo}"),
     "locgre %r13, %r12",
-    "lgr %r12, {val_hi}",
-    "locgrh %r12, %r0",
+    select_op!("h", "%r12", "%r0", "{val_hi}"),
 }
 #[cfg(any(
     target_feature = "load-store-on-cond",
@@ -347,13 +388,10 @@ atomic_rmw_cas_3! {
 atomic_rmw_cas_3! {
     atomic_umax, [tmp = out(reg) _,],
     "clgr %r1, {val_lo}",
-    "lgr {tmp}, {val_lo}",
-    "locgrh {tmp}, %r1",
+    select_op!("h", "{tmp}", "%r1", "{val_lo}"),
     "clgr %r0, {val_hi}",
-    "lgr %r12, {val_hi}",
-    "locgrh %r12, %r0",
-    "lgr %r13, {val_lo}",
-    "locgrh %r13, %r1",
+    select_op!("h", "%r12", "%r0", "{val_hi}"),
+    select_op!("h", "%r13", "%r1", "{val_lo}"),
     "cgr %r0, {val_hi}",
     "locgre %r13, {tmp}",
 }
@@ -364,14 +402,11 @@ atomic_rmw_cas_3! {
 atomic_rmw_cas_3! {
     atomic_min, [],
     "clgr %r1, {val_lo}",
-    "lgr %r12, {val_lo}",
-    "locgrl %r12, %r1",
+    select_op!("l", "%r12", "%r1", "{val_lo}"),
     "cgr %r0, {val_hi}",
-    "lgr %r13, {val_lo}",
-    "locgrl %r13, %r1",
+    select_op!("l", "%r13", "%r1", "{val_lo}"),
     "locgre %r13, %r12",
-    "lgr %r12, {val_hi}",
-    "locgrl %r12, %r0",
+    select_op!("l", "%r12", "%r0", "{val_hi}"),
 }
 #[cfg(any(
     target_feature = "load-store-on-cond",
@@ -380,13 +415,10 @@ atomic_rmw_cas_3! {
 atomic_rmw_cas_3! {
     atomic_umin, [tmp = out(reg) _,],
     "clgr %r1, {val_lo}",
-    "lgr {tmp}, {val_lo}",
-    "locgrl {tmp}, %r1",
+    select_op!("l", "{tmp}", "%r1", "{val_lo}"),
     "clgr %r0, {val_hi}",
-    "lgr %r12, {val_hi}",
-    "locgrl %r12, %r0",
-    "lgr %r13, {val_lo}",
-    "locgrl %r13, %r1",
+    select_op!("l", "%r12", "%r0", "{val_hi}"),
+    select_op!("l", "%r13", "%r1", "{val_lo}"),
     "cgr %r0, {val_hi}",
     "locgre %r13, {tmp}",
 }

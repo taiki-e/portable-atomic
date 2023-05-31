@@ -286,16 +286,22 @@ fn main() {
         }
         "s390x" => {
             // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L37
-            let mut has_arch9_features = false;
+            let mut has_arch9_features = false; // z196+
+            let mut has_arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
                 // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 match &*cpu {
-                    "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14"
-                    | "arch13" | "z15" | "arch14" | "z16" => has_arch9_features = true,
+                    "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14" => {
+                        has_arch9_features = true;
+                    }
+                    "arch13" | "z15" | "arch14" | "z16" => {
+                        has_arch9_features = true;
+                        has_arch13_features = true;
+                    }
                     _ => {}
                 }
             }
-            // Note: As of rustc 1.69, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops" is not available on rustc side:
+            // Note: As of rustc 1.69, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs
             // bcr 14,0
             target_feature_if("fast-serialization", has_arch9_features, &version, None, false);
@@ -303,6 +309,14 @@ fn main() {
             target_feature_if("load-store-on-cond", has_arch9_features, &version, None, false);
             // {al,sl,n,o,x}{,g}rk
             target_feature_if("distinct-ops", has_arch9_features, &version, None, false);
+            // nand (nnr{,g}k), select (sel{,g}r), etc.
+            target_feature_if(
+                "miscellaneous-extensions-3",
+                has_arch13_features,
+                &version,
+                None,
+                false,
+            );
         }
         _ => {}
     }

@@ -68,9 +68,8 @@ libstd
 libtcl
 libtest
 linkall
+locgr
 locgre
-locgrh
-locgrl
 lqarx
 lrcpc
 lwsync
@@ -109,6 +108,7 @@ relibc
 rsil
 sbcs
 sched
+selgr
 seqlock
 setb
 sete

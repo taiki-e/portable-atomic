@@ -286,6 +286,13 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
         if: startsWith(matrix.target, 's390x')
+      # z15 (arch13)
+      - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
+        env:
+          # TODO: disable high-word LLVM target-feature to avoid LLVM codegen bug.
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
+        if: startsWith(matrix.target, 's390x')
 
       - run: tools/build.sh ${{ matrix.target || 'host' }}
       - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
