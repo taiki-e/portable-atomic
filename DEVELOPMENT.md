@@ -130,14 +130,14 @@ TODO: Automate more processes.
 
 ## Testing Fuchsia
 
-This section describes testing Fuchsia using the emulator included in the Fuchsia SDK. See [rustc's platform support documentation]([fuchsia-platform-support-doc]) for details.
+This section describes testing Fuchsia using the emulator included in the Fuchsia SDK. See [rustc's platform support documentation][fuchsia-platform-support-doc] for details.
 
 <!-- omit in toc -->
 ### Setup
 
 Host requirements: x86_64 Linux/macOS
 
-Download the Fuchsia SDK according to the instructions in [rustc's platform support documentation]([fuchsia-platform-support-doc]).
+Download the Fuchsia SDK according to the instructions in [rustc's platform support documentation][fuchsia-platform-support-doc].
 
 Then set `SDK_PATH` environment variable.
 

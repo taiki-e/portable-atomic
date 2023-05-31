@@ -40,9 +40,6 @@ static TARGETS: &[Target] = &[
             "powerpc64le-unknown-linux-musl",
         ],
         headers: &[
-            // TODO: getauxval
-            // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
-            // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
             Header {
                 // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/auxvec.h
                 path: "linux-headers:linux/auxvec.h",
@@ -73,6 +70,9 @@ static TARGETS: &[Target] = &[
                 os: &[],
                 env: &[],
             },
+            // TODO: getauxval
+            // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
+            // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
             Header {
                 // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
                 path: "musl:sys/auxv.h",

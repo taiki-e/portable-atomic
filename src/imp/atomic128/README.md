@@ -8,7 +8,7 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | ----------- | ---- | ----- | --- | --- | ---- |
 | x86_64 | cmpxchg16b or vmovdqa | cmpxchg16b or vmovdqa | cmpxchg16b | cmpxchg16b | cmpxchg16b target feature required. vmovdqa requires Intel or AMD CPU with AVX. <br> Both compile-time and run-time detection are supported for cmpxchg16b. vmovdqa is currently run-time detection only.  <br> Requires rustc 1.59+ when cmpxchg16b target feature is enabled at compile-time, otherwise requires rustc 1.69+ |
 | aarch64 | ldxp/stxp or casp or ldp | ldxp/stxp or casp or stp | ldxp/stxp or casp | ldxp/stxp or casp | casp requires lse target feature, ldp/stp requires lse2 target feature. <br> Both compile-time and run-time detection are supported for lse. lse2 is currently compile-time detection only.  <br> Requires rustc 1.59+ |
-| powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Little endian or target CPU pwr8+. Both compile-time and run-time detection are supported (run-time detection is currently disabled by default). <br> Requires nightly |
+| powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Requires target-cpu pwr8+ (powerpc64le is pwr8 by default). Both compile-time and run-time detection are supported (run-time detection is currently disabled by default). <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires nightly |
 
 On compiler versions or platforms where these are not supported, the fallback implementation is used.
@@ -41,7 +41,7 @@ Here is the table of targets that support run-time feature detection and the ins
 | aarch64     | android              | getauxval       | Enabled by default |
 | aarch64     | freebsd              | elf_aux_info    | Enabled by default |
 | aarch64     | openbsd              | sysctl          | Enabled by default |
-| aarch64     | macos                | sysctl          | Currently test-only because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
+| aarch64     | macos                | sysctl          | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
 | aarch64     | windows              | IsProcessorFeaturePresent | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | Enabled by default |
 | powerpc64   | linux                | getauxval       | Disabled by default |
