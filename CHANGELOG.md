@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.3.3] - 2023-05-31
+
 - Fix build error on aarch64 ILP32 ABI targets (tier 3).
 
 - Optimize 128-bit atomics on s390x.
@@ -328,7 +330,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/taiki-e/portable-atomic/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/taiki-e/portable-atomic/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/taiki-e/portable-atomic/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/taiki-e/portable-atomic/compare/v1.2.0...v1.3.0
