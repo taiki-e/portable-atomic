@@ -510,9 +510,9 @@ build() {
     esac
     case "${target}" in
         x86_64*)
-            # macOS is skipped because it is +cmpxchg16b by default
+            # Apple targets are skipped because they are +cmpxchg16b by default
             case "${target}" in
-                *-darwin) ;;
+                *-apple-*) ;;
                 *)
                     CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \

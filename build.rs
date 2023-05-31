@@ -162,6 +162,8 @@ fn main() {
         }
     }
 
+    let is_apple =
+        target_os == "macos" || target_os == "ios" || target_os == "tvos" || target_os == "watchos";
     match target_arch {
         "x86_64" => {
             // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
@@ -177,8 +179,12 @@ fn main() {
                 }
             }
 
-            // x86_64 macos always support CMPXCHG16B: https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
-            let has_cmpxchg16b = target_os == "macos";
+            // x86_64 Apple targets always support CMPXCHG16B:
+            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
+            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/apple_base.rs#L69-L70
+            // Script to get targets that support cmpxchg16b by default:
+            // $ (for target in $(rustc --print target-list); do [[ "${target}" == "x86_64"* ]] && rustc --print cfg --target "${target}" | grep -q cmpxchg16b && echo "${target}"; done)
+            let has_cmpxchg16b = is_apple;
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/6dszGeYsf
             // It is unlikely that rustc will support that name, so we ignore it.
             // cmpxchg16b_target_feature stabilized in Rust 1.69.
@@ -199,7 +205,7 @@ fn main() {
                 }
             }
 
-            // aarch64 macos always support FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
+            // aarch64 macOS always support FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
             // https://github.com/llvm/llvm-project/blob/llvmorg-16.0.0/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L458
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
@@ -210,7 +216,7 @@ fn main() {
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
             // loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
-            if is_macos || target_os == "ios" || target_os == "tvos" || target_os == "watchos" {
+            if is_apple {
                 println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
             }
         }
