@@ -180,8 +180,8 @@ fn main() {
             }
 
             // x86_64 Apple targets always support CMPXCHG16B:
-            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
-            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/apple_base.rs#L69-L70
+            // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
+            // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_target/src/spec/apple_base.rs#L69-L70
             // Script to get targets that support cmpxchg16b by default:
             // $ (for target in $(rustc --print target-list); do [[ "${target}" == "x86_64"* ]] && rustc --print cfg --target "${target}" | grep -q cmpxchg16b && echo "${target}"; done)
             let has_cmpxchg16b = is_apple;
@@ -210,8 +210,8 @@ fn main() {
             let is_macos = target_os == "macos";
             // aarch64_target_feature stabilized in Rust 1.61.
             target_feature_if("lse", is_macos, &version, Some(61), true);
-            // As of rustc 1.69, target_feature "lse2" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
+            // As of rustc 1.70, target_feature "lse2" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
@@ -237,7 +237,7 @@ fn main() {
                 "v6m" | "v7em" | "v7m" | "v8m" => is_mclass = true,
                 "v7r" | "v8r" => {} // rclass
                 // arm-linux-androideabi is v5te
-                // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
+                // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => subarch = "v5te",
                 // v6 targets other than v6m don't have *class target feature.
                 "" | "v6" | "v6k" => subarch = "v6",
@@ -279,8 +279,8 @@ fn main() {
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
-            // Note: As of rustc 1.69, target_feature "quadword-atomics" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
+            // Note: As of rustc 1.70, target_feature "quadword-atomics" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
             // lqarx and stqcx.
             target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
         }
@@ -301,8 +301,8 @@ fn main() {
                     _ => {}
                 }
             }
-            // Note: As of rustc 1.69, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.69.0/compiler/rustc_codegen_ssa/src/target_features.rs
+            // Note: As of rustc 1.70, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs
             // bcr 14,0
             target_feature_if("fast-serialization", has_arch9_features, &version, None, false);
             // {l,st}oc{,g}{,r}

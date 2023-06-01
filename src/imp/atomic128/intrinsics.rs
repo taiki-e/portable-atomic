@@ -20,10 +20,11 @@
 // - On s390x, LLVM (as of 16) generates libcalls for operations other than load/store/cmpxchg:
 //   https://godbolt.org/z/5a5T4hxMh
 //   https://github.com/llvm/llvm-project/blob/2cc0c0de802178dc7e5408497e2ec53b6c9728fa/llvm/test/CodeGen/SystemZ/atomicrmw-ops-i128.ll
+//   https://reviews.llvm.org/D146425
 // - On powerpc64, LLVM (as of 16) doesn't support 128-bit atomic min/max:
 //   https://godbolt.org/z/3rebKcbdf
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs
+// Refs: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs
 
 include!("macros.rs");
 
@@ -45,7 +46,7 @@ use core::{
     sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst},
 };
 
-// https://github.com/rust-lang/rust/blob/1.69.0/library/core/src/sync/atomic.rs#L3129
+// https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3128
 #[cfg(target_arch = "x86_64")]
 #[inline]
 fn strongest_failure_ordering(order: Ordering) -> Ordering {

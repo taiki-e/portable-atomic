@@ -137,7 +137,7 @@ bail() {
 }
 is_no_std() {
     case "$1" in
-        # https://github.com/rust-lang/rust/blob/1.69.0/library/std/build.rs#L38
+        # https://github.com/rust-lang/rust/blob/1.70.0/library/std/build.rs#L41
         # TODO: aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
         *-none* | *-uefi* | *-psp* | *-psx* | *-cuda* | avr-* | aarch64-unknown-linux-uclibc) return 0 ;;
         *) return 1 ;;
