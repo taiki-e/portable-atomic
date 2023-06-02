@@ -80,7 +80,6 @@ mgba
 mipsn
 miscompiles
 mmfr
-moreutils
 mstatus
 negs
 neoverse
