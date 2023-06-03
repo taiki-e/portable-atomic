@@ -4,8 +4,8 @@ IFS=$'\n\t'
 cd "$(dirname "$0")"/..
 
 # shellcheck disable=SC2154
-trap 's=$?; echo >&2 "$0: Error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'exit 1' SIGINT
+trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
+trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 
 # USAGE:
 #    ./tools/build.sh [+toolchain] [target]...
