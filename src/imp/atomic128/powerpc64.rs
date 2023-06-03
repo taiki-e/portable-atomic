@@ -56,7 +56,7 @@ mod fallback;
     ),
     target_os = "freebsd",
 ))]
-#[path = "detect/powerpc64_auxv.rs"]
+#[path = "detect/auxv.rs"]
 mod detect;
 
 use core::{arch::asm, sync::atomic::Ordering};

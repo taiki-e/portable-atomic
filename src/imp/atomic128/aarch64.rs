@@ -72,7 +72,7 @@ include!("macros.rs");
     target_os = "android",
     target_os = "freebsd",
 ))]
-#[path = "detect/aarch64_auxv.rs"]
+#[path = "detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
