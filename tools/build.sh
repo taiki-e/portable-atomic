@@ -13,6 +13,12 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 #    TARGET_GROUP=tier1/tier2 ./tools/build.sh [+toolchain]
 #    TARGET_GROUP=tier3 ./tools/build.sh [+toolchain]
 
+# This is the list of targets to be built by the matrix in CI's "build" job that doesn't set target-group.
+#
+# Note that many of the targets listed here are those for which we have these target-specific codes
+# in our codebase, which does NOT imply that targets not listed here are not supported.
+# Almost all targets are checked at least once by the matrix in CI's "build" job that sets target-group.
+# Some targets are also checked by calls to this script in CI's "test" or "no-std" job.
 default_targets=(
     # no atomic load/store (16-bit)
     avr-unknown-gnu-atmega2560 # custom target
@@ -127,8 +133,11 @@ x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
         echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
+    if [[ -z "${has_offline}" ]]; then
+        offline=()
+    fi
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
-        x cargo "$@"
+        x cargo ${pre_args[@]+"${pre_args[@]}"} "$@" ${offline[@]+"${offline[@]}"}
     echo
 }
 bail() {
@@ -203,16 +212,15 @@ target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 # Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
 subcmd=build
 if [[ -n "${TARGET_GROUP:-}" ]]; then
-    base_args=(${pre_args[@]+"${pre_args[@]}"} no-dev-deps --no-private "${subcmd}")
+    base_args=(no-dev-deps --no-private "${subcmd}")
 else
-    case "${TESTS:-}" in
-        '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}") ;;
-        *)
-            # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
-            subcmd=check
-            base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}")
-            ;;
-    esac
+    if [[ -n "${TESTS:-}" ]]; then
+        # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
+        subcmd=check
+        base_args=("${subcmd}")
+    else
+        base_args=(hack "${subcmd}")
+    fi
 fi
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
@@ -234,10 +242,11 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         subcmd=clippy
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
-        case "${TESTS:-}" in
-            '') base_args=(${pre_args[@]+"${pre_args[@]}"} hack "${subcmd}" -Z check-cfg="names,values,output,features") ;;
-            *) base_args=(${pre_args[@]+"${pre_args[@]}"} "${subcmd}" -Z check-cfg="names,values,output,features") ;;
-        esac
+        if [[ -n "${TESTS:-}" ]]; then
+            base_args=("${subcmd}" -Z check-cfg="names,values,output,features")
+        else
+            base_args=(hack "${subcmd}" -Z check-cfg="names,values,output,features")
+        fi
     fi
 fi
 export CARGO_TARGET_DIR="${target_dir}"
@@ -248,7 +257,13 @@ has_asm=''
 if [[ "${rustc_minor_version}" -ge 59 ]] || [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; then
     has_asm='1'
 fi
+has_offline=''
+# --offline requires 1.36
+if [[ "${rustc_minor_version}" -ge 36 ]]; then
+    has_offline='1'
+fi
 
+count=0
 build() {
     local target="$1"
     shift
@@ -324,6 +339,7 @@ build() {
             target_rustflags+=" -C opt-level=s"
         fi
     fi
+    offline=()
 
     if [[ -n "${TESTS:-}" ]]; then
         # We use std in main tests, so we cannot build them on no-std targets.
@@ -381,11 +397,20 @@ build() {
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
         return 0
     else
+        if [[ -n "${CI:-}" ]]; then
+            if [[ ${count} -lt 20 ]]; then
+                : $((count++))
+            else
+                count=0
+                x cargo clean
+            fi
+        fi
         # paste! on statements requires 1.45
         if [[ "${rustc_minor_version}" -ge 45 ]]; then
             if [[ -n "${has_atomic_cas}" ]]; then
                 RUSTFLAGS="${target_rustflags}" \
                     x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                offline=(--offline)
             else
                 # target without CAS requires asm to implement CAS.
                 if [[ -n "${has_asm}" ]]; then
@@ -393,16 +418,19 @@ build() {
                     if [[ "${rustc_minor_version}" -ge 54 ]]; then
                         RUSTFLAGS="${target_rustflags}" \
                             x_cargo "${args[@]}" --feature-powerset --features portable-atomic/critical-section --manifest-path tests/api-test/Cargo.toml "$@"
+                        offline=(--offline)
                     fi
                     case "${target}" in
                         avr-* | msp430-*) # always single-core
                             RUSTFLAGS="${target_rustflags}" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            offline=(--offline)
                             ;;
                         bpf* | mips*) ;;
                         *)
                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                            offline=(--offline)
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
                                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
@@ -422,8 +450,8 @@ build() {
         fi
 
         args+=(
+            --feature-powerset --depth 2 --optional-deps --no-dev-deps
             --workspace --ignore-private
-            --no-dev-deps --feature-powerset --depth 2 --optional-deps
         )
         # critical-section requires 1.54
         if [[ "${rustc_minor_version}" -lt 54 ]]; then
@@ -474,6 +502,7 @@ build() {
     fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
+    offline=(--offline)
     # Check {,no-}outline-atomics
     case "${target}" in
         # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.

@@ -330,13 +330,13 @@ jobs:
             rust: nightly
             tests: 1
           # Check that this crate can be built for all builtin targets
-          - name: stable, tier1/tier2
+          - name: stable, all tier1/tier2
             rust: stable
             target-group: tier1/tier2
-          - name: nightly, tier1/tier2
+          - name: nightly, all tier1/tier2
             rust: nightly
             target-group: tier1/tier2
-          - name: nightly, tier3
+          - name: nightly, all tier3
             rust: nightly
             target-group: tier3
     runs-on: ubuntu-latest
