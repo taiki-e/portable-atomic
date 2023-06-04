@@ -583,6 +583,13 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     ;;
             esac
+            # Support for FEAT_LRCPC3 and FEAT_LSE128 requires LLVM 16+ (Rust 1.70+).
+            if [[ "${rustc_minor_version}" -ge 70 ]]; then
+                # FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
+                CARGO_TARGET_DIR="${target_dir}/lse128" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128" \
+                    x_cargo "${args[@]}" "$@"
+            fi
             ;;
         powerpc64-*)
             # powerpc64le- (little-endian) is skipped because it is pwr8 by default
