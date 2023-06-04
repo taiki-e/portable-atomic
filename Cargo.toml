@@ -13,7 +13,10 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 """
 
 [package.metadata.docs.rs]
-features = ["float", "std", "serde"]
+# NB: sync with:
+# - env.TEST_FEATURES in .github/workflows/ci.yml.
+# - test_features list in tools/build.sh and tools/test.sh.
+features = ["float", "std", "serde", "critical-section"]
 rustdoc-args = ["--cfg", "docsrs"]
 targets = ["x86_64-unknown-linux-gnu"]
 
@@ -49,6 +52,10 @@ std = []
 #
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-require-cas
 require-cas = []
+
+# DO NOT USE. This is NOT public API. Only used for testing our test infrastructures.
+# TODO: remove when adding real non-additive features.
+__do_not_enable = []
 
 # Note: serde and critical-section are public dependencies.
 [dependencies]

@@ -23,6 +23,10 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
+  # NB: sync with:
+  # - docs.rs metadata in Cargo.toml
+  # - test_features list in tools/build.sh and tools/test.sh.
+  TEST_FEATURES: float,std,serde,critical-section
 
 defaults:
   run:
@@ -47,7 +51,7 @@ jobs:
     with:
       event_name: ${{ github.event_name }}
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
-      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section
+      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,__do_not_enable
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
     with:
@@ -299,7 +303,7 @@ jobs:
       - run: tools/build.sh ${{ matrix.target || 'host' }}
       - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
 
-      - run: cargo minimal-versions build -vvv --workspace --all-features --ignore-private $TARGET $BUILD_STD
+      - run: cargo minimal-versions build -vvv --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD
         if: matrix.rust != '1.54'
 
   build:

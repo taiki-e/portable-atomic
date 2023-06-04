@@ -419,6 +419,9 @@ compile_error!(
     "you may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time"
 );
 
+#[cfg(feature = "__do_not_enable")]
+compile_error!("Do NOT use `__do_not_enable` feature. This is NOT public API. Only used for testing our test infrastructures.");
+
 #[cfg(feature = "require-cas")]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,

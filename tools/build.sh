@@ -120,6 +120,12 @@ known_cfgs=(
     rustfmt
     valgrind
 )
+# NB: sync with:
+# - docs.rs metadata in Cargo.toml
+# - env.TEST_FEATURES in .github/workflows/ci.yml.
+# - test_features list in tools/test.sh.
+test_features="float,std,serde,critical-section"
+exclude_features="__do_not_enable"
 
 x() {
     local cmd="$1"
@@ -381,7 +387,8 @@ build() {
             return 0
         fi
         args+=(
-            --all-features --tests
+            --tests
+            --features "${test_features}"
             --workspace --exclude bench --exclude portable-atomic-internal-codegen
         )
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
@@ -451,6 +458,7 @@ build() {
 
         args+=(
             --feature-powerset --depth 2 --optional-deps --no-dev-deps
+            ${exclude_features+"--exclude-features=${exclude_features}"}
             --workspace --ignore-private
         )
         # critical-section requires 1.54

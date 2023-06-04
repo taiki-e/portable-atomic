@@ -11,6 +11,12 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 #    ./tools/test.sh [+toolchain] [cargo_options]...
 #    ./tools/test.sh [+toolchain] build|miri|valgrind [cargo_options]...
 
+# NB: sync with:
+# - docs.rs metadata in Cargo.toml
+# - env.TEST_FEATURES in .github/workflows/ci.yml.
+# - test_features list in tools/build.sh.
+test_features="float,std,serde,critical-section"
+
 x() {
     local cmd="$1"
     shift
@@ -136,7 +142,7 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-args+=(--all-features)
+args+=(--features "${test_features}")
 case "${cmd}" in
     build) ;;
     *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
