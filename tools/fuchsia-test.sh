@@ -55,14 +55,14 @@ esac
 target="$1-unknown-fuchsia"
 shift
 
-cargo_options=(--no-run --all-features)
+cargo_options=()
 rest_cargo_options=(--test-threads=1)
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --tests | --all-targets | --doc | --target | --target=*) bail "unsupported option '$1'" ;;
         --)
             shift
-            rest_cargo_options=("$@")
+            rest_cargo_options+=("$@")
             break
             ;;
         *) cargo_options+=("$1") ;;
@@ -92,11 +92,7 @@ libstd_name=$(basename "$(ls "${target_libdir}"/libstd-*.so)")
 libtest_name=$(basename "$(ls "${target_libdir}"/libtest-*.so)")
 
 export RUSTFLAGS="${RUSTFLAGS:-} -L native=${SDK_PATH}/arch/${arch}/lib -L native=${SDK_PATH}/arch/${arch}/sysroot/lib"
-cargo ${pre_args[@]+"${pre_args[@]}"} test --target "${target}" "${cargo_options[@]}"
-binary_path=$(
-    cargo ${pre_args[@]+"${pre_args[@]}"} test --target "${target}" --message-format=json "${cargo_options[@]}" \
-        | jq -r "select(.manifest_path == \"$(cargo ${pre_args[@]+"${pre_args[@]}"} locate-project --message-format=plain)\") | select(.executable != null) | .executable"
-)
+binary_path=$(./tools/test.sh ${pre_args[@]+"${pre_args[@]}"} build --target "${target}" "${cargo_options[@]}")
 
 package_name=t
 package_dir=target/pkg

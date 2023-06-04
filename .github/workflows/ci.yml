@@ -23,7 +23,6 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
-  EXCLUDE: --exclude bench --exclude portable-atomic-internal-codegen
 
 defaults:
   run:
@@ -420,12 +419,7 @@ jobs:
           echo "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
-      - run: cargo miri test --workspace --all-features $EXCLUDE $TARGET 2>&1 | ts -i '%.s  '
-        env:
-          MIRIFLAGS: -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -Z randomize-layout
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -Z randomize-layout
-          QUICKCHECK_TESTS: 10
+      - run: tools/test.sh miri $TARGET
 
   san:
     needs: tidy
@@ -470,8 +464,6 @@ jobs:
 
   valgrind:
     needs: tidy
-    env:
-      VALGRIND: valgrind
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -482,11 +474,11 @@ jobs:
         run: rustup toolchain add nightly --no-self-update && rustup default nightly
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
-      - run: tools/test.sh -vv
+      - run: tools/test.sh valgrind -vv
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
       # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # +cmpxchg16b
-      - run: tools/test.sh -vv --tests
+      - run: tools/test.sh valgrind -vv --tests
         env:
           # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics

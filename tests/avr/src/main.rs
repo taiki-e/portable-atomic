@@ -130,7 +130,7 @@ fn main() -> ! {
         test_atomic_float!(f64);
     }
 
-    semihosting::exit(semihosting::EXIT_SUCCESS)
+    semihosting::exit(0)
 }
 
 #[inline(never)]
@@ -166,7 +166,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         println!(" (no location info)");
     }
 
-    semihosting::exit(semihosting::EXIT_FAILURE)
+    semihosting::exit(1)
 }
 #[lang = "eh_personality"]
 #[no_mangle]
@@ -175,12 +175,10 @@ pub extern "C" fn rust_eh_personality() {}
 mod semihosting {
     use core::fmt;
 
-    pub const EXIT_SUCCESS: u32 = 0;
-    pub const EXIT_FAILURE: u32 = 1;
     pub fn exit(code: u32) -> ! {
         // It seems there is no way to exit simavr with a non-zero exit code.
         // https://github.com/buserror/simavr/issues/362
-        if code == EXIT_SUCCESS {
+        if code == 0 {
             avr_device::interrupt::disable();
             avr_device::asm::sleep();
         }

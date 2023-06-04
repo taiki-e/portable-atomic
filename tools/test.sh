@@ -9,6 +9,7 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 
 # USAGE:
 #    ./tools/test.sh [+toolchain] [cargo_options]...
+#    ./tools/test.sh [+toolchain] build|miri|valgrind [cargo_options]...
 
 x() {
     local cmd="$1"
@@ -31,10 +32,13 @@ x_cargo() {
     if [[ -n "${CARGO_PROFILE_RELEASE_LTO:-}" ]]; then
         echo "+ CARGO_PROFILE_RELEASE_LTO='${CARGO_PROFILE_RELEASE_LTO}' \\"
     fi
+    if [[ "${cmd}" == "miri" ]] && [[ -n "${MIRIFLAGS:-}" ]]; then
+        echo "+ MIRIFLAGS='${MIRIFLAGS}' \\"
+    fi
     if [[ -n "${TS:-}" ]]; then
-        x "${cargo}" "$@" 2>&1 | "${TS}" -i '%.s  '
+        x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@" 2>&1 | "${TS}" -i '%.s  '
     else
-        x "${cargo}" "$@"
+        x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@"
     fi
     echo
 }
@@ -48,6 +52,13 @@ if [[ "${1:-}" == "+"* ]]; then
     pre_args+=("$1")
     shift
 fi
+cmd="test"
+case "${1:-}" in
+    build | miri | valgrind)
+        cmd="$1"
+        shift
+        ;;
+esac
 target=''
 build_std=''
 tests=()
@@ -125,47 +136,71 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-args+=(
-    --all-features
-    --workspace --exclude bench --exclude portable-atomic-internal-codegen
-)
+args+=(--all-features)
+case "${cmd}" in
+    build) ;;
+    *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
+esac
 target="${target:-"${host}"}"
 target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
 target_upper="$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")"
 randomize_layout=' -Z randomize-layout'
 
-if [[ -n "${VALGRIND:-}" ]]; then
-    export "CARGO_TARGET_${target_upper}_RUNNER"="${VALGRIND} -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes"
-    export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
-    export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
-    # doctest on Valgrind is very slow
-    if [[ ${#tests[@]} -eq 0 ]]; then
-        tests=(--tests)
-    fi
-fi
+case "${cmd}" in
+    build)
+        TS=''
+        args+=(--no-run)
+        x_cargo test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
+        binary_path=$(
+            "${cargo}" ${pre_args[@]+"${pre_args[@]}"} test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" -q --message-format=json \
+                | jq -r "select(.manifest_path == \"$(cargo ${pre_args[@]+"${pre_args[@]}"} locate-project --message-format=plain)\") | select(.executable != null) | .executable"
+        )
+        echo "${binary_path}"
+        exit 0
+        ;;
+    miri)
+        export MIRIFLAGS='-Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation'
+        export RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}"
+        export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}"
+        export QUICKCHECK_TESTS=10
+        x_cargo miri test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" ${rest_cargo_options[@]+"${rest_cargo_options[@]}"}
+        exit 0
+        ;;
+    valgrind)
+        export "CARGO_TARGET_${target_upper}_RUNNER"="valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes"
+        export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
+        export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
+        # doctest on Valgrind is very slow
+        if [[ ${#tests[@]} -eq 0 ]]; then
+            tests=(--tests)
+        fi
+        ;;
+    test) ;;
+    *) bail "unrecognized command '${cmd}'" ;;
+esac
 
 run() {
     if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
         # doctest with debug build on Sanitizer is slow
-        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --tests "$@"
+        x_cargo test --tests "$@"
     else
-        x_cargo ${pre_args[@]+"${pre_args[@]}"} test ${tests[@]+"${tests[@]}"} "$@"
+        x_cargo test ${tests[@]+"${tests[@]}"} "$@"
     fi
 
     # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
     if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-            x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests "$@"
+            x_cargo test --release --tests "$@"
     else
-        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests "$@"
+        x_cargo test --release --tests "$@"
     fi
 
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
         CARGO_PROFILE_RELEASE_LTO=fat \
-        x_cargo ${pre_args[@]+"${pre_args[@]}"} test --release --tests --target-dir target/fat-lto "$@"
+        x_cargo test --release --tests --target-dir target/fat-lto "$@"
 
     # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
     if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
@@ -174,9 +209,9 @@ run() {
         if [[ -z "${target_flags[*]+"${target_flags[*]}"}" ]] && [[ "${target}" == *"-windows"* ]]; then
             randomize_layout=''
         fi
-        RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout:-}" \
-            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout:-}" \
-            x_cargo ${pre_args[@]+"${pre_args[@]}"} careful test ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+        RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}" \
+            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}" \
+            x_cargo careful test ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
     fi
 }
 

@@ -103,8 +103,7 @@ Build tests for powerpc64le and get path to test binary.
 # cargo's "Executable ..." output.
 binary_path=$(
   CARGO_TARGET_POWERPC64LE_UNKNOWN_LINUX_GNU_LINKER=powerpc64le-linux-gnu-gcc \
-    cargo test --no-run --all-features --target powerpc64le-unknown-linux-gnu --message-format=json --release \
-    | jq -r "select(.manifest_path == \"$(cargo locate-project --message-format=plain)\") | select(.executable != null) | .executable"
+    ./tools/test.sh build --target powerpc64le-unknown-linux-gnu --release
 )
 ```
 
