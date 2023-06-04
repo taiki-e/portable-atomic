@@ -5,6 +5,7 @@
 // - LDXP/STXP loop (DW LL/SC)
 // - CASP (DWCAS) added as FEAT_LSE (mandatory from armv8.1-a)
 // - LDP/STP (DW load/store) if FEAT_LSE2 (optional from armv8.2-a, mandatory from armv8.4-a) is available
+// - LDCLRP/LDSETP/SWPP (DW RMW) added as FEAT_LSE128 (optional from armv9.4-a)
 //
 // If outline-atomics is not enabled and FEAT_LSE is not available at
 // compile-time, we use LDXP/STXP loop.
@@ -15,8 +16,9 @@
 // However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
 // loop for RMW (by default, it is set on Apple hardware; see build script for details).
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
+// If FEAT_LSE128 is available at compile-time, we use LDCLRP/LDSETP/SWPP for fetch_and/fetch_or/swap/{release,seqcst}-store.
 //
-// Note: FEAT_LSE2 doesn't imply FEAT_LSE.
+// Note: FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
 //
 // Note that we do not separate LL and SC into separate functions, but handle
 // them within a single asm block. This is because it is theoretically possible
@@ -53,6 +55,7 @@
 // - aarch64 (+lse) https://godbolt.org/z/5GzssfTKc
 // - aarch64 msvc (+lse) https://godbolt.org/z/oYE87caM7
 // - aarch64 (+lse,+lse2) https://godbolt.org/z/36dPjMbaG
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/9MKa4ofbo
 
 include!("macros.rs");
 
@@ -343,10 +346,27 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-    // SAFETY: the caller must uphold the safety contract.
-    // cfg guarantee that the CPU supports FEAT_LSE2.
-    unsafe {
-        atomic_store_stp(dst, val, order);
+    {
+        #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+        // SAFETY: the caller must uphold the safety contract.
+        // cfg guarantee that the CPU supports FEAT_LSE2 and FEAT_FSE128.
+        unsafe {
+            // Use swpp if stp requires fences.
+            // https://reviews.llvm.org/D143506
+            match order {
+                Ordering::Relaxed => atomic_store_stp(dst, val, order),
+                Ordering::Release | Ordering::SeqCst => {
+                    _atomic_swap_swpp(dst, val, order);
+                }
+                _ => unreachable!("{:?}", order),
+            }
+        }
+        #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
+        // SAFETY: the caller must uphold the safety contract.
+        // cfg guarantee that the CPU supports FEAT_LSE2.
+        unsafe {
+            atomic_store_stp(dst, val, order);
+        }
     }
     #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
     // SAFETY: the caller must uphold the safety contract.
@@ -682,16 +702,50 @@ use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
 // we use CAS-based atomic RMW.
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 #[cfg(all(
     any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     not(portable_atomic_ll_sc_rmw),
 ))]
 use _atomic_swap_casp as atomic_swap;
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 #[cfg(not(all(
     any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     not(portable_atomic_ll_sc_rmw),
 )))]
 use _atomic_swap_ldxp_stxp as atomic_swap;
+#[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+use _atomic_swap_swpp as atomic_swap;
+#[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+#[inline]
+unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE128.
+    //
+    // Refs:
+    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/SWPP--SWPPA--SWPPAL--SWPPL--Swap-quadword-in-memory-?lang=en
+    unsafe {
+        let val = U128 { whole: val };
+        let (prev_lo, prev_hi);
+        macro_rules! swap {
+            ($acquire:tt, $release:tt, $fence:tt) => {
+                asm!(
+                    concat!("swpp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
+                    $fence,
+                    dst = in(reg) ptr_reg!(dst),
+                    val_lo = inout(reg) val.pair.lo => prev_lo,
+                    val_hi = inout(reg) val.pair.hi => prev_hi,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(swap, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
+}
 // Do not use atomic_rmw_cas_3 because it needs extra MOV to implement swap.
 #[cfg(any(
     test,
@@ -1066,15 +1120,47 @@ atomic_rmw_cas_3! {
     select_le_or_be!("sbc x5, x7, {val_hi}", "sbc x4, x6, {val_lo}"),
 }
 
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 atomic_rmw_ll_sc_3! {
     _atomic_and_ldxp_stxp as atomic_and (preserves_flags),
     "and {new_lo}, {prev_lo}, {val_lo}",
     "and {new_hi}, {prev_hi}, {val_hi}",
 }
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 atomic_rmw_cas_3! {
     _atomic_and_casp as atomic_and,
     "and x4, x6, {val_lo}",
     "and x5, x7, {val_hi}",
+}
+#[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+#[inline]
+unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE128.
+    //
+    // Refs:
+    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDCLRP--LDCLRPA--LDCLRPAL--LDCLRPL--Atomic-bit-clear-on-quadword-in-memory-?lang=en
+    unsafe {
+        let val = U128 { whole: !val };
+        let (prev_lo, prev_hi);
+        macro_rules! and {
+            ($acquire:tt, $release:tt, $fence:tt) => {
+                asm!(
+                    concat!("ldclrp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
+                    $fence,
+                    dst = in(reg) ptr_reg!(dst),
+                    val_lo = inout(reg) val.pair.lo => prev_lo,
+                    val_hi = inout(reg) val.pair.hi => prev_hi,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(and, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
 }
 
 atomic_rmw_ll_sc_3! {
@@ -1092,15 +1178,47 @@ atomic_rmw_cas_3! {
     "mvn x5, x5",
 }
 
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 atomic_rmw_ll_sc_3! {
     _atomic_or_ldxp_stxp as atomic_or (preserves_flags),
     "orr {new_lo}, {prev_lo}, {val_lo}",
     "orr {new_hi}, {prev_hi}, {val_hi}",
 }
+#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 atomic_rmw_cas_3! {
     _atomic_or_casp as atomic_or,
     "orr x4, x6, {val_lo}",
     "orr x5, x7, {val_hi}",
+}
+#[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+#[inline]
+unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must guarantee that `dst` is valid for both writes and
+    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
+    // and the CPU supports FEAT_LSE128.
+    //
+    // Refs:
+    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDSETP--LDSETPA--LDSETPAL--LDSETPL--Atomic-bit-set-on-quadword-in-memory-?lang=en
+    unsafe {
+        let val = U128 { whole: val };
+        let (prev_lo, prev_hi);
+        macro_rules! or {
+            ($acquire:tt, $release:tt, $fence:tt) => {
+                asm!(
+                    concat!("ldsetp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
+                    $fence,
+                    dst = in(reg) ptr_reg!(dst),
+                    val_lo = inout(reg) val.pair.lo => prev_lo,
+                    val_hi = inout(reg) val.pair.hi => prev_hi,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(or, order);
+        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+    }
 }
 
 atomic_rmw_ll_sc_3! {

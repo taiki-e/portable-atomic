@@ -215,11 +215,16 @@ fn main() {
             // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
             // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L494
             let is_macos = target_os == "macos";
-            // aarch64_target_feature stabilized in Rust 1.61.
-            target_feature_if("lse", is_macos, &version, Some(61), true);
-            // As of rustc 1.70, target_feature "lse2" is not available on rustc side:
+            let mut has_lse = is_macos;
+            // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
+            // As of rustc 1.70, target_feature "lse2"/"lse128" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
+            // LLVM supports FEAT_LSE128 on LLVM 16+:
+            // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
+            has_lse |= target_feature_if("lse128", false, &version, None, false);
+            // aarch64_target_feature stabilized in Rust 1.61.
+            target_feature_if("lse", has_lse, &version, Some(61), true);
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
             // loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
@@ -339,7 +344,7 @@ fn target_feature_if(
     version: &Version,
     stabilized: Option<u32>,
     is_rustc_target_feature: bool,
-) {
+) -> bool {
     // HACK: Currently, it seems that the only way to handle unstable target
     // features on the stable is to parse the `-C target-feature` in RUSTFLAGS.
     //
@@ -354,7 +359,7 @@ fn target_feature_if(
         && (version.nightly || stabilized.map_or(false, |stabilized| version.minor >= stabilized))
     {
         // In this case, cfg(target_feature = "...") would work, so skip emitting our own target_feature cfg.
-        return;
+        return false;
     } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             flag = strip_prefix(flag, "-C").unwrap_or(flag);
@@ -374,6 +379,7 @@ fn target_feature_if(
     if has_target_feature {
         println!("cargo:rustc-cfg=portable_atomic_target_feature=\"{}\"", name);
     }
+    has_target_feature
 }
 
 fn target_cpu() -> Option<String> {
