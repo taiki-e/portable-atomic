@@ -135,6 +135,14 @@ mod arm_linux;
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
 
+#[cfg(feature = "float")]
+#[cfg(all(
+    target_arch = "nvptx64",
+    any(target_feature = "sm_70", portable_atomic_target_feature = "sm_70"),
+    portable_atomic_unstable_asm_experimental_arch,
+))]
+pub(crate) mod nvptx;
+
 // atomic load/store for RISC-V without A-extension
 #[cfg(any(test, not(feature = "critical-section")))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
@@ -219,7 +227,20 @@ mod interrupt;
 // Atomic float implementations
 
 #[cfg(feature = "float")]
+#[cfg(not(all(
+    target_arch = "nvptx64",
+    any(target_feature = "sm_70", portable_atomic_target_feature = "sm_70"),
+    portable_atomic_unstable_asm_experimental_arch,
+)))]
 pub(crate) mod float;
+
+#[cfg(feature = "float")]
+#[cfg(all(
+    target_arch = "nvptx64",
+    any(target_feature = "sm_70", portable_atomic_target_feature = "sm_70"),
+    portable_atomic_unstable_asm_experimental_arch,
+))]
+pub(crate) use nvptx as float;
 
 // -----------------------------------------------------------------------------
 

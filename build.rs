@@ -162,7 +162,8 @@ fn main() {
         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
         if !no_asm
             && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 12)
-                || target_arch == "s390x" && version.probe(71, 2023, 5, 8))
+                || target_arch == "s390x" && version.probe(71, 2023, 5, 8)
+                || target_arch == "nvptx64")
             && is_allowed_feature("asm_experimental_arch")
         {
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
@@ -327,6 +328,36 @@ fn main() {
                 None,
                 false,
             );
+        }
+        "nvptx64" => {
+            let mut has_sm_70 = false;
+            if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+                for mut flag in rustflags.to_string_lossy().split('\x1f') {
+                    flag = strip_prefix(flag, "-C").unwrap_or(flag);
+                    if let Some(flag) = strip_prefix(flag, "target-feature=") {
+                        for s in flag.split(',') {
+                            // TODO: Handles cases where a specific target feature
+                            // implicitly enables another target feature.
+                            match (s.as_bytes().first(), s.get(1..)) {
+                                (Some(b'+'), Some(f)) => {
+                                    if let Some(sm) = strip_prefix(f, "sm_") {
+                                        if let Ok(sm) = sm.parse::<u32>() {
+                                            if sm >= 70 {
+                                                has_sm_70 = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                (Some(b'-'), Some(_f)) => {
+                                    // TODO
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+            }
+            target_feature_if("sm_70", has_sm_70, &version, None, false);
         }
         _ => {}
     }

@@ -103,6 +103,9 @@ default_targets=(
     # s390x
     # rustc --print target-list | grep -E '^s390x'
     s390x-unknown-linux-gnu
+
+    # nvptx64
+    nvptx64-nvidia-cuda
 )
 known_cfgs=(
     # Public APIs
@@ -601,6 +604,11 @@ build() {
                 x_cargo "${args[@]}" "$@"
             CARGO_TARGET_DIR="${target_dir}/z15" \
                 RUSTFLAGS="${target_rustflags} -C target-cpu=z15" \
+                x_cargo "${args[@]}" "$@"
+            ;;
+        nvptx64-*)
+            CARGO_TARGET_DIR="${target_dir}/sm_70" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+sm_70" \
                 x_cargo "${args[@]}" "$@"
             ;;
     esac

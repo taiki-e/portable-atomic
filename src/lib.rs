@@ -62,7 +62,7 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
 - <a name="optional-features-float"></a>**`float`**<br>
   Provide `AtomicF{32,64}`.
 
-  Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers. ([GPU targets have atomic instructions for float, so we plan to use these instructions for GPU targets in the future.](https://github.com/taiki-e/portable-atomic/issues/34))
+  Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers. (GPU targets have atomic instructions for float, so we use these instructions for GPU targets on nightly.)
 
 - **`std`**<br>
   Use `std`.
@@ -237,7 +237,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 )]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
-// On tier 2 platforms (powerpc64 and s390x), we use cfg set by build script to
+// On tier 2 platforms (powerpc64, s390x, and nvptx64), we use cfg set by build script to
 // determine whether this feature is available or not.
 #![cfg_attr(
     all(
@@ -248,6 +248,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             all(target_arch = "xtensa", portable_atomic_unsafe_assume_single_core),
             all(target_arch = "powerpc64", portable_atomic_unstable_asm_experimental_arch),
             all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
+            all(target_arch = "nvptx64", portable_atomic_unstable_asm_experimental_arch),
         ),
     ),
     feature(asm_experimental_arch)
