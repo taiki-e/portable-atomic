@@ -77,6 +77,8 @@ jobs:
             os: macos-latest
           - rust: nightly
             os: windows-latest
+          - rust: nightly
+            flags: -C panic=abort -Z panic_abort_tests
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
           - rust: '1.64' # LLVM 14
@@ -419,11 +421,10 @@ jobs:
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != 'x86_64-unknown-linux-gnu'
-      - run: |
-          echo "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-          echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-        if: matrix.flags != ''
       - run: tools/test.sh miri $TARGET
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ matrix.flags }}
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ matrix.flags }}
 
   san:
     needs: tidy
