@@ -156,6 +156,27 @@ macro_rules! select_le_or_be {
     };
 }
 
+// On AArch64, the base register of load/store/atomic instructions must be 64-bit.
+// Passing a 32-bit value to `in(reg)` on AArch64 results in the upper bits
+// having an undefined value, but to work correctly with ILP32 ABI, the upper
+// bits must be zero, which is handled here by casting to u64. Another way to
+// handle this is to pass it as a pointer and clear the upper bits inside asm,
+// but it is easier to overlook than cast, which can catch overlooks by
+// asm_sub_register lint.
+// See also https://github.com/ARM-software/abi-aa/blob/2023Q1/aapcs64/aapcs64.rst#57pointers
+#[cfg(target_pointer_width = "32")]
+macro_rules! ptr_reg {
+    ($ptr:tt) => {
+        $ptr as u64
+    };
+}
+#[cfg(target_pointer_width = "64")]
+macro_rules! ptr_reg {
+    ($ptr:tt) => {
+        $ptr // cast is unnecessary if the pointer is already 64-bit.
+    };
+}
+
 /// A 128-bit value represented as a pair of 64-bit values.
 ///
 /// This type is `#[repr(C)]`, both fields have the same in-memory representation
@@ -236,7 +257,7 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
                 asm!(
                     "ldp {prev_lo}, {prev_hi}, [{src}]",
                     $acquire,
-                    src = in(reg) src as u64,
+                    src = in(reg) ptr_reg!(src),
                     prev_hi = lateout(reg) prev_hi,
                     prev_lo = lateout(reg) prev_lo,
                     options(nostack, preserves_flags $(, $readonly)?),
@@ -253,7 +274,7 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
                     "ldar {tmp}, [{src}]",
                     "ldp {prev_lo}, {prev_hi}, [{src}]",
                     "dmb ishld",
-                    src = in(reg) src as u64,
+                    src = in(reg) ptr_reg!(src),
                     prev_hi = lateout(reg) prev_hi,
                     prev_lo = lateout(reg) prev_lo,
                     tmp = out(reg) _,
@@ -281,7 +302,7 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
             ($acquire:tt, $release:tt) => {
                 asm!(
                     concat!("casp", $acquire, $release, " x4, x5, x4, x5, [{src}]"),
-                    src = in(reg) src as u64,
+                    src = in(reg) ptr_reg!(src),
                     // must be allocated to even/odd register pair
                     inout("x4") 0_u64 => prev_lo,
                     inout("x5") 0_u64 => prev_hi,
@@ -320,7 +341,7 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
                         concat!("st", $release, "xp {r:w}, {prev_lo}, {prev_hi}, [{src}]"),
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
-                    src = in(reg) src as u64,
+                    src = in(reg) ptr_reg!(src),
                     prev_lo = out(reg) prev_lo,
                     prev_hi = out(reg) prev_hi,
                     r = out(reg) _,
@@ -373,7 +394,7 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
                     $release,
                     "stp {val_lo}, {val_hi}, [{dst}]",
                     $acquire,
-                    dst = in(reg) dst as u64,
+                    dst = in(reg) ptr_reg!(dst),
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
                     options(nostack, preserves_flags),
@@ -589,7 +610,7 @@ unsafe fn _atomic_compare_exchange_casp(
                 asm!(
                     concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst}]"),
                     $fence,
-                    dst = in(reg) dst as u64,
+                    dst = in(reg) ptr_reg!(dst),
                     // must be allocated to even/odd register pair
                     inout("x6") old.pair.lo => prev_lo,
                     inout("x7") old.pair.hi => prev_hi,
@@ -652,7 +673,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
                         "cbnz {r:w}, 2b",
                     "4:",
                     $fence,
-                    dst = in(reg) dst as u64,
+                    dst = in(reg) ptr_reg!(dst),
                     old_lo = in(reg) old.pair.lo,
                     old_hi = in(reg) old.pair.hi,
                     new_lo = in(reg) new.pair.lo,
@@ -723,7 +744,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                         "ccmp {tmp_lo}, x6, #0, eq",
                         "b.ne 2b",
                     $fence,
-                    dst = in(reg) dst as u64,
+                    dst = in(reg) ptr_reg!(dst),
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
                     // must be allocated to even/odd register pair
@@ -766,7 +787,7 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
                         // 0 if the store was successful, 1 if no store was performed
                         "cbnz {r:w}, 2b",
                     $fence,
-                    dst = in(reg) dst as u64,
+                    dst = in(reg) ptr_reg!(dst),
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
                     prev_lo = out(reg) prev_lo,
@@ -821,7 +842,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
                             $fence,
-                            dst = in(reg) dst as u64,
+                            dst = in(reg) ptr_reg!(dst),
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
                             prev_lo = out(reg) prev_lo,
@@ -890,7 +911,7 @@ macro_rules! atomic_rmw_cas_3 {
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
                             $fence,
-                            dst = in(reg) dst as u64,
+                            dst = in(reg) ptr_reg!(dst),
                             val_lo = in(reg) val.pair.lo,
                             val_hi = in(reg) val.pair.hi,
                             tmp_lo = out(reg) _,
@@ -951,7 +972,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                                 // 0 if the store was successful, 1 if no store was performed
                                 "cbnz {r:w}, 2b",
                             $fence,
-                            dst = in(reg) dst as u64,
+                            dst = in(reg) ptr_reg!(dst),
                             prev_lo = out(reg) prev_lo,
                             prev_hi = out(reg) prev_hi,
                             new_lo = out(reg) _,
@@ -1016,7 +1037,7 @@ macro_rules! atomic_rmw_cas_2 {
                                 "ccmp {tmp_lo}, x6, #0, eq",
                                 "b.ne 2b",
                             $fence,
-                            dst = in(reg) dst as u64,
+                            dst = in(reg) ptr_reg!(dst),
                             tmp_lo = out(reg) _,
                             tmp_hi = out(reg) _,
                             // must be allocated to even/odd register pair
