@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 # shellcheck disable=SC2207
 set -euo pipefail
 IFS=$'\n\t'
