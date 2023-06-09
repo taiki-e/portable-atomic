@@ -17,7 +17,7 @@ atomic = "0.5"
 build-context = "0.1"
 criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", branch = "dev" } # reduce deps
 crossbeam-utils = "0.8"
-fastrand = "1"
+fastrand = "2"
 paste = "1"
 quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" }  # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
 static_assertions = "1"
