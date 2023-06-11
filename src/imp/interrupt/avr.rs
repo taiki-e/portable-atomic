@@ -8,7 +8,7 @@ pub(super) type State = u8;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
 pub(super) fn disable() -> State {
-    let sreg: u8;
+    let sreg: State;
     // SAFETY: reading the status register (SREG) and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {

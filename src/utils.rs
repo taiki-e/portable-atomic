@@ -1,5 +1,9 @@
 #![cfg_attr(not(all(test, feature = "float")), allow(dead_code, unused_macros))]
 
+#[macro_use]
+#[path = "gen/utils.rs"]
+mod gen;
+
 use core::sync::atomic::Ordering;
 
 macro_rules! static_assert {

@@ -17,9 +17,9 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - s390x https://godbolt.org/z/KnaK5EWoM
-// - s390x (z196) https://godbolt.org/z/1ooWfjMKs
-// - s390x (z15) https://godbolt.org/z/oPxT5zecG
+// - s390x https://godbolt.org/z/q4cvbaEYh
+// - s390x (z196) https://godbolt.org/z/Tj3vonsoW
+// - s390x (z15) https://godbolt.org/z/Pz5sq8fTz
 
 include!("macros.rs");
 
@@ -95,7 +95,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
         let (out_hi, out_lo);
         asm!(
             "lpq %r0, 0({src})",
-            src = in(reg) src,
+            src = in(reg) ptr_reg!(src),
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             out("r0") out_hi,
             out("r1") out_lo,
@@ -117,7 +117,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 asm!(
                     "stpq %r0, 0({dst})",
                     $fence,
-                    dst = in(reg) dst,
+                    dst = in(reg) ptr_reg!(dst),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     in("r0") val.pair.hi,
                     in("r1") val.pair.lo,
@@ -162,7 +162,7 @@ unsafe fn atomic_compare_exchange(
         let (prev_hi, prev_lo);
         asm!(
             "cdsg %r0, %r12, 0({dst})",
-            dst = in(reg) dst,
+            dst = in(reg) ptr_reg!(dst),
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             inout("r0") old.pair.hi => prev_hi,
             inout("r1") old.pair.lo => prev_lo,
@@ -225,7 +225,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
             "2:",
                 "cdsg %r0, %r12, 0({dst})",
                 "jl 2b",
-            dst = in(reg) dst,
+            dst = in(reg) ptr_reg!(dst),
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             out("r0") prev_hi,
             out("r1") prev_lo,
@@ -262,7 +262,7 @@ macro_rules! atomic_rmw_cas_3 {
                         $($op)*
                         "cdsg %r0, %r12, 0({dst})",
                         "jl 2b",
-                    dst = in(reg) dst,
+                    dst = in(reg) ptr_reg!(dst),
                     val_hi = in(reg) val.pair.hi,
                     val_lo = in(reg) val.pair.lo,
                     $($reg)*
@@ -301,7 +301,7 @@ macro_rules! atomic_rmw_cas_2 {
                         $($op)*
                         "cdsg %r0, %r12, 0({dst})",
                         "jl 2b",
-                    dst = in(reg) dst,
+                    dst = in(reg) ptr_reg!(dst),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     out("r0") prev_hi,
                     out("r1") prev_lo,

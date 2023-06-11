@@ -12,7 +12,7 @@ pub(super) type State = u16;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
 pub(super) fn disable() -> State {
-    let r: u16;
+    let r: State;
     // SAFETY: reading the status register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {

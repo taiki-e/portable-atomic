@@ -154,7 +154,7 @@ fn main() {
         // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
         if !no_asm
-            && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 13)
+            && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 12)
                 || target_arch == "s390x" && version.probe(71, 2023, 5, 8))
             && is_allowed_feature("asm_experimental_arch")
         {

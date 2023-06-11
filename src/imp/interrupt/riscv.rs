@@ -26,7 +26,7 @@ macro_rules! status {
 
 // MIE (Machine Interrupt Enable) bit (1 << 3)
 #[cfg(not(portable_atomic_s_mode))]
-const MASK: usize = 0x8;
+const MASK: State = 0x8;
 #[cfg(not(portable_atomic_s_mode))]
 macro_rules! mask {
     () => {
@@ -35,7 +35,7 @@ macro_rules! mask {
 }
 // SIE (Supervisor Interrupt Enable) bit (1 << 1)
 #[cfg(portable_atomic_s_mode)]
-const MASK: usize = 0x2;
+const MASK: State = 0x2;
 #[cfg(portable_atomic_s_mode)]
 macro_rules! mask {
     () => {
@@ -43,12 +43,15 @@ macro_rules! mask {
     };
 }
 
-pub(super) type State = usize;
+#[cfg(target_arch = "riscv32")]
+pub(super) type State = u32;
+#[cfg(target_arch = "riscv64")]
+pub(super) type State = u64;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
 pub(super) fn disable() -> State {
-    let r: usize;
+    let r: State;
     // SAFETY: reading mstatus and disabling interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {

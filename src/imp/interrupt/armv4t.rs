@@ -25,7 +25,7 @@ pub(super) type State = u32;
 #[inline]
 #[instruction_set(arm::a32)]
 pub(super) fn disable() -> State {
-    let cpsr: u32;
+    let cpsr: State;
     // SAFETY: reading CPSR and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {

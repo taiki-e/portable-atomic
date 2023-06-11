@@ -6,7 +6,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - riscv64gc https://godbolt.org/z/1dbvWsMxT
+// - riscv64gc https://godbolt.org/z/hx4Krb91h
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -134,7 +134,7 @@ macro_rules! atomic {
                         Ordering::Relaxed => {
                             asm!(
                                 concat!("l", $asm_suffix, " {out}, 0({src})"),
-                                src = in(reg) src,
+                                src = in(reg) ptr_reg!(src),
                                 out = lateout(reg) out,
                                 options(nostack, preserves_flags, readonly),
                             );
@@ -143,7 +143,7 @@ macro_rules! atomic {
                             asm!(
                                 concat!("l", $asm_suffix, " {out}, 0({src})"),
                                 "fence r, rw",
-                                src = in(reg) src,
+                                src = in(reg) ptr_reg!(src),
                                 out = lateout(reg) out,
                                 options(nostack, preserves_flags),
                             );
@@ -153,7 +153,7 @@ macro_rules! atomic {
                                 "fence rw, rw",
                                 concat!("l", $asm_suffix, " {out}, 0({src})"),
                                 "fence r, rw",
-                                src = in(reg) src,
+                                src = in(reg) ptr_reg!(src),
                                 out = lateout(reg) out,
                                 options(nostack, preserves_flags),
                             );
@@ -176,7 +176,7 @@ macro_rules! atomic {
                         Ordering::Relaxed => {
                             asm!(
                                 concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                                dst = in(reg) dst,
+                                dst = in(reg) ptr_reg!(dst),
                                 val = in(reg) val,
                                 options(nostack, preserves_flags),
                             );
@@ -186,7 +186,7 @@ macro_rules! atomic {
                             asm!(
                                 "fence rw, w",
                                 concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                                dst = in(reg) dst,
+                                dst = in(reg) ptr_reg!(dst),
                                 val = in(reg) val,
                                 options(nostack, preserves_flags),
                             );
