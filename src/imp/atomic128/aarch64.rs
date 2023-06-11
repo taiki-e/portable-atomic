@@ -48,11 +48,11 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/7fzfabfje
-// - aarch64 msvc https://godbolt.org/z/facT6cazb
-// - aarch64 (+lse) https://godbolt.org/z/7YEWKE73E
-// - aarch64 msvc (+lse) https://godbolt.org/z/zxnWTGfnG
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/G74PzvKvq
+// - aarch64 https://godbolt.org/z/5v6WGYeaT
+// - aarch64 msvc https://godbolt.org/z/vrso3GnPb
+// - aarch64 (+lse) https://godbolt.org/z/WaoTsdh5W
+// - aarch64 msvc (+lse) https://godbolt.org/z/67oTGx9ve
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/exhTdW78o
 
 include!("macros.rs");
 
@@ -176,18 +176,20 @@ struct Pair {
 
 macro_rules! atomic_rmw {
     ($op:ident, $order:ident) => {
+        atomic_rmw!($op, $order, write = $order)
+    };
+    ($op:ident, $order:ident, write = $write:ident) => {
         match $order {
             Ordering::Relaxed => $op!("", "", ""),
             Ordering::Acquire => $op!("a", "", ""),
             Ordering::Release => $op!("", "l", ""),
             Ordering::AcqRel => $op!("a", "l", ""),
-            // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
-            #[cfg(not(target_env = "msvc"))]
-            Ordering::SeqCst => $op!("a", "l", ""),
             // In MSVC environments, SeqCst stores/writes needs fences after writes.
             // https://reviews.llvm.org/D141748
             #[cfg(target_env = "msvc")]
-            Ordering::SeqCst => $op!("a", "l", "dmb ish"),
+            Ordering::SeqCst if $write == Ordering::SeqCst => $op!("a", "l", "dmb ish"),
+            // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
+            Ordering::SeqCst => $op!("a", "l", ""),
             _ => unreachable!("{:?}", $order),
         }
     };
@@ -397,12 +399,10 @@ unsafe fn atomic_compare_exchange(
     success: Ordering,
     failure: Ordering,
 ) -> Result<u128, u128> {
-    let success = crate::utils::upgrade_success_ordering(success, failure);
-
     #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantee that the CPU supports FEAT_LSE.
-    let res = unsafe { _atomic_compare_exchange_casp(dst, old, new, success) };
+    let res = unsafe { _atomic_compare_exchange_casp(dst, old, new, success, failure) };
     #[cfg(not(all(
         not(portable_atomic_no_outline_atomics),
         any(
@@ -426,7 +426,7 @@ unsafe fn atomic_compare_exchange(
     )))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract.
-    let res = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success) };
+    let res = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success, failure) };
     #[cfg(all(
         not(portable_atomic_no_outline_atomics),
         any(
@@ -454,37 +454,38 @@ unsafe fn atomic_compare_exchange(
             #[target_feature(enable = "lse")]
             unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
             atomic_compare_exchange_casp_relaxed
-                = _atomic_compare_exchange_casp(Ordering::Relaxed);
+                = _atomic_compare_exchange_casp(Ordering::Relaxed, Ordering::Relaxed);
             atomic_compare_exchange_casp_acquire
-                = _atomic_compare_exchange_casp(Ordering::Acquire);
+                = _atomic_compare_exchange_casp(Ordering::Acquire, Ordering::Acquire);
             atomic_compare_exchange_casp_release
-                = _atomic_compare_exchange_casp(Ordering::Release);
+                = _atomic_compare_exchange_casp(Ordering::Release, Ordering::Relaxed);
             atomic_compare_exchange_casp_acqrel
-                = _atomic_compare_exchange_casp(Ordering::AcqRel);
+                = _atomic_compare_exchange_casp(Ordering::AcqRel, Ordering::Acquire);
             // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
             #[cfg(target_env = "msvc")]
             atomic_compare_exchange_casp_seqcst
-                = _atomic_compare_exchange_casp(Ordering::SeqCst);
+                = _atomic_compare_exchange_casp(Ordering::SeqCst, Ordering::SeqCst);
         }
         fn_alias! {
             unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
             atomic_compare_exchange_ldxp_stxp_relaxed
-                = _atomic_compare_exchange_ldxp_stxp(Ordering::Relaxed);
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Relaxed, Ordering::Relaxed);
             atomic_compare_exchange_ldxp_stxp_acquire
-                = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire);
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Acquire, Ordering::Acquire);
             atomic_compare_exchange_ldxp_stxp_release
-                = _atomic_compare_exchange_ldxp_stxp(Ordering::Release);
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::Release, Ordering::Relaxed);
             atomic_compare_exchange_ldxp_stxp_acqrel
-                = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel);
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::AcqRel, Ordering::Acquire);
             // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
             #[cfg(target_env = "msvc")]
             atomic_compare_exchange_ldxp_stxp_seqcst
-                = _atomic_compare_exchange_ldxp_stxp(Ordering::SeqCst);
+                = _atomic_compare_exchange_ldxp_stxp(Ordering::SeqCst, Ordering::SeqCst);
         }
         // SAFETY: the caller must guarantee that `dst` is valid for both writes and
         // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
         // and we've checked if FEAT_LSE is available.
         unsafe {
+            let success = crate::utils::upgrade_success_ordering(success, failure);
             match success {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
@@ -568,10 +569,12 @@ unsafe fn _atomic_compare_exchange_casp(
     dst: *mut u128,
     old: u128,
     new: u128,
-    order: Ordering,
+    success: Ordering,
+    failure: Ordering,
 ) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
     debug_assert_lse!();
+    let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
@@ -600,7 +603,7 @@ unsafe fn _atomic_compare_exchange_casp(
                 )
             };
         }
-        atomic_rmw!(cmpxchg, order);
+        atomic_rmw!(cmpxchg, order, write = success);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
@@ -610,9 +613,11 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     dst: *mut u128,
     old: u128,
     new: u128,
-    order: Ordering,
+    success: Ordering,
+    failure: Ordering,
 ) -> u128 {
     debug_assert!(dst as usize % 16 == 0);
+    let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
@@ -665,7 +670,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
                 )
             };
         }
-        atomic_rmw!(cmpxchg, order);
+        atomic_rmw!(cmpxchg, order, write = success);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
