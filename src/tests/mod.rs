@@ -275,7 +275,7 @@ LLVM version: 16.0.0",
     assert_eq!(v.commit_date().month, 0);
     assert_eq!(v.commit_date().day, 0);
 
-    // rustc 1.64 (debian: apt-get install cargo)
+    // rustc 1.64 (debian 11: apt-get install cargo)
     let v = Version::parse(
         "rustc 1.48.0
 binary: rustc

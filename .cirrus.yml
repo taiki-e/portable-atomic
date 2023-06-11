@@ -131,13 +131,12 @@ aarch64_linux_valgrind_task:
   arm_container:
     # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
     # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
-    image: debian:bookworm
+    image: rust:bookworm
   setup_script:
     - set -ex
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends ca-certificates curl gcc git libc6-dev valgrind moreutils
-    - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
+    - rustup toolchain add nightly --no-self-update && rustup default nightly
+    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils valgrind
   test_script:
-    - . $HOME/.cargo/env
     - set -ex
     - ./tools/test.sh valgrind -vv
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
