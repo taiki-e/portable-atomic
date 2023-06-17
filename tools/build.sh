@@ -265,8 +265,8 @@ if [[ "${rustc_minor_version}" -ge 59 ]] || [[ "${rustc_minor_version}" -ge 46 ]
     has_asm='1'
 fi
 has_offline=''
-# --offline requires 1.36
-if [[ "${rustc_minor_version}" -ge 36 ]]; then
+# --offline requires 1.36, but, there are some problems on older cargo.
+if [[ "${rustc_minor_version}" -ge 51 ]]; then
     has_offline='1'
 fi
 
