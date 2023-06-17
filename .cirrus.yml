@@ -83,29 +83,6 @@ aarch64_linux_static_linking_test_task:
     # FEAT_LSE2 is tested on aarch64 macOS VM.
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 
-arm_linux_test_task:
-  name: test ($TARGET)
-  matrix:
-    - env:
-        TARGET: armv5te-unknown-linux-gnueabi
-        DPKG_ARCH: armel
-    - env:
-        TARGET: armv7-unknown-linux-gnueabihf
-        DPKG_ARCH: armhf
-  arm_container:
-    image: rust:latest
-  setup_script:
-    - set -ex
-    - lscpu
-    - rustup toolchain add nightly --no-self-update && rustup default nightly
-    - dpkg --add-architecture "$DPKG_ARCH"
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH" moreutils
-  test_script:
-    - set -ex
-    - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
-    - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-    - ./tools/test.sh --target "$TARGET" -Z doctest-xcompile -vv
-
 aarch64_macos_test_task:
   name: test ($TARGET)
   env:
@@ -181,32 +158,6 @@ aarch64_linux_valgrind_task:
 #     - set -ex
 #     - cargo bench -vv --manifest-path bench/Cargo.toml
 #     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+cmpxchg16b" cargo bench -vv --manifest-path bench/Cargo.toml
-
-# arm_linux_bench_task:
-#   name: bench ($TARGET)
-#   matrix:
-#     - env:
-#         TARGET: armv5te-unknown-linux-gnueabi
-#         DPKG_ARCH: armel
-#     - env:
-#         TARGET: armv7-unknown-linux-gnueabihf
-#         DPKG_ARCH: armhf
-#   arm_container:
-#     image: rust:latest
-#     cpu: 4
-#     memory: 12G
-#   setup_script:
-#     - set -ex
-#     - lscpu
-#     - rustup toolchain add nightly --no-self-update && rustup default nightly
-#     - rustup target add "$TARGET"
-#     - dpkg --add-architecture "$DPKG_ARCH"
-#     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc-"${TARGET/*-unknown/arm}" libc6-dev-"$DPKG_ARCH"-cross libc6:"$DPKG_ARCH"
-#   test_script:
-#     - set -ex
-#     - export CARGO_TARGET_ARMV5TE_UNKNOWN_LINUX_GNUEABI_LINKER=arm-linux-gnueabi-gcc
-#     - export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=arm-linux-gnueabihf-gcc
-#     - RUSTFLAGS="${RUSTFLAGS}" cargo bench --target "$TARGET" -vv --manifest-path bench/Cargo.toml
 
 # aarch64_macos_bench_task:
 #   name: bench ($TARGET)
