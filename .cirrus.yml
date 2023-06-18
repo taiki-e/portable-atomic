@@ -56,7 +56,7 @@ aarch64_linux_dynamic_linking_test_task:
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
     - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
-    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+    # Neoverse N1 is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 
@@ -79,7 +79,7 @@ aarch64_linux_static_linking_test_task:
     # outline-atomics is disabled by default on linux-musl with static linking.
     - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
-    # Graviton2 (Neoverse N1) is ARMv8.2-a and doesn't support FEAT_LSE2.
+    # Neoverse N1 is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
 
