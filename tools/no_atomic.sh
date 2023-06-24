@@ -28,8 +28,9 @@ rustup toolchain add nightly-2022-02-10 --profile minimal --no-self-update &>/de
 no_atomic_cas=()
 no_atomic_64=()
 no_atomic=()
-for target in $(rustc --print target-list); do
-    target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
+for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | jq -c '. | to_entries | .[]'); do
+    target=$(jq <<<"${target_spec}" -r '.key')
+    target_spec=$(jq <<<"${target_spec}" -c '.value')
     max_atomic_width=$(jq <<<"${target_spec}" -r '."max-atomic-width"')
     min_atomic_width=$(jq <<<"${target_spec}" -r '."min-atomic-width"')
     case "${max_atomic_width}" in
@@ -50,8 +51,9 @@ for target in $(rustc --print target-list); do
             ;;
     esac
 done
+# old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do
-    target_spec=$(rustc +nightly-2022-02-10 --print target-spec-json -Z unstable-options --target "${target}")
+    target_spec=$(rustc +nightly-2022-02-10 -Z unstable-options --print target-spec-json --target "${target}")
     [[ -z "$(jq <<<"${target_spec}" -r 'select(."atomic-cas" == false)')" ]] || no_atomic_cas+=("${target}")
     max_atomic_width=$(jq <<<"${target_spec}" -r '."max-atomic-width"')
     case "${max_atomic_width}" in

@@ -37,8 +37,7 @@ target_env=(
     libnx
 )
 known_64_bit_arch=()
-for target in $(rustc --print target-list); do
-    target_spec=$(rustc --print target-spec-json -Z unstable-options --target "${target}")
+for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | jq -c '. | to_entries | .[].value'); do
     arch="$(jq <<<"${target_spec}" -r '.arch')"
     target_arch+=("${arch}")
     os=$(jq <<<"${target_spec}" -r '.os')
