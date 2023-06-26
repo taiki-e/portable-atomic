@@ -66,8 +66,6 @@ fn has_kuser_cmpxchg64() -> bool {
 }
 #[inline]
 unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-    debug_assert!(ptr as usize % 8 == 0);
-    debug_assert!(has_kuser_cmpxchg64());
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
@@ -88,7 +86,7 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
             src = in(reg) src,
             prev_lo = out(reg) prev_lo,
             prev_hi = out(reg) prev_hi,
-            options(nostack, preserves_flags, readonly),
+            options(pure, nostack, preserves_flags, readonly),
         );
         U64 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
@@ -99,6 +97,8 @@ unsafe fn atomic_update_kuser_cmpxchg64<F>(dst: *mut u64, mut f: F) -> u64
 where
     F: FnMut(u64) -> u64,
 {
+    debug_assert!(dst as usize % 8 == 0);
+    debug_assert!(has_kuser_cmpxchg64());
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         loop {
