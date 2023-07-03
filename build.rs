@@ -15,6 +15,13 @@ fn main() {
     println!("cargo:rerun-if-changed=no_atomic.rs");
     println!("cargo:rerun-if-changed=version.rs");
 
+    #[cfg(feature = "unsafe-assume-single-core")]
+    println!("cargo:rustc-cfg=portable_atomic_unsafe_assume_single_core");
+    #[cfg(feature = "s-mode")]
+    println!("cargo:rustc-cfg=portable_atomic_s_mode");
+    #[cfg(feature = "disable-fiq")]
+    println!("cargo:rustc-cfg=portable_atomic_disable_fiq");
+
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
     let target_os = &*env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");

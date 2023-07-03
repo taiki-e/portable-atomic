@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-cfg) otherwise)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
 - Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -89,21 +89,21 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
   it is not natively available. When enabling it, you should provide a suitable critical section implementation
   for the current target, see the [critical-section] documentation for details on how to do so.
 
-  `critical-section` support is useful to get atomic CAS when `--cfg portable_atomic_unsafe_assume_single_core` can't be used,
+  `critical-section` support is useful to get atomic CAS when the [`unsafe-assume-single-core` feature](#optional-features-unsafe-assume-single-core) can't be used,
   such as multi-core targets, unprivileged code running under some RTOS, or environments where disabling interrupts
   needs extra care due to e.g. real-time requirements.
 
   Note that with the `critical-section` feature, critical sections are taken for all atomic operations, while with
-  `--cfg portable_atomic_unsafe_assume_single_core` some operations don't require disabling interrupts (loads and stores, but
+  `unsafe-assume-single-core` some operations don't require disabling interrupts (loads and stores, but
   additionally on MSP430 `add`, `sub`, `and`, `or`, `xor`, `not`). Therefore, for better performance, if
   all the `critical-section` implementation for your target does is disable interrupts, prefer using
-  `--cfg portable_atomic_unsafe_assume_single_core` instead.
+  `unsafe-assume-single-core` instead.
 
   Note:
   - The MSRV when this feature is enabled depends on the MSRV of [critical-section].
   - It is usually *not* recommended to always enable this feature in dependencies of the library.
 
-    Enabling this feature will prevent the end user from having the chance to take advantage of other (potentially) efficient implementations ([Implementations provided by `--cfg portable_atomic_unsafe_assume_single_core`, default implementations on MSP430 and AVR](#optional-cfg), implementation proposed in [#60], etc. Other systems may also be supported in the future).
+    Enabling this feature will prevent the end user from having the chance to take advantage of other (potentially) efficient implementations ([Implementations provided by `unsafe-assume-single-core`, default implementations on MSP430 and AVR](#optional-features-unsafe-assume-single-core), implementation proposed in [#60], etc. Other systems may also be supported in the future).
 
     The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where other implementations are known not to work.)
 
@@ -116,6 +116,33 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
     crate-uses-portable-atomic-as-feature = { version = "...", features = ["portable-atomic"] }
     ```
 
+- <a name="optional-features-unsafe-assume-single-core"></a>**`unsafe-assume-single-core`**<br>
+  Assume that the target is single-core.
+  When this feature is enabled, this crate provides atomic CAS for targets where atomic CAS is not available in the standard library by disabling interrupts.
+
+  This feature is `unsafe`, and note the following safety requirements:
+  - Enabling this feature for multi-core systems is always **unsound**.
+  - This uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
+    Enabling this feature in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
+
+    The following are known cases:
+    - On pre-v6 ARM, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature together.
+    - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you enable the `s-mode` together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
+
+    See also [the `interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
+
+  Consider using the [`critical-section` feature](#optional-features-critical-section) for systems that cannot use this feature.
+
+  It is **very strongly discouraged** to enable this feature in libraries that depend on `portable-atomic`. The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where it is guaranteed to always be sound, for example in a hardware abstraction layer targeting a single-core chip.)
+
+  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa are currently supported.
+
+  Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this feature.
+
+  Enabling this feature for targets that have atomic CAS will result in a compile error.
+
+  Feel free to submit an issue if your target is not supported yet.
+
 ## Optional cfg
 
 One of the ways to enable cfg is to set [rustflags in the cargo config](https://doc.rust-lang.org/cargo/reference/config.html#targettriplerustflags):
@@ -123,41 +150,14 @@ One of the ways to enable cfg is to set [rustflags in the cargo config](https://
 ```toml
 # .cargo/config.toml
 [target.<target>]
-rustflags = ["--cfg", "portable_atomic_unsafe_assume_single_core"]
+rustflags = ["--cfg", "portable_atomic_no_outline_atomics"]
 ```
 
 Or set environment variable:
 
 ```sh
-RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
+RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 ```
-
-- <a name="optional-cfg-unsafe-assume-single-core"></a>**`--cfg portable_atomic_unsafe_assume_single_core`**<br>
-  Assume that the target is single-core.
-  When this cfg is enabled, this crate provides atomic CAS for targets where atomic CAS is not available in the standard library by disabling interrupts.
-
-  This cfg is `unsafe`, and note the following safety requirements:
-  - Enabling this cfg for multi-core systems is always **unsound**.
-  - This uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
-    Enabling this cfg in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
-
-    The following are known cases:
-    - On pre-v6 ARM, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to pass the `--cfg portable_atomic_disable_fiq` together.
-    - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you pass the `--cfg portable_atomic_s_mode` together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
-
-    See also [the `interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
-
-  Consider using the [`critical-section` feature](#optional-features-critical-section) for systems that cannot use this cfg.
-
-  This is intentionally not an optional feature. (If this is an optional feature, dependencies can implicitly enable the feature, resulting in the use of unsound code without the end-user being aware of it.)
-
-  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa are currently supported.
-
-  Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this cfg.
-
-  Enabling this cfg for targets that have atomic CAS will result in a compile error.
-
-  Feel free to submit an issue if your target is not supported yet.
 
 - <a name="optional-cfg-no-outline-atomics"></a>**`--cfg portable_atomic_no_outline_atomics`**<br>
   Disable dynamic dispatching by run-time CPU feature detection.

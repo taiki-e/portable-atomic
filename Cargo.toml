@@ -53,9 +53,16 @@ std = []
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-require-cas
 require-cas = []
 
-# DO NOT USE. This is NOT public API. Only used for testing our test infrastructures.
-# TODO: remove when adding real non-additive features.
-__do_not_enable = []
+# Assume the target is single core, to enable implementations based on disabling interrupts.
+# IMPORTANT: This feature is unsafe. See the documentation for the safety contract:
+# https://github.com/taiki-e/portable-atomic#optional-features-unsafe-assume-single-core
+unsafe-assume-single-core = []
+
+# For RISC-V targets, generate code for S mode to disable interrupts.
+s-mode = []
+
+# For ARM targets, also disable FIQs when disabling interrupts.
+disable-fiq = []
 
 # Note: serde and critical-section are public dependencies.
 [dependencies]

@@ -126,7 +126,7 @@ known_cfgs=(
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/test.sh.
 test_features="float,std,serde,critical-section"
-exclude_features="__do_not_enable"
+exclude_features="unsafe-assume-single-core,s-mode,disable-fiq"
 
 x() {
     local cmd="$1"
