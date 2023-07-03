@@ -2,7 +2,6 @@ only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main' || $
 auto_cancellation: $CIRRUS_PR != ''
 env:
   CARGO_INCREMENTAL: '0'
-  CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
   CARGO_NET_RETRY: '10'
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: '1'
@@ -32,7 +31,7 @@ aarch64_linux_dynamic_linking_test_task:
       setup_script:
         - set -ex
         - lscpu
-        - yum install -y gcc git moreutils
+        - yum install -y gcc moreutils
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
     - name: test ($TARGET, -C target-feature=-crt-static)
       env:
@@ -43,7 +42,7 @@ aarch64_linux_dynamic_linking_test_task:
         image: rust:alpine
       setup_script:
         - set -ex
-        - apk --no-cache add bash git musl-dev util-linux moreutils
+        - apk --no-cache add bash musl-dev util-linux moreutils
         - lscpu
         - rustup toolchain add nightly --no-self-update && rustup default nightly
   test_script:
@@ -68,7 +67,7 @@ aarch64_linux_static_linking_test_task:
     image: rust:alpine
   setup_script:
     - set -ex
-    - apk --no-cache add bash git musl-dev util-linux moreutils
+    - apk --no-cache add bash musl-dev util-linux moreutils
     - lscpu
     - rustup toolchain add nightly --no-self-update && rustup default nightly
   test_script:
