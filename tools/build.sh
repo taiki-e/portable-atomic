@@ -74,12 +74,12 @@ default_targets=(
     # aarch64 always support lse & lse2
     aarch64-apple-darwin
     # aarch64 big endian
-    # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/348
+    # TODO: compiler-builtins bug https://github.com/rust-lang/compiler-builtins/pull/539
     # aarch64_be-unknown-linux-gnu
     # aarch64 ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
     # aarch64 ILP32 ABI big endian
-    # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/348
+    # TODO: compiler-builtins bug https://github.com/rust-lang/compiler-builtins/pull/539
     # aarch64_be-unknown-linux-gnu_ilp32
 
     # pre-v6 arm linux-like
@@ -396,8 +396,8 @@ build() {
         case "${target}" in
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
             m68k-unknown-linux-gnu) return 0 ;;
-            # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/348
-            armeb* | aarch64_be*) return 0 ;;
+            # TODO: compiler-builtins bug https://github.com/rust-lang/compiler-builtins/pull/539
+            aarch64_be*) return 0 ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
