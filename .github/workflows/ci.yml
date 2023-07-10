@@ -212,13 +212,13 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != '' && !(startsWith(matrix.os, 'windows') || contains(matrix.target, '-musl') || contains(matrix.target, '-android'))
+        if: matrix.target != '' && !(startsWith(matrix.os, 'windows') || contains(matrix.target, '-android'))
       - run: rustup target add "${{ matrix.target }}"
         if: matrix.target != '' && startsWith(matrix.os, 'windows')
       - uses: taiki-e/install-action@cross
-        if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
+        if: contains(matrix.target, '-android')
       - run: echo "cargo=cross" >>"${GITHUB_ENV}"
-        if: contains(matrix.target, '-musl') || contains(matrix.target, '-android')
+        if: contains(matrix.target, '-android')
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: |
