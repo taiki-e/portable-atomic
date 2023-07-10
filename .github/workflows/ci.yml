@@ -129,9 +129,9 @@ jobs:
           - rust: nightly
             target: i686-pc-windows-msvc
             os: windows-latest
-          - rust: nightly-2023-07-04 # TODO: LLVM bug: Undefined temporary symbol error when building std.
+          - rust: nightly
             target: mips-unknown-linux-gnu
-          - rust: nightly-2023-07-04 # TODO: LLVM bug: Undefined temporary symbol error when building std.
+          - rust: nightly
             target: mipsel-unknown-linux-gnu
           - rust: nightly
             target: mips64-unknown-linux-gnuabi64

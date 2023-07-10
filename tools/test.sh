@@ -68,6 +68,7 @@ case "${1:-}" in
 esac
 target=''
 build_std=''
+release=()
 tests=()
 cargo_options=()
 rest_cargo_options=()
@@ -87,6 +88,7 @@ while [[ $# -gt 0 ]]; do
             cargo_options+=("$1")
             build_std=1
             ;;
+        --release) release=(--release) ;;
         *) cargo_options+=("$1") ;;
     esac
     shift
@@ -153,11 +155,15 @@ target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
 target_upper="$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")"
 randomize_layout=' -Z randomize-layout'
+case "${target}" in
+    # TODO: LLVM bug: Undefined temporary symbol error when building std.
+    mips-unknown-linux-gnu | mipsel-unknown-linux-gnu) release=(--release) ;;
+esac
 
 case "${cmd}" in
     build)
         TS=''
-        args+=(--no-run)
+        args+=(--no-run ${release[@]+"${release[@]}"})
         x_cargo test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
         binary_path=$(
             "${cargo}" ${pre_args[@]+"${pre_args[@]}"} test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" -q --message-format=json \
@@ -188,11 +194,13 @@ case "${cmd}" in
 esac
 
 run() {
-    if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
-        # doctest with debug build on Sanitizer is slow
-        x_cargo test --tests "$@"
-    else
-        x_cargo test ${tests[@]+"${tests[@]}"} "$@"
+    if [[ ${#release[@]} -eq 0 ]]; then
+        if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
+            # doctest with debug build on Sanitizer is slow
+            x_cargo test --tests "$@"
+        else
+            x_cargo test ${tests[@]+"${tests[@]}"} "$@"
+        fi
     fi
 
     # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
@@ -218,7 +226,7 @@ run() {
         fi
         RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}" \
             RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}" \
-            x_cargo careful test ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+            x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
     fi
 }
 
