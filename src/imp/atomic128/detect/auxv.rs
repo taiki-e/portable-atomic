@@ -24,8 +24,7 @@
 //
 // - On musl with static linking. See the above for more.
 //   Also, in this case, dlsym(getauxval) always returns null.
-// - On uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*), they [recently added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647)
-//   but have not released it yet (as of 2023-02-09).
+// - On uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*), [uClibc-ng 1.0.43 (released in 2023-04-05) added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647).
 // - On Picolibc, [Picolibc 1.4.6 added getauxval stub](https://github.com/picolibc/picolibc#picolibc-version-146).
 //
 // See also https://github.com/rust-lang/stdarch/pull/1375
