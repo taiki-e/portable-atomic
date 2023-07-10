@@ -1,4 +1,3 @@
-adcs
 addc
 adde
 alcgr

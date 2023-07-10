@@ -1042,52 +1042,28 @@ macro_rules! atomic_rmw_cas_2 {
     };
 }
 
-// Do not use `preserves_flags` because ADDS and ADCS modify the condition flags.
+// Do not use `preserves_flags` because ADDS modifies the condition flags.
 atomic_rmw_ll_sc_3! {
     _atomic_add_ldxp_stxp as atomic_add,
-    concat!(
-        "adds ",
-        select_le_or_be!("{new_lo}, {prev_lo}, {val_lo}", "{new_hi}, {prev_hi}, {val_hi}")
-    ),
-    concat!(
-        "adc ",
-        select_le_or_be!("{new_hi}, {prev_hi}, {val_hi}", "{new_lo}, {prev_lo}, {val_lo}")
-    ),
+    select_le_or_be!("adds {new_lo}, {prev_lo}, {val_lo}", "adds {new_hi}, {prev_hi}, {val_hi}"),
+    select_le_or_be!("adc {new_hi}, {prev_hi}, {val_hi}", "adc {new_lo}, {prev_lo}, {val_lo}"),
 }
 atomic_rmw_cas_3! {
     _atomic_add_casp as atomic_add,
-    concat!(
-        "adds ",
-        select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
-    ),
-    concat!(
-        "adc ",
-        select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
-    ),
+    select_le_or_be!("adds x4, x6, {val_lo}", "adds x5, x7, {val_hi}"),
+    select_le_or_be!("adc x5, x7, {val_hi}", "adc x4, x6, {val_lo}"),
 }
 
-// Do not use `preserves_flags` because SUBS and SBCS modify the condition flags.
+// Do not use `preserves_flags` because SUBS modifies the condition flags.
 atomic_rmw_ll_sc_3! {
     _atomic_sub_ldxp_stxp as atomic_sub,
-    concat!(
-        "subs ",
-        select_le_or_be!("{new_lo}, {prev_lo}, {val_lo}", "{new_hi}, {prev_hi}, {val_hi}")
-    ),
-    concat!(
-        "sbc ",
-        select_le_or_be!("{new_hi}, {prev_hi}, {val_hi}", "{new_lo}, {prev_lo}, {val_lo}")
-    ),
+    select_le_or_be!("subs {new_lo}, {prev_lo}, {val_lo}", "subs {new_hi}, {prev_hi}, {val_hi}"),
+    select_le_or_be!("sbc {new_hi}, {prev_hi}, {val_hi}", "sbc {new_lo}, {prev_lo}, {val_lo}"),
 }
 atomic_rmw_cas_3! {
     _atomic_sub_casp as atomic_sub,
-    concat!(
-        "subs ",
-        select_le_or_be!("x4, x6, {val_lo}", "x5, x7, {val_hi}")
-    ),
-    concat!(
-        "sbc ",
-        select_le_or_be!("x5, x7, {val_hi}", "x4, x6, {val_lo}")
-    ),
+    select_le_or_be!("subs x4, x6, {val_lo}", "subs x5, x7, {val_hi}"),
+    select_le_or_be!("sbc x5, x7, {val_hi}", "sbc x4, x6, {val_lo}"),
 }
 
 atomic_rmw_ll_sc_3! {
@@ -1152,13 +1128,13 @@ atomic_rmw_cas_2! {
 // Do not use `preserves_flags` because NEGS modifies the condition flags.
 atomic_rmw_ll_sc_2! {
     _atomic_neg_ldxp_stxp as atomic_neg,
-    concat!("negs ", select_le_or_be!("{new_lo}, {prev_lo}", "{new_hi}, {prev_hi}")),
-    concat!("ngc ", select_le_or_be!("{new_hi}, {prev_hi}", "{new_lo}, {prev_lo}")),
+    select_le_or_be!("negs {new_lo}, {prev_lo}", "negs {new_hi}, {prev_hi}"),
+    select_le_or_be!("ngc {new_hi}, {prev_hi}", "ngc {new_lo}, {prev_lo}"),
 }
 atomic_rmw_cas_2! {
     _atomic_neg_casp as atomic_neg,
-    concat!("negs ", select_le_or_be!("x4, x6", "x5, x7")),
-    concat!("ngc ", select_le_or_be!("x5, x7", "x4, x6")),
+    select_le_or_be!("negs x4, x6", "negs x5, x7"),
+    select_le_or_be!("ngc x5, x7", "ngc x4, x6"),
 }
 
 // Do not use `preserves_flags` because CMP and SBCS modify the condition flags.
