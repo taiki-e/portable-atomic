@@ -12,7 +12,9 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Allow using embedded-related cfgs as Cargo features. ([#94](https://github.com/taiki-e/portable-atomic/pull/94), thanks @Dirbaio)
 
-  Originally, we were sticking to providing these as cfgs instead of features, but based on a strong request from the embedded ecosystem, we have agreed to provide them as features as well. See [#94](https://github.com/taiki-e/portable-atomic/pull/94) for more.
+  Originally, we were providing these as cfgs instead of features, but based on a strong request from the embedded ecosystem, we have agreed to provide them as features as well. See [#94](https://github.com/taiki-e/portable-atomic/pull/94) for more.
+
+  cfgs are kept and can be used as aliases for features.
 
 - Acknowledge all x86_64 Apple targets support cmpxchg16b.
 
