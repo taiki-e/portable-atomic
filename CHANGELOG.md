@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.4.0] - 2023-07-11
+
 - Allow using embedded-related cfgs as Cargo features. ([#94](https://github.com/taiki-e/portable-atomic/pull/94), thanks @Dirbaio)
 
   Originally, we were providing these as cfgs instead of features, but based on a strong request from the embedded ecosystem, we have agreed to provide them as features as well. See [#94](https://github.com/taiki-e/portable-atomic/pull/94) for more.
@@ -344,7 +346,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/taiki-e/portable-atomic/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/taiki-e/portable-atomic/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/taiki-e/portable-atomic/compare/v1.3.0...v1.3.1
