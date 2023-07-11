@@ -224,9 +224,20 @@ run() {
         if [[ "${target}" == *"-windows"* ]]; then
             randomize_layout=''
         fi
-        RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}" \
-            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}" \
-            x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+        case "${target}" in
+            # cannot find rsbegin.o/rsend.o when building std
+            *-windows-gnu*) ;;
+            *-linux-musl*)
+                RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout} -C target-feature=-crt-static" \
+                    RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout} -C target-feature=-crt-static" \
+                    x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                ;;
+            *)
+                RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}" \
+                    RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}" \
+                    x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                ;;
+        esac
     fi
 }
 

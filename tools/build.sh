@@ -540,14 +540,20 @@ build() {
     esac
     # Check target features
     case "${target}" in
-        mips*-linux-musl*) ;; # -crt-static by default
+        mips-*-linux-musl* | mipsel-*-linux-musl*) ;; # -crt-static by default
         *-linux-musl*)
             CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
                 RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
                 x_cargo "${args[@]}" "$@"
-            CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
-                RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
-                x_cargo "${args[@]}" "$@"
+            case "${target}" in
+                # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.
+                # powerpc64 is skipped because outline-atomics is currently disabled by default on powerpc64.
+                x86_64* | aarch64* | arm*)
+                    CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
+                        RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
+                        x_cargo "${args[@]}" "$@"
+                    ;;
+            esac
             ;;
     esac
     case "${target}" in

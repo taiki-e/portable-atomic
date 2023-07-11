@@ -103,6 +103,8 @@ RAII
 rcpc
 reentrancy
 relibc
+rsbegin
+rsend
 rsil
 sbcs
 sched

@@ -77,6 +77,12 @@ jobs:
             os: macos-latest
           - rust: nightly
             os: windows-latest
+          - rust: nightly-x86_64-pc-windows-gnu
+            os: windows-latest
+          - rust: nightly-i686-pc-windows-msvc
+            os: windows-latest
+          - rust: nightly-i686-pc-windows-gnu
+            os: windows-latest
           - rust: nightly
             flags: -C panic=abort -Z panic_abort_tests
           - rust: '1.59' # LLVM 13
@@ -126,9 +132,6 @@ jobs:
             target: i586-unknown-linux-gnu
           - rust: nightly
             target: i686-unknown-linux-gnu
-          - rust: nightly
-            target: i686-pc-windows-msvc
-            os: windows-latest
           - rust: nightly
             target: mips-unknown-linux-gnu
           - rust: nightly
@@ -212,9 +215,7 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != '' && !(startsWith(matrix.os, 'windows') || contains(matrix.target, '-android'))
-      - run: rustup target add "${{ matrix.target }}"
-        if: matrix.target != '' && startsWith(matrix.os, 'windows')
+        if: matrix.target != '' && !contains(matrix.target, '-android')
       - uses: taiki-e/install-action@cross
         if: contains(matrix.target, '-android')
       - run: echo "cargo=cross" >>"${GITHUB_ENV}"
@@ -236,7 +237,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
         # outline-atomics is disabled by default on aarch64 musl with static linking
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
         env:
           # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
@@ -245,7 +246,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
         # outline-atomics is disabled by default on aarch64 musl with static linking
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       # outline-atomics is disabled by default on aarch64 musl with static linking and powerpc64
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       - run: tools/test.sh -vv --tests $TARGET $DOCTEST_XCOMPILE $BUILD_STD
@@ -267,7 +268,7 @@ jobs:
           # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-        if: (matrix.target == '' || startsWith(matrix.target, 'x86_64'))
+        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64'))
       # +lse
       # As of QEMU 8.0, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
       # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
