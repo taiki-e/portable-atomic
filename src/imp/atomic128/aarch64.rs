@@ -48,11 +48,11 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/5v6WGYeaT
-// - aarch64 msvc https://godbolt.org/z/vrso3GnPb
-// - aarch64 (+lse) https://godbolt.org/z/WaoTsdh5W
-// - aarch64 msvc (+lse) https://godbolt.org/z/67oTGx9ve
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/exhTdW78o
+// - aarch64 https://godbolt.org/z/nds1nWbnq
+// - aarch64 msvc https://godbolt.org/z/PTKdhbKqW
+// - aarch64 (+lse) https://godbolt.org/z/5GzssfTKc
+// - aarch64 msvc (+lse) https://godbolt.org/z/oYE87caM7
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/36dPjMbaG
 
 include!("macros.rs");
 
@@ -282,11 +282,11 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
         macro_rules! atomic_load {
             ($acquire:tt, $release:tt) => {
                 asm!(
-                    concat!("casp", $acquire, $release, " x4, x5, x4, x5, [{src}]"),
+                    concat!("casp", $acquire, $release, " x2, x3, x2, x3, [{src}]"),
                     src = in(reg) ptr_reg!(src),
                     // must be allocated to even/odd register pair
-                    inout("x4") 0_u64 => prev_lo,
-                    inout("x5") 0_u64 => prev_hi,
+                    inout("x2") 0_u64 => prev_lo,
+                    inout("x3") 0_u64 => prev_hi,
                     options(nostack, preserves_flags),
                 )
             };
@@ -717,26 +717,26 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                     // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
-                    "ldp x6, x7, [{dst}]",
+                    "ldp x4, x5, [{dst}]",
                     "2:",
                         // casp writes the current value to the first register pair,
                         // so copy the `out`'s value for later comparison.
-                        "mov {tmp_lo}, x6",
-                        "mov {tmp_hi}, x7",
-                        concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst}]"),
-                        "cmp {tmp_hi}, x7",
-                        "ccmp {tmp_lo}, x6, #0, eq",
+                        "mov {tmp_lo}, x4",
+                        "mov {tmp_hi}, x5",
+                        concat!("casp", $acquire, $release, " x4, x5, x2, x3, [{dst}]"),
+                        "cmp {tmp_hi}, x5",
+                        "ccmp {tmp_lo}, x4, #0, eq",
                         "b.ne 2b",
                     $fence,
                     dst = in(reg) ptr_reg!(dst),
                     tmp_lo = out(reg) _,
                     tmp_hi = out(reg) _,
                     // must be allocated to even/odd register pair
-                    out("x6") prev_lo,
-                    out("x7") prev_hi,
+                    out("x4") prev_lo,
+                    out("x5") prev_hi,
                     // must be allocated to even/odd register pair
-                    in("x4") val.pair.lo,
-                    in("x5") val.pair.hi,
+                    in("x2") val.pair.lo,
+                    in("x3") val.pair.hi,
                     // Do not use `preserves_flags` because CMP and CCMP modify the condition flags.
                     options(nostack),
                 )
