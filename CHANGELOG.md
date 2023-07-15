@@ -18,7 +18,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   cfgs are kept and can be used as aliases for features.
 
-- Acknowledge all x86_64 Apple targets support cmpxchg16b.
+- Acknowledge all x86_64 Apple targets support 128-bit atomics.
 
   Our code already recognizes this via `cfg(target_feature)`, so this only affects docs and users using pre-1.69 stable rustc.
 
