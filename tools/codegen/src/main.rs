@@ -12,8 +12,6 @@ mod file;
 
 #[cfg(unix)]
 mod ffi;
-#[cfg(unix)]
-mod target_spec;
 
 use anyhow::Result;
 

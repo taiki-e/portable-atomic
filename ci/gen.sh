@@ -19,7 +19,7 @@ fi
 git config user.name "Taiki Endo"
 git config user.email "te316e89@gmail.com"
 
-for path in no_atomic.rs src/gen/* tools/codegen/src/gen/* tests/helper/src/gen/sys/*; do
+for path in no_atomic.rs src/gen/* tests/helper/src/gen/sys/*; do
     git add -N "${path}"
     if ! git diff --exit-code -- "${path}"; then
         git add "${path}"

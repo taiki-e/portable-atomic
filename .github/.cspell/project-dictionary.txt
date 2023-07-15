@@ -61,7 +61,6 @@ lghi
 libcalls
 libdir
 libfdio
-libnx
 libpthread
 libstd
 libtcl
@@ -82,7 +81,6 @@ mmfr
 mstatus
 negs
 neoverse
-newlib
 newrepo
 newtype
 nngrk
@@ -102,7 +100,6 @@ qword
 RAII
 rcpc
 reentrancy
-relibc
 rsbegin
 rsend
 rsil

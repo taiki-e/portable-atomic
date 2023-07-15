@@ -8,7 +8,7 @@
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
-use std::{collections::BTreeSet, ffi::OsStr};
+use std::{collections::BTreeSet, ffi::OsStr, process::Command};
 
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -17,11 +17,14 @@ use fs::os::unix::fs::symlink;
 use fs_err as fs;
 use quote::{format_ident, quote};
 use regex::Regex;
-
-use crate::{
-    file::{self, workspace_root},
-    target_spec::*,
+use target_spec_json::{
+    TargetArch::{self, *},
+    TargetEnv::{self, *},
+    TargetOs::{self, *},
+    TargetSpec,
 };
+
+use crate::file::{self, workspace_root};
 
 #[rustfmt::skip]
 static TARGETS: &[Target] = &[
@@ -724,4 +727,10 @@ fn openbsd_arch(target: &TargetSpec) -> &'static str {
         powerpc64 => "powerpc64",
         _ => todo!("{target:?}"),
     }
+}
+
+fn target_spec_json(target: &str) -> Result<TargetSpec> {
+    let spec_path = workspace_root().join("target-specs").join(target).with_extension("json");
+    let target = if spec_path.exists() { spec_path.as_str() } else { target };
+    Ok(target_spec_json::target_spec_json(Command::new("rustc"), target)?)
 }
