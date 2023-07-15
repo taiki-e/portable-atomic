@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.4.1] - 2023-07-15
+
 - Improve compatibility with the future version of Miri.
 
 ## [1.4.0] - 2023-07-11
@@ -348,7 +350,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/taiki-e/portable-atomic/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/taiki-e/portable-atomic/compare/v1.3.1...v1.3.2
