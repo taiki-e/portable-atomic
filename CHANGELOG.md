@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Improve compatibility with the future version of Miri.
+
 ## [1.4.0] - 2023-07-11
 
 - Allow using embedded-related cfgs as Cargo features. ([#94](https://github.com/taiki-e/portable-atomic/pull/94), thanks @Dirbaio)
