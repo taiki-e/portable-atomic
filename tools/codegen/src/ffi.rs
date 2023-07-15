@@ -676,6 +676,7 @@ fn linux_arch(target: &TargetSpec) -> &'static str {
     match target.arch {
         arm => "arm",
         aarch64 => "arm64",
+        csky => "csky",
         hexagon => "hexagon",
         loongarch64 => "loongarch",
         m68k => "m68k",
