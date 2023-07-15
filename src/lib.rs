@@ -275,7 +275,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
         target_arch = "x86_64",
         portable_atomic_unstable_cmpxchg16b_target_feature,
         not(portable_atomic_no_outline_atomics),
-        not(target_env = "sgx"),
+        not(any(target_env = "sgx", miri)),
         feature = "fallback",
     ),
     feature(cmpxchg16b_target_feature)

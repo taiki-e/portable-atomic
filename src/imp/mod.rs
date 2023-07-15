@@ -45,7 +45,7 @@ mod aarch64;
         feature = "fallback",
         not(portable_atomic_no_cmpxchg16b_target_feature),
         not(portable_atomic_no_outline_atomics),
-        not(target_env = "sgx"),
+        not(any(target_env = "sgx", miri)),
     ),
 ))]
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
@@ -392,7 +392,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
             feature = "fallback",
             not(portable_atomic_no_cmpxchg16b_target_feature),
             not(portable_atomic_no_outline_atomics),
-            not(target_env = "sgx"),
+            not(any(target_env = "sgx", miri)),
         ),
     ),
     target_arch = "x86_64",
@@ -440,7 +440,7 @@ pub(crate) use self::s390x::{AtomicI128, AtomicU128};
                 feature = "fallback",
                 not(portable_atomic_no_cmpxchg16b_target_feature),
                 not(portable_atomic_no_outline_atomics),
-                not(target_env = "sgx"),
+                not(any(target_env = "sgx", miri)),
             ),
         ),
         target_arch = "x86_64",

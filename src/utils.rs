@@ -46,7 +46,7 @@ macro_rules! doc_comment {
     target_arch = "aarch64",
     target_arch = "arm",
     target_arch = "powerpc64",
-    all(target_arch = "x86_64", not(target_env = "sgx")),
+    all(target_arch = "x86_64", not(any(target_env = "sgx", miri))),
 ))]
 macro_rules! ifunc {
     (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
@@ -79,7 +79,7 @@ macro_rules! ifunc {
     target_arch = "aarch64",
     target_arch = "arm",
     target_arch = "powerpc64",
-    all(target_arch = "x86_64", not(target_env = "sgx")),
+    all(target_arch = "x86_64", not(any(target_env = "sgx", miri))),
 ))]
 macro_rules! fn_alias {
     (
@@ -445,7 +445,7 @@ mod atomic_64_macros {
                     feature = "fallback",
                     not(portable_atomic_no_cmpxchg16b_target_feature),
                     not(portable_atomic_no_outline_atomics),
-                    not(target_env = "sgx"),
+                    not(any(target_env = "sgx", miri)),
                 ),
             ),
             target_arch = "x86_64",
@@ -524,7 +524,7 @@ mod atomic_128_macros {
                     feature = "fallback",
                     not(portable_atomic_no_cmpxchg16b_target_feature),
                     not(portable_atomic_no_outline_atomics),
-                    not(target_env = "sgx"),
+                    not(any(target_env = "sgx", miri)),
                 ),
             ),
             target_arch = "x86_64",

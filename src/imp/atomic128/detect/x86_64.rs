@@ -1,9 +1,11 @@
 // Adapted from https://github.com/rust-lang/stdarch.
 
-#![cfg_attr(
-    any(not(target_feature = "sse"), miri, portable_atomic_sanitize_thread),
-    allow(dead_code)
-)]
+#![cfg_attr(any(not(target_feature = "sse"), portable_atomic_sanitize_thread), allow(dead_code))]
+
+// Miri doesn't support inline assembly used in __cpuid: https://github.com/rust-lang/miri/issues/932
+// SGX doesn't support CPUID: https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L105
+#[cfg(any(target_env = "sgx", miri))]
+compile_error!("internal error: this module is not supported on this target");
 
 include!("common.rs");
 
@@ -56,11 +58,6 @@ unsafe fn _vendor_id() -> [u8; 12] {
 #[cold]
 fn _detect(info: &mut CpuInfo) {
     // Miri doesn't support inline assembly used in __cpuid
-    #[cfg(miri)]
-    {
-        // Miri supports core::arch::x86_64::cmpxchg16b.
-        info.set(CpuInfo::HAS_CMPXCHG16B);
-    }
     // SGX doesn't support CPUID: https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L105
     #[cfg(not(any(target_env = "sgx", miri)))]
     {
@@ -113,7 +110,7 @@ mod tests {
     #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     #[test]
     // SGX doesn't support CPUID.
-    // Miri doesn't support inline assembly.
+    // Miri doesn't support inline assembly used in __cpuid.
     #[cfg_attr(any(target_env = "sgx", miri), ignore)]
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());

@@ -15,7 +15,7 @@
             target_arch = "x86_64",
             not(portable_atomic_no_cmpxchg16b_target_feature),
             not(portable_atomic_no_outline_atomics),
-            not(target_env = "sgx"),
+            not(any(target_env = "sgx", miri)),
         ),
         all(
             target_arch = "powerpc64",
