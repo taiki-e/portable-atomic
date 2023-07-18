@@ -510,8 +510,6 @@ jobs:
         run: rustup toolchain add nightly --no-self-update --component rustfmt && rustup default nightly
       - run: tools/no_atomic.sh
       - run: tools/gen.sh
-      - run: git add -N . && git diff --exit-code
-        if: github.repository_owner != 'taiki-e' || github.event_name != 'schedule' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
       - id: diff
         run: ci/gen.sh
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -526,3 +524,4 @@ jobs:
             [2]: https://github.com/peter-evans/create-pull-request/blob/HEAD/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
           branch: update-generated-code
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
+      - run: git add -N . && git diff --exit-code
