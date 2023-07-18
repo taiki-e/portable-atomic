@@ -214,6 +214,7 @@ impl<T: ?Sized> Arc<T> {
         unsafe { Self::from_inner(NonNull::new_unchecked(ptr)) }
     }
 
+    #[allow(clippy::needless_pass_by_ref_mut)] // https://github.com/rust-lang/rust-clippy/issues/11180
     unsafe fn get_mut_unchecked(this: &mut Self) -> &mut T {
         // SAFETY: Since we have an exclusive reference, as certified by the caller, this
         // dereference is valid.
