@@ -12,7 +12,6 @@ portable-atomic/
 ├── build.rs                      -- build script
 ├── no_atomic.rs                  -- definitions of statics used by build script (auto-generated)
 ├── version.rs                    -- rustc version detection code used by build script
-├── ci/                           -- tools for CI
 ├── portable-atomic-util/         -- crate that defines synchronization primitives built with portable-atomic
 ├── src/
 │   ├── imp/

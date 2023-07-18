@@ -7,7 +7,7 @@ license = "Apache-2.0 OR MIT"
 repository = "https://github.com/taiki-e/portable-atomic"
 keywords = ["atomic"]
 categories = ["concurrency", "data-structures", "embedded", "hardware-support", "no-std"]
-exclude = ["/.*", "/ci", "/tools", "/target-specs", "/Cross.toml", "/DEVELOPMENT.md"]
+exclude = ["/.*", "/tools", "/target-specs", "/Cross.toml", "/DEVELOPMENT.md"]
 description = """
 Portable atomic types including support for 128-bit atomics, atomic float, etc.
 """
