@@ -1,5 +1,6 @@
 use core::ops;
 
+// TODO: mips32r6, mips64r6
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/d49a0f8454499ced8af0b61aeb661379c4eb0588/crossbeam-utils/src/cache_padded.rs.
 /// Pads and aligns a value to the length of a cache line.
 // Starting from Intel's Sandy Bridge, spatial prefetcher is now pulling pairs of 64-byte cache

@@ -683,7 +683,7 @@ fn linux_arch(target: &TargetSpec) -> &'static str {
         hexagon => "hexagon",
         loongarch64 => "loongarch",
         m68k => "m68k",
-        mips | mips64 => "mips",
+        mips | mips32r6 | mips64 | mips64r6 => "mips",
         powerpc | powerpc64 => "powerpc",
         riscv32 | riscv64 => "riscv",
         s390x => "s390",
@@ -700,6 +700,7 @@ fn musl_arch(target: &TargetSpec) -> &'static str {
         arm => "arm",
         x86 => "i386",
         m68k => "m68k",
+        // TODO: mips32r6, mips64r6?
         mips => "mips",
         mips64 if target.target_pointer_width == "64" => "mips64",
         mips64 if target.target_pointer_width == "32" => "mipsn32",
