@@ -108,7 +108,12 @@ fn test_is_lock_free() {
             assert!(!AtomicU64::is_lock_free());
         }
     }
-    if cfg!(any(
+    if cfg!(portable_atomic_no_asm) && cfg!(not(portable_atomic_unstable_asm)) {
+        assert!(!AtomicI128::is_always_lock_free());
+        assert!(!AtomicI128::is_lock_free());
+        assert!(!AtomicU128::is_always_lock_free());
+        assert!(!AtomicU128::is_lock_free());
+    } else if cfg!(any(
         target_arch = "aarch64",
         all(
             target_arch = "powerpc64",
