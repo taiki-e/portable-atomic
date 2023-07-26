@@ -51,7 +51,7 @@ jobs:
     with:
       event_name: ${{ github.event_name }}
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
-      args: -vvv --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,unsafe-assume-single-core,s-mode,disable-fiq
+      args: -vvv --clean-per-version --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,unsafe-assume-single-core,s-mode,disable-fiq
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
     with:
