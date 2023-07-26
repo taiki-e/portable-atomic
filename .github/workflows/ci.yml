@@ -66,7 +66,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - rust: '1.54'
+          - rust: '1.56'
           - rust: '1.59' # LLVM 13
           - rust: '1.64' # LLVM 14
           - rust: '1.69' # LLVM 15
@@ -132,6 +132,8 @@ jobs:
             target: i586-unknown-linux-gnu
           - rust: nightly
             target: i686-unknown-linux-gnu
+          - rust: nightly
+            target: loongarch64-unknown-linux-gnu
           - rust: nightly
             target: mips-unknown-linux-gnu
           - rust: nightly
@@ -310,9 +312,9 @@ jobs:
 
       - run: cargo minimal-versions build -vvv --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD
         # TODO: LLVM bug: Undefined temporary symbol error when building std.
-        if: matrix.rust != '1.54' && matrix.target != 'mips-unknown-linux-gnu' && matrix.target != 'mipsel-unknown-linux-gnu'
+        if: matrix.target != 'mips-unknown-linux-gnu' && matrix.target != 'mipsel-unknown-linux-gnu'
       - run: cargo minimal-versions build -vvv --release --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD
-        if: matrix.rust != '1.54' && (matrix.target == 'mips-unknown-linux-gnu' || matrix.target == 'mipsel-unknown-linux-gnu')
+        if: matrix.target == 'mips-unknown-linux-gnu' || matrix.target == 'mipsel-unknown-linux-gnu'
 
   build:
     needs: tidy

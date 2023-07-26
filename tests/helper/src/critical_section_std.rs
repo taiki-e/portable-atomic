@@ -1,5 +1,5 @@
 // Based on https://github.com/rust-embedded/critical-section/blob/v1.1.1/src/std.rs,
-// but don't use `static mut` and compatible with Rust 1.54 that we run tests.
+// but don't use `static mut` and compatible with Rust 1.56 that we run tests.
 
 use std::{
     cell::{Cell, UnsafeCell},

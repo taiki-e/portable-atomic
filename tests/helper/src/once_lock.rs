@@ -1,5 +1,5 @@
 // Based on std::sync::OnceLock.
-// Note that we cannot use once_cell crate due to its MSRV (we run tests on Rust 1.54).
+// Note that we cannot use once_cell crate due to its MSRV (we run tests on Rust 1.56).
 
 use std::{cell::UnsafeCell, mem::MaybeUninit, sync::Once};
 
