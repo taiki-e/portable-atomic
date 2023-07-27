@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.4.2] - 2023-07-27
+
 - Optimize `AtomicBool` on RISC-V/LoongArch64. This is the same as [rust-lang/rust#114034](https://github.com/rust-lang/rust/pull/114034), but is available for all rustc versions.
 
 ## [1.4.1] - 2023-07-15
@@ -352,7 +354,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/taiki-e/portable-atomic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/taiki-e/portable-atomic/compare/v1.3.2...v1.3.3
