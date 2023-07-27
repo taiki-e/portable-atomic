@@ -12,68 +12,6 @@
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
-#[repr(transparent)]
-pub(crate) struct AtomicBool {
-    v: UnsafeCell<u8>,
-}
-
-#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
-// Send is implicitly implemented.
-// SAFETY: any data races are prevented by atomic operations.
-unsafe impl Sync for AtomicBool {}
-
-#[cfg(any(test, not(portable_atomic_unsafe_assume_single_core)))]
-impl AtomicBool {
-    #[inline]
-    pub(crate) const fn new(v: bool) -> Self {
-        Self { v: UnsafeCell::new(v as u8) }
-    }
-
-    #[inline]
-    pub(crate) fn is_lock_free() -> bool {
-        Self::is_always_lock_free()
-    }
-    #[inline]
-    pub(crate) const fn is_always_lock_free() -> bool {
-        true
-    }
-
-    #[inline]
-    pub(crate) fn get_mut(&mut self) -> &mut bool {
-        // SAFETY: the mutable reference guarantees unique ownership.
-        unsafe { &mut *self.v.get().cast::<bool>() }
-    }
-
-    #[inline]
-    pub(crate) fn into_inner(self) -> bool {
-        self.v.into_inner() != 0
-    }
-
-    #[inline]
-    pub(crate) const fn as_ptr(&self) -> *mut bool {
-        self.v.get().cast::<bool>()
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn load(&self, order: Ordering) -> bool {
-        self.as_atomic_u8().load(order) != 0
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn store(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().store(val as u8, order);
-    }
-
-    #[inline]
-    fn as_atomic_u8(&self) -> &AtomicU8 {
-        // SAFETY: AtomicBool and AtomicU8 have the same layout,
-        unsafe { &*(self as *const AtomicBool).cast::<AtomicU8>() }
-    }
-}
-
 macro_rules! atomic {
     ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
         #[repr(transparent)]
@@ -226,7 +164,6 @@ atomic!([T] AtomicPtr, *mut T, "d");
 mod tests {
     use super::*;
 
-    test_atomic_bool_load_store!();
     test_atomic_ptr_load_store!();
     test_atomic_int_load_store!(i8);
     test_atomic_int_load_store!(u8);

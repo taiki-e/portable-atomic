@@ -100,124 +100,6 @@ where
     r
 }
 
-#[repr(C, align(1))]
-pub(crate) struct AtomicBool {
-    v: UnsafeCell<u8>,
-}
-
-// Send is implicitly implemented.
-// SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments).
-unsafe impl Sync for AtomicBool {}
-
-impl AtomicBool {
-    #[inline]
-    pub(crate) const fn new(v: bool) -> Self {
-        Self { v: UnsafeCell::new(v as u8) }
-    }
-
-    #[inline]
-    pub(crate) fn is_lock_free() -> bool {
-        Self::is_always_lock_free()
-    }
-    #[inline]
-    pub(crate) const fn is_always_lock_free() -> bool {
-        IS_ALWAYS_LOCK_FREE
-    }
-
-    #[inline]
-    pub(crate) fn get_mut(&mut self) -> &mut bool {
-        // SAFETY: the mutable reference guarantees unique ownership.
-        unsafe { &mut *(self.v.get() as *mut bool) }
-    }
-
-    #[inline]
-    pub(crate) fn into_inner(self) -> bool {
-        self.v.into_inner() != 0
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn load(&self, order: Ordering) -> bool {
-        self.as_atomic_u8().load(order) != 0
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn store(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().store(val as u8, order);
-    }
-
-    #[inline]
-    pub(crate) fn swap(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().swap(val as u8, order) != 0
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn compare_exchange(
-        &self,
-        current: bool,
-        new: bool,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<bool, bool> {
-        match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
-            Ok(x) => Ok(x != 0),
-            Err(x) => Err(x != 0),
-        }
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn compare_exchange_weak(
-        &self,
-        current: bool,
-        new: bool,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<bool, bool> {
-        self.compare_exchange(current, new, success, failure)
-    }
-
-    #[inline]
-    pub(crate) fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_and(val as u8, order) != 0
-    }
-    #[inline]
-    pub(crate) fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_or(val as u8, order) != 0
-    }
-    #[inline]
-    pub(crate) fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
-    }
-
-    #[inline]
-    pub(crate) fn and(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().and(val as u8, order);
-    }
-    #[inline]
-    pub(crate) fn or(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().or(val as u8, order);
-    }
-    #[inline]
-    pub(crate) fn xor(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().xor(val as u8, order);
-    }
-
-    #[inline]
-    pub(crate) const fn as_ptr(&self) -> *mut bool {
-        self.v.get() as *mut bool
-    }
-
-    #[inline]
-    fn as_atomic_u8(&self) -> &AtomicU8 {
-        // SAFETY: AtomicBool and AtomicU8 have the same layout,
-        unsafe { &*(self as *const AtomicBool).cast::<AtomicU8>() }
-    }
-}
-
 #[cfg_attr(target_pointer_width = "16", repr(C, align(2)))]
 #[cfg_attr(target_pointer_width = "32", repr(C, align(4)))]
 #[cfg_attr(target_pointer_width = "64", repr(C, align(8)))]
@@ -732,7 +614,6 @@ atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    test_atomic_bool_single_thread!();
     test_atomic_ptr_single_thread!();
     test_atomic_int_single_thread!(i8);
     test_atomic_int_single_thread!(u8);

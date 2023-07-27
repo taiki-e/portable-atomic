@@ -523,6 +523,22 @@ use core::{fmt, ptr};
 use crate::utils::strict;
 
 cfg_has_atomic_8! {
+cfg_has_atomic_cas! {
+// See https://github.com/rust-lang/rust/pull/114034 for details.
+// https://github.com/rust-lang/rust/blob/9339f446a5302cd5041d3f3b5e59761f36699167/library/core/src/sync/atomic.rs#L134
+// https://godbolt.org/z/EvPTfPh44
+#[cfg(portable_atomic_no_cfg_target_has_atomic)]
+const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
+    not(portable_atomic_no_atomic_cas),
+    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
+));
+#[cfg(not(portable_atomic_no_cfg_target_has_atomic))]
+const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
+    target_has_atomic = "8",
+    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
+));
+} // cfg_has_atomic_cas!
+
 /// A boolean type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a [`bool`].
@@ -532,11 +548,9 @@ cfg_has_atomic_8! {
 /// [`AtomicBool`](core::sync::atomic::AtomicBool). If the platform supports it
 /// but the compiler does not, atomic operations are implemented using inline
 /// assembly.
-// We can use #[repr(transparent)] here, but #[repr(C, align(N))]
-// will show clearer docs.
 #[repr(C, align(1))]
 pub struct AtomicBool {
-    inner: imp::AtomicBool,
+    v: core::cell::UnsafeCell<u8>,
 }
 
 impl Default for AtomicBool {
@@ -554,6 +568,11 @@ impl From<bool> for AtomicBool {
         Self::new(b)
     }
 }
+
+// Send is implicitly implemented.
+// SAFETY: any data races are prevented by disabling interrupts or
+// atomic intrinsics (see module-level comments).
+unsafe impl Sync for AtomicBool {}
 
 // UnwindSafe is implicitly implemented.
 #[cfg(not(portable_atomic_no_core_unwind_safe))]
@@ -578,7 +597,7 @@ impl AtomicBool {
     #[must_use]
     pub const fn new(v: bool) -> Self {
         static_assert_layout!(AtomicBool, bool);
-        Self { inner: imp::AtomicBool::new(v) }
+        Self { v: core::cell::UnsafeCell::new(v as u8) }
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -597,7 +616,7 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub fn is_lock_free() -> bool {
-        imp::AtomicBool::is_lock_free()
+        imp::AtomicU8::is_lock_free()
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -619,7 +638,7 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
-        imp::AtomicBool::is_always_lock_free()
+        imp::AtomicU8::is_always_lock_free()
     }
 
     /// Returns a mutable reference to the underlying [`bool`].
@@ -639,7 +658,8 @@ impl AtomicBool {
     /// ```
     #[inline]
     pub fn get_mut(&mut self) -> &mut bool {
-        self.inner.get_mut()
+        // SAFETY: the mutable reference guarantees unique ownership.
+        unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
     // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
@@ -661,7 +681,7 @@ impl AtomicBool {
     /// ```
     #[inline]
     pub fn into_inner(self) -> bool {
-        self.inner.into_inner()
+        self.v.into_inner() != 0
     }
 
     /// Loads a value from the bool.
@@ -688,7 +708,7 @@ impl AtomicBool {
         track_caller
     )]
     pub fn load(&self, order: Ordering) -> bool {
-        self.inner.load(order)
+        self.as_atomic_u8().load(order) != 0
     }
 
     /// Stores a value into the bool.
@@ -716,7 +736,7 @@ impl AtomicBool {
         track_caller
     )]
     pub fn store(&self, val: bool, order: Ordering) {
-        self.inner.store(val, order);
+        self.as_atomic_u8().store(val as u8, order);
     }
 
     cfg_has_atomic_cas! {
@@ -740,7 +760,11 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
-        self.inner.swap(val, order)
+        if EMULATE_ATOMIC_BOOL {
+            if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
+        } else {
+            self.as_atomic_u8().swap(val as u8, order) != 0
+        }
     }
 
     /// Stores a value into the [`bool`] if the current value is the same as the `current` value.
@@ -792,7 +816,24 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        self.inner.compare_exchange(current, new, success, failure)
+        if EMULATE_ATOMIC_BOOL {
+            crate::utils::assert_compare_exchange_ordering(success, failure);
+            let order = crate::utils::upgrade_success_ordering(success, failure);
+            let old = if current == new {
+                // This is a no-op, but we still need to perform the operation
+                // for memory ordering reasons.
+                self.fetch_or(false, order)
+            } else {
+                // This sets the value to the new one and returns the old one.
+                self.swap(new, order)
+            };
+            if old == current { Ok(old) } else { Err(old) }
+        } else {
+            match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
+                Ok(x) => Ok(x != 0),
+                Err(x) => Err(x != 0),
+            }
+        }
     }
 
     /// Stores a value into the [`bool`] if the current value is the same as the `current` value.
@@ -843,7 +884,15 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        self.inner.compare_exchange_weak(current, new, success, failure)
+        if EMULATE_ATOMIC_BOOL {
+            return self.compare_exchange(current, new, success, failure);
+        }
+
+        match self.as_atomic_u8().compare_exchange_weak(current as u8, new as u8, success, failure)
+        {
+            Ok(x) => Ok(x != 0),
+            Err(x) => Err(x != 0),
+        }
     }
 
     /// Logical "and" with a boolean value.
@@ -878,7 +927,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        self.inner.fetch_and(val, order)
+        self.as_atomic_u8().fetch_and(val as u8, order) != 0
     }
 
     /// Logical "and" with a boolean value.
@@ -922,7 +971,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
-        self.inner.and(val, order);
+        self.as_atomic_u8().and(val as u8, order);
     }
 
     /// Logical "nand" with a boolean value.
@@ -1002,7 +1051,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        self.inner.fetch_or(val, order)
+        self.as_atomic_u8().fetch_or(val as u8, order) != 0
     }
 
     /// Logical "or" with a boolean value.
@@ -1046,7 +1095,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn or(&self, val: bool, order: Ordering) {
-        self.inner.or(val, order);
+        self.as_atomic_u8().or(val as u8, order);
     }
 
     /// Logical "xor" with a boolean value.
@@ -1081,7 +1130,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        self.inner.fetch_xor(val, order)
+        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
     }
 
     /// Logical "xor" with a boolean value.
@@ -1125,7 +1174,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
-        self.inner.xor(val, order);
+        self.as_atomic_u8().xor(val as u8, order);
     }
 
     /// Logical "not" with a boolean value.
@@ -1269,6 +1318,8 @@ impl AtomicBool {
     } // cfg_has_atomic_cas!
 
     const_fn! {
+        // This function is actually `const fn`-compatible on Rust 1.32+,
+        // but makes `const fn` only on Rust 1.58+ to match other atomic types.
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
         /// Returns a mutable pointer to the underlying [`bool`].
         ///
@@ -1286,8 +1337,15 @@ impl AtomicBool {
         /// This is `const fn` on Rust 1.58+.
         #[inline]
         pub const fn as_ptr(&self) -> *mut bool {
-            self.inner.as_ptr()
+            self.v.get() as *mut bool
         }
+    }
+
+    #[inline]
+    fn as_atomic_u8(&self) -> &imp::AtomicU8 {
+        // SAFETY: AtomicBool and imp::AtomicU8 have the same layout,
+        // and both access data in the same way.
+        unsafe { &*(self as *const Self as *const imp::AtomicU8) }
     }
 }
 } // cfg_has_atomic_8!
@@ -2211,7 +2269,7 @@ impl<T> AtomicPtr<T> {
         );
         // SAFETY: AtomicPtr and AtomicUsize have the same layout,
         // and both access data in the same way.
-        unsafe { &*(self as *const AtomicPtr<T> as *const AtomicUsize) }
+        unsafe { &*(self as *const Self as *const AtomicUsize) }
     }
     } // cfg_has_atomic_cas!
 

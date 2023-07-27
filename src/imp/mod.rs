@@ -222,7 +222,7 @@ pub(crate) mod float;
     )))
 )]
 pub(crate) use self::core_atomic::{
-    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
+    AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
 // RISC-V without A-extension
 #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
@@ -230,7 +230,7 @@ pub(crate) use self::core_atomic::{
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 pub(crate) use self::riscv::{
-    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
+    AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
 // no core Atomic{Isize,Usize,Bool,Ptr}/Atomic{I,U}{8,16} & assume single core => critical section based fallback
 #[cfg(any(
@@ -242,7 +242,7 @@ pub(crate) use self::riscv::{
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 pub(crate) use self::interrupt::{
-    AtomicBool, AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
+    AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
 };
 // bpf
 #[cfg(all(

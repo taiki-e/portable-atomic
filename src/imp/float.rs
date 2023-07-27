@@ -84,7 +84,7 @@ macro_rules! atomic_float {
                 pub(crate) const fn as_bits(&self) -> &crate::$atomic_int_type {
                     // SAFETY: $atomic_type and $atomic_int_type have the same layout,
                     // and there is no concurrent access to the value that does not go through this method.
-                    unsafe { &*(self as *const $atomic_type as *const crate::$atomic_int_type) }
+                    unsafe { &*(self as *const Self as *const crate::$atomic_int_type) }
                 }
             }
 
