@@ -51,7 +51,7 @@ jobs:
     with:
       event_name: ${{ github.event_name }}
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
-      args: -vvv --clean-per-version --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,unsafe-assume-single-core,s-mode,disable-fiq
+      args: --clean-per-version --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,unsafe-assume-single-core,s-mode,disable-fiq
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
     with:
@@ -97,8 +97,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
-          # TODO: compiler-builtins bug https://github.com/rust-lang/compiler-builtins/pull/539
-          - rust: nightly-2023-05-12
+          - rust: nightly
             target: aarch64_be-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-musl
@@ -142,6 +141,14 @@ jobs:
             target: mips64-unknown-linux-gnuabi64
           - rust: nightly
             target: mips64el-unknown-linux-gnuabi64
+          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+            target: mipsisa32r6-unknown-linux-gnu
+          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+            target: mipsisa32r6el-unknown-linux-gnu
+          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+            target: mipsisa64r6-unknown-linux-gnuabi64
+          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+            target: mipsisa64r6el-unknown-linux-gnuabi64
           - rust: nightly
             target: powerpc-unknown-linux-gnu
           - rust: nightly

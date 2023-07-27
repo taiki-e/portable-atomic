@@ -386,6 +386,7 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
+                        // TODO: mips32r6, mips64r6?
                         target_arch = "mips",
                         target_arch = "mips64",
                         target_arch = "powerpc",
@@ -436,6 +437,7 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
+                        // TODO: mips32r6, mips64r6?
                         target_arch = "mips",
                         target_arch = "mips64",
                         target_arch = "powerpc",

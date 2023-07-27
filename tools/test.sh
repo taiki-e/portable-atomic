@@ -67,7 +67,7 @@ case "${1:-}" in
         ;;
 esac
 target=''
-build_std=''
+build_std=()
 release=()
 tests=()
 cargo_options=()
@@ -79,14 +79,37 @@ while [[ $# -gt 0 ]]; do
             break
             ;;
         --target)
+            if [[ -n "${target}" ]]; then
+                bail "multiple --target option"
+            fi
             shift
             target="$1"
             ;;
-        --target=*) target="${1#--target=}" ;;
+        --target=*)
+            if [[ -n "${target}" ]]; then
+                bail "multiple --target option"
+            fi
+            target="${1#--target=}"
+            ;;
         --tests) tests=("$1") ;;
-        -Zbuild-std | -Zbuild-std=* | build-std | build-std=*)
-            cargo_options+=("$1")
-            build_std=1
+        -Z*)
+            arg="$1"
+            case "${arg}" in
+                -Z)
+                    shift
+                    arg="$1"
+                    ;;
+                -Z*) arg="${arg#-Z}" ;;
+            esac
+            case "${arg}" in
+                build-std | build-std=*)
+                    if [[ ${#build_std[@]} -gt 0 ]]; then
+                        bail "multiple -Z build-std option"
+                    fi
+                    build_std=(-Z "${arg}")
+                    ;;
+                *) cargo_options+=(-Z "${arg}") ;;
+            esac
             ;;
         --release) release=(--release) ;;
         *) cargo_options+=("$1") ;;
@@ -120,7 +143,7 @@ if [[ -n "${CI:-}" ]]; then
 fi
 
 args=()
-if [[ -z "${target}" ]] && [[ -n "${build_std}" ]]; then
+if [[ -z "${target}" ]] && [[ ${#build_std[@]} -gt 0 ]]; then
     target="${target:-"${host}"}"
 fi
 if [[ -n "${target}" ]]; then
@@ -137,8 +160,8 @@ if [[ -n "${target}" ]]; then
         if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
             rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
         elif [[ -n "${nightly}" ]]; then
-            if [[ -z "${build_std}" ]]; then
-                args+=(-Z build-std)
+            if [[ ${#build_std[@]} -eq 0 ]]; then
+                build_std=(-Z build-std)
             fi
         else
             bail "target '${target}' requires nightly compiler"
@@ -164,9 +187,9 @@ case "${cmd}" in
     build)
         TS=''
         args+=(--no-run ${release[@]+"${release[@]}"})
-        x_cargo test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
+        x_cargo test ${build_std[@]+"${build_std[@]}"} ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
         binary_path=$(
-            "${cargo}" ${pre_args[@]+"${pre_args[@]}"} test ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" -q --message-format=json \
+            "${cargo}" ${pre_args[@]+"${pre_args[@]}"} test ${build_std[@]+"${build_std[@]}"} ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" -q --message-format=json \
                 | jq -r "select(.manifest_path == \"$(cargo ${pre_args[@]+"${pre_args[@]}"} locate-project --message-format=plain)\") | select(.executable != null) | .executable"
         )
         echo "${binary_path}"
@@ -197,9 +220,9 @@ run() {
     if [[ ${#release[@]} -eq 0 ]]; then
         if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
             # doctest with debug build on Sanitizer is slow
-            x_cargo test --tests "$@"
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --tests "$@"
         else
-            x_cargo test ${tests[@]+"${tests[@]}"} "$@"
+            x_cargo test ${build_std[@]+"${build_std[@]}"} ${tests[@]+"${tests[@]}"} "$@"
         fi
     fi
 
@@ -207,15 +230,15 @@ run() {
     if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-            x_cargo test --release --tests "$@"
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     else
-        x_cargo test --release --tests "$@"
+        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     fi
 
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
         CARGO_PROFILE_RELEASE_LTO=fat \
-        x_cargo test --release --tests --target-dir target/fat-lto "$@"
+        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
 
     # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
     if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
@@ -224,18 +247,24 @@ run() {
         if [[ "${target}" == *"-windows"* ]]; then
             randomize_layout=''
         fi
+        flags="${randomize_layout}"
+        case "${target}" in
+            *-linux-musl*) flags+=" -C target-feature=-crt-static" ;;
+        esac
         case "${target}" in
             # cannot find rsbegin.o/rsend.o when building std
             *-windows-gnu*) ;;
-            *-linux-musl*)
-                RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout} -C target-feature=-crt-static" \
-                    RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout} -C target-feature=-crt-static" \
-                    x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
-                ;;
             *)
-                RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}" \
-                    RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}" \
-                    x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                if [[ ${#build_std[@]} -gt 0 ]]; then
+                    RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+                        RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
+                        x_cargo careful test -Z doctest-xcompile ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                else
+                    # -Z doctest-xcompile is already passed
+                    RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+                        RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
+                        x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                fi
                 ;;
         esac
     fi
