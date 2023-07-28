@@ -60,8 +60,6 @@ jobs:
 
   test:
     needs: tidy
-    env:
-      cargo: cargo
     strategy:
       fail-fast: false
       matrix:
@@ -224,11 +222,7 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != '' && !contains(matrix.target, '-android')
-      - uses: taiki-e/install-action@cross
-        if: contains(matrix.target, '-android')
-      - run: echo "cargo=cross" >>"${GITHUB_ENV}"
-        if: contains(matrix.target, '-android')
+        if: matrix.target != ''
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: |
