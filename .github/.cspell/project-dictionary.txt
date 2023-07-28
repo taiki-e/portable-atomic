@@ -54,6 +54,7 @@ isellt
 ishld
 isync
 kuser
+lclang
 ldar
 ldaxp
 ldxp

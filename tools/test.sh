@@ -168,11 +168,6 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-args+=(--features "${test_features}")
-case "${cmd}" in
-    build) ;;
-    *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
-esac
 target="${target:-"${host}"}"
 target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
@@ -181,6 +176,18 @@ randomize_layout=' -Z randomize-layout'
 case "${target}" in
     # TODO: LLVM bug: Undefined temporary symbol error when building std.
     mips-unknown-linux-gnu | mipsel-unknown-linux-gnu) release=(--release) ;;
+    hexagon-unknown-linux-musl)
+        release=(--release)
+        build_std+=(-Z build-std-features=llvm-libunwind)
+        test_features="std"
+        export RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-lclang_rt.builtins-hexagon -C opt-level=z"
+        export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} -C link-args=-lclang_rt.builtins-hexagon -C opt-level=z"
+        ;;
+esac
+args+=(--features "${test_features}")
+case "${cmd}" in
+    build) ;;
+    *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
 esac
 
 case "${cmd}" in

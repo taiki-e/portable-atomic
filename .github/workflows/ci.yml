@@ -132,6 +132,8 @@ jobs:
           - rust: nightly
             target: i686-unknown-linux-gnu
           - rust: nightly
+            target: hexagon-unknown-linux-musl
+          - rust: nightly
             target: loongarch64-unknown-linux-gnu
           - rust: nightly
             target: mips-unknown-linux-gnu
