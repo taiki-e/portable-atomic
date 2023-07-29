@@ -115,10 +115,10 @@ aarch64_linux_valgrind_task:
   test_script:
     - set -ex
     - ./tools/test.sh valgrind -vv
-    # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
-    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh valgrind -vv --tests
     # We test doctest only once with the default build conditions because doctest is slow. Both api-test
     # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+    # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
+    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh valgrind -vv --tests
     # +lse
     # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
     - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh valgrind -vv --tests

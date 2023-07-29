@@ -178,10 +178,6 @@ target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
 target_upper="$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")"
 randomize_layout=' -Z randomize-layout'
-case "${target}" in
-    # TODO: LLVM bug: Undefined temporary symbol error when building std.
-    mips-unknown-linux-gnu | mipsel-unknown-linux-gnu) release=(--release) ;;
-esac
 
 case "${cmd}" in
     build)
