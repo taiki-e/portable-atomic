@@ -22,10 +22,10 @@ fn main() {
         let mut subarch = target.strip_prefix(target_arch).unwrap();
         subarch = subarch.split('-').next().unwrap();
         if subarch.contains('f') || subarch.contains('d') || subarch.contains('g') {
-            println!("cargo:rustc-cfg=f")
-        }
-        if subarch.contains('d') || subarch.contains('g') {
-            println!("cargo:rustc-cfg=d")
+            println!("cargo:rustc-cfg=f");
+            if subarch.contains('d') || subarch.contains('g') {
+                println!("cargo:rustc-cfg=d");
+            }
         }
     }
 
