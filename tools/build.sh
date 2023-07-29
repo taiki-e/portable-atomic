@@ -259,12 +259,12 @@ export CARGO_TARGET_DIR="${target_dir}"
 has_asm=''
 # asm! requires 1.59
 # concat! in asm! requires 1.46.0-nightly (nightly-2020-06-21).
-if [[ "${rustc_minor_version}" -ge 59 ]] || [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; then
+if [[ "${rustc_minor_version}" -ge 59 ]] || { [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; }; then
     has_asm='1'
 fi
 has_offline=''
 # --offline requires 1.36, but, there are some problems on older cargo.
-if [[ "${rustc_minor_version}" -ge 51 ]]; then
+if [[ "${rustc_minor_version}" -ge 60 ]]; then
     has_offline='1'
 fi
 

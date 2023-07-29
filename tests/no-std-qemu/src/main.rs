@@ -11,20 +11,20 @@ use core::sync::atomic::Ordering;
 use portable_atomic::*;
 use semihosting::{print, println};
 
-#[cfg(all(target_arch = "arm", target_feature = "mclass"))]
+#[cfg(mclass)]
 #[cortex_m_rt::entry]
 fn main() -> ! {
     run();
     semihosting::process::exit(0)
 }
-#[cfg(not(all(target_arch = "arm", target_feature = "mclass")))]
+#[cfg(not(mclass))]
 #[no_mangle]
 unsafe fn _start(_: usize, _: usize) -> ! {
     #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
     unsafe {
         core::arch::asm!("la sp, _stack");
     }
-    #[cfg(all(target_arch = "arm", not(target_feature = "v6"), target_feature = "v5te"))]
+    #[cfg(armv5te)]
     unsafe {
         #[instruction_set(arm::a32)]
         #[inline]
@@ -52,10 +52,7 @@ fn run() {
             }
         };
     }
-    #[cfg_attr(
-        any(target_arch = "riscv32", target_arch = "riscv64"),
-        cfg(any(target_feature = "f", target_feature = "d"))
-    )]
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -90,7 +87,7 @@ fn run() {
     }
 
     // TODO: undefined reference to `__sync_synchronize'
-    #[cfg(not(all(target_arch = "arm", not(target_feature = "v6"))))]
+    #[cfg(not(armv5te))]
     for &order in &test_helper::FENCE_ORDERINGS {
         fence(order);
         compiler_fence(order);
@@ -110,9 +107,9 @@ fn run() {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    // TODO
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "f"))]
+    // TODO: undefined reference to f{max,min}{,f}
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
     test_atomic_float!(f32);
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(target_feature = "d"))]
+    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(d))]
     test_atomic_float!(f64);
 }

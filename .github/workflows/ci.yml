@@ -370,6 +370,12 @@ jobs:
 
   no-std:
     needs: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        rust:
+          - stable
+          - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -384,6 +390,7 @@ jobs:
           tool: espup
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: startsWith(matrix.rust, 'nightly')
       - run: |
           set -euxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
@@ -402,9 +409,12 @@ jobs:
       - run: espup install
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: startsWith(matrix.rust, 'nightly')
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32-none-elf
+        if: startsWith(matrix.rust, 'nightly')
       - run: tools/no-std.sh +esp xtensa-esp32-none-elf
+        if: startsWith(matrix.rust, 'nightly')
 
   miri:
     needs: tidy

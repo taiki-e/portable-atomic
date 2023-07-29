@@ -14,7 +14,20 @@ test-helper = { path = "../helper" }
 paste = "1"
 semihosting = { version = "0.1", features = ["stdio", "panic-handler"] }
 
-[target.'cfg(all(target_arch = "arm", target_feature = "mclass"))'.dependencies]
+# cfg(target_feature = "mclass") is not available on stable/beta.
+[target.thumbv6m-none-eabi.dependencies]
+cortex-m-rt = "0.7"
+[target.thumbv7m-none-eabi.dependencies]
+cortex-m-rt = "0.7"
+[target.thumbv7em-none-eabi.dependencies]
+cortex-m-rt = "0.7"
+[target.thumbv7em-none-eabihf.dependencies]
+cortex-m-rt = "0.7"
+[target.'thumbv8m.base-none-eabi'.dependencies]
+cortex-m-rt = "0.7"
+[target.'thumbv8m.main-none-eabi'.dependencies]
+cortex-m-rt = "0.7"
+[target.'thumbv8m.main-none-eabihf'.dependencies]
 cortex-m-rt = "0.7"
 
 [profile.dev]
