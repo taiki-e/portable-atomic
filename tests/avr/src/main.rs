@@ -2,7 +2,6 @@
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![feature(lang_items)]
-#![feature(macro_metavar_expr)]
 #![feature(panic_info_message)]
 #![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
@@ -20,88 +19,59 @@ fn main() -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
 
+    macro_rules! print {
+        ($($tt:tt)*) => {{
+            let _ = ufmt::uwrite!(serial, $($tt)*);
+        }};
+    }
+    macro_rules! println {
+        ($($tt:tt)*) => {{
+            let _ = ufmt::uwriteln!(serial, $($tt)*);
+        }};
+    }
+
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
-                fn [<test_atomic_ $int_type>](serial: &mut impl ufmt::uWrite) {
-                    macro_rules! print {
-                        ($$($tt:tt)*) => {{
-                            let _ = ufmt::uwrite!(serial, $$($tt)*);
-                        }};
-                    }
-                    macro_rules! println {
-                        ($$($tt:tt)*) => {{
-                            let _ = ufmt::uwriteln!(serial, $$($tt)*);
-                        }};
-                    }
-                    print!("test test_atomic_{} ... ", stringify!($int_type));
+                fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
-                    println!("ok");
                 }
-                [<test_atomic_ $int_type>](&mut serial);
+                print!("test test_atomic_{} ... ", stringify!($int_type));
+                [<test_atomic_ $int_type>]();
+                println!("ok");
             }
         };
     }
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
-                fn [<test_atomic_ $float_type>](serial: &mut impl ufmt::uWrite) {
-                    macro_rules! print {
-                        ($$($tt:tt)*) => {{
-                            let _ = ufmt::uwrite!(serial, $$($tt)*);
-                        }};
-                    }
-                    macro_rules! println {
-                        ($$($tt:tt)*) => {{
-                            let _ = ufmt::uwriteln!(serial, $$($tt)*);
-                        }};
-                    }
-                    print!("test test_atomic_{} ... ", stringify!($float_type));
+                fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
-                    println!("ok");
                 }
-                [<test_atomic_ $float_type>](&mut serial);
+                print!("test test_atomic_{} ... ", stringify!($float_type));
+                [<test_atomic_ $float_type>]();
+                println!("ok");
             }
         };
     }
     macro_rules! test_atomic_bool {
         () => {
-            fn test_atomic_bool(serial: &mut impl ufmt::uWrite) {
-                macro_rules! print {
-                    ($$($tt:tt)*) => {{
-                        let _ = ufmt::uwrite!(serial, $$($tt)*);
-                    }};
-                }
-                macro_rules! println {
-                    ($$($tt:tt)*) => {{
-                        let _ = ufmt::uwriteln!(serial, $$($tt)*);
-                    }};
-                }
-                print!("test test_atomic_bool ... ");
+            fn test_atomic_bool() {
                 __test_atomic_bool!(AtomicBool);
-                println!("ok");
             }
-            test_atomic_bool(&mut serial);
+            print!("test test_atomic_bool ... ");
+            test_atomic_bool();
+            println!("ok");
         };
     }
     macro_rules! test_atomic_ptr {
         () => {
-            fn test_atomic_ptr(serial: &mut impl ufmt::uWrite) {
-                macro_rules! print {
-                    ($$($tt:tt)*) => {{
-                        let _ = ufmt::uwrite!(serial, $$($tt)*);
-                    }};
-                }
-                macro_rules! println {
-                    ($$($tt:tt)*) => {{
-                        let _ = ufmt::uwriteln!(serial, $$($tt)*);
-                    }};
-                }
-                print!("test test_atomic_ptr ... ");
+            fn test_atomic_ptr() {
                 __test_atomic_ptr!(AtomicPtr<u8>);
-                println!("ok");
             }
-            test_atomic_ptr(&mut serial);
+            print!("test test_atomic_ptr ... ");
+            test_atomic_ptr();
+            println!("ok");
         };
     }
 

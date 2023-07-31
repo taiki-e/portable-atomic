@@ -72,7 +72,6 @@ lqarx
 lrcpc
 lwsync
 machdep
-metavar
 mfence
 mgba
 mipsn
