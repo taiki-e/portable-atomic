@@ -359,6 +359,7 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
+      # TODO: port no-private to cargo-hack
       - uses: taiki-e/install-action@cargo-no-dev-deps
       - run: tools/build.sh
         env:
@@ -383,6 +384,7 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
+        if: startsWith(matrix.rust, 'nightly')
       - uses: taiki-e/install-action@v2
         with:
           tool: espup
@@ -404,7 +406,7 @@ jobs:
           sudo mv "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
           sudo mv "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
           rm -rf "opensbi-${OPENSBI_VERSION}-rv-bin"
-      - run: espup install
+      - run: espup install --targets esp32
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(matrix.rust, 'nightly')
