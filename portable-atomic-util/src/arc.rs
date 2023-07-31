@@ -11,14 +11,16 @@ use core::{
     borrow::Borrow,
     fmt,
     hash::Hash,
+    isize,
     marker::PhantomData,
     mem,
     ops::Deref,
     pin::Pin,
     ptr::{self, NonNull},
+    usize,
 };
 
-const MAX_REFCOUNT: usize = (core::isize::MAX as usize) - 1;
+const MAX_REFCOUNT: usize = (isize::MAX as usize) - 1;
 
 #[cfg(not(portable_atomic_sanitize_thread))]
 macro_rules! acquire {
@@ -236,7 +238,7 @@ impl<T: ?Sized> Arc<T> {
     fn is_unique(&self) -> bool {
         // "Lock" the weak counter so it can't be increased if we turn out to be the only
         // strong reference.
-        if self.inner().weak().compare_exchange(1, core::usize::MAX, Acquire, Relaxed).is_ok() {
+        if self.inner().weak().compare_exchange(1, usize::MAX, Acquire, Relaxed).is_ok() {
             // There are no outside weak references, so we can check the strong count.
             let strong = self.inner().strong().load(Acquire);
 
@@ -421,7 +423,7 @@ impl<T: ?Sized> Arc<T> {
 
         loop {
             // The weak counter may be "locked", so spin and reload if it is.
-            if cur == core::usize::MAX {
+            if cur == usize::MAX {
                 portable_atomic::hint::spin_loop();
                 cur = this.inner().weak().load(Relaxed);
                 continue;
@@ -457,7 +459,7 @@ impl<T: ?Sized> Arc<T> {
     #[must_use]
     pub fn weak_count(this: &Self) -> usize {
         match this.inner().weak().load(Acquire) {
-            core::usize::MAX => 0,
+            usize::MAX => 0,
             cnt => cnt - 1,
         }
     }
@@ -765,7 +767,7 @@ impl<T> Weak<T> {
     pub fn new() -> Self {
         Self {
             // SAFETY: usize::MAX != 0, so this is always valid
-            shared: unsafe { NonNull::new_unchecked(strict::invalid(core::usize::MAX)) },
+            shared: unsafe { NonNull::new_unchecked(strict::invalid(usize::MAX)) },
         }
     }
 }
@@ -808,7 +810,7 @@ fn abort() -> ! {
 }
 
 fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
-    strict::addr(ptr as *mut ()) == core::usize::MAX
+    strict::addr(ptr as *mut ()) == usize::MAX
 }
 
 /// Emulate strict provenance.

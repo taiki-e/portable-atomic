@@ -679,7 +679,7 @@ use atomic_not_pwr8 as atomic_not;
 #[inline]
 unsafe fn atomic_not_pwr8(dst: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
-    unsafe { atomic_xor_pwr8(dst, core::u128::MAX, order) }
+    unsafe { atomic_xor_pwr8(dst, u128::MAX, order) }
 }
 
 #[cfg(portable_atomic_llvm_16)]
