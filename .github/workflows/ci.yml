@@ -215,9 +215,7 @@ jobs:
       - run: rustup toolchain add nightly --no-self-update
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/cache-cargo-install-action@v1
-        with:
-          tool: cargo-careful
+      - uses: taiki-e/install-action@cargo-careful
         if: startsWith(matrix.rust, 'nightly')
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
