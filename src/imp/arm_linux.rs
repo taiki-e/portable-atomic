@@ -48,8 +48,8 @@ fn __kuser_helper_version() -> i32 {
     if v != 0 {
         return v;
     }
-    // SAFETY: core assumes that at least __kuser_cmpxchg (__kuser_helper_version >= 2) is available
-    // on this platform. __kuser_helper_version is always available on such a platform.
+    // SAFETY: core assumes that at least __kuser_memory_barrier (__kuser_helper_version >= 3) is
+    // available on this platform. __kuser_helper_version is always available on such a platform.
     v = unsafe { (KUSER_HELPER_VERSION as *const i32).read() };
     CACHE.store(v, Ordering::Relaxed);
     v
