@@ -111,8 +111,10 @@ impl ProcCpuinfo {
                 lse2: Some(sysctl("hw.optional.arm.FEAT_LSE2") != 0),
             })
         } else {
-            assert!(!Path::new("/proc/cpuinfo").exists());
-            assert!(!Path::new("/var/run/dmesg.boot").exists());
+            if !cfg!(windows) {
+                assert!(!Path::new("/proc/cpuinfo").exists());
+                assert!(!Path::new("/var/run/dmesg.boot").exists());
+            }
             Err("unsupported OS".into())
         }
     }

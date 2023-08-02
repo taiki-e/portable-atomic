@@ -111,6 +111,8 @@ jobs:
             target: aarch64-linux-android
           - rust: nightly
             target: aarch64-linux-android
+          - rust: nightly
+            target: aarch64-pc-windows-gnullvm
           - rust: stable
             target: armv5te-unknown-linux-gnueabi
           - rust: nightly
