@@ -48,6 +48,8 @@ diff --git a/zircon/system/public/zircon/features.h b/zircon/system/public/zirco
 -#define ZX_ARM64_FEATURE_ISA_TS        ((uint32_t)(1u << 16))
 -#define ZX_ARM64_FEATURE_ISA_RNDR      ((uint32_t)(1u << 17))
 -#define ZX_ARM64_FEATURE_ISA_SHA512    ((uint32_t)(1u << 18))
+-#define ZX_ARM64_FEATURE_ISA_I8MM      ((uint32_t)(1u << 19))
+-#define ZX_ARM64_FEATURE_ISA_SVE       ((uint32_t)(1u << 20))
 +#define ZX_ARM64_FEATURE_ISA_FP        (1u << 1)
 +#define ZX_ARM64_FEATURE_ISA_ASIMD     (1u << 2)
 +#define ZX_ARM64_FEATURE_ISA_AES       (1u << 3)
@@ -66,6 +68,8 @@ diff --git a/zircon/system/public/zircon/features.h b/zircon/system/public/zirco
 +#define ZX_ARM64_FEATURE_ISA_TS        (1u << 16)
 +#define ZX_ARM64_FEATURE_ISA_RNDR      (1u << 17)
 +#define ZX_ARM64_FEATURE_ISA_SHA512    (1u << 18)
++#define ZX_ARM64_FEATURE_ISA_I8MM      (1u << 19)
++#define ZX_ARM64_FEATURE_ISA_SVE       (1u << 20)
 
  // This is an obsolete name for the same thing.
  #define ZX_ARM64_FEATURE_ISA_SHA2      ZX_ARM64_FEATURE_ISA_SHA256
