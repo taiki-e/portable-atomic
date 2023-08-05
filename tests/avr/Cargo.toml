@@ -23,7 +23,9 @@ arduino-hal = { git = "https://github.com/taiki-e/avr-hal.git", branch = "dev", 
 [profile.dev]
 lto = true
 opt-level = "s"
+panic = "abort"
 
 [profile.release]
 lto = true
 opt-level = "s"
+panic = "abort"

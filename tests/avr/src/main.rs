@@ -1,7 +1,6 @@
 #![no_main]
 #![no_std]
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
-#![feature(lang_items)]
 #![feature(panic_info_message)]
 #![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
@@ -138,9 +137,6 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
 
     semihosting::exit(1)
 }
-#[lang = "eh_personality"]
-#[no_mangle]
-pub extern "C" fn rust_eh_personality() {}
 
 mod semihosting {
     use core::fmt;
