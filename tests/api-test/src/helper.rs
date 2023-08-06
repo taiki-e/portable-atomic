@@ -395,10 +395,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), $float_type::MIN - 1.0);
             }
         }
-        // TODO: undefined reference to `f{max,min}{,f}' (fixed in https://github.com/rust-lang/compiler-builtins/pull/517)
-        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_max);
-        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_max() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.0);
@@ -413,10 +410,7 @@ macro_rules! __test_atomic_float {
                 assert_eq!(a.load(Ordering::Relaxed), 1.0);
             }
         }
-        // TODO: undefined reference to `f{max,min}{,f}' (fixed in https://github.com/rust-lang/compiler-builtins/pull/517)
-        #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_min);
-        #[cfg(not(target_arch = "xtensa"))]
         fn fetch_min() {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.0);
