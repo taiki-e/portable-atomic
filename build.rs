@@ -246,6 +246,9 @@ fn main() {
                 // arm-linux-androideabi is v5te
                 // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_target/src/spec/arm_linux_androideabi.rs#L11-L12
                 _ if target == "arm-linux-androideabi" => subarch = "v5te",
+                // armeb-unknown-linux-gnueabi is v8
+                // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_target/src/spec/armeb_unknown_linux_gnueabi.rs#L12
+                _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
                 // v6 targets other than v6m don't have *class target feature.
                 "" | "v6" | "v6k" => subarch = "v6",
                 // Other targets don't have *class target feature.
