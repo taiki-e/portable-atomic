@@ -168,6 +168,7 @@ unsafe fn atomic_compare_exchange(
             inout("r1") old.pair.lo => prev_lo,
             in("r12") new.pair.hi,
             in("r13") new.pair.lo,
+            // Do not use `preserves_flags` because CDSG modifies the condition code.
             options(nostack),
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
@@ -231,6 +232,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
             out("r1") prev_lo,
             in("r12") val.pair.hi,
             in("r13") val.pair.lo,
+            // Do not use `preserves_flags` because CDSG modifies the condition code.
             options(nostack),
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
@@ -271,6 +273,7 @@ macro_rules! atomic_rmw_cas_3 {
                     out("r1") prev_lo,
                     out("r12") _,
                     out("r13") _,
+                    // Do not use `preserves_flags` because CDSG modifies the condition code.
                     options(nostack),
                 );
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
@@ -307,6 +310,7 @@ macro_rules! atomic_rmw_cas_2 {
                     out("r1") prev_lo,
                     out("r12") _,
                     out("r13") _,
+                    // Do not use `preserves_flags` because CDSG modifies the condition code.
                     options(nostack),
                 );
                 U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole

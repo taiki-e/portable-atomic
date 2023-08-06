@@ -29,7 +29,6 @@ pub(super) fn disable() -> State {
     // SAFETY: reading CPSR and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(
             "mrs {prev}, cpsr",
             "orr {new}, {prev}, 0x80", // I (IRQ mask) bit (1 << 7)
@@ -38,6 +37,7 @@ pub(super) fn disable() -> State {
             "msr cpsr_c, {new}",
             prev = out(reg) cpsr,
             new = out(reg) _,
+            // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
             options(nostack, preserves_flags),
         );
     }
@@ -53,11 +53,13 @@ pub(super) fn disable() -> State {
 #[instruction_set(arm::a32)]
 pub(super) unsafe fn restore(cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
+    //
+    // This clobbers the control field mask byte of CPSR. See msp430.rs to safety on this.
+    //
+    // Refs: https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/msr--general-purpose-register-to-psr-
     unsafe {
-        // This clobbers the entire CPSR. See msp430.rs to safety on this.
-        //
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-        asm!("msr cpsr_c, {0}", in(reg) cpsr, options(nostack));
+        asm!("msr cpsr_c, {0}", in(reg) cpsr, options(nostack, preserves_flags));
     }
 }
 
