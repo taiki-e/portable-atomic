@@ -50,10 +50,11 @@ mod fallback;
         target_os = "linux",
         any(
             target_env = "gnu",
-            all(target_env = "musl", not(target_feature = "crt-static")),
+            all(any(target_env = "musl", target_env = "ohos"), not(target_feature = "crt-static")),
             portable_atomic_outline_atomics,
         ),
     ),
+    target_os = "android",
     target_os = "freebsd",
 ))]
 #[path = "detect/auxv.rs"]

@@ -136,9 +136,9 @@ macro_rules! atomic_int {
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         impl_default_no_fetch_ops!($atomic_type, $int_type);
         #[cfg(not(all(
+            any(target_arch = "x86", target_arch = "x86_64"),
             not(any(miri, portable_atomic_sanitize_thread)),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_arch = "x86", target_arch = "x86_64"),
         )))]
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,
@@ -273,9 +273,10 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
-                        // TODO: mips32r6, mips64r6?
                         target_arch = "mips",
+                        target_arch = "mips32r6",
                         target_arch = "mips64",
+                        target_arch = "mips64r6",
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
@@ -324,9 +325,10 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
-                        // TODO: mips32r6, mips64r6?
                         target_arch = "mips",
+                        target_arch = "mips32r6",
                         target_arch = "mips64",
+                        target_arch = "mips64r6",
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
@@ -365,9 +367,9 @@ macro_rules! atomic_int {
                 self.fetch_xor(NOT_MASK, order)
             }
             #[cfg(not(all(
+                any(target_arch = "x86", target_arch = "x86_64"),
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -380,9 +382,9 @@ macro_rules! atomic_int {
                 self.fetch_update_(order, $int_type::wrapping_neg)
             }
             #[cfg(not(all(
+                any(target_arch = "x86", target_arch = "x86_64"),
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_arch = "x86", target_arch = "x86_64"),
             )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces

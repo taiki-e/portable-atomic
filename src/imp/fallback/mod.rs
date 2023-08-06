@@ -27,17 +27,21 @@
                     target_os = "linux",
                     any(
                         target_env = "gnu",
-                        all(target_env = "musl", not(target_feature = "crt-static")),
+                        all(
+                            any(target_env = "musl", target_env = "ohos"),
+                            not(target_feature = "crt-static"),
+                        ),
                         portable_atomic_outline_atomics,
                     ),
                 ),
+                target_os = "android",
                 target_os = "freebsd",
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             target_arch = "arm",
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(target_os = "linux", target_os = "android"),
             not(portable_atomic_no_outline_atomics),
         ),

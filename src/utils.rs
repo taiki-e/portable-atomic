@@ -237,10 +237,23 @@ macro_rules! impl_default_bit_opts {
     };
 }
 
+// This just outputs the input as is, but can be used like an item-level block by using it with cfg.
+macro_rules! items {
+    ($($tt:tt)*) => {
+        $($tt)*
+    };
+}
+
 #[cfg(not(all(
-    target_arch = "mips",
     portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
+    not(any(
+        target_arch = "avr",
+        target_arch = "bpf",
+        target_arch = "msp430",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        feature = "critical-section",
+    )),
 )))]
 #[macro_use]
 mod atomic_ptr_macros {
@@ -253,9 +266,15 @@ mod atomic_ptr_macros {
     }
 }
 #[cfg(all(
-    target_arch = "mips",
     portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
+    not(any(
+        target_arch = "avr",
+        target_arch = "bpf",
+        target_arch = "msp430",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        feature = "critical-section",
+    )),
 ))]
 #[macro_use]
 mod atomic_ptr_macros {
@@ -267,9 +286,14 @@ mod atomic_ptr_macros {
 }
 
 #[cfg(not(all(
-    any(target_arch = "mips", target_arch = "bpf"),
     portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
+    not(any(
+        target_arch = "avr",
+        target_arch = "msp430",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        feature = "critical-section",
+    )),
 )))]
 #[macro_use]
 mod atomic_8_16_macros {
@@ -289,9 +313,14 @@ mod atomic_8_16_macros {
     }
 }
 #[cfg(all(
-    any(target_arch = "mips", target_arch = "bpf"),
     portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
+    not(any(
+        target_arch = "avr",
+        target_arch = "msp430",
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        feature = "critical-section",
+    )),
 ))]
 #[macro_use]
 mod atomic_8_16_macros {
@@ -310,9 +339,14 @@ mod atomic_8_16_macros {
 #[cfg(all(
     any(not(target_pointer_width = "16"), feature = "fallback"),
     not(all(
-        any(target_arch = "mips", target_arch = "bpf"),
         portable_atomic_no_atomic_load_store,
-        not(feature = "critical-section"),
+        not(any(
+            target_arch = "avr",
+            target_arch = "msp430",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            feature = "critical-section",
+        )),
     )),
 ))]
 #[macro_use]
@@ -328,9 +362,14 @@ mod atomic_32_macros {
 #[cfg(not(all(
     any(not(target_pointer_width = "16"), feature = "fallback"),
     not(all(
-        any(target_arch = "mips", target_arch = "bpf"),
         portable_atomic_no_atomic_load_store,
-        not(feature = "critical-section"),
+        not(any(
+            target_arch = "avr",
+            target_arch = "msp430",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            feature = "critical-section",
+        )),
     )),
 )))]
 #[macro_use]
@@ -433,10 +472,11 @@ mod atomic_64_macros {
     not(feature = "fallback"),
     cfg(any(
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             target_arch = "aarch64",
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
         all(
+            target_arch = "x86_64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
@@ -448,9 +488,9 @@ mod atomic_64_macros {
                     not(any(target_env = "sgx", miri)),
                 ),
             ),
-            target_arch = "x86_64",
         ),
         all(
+            target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
@@ -464,18 +504,21 @@ mod atomic_64_macros {
                             target_os = "linux",
                             any(
                                 target_env = "gnu",
-                                all(target_env = "musl", not(target_feature = "crt-static")),
+                                all(
+                                    any(target_env = "musl", target_env = "ohos"),
+                                    not(target_feature = "crt-static"),
+                                ),
                                 portable_atomic_outline_atomics,
                             ),
                         ),
+                        target_os = "android",
                         target_os = "freebsd",
                     ),
                     not(any(miri, portable_atomic_sanitize_thread)),
                 ),
             ),
-            target_arch = "powerpc64",
         ),
-        all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
+        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
     ))
 )]
 #[cfg_attr(
@@ -512,10 +555,11 @@ mod atomic_128_macros {
     not(feature = "fallback"),
     cfg(not(any(
         all(
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             target_arch = "aarch64",
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
         all(
+            target_arch = "x86_64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
@@ -527,9 +571,9 @@ mod atomic_128_macros {
                     not(any(target_env = "sgx", miri)),
                 ),
             ),
-            target_arch = "x86_64",
         ),
         all(
+            target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(
                 target_feature = "quadword-atomics",
@@ -543,18 +587,21 @@ mod atomic_128_macros {
                             target_os = "linux",
                             any(
                                 target_env = "gnu",
-                                all(target_env = "musl", not(target_feature = "crt-static")),
+                                all(
+                                    any(target_env = "musl", target_env = "ohos"),
+                                    not(target_feature = "crt-static"),
+                                ),
                                 portable_atomic_outline_atomics,
                             ),
                         ),
+                        target_os = "android",
                         target_os = "freebsd",
                     ),
                     not(any(miri, portable_atomic_sanitize_thread)),
                 ),
             ),
-            target_arch = "powerpc64",
         ),
-        all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
+        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
     )))
 )]
 #[cfg_attr(

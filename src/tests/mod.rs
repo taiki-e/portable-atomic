@@ -83,9 +83,9 @@ fn test_is_lock_free() {
     {
         if cfg!(all(
             feature = "fallback",
+            target_arch = "arm",
             not(any(miri, portable_atomic_sanitize_thread)),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            target_arch = "arm",
             any(target_os = "linux", target_os = "android"),
             not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
             not(portable_atomic_no_outline_atomics),
@@ -116,6 +116,10 @@ fn test_is_lock_free() {
     } else if cfg!(any(
         target_arch = "aarch64",
         all(
+            target_arch = "x86_64",
+            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+        ),
+        all(
             target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(
@@ -124,10 +128,6 @@ fn test_is_lock_free() {
             ),
         ),
         all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
-        all(
-            target_arch = "x86_64",
-            any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
-        ),
     )) {
         assert!(AtomicI128::is_always_lock_free());
         assert!(AtomicI128::is_lock_free());
