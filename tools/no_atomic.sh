@@ -36,8 +36,7 @@ for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | j
     case "${max_atomic_width}" in
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
         0) no_atomic+=("${target}") ;;
-        32 | 64 | 128 | null) ;;
-        # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
+        8 | 16 | 32 | 64 | 128 | null) ;;
         *) bail "'${target}' has max-atomic-width == ${max_atomic_width}" ;;
     esac
     case "${min_atomic_width}" in
@@ -63,11 +62,10 @@ for target in $(rustc +nightly-2022-02-10 --print target-list); do
         # "thumbv4t-none-eabi", "thumbv6m-none-eabi", all of which are
         # `"target-pointer-width" == "32"`, so assuming them `"max-atomic-width" == 32`
         # for now.
-        32 | null) no_atomic_64+=("${target}") ;;
+        8 | 16 | 32 | null) no_atomic_64+=("${target}") ;;
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
         0) no_atomic_64+=("${target}") ;;
         64 | 128) ;;
-        # There is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
         *) bail "${target}" ;;
     esac
 done
@@ -85,6 +83,7 @@ cat >"${file}" <<EOF
 
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
+#[rustfmt::skip]
 static NO_ATOMIC_CAS: &[&str] = &[
 EOF
 for target in "${no_atomic_cas[@]}"; do
@@ -95,6 +94,7 @@ cat >>"${file}" <<EOF
 
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
+#[rustfmt::skip]
 static NO_ATOMIC_64: &[&str] = &[
 EOF
 for target in "${no_atomic_64[@]}"; do
@@ -103,6 +103,7 @@ done
 cat >>"${file}" <<EOF
 ];
 
+#[rustfmt::skip]
 static NO_ATOMIC: &[&str] = &[
 EOF
 for target in "${no_atomic[@]}"; do

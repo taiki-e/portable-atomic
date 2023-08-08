@@ -11,7 +11,7 @@
   },
   "linker": "avr-gcc",
   "llvm-target": "avr-unknown-unknown",
-  "max-atomic-width": 0,
+  "max-atomic-width": 16,
   "no-default-libraries": false,
   "pre-link-args": {
     "gcc": ["-mmcu=atmega2560"]
