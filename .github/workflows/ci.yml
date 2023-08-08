@@ -318,6 +318,50 @@ jobs:
 
       - run: cargo minimal-versions build -vvv --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD $RELEASE
 
+  test-bsd:
+    needs: tidy
+    name: test (${{ matrix.target }}${{ matrix.version }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '12.4'
+          - target: aarch64-unknown-openbsd
+            os: openbsd
+            version: '7.3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      # TODO: Use neoverse-v1 once QEMU 8.1 released
+      - uses: taiki-e/cross-platform-actions-action@cortex-a76
+        with:
+          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES TEST_FEATURES
+          operating_system: ${{ matrix.os }}
+          architecture: aarch64
+          version: ${{ matrix.version }}
+          shell: bash
+          run: |
+            set -euxo pipefail
+            export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+            # AArch64 FreeBSD/OpenBSD are tier 3 targets, so install rust from package manager instead of rustup.
+            case "$(uname -s)" in
+              FreeBSD) sudo pkg install -y rust ;;
+              OpenBSD)
+                # As of OpenBSD 7.3, the built-in git library is very slow.
+                export CARGO_NET_GIT_FETCH_WITH_CLI=true
+                # OpenBSD 7.3's rustc version is 1.68, which sparse protocol is not default protocol.
+                export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+                sudo pkg_add git rust
+                ;;
+            esac
+            rustc -vV
+            cargo test --features std --tests -- aarch64
+
   build:
     needs: tidy
     name: build (${{ matrix.name || matrix.rust }})
