@@ -378,8 +378,7 @@ jobs:
         rust:
           - '1.64'
           - stable
-          # TODO: https://github.com/rust-lang/rust/pull/98333 broke RISC-V targets without A-extension.
-          - nightly-2023-08-05
+          - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
