@@ -5,6 +5,7 @@
 // - LDXP/STXP loop (DW LL/SC)
 // - CASP (DWCAS) added as FEAT_LSE (mandatory from armv8.1-a)
 // - LDP/STP (DW load/store) if FEAT_LSE2 (optional from armv8.2-a, mandatory from armv8.4-a) is available
+// - LDIAPP/STILP (DW acquire-load/release-store) added as FEAT_LRCPC3 (optional from armv8.9-a/armv9.4-a) (if FEAT_LSE2 is also available)
 // - LDCLRP/LDSETP/SWPP (DW RMW) added as FEAT_LSE128 (optional from armv9.4-a)
 //
 // If outline-atomics is not enabled and FEAT_LSE is not available at
@@ -16,6 +17,7 @@
 // However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
 // loop for RMW (by default, it is set on Apple hardware; see build script for details).
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
+// If FEAT_LSE2 and FEAT_LRCPC3 are available at compile-time, we use LDIAPP/STILP for acquire-load/release-store.
 // If FEAT_LSE128 is available at compile-time, we use LDCLRP/LDSETP/SWPP for fetch_and/fetch_or/swap/{release,seqcst}-store.
 //
 // Note: FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
@@ -50,12 +52,14 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/nds1nWbnq
-// - aarch64 msvc https://godbolt.org/z/PTKdhbKqW
-// - aarch64 (+lse) https://godbolt.org/z/5GzssfTKc
-// - aarch64 msvc (+lse) https://godbolt.org/z/oYE87caM7
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/36dPjMbaG
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/9MKa4ofbo
+// - aarch64 https://godbolt.org/z/zT5av9nMP
+// - aarch64 msvc https://godbolt.org/z/b5r9ordYW
+// - aarch64 (+lse) https://godbolt.org/z/6EeE94ebd
+// - aarch64 msvc (+lse) https://godbolt.org/z/d3Tev7nbv
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/K1xhW5jP8
+// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3jzsxedq8
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/jqdYaP6a3
+// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/h156b4TMv
 
 include!("macros.rs");
 
@@ -221,7 +225,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         }
     }
 }
-// If CPU supports FEAT_LSE2, LDP is single-copy atomic reads,
+// If CPU supports FEAT_LSE2, LDP/LDIAPP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
@@ -250,6 +254,19 @@ unsafe fn atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
         }
         match order {
             Ordering::Relaxed => atomic_load_relaxed!("", readonly),
+            #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
+            Ordering::Acquire => {
+                // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
+                // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDIAPP--Load-Acquire-RCpc-ordered-Pair-of-registers-
+                asm!(
+                    "ldiapp {prev_lo}, {prev_hi}, [{src}]",
+                    src = in(reg) ptr_reg!(src),
+                    prev_hi = lateout(reg) prev_hi,
+                    prev_lo = lateout(reg) prev_lo,
+                    options(nostack, preserves_flags),
+                );
+            }
+            #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
             Ordering::Acquire => atomic_load_relaxed!("dmb ishld"),
             Ordering::SeqCst => {
                 asm!(
@@ -355,7 +372,16 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             // https://reviews.llvm.org/D143506
             match order {
                 Ordering::Relaxed => atomic_store_stp(dst, val, order),
-                Ordering::Release | Ordering::SeqCst => {
+                #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
+                Ordering::Release => atomic_store_stp(dst, val, order),
+                #[cfg(not(any(
+                    target_feature = "rcpc3",
+                    portable_atomic_target_feature = "rcpc3",
+                )))]
+                Ordering::Release => {
+                    _atomic_swap_swpp(dst, val, order);
+                }
+                Ordering::SeqCst => {
                     _atomic_swap_swpp(dst, val, order);
                 }
                 _ => unreachable!("{:?}", order),
@@ -374,7 +400,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         atomic_swap(dst, val, order);
     }
 }
-// If CPU supports FEAT_LSE2, STP is single-copy atomic writes,
+// If CPU supports FEAT_LSE2, STP/STILP is single-copy atomic writes,
 // otherwise it is two single-copy atomic writes.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
@@ -404,6 +430,19 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
         }
         match order {
             Ordering::Relaxed => atomic_store!("", ""),
+            #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
+            Ordering::Release => {
+                // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
+                // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/STILP--Store-Release-ordered-Pair-of-registers-
+                asm!(
+                    "stilp {val_lo}, {val_hi}, [{dst}]",
+                    dst = in(reg) ptr_reg!(dst),
+                    val_lo = in(reg) val.pair.lo,
+                    val_hi = in(reg) val.pair.hi,
+                    options(nostack, preserves_flags),
+                );
+            }
+            #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
             Ordering::Release => atomic_store!("", "dmb ish"),
             Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
             _ => unreachable!("{:?}", order),
