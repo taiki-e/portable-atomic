@@ -217,12 +217,14 @@ fn main() {
             let is_macos = target_os == "macos";
             let mut has_lse = is_macos;
             // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-            // As of rustc 1.70, target_feature "lse2"/"lse128" is not available on rustc side:
+            // As of rustc 1.70, target_feature "lse2"/"lse128"/"rcpc3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
             target_feature_if("lse2", is_macos, &version, None, false);
-            // LLVM supports FEAT_LSE128 on LLVM 16+:
+            // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
+            // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
             // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
             has_lse |= target_feature_if("lse128", false, &version, None, false);
+            target_feature_if("rcpc3", false, &version, None, false);
             // aarch64_target_feature stabilized in Rust 1.61.
             target_feature_if("lse", has_lse, &version, Some(61), true);
 

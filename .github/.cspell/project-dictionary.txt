@@ -57,6 +57,7 @@ kuser
 ldar
 ldaxp
 ldclrp
+ldiapp
 ldsetp
 ldxp
 lghi
@@ -120,6 +121,7 @@ sreg
 sstatus
 stdarch
 stdsimd
+stilp
 stlxp
 stpq
 stqcx

@@ -412,7 +412,7 @@ build() {
         return 0
     else
         if [[ -n "${CI:-}" ]]; then
-            if [[ ${count} -lt 10 ]]; then
+            if [[ ${count} -lt 6 ]]; then
                 : $((count++))
             else
                 count=0
@@ -590,9 +590,15 @@ build() {
             esac
             # Support for FEAT_LRCPC3 and FEAT_LSE128 requires LLVM 16+ (Rust 1.70+).
             if [[ "${rustc_minor_version}" -ge 70 ]]; then
+                CARGO_TARGET_DIR="${target_dir}/rcpc3" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2,+rcpc3" \
+                    x_cargo "${args[@]}" "$@"
                 # FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
                 CARGO_TARGET_DIR="${target_dir}/lse128" \
                     RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128" \
+                    x_cargo "${args[@]}" "$@"
+                CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128,+rcpc3" \
                     x_cargo "${args[@]}" "$@"
             fi
             ;;
