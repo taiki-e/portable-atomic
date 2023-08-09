@@ -31,3 +31,5 @@ runner = "qemu-system-arm -cpu arm926 -M versatilepb -display none -semihosting 
 runner = "qemu-system-riscv32 -M virt -display none -semihosting -kernel"
 [target.'cfg(all(target_arch = "riscv64", target_os = "none"))']
 runner = "qemu-system-riscv64 -M virt -display none -semihosting -kernel"
+[target.'cfg(all(target_arch = "riscv128", target_os = "none"))']
+runner = "qemu-system-riscv128 -M virt -display none -semihosting -kernel"

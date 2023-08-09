@@ -19,10 +19,28 @@ utils_file="src/gen/utils.rs"
 mkdir -p "$(dirname "${utils_file}")"
 
 known_64_bit_arch=()
-for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | jq -c '. | to_entries | .[].value'); do
-    arch="$(jq <<<"${target_spec}" -r '.arch')"
+known_128_bit_arch=(riscv128)
+target_specs=($(rustc -Z unstable-options --print all-target-specs-json | jq -c '. | to_entries | .[].value'))
+for target_spec in "${target_specs[@]}"; do
+    arch=$(jq <<<"${target_spec}" -r '.arch')
+    if [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "128" ]]; then
+        known_128_bit_arch+=("${arch}")
+    fi
+done
+# sort and dedup
+IFS=$'\n'
+known_128_bit_arch=($(LC_ALL=C sort -u <<<"${known_128_bit_arch[*]}"))
+IFS=$'\n\t'
+for target_spec in "${target_specs[@]}"; do
+    arch=$(jq <<<"${target_spec}" -r '.arch')
     if [[ "$(jq <<<"${target_spec}" -r '."target-pointer-width"')" == "64" ]]; then
-        known_64_bit_arch+=("${arch}")
+        for a in "${known_128_bit_arch[@]}"; do
+            if [[ "${a}" == "${arch}" ]]; then
+                arch=''
+                break
+            fi
+        done
+        [[ -z "${arch}" ]] || known_64_bit_arch+=("${arch}")
     fi
 done
 # sort and dedup
@@ -70,10 +88,34 @@ macro_rules! ptr_reg {
         \$ptr as u64
     }};
 }
-#[cfg(not(all(
-    target_pointer_width = "32",
+#[allow(clippy::non_minimal_cfg)]
+#[rustfmt::skip]
+#[cfg(all(
+    any(target_pointer_width = "32", target_pointer_width = "64"),
     any(
-$(sed <<<"${known_64_bit_arch[*]}" -E 's/^/        target_arch = "/g; s/$/",/g')
+$(sed <<<"${known_128_bit_arch[*]}" -E 's/^/        target_arch = "/g; s/$/",/g')
+    ),
+))]
+macro_rules! ptr_reg {
+    (\$ptr:ident) => {{
+        let _: *const _ = \$ptr; // ensure \$ptr is a pointer (*mut _ or *const _)
+        \$ptr as u128
+    }};
+}
+#[allow(clippy::non_minimal_cfg)]
+#[rustfmt::skip]
+#[cfg(not(any(
+    all(
+        target_pointer_width = "32",
+        any(
+$(sed <<<"${known_64_bit_arch[*]}" -E 's/^/            target_arch = "/g; s/$/",/g')
+        ),
+    ),
+    all(
+        any(target_pointer_width = "32", target_pointer_width = "64"),
+        any(
+$(sed <<<"${known_128_bit_arch[*]}" -E 's/^/            target_arch = "/g; s/$/",/g')
+        ),
     ),
 )))]
 macro_rules! ptr_reg {

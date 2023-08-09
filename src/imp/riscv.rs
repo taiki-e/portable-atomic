@@ -143,10 +143,14 @@ atomic!(AtomicI16, i16, "h");
 atomic!(AtomicU16, u16, "h");
 atomic!(AtomicI32, i32, "w");
 atomic!(AtomicU32, u32, "w");
-#[cfg(target_arch = "riscv64")]
+#[cfg(any(target_arch = "riscv64", target_arch = "riscv128"))]
 atomic!(AtomicI64, i64, "d");
-#[cfg(target_arch = "riscv64")]
+#[cfg(any(target_arch = "riscv64", target_arch = "riscv128"))]
 atomic!(AtomicU64, u64, "d");
+#[cfg(target_arch = "riscv128")]
+atomic!(AtomicI64, i128, "q");
+#[cfg(target_arch = "riscv128")]
+atomic!(AtomicU64, u128, "q");
 #[cfg(target_pointer_width = "32")]
 atomic!(AtomicIsize, isize, "w");
 #[cfg(target_pointer_width = "32")]
@@ -159,6 +163,12 @@ atomic!(AtomicIsize, isize, "d");
 atomic!(AtomicUsize, usize, "d");
 #[cfg(target_pointer_width = "64")]
 atomic!([T] AtomicPtr, *mut T, "d");
+#[cfg(target_pointer_width = "128")]
+atomic!(AtomicIsize, isize, "q");
+#[cfg(target_pointer_width = "128")]
+atomic!(AtomicUsize, usize, "q");
+#[cfg(target_pointer_width = "128")]
+atomic!([T] AtomicPtr, *mut T, "q");
 
 #[cfg(test)]
 mod tests {
@@ -171,10 +181,14 @@ mod tests {
     test_atomic_int_load_store!(u16);
     test_atomic_int_load_store!(i32);
     test_atomic_int_load_store!(u32);
-    #[cfg(target_arch = "riscv64")]
+    #[cfg(any(target_arch = "riscv64", target_arch = "riscv128"))]
     test_atomic_int_load_store!(i64);
-    #[cfg(target_arch = "riscv64")]
+    #[cfg(any(target_arch = "riscv64", target_arch = "riscv128"))]
     test_atomic_int_load_store!(u64);
+    #[cfg(target_arch = "riscv128")]
+    test_atomic_int_load_store!(i128);
+    #[cfg(target_arch = "riscv128")]
+    test_atomic_int_load_store!(u128);
     test_atomic_int_load_store!(isize);
     test_atomic_int_load_store!(usize);
 }

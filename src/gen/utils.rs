@@ -48,21 +48,45 @@ macro_rules! ptr_reg {
         $ptr as u64
     }};
 }
-#[cfg(not(all(
-    target_pointer_width = "32",
+#[allow(clippy::non_minimal_cfg)]
+#[rustfmt::skip]
+#[cfg(all(
+    any(target_pointer_width = "32", target_pointer_width = "64"),
     any(
-        target_arch = "aarch64",
-        target_arch = "bpf",
-        target_arch = "loongarch64",
-        target_arch = "mips64",
-        target_arch = "mips64r6",
-        target_arch = "nvptx64",
-        target_arch = "powerpc64",
-        target_arch = "riscv64",
-        target_arch = "s390x",
-        target_arch = "sparc64",
-        target_arch = "wasm64",
-        target_arch = "x86_64",
+        target_arch = "riscv128",
+    ),
+))]
+macro_rules! ptr_reg {
+    ($ptr:ident) => {{
+        let _: *const _ = $ptr; // ensure $ptr is a pointer (*mut _ or *const _)
+        $ptr as u128
+    }};
+}
+#[allow(clippy::non_minimal_cfg)]
+#[rustfmt::skip]
+#[cfg(not(any(
+    all(
+        target_pointer_width = "32",
+        any(
+            target_arch = "aarch64",
+            target_arch = "bpf",
+            target_arch = "loongarch64",
+            target_arch = "mips64",
+            target_arch = "mips64r6",
+            target_arch = "nvptx64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "sparc64",
+            target_arch = "wasm64",
+            target_arch = "x86_64",
+        ),
+    ),
+    all(
+        any(target_pointer_width = "32", target_pointer_width = "64"),
+        any(
+            target_arch = "riscv128",
+        ),
     ),
 )))]
 macro_rules! ptr_reg {

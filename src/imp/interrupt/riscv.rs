@@ -47,6 +47,8 @@ macro_rules! mask {
 pub(super) type State = u32;
 #[cfg(target_arch = "riscv64")]
 pub(super) type State = u64;
+#[cfg(target_arch = "riscv128")]
+pub(super) type State = u128;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]

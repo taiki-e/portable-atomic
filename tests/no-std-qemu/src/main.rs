@@ -20,7 +20,7 @@ fn main() -> ! {
 #[cfg(not(mclass))]
 #[no_mangle]
 unsafe fn _start(_: usize, _: usize) -> ! {
-    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128"))]
     unsafe {
         core::arch::asm!("la sp, _stack");
     }
@@ -52,7 +52,10 @@ fn run() {
             }
         };
     }
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128"),
+        cfg(f)
+    )]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -108,8 +111,14 @@ fn run() {
     test_atomic_int!(i128);
     test_atomic_int!(u128);
     // TODO: undefined reference to f{max,min}{,f}
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128"),
+        cfg(f)
+    )]
     test_atomic_float!(f32);
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(d))]
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128"),
+        cfg(d)
+    )]
     test_atomic_float!(f64);
 }

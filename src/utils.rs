@@ -252,6 +252,7 @@ macro_rules! items {
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
+        target_arch = "riscv128",
         feature = "critical-section",
     )),
 )))]
@@ -273,6 +274,7 @@ mod atomic_ptr_macros {
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
+        target_arch = "riscv128",
         feature = "critical-section",
     )),
 ))]
@@ -292,6 +294,7 @@ mod atomic_ptr_macros {
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
+        target_arch = "riscv128",
         feature = "critical-section",
     )),
 )))]
@@ -319,6 +322,7 @@ mod atomic_8_16_macros {
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
+        target_arch = "riscv128",
         feature = "critical-section",
     )),
 ))]
@@ -345,6 +349,7 @@ mod atomic_8_16_macros {
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             feature = "critical-section",
         )),
     )),
@@ -368,6 +373,7 @@ mod atomic_32_macros {
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             feature = "critical-section",
         )),
     )),

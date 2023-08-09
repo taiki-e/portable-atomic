@@ -288,6 +288,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "arm",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             target_arch = "x86",
             target_arch = "x86_64",
         ),
@@ -335,6 +336,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             feature = "critical-section",
         )),
     ),
@@ -349,9 +351,10 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     target_pointer_width = "16",
     target_pointer_width = "32",
     target_pointer_width = "64",
+    target_pointer_width = "128",
 )))]
 compile_error!(
-    "portable-atomic currently only supports targets with {16,32,64}-bit pointer width; \
+    "portable-atomic currently only supports targets with {16,32,64,128}-bit pointer width; \
      if you need support for others, \
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
@@ -367,6 +370,7 @@ compile_error!(
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             target_arch = "xtensa",
         )),
     ))
@@ -381,6 +385,7 @@ compile_error!(
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "riscv128",
             target_arch = "xtensa",
         )),
     ))
@@ -409,7 +414,7 @@ compile_error!("cfg(portable_atomic_outline_atomics) does not compatible with th
 )))]
 compile_error!("cfg(portable_atomic_disable_fiq) does not compatible with this target");
 #[cfg(portable_atomic_s_mode)]
-#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128")))]
 compile_error!("cfg(portable_atomic_s_mode) does not compatible with this target");
 
 #[cfg(portable_atomic_disable_fiq)]
@@ -534,12 +539,12 @@ cfg_has_atomic_cas! {
 #[cfg(portable_atomic_no_cfg_target_has_atomic)]
 const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
     not(portable_atomic_no_atomic_cas),
-    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
+    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128", target_arch = "loongarch64"),
 ));
 #[cfg(not(portable_atomic_no_cfg_target_has_atomic))]
 const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
     target_has_atomic = "8",
-    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
+    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "riscv128", target_arch = "loongarch64"),
 ));
 } // cfg_has_atomic_cas!
 
