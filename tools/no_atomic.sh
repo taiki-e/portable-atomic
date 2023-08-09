@@ -36,7 +36,8 @@ for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | j
     case "${max_atomic_width}" in
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
         0) no_atomic+=("${target}") ;;
-        8 | 16 | 32 | 64 | 128 | null) ;;
+        16 | 32 | 64 | 128 | null) ;;
+        # There is no `"max-atomic-width" == 8` targets.
         *) bail "'${target}' has max-atomic-width == ${max_atomic_width}" ;;
     esac
     case "${min_atomic_width}" in
@@ -62,10 +63,11 @@ for target in $(rustc +nightly-2022-02-10 --print target-list); do
         # "thumbv4t-none-eabi", "thumbv6m-none-eabi", all of which are
         # `"target-pointer-width" == "32"`, so assuming them `"max-atomic-width" == 32`
         # for now.
-        8 | 16 | 32 | null) no_atomic_64+=("${target}") ;;
+        32 | null) no_atomic_64+=("${target}") ;;
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
         0) no_atomic_64+=("${target}") ;;
         64 | 128) ;;
+        # As of nightly-2022-02-10, there is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
         *) bail "${target}" ;;
     esac
 done
