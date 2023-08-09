@@ -268,7 +268,7 @@ pub(crate) fn gen() -> Result<()> {
         for &triple in triples {
             eprintln!("\ninfo: generating bindings for {triple}");
             let target = &target_spec_json(triple)?;
-            let module_name = triple.replace("-unknown", "").replace('-', "_");
+            let module_name = triple.replace("-unknown", "").replace(['-', '.'], "_");
             let out_dir = &out_dir.join(&module_name);
             {
                 let module_name = format_ident!("{}", module_name);
