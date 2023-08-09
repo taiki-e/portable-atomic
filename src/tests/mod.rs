@@ -352,5 +352,6 @@ fn test_serde() {
     #[cfg(feature = "float")]
     t!(AtomicF32, f32, F32);
     #[cfg(feature = "float")]
+    #[cfg(not(target_arch = "mips"))] // LLVM 17 (nightly-2023-08-09) bug: assertion failed at core/src/num/diy_float.rs:78:9
     t!(AtomicF64, f64, F64);
 }

@@ -98,7 +98,8 @@ default_targets=(
     # (for target in $(rustc --print target-list | grep -E '^powerpc64'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
     powerpc64-unknown-linux-gnu
     powerpc64le-unknown-linux-gnu
-    powerpc64-unknown-linux-musl
+    # TODO: LLVM or rustc bug: compiler/rustc_codegen_llvm/src/context.rs:189:13: data-layout for target `powerpc64-unknown-linux-musl`, `E-m:e-Fi64-i64:64-n32:64-S128-v256:256:256-v512:512:512`, differs from LLVM target's `powerpc64-unknown-linux-musl` default layout, `E-m:e-Fn32-i64:64-n32:64-S128-v256:256:256-v512:512:512`
+    # powerpc64-unknown-linux-musl
     powerpc64le-unknown-linux-musl
     powerpc64-unknown-freebsd
     powerpc64le-unknown-freebsd
@@ -403,6 +404,8 @@ build() {
         case "${target}" in
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
             m68k-unknown-linux-gnu) return 0 ;;
+            # TODO: LLVM or rustc bug: compiler/rustc_codegen_llvm/src/context.rs:189:13: data-layout for target `powerpc64-unknown-linux-musl`, `E-m:e-Fi64-i64:64-n32:64-S128-v256:256:256-v512:512:512`, differs from LLVM target's `powerpc64-unknown-linux-musl` default layout, `E-m:e-Fn32-i64:64-n32:64-S128-v256:256:256-v512:512:512`
+            powerpc64-unknown-linux-musl) return 0 ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
