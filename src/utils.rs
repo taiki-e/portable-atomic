@@ -161,7 +161,7 @@ macro_rules! impl_debug_and_serde {
 }
 
 // We do not provide `nand` because it cannot be optimized on neither x86 nor MSP430.
-// https://godbolt.org/z/x88voWGov
+// https://godbolt.org/z/7TzjKqYvE
 macro_rules! impl_default_no_fetch_ops {
     ($atomic_type:ident, bool) => {
         impl $atomic_type {

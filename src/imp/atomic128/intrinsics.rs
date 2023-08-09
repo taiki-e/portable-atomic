@@ -17,9 +17,9 @@
 //   https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
 // - On aarch64 big-endian, LLVM (as of 15) generates broken code.
 //   (on cfg(miri)/cfg(sanitize) it is fine though)
-// - On s390x, LLVM (as of 16) generates libcalls for operations other than load/store/cmpxchg:
+// - On s390x, LLVM (as of 17) generates libcalls for operations other than load/store/cmpxchg:
 //   https://godbolt.org/z/5a5T4hxMh
-//   https://github.com/llvm/llvm-project/blob/2cc0c0de802178dc7e5408497e2ec53b6c9728fa/llvm/test/CodeGen/SystemZ/atomicrmw-ops-i128.ll
+//   https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/test/CodeGen/SystemZ/atomicrmw-ops-i128.ll
 //   https://reviews.llvm.org/D146425
 // - On powerpc64, LLVM (as of 16) doesn't support 128-bit atomic min/max:
 //   https://godbolt.org/z/3rebKcbdf
@@ -248,10 +248,10 @@ where
 }
 
 // On x86_64, we use core::arch::x86_64::cmpxchg16b instead of core::intrinsics.
-// On s390x, LLVM (as of 16) generates libcalls for operations other than load/store/cmpxchg: https://godbolt.org/z/5a5T4hxMh
+// On s390x, LLVM generates libcalls for operations other than load/store/cmpxchg (see also module-level comment).
 #[cfg(any(target_arch = "x86_64", target_arch = "s390x"))]
 atomic_rmw_by_atomic_update!();
-// On powerpc64, LLVM (as of 16) doesn't support 128-bit atomic min/max: https://godbolt.org/z/3rebKcbdf
+// On powerpc64, LLVM doesn't support 128-bit atomic min/max (see also module-level comment).
 #[cfg(target_arch = "powerpc64")]
 atomic_rmw_by_atomic_update!(cmp);
 
