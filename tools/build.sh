@@ -340,7 +340,7 @@ build() {
         if [[ "${llvm_version}" -eq 16 ]]; then
             # https://github.com/rust-lang/compiler-builtins/issues/523
             target_rustflags+=" -C linker-plugin-lto -C codegen-units=1"
-        elif [[ "${llvm_version}" -le 15 ]]; then
+        elif [[ "${llvm_version}" -le 17 ]]; then
             # https://github.com/rust-lang/rust/issues/88252
             target_rustflags+=" -C opt-level=s"
         fi
