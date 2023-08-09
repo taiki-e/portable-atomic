@@ -50,7 +50,7 @@ default_targets=(
     # x86_64
     # rustc --print target-list | grep -E '^x86_64'
     x86_64-unknown-linux-gnu
-    # x86_64 always support cmpxchg16b
+    # x86_64 with CMPXCHG16B
     x86_64-apple-darwin
     # x86_64 X32 ABI
     x86_64-unknown-linux-gnux32
@@ -63,6 +63,7 @@ default_targets=(
 
     # aarch64
     # rustc --print target-list | grep -E '^(aarch64|arm64)'
+    # (for target in $(rustc --print target-list | grep -E '^(aarch64|arm64)'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
     aarch64-linux-android
     aarch64-pc-windows-gnullvm
     aarch64-pc-windows-msvc
@@ -72,7 +73,7 @@ default_targets=(
     aarch64-unknown-linux-musl
     aarch64-unknown-linux-uclibc # custom target
     aarch64-unknown-openbsd
-    # aarch64 always support lse & lse2
+    # aarch64 with FEAT_LSE & FEAT_LSE2
     aarch64-apple-darwin
     # aarch64 big endian
     aarch64_be-unknown-linux-gnu
@@ -94,6 +95,7 @@ default_targets=(
 
     # powerpc64
     # rustc --print target-list | grep -E '^powerpc64'
+    # (for target in $(rustc --print target-list | grep -E '^powerpc64'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
     powerpc64-unknown-linux-gnu
     powerpc64le-unknown-linux-gnu
     powerpc64-unknown-linux-musl

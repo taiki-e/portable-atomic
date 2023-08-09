@@ -34,14 +34,14 @@ default_targets=(
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
     riscv32imac-unknown-none-elf
-    riscv32gc-unknown-none-elf
+    riscv32gc-unknown-none-elf # custom target
     # riscv64
-    riscv64i-unknown-none-elf
+    riscv64i-unknown-none-elf # custom target
     riscv64imac-unknown-none-elf
     riscv64gc-unknown-none-elf
 
     # avr
-    avr-unknown-gnu-atmega2560
+    avr-unknown-gnu-atmega2560 # custom target
 )
 
 x() {
