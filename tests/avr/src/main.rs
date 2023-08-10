@@ -96,7 +96,8 @@ fn main() -> ! {
     // TODO
     if cfg!(all(not(debug_assertions), not(qemu))) {
         test_atomic_float!(f32);
-        test_atomic_float!(f64);
+        // TODO: undefined reference to `__{ne,ge}df2' in LLVM 17 (nightly-2023-08-09)
+        // test_atomic_float!(f64);
     }
 
     semihosting::exit(0)
