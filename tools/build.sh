@@ -588,8 +588,8 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     ;;
             esac
-            # Support for FEAT_LRCPC3 and FEAT_LSE128 requires LLVM 16+ (Rust 1.70+).
-            if [[ "${rustc_minor_version}" -ge 70 ]]; then
+            # Support for FEAT_LRCPC3 and FEAT_LSE128 requires LLVM 16+.
+            if [[ "${llvm_version}" -ge 16 ]]; then
                 CARGO_TARGET_DIR="${target_dir}/rcpc3" \
                     RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2,+rcpc3" \
                     x_cargo "${args[@]}" "$@"
