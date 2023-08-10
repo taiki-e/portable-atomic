@@ -10,6 +10,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Optimize AArch64 128-bit atomic store/swap when the `lse128` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
+
+- Optimize AArch64 128-bit atomic load/store when the `rcpc3` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
+
 ## [1.4.2] - 2023-07-27
 
 - Optimize `AtomicBool` on RISC-V/LoongArch64. This is the same as [rust-lang/rust#114034](https://github.com/rust-lang/rust/pull/114034), but is available for all rustc versions.
