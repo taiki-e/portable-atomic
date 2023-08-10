@@ -103,7 +103,7 @@ repo_dir="${package_dir}/${test_repo_name}"
 cml_path="${package_dir}/meta/${package_name}.cml"
 cm_path="${package_dir}/meta/${package_name}.cm"
 manifest_path="${package_dir}/${package_name}.manifest"
-api_level="$("${tool_dir}"/ffx version -v | grep 'api-level' | head -1 | awk -F ' ' '{print $2}')"
+api_level=$("${tool_dir}"/ffx version -v | grep 'api-level' | head -1 | awk -F ' ' '{print $2}')
 
 rm -rf ./"${package_dir}"
 mkdir -p "${package_dir}/meta"
