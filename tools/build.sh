@@ -272,7 +272,6 @@ if [[ "${rustc_minor_version}" -ge 60 ]]; then
     has_offline='1'
 fi
 
-count=0
 build() {
     local target="$1"
     shift
@@ -411,14 +410,6 @@ build() {
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
         return 0
     else
-        if [[ -n "${CI:-}" ]]; then
-            if [[ ${count} -lt 6 ]]; then
-                : $((count++))
-            else
-                count=0
-                x cargo clean
-            fi
-        fi
         # paste! on statements requires 1.45
         if [[ "${rustc_minor_version}" -ge 45 ]]; then
             if [[ -n "${has_atomic_cas}" ]]; then
