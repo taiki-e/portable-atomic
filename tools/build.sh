@@ -275,9 +275,6 @@ fi
 build() {
     local target="$1"
     shift
-    case "${target}" in
-        host) target="${host}" ;;
-    esac
     local args=("${base_args[@]}")
     local target_rustflags="${RUSTFLAGS:-}"
     if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
@@ -617,5 +614,24 @@ build() {
 }
 
 for target in "${targets[@]}"; do
+    case "${target}" in
+        host) target="${host}" ;;
+    esac
+    if [[ -n "${SKIP_DEFAULT_TARGET:-}" ]]; then
+        for default_target in "${default_targets[@]}"; do
+            if [[ "${target}" == "${default_target}" ]]; then
+                if [[ -n "${CI:-}" ]]; then
+                    echo "target '${target}' is included in the default targets list and covered by other CI jobs or matrices (skipped all checks)"
+                else
+                    echo "target '${target}' is included in the default targets list (skipped all checks because SKIP_DEFAULT_TARGET is set)"
+                fi
+                target=''
+                break
+            fi
+        done
+        if [[ -z "${target}" ]]; then
+            continue
+        fi
+    fi
     build "${target}"
 done

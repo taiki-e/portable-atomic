@@ -50,8 +50,9 @@ jobs:
     uses: taiki-e/workflows/.github/workflows/msrv.yml@main
     with:
       event_name: ${{ github.event_name }}
+      # NB: sync with env.TEST_FEATURES
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
-      args: --clean-per-version --feature-powerset --depth 2 --optional-deps --exclude-features serde,critical-section,unsafe-assume-single-core,s-mode,disable-fiq
+      args: --features float,std --ignore-unknown-features
   tidy:
     uses: taiki-e/workflows/.github/workflows/tidy.yml@main
     with:
@@ -198,7 +199,7 @@ jobs:
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
         with:
@@ -313,8 +314,13 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
         if: startsWith(matrix.target, 's390x')
 
+      # Skip targets that also checked by "build" job.
       - run: tools/build.sh ${{ matrix.target || 'host' }}
+        env:
+          SKIP_DEFAULT_TARGET: 1
       - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
+        env:
+          SKIP_DEFAULT_TARGET: 1
 
       - run: cargo minimal-versions build -vvv --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD $RELEASE
 
@@ -392,12 +398,16 @@ jobs:
           - name: stable, all tier1/tier2
             rust: stable
             target-group: tier1/tier2
+            # Skip targets that also checked by other matrix.
+            skip-default-target: 1
           - name: nightly, all tier1/tier2
             rust: nightly
             target-group: tier1/tier2
+            skip-default-target: 1
           - name: nightly, all tier3
             rust: nightly
             target-group: tier3
+            skip-default-target: 1
     runs-on: ubuntu-latest
     timeout-minutes: 120 # TODO
     steps:
@@ -405,6 +415,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: taiki-e/github-actions/free-device-space@main
+        if: matrix.target-group == ''
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
@@ -414,6 +425,7 @@ jobs:
         env:
           TESTS: ${{ matrix.tests }}
           TARGET_GROUP: ${{ matrix.target-group }}
+          SKIP_DEFAULT_TARGET: ${{ matrix.skip-default-target }}
 
   no-std:
     needs: tidy
