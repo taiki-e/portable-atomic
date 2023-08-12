@@ -13,7 +13,6 @@ fn main() {
         subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
         subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
         match subarch {
-            "v6m" | "v7em" | "v7m" | "v8m" => println!("cargo:rustc-cfg=mclass"),
             "v5te" => println!("cargo:rustc-cfg=armv5te"),
             _ => {}
         }
@@ -29,5 +28,5 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-check-cfg=names(mclass,armv5te,f,d)");
+    println!("cargo:rustc-check-cfg=names(armv5te,f,d)");
 }

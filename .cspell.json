@@ -51,7 +51,6 @@
     "target-specs/**",
     "tests/helper/src/gen/**",
     "tools/codegen/patches/**",
-    "**/*.ld",
-    "**/*.x"
+    "**/*.ld"
   ]
 }

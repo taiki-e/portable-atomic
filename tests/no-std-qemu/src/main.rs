@@ -11,34 +11,7 @@ use core::sync::atomic::Ordering;
 use portable_atomic::*;
 use semihosting::{print, println};
 
-#[cfg(mclass)]
-#[cortex_m_rt::entry]
-fn main() -> ! {
-    run();
-    semihosting::process::exit(0)
-}
-#[cfg(not(mclass))]
-#[no_mangle]
-unsafe fn _start(_: usize, _: usize) -> ! {
-    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-    unsafe {
-        core::arch::asm!("la sp, _stack");
-    }
-    #[cfg(armv5te)]
-    unsafe {
-        #[instruction_set(arm::a32)]
-        #[inline]
-        unsafe fn init() {
-            unsafe {
-                core::arch::asm!("mov sp, #0x8000");
-            }
-        }
-        init();
-    }
-    run();
-    semihosting::process::exit(0)
-}
-
+semihosting_no_std_test_rt::entry!(run);
 fn run() {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
