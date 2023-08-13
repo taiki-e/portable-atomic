@@ -87,14 +87,14 @@ impl Version {
                 }
                 Some(Date::new(year, month, day))
             })();
-            Some(Version {
+            Some(Self {
                 minor,
                 nightly,
                 commit_date: commit_date.unwrap_or(Date::UNKNOWN),
                 llvm: llvm_major,
             })
         } else {
-            Some(Version::stable(minor, llvm_major))
+            Some(Self::stable(minor, llvm_major))
         }
     }
 }
