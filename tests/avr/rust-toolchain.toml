@@ -1,4 +1,5 @@
 [toolchain]
-channel = "nightly-2023-08-09"
+# channel = "nightly-2022-07-10" # LLVM 14
+channel = "nightly-2023-08-09" # LLVM 17
 components = ["rust-src"]
 profile = "minimal"

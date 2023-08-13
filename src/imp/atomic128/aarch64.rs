@@ -17,8 +17,8 @@
 // However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
 // loop for RMW (by default, it is set on Apple hardware; see build script for details).
 // If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
-// If FEAT_LSE2 and FEAT_LRCPC3 are available at compile-time, we use LDIAPP/STILP for acquire-load/release-store.
 // If FEAT_LSE128 is available at compile-time, we use LDCLRP/LDSETP/SWPP for fetch_and/fetch_or/swap/{release,seqcst}-store.
+// If FEAT_LSE2 and FEAT_LRCPC3 are available at compile-time, we use LDIAPP/STILP for acquire-load/release-store.
 //
 // Note: FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
 //
