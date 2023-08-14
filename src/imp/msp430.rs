@@ -8,6 +8,8 @@
 // See also src/imp/interrupt/msp430.rs.
 //
 // Note: Ordering is always SeqCst.
+//
+// Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

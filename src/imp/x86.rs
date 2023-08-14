@@ -6,6 +6,9 @@
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use CAS loop instead.
 //
+// Refs:
+// - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
+//
 // Generated asm:
 // - x86_64 https://godbolt.org/z/8fve4YP1G
 
