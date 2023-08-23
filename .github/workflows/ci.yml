@@ -225,7 +225,14 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        if: matrix.target != ''
+          qemu: '8.1'
+        # TODO: QEMU 8.1 128-bit atomic bug in big endian powerpc64
+        if: matrix.target != '' && !startsWith(matrix.target, 'powerpc64-')
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+          qemu: '8.0'
+        if: matrix.target != '' && startsWith(matrix.target, 'powerpc64-')
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: |
@@ -279,12 +286,16 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
       # aarch64 +lse
-      # As of QEMU 8.0, QEMU has not yet implemented FEAT_LSE2: https://linaro.atlassian.net/browse/QEMU-300
-      # FEAT_LSE2 is tested on Cirrus CI's aarch64 macOS VM.
       - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+        if: startsWith(matrix.target, 'aarch64')
+      # aarch64 +lse,+lse2
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
         if: startsWith(matrix.target, 'aarch64')
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
