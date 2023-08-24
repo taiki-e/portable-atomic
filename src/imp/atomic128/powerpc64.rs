@@ -62,6 +62,8 @@ mod detect;
 
 use core::{arch::asm, sync::atomic::Ordering};
 
+use crate::utils::{Pair, U128};
+
 macro_rules! debug_assert_pwr8 {
     () => {
         #[cfg(not(any(
@@ -126,27 +128,6 @@ macro_rules! end_pwr8 {
     () => {
         ""
     };
-}
-
-/// A 128-bit value represented as a pair of 64-bit values.
-///
-/// This type is `#[repr(C)]`, both fields have the same in-memory representation
-/// and are plain old datatypes, so access to the fields is always safe.
-#[derive(Clone, Copy)]
-#[repr(C)]
-union U128 {
-    whole: u128,
-    pair: Pair,
-}
-// A pair of 64-bit values in native-endian order.
-#[derive(Clone, Copy)]
-#[repr(C)]
-struct Pair {
-    #[cfg(target_endian = "big")]
-    hi: u64,
-    lo: u64,
-    #[cfg(target_endian = "little")]
-    hi: u64,
 }
 
 macro_rules! atomic_rmw {

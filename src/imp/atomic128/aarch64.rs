@@ -115,6 +115,8 @@ mod detect_macos;
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
+use crate::utils::{Pair, U128};
+
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
@@ -161,24 +163,6 @@ macro_rules! select_le_or_be {
     ($le:expr, $be:expr) => {
         $be
     };
-}
-
-/// A 128-bit value represented as a pair of 64-bit values.
-///
-/// This type is `#[repr(C)]`, both fields have the same in-memory representation
-/// and are plain old datatypes, so access to the fields is always safe.
-#[derive(Clone, Copy)]
-#[repr(C)]
-union U128 {
-    whole: u128,
-    pair: Pair,
-}
-// A pair of 64-bit values in little-endian order (even on big-endian targets).
-#[derive(Clone, Copy)]
-#[repr(C)]
-struct Pair {
-    lo: u64,
-    hi: u64,
 }
 
 macro_rules! atomic_rmw {

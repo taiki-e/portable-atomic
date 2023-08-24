@@ -148,7 +148,7 @@ macro_rules! atomic {
                 for i in 0..Self::LEN {
                     dst[i] = chunks[i].load(Ordering::Relaxed);
                 }
-                // SAFETY: integers are plain old datatypes so we can always transmute to them.
+                // SAFETY: integers are plain old data types so we can always transmute to them.
                 unsafe { mem::transmute::<[Chunk; Self::LEN], $int_type>(dst) }
             }
 
@@ -181,7 +181,7 @@ macro_rules! atomic {
 
             #[inline]
             fn write(&self, val: $int_type, _guard: &SeqLockWriteGuard<'static>) {
-                // SAFETY: integers are plain old datatypes so we can always transmute them to arrays of integers.
+                // SAFETY: integers are plain old data types so we can always transmute them to arrays of integers.
                 let val = unsafe { mem::transmute::<$int_type, [Chunk; Self::LEN]>(val) };
                 // SAFETY:
                 // - The guard guarantees that we hold the lock to write.

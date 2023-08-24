@@ -25,23 +25,7 @@ include!("macros.rs");
 
 use core::{arch::asm, sync::atomic::Ordering};
 
-/// A 128-bit value represented as a pair of 64-bit values.
-///
-/// This type is `#[repr(C)]`, both fields have the same in-memory representation
-/// and are plain old datatypes, so access to the fields is always safe.
-#[derive(Clone, Copy)]
-#[repr(C)]
-union U128 {
-    whole: u128,
-    pair: Pair,
-}
-// A pair of 64-bit values in native-endian (big-endian) order.
-#[derive(Clone, Copy)]
-#[repr(C)]
-struct Pair {
-    hi: u64,
-    lo: u64,
-}
+use crate::utils::{Pair, U128};
 
 // Use distinct operands on z196 or later, otherwise split to lgr and $op.
 #[cfg(any(target_feature = "distinct-ops", portable_atomic_target_feature = "distinct-ops"))]

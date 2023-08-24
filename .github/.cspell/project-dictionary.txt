@@ -36,7 +36,6 @@ csrrci
 csrsi
 cxchg
 cxchgweak
-datatypes
 DESTDIR
 dlsym
 DWCAS
