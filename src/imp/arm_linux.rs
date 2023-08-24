@@ -64,16 +64,16 @@ unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut 
 unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let (prev_lo, prev_hi);
+        let (out_lo, out_hi);
         asm!(
-            "ldr {prev_lo}, [{src}]",
-            "ldr {prev_hi}, [{src}, #4]",
+            "ldr {out_lo}, [{src}]",
+            "ldr {out_hi}, [{src}, #4]",
             src = in(reg) src,
-            prev_lo = out(reg) prev_lo,
-            prev_hi = out(reg) prev_hi,
+            out_lo = out(reg) out_lo,
+            out_hi = out(reg) out_hi,
             options(pure, nostack, preserves_flags, readonly),
         );
-        U64 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+        U64 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
 
@@ -94,10 +94,10 @@ where
             // so we must use inline assembly to implement byte_wise_atomic_load.
             // (i.e., byte-wise atomic based on the standard library's atomic types
             // cannot be used here).
-            let old = byte_wise_atomic_load(dst);
-            let next = f(old);
-            if __kuser_cmpxchg64(&old, &next, dst) {
-                return old;
+            let prev = byte_wise_atomic_load(dst);
+            let next = f(prev);
+            if __kuser_cmpxchg64(&prev, &next, dst) {
+                return prev;
             }
         }
     }
@@ -154,8 +154,10 @@ atomic_with_ifunc! {
 atomic_with_ifunc! {
     unsafe fn atomic_compare_exchange(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
         // SAFETY: the caller must uphold the safety contract.
-        let res = unsafe { atomic_update_kuser_cmpxchg64(dst, |v| if v == old { new } else { v }) };
-        (res, res == old)
+        let prev = unsafe {
+            atomic_update_kuser_cmpxchg64(dst, |v| if v == old { new } else { v })
+        };
+        (prev, prev == old)
     }
     fallback = atomic_compare_exchange_seqcst
 }

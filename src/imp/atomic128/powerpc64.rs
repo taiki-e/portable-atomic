@@ -388,7 +388,7 @@ unsafe fn atomic_compare_exchange_pwr8(
     // SAFETY: the caller must uphold the safety contract.
     //
     // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
-    let res = unsafe {
+    let prev = unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (mut prev_hi, mut prev_lo);
@@ -402,9 +402,9 @@ unsafe fn atomic_compare_exchange_pwr8(
                         "xor {tmp_lo}, %r9, {old_lo}",
                         "xor {tmp_hi}, %r8, {old_hi}",
                         "or. {tmp_lo}, {tmp_lo}, {tmp_hi}",
-                        "bne %cr0, 3f",
+                        "bne %cr0, 3f", // jump if compare failed
                         "stqcx. %r6, 0, {dst}",
-                        "bne %cr0, 2b",
+                        "bne %cr0, 2b", // continue loop if store failed
                     "3:",
                     $acquire,
                     end_pwr8!(),
@@ -427,7 +427,7 @@ unsafe fn atomic_compare_exchange_pwr8(
         atomic_rmw!(cmpxchg, order);
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    (res, res == old)
+    (prev, prev == old)
 }
 
 // TODO: LLVM appears to generate strong CAS for powerpc64 128-bit weak CAS,

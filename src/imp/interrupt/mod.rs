@@ -194,12 +194,12 @@ impl<T> AtomicPtr<T> {
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
         with(|| unsafe {
-            let result = self.p.get().read();
-            if result == current {
+            let prev = self.p.get().read();
+            if prev == current {
                 self.p.get().write(new);
-                Ok(result)
+                Ok(prev)
             } else {
-                Err(result)
+                Err(prev)
             }
         })
     }
@@ -412,12 +412,12 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    if result == current {
+                    let prev = self.v.get().read();
+                    if prev == current {
                         self.v.get().write(new);
-                        Ok(result)
+                        Ok(prev)
                     } else {
-                        Err(result)
+                        Err(prev)
                     }
                 })
             }
@@ -440,9 +440,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result.wrapping_add(val));
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev.wrapping_add(val));
+                    prev
                 })
             }
 
@@ -452,9 +452,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result.wrapping_sub(val));
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev.wrapping_sub(val));
+                    prev
                 })
             }
 
@@ -464,9 +464,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result & val);
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev & val);
+                    prev
                 })
             }
 
@@ -476,9 +476,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(!(result & val));
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(!(prev & val));
+                    prev
                 })
             }
 
@@ -488,9 +488,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result | val);
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev | val);
+                    prev
                 })
             }
 
@@ -500,9 +500,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result ^ val);
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev ^ val);
+                    prev
                 })
             }
 
@@ -512,9 +512,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(core::cmp::max(result, val));
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(core::cmp::max(prev, val));
+                    prev
                 })
             }
 
@@ -524,9 +524,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(core::cmp::min(result, val));
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(core::cmp::min(prev, val));
+                    prev
                 })
             }
 
@@ -536,9 +536,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(!result);
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(!prev);
+                    prev
                 })
             }
 
@@ -548,9 +548,9 @@ macro_rules! atomic_int {
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe {
-                    let result = self.v.get().read();
-                    self.v.get().write(result.wrapping_neg());
-                    result
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev.wrapping_neg());
+                    prev
                 })
             }
             #[inline]

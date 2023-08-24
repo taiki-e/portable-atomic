@@ -277,7 +277,7 @@ unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
     // omitting the storing of condition flags and avoid use of xchg to handle rbx.
     unsafe {
         // cmpxchg16b is always SeqCst.
-        let (prev_lo, prev_hi);
+        let (out_lo, out_hi);
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
@@ -289,8 +289,8 @@ unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
                     // set old/new args of cmpxchg16b to 0 (rbx is zeroed after saved to rbx_tmp, to avoid xchg)
                     rbx_tmp = out(reg) _,
                     in("rcx") 0_u64,
-                    inout("rax") 0_u64 => prev_lo,
-                    inout("rdx") 0_u64 => prev_hi,
+                    inout("rax") 0_u64 => out_lo,
+                    inout("rdx") 0_u64 => out_hi,
                     in($rdi) src,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
@@ -301,7 +301,7 @@ unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
         cmpxchg16b!("edi");
         #[cfg(target_pointer_width = "64")]
         cmpxchg16b!("rdi");
-        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+        U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
 

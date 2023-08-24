@@ -262,9 +262,9 @@ macro_rules! atomic {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
+                let prev = self.read(&guard);
                 self.write(val, &guard);
-                result
+                prev
             }
 
             #[inline]
@@ -278,14 +278,14 @@ macro_rules! atomic {
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                if result == current {
+                let prev = self.read(&guard);
+                if prev == current {
                     self.write(new, &guard);
-                    Ok(result)
+                    Ok(prev)
                 } else {
                     // The value hasn't been changed. Drop the guard without incrementing the stamp.
                     guard.abort();
-                    Err(result)
+                    Err(prev)
                 }
             }
 
@@ -304,73 +304,73 @@ macro_rules! atomic {
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result.wrapping_add(val), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_add(val), &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result.wrapping_sub(val), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_sub(val), &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result & val, &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev & val, &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(!(result & val), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(!(prev & val), &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result | val, &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev | val, &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result ^ val, &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev ^ val, &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(core::cmp::max(result, val), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(core::cmp::max(prev, val), &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(core::cmp::min(result, val), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(core::cmp::min(prev, val), &guard);
+                prev
             }
 
             #[inline]
             pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(!result, &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(!prev, &guard);
+                prev
             }
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
@@ -380,9 +380,9 @@ macro_rules! atomic {
             #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
                 let guard = lock(self.v.get() as usize).write();
-                let result = self.read(&guard);
-                self.write(result.wrapping_neg(), &guard);
-                result
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_neg(), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {

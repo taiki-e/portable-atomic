@@ -131,8 +131,8 @@ unsafe fn atomic_compare_exchange(
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned (required by CMPXCHG16B), that there are no
             // concurrent non-atomic operations, and that the CPU supports CMPXCHG16B.
-            let res = unsafe { core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure) };
-            (res, res == old)
+            let prev = unsafe { core::arch::x86_64::cmpxchg16b(dst, old, new, success, failure) };
+            (prev, prev == old)
         }
         #[cfg(portable_atomic_no_cmpxchg16b_intrinsic_stronger_failure_ordering)]
         let success = crate::utils::upgrade_success_ordering(success, failure);
@@ -237,12 +237,12 @@ where
     unsafe {
         // This is a private function and all instances of `f` only operate on the value
         // loaded, so there is no need to synchronize the first load/failed CAS.
-        let mut old = atomic_load(dst, Ordering::Relaxed);
+        let mut prev = atomic_load(dst, Ordering::Relaxed);
         loop {
-            let next = f(old);
-            match atomic_compare_exchange_weak(dst, old, next, order, Ordering::Relaxed) {
+            let next = f(prev);
+            match atomic_compare_exchange_weak(dst, prev, next, order, Ordering::Relaxed) {
                 Ok(x) => return x,
-                Err(x) => old = x,
+                Err(x) => prev = x,
             }
         }
     }

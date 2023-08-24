@@ -139,7 +139,7 @@ unsafe fn atomic_compare_exchange(
     debug_assert!(dst as usize % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
-    let res = unsafe {
+    let prev = unsafe {
         // atomic CAS is always SeqCst.
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -157,10 +157,10 @@ unsafe fn atomic_compare_exchange(
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if res == old {
-        Ok(res)
+    if prev == old {
+        Ok(prev)
     } else {
-        Err(res)
+        Err(prev)
     }
 }
 
@@ -180,12 +180,12 @@ where
     unsafe {
         // This is a private function and all instances of `f` only operate on the value
         // loaded, so there is no need to synchronize the first load/failed CAS.
-        let mut old = atomic_load(dst, Ordering::Relaxed);
+        let mut prev = atomic_load(dst, Ordering::Relaxed);
         loop {
-            let next = f(old);
-            match atomic_compare_exchange_weak(dst, old, next, order, Ordering::Relaxed) {
+            let next = f(prev);
+            match atomic_compare_exchange_weak(dst, prev, next, order, Ordering::Relaxed) {
                 Ok(x) => return x,
-                Err(x) => old = x,
+                Err(x) => prev = x,
             }
         }
     }

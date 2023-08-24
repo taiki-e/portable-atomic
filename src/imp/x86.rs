@@ -139,18 +139,18 @@ macro_rules! atomic_bit_opts {
                 //
                 // https://www.felixcloutier.com/x86/bts
                 unsafe {
-                    let out: u8;
+                    let r: u8;
                     // atomic RMW is always SeqCst.
                     asm!(
                         concat!("lock bts ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
-                        "setb {out}",
+                        "setb {r}",
                         dst = in(reg) dst,
                         bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
-                        out = out(reg_byte) out,
+                        r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTS modifies the CF flag.
                         options(nostack),
                     );
-                    out != 0
+                    r != 0
                 }
             }
             #[inline]
@@ -163,18 +163,18 @@ macro_rules! atomic_bit_opts {
                 //
                 // https://www.felixcloutier.com/x86/btr
                 unsafe {
-                    let out: u8;
+                    let r: u8;
                     // atomic RMW is always SeqCst.
                     asm!(
                         concat!("lock btr ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
-                        "setb {out}",
+                        "setb {r}",
                         dst = in(reg) dst,
                         bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
-                        out = out(reg_byte) out,
+                        r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTR modifies the CF flag.
                         options(nostack),
                     );
-                    out != 0
+                    r != 0
                 }
             }
             #[inline]
@@ -187,18 +187,18 @@ macro_rules! atomic_bit_opts {
                 //
                 // https://www.felixcloutier.com/x86/btc
                 unsafe {
-                    let out: u8;
+                    let r: u8;
                     // atomic RMW is always SeqCst.
                     asm!(
                         concat!("lock btc ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
-                        "setb {out}",
+                        "setb {r}",
                         dst = in(reg) dst,
                         bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
-                        out = out(reg_byte) out,
+                        r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTC modifies the CF flag.
                         options(nostack),
                     );
-                    out != 0
+                    r != 0
                 }
             }
         }
