@@ -52,14 +52,14 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/zT5av9nMP
-// - aarch64 msvc https://godbolt.org/z/b5r9ordYW
-// - aarch64 (+lse) https://godbolt.org/z/6EeE94ebd
-// - aarch64 msvc (+lse) https://godbolt.org/z/d3Tev7nbv
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/K1xhW5jP8
-// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3jzsxedq8
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/jqdYaP6a3
-// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/h156b4TMv
+// - aarch64 https://godbolt.org/z/M6Kh7z5T3
+// - aarch64 msvc https://godbolt.org/z/f6h4onao9
+// - aarch64 (+lse) https://godbolt.org/z/e4jKxxrM5
+// - aarch64 msvc (+lse) https://godbolt.org/z/oav3aYjhM
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/EcW6fsr6K
+// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/aa5ooa4G7
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/nc3eKnseb
+// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/xbdhfzddh
 
 include!("macros.rs");
 
@@ -379,9 +379,26 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
     #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_swap(dst, val, order);
+    {
+        // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
+        // we use CAS-based atomic RMW.
+        #[cfg(all(
+            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            not(portable_atomic_ll_sc_rmw),
+        ))]
+        // SAFETY: the caller must uphold the safety contract.
+        // cfg guarantee that the CPU supports FEAT_LSE.
+        unsafe {
+            _atomic_swap_casp(dst, val, order);
+        }
+        #[cfg(not(all(
+            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            not(portable_atomic_ll_sc_rmw),
+        )))]
+        // SAFETY: the caller must uphold the safety contract.
+        unsafe {
+            _atomic_store_ldxp_stxp(dst, val, order);
+        }
     }
 }
 // If CPU supports FEAT_LSE2, STP/STILP is single-copy atomic writes,
@@ -431,6 +448,41 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
             _ => unreachable!("{:?}", order),
         }
+    }
+}
+// Do not use _atomic_swap_ldxp_stxp because it needs extra registers to implement store.
+#[cfg(any(
+    test,
+    not(all(
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+        not(portable_atomic_ll_sc_rmw),
+    ))
+))]
+#[inline]
+unsafe fn _atomic_store_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) {
+    debug_assert!(dst as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        let val = U128 { whole: val };
+        macro_rules! store {
+            ($acquire:tt, $release:tt, $fence:tt) => {
+                asm!(
+                    "2:",
+                        concat!("ld", $acquire, "xp xzr, {tmp}, [{dst}]"),
+                        concat!("st", $release, "xp {tmp:w}, {val_lo}, {val_hi}, [{dst}]"),
+                        // 0 if the store was successful, 1 if no store was performed
+                        "cbnz {tmp:w}, 2b",
+                    $fence,
+                    dst = in(reg) ptr_reg!(dst),
+                    val_lo = in(reg) val.pair.lo,
+                    val_hi = in(reg) val.pair.hi,
+                    tmp = out(reg) _,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(store, order);
     }
 }
 
