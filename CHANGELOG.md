@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.4.3] - 2023-08-25
+
 - Optimize AArch64 128-bit atomic store/swap/fetch_and/fetch_or when the `lse128` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
 
 - Optimize AArch64 128-bit atomic load/store when the `rcpc3` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
@@ -360,7 +362,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/taiki-e/portable-atomic/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/taiki-e/portable-atomic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/taiki-e/portable-atomic/compare/v1.3.3...v1.4.0
