@@ -192,7 +192,7 @@ case "${cmd}" in
         exit 0
         ;;
     miri)
-        export MIRIFLAGS="${MIRIFLAGS:-} -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-retag-fields -Zmiri-disable-isolation"
+        export MIRIFLAGS="${MIRIFLAGS:-} -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation"
         export RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}"
         export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}"
         export QUICKCHECK_TESTS=10
