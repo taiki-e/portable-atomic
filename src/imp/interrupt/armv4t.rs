@@ -55,6 +55,7 @@ pub(super) unsafe fn restore(cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //
     // This clobbers the control field mask byte of CPSR. See msp430.rs to safety on this.
+    // (preserves_flags is fine because we only clobber the I, F, T, and M bits of CPSR.)
     //
     // Refs: https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/msr--general-purpose-register-to-psr-
     unsafe {
