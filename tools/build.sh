@@ -37,7 +37,6 @@ default_targets=(
     thumbv4t-none-eabi
     thumbv6m-none-eabi
     # no atomic CAS (64-bit)
-    bpfeb-unknown-none
     bpfel-unknown-none
 
     # no-std 32-bit with 32-bit atomic
@@ -65,7 +64,6 @@ default_targets=(
     # rustc --print target-list | grep -E '^(aarch64|arm64)'
     # (for target in $(rustc --print target-list | grep -E '^(aarch64|arm64)'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
     aarch64-linux-android
-    aarch64-pc-windows-gnullvm
     aarch64-pc-windows-msvc
     aarch64-unknown-freebsd
     aarch64-unknown-fuchsia
