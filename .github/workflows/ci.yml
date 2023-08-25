@@ -225,7 +225,6 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-          qemu: '8.1'
         # TODO: QEMU 8.1 128-bit atomic bug in big endian powerpc64
         if: matrix.target != '' && !startsWith(matrix.target, 'powerpc64-')
       - uses: taiki-e/setup-cross-toolchain-action@v1
