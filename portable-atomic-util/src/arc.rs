@@ -95,8 +95,7 @@ impl<T: ?Sized> Shared<T> {
 ///         assert_eq!(*five, 5);
 ///     });
 /// }
-/// # // Sleep to give MIRI time to catch up.
-/// # std::thread::sleep(std::time::Duration::from_secs(1));
+/// # if cfg!(miri) { std::thread::sleep(std::time::Duration::from_millis(500)); } // wait for background threads closed: https://github.com/rust-lang/miri/issues/1371
 /// ```
 pub struct Arc<T: ?Sized> {
     /// The inner heap allocation.
@@ -123,12 +122,12 @@ pub struct Arc<T: ?Sized> {
 /// let five = Arc::new(5);
 /// let weak_five = Arc::downgrade(&five);
 ///
+/// # let t =
 /// thread::spawn(move || {
 ///     let five = weak_five.upgrade().unwrap();
 ///     assert_eq!(*five, 5);
 /// });
-/// # // Sleep to give MIRI time to catch up.
-/// # std::thread::sleep(std::time::Duration::from_secs(1));
+/// # t.join().unwrap(); // join thread to avoid https://github.com/rust-lang/miri/issues/1371
 /// ```
 pub struct Weak<T: ?Sized> {
     /// The inner heap allocation.
