@@ -65,6 +65,21 @@ impl CpuInfo {
     pub(crate) fn has_lse(self) -> bool {
         self.test(CpuInfo::HAS_LSE)
     }
+    #[cfg(test)]
+    #[inline]
+    pub(crate) fn has_lse2(self) -> bool {
+        self.test(CpuInfo::HAS_LSE2)
+    }
+    #[cfg(test)]
+    #[inline]
+    pub(crate) fn has_lse128(self) -> bool {
+        self.test(CpuInfo::HAS_LSE128)
+    }
+    #[cfg(test)]
+    #[inline]
+    pub(crate) fn has_rcpc3(self) -> bool {
+        self.test(CpuInfo::HAS_RCPC3)
+    }
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -328,7 +343,7 @@ mod tests_common {
                 assert!(!proc_cpuinfo.lse);
             }
         }
-        if detect().test(CpuInfo::HAS_LSE2) {
+        if detect().has_lse2() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             assert!(detect().test(CpuInfo::HAS_LSE2));
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
@@ -340,14 +355,14 @@ mod tests_common {
                 assert!(!lse2);
             }
         }
-        if detect().test(CpuInfo::HAS_LSE128) {
+        if detect().has_lse128() {
             assert!(detect().test(CpuInfo::HAS_LSE));
             assert!(detect().test(CpuInfo::HAS_LSE2));
             assert!(detect().test(CpuInfo::HAS_LSE128));
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
         }
-        if detect().test(CpuInfo::HAS_RCPC3) {
+        if detect().has_rcpc3() {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
         } else {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
