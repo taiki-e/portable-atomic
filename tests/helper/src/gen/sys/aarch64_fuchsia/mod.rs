@@ -8,14 +8,26 @@ pub use zircon_system_public_zircon_types::zx_status_t;
 mod zircon_system_public_zircon_errors;
 pub use zircon_system_public_zircon_errors::ZX_OK;
 mod zircon_system_public_zircon_features;
-pub use zircon_system_public_zircon_features::{
-    ZX_ARM64_FEATURE_ISA_AES, ZX_ARM64_FEATURE_ISA_ASIMD, ZX_ARM64_FEATURE_ISA_ATOMICS,
-    ZX_ARM64_FEATURE_ISA_CRC32, ZX_ARM64_FEATURE_ISA_DP, ZX_ARM64_FEATURE_ISA_DPB,
-    ZX_ARM64_FEATURE_ISA_FHM, ZX_ARM64_FEATURE_ISA_FP, ZX_ARM64_FEATURE_ISA_I8MM,
-    ZX_ARM64_FEATURE_ISA_PMULL, ZX_ARM64_FEATURE_ISA_RDM, ZX_ARM64_FEATURE_ISA_RNDR,
-    ZX_ARM64_FEATURE_ISA_SHA1, ZX_ARM64_FEATURE_ISA_SHA2, ZX_ARM64_FEATURE_ISA_SHA256,
-    ZX_ARM64_FEATURE_ISA_SHA3, ZX_ARM64_FEATURE_ISA_SHA512, ZX_ARM64_FEATURE_ISA_SM3,
-    ZX_ARM64_FEATURE_ISA_SM4, ZX_ARM64_FEATURE_ISA_SVE, ZX_ARM64_FEATURE_ISA_TS,
-    ZX_FEATURE_KIND_CPU,
-};
+pub use zircon_system_public_zircon_features::ZX_FEATURE_KIND_CPU;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_FP;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_ASIMD;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_AES;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_PMULL;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SHA1;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SHA256;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_CRC32;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_ATOMICS;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_RDM;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SHA3;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SM3;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SM4;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_DP;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_DPB;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_FHM;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_TS;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_RNDR;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SHA512;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_I8MM;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SVE;
+pub use zircon_system_public_zircon_features::ZX_ARM64_FEATURE_ISA_SHA2;
 pub type c_char = u8;

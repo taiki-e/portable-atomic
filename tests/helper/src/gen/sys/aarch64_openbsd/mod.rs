@@ -4,11 +4,17 @@
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
 mod sys_sysctl;
-pub use sys_sysctl::{CTL_MACHDEP, sysctl};
+pub use sys_sysctl::CTL_MACHDEP;
+pub use sys_sysctl::sysctl;
 mod machine_cpu;
-pub use machine_cpu::{
-    CPU_ID_AA64ISAR0, CPU_ID_AA64ISAR1, CPU_ID_AA64ISAR2, CPU_ID_AA64MMFR0,
-    CPU_ID_AA64MMFR1, CPU_ID_AA64MMFR2, CPU_ID_AA64PFR0, CPU_ID_AA64PFR1,
-    CPU_ID_AA64SMFR0, CPU_ID_AA64ZFR0,
-};
+pub use machine_cpu::CPU_ID_AA64ISAR0;
+pub use machine_cpu::CPU_ID_AA64ISAR1;
+pub use machine_cpu::CPU_ID_AA64ISAR2;
+pub use machine_cpu::CPU_ID_AA64MMFR0;
+pub use machine_cpu::CPU_ID_AA64MMFR1;
+pub use machine_cpu::CPU_ID_AA64MMFR2;
+pub use machine_cpu::CPU_ID_AA64PFR0;
+pub use machine_cpu::CPU_ID_AA64PFR1;
+pub use machine_cpu::CPU_ID_AA64SMFR0;
+pub use machine_cpu::CPU_ID_AA64ZFR0;
 pub type c_char = u8;

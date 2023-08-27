@@ -2,8 +2,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const CTL_MACHDEP: u32 = 7;
 pub type u_int = ::std::os::raw::c_uint;
+pub const CTL_MACHDEP: u32 = 7;
 extern "C" {
     pub fn sysctl(
         arg1: *const ::std::os::raw::c_int,

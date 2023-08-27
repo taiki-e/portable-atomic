@@ -2,6 +2,7 @@ addc
 adde
 alcgr
 algr
+allnoconfig
 aosp
 armasm
 auxv
@@ -37,6 +38,7 @@ csrsi
 cxchg
 cxchgweak
 DESTDIR
+DEVEL
 dlsym
 DWCAS
 espup
@@ -119,6 +121,8 @@ spinlock
 sreg
 sstatus
 stdarch
+stdbool
+stddef
 stdsimd
 stilp
 stlxp
@@ -133,6 +137,7 @@ subfze
 swpp
 syscall
 sysctlbyname
+sysdeps
 systemsim
 tagme
 uapi

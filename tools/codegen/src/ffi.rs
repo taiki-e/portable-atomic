@@ -8,7 +8,7 @@
 //
 // See also https://github.com/rust-lang/libc/issues/570.
 
-use std::{collections::BTreeSet, ffi::OsStr, process::Command};
+use std::{ffi::OsStr, process::Command};
 
 use anyhow::{Context as _, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -18,9 +18,9 @@ use fs_err as fs;
 use quote::{format_ident, quote};
 use regex::Regex;
 use target_spec_json::{
-    TargetArch::{self, *},
-    TargetEnv::{self, *},
-    TargetOs::{self, *},
+    Arch::{self, *},
+    Env::{self, *},
+    Os::{self, *},
     TargetSpec,
 };
 
@@ -73,32 +73,22 @@ static TARGETS: &[Target] = &[
                 os: &[],
                 env: &[],
             },
-            // TODO: getauxval
-            // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
-            // https://repo.or.cz/uclibc-ng.git/blob/HEAD:/include/sys/auxv.h
             Header {
+                // https://github.com/bminor/glibc/blob/HEAD/misc/sys/auxv.h
                 // https://github.com/bminor/musl/blob/HEAD/include/sys/auxv.h
-                path: "musl:sys/auxv.h",
-                types: &[],
-                vars: &[],
-                functions: &["getauxval"],
-                arch: &[],
-                os: &[linux],
-                env: &[musl],
-            },
-            Header {
+                // https://github.com/wbx-github/uclibc-ng/blob/HEAD/include/sys/auxv.h
                 // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/auxv.h
-                path: "bionic:sys/auxv.h",
+                path: "sys/auxv.h",
                 types: &[],
                 vars: &[],
                 functions: &["getauxval"],
                 arch: &[],
-                os: &[android],
+                os: &[],
                 env: &[],
             },
             Header {
                 // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/sys/system_properties.h
-                path: "bionic:sys/system_properties.h",
+                path: "sys/system_properties.h",
                 types: &[],
                 vars: &["PROP_VALUE_MAX"],
                 functions: &["__system_property_get"],
@@ -249,15 +239,15 @@ struct Header {
     functions: &'static [&'static str],
 
     // If not empty, code is generated only for the specified targets.
-    arch: &'static [TargetArch],
-    os: &'static [TargetOs],
-    env: &'static [TargetEnv],
+    arch: &'static [Arch],
+    os: &'static [Os],
+    env: &'static [Env],
 }
 
 pub(crate) fn gen() -> Result<()> {
     let workspace_root = &workspace_root();
-    let download_cache_dir = &workspace_root.join("tools/codegen/tmp/cache");
-    fs::create_dir_all(download_cache_dir)?;
+    let download_dir = &workspace_root.join("tools/codegen/tmp/cache");
+    fs::create_dir_all(download_dir)?;
     let out_dir = &workspace_root.join("tests/helper/src/gen/sys");
     fs::remove_dir_all(out_dir)?;
     let raw_line = file::header(function_name!());
@@ -277,7 +267,7 @@ pub(crate) fn gen() -> Result<()> {
                 cfg.extend(quote! { target_arch = #arch });
                 let os = target.os.as_str();
                 cfg.extend(quote! { , target_os = #os });
-                if target.env != TargetEnv::none {
+                if target.env != Env::none {
                     let env = target.env.as_str();
                     cfg.extend(quote! { , target_env = #env });
                 }
@@ -293,26 +283,7 @@ pub(crate) fn gen() -> Result<()> {
                 });
             }
             fs::create_dir_all(out_dir)?;
-            let src_dir = &git_clone(target, download_cache_dir)?;
-            install_headers(target, src_dir)?;
-
-            let target_flag = &*format!("--target={triple}");
-            let mut clang_args = vec![target_flag, "-nostdinc"];
-            macro_rules! define {
-                ($name:ident, $value:literal) => {{
-                    clang_args.push(concat!("-D", stringify!($name), "=", $value));
-                }};
-            }
-            match target.os {
-                macos => {
-                    // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
-                    define!(_POSIX_C_SOURCE, "200112L");
-                }
-                fuchsia => {
-                    define!(size_t, "unsigned long");
-                }
-                _ => {}
-            }
+            let src_dir = &download_headers(target, download_dir)?;
 
             let mut files = vec![];
             for &header in headers {
@@ -329,7 +300,6 @@ pub(crate) fn gen() -> Result<()> {
                 let functions = header.functions.join("|");
                 let types = header.types.join("|");
                 let vars = header.vars.join("|");
-                let mut clang_args = clang_args.clone();
 
                 let out_file = format!(
                     "{}.rs",
@@ -339,6 +309,21 @@ pub(crate) fn gen() -> Result<()> {
                 );
                 let out_path = out_dir.join(&out_file);
 
+                let target_flag = &*format!("--target={triple}");
+                let mut clang_args = vec![target_flag, "-nostdinc"];
+                macro_rules! define {
+                    ($name:ident) => {{
+                        clang_args.push(concat!("-D", stringify!($name)));
+                    }};
+                    ($name:ident, $value:literal) => {{
+                        clang_args.push(concat!("-D", stringify!($name), "=", $value));
+                    }};
+                }
+                macro_rules! include_header {
+                    ($value:literal) => {{
+                        clang_args.push(concat!("-include", $value));
+                    }};
+                }
                 let header_path;
                 let include;
                 match target.os {
@@ -347,13 +332,9 @@ pub(crate) fn gen() -> Result<()> {
                         if let Some(path) = header.path.strip_prefix("linux-headers:") {
                             header_path = linux_headers_dir.join("include").join(path);
                             include = vec![linux_headers_dir.join("include")];
-                        } else if let Some(path) = header.path.strip_prefix("musl:") {
-                            let musl_headers_dir = musl_headers_dir(target, src_dir);
-                            header_path = musl_headers_dir.join("include").join(path);
-                            include = vec![musl_headers_dir.join("include")];
-                        } else if let Some(path) = header.path.strip_prefix("bionic:") {
+                        } else if target.os == android {
                             let bionic_dir = bionic_dir(src_dir).join("libc");
-                            header_path = bionic_dir.join("include").join(path);
+                            header_path = bionic_dir.join("include").join(header.path);
                             include = vec![
                                 linux_headers_dir.join("include"),
                                 bionic_dir.join("include"),
@@ -361,8 +342,18 @@ pub(crate) fn gen() -> Result<()> {
                                 bionic_dir.join("kernel/uapi"),
                                 bionic_dir.join("kernel/android/uapi"),
                             ];
+                        } else if target.env == gnu {
+                            let glibc_dir = glibc_dir(src_dir);
+                            header_path = glibc_dir.join("include").join(header.path);
+                            include = vec![
+                                glibc_dir.join("include"),
+                                glibc_dir.join("sysdeps").join(glibc_arch(target)),
+                                glibc_dir,
+                            ];
                         } else {
-                            todo!("{}", header.path);
+                            let headers_dir = libc_headers_dir(target, src_dir);
+                            header_path = headers_dir.join("include").join(header.path);
+                            include = vec![headers_dir.join("include")];
                         }
                     }
                     macos => {
@@ -374,10 +365,16 @@ pub(crate) fn gen() -> Result<()> {
                             src_dir.parent().unwrap().join("Libc/include"),
                             src_dir.parent().unwrap().join("libpthread/include"),
                         ];
+                        // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
+                        define!(_POSIX_C_SOURCE, "200112L");
+                        include_header!("sys/_types/_u_char.h");
+                        include_header!("sys/_types/_u_short.h");
+                        include_header!("sys/_types/_u_int.h");
                     }
                     freebsd | openbsd => {
                         header_path = src_dir.join("include").join(header.path);
                         include = vec![src_dir.join("include")];
+                        include_header!("sys/types.h");
                     }
                     fuchsia => {
                         header_path = src_dir.join(header.path);
@@ -385,6 +382,7 @@ pub(crate) fn gen() -> Result<()> {
                             src_dir.join("zircon/system/public"),
                             src_dir.join("zircon/kernel/lib/libc/include"),
                         ];
+                        define!(_KERNEL);
                     }
                     _ => todo!("{target:?}"),
                 }
@@ -418,8 +416,8 @@ pub(crate) fn gen() -> Result<()> {
             let mut modules = vec![];
             for (path, functions, types, vars) in &files {
                 let module_name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
+                let mut uses = vec![];
                 // Only export matched names because the module may contain type def.
-                let mut uses = BTreeSet::new();
                 let functions = Regex::new(&format!("^({functions})$"))?;
                 let types = Regex::new(&format!("^({types})$"))?;
                 let vars = Regex::new(&format!("^({vars})$"))?;
@@ -433,7 +431,7 @@ pub(crate) fn gen() -> Result<()> {
                                         if matches!(i.vis, syn::Visibility::Public(..))
                                             && functions.is_match(&i.sig.ident.to_string()) =>
                                     {
-                                        uses.insert(format_ident!("{}", i.sig.ident));
+                                        uses.push(format_ident!("{}", i.sig.ident));
                                     }
                                     _ => {}
                                 }
@@ -443,26 +441,27 @@ pub(crate) fn gen() -> Result<()> {
                             if matches!(i.vis, syn::Visibility::Public(..))
                                 && types.is_match(&i.ident.to_string()) =>
                         {
-                            uses.insert(format_ident!("{}", i.ident));
+                            uses.push(format_ident!("{}", i.ident));
                         }
                         syn::Item::Type(i)
                             if matches!(i.vis, syn::Visibility::Public(..))
                                 && types.is_match(&i.ident.to_string()) =>
                         {
-                            uses.insert(format_ident!("{}", i.ident));
+                            uses.push(format_ident!("{}", i.ident));
                         }
                         syn::Item::Const(i)
                             if matches!(i.vis, syn::Visibility::Public(..))
                                 && vars.is_match(&i.ident.to_string()) =>
                         {
-                            uses.insert(format_ident!("{}", i.ident));
+                            uses.push(format_ident!("{}", i.ident));
                         }
                         _ => {}
                     }
                 }
+                let uses = uses.iter();
                 modules.push(quote! {
                     mod #module_name;
-                    pub use #module_name::{#(#uses),*};
+                    #(pub use #module_name::#uses;)*
                 });
             }
             // e.g., clang -E -dM -x c /dev/null -target aarch64-unknown-linux-gnu | grep __CHAR_
@@ -485,8 +484,7 @@ pub(crate) fn gen() -> Result<()> {
             dead_code,
             non_camel_case_types,
             non_upper_case_globals,
-            unreachable_pub,
-            unused_imports,
+            clippy::unnecessary_cast,
             clippy::unreadable_literal,
         )]
         #(#target_modules)*
@@ -494,20 +492,29 @@ pub(crate) fn gen() -> Result<()> {
     Ok(())
 }
 
+// https://github.com/bminor/glibc
+const GLIBC_REPO: &str = "bminor/glibc";
 // https://github.com/bminor/musl
 const MUSL_REPO: &str = "bminor/musl";
+// https://github.com/wbx-github/uclibc-ng
+const UCLIBC_REPO: &str = "wbx-github/uclibc-ng";
 // https://github.com/aosp-mirror/platform_bionic
 const BIONIC_REPO: &str = "aosp-mirror/platform_bionic";
-fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8PathBuf> {
+fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8PathBuf> {
     fn clone(
-        download_cache_dir: &Utf8Path,
+        download_dir: &Utf8Path,
         repository: &str,
         sparse_checkout: &[&str],
     ) -> Result<Utf8PathBuf> {
         let name = repository.strip_suffix(".git").unwrap_or(repository);
-        let name = name.strip_prefix("https://github.com/").unwrap_or(name);
         let name = name.replace("https://fuchsia.googlesource.com/", "fuchsia/");
-        let src_dir = download_cache_dir.join(name);
+        assert!(!name.contains("://"), "{}", name);
+        let repository = if repository.contains("://") {
+            repository.to_owned()
+        } else {
+            format!("https://github.com/{repository}.git")
+        };
+        let src_dir = download_dir.join(name);
         if !src_dir.exists() {
             fs::create_dir_all(src_dir.parent().unwrap())?;
             if sparse_checkout.is_empty() {
@@ -538,76 +545,43 @@ fn git_clone(target: &TargetSpec, download_cache_dir: &Utf8Path) -> Result<Utf8P
         cmd!("git", "checkout", ".").dir(&src_dir).stderr_capture().run()?;
         Ok(src_dir)
     }
-    let src_dir = match target.os {
-        linux | android => {
-            if target.os == android {
-                clone(download_cache_dir, &format!("https://github.com/{BIONIC_REPO}.git"), &[])?;
-            } else if target.env == musl {
-                clone(download_cache_dir, &format!("https://github.com/{MUSL_REPO}.git"), &[
-                    "/include/",
-                    "/arch/",
-                    "/tools/",
-                ])?;
+    fn patch(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
+        let patch_dir = Utf8Path::new("tools/codegen/patches");
+        for path in [
+            patch_dir.join(format!("{}.diff", target.os)),
+            patch_dir.join(format!("{}-{}.diff", target.os, target.env)),
+        ] {
+            if !path.exists() {
+                continue;
             }
-            clone(download_cache_dir, "https://github.com/torvalds/linux.git", &[
-                "/include/",
-                "/arch/",
-                "/scripts/",
-                "/tools/",
-            ])?
-        }
-        macos => {
-            clone(download_cache_dir, "https://github.com/apple-oss-distributions/Libc.git", &[])?;
-            clone(
-                download_cache_dir,
-                "https://github.com/apple-oss-distributions/libpthread.git",
-                &[],
-            )?;
-            clone(download_cache_dir, "https://github.com/apple-oss-distributions/xnu.git", &[])?
-        }
-        freebsd => clone(download_cache_dir, "https://github.com/freebsd/freebsd-src.git", &[
-            "/include/",
-            "/sys/",
-        ])?,
-        openbsd => clone(download_cache_dir, "https://github.com/openbsd/src.git", &[
-            "/include/",
-            "/sys/",
-        ])?,
-        fuchsia => clone(download_cache_dir, "https://fuchsia.googlesource.com/fuchsia", &[])?,
-        _ => todo!("{target:?}"),
-    };
-    // TODO: remove needs of patches.
-    for e in fs::read_dir("tools/codegen/patches")?.filter_map(Result::ok) {
-        let path = e.path();
-        if path.file_stem() == Some(OsStr::new(target.os.as_str()))
-            || path.file_stem()
-                == Some(OsStr::new(&format!("{}-{}", target.os.as_str(), target.env.as_str())))
-        {
             let dir = match target.os {
                 linux | android => src_dir.parent().unwrap().parent().unwrap(),
-                _ => &src_dir,
+                _ => src_dir,
             };
             cmd!("patch", "-p1").stdin_file(fs::File::open(path)?.into_parts().0).dir(dir).run()?;
         }
+        Ok(())
     }
-    Ok(src_dir)
-}
-
-fn linux_headers_dir(target: &TargetSpec, src_dir: &Utf8Path) -> Utf8PathBuf {
-    src_dir.join("../..").join("headers").join("linux").join(linux_arch(target))
-}
-fn musl_headers_dir(target: &TargetSpec, src_dir: &Utf8Path) -> Utf8PathBuf {
-    src_dir.join("../..").join("headers").join("musl").join(musl_arch(target))
-}
-fn bionic_dir(src_dir: &Utf8Path) -> Utf8PathBuf {
-    src_dir.join("../..").join(BIONIC_REPO)
-}
-
-fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
+    let src_dir;
     match target.os {
         linux | android => {
+            if target.os == android {
+                clone(download_dir, BIONIC_REPO, &["/libc/"])?;
+            } else if target.env == gnu {
+                clone(download_dir, GLIBC_REPO, &[])?;
+            } else if target.env == musl {
+                clone(download_dir, MUSL_REPO, &["/arch/", "/include/", "/tools/"])?;
+            } else if target.env == uclibc {
+                clone(download_dir, UCLIBC_REPO, &[])?;
+            }
+            src_dir = clone(download_dir, "torvalds/linux", &[
+                "/arch/",
+                "/include/",
+                "/scripts/",
+                "/tools/",
+            ])?;
             let linux_arch = linux_arch(target);
-            let linux_headers_dir = &linux_headers_dir(target, src_dir);
+            let linux_headers_dir = &linux_headers_dir(target, &src_dir);
             if !linux_headers_dir.exists() {
                 // https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt
                 cmd!(
@@ -616,37 +590,99 @@ fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
                     format!("ARCH={linux_arch}"),
                     format!("INSTALL_HDR_PATH={linux_headers_dir}"),
                 )
-                .dir(src_dir)
+                .dir(&src_dir)
                 .stdout_capture()
                 .run()?;
             }
-            if target.env == musl {
+            if target.os == android {
+                fs::write(
+                    bionic_dir(&src_dir).join("libc/include/stdbool.h"),
+                    "#define bool _Bool",
+                )?;
+            } else if target.env == gnu {
+                let glibc_arch = glibc_arch(target);
+                let glibc_src_dir = &src_dir.join("../..").join(GLIBC_REPO);
+                // TODO: use https://github.com/bminor/glibc/blob/HEAD/Makefile?
+                let sysdeps_dir = &glibc_src_dir.join("sysdeps");
+                for e in fs::read_dir(sysdeps_dir.join("generic"))?.filter_map(Result::ok) {
+                    let path = &e.path();
+                    if path.extension() != Some(OsStr::new("h")) {
+                        continue;
+                    }
+                    let file = path.file_name().unwrap().to_str().unwrap();
+                    if !sysdeps_dir.join(glibc_arch).join(file).exists() {
+                        symlink(path, sysdeps_dir.join(glibc_arch).join(file))?;
+                    }
+                }
+                fs::write(glibc_src_dir.join("include/stddef.h"), "")?;
+                patch(target, &src_dir)?;
+            } else if target.env == musl {
                 let musl_arch = musl_arch(target);
                 let musl_src_dir = &src_dir.join("../..").join(MUSL_REPO);
-                let musl_headers_dir = &musl_headers_dir(target, src_dir);
-                if !musl_headers_dir.exists() {
+                let headers_dir = &libc_headers_dir(target, &src_dir);
+                if !headers_dir.exists() {
                     // https://github.com/bminor/musl/blob/HEAD/Makefile
                     cmd!(
                         "make",
                         "install-headers",
                         format!("ARCH={musl_arch}"),
-                        format!("DESTDIR={musl_headers_dir}"),
+                        format!("DESTDIR={headers_dir}"),
                         "prefix=/",
                     )
                     .dir(musl_src_dir)
                     .stdout_capture()
                     .run()?;
                 }
+            } else if target.env == uclibc {
+                let uclibc_arch = uclibc_arch(target);
+                let uclibc_src_dir = &src_dir.join("../..").join(UCLIBC_REPO);
+                let config_path = &uclibc_src_dir.join(".config");
+                if config_path.exists() {
+                    fs::remove_file(config_path)?;
+                }
+                patch(target, &src_dir)?;
+                let headers_dir = &libc_headers_dir(target, &src_dir);
+                if !headers_dir.exists() {
+                    // https://github.com/wbx-github/uclibc-ng/blob/HEAD/Makefile.in
+                    cmd!("make", "allnoconfig", format!("ARCH={uclibc_arch}"))
+                        .dir(uclibc_src_dir)
+                        .stdout_capture()
+                        .run()?;
+                    cmd!(
+                        "make",
+                        "install_headers",
+                        format!("ARCH={uclibc_arch}"),
+                        "HAVE_SHARED=y",
+                        format!("DESTDIR={headers_dir}"),
+                        format!("PREFIX={headers_dir}"),
+                        "DEVEL_PREFIX=/",
+                        format!("KERNEL_HEADERS={linux_headers_dir}/include"),
+                    )
+                    .dir(uclibc_src_dir)
+                    .stdout_capture()
+                    .run()?;
+                }
             }
         }
         macos => {
+            clone(download_dir, "apple-oss-distributions/Libc", &["/include/"])?;
+            clone(download_dir, "apple-oss-distributions/libpthread", &["/include/"])?;
+            src_dir = clone(download_dir, "apple-oss-distributions/xnu", &[
+                "/bsd/",
+                "/EXTERNAL_HEADERS/",
+                "/osfmk/",
+            ])?;
             // TODO: use https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/Makefile?
             // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_symbol_aliasing.sh
-            // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_posix_availability.sh
             fs::write(src_dir.join("bsd/sys/_symbol_aliasing.h"), "")?;
-            fs::write(src_dir.join("bsd/sys/_posix_availability.h"), "")?;
+            // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/make_posix_availability.sh
+            cmd!("bash", "bsd/sys/make_posix_availability.sh", "bsd/sys/_posix_availability.h")
+                .dir(&src_dir)
+                .stdout_capture()
+                .run()?;
         }
         freebsd => {
+            src_dir = clone(download_dir, "freebsd/freebsd-src", &["/include/", "/sys/"])?;
             // TODO: use https://github.com/freebsd/freebsd-src/blob/HEAD/Makefile?
             let arch = freebsd_arch(target);
             for path in ["sys"] {
@@ -658,6 +694,7 @@ fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
             )?;
         }
         openbsd => {
+            src_dir = clone(download_dir, "openbsd/src", &["/include/", "/sys/"])?;
             // TODO: use https://github.com/openbsd/src/blob/HEAD/Makefile?
             let arch = openbsd_arch(target);
             for path in ["sys", "uvm"] {
@@ -668,10 +705,36 @@ fn install_headers(target: &TargetSpec, src_dir: &Utf8Path) -> Result<()> {
                 src_dir.join("include/machine"),
             )?;
         }
-        fuchsia => {}
-        _ => {}
+        fuchsia => {
+            src_dir = clone(download_dir, "https://fuchsia.googlesource.com/fuchsia", &[])?;
+            fs::write(src_dir.join("zircon/kernel/lib/libc/include/stdbool.h"), "")?;
+            fs::write(
+                src_dir.join("zircon/kernel/lib/libc/include/stddef.h"),
+                "#define size_t unsigned long",
+            )?;
+        }
+        _ => todo!("{target:?}"),
     }
-    Ok(())
+    Ok(src_dir)
+}
+
+fn linux_headers_dir(target: &TargetSpec, src_dir: &Utf8Path) -> Utf8PathBuf {
+    src_dir.join("../..").join("headers").join("linux").join(linux_arch(target))
+}
+fn glibc_dir(src_dir: &Utf8Path) -> Utf8PathBuf {
+    src_dir.join("../..").join(GLIBC_REPO)
+}
+fn libc_headers_dir(target: &TargetSpec, src_dir: &Utf8Path) -> Utf8PathBuf {
+    assert_eq!(target.os, linux);
+    let (lib, arch) = match target.env {
+        musl => ("musl", musl_arch(target)),
+        uclibc => ("uclibc", uclibc_arch(target)),
+        _ => todo!("{target:?}"),
+    };
+    src_dir.join("../..").join("headers").join(lib).join(arch)
+}
+fn bionic_dir(src_dir: &Utf8Path) -> Utf8PathBuf {
+    src_dir.join("../..").join(BIONIC_REPO)
 }
 
 fn linux_arch(target: &TargetSpec) -> &'static str {
@@ -690,6 +753,14 @@ fn linux_arch(target: &TargetSpec) -> &'static str {
         sparc | sparc64 => "sparc",
         x86 | x86_64 => "x86",
         xtensa => "xtensa",
+        _ => todo!("{target:?}"),
+    }
+}
+fn glibc_arch(target: &TargetSpec) -> &'static str {
+    // https://github.com/bminor/glibc/tree/HEAD/sysdeps
+    match target.arch {
+        aarch64 => "aarch64",
+        powerpc64 => "powerpc/powerpc64",
         _ => todo!("{target:?}"),
     }
 }
@@ -712,19 +783,36 @@ fn musl_arch(target: &TargetSpec) -> &'static str {
         _ => todo!("{target:?}"),
     }
 }
+fn uclibc_arch(target: &TargetSpec) -> &'static str {
+    // https://github.com/wbx-github/uclibc-ng/tree/HEAD/libc/sysdeps/linux
+    match target.arch {
+        aarch64 => "aarch64",
+        arm => "arm",
+        riscv64 => "riscv64",
+        _ => todo!("{target:?}"),
+    }
+}
 fn freebsd_arch(target: &TargetSpec) -> &'static str {
     // https://github.com/freebsd/freebsd-src/tree/HEAD/sys
     match target.arch {
+        x86_64 => "amd64",
+        arm => "arm",
         aarch64 => "arm64",
+        x86 => "i386",
         powerpc | powerpc64 => "powerpc",
+        riscv64 => "riscv",
         _ => todo!("{target:?}"),
     }
 }
 fn openbsd_arch(target: &TargetSpec) -> &'static str {
     // https://github.com/openbsd/src/tree/HEAD/sys/arch
     match target.arch {
+        x86_64 => "amd64",
         aarch64 => "arm64",
+        x86 => "i386",
         powerpc64 => "powerpc64",
+        riscv64 => "riscv64",
+        sparc64 => "sparc64",
         _ => todo!("{target:?}"),
     }
 }

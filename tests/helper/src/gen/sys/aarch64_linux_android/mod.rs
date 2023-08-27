@@ -4,26 +4,88 @@
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
 mod linux_headers_linux_auxvec;
-pub use linux_headers_linux_auxvec::{AT_HWCAP, AT_HWCAP2};
+pub use linux_headers_linux_auxvec::AT_HWCAP;
+pub use linux_headers_linux_auxvec::AT_HWCAP2;
 mod linux_headers_asm_hwcap;
-pub use linux_headers_asm_hwcap::{
-    HWCAP2_AFP, HWCAP2_BF16, HWCAP2_BTI, HWCAP2_CSSC, HWCAP2_DCPODP, HWCAP2_DGH,
-    HWCAP2_EBF16, HWCAP2_ECV, HWCAP2_FLAGM2, HWCAP2_FRINT, HWCAP2_I8MM, HWCAP2_MOPS,
-    HWCAP2_MTE, HWCAP2_MTE3, HWCAP2_RNG, HWCAP2_RPRES, HWCAP2_RPRFM, HWCAP2_SME,
-    HWCAP2_SME2, HWCAP2_SME2P1, HWCAP2_SME_B16B16, HWCAP2_SME_B16F32, HWCAP2_SME_BI32I32,
-    HWCAP2_SME_F16F16, HWCAP2_SME_F16F32, HWCAP2_SME_F32F32, HWCAP2_SME_F64F64,
-    HWCAP2_SME_FA64, HWCAP2_SME_I16I32, HWCAP2_SME_I16I64, HWCAP2_SME_I8I32, HWCAP2_SVE2,
-    HWCAP2_SVE2P1, HWCAP2_SVEAES, HWCAP2_SVEBF16, HWCAP2_SVEBITPERM, HWCAP2_SVEF32MM,
-    HWCAP2_SVEF64MM, HWCAP2_SVEI8MM, HWCAP2_SVEPMULL, HWCAP2_SVESHA3, HWCAP2_SVESM4,
-    HWCAP2_SVE_EBF16, HWCAP2_WFXT, HWCAP_AES, HWCAP_ASIMD, HWCAP_ASIMDDP, HWCAP_ASIMDFHM,
-    HWCAP_ASIMDHP, HWCAP_ASIMDRDM, HWCAP_ATOMICS, HWCAP_CPUID, HWCAP_CRC32, HWCAP_DCPOP,
-    HWCAP_DIT, HWCAP_EVTSTRM, HWCAP_FCMA, HWCAP_FLAGM, HWCAP_FP, HWCAP_FPHP,
-    HWCAP_ILRCPC, HWCAP_JSCVT, HWCAP_LRCPC, HWCAP_PACA, HWCAP_PACG, HWCAP_PMULL,
-    HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
-    HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
-};
-mod bionic_sys_auxv;
-pub use bionic_sys_auxv::getauxval;
-mod bionic_sys_system_properties;
-pub use bionic_sys_system_properties::{PROP_VALUE_MAX, __system_property_get};
+pub use linux_headers_asm_hwcap::HWCAP_FP;
+pub use linux_headers_asm_hwcap::HWCAP_ASIMD;
+pub use linux_headers_asm_hwcap::HWCAP_EVTSTRM;
+pub use linux_headers_asm_hwcap::HWCAP_AES;
+pub use linux_headers_asm_hwcap::HWCAP_PMULL;
+pub use linux_headers_asm_hwcap::HWCAP_SHA1;
+pub use linux_headers_asm_hwcap::HWCAP_SHA2;
+pub use linux_headers_asm_hwcap::HWCAP_CRC32;
+pub use linux_headers_asm_hwcap::HWCAP_ATOMICS;
+pub use linux_headers_asm_hwcap::HWCAP_FPHP;
+pub use linux_headers_asm_hwcap::HWCAP_ASIMDHP;
+pub use linux_headers_asm_hwcap::HWCAP_CPUID;
+pub use linux_headers_asm_hwcap::HWCAP_ASIMDRDM;
+pub use linux_headers_asm_hwcap::HWCAP_JSCVT;
+pub use linux_headers_asm_hwcap::HWCAP_FCMA;
+pub use linux_headers_asm_hwcap::HWCAP_LRCPC;
+pub use linux_headers_asm_hwcap::HWCAP_DCPOP;
+pub use linux_headers_asm_hwcap::HWCAP_SHA3;
+pub use linux_headers_asm_hwcap::HWCAP_SM3;
+pub use linux_headers_asm_hwcap::HWCAP_SM4;
+pub use linux_headers_asm_hwcap::HWCAP_ASIMDDP;
+pub use linux_headers_asm_hwcap::HWCAP_SHA512;
+pub use linux_headers_asm_hwcap::HWCAP_SVE;
+pub use linux_headers_asm_hwcap::HWCAP_ASIMDFHM;
+pub use linux_headers_asm_hwcap::HWCAP_DIT;
+pub use linux_headers_asm_hwcap::HWCAP_USCAT;
+pub use linux_headers_asm_hwcap::HWCAP_ILRCPC;
+pub use linux_headers_asm_hwcap::HWCAP_FLAGM;
+pub use linux_headers_asm_hwcap::HWCAP_SSBS;
+pub use linux_headers_asm_hwcap::HWCAP_SB;
+pub use linux_headers_asm_hwcap::HWCAP_PACA;
+pub use linux_headers_asm_hwcap::HWCAP_PACG;
+pub use linux_headers_asm_hwcap::HWCAP2_DCPODP;
+pub use linux_headers_asm_hwcap::HWCAP2_SVE2;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEAES;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEPMULL;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEBITPERM;
+pub use linux_headers_asm_hwcap::HWCAP2_SVESHA3;
+pub use linux_headers_asm_hwcap::HWCAP2_SVESM4;
+pub use linux_headers_asm_hwcap::HWCAP2_FLAGM2;
+pub use linux_headers_asm_hwcap::HWCAP2_FRINT;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEI8MM;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEF32MM;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEF64MM;
+pub use linux_headers_asm_hwcap::HWCAP2_SVEBF16;
+pub use linux_headers_asm_hwcap::HWCAP2_I8MM;
+pub use linux_headers_asm_hwcap::HWCAP2_BF16;
+pub use linux_headers_asm_hwcap::HWCAP2_DGH;
+pub use linux_headers_asm_hwcap::HWCAP2_RNG;
+pub use linux_headers_asm_hwcap::HWCAP2_BTI;
+pub use linux_headers_asm_hwcap::HWCAP2_MTE;
+pub use linux_headers_asm_hwcap::HWCAP2_ECV;
+pub use linux_headers_asm_hwcap::HWCAP2_AFP;
+pub use linux_headers_asm_hwcap::HWCAP2_RPRES;
+pub use linux_headers_asm_hwcap::HWCAP2_MTE3;
+pub use linux_headers_asm_hwcap::HWCAP2_SME;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_I16I64;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_F64F64;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_I8I32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_F16F32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_B16F32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_F32F32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_FA64;
+pub use linux_headers_asm_hwcap::HWCAP2_WFXT;
+pub use linux_headers_asm_hwcap::HWCAP2_EBF16;
+pub use linux_headers_asm_hwcap::HWCAP2_SVE_EBF16;
+pub use linux_headers_asm_hwcap::HWCAP2_CSSC;
+pub use linux_headers_asm_hwcap::HWCAP2_RPRFM;
+pub use linux_headers_asm_hwcap::HWCAP2_SVE2P1;
+pub use linux_headers_asm_hwcap::HWCAP2_SME2;
+pub use linux_headers_asm_hwcap::HWCAP2_SME2P1;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_I16I32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_BI32I32;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_B16B16;
+pub use linux_headers_asm_hwcap::HWCAP2_SME_F16F16;
+pub use linux_headers_asm_hwcap::HWCAP2_MOPS;
+mod sys_auxv;
+pub use sys_auxv::getauxval;
+mod sys_system_properties;
+pub use sys_system_properties::PROP_VALUE_MAX;
+pub use sys_system_properties::__system_property_get;
 pub type c_char = u8;

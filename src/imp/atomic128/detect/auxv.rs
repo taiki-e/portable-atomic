@@ -24,7 +24,7 @@
 //
 // - On musl with static linking. See the above for more.
 //   Also, in this case, dlsym(getauxval) always returns null.
-// - On uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*), [uClibc-ng 1.0.43 (released in 2023-04-05) added getauxval](https://repo.or.cz/uclibc-ng.git/commitdiff/d869bb1600942c01a77539128f9ba5b5b55ad647).
+// - On uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*), [uClibc-ng 1.0.43 (released in 2023-04-05) added getauxval](https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647).
 // - On Picolibc, [Picolibc 1.4.6 added getauxval stub](https://github.com/picolibc/picolibc#picolibc-version-146).
 //
 // See also https://github.com/rust-lang/stdarch/pull/1375
@@ -69,7 +69,7 @@ mod os {
             // https://man7.org/linux/man-pages/man3/getauxval.3.html
             // https://github.com/bminor/glibc/blob/801af9fafd4689337ebf27260aa115335a0cb2bc/misc/sys/auxv.h
             // https://github.com/bminor/musl/blob/7d756e1c04de6eb3f2b3d3e1141a218bb329fcfb/include/sys/auxv.h
-            // https://repo.or.cz/uclibc-ng.git/blob/9d549d7bc6a1b78498ee8d1f39f6a324fdfc9e5d:/include/sys/auxv.h
+            // https://github.com/wbx-github/uclibc-ng/blob/cdb07d2cd52af39feb425e6d36c02b30916b9f0a/include/sys/auxv.h
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
             // https://github.com/picolibc/picolibc/blob/7a8a58aeaa5946cb662577a518051091b691af3a/newlib/libc/picolib/getauxval.c
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
@@ -277,10 +277,7 @@ mod tests {
         {
             let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
             _getauxval = libc::getauxval;
-            #[cfg(any(target_env = "musl", target_os = "android"))] // TODO(codegen)
-            {
-                _getauxval = sys::getauxval;
-            }
+            _getauxval = sys::getauxval;
         }
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         {

@@ -4,23 +4,52 @@
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
 mod linux_headers_linux_auxvec;
-pub use linux_headers_linux_auxvec::{AT_HWCAP, AT_HWCAP2};
+pub use linux_headers_linux_auxvec::AT_HWCAP;
+pub use linux_headers_linux_auxvec::AT_HWCAP2;
 mod linux_headers_asm_cputable;
-pub use linux_headers_asm_cputable::{
-    PPC_FEATURE2_ARCH_2_07, PPC_FEATURE2_ARCH_3_00, PPC_FEATURE2_ARCH_3_1,
-    PPC_FEATURE2_DARN, PPC_FEATURE2_DSCR, PPC_FEATURE2_EBB, PPC_FEATURE2_HAS_IEEE128,
-    PPC_FEATURE2_HTM, PPC_FEATURE2_HTM_NOSC, PPC_FEATURE2_HTM_NO_SUSPEND,
-    PPC_FEATURE2_ISEL, PPC_FEATURE2_MMA, PPC_FEATURE2_SCV, PPC_FEATURE2_TAR,
-    PPC_FEATURE2_VEC_CRYPTO, PPC_FEATURE_32, PPC_FEATURE_601_INSTR, PPC_FEATURE_64,
-    PPC_FEATURE_ARCH_2_05, PPC_FEATURE_ARCH_2_06, PPC_FEATURE_BOOKE, PPC_FEATURE_CELL,
-    PPC_FEATURE_HAS_4xxMAC, PPC_FEATURE_HAS_ALTIVEC, PPC_FEATURE_HAS_DFP,
-    PPC_FEATURE_HAS_EFP_DOUBLE, PPC_FEATURE_HAS_EFP_SINGLE, PPC_FEATURE_HAS_FPU,
-    PPC_FEATURE_HAS_MMU, PPC_FEATURE_HAS_SPE, PPC_FEATURE_HAS_VSX,
-    PPC_FEATURE_ICACHE_SNOOP, PPC_FEATURE_NO_TB, PPC_FEATURE_PA6T, PPC_FEATURE_POWER4,
-    PPC_FEATURE_POWER5, PPC_FEATURE_POWER5_PLUS, PPC_FEATURE_POWER6_EXT,
-    PPC_FEATURE_PPC_LE, PPC_FEATURE_PSERIES_PERFMON_COMPAT, PPC_FEATURE_SMT,
-    PPC_FEATURE_TRUE_LE, PPC_FEATURE_UNIFIED_CACHE,
-};
-mod musl_sys_auxv;
-pub use musl_sys_auxv::getauxval;
+pub use linux_headers_asm_cputable::PPC_FEATURE_32;
+pub use linux_headers_asm_cputable::PPC_FEATURE_64;
+pub use linux_headers_asm_cputable::PPC_FEATURE_601_INSTR;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_ALTIVEC;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_FPU;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_MMU;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_4xxMAC;
+pub use linux_headers_asm_cputable::PPC_FEATURE_UNIFIED_CACHE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_SPE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_EFP_SINGLE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_EFP_DOUBLE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_NO_TB;
+pub use linux_headers_asm_cputable::PPC_FEATURE_POWER4;
+pub use linux_headers_asm_cputable::PPC_FEATURE_POWER5;
+pub use linux_headers_asm_cputable::PPC_FEATURE_POWER5_PLUS;
+pub use linux_headers_asm_cputable::PPC_FEATURE_CELL;
+pub use linux_headers_asm_cputable::PPC_FEATURE_BOOKE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_SMT;
+pub use linux_headers_asm_cputable::PPC_FEATURE_ICACHE_SNOOP;
+pub use linux_headers_asm_cputable::PPC_FEATURE_ARCH_2_05;
+pub use linux_headers_asm_cputable::PPC_FEATURE_PA6T;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_DFP;
+pub use linux_headers_asm_cputable::PPC_FEATURE_POWER6_EXT;
+pub use linux_headers_asm_cputable::PPC_FEATURE_ARCH_2_06;
+pub use linux_headers_asm_cputable::PPC_FEATURE_HAS_VSX;
+pub use linux_headers_asm_cputable::PPC_FEATURE_PSERIES_PERFMON_COMPAT;
+pub use linux_headers_asm_cputable::PPC_FEATURE_TRUE_LE;
+pub use linux_headers_asm_cputable::PPC_FEATURE_PPC_LE;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_ARCH_2_07;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_HTM;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_DSCR;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_EBB;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_ISEL;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_TAR;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_VEC_CRYPTO;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_HTM_NOSC;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_ARCH_3_00;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_HAS_IEEE128;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_DARN;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_SCV;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_HTM_NO_SUSPEND;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_ARCH_3_1;
+pub use linux_headers_asm_cputable::PPC_FEATURE2_MMA;
+mod sys_auxv;
+pub use sys_auxv::getauxval;
 pub type c_char = u8;

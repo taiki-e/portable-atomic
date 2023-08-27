@@ -6,9 +6,9 @@ publish = false
 
 [dependencies]
 anyhow = "1"
-bindgen = "0.65"
+bindgen = { default-features = false, features = ["prettyplease", "runtime"], git = "https://github.com/taiki-e/rust-bindgen.git", branch = "dev" } # https://github.com/rust-lang/rust-bindgen/pull/2369 + avoid https://github.com/rust-lang/cargo/issues/10623 + avoid bug on generate c str option
 camino = "1"
-duct = "0.13"
+duct = { git = "https://github.com/taiki-e/duct.rs.git", branch = "dev" } # drop once_cell that may cause https://github.com/rust-lang/cargo/issues/10623
 fs-err = "2"
 globset = "=0.4.9" # globset 0.4.10 depends on bstr 1 which may cause https://github.com/rust-lang/cargo/issues/10623
 prettyplease = "0.2"
@@ -18,4 +18,4 @@ regex = "~1.7" # regex 1.8 may cause https://github.com/rust-lang/cargo/issues/1
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 syn = { version = "2", features = ["full"] }
-target-spec-json = "0.1"
+target-spec-json = "0.1.3"

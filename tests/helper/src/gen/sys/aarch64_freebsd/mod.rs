@@ -6,17 +6,57 @@
 mod sys_auxv;
 pub use sys_auxv::elf_aux_info;
 mod sys_elf_common;
-pub use sys_elf_common::{AT_HWCAP, AT_HWCAP2};
+pub use sys_elf_common::AT_HWCAP;
+pub use sys_elf_common::AT_HWCAP2;
 mod machine_elf;
-pub use machine_elf::{
-    HWCAP2_BF16, HWCAP2_BTI, HWCAP2_DCPODP, HWCAP2_DGH, HWCAP2_FLAGM2, HWCAP2_FRINT,
-    HWCAP2_I8MM, HWCAP2_RNG, HWCAP2_SVE2, HWCAP2_SVEAES, HWCAP2_SVEBF16,
-    HWCAP2_SVEBITPERM, HWCAP2_SVEF32MM, HWCAP2_SVEF64MM, HWCAP2_SVEI8MM, HWCAP2_SVEPMULL,
-    HWCAP2_SVESHA3, HWCAP2_SVESM4, HWCAP_AES, HWCAP_ASIMD, HWCAP_ASIMDDP, HWCAP_ASIMDFHM,
-    HWCAP_ASIMDHP, HWCAP_ASIMDRDM, HWCAP_ATOMICS, HWCAP_CPUID, HWCAP_CRC32, HWCAP_DCPOP,
-    HWCAP_DIT, HWCAP_EVTSTRM, HWCAP_FCMA, HWCAP_FLAGM, HWCAP_FP, HWCAP_FPHP,
-    HWCAP_ILRCPC, HWCAP_JSCVT, HWCAP_LRCPC, HWCAP_PACA, HWCAP_PACG, HWCAP_PMULL,
-    HWCAP_SB, HWCAP_SHA1, HWCAP_SHA2, HWCAP_SHA3, HWCAP_SHA512, HWCAP_SM3, HWCAP_SM4,
-    HWCAP_SSBS, HWCAP_SVE, HWCAP_USCAT,
-};
+pub use machine_elf::HWCAP_FP;
+pub use machine_elf::HWCAP_ASIMD;
+pub use machine_elf::HWCAP_EVTSTRM;
+pub use machine_elf::HWCAP_AES;
+pub use machine_elf::HWCAP_PMULL;
+pub use machine_elf::HWCAP_SHA1;
+pub use machine_elf::HWCAP_SHA2;
+pub use machine_elf::HWCAP_CRC32;
+pub use machine_elf::HWCAP_ATOMICS;
+pub use machine_elf::HWCAP_FPHP;
+pub use machine_elf::HWCAP_ASIMDHP;
+pub use machine_elf::HWCAP_CPUID;
+pub use machine_elf::HWCAP_ASIMDRDM;
+pub use machine_elf::HWCAP_JSCVT;
+pub use machine_elf::HWCAP_FCMA;
+pub use machine_elf::HWCAP_LRCPC;
+pub use machine_elf::HWCAP_DCPOP;
+pub use machine_elf::HWCAP_SHA3;
+pub use machine_elf::HWCAP_SM3;
+pub use machine_elf::HWCAP_SM4;
+pub use machine_elf::HWCAP_ASIMDDP;
+pub use machine_elf::HWCAP_SHA512;
+pub use machine_elf::HWCAP_SVE;
+pub use machine_elf::HWCAP_ASIMDFHM;
+pub use machine_elf::HWCAP_DIT;
+pub use machine_elf::HWCAP_USCAT;
+pub use machine_elf::HWCAP_ILRCPC;
+pub use machine_elf::HWCAP_FLAGM;
+pub use machine_elf::HWCAP_SSBS;
+pub use machine_elf::HWCAP_SB;
+pub use machine_elf::HWCAP_PACA;
+pub use machine_elf::HWCAP_PACG;
+pub use machine_elf::HWCAP2_DCPODP;
+pub use machine_elf::HWCAP2_SVE2;
+pub use machine_elf::HWCAP2_SVEAES;
+pub use machine_elf::HWCAP2_SVEPMULL;
+pub use machine_elf::HWCAP2_SVEBITPERM;
+pub use machine_elf::HWCAP2_SVESHA3;
+pub use machine_elf::HWCAP2_SVESM4;
+pub use machine_elf::HWCAP2_FLAGM2;
+pub use machine_elf::HWCAP2_FRINT;
+pub use machine_elf::HWCAP2_SVEI8MM;
+pub use machine_elf::HWCAP2_SVEF32MM;
+pub use machine_elf::HWCAP2_SVEF64MM;
+pub use machine_elf::HWCAP2_SVEBF16;
+pub use machine_elf::HWCAP2_I8MM;
+pub use machine_elf::HWCAP2_BF16;
+pub use machine_elf::HWCAP2_DGH;
+pub use machine_elf::HWCAP2_RNG;
+pub use machine_elf::HWCAP2_BTI;
 pub type c_char = u8;

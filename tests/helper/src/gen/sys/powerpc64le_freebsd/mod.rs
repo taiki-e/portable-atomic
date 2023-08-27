@@ -6,20 +6,47 @@
 mod sys_auxv;
 pub use sys_auxv::elf_aux_info;
 mod sys_elf_common;
-pub use sys_elf_common::{AT_HWCAP, AT_HWCAP2};
+pub use sys_elf_common::AT_HWCAP;
+pub use sys_elf_common::AT_HWCAP2;
 mod machine_cpu;
-pub use machine_cpu::{
-    PPC_FEATURE2_ARCH_2_07, PPC_FEATURE2_ARCH_3_00, PPC_FEATURE2_BITMASK,
-    PPC_FEATURE2_DARN, PPC_FEATURE2_DSCR, PPC_FEATURE2_EBB, PPC_FEATURE2_HAS_IEEE128,
-    PPC_FEATURE2_HAS_VEC_CRYPTO, PPC_FEATURE2_HTM, PPC_FEATURE2_HTM_NOSC,
-    PPC_FEATURE2_HTM_NOSUSPEND, PPC_FEATURE2_ISEL, PPC_FEATURE2_SCV, PPC_FEATURE2_TAR,
-    PPC_FEATURE_32, PPC_FEATURE_601_INSTR, PPC_FEATURE_64, PPC_FEATURE_ARCH_2_05,
-    PPC_FEATURE_ARCH_2_06, PPC_FEATURE_BITMASK, PPC_FEATURE_BOOKE, PPC_FEATURE_CELL,
-    PPC_FEATURE_HAS_ALTIVEC, PPC_FEATURE_HAS_DFP, PPC_FEATURE_HAS_EFP_DOUBLE,
-    PPC_FEATURE_HAS_EFP_SINGLE, PPC_FEATURE_HAS_FPU, PPC_FEATURE_HAS_MMU,
-    PPC_FEATURE_HAS_SPE, PPC_FEATURE_HAS_VSX, PPC_FEATURE_ICACHE_SNOOP,
-    PPC_FEATURE_NO_TB, PPC_FEATURE_POWER4, PPC_FEATURE_POWER5, PPC_FEATURE_POWER5_PLUS,
-    PPC_FEATURE_POWER6_EXT, PPC_FEATURE_PPC_LE, PPC_FEATURE_SMT, PPC_FEATURE_TRUE_LE,
-    PPC_FEATURE_UNIFIED_CACHE,
-};
+pub use machine_cpu::PPC_FEATURE_32;
+pub use machine_cpu::PPC_FEATURE_64;
+pub use machine_cpu::PPC_FEATURE_601_INSTR;
+pub use machine_cpu::PPC_FEATURE_HAS_ALTIVEC;
+pub use machine_cpu::PPC_FEATURE_HAS_FPU;
+pub use machine_cpu::PPC_FEATURE_HAS_MMU;
+pub use machine_cpu::PPC_FEATURE_UNIFIED_CACHE;
+pub use machine_cpu::PPC_FEATURE_HAS_SPE;
+pub use machine_cpu::PPC_FEATURE_HAS_EFP_SINGLE;
+pub use machine_cpu::PPC_FEATURE_HAS_EFP_DOUBLE;
+pub use machine_cpu::PPC_FEATURE_NO_TB;
+pub use machine_cpu::PPC_FEATURE_POWER4;
+pub use machine_cpu::PPC_FEATURE_POWER5;
+pub use machine_cpu::PPC_FEATURE_POWER5_PLUS;
+pub use machine_cpu::PPC_FEATURE_CELL;
+pub use machine_cpu::PPC_FEATURE_BOOKE;
+pub use machine_cpu::PPC_FEATURE_SMT;
+pub use machine_cpu::PPC_FEATURE_ICACHE_SNOOP;
+pub use machine_cpu::PPC_FEATURE_ARCH_2_05;
+pub use machine_cpu::PPC_FEATURE_HAS_DFP;
+pub use machine_cpu::PPC_FEATURE_POWER6_EXT;
+pub use machine_cpu::PPC_FEATURE_ARCH_2_06;
+pub use machine_cpu::PPC_FEATURE_HAS_VSX;
+pub use machine_cpu::PPC_FEATURE_TRUE_LE;
+pub use machine_cpu::PPC_FEATURE_PPC_LE;
+pub use machine_cpu::PPC_FEATURE2_ARCH_2_07;
+pub use machine_cpu::PPC_FEATURE2_HTM;
+pub use machine_cpu::PPC_FEATURE2_DSCR;
+pub use machine_cpu::PPC_FEATURE2_EBB;
+pub use machine_cpu::PPC_FEATURE2_ISEL;
+pub use machine_cpu::PPC_FEATURE2_TAR;
+pub use machine_cpu::PPC_FEATURE2_HAS_VEC_CRYPTO;
+pub use machine_cpu::PPC_FEATURE2_HTM_NOSC;
+pub use machine_cpu::PPC_FEATURE2_ARCH_3_00;
+pub use machine_cpu::PPC_FEATURE2_HAS_IEEE128;
+pub use machine_cpu::PPC_FEATURE2_DARN;
+pub use machine_cpu::PPC_FEATURE2_SCV;
+pub use machine_cpu::PPC_FEATURE2_HTM_NOSUSPEND;
+pub use machine_cpu::PPC_FEATURE_BITMASK;
+pub use machine_cpu::PPC_FEATURE2_BITMASK;
 pub type c_char = u8;
