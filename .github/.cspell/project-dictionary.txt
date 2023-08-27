@@ -106,6 +106,7 @@ reentrancy
 rsbegin
 rsend
 rsil
+sandybridge
 sbcs
 sched
 selgr
