@@ -5,6 +5,7 @@ algr
 allnoconfig
 aosp
 armasm
+armreg
 auxv
 auxvec
 backoff
@@ -19,6 +20,7 @@ cdsg
 cinc
 cirruslabs
 clgr
+clidr
 cmovae
 cmovb
 cmovge
@@ -30,6 +32,7 @@ cpsid
 cpsie
 CPSR
 cpuid
+cpus
 cputable
 csel
 cset
@@ -78,10 +81,15 @@ lwsync
 machdep
 mfence
 mgba
+midr
 mipsn
 miscompiles
 mmfr
+mpidr
 mstatus
+mvfr
+NCPU
+NCPUONLINE
 negs
 neoverse
 newrepo
@@ -90,6 +98,8 @@ nngrk
 noconfirm
 nostartfiles
 nostdinc
+NPROCESSORS
+ONLN
 opensbi
 osfmk
 osxsave
@@ -103,6 +113,7 @@ qword
 RAII
 rcpc
 reentrancy
+revidr
 rsbegin
 rsend
 rsil

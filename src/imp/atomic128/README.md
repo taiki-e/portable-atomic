@@ -40,6 +40,7 @@ Here is the table of targets that support run-time feature detection and the ins
 | aarch64     | linux                | getauxval       | Only enabled by default on `*-linux-gnu*`, and `*-linux-musl*"` (default is static linking)/`*-linux-ohos*` (default is dynamic linking) with dynamic linking enabled. |
 | aarch64     | android              | getauxval       | Enabled by default |
 | aarch64     | freebsd              | elf_aux_info    | Enabled by default |
+| aarch64     | netbsd               | sysctl          | Enabled by default |
 | aarch64     | openbsd              | sysctl          | Enabled by default |
 | aarch64     | macos                | sysctl          | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
 | aarch64     | windows              | IsProcessorFeaturePresent | Enabled by default |

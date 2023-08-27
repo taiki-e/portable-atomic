@@ -303,6 +303,24 @@ pub use powerpc64le_freebsd::*;
 #[cfg(
     all(
         target_arch = "aarch64",
+        target_os = "netbsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_netbsd;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "netbsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_netbsd::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
         target_os = "openbsd",
         target_endian = "little",
         target_pointer_width = "64"
