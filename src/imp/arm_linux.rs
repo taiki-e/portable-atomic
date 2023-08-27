@@ -60,6 +60,10 @@ fn has_kuser_cmpxchg64() -> bool {
     }
     __kuser_helper_version() >= 5
 }
+fn __kuser_memory_barrier() {
+    let f: extern "C" fn() = unsafe { mem::transmute(KUSER_MEMORY_BARRIER as *const ()) };
+    f();
+}
 #[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[inline]
 unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
@@ -69,6 +73,12 @@ unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut 
             mem::transmute(KUSER_CMPXCHG64 as *const ());
         f(old_val, new_val, ptr) == 0
     }
+}
+#[inline]
+fn compiler_barrier() {
+    // SAFETY: using an empty asm is safe.
+    // Do not use `nomem` and `readonly` because prevent preceding and subsequent memory accesses from being reordered.
+    unsafe { asm!("", options(nostack, preserves_flags)) }
 }
 
 #[cfg(any(target_feature = "v5te", portable_atomic_target_feature = "v5te"))]
@@ -94,29 +104,26 @@ macro_rules! atomic_load_store {
             #[inline]
             pub(crate) fn load(&self, order: Ordering) -> $value_type {
                 crate::utils::assert_load_ordering(order);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    match order {
-                        Ordering::Relaxed => self.inner.load(Ordering::Relaxed),
-                        // Acquire and SeqCst loads are equivalent.
-                        Ordering::Acquire | Ordering::SeqCst => {
-                            debug_assert!(__kuser_helper_version() >= 3);
-                            let src = self.as_ptr();
-                            let out;
-                            asm!(
-                                concat!("ldr", $asm_suffix, " {out}, [{src}]"),
-                                blx!("{kuser_memory_barrier}"),
-                                src = in(reg) src,
-                                out = lateout(reg) out,
-                                kuser_memory_barrier = inout(reg) KUSER_MEMORY_BARRIER => _,
-                                out("lr") _,
-                                options(nostack, preserves_flags),
-                            );
-                            out
-                        }
-                        _ => unreachable!("{:?}", order),
+                match order {
+                    Ordering::Relaxed => self.inner.load(Ordering::Relaxed),
+                    Ordering::Acquire => {
+                        // Acquire store is ldr; dmb
+                        debug_assert!(__kuser_helper_version() >= 3);
+                        let out = self.inner.load(Ordering::Relaxed);
+                        __kuser_memory_barrier();
+                        compiler_barrier();
+                        out
                     }
+                    Ordering::SeqCst => {
+                        // SeqCst store is ldr; dmb
+                        debug_assert!(__kuser_helper_version() >= 3);
+                        compiler_barrier();
+                        let out = self.inner.load(Ordering::Relaxed);
+                        __kuser_memory_barrier();
+                        compiler_barrier();
+                        out
+                    }
+                    _ => unreachable!("{:?}", order),
                 }
             }
             #[inline]
@@ -126,31 +133,25 @@ macro_rules! atomic_load_store {
             )]
             pub(crate) fn store(&self, val: $value_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                let dst = self.as_ptr();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    macro_rules! atomic_store_release {
-                        ($acquire:expr) => {{
-                            debug_assert!(__kuser_helper_version() >= 3);
-                            asm!(
-                                blx!("{kuser_memory_barrier}"),
-                                concat!("str", $asm_suffix, " {val}, [{dst}]"),
-                                $acquire,
-                                dst = in(reg) dst,
-                                val = in(reg) val,
-                                kuser_memory_barrier = inout(reg) KUSER_MEMORY_BARRIER => _,
-                                out("lr") _,
-                                options(nostack, preserves_flags),
-                            )
-                        }};
+                match order {
+                    Ordering::Relaxed => self.inner.store(val, Ordering::Relaxed),
+                    Ordering::Release => {
+                        // Release store is dmb; str
+                        debug_assert!(__kuser_helper_version() >= 3);
+                        compiler_barrier();
+                        __kuser_memory_barrier();
+                        self.inner.store(val, Ordering::Relaxed);
                     }
-                    match order {
-                        Ordering::Relaxed => self.inner.store(val, Ordering::Relaxed),
-                        Ordering::Release => atomic_store_release!(""),
-                        Ordering::SeqCst => atomic_store_release!(blx!("{kuser_memory_barrier}")),
-                        _ => unreachable!("{:?}", order),
+                    Ordering::SeqCst => {
+                        // SeqCst store is dmb; str; dmb
+                        debug_assert!(__kuser_helper_version() >= 3);
+                        compiler_barrier();
+                        __kuser_memory_barrier();
+                        self.inner.store(val, Ordering::Relaxed);
+                        __kuser_memory_barrier();
+                        compiler_barrier();
                     }
+                    _ => unreachable!("{:?}", order),
                 }
             }
         }
