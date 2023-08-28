@@ -92,7 +92,7 @@ macro_rules! debug_assert_pwr8 {
 // instructions across the if condition might introduce undefined behavior.
 // (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
 // However, our code uses the ifunc helper macro that works with function pointers,
-// so we usually don't have to worry about this.
+// so we don't have to worry about this unless calling without helper macro.
 #[cfg(not(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",

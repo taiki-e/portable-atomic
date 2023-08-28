@@ -1,6 +1,8 @@
 // Atomic load/store implementation on RISC-V.
 //
 // Refs:
+// - RISC-V Atomics ABI Specification
+//   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/HEAD/riscv-atomic.adoc
 // - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
 //   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
