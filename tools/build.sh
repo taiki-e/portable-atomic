@@ -219,7 +219,7 @@ target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 # Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
 subcmd=build
 if [[ -n "${TARGET_GROUP:-}" ]]; then
-    base_args=(no-dev-deps --no-private "${subcmd}")
+    base_args=(hack --no-private "${subcmd}")
 else
     if [[ -n "${TESTS:-}" ]]; then
         # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
@@ -452,7 +452,7 @@ build() {
         args+=(
             --feature-powerset --depth 2 --optional-deps --no-dev-deps
             ${exclude_features+"--exclude-features=${exclude_features}"}
-            --workspace --ignore-private
+            --workspace --no-private
         )
         # critical-section requires 1.54
         if [[ "${rustc_minor_version}" -lt 54 ]]; then

@@ -10,7 +10,6 @@ auxvec
 backoff
 bitops
 bminor
-bstr
 callthru
 casp
 cbnz

@@ -332,7 +332,7 @@ jobs:
         env:
           SKIP_DEFAULT_TARGET: 1
 
-      - run: cargo minimal-versions build -vvv --workspace --features $TEST_FEATURES --ignore-unknown-features --ignore-private $TARGET $BUILD_STD $RELEASE
+      - run: cargo minimal-versions build -vvv --workspace --no-private --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD $RELEASE
 
   test-bsd:
     needs: tidy
@@ -429,8 +429,6 @@ jobs:
       - name: Install Rust
         run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
       - uses: taiki-e/install-action@cargo-hack
-      # TODO: port no-private to cargo-hack
-      - uses: taiki-e/install-action@cargo-no-dev-deps
       - run: tools/build.sh
         env:
           TESTS: ${{ matrix.tests }}
