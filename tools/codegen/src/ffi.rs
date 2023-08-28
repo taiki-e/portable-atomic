@@ -662,6 +662,7 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
                     .stdout_capture()
                     .run()?;
                 }
+                fs::write(headers_dir.join("include/stddef.h"), "")?;
             }
         }
         macos => {
