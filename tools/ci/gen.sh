@@ -19,11 +19,11 @@ fi
 git config user.name "Taiki Endo"
 git config user.email "te316e89@gmail.com"
 
-for path in no_atomic.rs src/gen/* tests/helper/src/gen/sys/*; do
+for path in no_atomic.rs src/gen/* tests/helper/src/gen/sys; do
     git add -N "${path}"
     if ! git diff --exit-code -- "${path}"; then
         git add "${path}"
-        git commit -m "Update ${path}"
+        git commit -m "codegen: Update ${path}"
         has_update=1
     fi
 done
