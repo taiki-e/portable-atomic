@@ -83,6 +83,7 @@ pub use linux_headers_asm_hwcap::HWCAP2_SME_BI32I32;
 pub use linux_headers_asm_hwcap::HWCAP2_SME_B16B16;
 pub use linux_headers_asm_hwcap::HWCAP2_SME_F16F16;
 pub use linux_headers_asm_hwcap::HWCAP2_MOPS;
+pub use linux_headers_asm_hwcap::HWCAP2_HBC;
 mod sys_auxv;
 pub use sys_auxv::getauxval;
 pub type c_char = u8;
