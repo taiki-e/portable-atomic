@@ -35,7 +35,7 @@ macro_rules! ptr_modifier {
 }
 
 macro_rules! atomic_int {
-    ($atomic_type:ident, $int_type:ident, $ptr_size:tt) => {
+    ($atomic_type:ident, $ptr_size:tt) => {
         impl $atomic_type {
             #[inline]
             pub(crate) fn not(&self, _order: Ordering) {
@@ -74,24 +74,24 @@ macro_rules! atomic_int {
     };
 }
 
-atomic_int!(AtomicI8, i8, "byte");
-atomic_int!(AtomicU8, u8, "byte");
-atomic_int!(AtomicI16, i16, "word");
-atomic_int!(AtomicU16, u16, "word");
-atomic_int!(AtomicI32, i32, "dword");
-atomic_int!(AtomicU32, u32, "dword");
+atomic_int!(AtomicI8, "byte");
+atomic_int!(AtomicU8, "byte");
+atomic_int!(AtomicI16, "word");
+atomic_int!(AtomicU16, "word");
+atomic_int!(AtomicI32, "dword");
+atomic_int!(AtomicU32, "dword");
 #[cfg(target_arch = "x86_64")]
-atomic_int!(AtomicI64, i64, "qword");
+atomic_int!(AtomicI64, "qword");
 #[cfg(target_arch = "x86_64")]
-atomic_int!(AtomicU64, u64, "qword");
+atomic_int!(AtomicU64, "qword");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicIsize, isize, "dword");
+atomic_int!(AtomicIsize, "dword");
 #[cfg(target_pointer_width = "32")]
-atomic_int!(AtomicUsize, usize, "dword");
+atomic_int!(AtomicUsize, "dword");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicIsize, isize, "qword");
+atomic_int!(AtomicIsize, "qword");
 #[cfg(target_pointer_width = "64")]
-atomic_int!(AtomicUsize, usize, "qword");
+atomic_int!(AtomicUsize, "qword");
 
 #[cfg(target_arch = "x86")]
 impl AtomicI64 {
