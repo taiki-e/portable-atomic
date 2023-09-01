@@ -3756,7 +3756,7 @@ This type has the same in-memory representation as the underlying floating point
 
             #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
-                concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
+                concat!("Raw transmutation to `&", stringify!($atomic_int_type), "`.
 
 See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
 portability of this operation (there are almost no issues).
@@ -3769,7 +3769,7 @@ This is `const fn` on Rust 1.58+."),
             }
             #[cfg(portable_atomic_no_const_raw_ptr_deref)]
             doc_comment! {
-                concat!("Raw transmutation to `", stringify!($atomic_int_type), "`.
+                concat!("Raw transmutation to `&", stringify!($atomic_int_type), "`.
 
 See [`", stringify!($float_type) ,"::from_bits`] for some discussion of the
 portability of this operation (there are almost no issues).
