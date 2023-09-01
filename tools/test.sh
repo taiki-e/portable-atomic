@@ -111,7 +111,7 @@ while [[ $# -gt 0 ]]; do
                 *) cargo_options+=(-Z "${arg}") ;;
             esac
             ;;
-        --release) release=(--release) ;;
+        -r | --release) release=(--release) ;;
         *) cargo_options+=("$1") ;;
     esac
     shift
