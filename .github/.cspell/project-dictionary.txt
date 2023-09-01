@@ -7,7 +7,6 @@ aosp
 armasm
 auxv
 auxvec
-backoff
 bitops
 bminor
 callthru
