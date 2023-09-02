@@ -288,7 +288,7 @@ mod tests {
             ___system_property_get = libc::__system_property_get;
             ___system_property_get = sys::__system_property_get;
             static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
-            static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as _);
+            static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as ffi::c_int);
         }
         #[cfg(target_os = "freebsd")]
         {
@@ -302,10 +302,10 @@ mod tests {
         }
         #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
         static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
-        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as _);
+        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as ffi::c_ulong);
         #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
         static_assert!(ffi::AT_HWCAP2 == libc::AT_HWCAP2);
-        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as _);
+        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as ffi::c_ulong);
         #[cfg(target_arch = "aarch64")]
         {
             // static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS); // libc doesn't have this
