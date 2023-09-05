@@ -201,7 +201,7 @@ jobs:
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - run: |
@@ -225,7 +225,7 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        # TODO: QEMU 8.1 128-bit atomic bug in big endian powerpc64
+        # TODO: QEMU 8.1 128-bit atomic bug in big endian powerpc64: https://gitlab.com/qemu-project/qemu/-/issues/1836
         if: matrix.target != '' && !startsWith(matrix.target, 'powerpc64-')
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
@@ -350,7 +350,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       # TODO: Use neoverse-v1 once QEMU 8.1 released
@@ -421,7 +421,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120 # TODO
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: taiki-e/github-actions/free-device-space@main
@@ -447,7 +447,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Install Rust
@@ -501,7 +501,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Install Rust
@@ -526,7 +526,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Install Rust
@@ -560,7 +560,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Install Rust
@@ -585,7 +585,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Install Rust
