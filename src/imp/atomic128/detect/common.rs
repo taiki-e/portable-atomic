@@ -143,12 +143,17 @@ mod c_types {
     pub(crate) type c_ulong = u64;
     #[cfg(not(target_pointer_width = "64"))]
     pub(crate) type c_ulong = u32;
-    // c_size_t is usize
+    // c_size_t is currently always usize
     // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L88
     pub(crate) type c_size_t = usize;
-    // c_char is u8 on most non-Apple/non-Windows ARM/PowerPC/RISC-V targets
-    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon)
+    // c_char is u8 by default on most non-Apple/non-Windows ARM/PowerPC/RISC-V/s390x/Hexagon targets
+    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon/AIX/z/OS)
     // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L104
+    // https://github.com/llvm/llvm-project/blob/9734b2256d89cb4c61a4dbf4a3c3f3f942fe9b8c/lldb/source/Utility/ArchSpec.cpp#L712
+    // RISC-V https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/HEAD/riscv-cc.adoc#cc-type-representations
+    // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf
+    // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.2?topic=descriptions-qchars
+    // z/OS https://www.ibm.com/docs/en/zos/2.5.0?topic=specifiers-character-types
     // (macOS is currently the only Apple target that uses this module, and Windows currently doesn't use this module)
     #[cfg(not(target_os = "macos"))]
     pub(crate) type c_char = u8;
