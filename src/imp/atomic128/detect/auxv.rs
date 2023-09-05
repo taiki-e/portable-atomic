@@ -288,7 +288,7 @@ mod tests {
             ___system_property_get = libc::__system_property_get;
             ___system_property_get = sys::__system_property_get;
             static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
-            static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as _);
+            static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as ffi::c_int);
         }
         #[cfg(target_os = "freebsd")]
         {
