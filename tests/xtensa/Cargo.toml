@@ -15,7 +15,7 @@ paste = "1"
 
 [target.xtensa-esp32-none-elf.dependencies]
 esp-println = { version = "0.6", default-features = false, features = ["uart", "esp32"] }
-esp32-hal = "0.14"
+esp32-hal = "0.15"
 xtensa-lx-rt = { version = "0.15", features = ["esp32"] }
 
 [profile.dev]
