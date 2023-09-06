@@ -353,8 +353,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      # TODO: Use neoverse-v1 once QEMU 8.1 released
-      - uses: taiki-e/cross-platform-actions-action@cortex-a76
+      - uses: taiki-e/cross-platform-actions-action@neoverse-v1
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES TEST_FEATURES
           operating_system: ${{ matrix.os }}
