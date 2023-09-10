@@ -2,6 +2,5 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const AT_HWCAP: u32 = 25;
-pub const AT_HWCAP2: u32 = 26;
-pub const AT_COUNT: u32 = 37;
+pub const SYS_getpid: u32 = 20;
+pub const SYS___sysctl: u32 = 202;

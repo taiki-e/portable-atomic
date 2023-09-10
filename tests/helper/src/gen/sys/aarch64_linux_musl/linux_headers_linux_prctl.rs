@@ -2,6 +2,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const AT_HWCAP: u32 = 25;
-pub const AT_HWCAP2: u32 = 26;
-pub const AT_COUNT: u32 = 37;
+pub const PR_GET_AUXV: u32 = 1096112214;

@@ -2,6 +2,9 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const AT_HWCAP: u32 = 25;
-pub const AT_HWCAP2: u32 = 26;
-pub const AT_COUNT: u32 = 37;
+pub type __int32_t = ::std::os::raw::c_int;
+pub type __pid_t = __int32_t;
+pub type pid_t = __pid_t;
+extern "C" {
+    pub fn getpid() -> pid_t;
+}

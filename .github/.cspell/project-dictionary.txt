@@ -5,6 +5,7 @@ algr
 allnoconfig
 aosp
 armasm
+Auxinfo
 auxv
 auxvec
 bitops
@@ -43,6 +44,7 @@ espup
 exynos
 FIQs
 getauxval
+getpid
 HWCAP
 ifunc
 includepath
@@ -94,6 +96,7 @@ osxsave
 pacman
 picolibc
 posix
+prctl
 prefetcher
 PRIMASK
 quadword
@@ -142,6 +145,7 @@ uapi
 uart
 umax
 umin
+unistd
 unparse
 usart
 uscat
