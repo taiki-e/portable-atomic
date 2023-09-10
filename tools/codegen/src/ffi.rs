@@ -54,6 +54,25 @@ static TARGETS: &[Target] = &[
                 env: &[],
             },
             Header {
+                // https://github.com/torvalds/linux/blob/HEAD/include/uapi/linux/prctl.h
+                path: "linux-headers:linux/prctl.h",
+                types: &[],
+                vars: &["PR_GET_AUXV"],
+                functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                path: "linux-headers:asm/unistd.h",
+                types: &[],
+                vars: &["__NR_prctl"],
+                functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
                 // https://github.com/torvalds/linux/blob/HEAD/arch/arm64/include/uapi/asm/hwcap.h
                 path: "linux-headers:asm/hwcap.h",
                 types: &[],
@@ -96,6 +115,19 @@ static TARGETS: &[Target] = &[
                 os: &[android],
                 env: &[],
             },
+            Header {
+                // https://github.com/bminor/glibc/blob/HEAD/elf/elf.h
+                // https://github.com/bminor/musl/blob/HEAD/include/elf.h
+                // https://github.com/wbx-github/uclibc-ng/blob/HEAD/include/elf.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/HEAD/libc/include/elf.h
+                path: "elf.h",
+                types: &["Elf32_auxv_t", "Elf64_auxv_t"],
+                vars: &[],
+                functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
         ],
     },
     Target {
@@ -131,11 +163,41 @@ static TARGETS: &[Target] = &[
                 env: &[],
             },
             Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/syscall.h
+                path: "sys/syscall.h",
+                types: &[],
+                vars: &["SYS_getpid", "SYS___sysctl"],
+                functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/sysctl.h
+                path: "sys/sysctl.h",
+                types: &[],
+                vars: &["CTL_KERN", "KERN_PROC", "KERN_PROC_AUXV"],
+                functions: &["sysctl"],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/elf_common.h
                 path: "sys/elf_common.h",
                 types: &[],
-                vars: &["AT_HWCAP.*"],
+                vars: &["AT_HWCAP.*", "AT_COUNT"],
                 functions: &[],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/include/unistd.h
+                path: "unistd.h",
+                types: &[],
+                vars: &[],
+                functions: &["getpid"],
                 arch: &[],
                 os: &[],
                 env: &[],
@@ -143,10 +205,20 @@ static TARGETS: &[Target] = &[
             Header {
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/arm64/include/elf.h
                 path: "machine/elf.h",
-                types: &[],
+                types: &["Elf64_Auxinfo"],
                 vars: &["HWCAP.*"],
                 functions: &[],
                 arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/powerpc/include/elf.h
+                path: "machine/elf.h",
+                types: &["Elf64_Auxinfo"],
+                vars: &[],
+                functions: &[],
+                arch: &[powerpc64],
                 os: &[],
                 env: &[],
             },

@@ -6,6 +6,10 @@
 mod linux_headers_linux_auxvec;
 pub use linux_headers_linux_auxvec::AT_HWCAP;
 pub use linux_headers_linux_auxvec::AT_HWCAP2;
+mod linux_headers_linux_prctl;
+pub use linux_headers_linux_prctl::PR_GET_AUXV;
+mod linux_headers_asm_unistd;
+pub use linux_headers_asm_unistd::__NR_prctl;
 mod linux_headers_asm_cputable;
 pub use linux_headers_asm_cputable::PPC_FEATURE_32;
 pub use linux_headers_asm_cputable::PPC_FEATURE_64;
@@ -52,4 +56,7 @@ pub use linux_headers_asm_cputable::PPC_FEATURE2_ARCH_3_1;
 pub use linux_headers_asm_cputable::PPC_FEATURE2_MMA;
 mod sys_auxv;
 pub use sys_auxv::getauxval;
+mod elf;
+pub use elf::Elf32_auxv_t;
+pub use elf::Elf64_auxv_t;
 pub type c_char = u8;

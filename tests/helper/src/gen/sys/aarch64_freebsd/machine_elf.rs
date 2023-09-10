@@ -2,6 +2,19 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct Elf64_Auxinfo {
+    pub a_type: ::std::os::raw::c_long,
+    pub a_un: Elf64_Auxinfo__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union Elf64_Auxinfo__bindgen_ty_1 {
+    pub a_val: ::std::os::raw::c_long,
+    pub a_ptr: *mut ::core::ffi::c_void,
+    pub a_fcn: ::core::option::Option<unsafe extern "C" fn()>,
+}
 pub const HWCAP_FP: u32 = 1;
 pub const HWCAP_ASIMD: u32 = 2;
 pub const HWCAP_EVTSTRM: u32 = 4;
