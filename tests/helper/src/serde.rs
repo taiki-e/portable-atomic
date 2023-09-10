@@ -1,6 +1,7 @@
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+pub use serde_test::*;
 
 #[derive(Debug)]
 pub struct DebugPartialEq<T>(pub T);

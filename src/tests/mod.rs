@@ -318,8 +318,7 @@ LLVM version: 15.0.3",
 #[cfg(feature = "serde")]
 #[test]
 fn test_serde() {
-    use serde_test::{assert_tokens, Token};
-    use test_helper::serde::DebugPartialEq;
+    use test_helper::serde::{assert_tokens, DebugPartialEq, Token};
 
     macro_rules! t {
         ($atomic_type:ty, $value_type:ident, $token_type:ident) => {
@@ -346,7 +345,7 @@ fn test_serde() {
     t!(AtomicU32, u32, U32);
     t!(AtomicI64, i64, I64);
     t!(AtomicU64, u64, U64);
-    // TODO: serde_test doesn't support Token::{I128,U128}
+    // TODO: serde_test doesn't support Token::{I128,U128}: https://github.com/serde-rs/test/pull/6
     // t!(AtomicI128, i128, I128);
     // t!(AtomicU128, u128, U128);
     #[cfg(feature = "float")]
