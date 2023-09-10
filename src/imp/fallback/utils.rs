@@ -1,6 +1,6 @@
 use core::ops;
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/d49a0f8454499ced8af0b61aeb661379c4eb0588/crossbeam-utils/src/cache_padded.rs.
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/9384f1eb2b356364e201ad38545e03c837d55f3a/crossbeam-utils/src/cache_padded.rs.
 /// Pads and aligns a value to the length of a cache line.
 // Starting from Intel's Sandy Bridge, spatial prefetcher is now pulling pairs of 64-byte cache
 // lines at a time, so we have to align to 128 bytes rather than 64.
@@ -18,22 +18,20 @@ use core::ops;
 //
 // Sources:
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_ppc64x.go#L9
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/powerpc/include/asm/cache.h#L26
 #[cfg_attr(
     any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64"),
     repr(align(128))
 )]
-// arm, mips, mips64, riscv64, sparc, and hexagon have 32-byte cache line size.
+// arm, mips, mips64, sparc, and hexagon have 32-byte cache line size.
 //
 // Sources:
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_arm.go#L7
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mips.go#L7
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mipsle.go#L7
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_mips64x.go#L9
-// - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_riscv64.go#L7
 // - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/sparc/include/asm/cache.h#L17
 // - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/hexagon/include/asm/cache.h#L12
-//
-// riscv32 is assumed not to exceed the cache line size of riscv64.
 #[cfg_attr(
     any(
         target_arch = "arm",
@@ -41,8 +39,6 @@ use core::ops;
         target_arch = "mips32r6",
         target_arch = "mips64",
         target_arch = "mips64r6",
-        target_arch = "riscv32",
-        target_arch = "riscv64",
         target_arch = "sparc",
         target_arch = "hexagon",
     ),
@@ -59,11 +55,12 @@ use core::ops;
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_s390x.go#L7
 // - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/s390/include/asm/cache.h#L13
 #[cfg_attr(target_arch = "s390x", repr(align(256)))]
-// x86, wasm, and sparc64 have 64-byte cache line size.
+// x86, wasm, riscv, and sparc64 have 64-byte cache line size.
 //
 // Sources:
 // - https://github.com/golang/go/blob/dda2991c2ea0c5914714469c4defc2562a907230/src/internal/cpu/cpu_x86.go#L9
 // - https://github.com/golang/go/blob/3dd58676054223962cd915bb0934d1f9f489d4d2/src/internal/cpu/cpu_wasm.go#L7
+// - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/riscv/include/asm/cache.h#L10
 // - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/sparc/include/asm/cache.h#L19
 //
 // All others are assumed to have 64-byte cache line size.
@@ -77,8 +74,6 @@ use core::ops;
         target_arch = "mips32r6",
         target_arch = "mips64",
         target_arch = "mips64r6",
-        target_arch = "riscv32",
-        target_arch = "riscv64",
         target_arch = "sparc",
         target_arch = "hexagon",
         target_arch = "m68k",
