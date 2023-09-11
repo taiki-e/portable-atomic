@@ -225,13 +225,7 @@ jobs:
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
-        # TODO: QEMU 8.1 128-bit atomic bug in big endian powerpc64: https://gitlab.com/qemu-project/qemu/-/issues/1836
-        if: matrix.target != '' && !startsWith(matrix.target, 'powerpc64-')
-      - uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
-          qemu: '8.0'
-        if: matrix.target != '' && startsWith(matrix.target, 'powerpc64-')
+        if: matrix.target != ''
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
       - run: |
