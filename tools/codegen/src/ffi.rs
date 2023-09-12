@@ -235,14 +235,27 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
-        triples: &["aarch64-unknown-netbsd"],
+        triples: &[
+            "aarch64-unknown-netbsd",
+            "aarch64_be-unknown-netbsd",
+        ],
         headers: &[
             Header {
                 // https://github.com/NetBSD/src/blob/HEAD/sys/sys/sysctl.h
                 path: "sys/sysctl.h",
+                types: &["sysctlnode"],
+                vars: &["CTL_QUERY", "SYSCTL_VERS_1"],
+                functions: &["sysctl", "sysctlbyname"],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/NetBSD/src/blob/HEAD/sys/sys/syscall.h
+                path: "sys/syscall.h",
                 types: &[],
-                vars: &[],
-                functions: &["sysctlbyname"],
+                vars: &["SYS___sysctl"],
+                functions: &[],
                 arch: &[],
                 os: &[],
                 env: &[],
