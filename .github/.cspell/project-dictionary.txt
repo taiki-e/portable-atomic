@@ -5,6 +5,7 @@ algr
 allnoconfig
 aosp
 armasm
+armreg
 Auxinfo
 auxv
 auxvec
@@ -18,6 +19,7 @@ cdsg
 cinc
 cirruslabs
 clgr
+clidr
 cmovae
 cmovb
 cmovge
@@ -78,10 +80,13 @@ lwsync
 machdep
 mfence
 mgba
+midr
 mipsn
 miscompiles
 mmfr
+mpidr
 mstatus
+mvfr
 negs
 neoverse
 newrepo
@@ -104,6 +109,7 @@ qword
 RAII
 rcpc
 reentrancy
+revidr
 rsbegin
 rsend
 rsil

@@ -83,7 +83,7 @@ include!("macros.rs");
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
-#[cfg(target_os = "openbsd")]
+#[cfg(any(target_os = "netbsd", target_os = "openbsd"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -140,6 +140,7 @@ macro_rules! debug_assert_lse {
                 ),
                 target_os = "android",
                 target_os = "freebsd",
+                target_os = "netbsd",
                 target_os = "openbsd",
                 target_os = "fuchsia",
                 target_os = "windows",
@@ -514,6 +515,7 @@ unsafe fn atomic_compare_exchange(
             ),
             target_os = "android",
             target_os = "freebsd",
+            target_os = "netbsd",
             target_os = "openbsd",
             target_os = "fuchsia",
             target_os = "windows",
@@ -538,6 +540,7 @@ unsafe fn atomic_compare_exchange(
             ),
             target_os = "android",
             target_os = "freebsd",
+            target_os = "netbsd",
             target_os = "openbsd",
             target_os = "fuchsia",
             target_os = "windows",

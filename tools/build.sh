@@ -70,6 +70,7 @@ default_targets=(
     aarch64-unknown-linux-gnu
     aarch64-unknown-linux-musl
     aarch64-unknown-linux-uclibc # custom target
+    aarch64-unknown-netbsd
     aarch64-unknown-openbsd
     # aarch64 with FEAT_LSE & FEAT_LSE2
     aarch64-apple-darwin

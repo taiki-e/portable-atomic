@@ -1,6 +1,6 @@
-// Run-time feature detection on aarch64 Linux/FreeBSD/OpenBSD by parsing system registers.
+// Run-time feature detection on aarch64 Linux/FreeBSD/NetBSD/OpenBSD by parsing system registers.
 //
-// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on OpenBSD.
+// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on NetBSD/OpenBSD.
 // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
 // https://github.com/rust-lang/stdarch/pull/1374
 //
@@ -14,10 +14,12 @@
 //   https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
 // - FreeBSD 12.0+ (emulate mrs instruction)
 //   https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
+// - NetBSD 9.0+ (through sysctl)
+//   https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
 // - OpenBSD 7.1+ (through sysctl)
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
-// For now, this module is only used on OpenBSD.
+// For now, this module is only used on NetBSD/OpenBSD.
 // On Linux/FreeBSD, this module is test-only:
 // - On Linux, this approach requires a higher kernel version than Rust supports,
 //   and also does not work with qemu-user (as of QEMU 7.2) and Valgrind.
@@ -79,7 +81,7 @@ fn extract(x: u64, high: usize, low: usize) -> u64 {
     (x >> low) & ((1 << (high - low + 1)) - 1)
 }
 
-#[cfg(not(target_os = "openbsd"))]
+#[cfg(not(any(target_os = "netbsd", target_os = "openbsd")))]
 mod imp {
     // This module is test-only. See parent module docs for details.
 
@@ -126,6 +128,122 @@ mod imp {
                 #[cfg(test)]
                 aa64mmfr2,
             }
+        }
+    }
+}
+#[cfg(target_os = "netbsd")]
+mod imp {
+    // NetBSD doesn't trap the mrs instruction, but exposes the system registers through sysctl.
+    // https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
+    // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
+
+    use core::ptr;
+
+    use super::AA64Reg;
+
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    #[allow(non_camel_case_types)]
+    pub(super) mod ffi {
+        pub(crate) use super::super::c_types::{c_char, c_int, c_size_t, c_void};
+
+        extern "C" {
+            // Defined in sys/sysctl.h.
+            // https://man.netbsd.org/sysctl.3
+            // https://github.com/NetBSD/src/blob/167403557cf60bed09a63fc84d941a1a4bd7d52e/sys/sys/sysctl.h
+            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/netbsd/mod.rs#L2582
+            pub(crate) fn sysctlbyname(
+                name: *const c_char,
+                old_p: *mut c_void,
+                old_len_p: *mut c_size_t,
+                new_p: *const c_void,
+                new_len: c_size_t,
+            ) -> c_int;
+        }
+
+        // Defined in aarch64/armreg.h.
+        // https://github.com/NetBSD/src/blob/167403557cf60bed09a63fc84d941a1a4bd7d52e/sys/arch/aarch64/include/armreg.h#L1626
+        #[derive(Clone, Copy)]
+        #[repr(C)]
+        pub(crate) struct aarch64_sysctl_cpu_id {
+            // NetBSD 9.0+
+            // https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
+            pub(crate) midr: u64,
+            pub(crate) revidr: u64,
+            pub(crate) mpidr: u64,
+            pub(crate) aa64dfr0: u64,
+            pub(crate) aa64dfr1: u64,
+            pub(crate) aa64isar0: u64,
+            pub(crate) aa64isar1: u64,
+            pub(crate) aa64mmfr0: u64,
+            pub(crate) aa64mmfr1: u64,
+            pub(crate) aa64mmfr2: u64,
+            pub(crate) aa64pfr0: u64,
+            pub(crate) aa64pfr1: u64,
+            pub(crate) aa64zfr0: u64,
+            pub(crate) mvfr0: u32,
+            pub(crate) mvfr1: u32,
+            pub(crate) mvfr2: u32,
+            // NetBSD 10.0+
+            // https://github.com/NetBSD/src/commit/0c7bdc13f0e332cccec56e307f023b4888638973
+            pub(crate) pad: u32,
+            pub(crate) clidr: u64,
+            pub(crate) ctr: u64,
+        }
+    }
+
+    unsafe fn sysctl_cpu_id(name: &[u8]) -> Option<AA64Reg> {
+        const OUT_LEN: ffi::c_size_t =
+            core::mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
+
+        debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
+        debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
+
+        // SAFETY: all fields of aarch64_sysctl_cpu_id are zero-able and we use
+        // the result when machdep.cpuN.cpu_id sysctl was successful.
+        let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { core::mem::zeroed() };
+        let mut out_len = OUT_LEN;
+        // SAFETY:
+        // - the caller must guarantee that `name` is ` machdep.cpuN.cpu_id` in a C string.
+        // - `out_len` does not exceed the size of the value at `buf`.
+        // - `sysctlbyname` is thread-safe.
+        let res = unsafe {
+            ffi::sysctlbyname(
+                name.as_ptr().cast::<ffi::c_char>(),
+                (&mut buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
+                &mut out_len,
+                ptr::null_mut(),
+                0,
+            )
+        };
+        if res != 0 {
+            return None;
+        }
+        Some(AA64Reg {
+            aa64isar0: buf.aa64isar0,
+            #[cfg(test)]
+            aa64isar1: buf.aa64isar1,
+            #[cfg(test)]
+            aa64mmfr2: buf.aa64mmfr2,
+        })
+    }
+
+    pub(super) fn aa64reg() -> AA64Reg {
+        // Get system registers for cpu0.
+        // If failed, returns default because machdep.cpuN.cpu_id sysctl is not available.
+        // machdep.cpuN.cpu_id sysctl was added on NetBSD 9.0 so it is not available on older versions.
+        // SAFETY: we passed a valid name in a C string.
+        // It is ok to check only cpu0, even if there are more CPUs.
+        // https://github.com/NetBSD/src/commit/bd9707e06ea7d21b5c24df6dfc14cb37c2819416
+        // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
+        match unsafe { sysctl_cpu_id(b"machdep.cpu0.cpu_id\0") } {
+            Some(cpu_id) => cpu_id,
+            None => AA64Reg {
+                aa64isar0: 0,
+                #[cfg(test)]
+                aa64isar1: 0,
+                #[cfg(test)]
+                aa64mmfr2: 0,
+            },
         }
     }
 }
@@ -285,6 +403,56 @@ mod tests {
     // without actually running tests on these platforms.
     // See also tools/codegen/src/ffi.rs.
     // TODO(codegen): auto-generate this test
+    #[cfg(target_os = "netbsd")]
+    #[allow(
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss,
+        clippy::no_effect_underscore_binding,
+        clippy::used_underscore_binding
+    )]
+    const _: fn() = || {
+        use core::mem::size_of;
+        use imp::ffi;
+        use test_helper::{libc, sys};
+        let mut _sysctlbyname: unsafe extern "C" fn(
+            *const ffi::c_char,
+            *mut ffi::c_void,
+            *mut ffi::c_size_t,
+            *const ffi::c_void,
+            ffi::c_size_t,
+        ) -> ffi::c_int = ffi::sysctlbyname;
+        _sysctlbyname = libc::sysctlbyname;
+        _sysctlbyname = sys::sysctlbyname;
+        // libc doesn't have this
+        // static_assert!(
+        //     size_of::<ffi::aarch64_sysctl_cpu_id>() == size_of::<libc::aarch64_sysctl_cpu_id>()
+        // );
+        static_assert!(
+            size_of::<ffi::aarch64_sysctl_cpu_id>() == size_of::<sys::aarch64_sysctl_cpu_id>()
+        );
+        let ffi: ffi::aarch64_sysctl_cpu_id = unsafe { core::mem::zeroed() };
+        let _ = sys::aarch64_sysctl_cpu_id {
+            ac_midr: ffi.midr,
+            ac_revidr: ffi.revidr,
+            ac_mpidr: ffi.mpidr,
+            ac_aa64dfr0: ffi.aa64dfr0,
+            ac_aa64dfr1: ffi.aa64dfr1,
+            ac_aa64isar0: ffi.aa64isar0,
+            ac_aa64isar1: ffi.aa64isar1,
+            ac_aa64mmfr0: ffi.aa64mmfr0,
+            ac_aa64mmfr1: ffi.aa64mmfr1,
+            ac_aa64mmfr2: ffi.aa64mmfr2,
+            ac_aa64pfr0: ffi.aa64pfr0,
+            ac_aa64pfr1: ffi.aa64pfr1,
+            ac_aa64zfr0: ffi.aa64zfr0,
+            ac_mvfr0: ffi.mvfr0,
+            ac_mvfr1: ffi.mvfr1,
+            ac_mvfr2: ffi.mvfr2,
+            ac_pad: ffi.pad,
+            ac_clidr: ffi.clidr,
+            ac_ctr: ffi.ctr,
+        };
+    };
     #[cfg(target_os = "openbsd")]
     #[allow(
         clippy::cast_possible_wrap,
