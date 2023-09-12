@@ -235,6 +235,31 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
+        triples: &["aarch64-unknown-netbsd"],
+        headers: &[
+            Header {
+                // https://github.com/NetBSD/src/blob/HEAD/sys/sys/sysctl.h
+                path: "sys/sysctl.h",
+                types: &[],
+                vars: &[],
+                functions: &["sysctlbyname"],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/NetBSD/src/blob/HEAD/sys/arch/aarch64/include/armreg.h
+                path: "aarch64/armreg.h",
+                types: &["aarch64_sysctl_cpu_id"],
+                vars: &[],
+                functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+        ],
+    },
+    Target {
         triples: &["aarch64-unknown-openbsd"],
         headers: &[
             Header {
@@ -447,6 +472,14 @@ pub(crate) fn gen() -> Result<()> {
                         header_path = src_dir.join("include").join(header.path);
                         include = vec![src_dir.join("include")];
                         include_header!("sys/types.h");
+                    }
+                    netbsd => {
+                        header_path = src_dir.join("include").join(header.path);
+                        include = vec![
+                            src_dir.join("include"),
+                            src_dir.join("include/sys"),
+                            src_dir.join("lib/libpthread"),
+                        ]
                     }
                     fuchsia => {
                         header_path = src_dir.join(header.path);
@@ -766,6 +799,26 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
                 src_dir.join("include/machine"),
             )?;
         }
+        netbsd => {
+            src_dir = clone(download_dir, "NetBSD/src", &[])?;
+            let arch = netbsd_arch(target);
+            for path in ["sys", "uvm"] {
+                symlink(src_dir.join("sys").join(path), src_dir.join("include").join(path))?;
+            }
+            for path in [arch, "machine"] {
+                symlink(
+                    src_dir.join("sys/arch").join(arch).join("include"),
+                    src_dir.join("include").join(path),
+                )?;
+            }
+            let link = match target.arch {
+                aarch64 => Some(("arm", src_dir.join("include").join("arm"))),
+                _ => None,
+            };
+            if let Some((arch, link)) = link {
+                symlink(src_dir.join("sys/arch").join(arch).join("include"), link)?;
+            }
+        }
         openbsd => {
             src_dir = clone(download_dir, "openbsd/src", &["/include/", "/sys/"])?;
             // TODO: use https://github.com/openbsd/src/blob/HEAD/Makefile?
@@ -874,6 +927,14 @@ fn freebsd_arch(target: &TargetSpec) -> &'static str {
         x86 => "i386",
         powerpc | powerpc64 => "powerpc",
         riscv64 => "riscv",
+        _ => todo!("{target:?}"),
+    }
+}
+fn netbsd_arch(target: &TargetSpec) -> &'static str {
+    // https://github.com/NetBSD/src/tree/HEAD/sys/arch
+    match target.arch {
+        aarch64 => "aarch64",
+        riscv32 | riscv64 => "riscv",
         _ => todo!("{target:?}"),
     }
 }
