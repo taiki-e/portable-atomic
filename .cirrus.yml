@@ -16,7 +16,7 @@ aarch64_linux_dynamic_linking_test_task:
       env:
         TARGET: aarch64-unknown-linux-gnu
       arm_container:
-        image: rust:latest
+        image: rust
       setup_script:
         - set -ex
         - lscpu
@@ -87,7 +87,7 @@ aarch64_macos_test_task:
   env:
     TARGET: aarch64-apple-darwin
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+    image: ghcr.io/cirruslabs/macos-ventura-xcode
   setup_script:
     - set -ex
     - sysctl hw.optional machdep.cpu
@@ -105,9 +105,7 @@ aarch64_linux_valgrind_task:
   env:
     TARGET: aarch64-unknown-linux-gnu
   arm_container:
-    # Valgrind support ldxp/stxp on 3.19+: https://valgrind.org/docs/manual/dist.news.html
-    # However, current Debian stable's Valgrind is 3.16: https://packages.debian.org/en/stable/valgrind
-    image: rust:bookworm
+    image: rust
   setup_script:
     - set -ex
     - rustup toolchain add nightly --no-self-update && rustup default nightly
@@ -128,7 +126,7 @@ aarch64_linux_valgrind_task:
 #   env:
 #     TARGET: aarch64-unknown-linux-gnu
 #   arm_container:
-#     image: rust:latest
+#     image: rust
 #     cpu: 4
 #     memory: 12G
 #   setup_script:
@@ -146,7 +144,7 @@ aarch64_linux_valgrind_task:
 #   env:
 #     TARGET: x86_64-unknown-linux-gnu
 #   container:
-#     image: rust:latest
+#     image: rust
 #     cpu: 4
 #     memory: 12G
 #   setup_script:
@@ -163,7 +161,7 @@ aarch64_linux_valgrind_task:
 #   env:
 #     TARGET: aarch64-apple-darwin
 #   macos_instance:
-#     image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+#     image: ghcr.io/cirruslabs/macos-ventura-xcode
 #   setup_script:
 #     - set -ex
 #     - sysctl hw.optional machdep.cpu
