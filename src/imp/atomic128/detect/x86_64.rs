@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(any(not(target_feature = "sse"), portable_atomic_sanitize_thread), allow(dead_code))]

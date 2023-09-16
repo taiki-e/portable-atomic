@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic{I,U}128 implementation on s390x.
 //
 // s390x supports 128-bit atomic load/store/cmpxchg:

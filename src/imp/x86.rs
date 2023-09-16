@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic operations implementation on x86/x86_64.
 //
 // This module provides atomic operations not supported by LLVM or optimizes

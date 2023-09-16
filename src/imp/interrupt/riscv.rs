@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Refs:
 // - https://five-embeddev.com/riscv-isa-manual/latest/machine.html#machine-status-registers-mstatus-and-mstatush
 // - https://five-embeddev.com/riscv-isa-manual/latest/supervisor.html#sstatus

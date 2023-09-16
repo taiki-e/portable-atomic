@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
 #![allow(clippy::only_used_in_recursion)]

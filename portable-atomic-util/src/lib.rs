@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 /*!
 <!-- tidy:crate-doc:start -->
 Synchronization primitives built with [portable-atomic].

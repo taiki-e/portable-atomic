@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 #![allow(
     clippy::alloc_instead_of_core,
     clippy::std_instead_of_alloc,

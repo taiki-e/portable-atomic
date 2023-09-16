@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Adapted from https://github.com/rust-embedded/cortex-m.
 //
 // Generated asm:

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Based on std::sync::OnceLock.
 // Note that we cannot use once_cell crate due to its MSRV (we run tests on Rust 1.56).
 

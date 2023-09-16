@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Adapted from https://github.com/rust-embedded/msp430.
 //
 // See also src/imp/msp430.rs.

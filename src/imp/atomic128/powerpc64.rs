@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic{I,U}128 implementation on PowerPC64.
 //
 // powerpc64 on pwr8+ support 128-bit atomics:

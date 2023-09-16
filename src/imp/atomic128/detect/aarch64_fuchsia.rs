@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Run-time feature detection on aarch64 Fuchsia by using zx_system_get_features.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on Fuchsia.

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 use std::{env, process::Command, str};
 
 pub(crate) fn rustc_version() -> Option<Version> {

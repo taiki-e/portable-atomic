@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Run-time feature detection on aarch64 usually requires the use of
 // platform APIs, and we define our own FFI bindings to those APIs.
 //

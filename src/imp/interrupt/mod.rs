@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Critical section based fallback implementations
 //
 // This module supports two different critical section implementations:

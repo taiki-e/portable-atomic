@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 use core::ops;
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/9384f1eb2b356364e201ad38545e03c837d55f3a/crossbeam-utils/src/cache_padded.rs.

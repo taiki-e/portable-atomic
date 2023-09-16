@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 /*!
 <!-- tidy:crate-doc:start -->
 Portable atomic types including support for 128-bit atomics, atomic float, etc.

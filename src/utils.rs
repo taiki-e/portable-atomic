@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 #![cfg_attr(not(all(test, feature = "float")), allow(dead_code, unused_macros))]
 
 #[macro_use]

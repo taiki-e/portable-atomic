@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Fallback implementation using global locks.
 //
 // This implementation uses seqlock for global locks.

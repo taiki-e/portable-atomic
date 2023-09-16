@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Wrap the standard library's atomic types in newtype.
 //
 // This is not a reexport, because we want to backport changes like

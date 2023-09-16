@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic{I,U}128 implementation without inline assembly.
 //
 // Note: This module is currently only enabled on Miri and ThreadSanitizer which

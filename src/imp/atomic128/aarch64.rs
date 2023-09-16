@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic{I,U}128 implementation on AArch64.
 //
 // There are a few ways to implement 128-bit atomic operations in AArch64.

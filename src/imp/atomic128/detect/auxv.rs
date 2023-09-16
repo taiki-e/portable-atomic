@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Run-time feature detection on aarch64/powerpc64 Linux/Android/FreeBSD by parsing ELF auxiliary vectors.
 //
 // # Linux/Android

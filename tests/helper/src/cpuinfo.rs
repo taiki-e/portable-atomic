@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 #![cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
 
 use std::{boxed::Box, path::Path, vec::Vec};

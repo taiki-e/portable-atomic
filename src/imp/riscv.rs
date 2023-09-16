@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Atomic load/store implementation on RISC-V.
 //
 // Refs:

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 //! An implementation of the standard library's `Arc` type using `portable-atomic`.
 
 use portable_atomic::{

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // AtomicF{32,64} implementation based on AtomicU{32,64}.
 //
 // This module provides atomic float implementations using atomic integer.

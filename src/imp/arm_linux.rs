@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 ARM Linux/Android.
 //
 // Refs:

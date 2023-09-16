@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 // Helper for outline-atomics.
 //
 // On architectures where DW atomics are not supported on older CPUs, we use
