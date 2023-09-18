@@ -308,7 +308,7 @@ mod tests {
                 }
             }
 
-            let mut auxv: [sys::Elf64_auxv_t; 26] = unsafe { mem::zeroed() };
+            let mut auxv: [sys::Elf64_auxv_t; 38] = unsafe { mem::zeroed() };
 
             let old_len = core::mem::size_of_val(&auxv);
 
