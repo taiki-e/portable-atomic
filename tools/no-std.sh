@@ -116,7 +116,11 @@ run() {
         armv4t* | thumbv4t*)
             # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
             if ! type -P mgba &>/dev/null; then
-                subcmd=build
+                if [[ -x /usr/games/mgba ]]; then
+                    export PATH="/usr/games:${PATH}"
+                else
+                    subcmd=build
+                fi
             fi
             ;;
         xtensa*)
