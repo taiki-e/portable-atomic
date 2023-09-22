@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+#![cfg_attr(all(target_arch = "sparc", test), allow(dead_code))]
+
 // Critical section based fallback implementations
 //
 // This module supports two different critical section implementations:
@@ -625,7 +627,9 @@ mod tests {
     test_atomic_int_single_thread!(u32);
     test_atomic_int_single_thread!(i64);
     test_atomic_int_single_thread!(u64);
+    #[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
     test_atomic_int_single_thread!(i128);
+    #[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
     test_atomic_int_single_thread!(u128);
     test_atomic_int_single_thread!(isize);
     test_atomic_int_single_thread!(usize);

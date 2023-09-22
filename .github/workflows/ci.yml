@@ -195,6 +195,9 @@ jobs:
           - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
             target: s390x-unknown-linux-gnu
           - rust: nightly
+            target: sparc-unknown-linux-gnu
+            flags: --cfg crossbeam_no_atomic_64 # TODO: needed until https://github.com/crossbeam-rs/crossbeam/commit/d7c1ac2cdf3089275238908f61b051bf2e0becbd released
+          - rust: nightly
             target: sparc64-unknown-linux-gnu
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf

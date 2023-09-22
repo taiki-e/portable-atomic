@@ -420,7 +420,9 @@ mod tests {
         test_atomic_int!(i64);
         test_atomic_int!(u64);
     }
+    #[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
     test_atomic_int!(i128);
+    #[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
     test_atomic_int!(u128);
 
     // load/store/swap implementation is not affected by signedness, so it is

@@ -31,7 +31,9 @@ test_atomic_int_pub!(i32);
 test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
+#[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
 test_atomic_int_pub!(i128);
+#[cfg(not(target_arch = "sparc"))] // TODO: LLVM bug: SIGILL on 128-bit add
 test_atomic_int_pub!(u128);
 
 #[cfg(feature = "float")]

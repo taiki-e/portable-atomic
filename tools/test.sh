@@ -250,7 +250,12 @@ run() {
         case "${target}" in
             # cannot find rsbegin.o/rsend.o when building std
             *-windows-gnu*) ;;
+            # file not recognized: file format not recognized
+            sparc-unknown-linux-gnu) ;;
             *)
+                RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+                    RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
+                    x_cargo careful setup ${release[@]+"${release[@]}"} --target-dir target/careful "$@"
                 if [[ ${#build_std[@]} -gt 0 ]]; then
                     RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
                         RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
