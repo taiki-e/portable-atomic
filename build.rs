@@ -147,6 +147,10 @@ fn main() {
         if target_arch == "arm" && !version.probe(67, 2022, 11, 5) {
             println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
         }
+        // https://github.com/rust-lang/rust/pull/109359 (includes https://github.com/rust-lang/stdarch/pull/1358) merged in Rust 1.70 (nightly-2023-03-24).
+        if target_arch == "x86_64" && !version.probe(70, 2023, 3, 23) {
+            println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_intrinsic");
+        }
 
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();

@@ -3,7 +3,7 @@
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
 #![allow(clippy::only_used_in_recursion)]
-#![feature(asm_experimental_arch, core_intrinsics, stdsimd)]
+#![feature(asm_experimental_arch, core_intrinsics)]
 
 use std::{
     hint::black_box,

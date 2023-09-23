@@ -320,10 +320,13 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(core_intrinsics)
 )]
-// This feature will be unnecessary once stdarch submodule in rust-lang/rust is
-// updated to include https://github.com/rust-lang/stdarch/pull/1358.
+// This feature is only enabled for old nightly.
 #![cfg_attr(
-    all(target_arch = "x86_64", any(miri, portable_atomic_sanitize_thread)),
+    all(
+        target_arch = "x86_64",
+        portable_atomic_unstable_cmpxchg16b_intrinsic,
+        any(miri, portable_atomic_sanitize_thread),
+    ),
     feature(stdsimd)
 )]
 // docs.rs only
