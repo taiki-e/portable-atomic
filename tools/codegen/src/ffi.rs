@@ -494,7 +494,7 @@ pub(crate) fn gen() -> Result<()> {
                             src_dir.join("include"),
                             src_dir.join("include/sys"),
                             src_dir.join("lib/libpthread"),
-                        ]
+                        ];
                     }
                     fuchsia => {
                         header_path = src_dir.join(header.path);
