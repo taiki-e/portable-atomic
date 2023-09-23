@@ -320,7 +320,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(core_intrinsics)
 )]
-// This feature is only enabled for old nightly.
+// This feature is only enabled for old nightly because cmpxchg16b_intrinsic has been stabilized.
 #![cfg_attr(
     all(
         target_arch = "x86_64",

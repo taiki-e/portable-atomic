@@ -12,9 +12,7 @@
 // implementation with inline assembly.
 //
 // Note:
-// - This currently always needs nightly compilers. On x86_64, the stabilization
-//   of `core::arch::x86_64::cmpxchg16b` has been recently merged to stdarch:
-//   https://github.com/rust-lang/stdarch/pull/1358
+// - This currently needs Rust 1.70 on x86_64, otherwise nightly compilers.
 // - On powerpc64, this requires LLVM 15+ and pwr8+ (quadword-atomics LLVM target feature):
 //   https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
 // - On aarch64 big-endian, LLVM (as of 17) generates broken code. (wrong result in stress test)
