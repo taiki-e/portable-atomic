@@ -144,13 +144,13 @@ jobs:
             target: mips64-unknown-linux-gnuabi64
           - rust: nightly
             target: mips64el-unknown-linux-gnuabi64
-          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+          - rust: nightly-2023-07-18 # TODO: hang with LLVM 17
             target: mipsisa32r6-unknown-linux-gnu
-          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+          - rust: nightly-2023-07-18 # TODO: hang with LLVM 17
             target: mipsisa32r6el-unknown-linux-gnu
-          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+          - rust: nightly
             target: mipsisa64r6-unknown-linux-gnuabi64
-          - rust: nightly-2023-07-18 # TODO: https://github.com/rust-lang/rust/pull/112374 broke build-std due to https://github.com/rust-lang/libc/pull/3268 is not released yet
+          - rust: nightly
             target: mipsisa64r6el-unknown-linux-gnuabi64
           - rust: nightly
             target: powerpc-unknown-linux-gnu
