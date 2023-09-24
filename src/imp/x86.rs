@@ -14,9 +14,7 @@
 // Generated asm:
 // - x86_64 https://godbolt.org/z/8fve4YP1G
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
-use core::sync::atomic::Ordering;
+use core::{arch::asm, sync::atomic::Ordering};
 
 use super::core_atomic::{
     AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize, AtomicU16, AtomicU32, AtomicU64,

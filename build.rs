@@ -133,25 +133,6 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_llvm_16");
     }
     if version.nightly {
-        // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
-        if version.probe(64, 2022, 6, 29) {
-            println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");
-        }
-        // https://github.com/rust-lang/rust/pull/100911 (includes https://github.com/rust-lang/stdarch/pull/1315) merged in Rust 1.65 (nightly-2022-08-26).
-        if target_arch == "x86_64" && !version.probe(65, 2022, 8, 25) {
-            println!(
-                "cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_intrinsic_stronger_failure_ordering"
-            );
-        }
-        // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
-        if target_arch == "arm" && !version.probe(67, 2022, 11, 5) {
-            println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
-        }
-        // https://github.com/rust-lang/rust/pull/109359 (includes https://github.com/rust-lang/stdarch/pull/1358) merged in Rust 1.70 (nightly-2023-03-24).
-        if target_arch == "x86_64" && !version.probe(70, 2023, 3, 23) {
-            println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_intrinsic");
-        }
-
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
         if sanitize.contains("thread") {
@@ -162,9 +143,6 @@ fn main() {
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
         }
 
-        if version.llvm >= 15 {
-            println!("cargo:rustc-cfg=portable_atomic_llvm_15");
-        }
         // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
         if !no_asm
@@ -176,8 +154,8 @@ fn main() {
         }
     }
 
-    let is_apple =
-        target_os == "macos" || target_os == "ios" || target_os == "tvos" || target_os == "watchos";
+    let is_macos = target_os == "macos";
+    let is_apple = is_macos || target_os == "ios" || target_os == "tvos" || target_os == "watchos";
     match target_arch {
         "x86_64" => {
             // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
@@ -191,6 +169,11 @@ fn main() {
                 } else {
                     println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
                 }
+            }
+            // For Miri and ThreadSanitizer.
+            // https://github.com/rust-lang/rust/pull/109359 (includes https://github.com/rust-lang/stdarch/pull/1358) merged in Rust 1.70 (nightly-2023-03-24).
+            if version.nightly && !version.probe(70, 2023, 3, 23) {
+                println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_intrinsic");
             }
 
             // x86_64 Apple targets always support CMPXCHG16B:
@@ -218,10 +201,14 @@ fn main() {
                     println!("cargo:rustc-cfg=portable_atomic_no_outline_atomics");
                 }
             }
+            // For Miri and ThreadSanitizer.
+            // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
+            if version.nightly && version.probe(64, 2022, 6, 29) {
+                println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");
+            }
 
             // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
             // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L494
-            let is_macos = target_os == "macos";
             let mut has_lse = is_macos;
             // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
             // As of rustc 1.70, target_feature "lse2"/"lse128"/"rcpc3" is not available on rustc side:
@@ -242,6 +229,12 @@ fn main() {
             }
         }
         "arm" => {
+            // For non-Linux/Android pre-v6 ARM (tier 3) with unsafe_assume_single_core enabled.
+            // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
+            if version.nightly && !version.probe(67, 2022, 11, 5) {
+                println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
+            }
+
             // #[cfg(target_feature = "v7")] and others don't work on stable.
             // armv7-unknown-linux-gnueabihf
             //    ^^
@@ -285,6 +278,11 @@ fn main() {
             target_feature_if("v6", v6, &version, None, true);
         }
         "powerpc64" => {
+            // For Miri and ThreadSanitizer.
+            if version.nightly && version.llvm >= 15 {
+                println!("cargo:rustc-cfg=portable_atomic_llvm_15");
+            }
+
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
             // powerpc64le is pwr8+ by default

@@ -260,9 +260,9 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 // - cfg(target_has_atomic)
 // - #[target_feature(enable = "lse")] on AArch64
 // - #[target_feature(enable = "cmpxchg16b")] on x86_64
-// - asm! on ARM, AArch64, RISC-V, x86, x86_64
+// - asm! on ARM, AArch64, RISC-V, x86_64
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
-// - #[instruction_set] on non-Linux pre-v6 ARM (tier 3)
+// - #[instruction_set] on non-Linux/Android pre-v6 ARM (tier 3)
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
 #![cfg_attr(
     all(
@@ -290,7 +290,6 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "arm",
             target_arch = "riscv32",
             target_arch = "riscv64",
-            target_arch = "x86",
             target_arch = "x86_64",
         ),
     ),

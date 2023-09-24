@@ -43,7 +43,7 @@
         ),
         all(
             target_arch = "arm",
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            not(portable_atomic_no_asm),
             any(target_os = "linux", target_os = "android"),
             not(portable_atomic_no_outline_atomics),
         ),
