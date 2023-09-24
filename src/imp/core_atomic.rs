@@ -159,7 +159,12 @@ macro_rules! atomic_int {
             }
             #[inline]
             pub(crate) const fn is_always_lock_free() -> bool {
-                true
+                // ESP-IDF targets' 64-bit atomics are not lock-free.
+                // https://github.com/rust-lang/rust/pull/115577#issuecomment-1732259297
+                cfg!(not(all(
+                    any(target_arch = "riscv32", target_arch = "xtensa"),
+                    target_os = "espidf",
+                ))) | (core::mem::size_of::<$int_type>() < 8)
             }
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
