@@ -751,13 +751,6 @@ pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> 
     }
 }
 
-#[cfg(any(
-    target_arch = "aarch64",
-    target_arch = "powerpc64",
-    target_arch = "s390x",
-    target_arch = "x86_64",
-))]
-pub(crate) use imp::Pair128 as Pair;
 #[allow(dead_code)]
 #[cfg(any(
     target_arch = "aarch64",
@@ -773,11 +766,8 @@ pub(crate) use imp::Pair128 as Pair;
 #[repr(C)]
 pub(crate) union U128 {
     pub(crate) whole: u128,
-    pub(crate) pair: Pair,
+    pub(crate) pair: Pair<u64>,
 }
-
-#[cfg(target_arch = "arm")]
-pub(crate) use imp::Pair64 as Pair;
 #[allow(dead_code)]
 #[cfg(target_arch = "arm")]
 /// A 64-bit value represented as a pair of 32-bit values.
@@ -788,60 +778,19 @@ pub(crate) use imp::Pair64 as Pair;
 #[repr(C)]
 pub(crate) union U64 {
     pub(crate) whole: u64,
-    pub(crate) pair: Pair,
+    pub(crate) pair: Pair<u32>,
 }
-
-// little endian order
 #[allow(dead_code)]
-#[cfg(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm"))]
-mod imp {
-    #[cfg(target_arch = "arm")]
-    // A pair of 32-bit values.
-    #[derive(Clone, Copy)]
-    #[repr(C)]
-    pub(crate) struct Pair64 {
-        pub(crate) lo: u32,
-        pub(crate) hi: u32,
-    }
-    #[cfg(any(
-        target_arch = "aarch64",
-        target_arch = "powerpc64",
-        target_arch = "s390x",
-        target_arch = "x86_64",
-    ))]
-    // A pair of 64-bit values.
-    #[derive(Clone, Copy)]
-    #[repr(C)]
-    pub(crate) struct Pair128 {
-        pub(crate) lo: u64,
-        pub(crate) hi: u64,
-    }
-}
-// big endian order
-#[allow(dead_code)]
-#[cfg(not(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm")))]
-mod imp {
-    #[cfg(target_arch = "arm")]
-    // A pair of 32-bit values.
-    #[derive(Clone, Copy)]
-    #[repr(C)]
-    pub(crate) struct Pair64 {
-        pub(crate) hi: u32,
-        pub(crate) lo: u32,
-    }
-    #[cfg(any(
-        target_arch = "aarch64",
-        target_arch = "powerpc64",
-        target_arch = "s390x",
-        target_arch = "x86_64",
-    ))]
-    // A pair of 64-bit values.
-    #[derive(Clone, Copy)]
-    #[repr(C)]
-    pub(crate) struct Pair128 {
-        pub(crate) hi: u64,
-        pub(crate) lo: u64,
-    }
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub(crate) struct Pair<T: Copy> {
+    // little endian order
+    #[cfg(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm"))]
+    pub(crate) lo: T,
+    pub(crate) hi: T,
+    // big endian order
+    #[cfg(not(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm")))]
+    pub(crate) lo: T,
 }
 
 /// Emulate strict provenance.
