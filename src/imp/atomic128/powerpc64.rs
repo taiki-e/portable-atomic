@@ -411,10 +411,10 @@ unsafe fn atomic_compare_exchange_pwr8(
                     $acquire,
                     end_pwr8!(),
                     dst = in(reg_nonzero) ptr_reg!(dst),
-                    old_hi = in(reg_nonzero) old.pair.hi,
-                    old_lo = in(reg_nonzero) old.pair.lo,
-                    tmp_hi = out(reg_nonzero) _,
-                    tmp_lo = out(reg_nonzero) _,
+                    old_hi = in(reg) old.pair.hi,
+                    old_lo = in(reg) old.pair.lo,
+                    tmp_hi = out(reg) _,
+                    tmp_lo = out(reg) _,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
                     in("r6") new.pair.hi,
@@ -514,8 +514,8 @@ macro_rules! atomic_rmw_ll_sc_3 {
                             $acquire,
                             end_pwr8!(),
                             dst = in(reg_nonzero) ptr_reg!(dst),
-                            val_hi = in(reg_nonzero) val.pair.hi,
-                            val_lo = in(reg_nonzero) val.pair.lo,
+                            val_hi = in(reg) val.pair.hi,
+                            val_lo = in(reg) val.pair.lo,
                             $($reg)*
                             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                             // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
@@ -675,7 +675,7 @@ atomic_rmw_ll_sc_2! {
 // LLVM 15 miscompiles subfic.
 #[cfg(not(portable_atomic_llvm_16))]
 atomic_rmw_ll_sc_2! {
-    atomic_neg_pwr8 as atomic_neg, [zero = in(reg_nonzero) 0_u64, out("xer") _,],
+    atomic_neg_pwr8 as atomic_neg, [zero = in(reg) 0_u64, out("xer") _,],
     "subc %r9, {zero}, %r7",
     "subfze %r8, %r6",
 }
