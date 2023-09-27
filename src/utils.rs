@@ -751,6 +751,26 @@ pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> 
     }
 }
 
+/// Zero-extends the given 32-bit pointer to `MaybeUninit<u64>`.
+/// This is used for 64-bit architecture's 32-bit ABI (e.g., AArch64 ILP32 ABI).
+/// See ptr_reg! macro in src/gen/utils.rs for details.
+#[cfg(not(portable_atomic_no_asm_maybe_uninit))]
+#[cfg(target_pointer_width = "32")]
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn zero_extend64_ptr(v: *mut ()) -> core::mem::MaybeUninit<u64> {
+    #[repr(C)]
+    struct ZeroExtended {
+        #[cfg(target_endian = "big")]
+        pad: *mut (),
+        v: *mut (),
+        #[cfg(target_endian = "little")]
+        pad: *mut (),
+    }
+    // SAFETY: we can safely transmute any 64-bit value to MaybeUninit<u64>.
+    unsafe { core::mem::transmute(ZeroExtended { v, pad: core::ptr::null_mut() }) }
+}
+
 #[allow(dead_code)]
 #[cfg(any(
     target_arch = "aarch64",

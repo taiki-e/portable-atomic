@@ -80,6 +80,10 @@ fn main() {
     if !version.probe(64, 2022, 7, 18) {
         println!("cargo:rustc-cfg=portable_atomic_no_stronger_failure_ordering");
     }
+    // https://github.com/rust-lang/rust/pull/114790 merged in nightly-2023-08-24
+    if !version.probe(74, 2023, 8, 23) {
+        println!("cargo:rustc-cfg=portable_atomic_no_asm_maybe_uninit");
+    }
 
     // asm stabilized in Rust 1.59 (nightly-2021-12-16): https://github.com/rust-lang/rust/pull/91728
     let no_asm = !version.probe(59, 2021, 12, 15);
