@@ -358,7 +358,7 @@ jobs:
           version: ${{ matrix.version }}
           shell: bash
           run: |
-            set -euxo pipefail
+            set -eEuxo pipefail
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
             # AArch64 FreeBSD/OpenBSD are tier 3 targets, so install rust from package manager instead of rustup.
             case "$(uname -s)" in
@@ -457,7 +457,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: startsWith(matrix.rust, 'nightly')
       - run: |
-          set -euxo pipefail
+          set -eEuxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
             avr-libc \
             gcc-avr \
