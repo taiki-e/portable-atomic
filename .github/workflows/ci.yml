@@ -38,23 +38,23 @@ concurrency:
 
 jobs:
   check-external-types:
-    uses: taiki-e/workflows/.github/workflows/check-external-types.yml@main
+    uses: taiki-e/github-actions/.github/workflows/check-external-types.yml@main
   deny:
-    uses: taiki-e/workflows/.github/workflows/deny.yml@main
+    uses: taiki-e/github-actions/.github/workflows/deny.yml@main
   docs:
-    uses: taiki-e/workflows/.github/workflows/docs.yml@main
+    uses: taiki-e/github-actions/.github/workflows/docs.yml@main
     with:
       target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
   msrv:
     needs: tidy
-    uses: taiki-e/workflows/.github/workflows/msrv.yml@main
+    uses: taiki-e/github-actions/.github/workflows/msrv.yml@main
     with:
       event_name: ${{ github.event_name }}
       # NB: sync with env.TEST_FEATURES
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
       args: --features float,std --ignore-unknown-features
   tidy:
-    uses: taiki-e/workflows/.github/workflows/tidy.yml@main
+    uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
     with:
       # clippy is covered by TESTS=1 ./tools/build.sh
       clippy: false
