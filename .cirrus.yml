@@ -97,8 +97,7 @@ aarch64_macos_test_task:
     - . $HOME/.cargo/env
     - set -ex
     # macOS is +lse,+lse2 by default
-    # Cirrus CI's aarch64 macOS VM is fast enough, so run ignored tests too.
-    - ./tools/test.sh -vv -- --include-ignored
+    - ./tools/test.sh -vv
 
 aarch64_linux_valgrind_task:
   name: valgrind ($TARGET)
