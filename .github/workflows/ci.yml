@@ -65,13 +65,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # LLVM version table:
+          # - LLVM 12: stable ?    - 1.55,
+          # - LLVM 13: stable 1.56 - 1.59,                           - nightly-2022-02-17 (1.60)
+          # - LLVM 14: stable 1.60 - 1.64, nightly-2022-02-18 (1.60) - nightly-2022-08-12 (1.65)
+          # - LLVM 15: stable 1.65 - 1.69, nightly-2022-08-13 (1.65) - nightly-2023-03-25 (1.70)
+          # - LLVM 16: stable 1.70 - 1.72, nightly-2023-03-26 (1.70) - nightly-2023-08-08 (1.73)
+          # - LLVM 17: stable 1.73 -     , nightly-2023-08-09 (1.73) -
           - rust: '1.56'
           - rust: '1.59' # LLVM 13
-          - rust: '1.64' # LLVM 14
-          - rust: '1.69' # LLVM 15
-          - rust: stable # LLVM 16 (as of 1.70)
+          # - rust: '1.64' # LLVM 14
+          # - rust: '1.69' # LLVM 15
+          # - rust: '1.72' # LLVM 16
+          - rust: stable
           - rust: beta
           - rust: nightly
+          - rust: nightly
+            flags: -C panic=abort -Z panic_abort_tests
           - rust: nightly
             os: macos-latest
           - rust: nightly
@@ -82,14 +92,14 @@ jobs:
             os: windows-latest
           - rust: nightly-i686-pc-windows-gnu
             os: windows-latest
-          - rust: nightly
-            flags: -C panic=abort -Z panic_abort_tests
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
-          - rust: '1.64' # LLVM 14
-            target: aarch64-unknown-linux-gnu
-          - rust: '1.69' # LLVM 15
-            target: aarch64-unknown-linux-gnu
+          # - rust: '1.64' # LLVM 14
+          #   target: aarch64-unknown-linux-gnu
+          # - rust: '1.69' # LLVM 15
+          #   target: aarch64-unknown-linux-gnu
+          # - rust: '1.72' # LLVM 16
+          #   target: aarch64-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-gnu
           - rust: beta
@@ -132,6 +142,10 @@ jobs:
             target: arm-linux-androideabi
           - rust: nightly
             target: i586-unknown-linux-gnu
+          - rust: '1.59'
+            target: i686-unknown-linux-gnu
+          - rust: stable
+            target: i686-unknown-linux-gnu
           - rust: nightly
             target: i686-unknown-linux-gnu
           - rust: nightly
@@ -156,38 +170,30 @@ jobs:
             target: powerpc-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2023-03-26 # Rust 1.70, LLVM 16
+          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
           #   target: powerpc64-unknown-linux-gnu
-          - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-            target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2022-08-13 # Rust 1.65, LLVM 15
+          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
           #   target: powerpc64-unknown-linux-gnu
-          - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-            target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2022-02-18 # Rust 1.60, LLVM 14
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2022-02-17 # Rust 1.60, LLVM 13
+          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
           #   target: powerpc64-unknown-linux-gnu
           - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
             target: powerpc64-unknown-linux-gnu
           - rust: nightly
             target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2023-03-26 # Rust 1.70, LLVM 16
+          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
           #   target: powerpc64le-unknown-linux-gnu
-          - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-            target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2022-08-13 # Rust 1.65, LLVM 15
+          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
           #   target: powerpc64le-unknown-linux-gnu
-          - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-            target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2022-02-18 # Rust 1.60, LLVM 14
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2022-02-17 # Rust 1.60, LLVM 13
+          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
           #   target: powerpc64le-unknown-linux-gnu
           - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
             target: powerpc64le-unknown-linux-gnu
           - rust: nightly
             target: riscv32gc-unknown-linux-gnu
+          - rust: '1.59'
+            target: riscv64gc-unknown-linux-gnu
+          - rust: stable
+            target: riscv64gc-unknown-linux-gnu
           - rust: nightly
             target: riscv64gc-unknown-linux-gnu
           - rust: nightly
