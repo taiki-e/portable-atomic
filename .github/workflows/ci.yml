@@ -564,10 +564,8 @@ jobs:
       - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/install-action@valgrind
       - run: tools/test.sh valgrind -vv
-      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
-      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # +cmpxchg16b
-      - run: tools/test.sh valgrind -vv --tests
+      - run: tools/test.sh valgrind -vv
         env:
           # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
