@@ -155,6 +155,45 @@ macro_rules! debug_assert_lse {
     };
 }
 
+// Refs: https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/AArch32-Target-selection-directives?lang=en
+//
+// This is similar to #[target_feature(enable = "lse")], except that there are
+// no compiler guarantees regarding (un)inlining, and the scope is within an asm
+// block rather than a function. We use this directive to support outline-atomics
+// on pre-1.61 rustc (aarch64_target_feature stabilized in Rust 1.61).
+//
+// The .arch_extension directive is effective until the end of the assembly block and
+// is not propagated to subsequent code, so the end_lse macro is unneeded.
+// https://godbolt.org/z/4oMEW8vWc
+// https://github.com/torvalds/linux/commit/e0d5896bd356cd577f9710a02d7a474cdf58426b
+// https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
+// (It seems GCC effectively ignores this directive and always allow FEAT_LSE instructions: https://godbolt.org/z/W9W6rensG)
+//
+// The .arch directive has a similar effect, but we don't use it due to the following issue:
+// https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
+//
+// Note: If FEAT_LSE is not available at compile-time, we must guarantee that
+// the function that uses it is not inlined into a function where it is not
+// clear whether FEAT_LSE is available. Otherwise, (even if we checked whether
+// FEAT_LSE is available at run-time) optimizations that reorder its
+// instructions across the if condition might introduce undefined behavior.
+// (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
+// However, our code uses the ifunc helper macro that works with function pointers,
+// so we don't have to worry about this unless calling without helper macro.
+#[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+#[cfg(not(portable_atomic_no_outline_atomics))]
+macro_rules! start_lse {
+    () => {
+        ".arch_extension lse"
+    };
+}
+#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+macro_rules! start_lse {
+    () => {
+        ""
+    };
+}
+
 #[cfg(target_endian = "little")]
 macro_rules! select_le_or_be {
     ($le:expr, $be:expr) => {
@@ -289,6 +328,7 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
         macro_rules! atomic_load {
             ($acquire:tt, $release:tt) => {
                 asm!(
+                    start_lse!(),
                     concat!("casp", $acquire, $release, " x2, x3, x2, x3, [{src}]"),
                     src = in(reg) ptr_reg!(src),
                     // must be allocated to even/odd register pair
@@ -551,7 +591,9 @@ unsafe fn atomic_compare_exchange(
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let prev = {
         fn_alias! {
-            #[target_feature(enable = "lse")]
+            // inline(never) is just a hint and also not strictly necessary
+            // because we use ifunc helper macro, but used for clarity.
+            #[inline(never)]
             unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128;
             atomic_compare_exchange_casp_relaxed
                 = _atomic_compare_exchange_casp(Ordering::Relaxed, Ordering::Relaxed);
@@ -660,10 +702,6 @@ unsafe fn atomic_compare_exchange(
     portable_atomic_target_feature = "lse",
     not(portable_atomic_no_outline_atomics),
 ))]
-#[cfg_attr(
-    not(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
-    target_feature(enable = "lse")
-)]
 #[inline]
 unsafe fn _atomic_compare_exchange_casp(
     dst: *mut u128,
@@ -690,6 +728,7 @@ unsafe fn _atomic_compare_exchange_casp(
         macro_rules! cmpxchg {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
+                    start_lse!(),
                     concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst}]"),
                     $fence,
                     dst = in(reg) ptr_reg!(dst),
@@ -848,6 +887,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         macro_rules! swap {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
+                    start_lse!(),
                     // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
@@ -1014,6 +1054,7 @@ macro_rules! atomic_rmw_cas_3 {
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
+                            start_lse!(),
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
@@ -1140,6 +1181,7 @@ macro_rules! atomic_rmw_cas_2 {
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $fence:tt) => {
                         asm!(
+                            start_lse!(),
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
