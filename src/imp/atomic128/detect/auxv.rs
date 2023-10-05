@@ -247,6 +247,7 @@ mod tests {
     fn test_linux_like() {
         use c_types::*;
         use core::{arch::asm, mem};
+        use std::vec;
         use test_helper::{libc, sys};
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
@@ -255,15 +256,16 @@ mod tests {
         // This is currently used only for testing.
         fn getauxval_pr_get_auxv(type_: ffi::c_ulong) -> Result<ffi::c_ulong, c_int> {
             #[cfg(target_arch = "aarch64")]
-            unsafe fn prctl_get_auxv(a1: *mut u8, a2: usize) -> Result<usize, c_int> {
+            unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
                 let r: i64;
                 unsafe {
                     asm!(
                         "svc 0",
                         in("x8") sys::__NR_prctl as u64,
                         inout("x0") sys::PR_GET_AUXV as u64 => r,
-                        in("x1") ptr_reg!(a1),
-                        in("x2") a2 as u64,
+                        in("x1") ptr_reg!(out),
+                        in("x2") len as u64,
+                        // arg4 and arg5 must be zero.
                         in("x3") 0_u64,
                         in("x4") 0_u64,
                         options(nostack, preserves_flags)
@@ -277,7 +279,7 @@ mod tests {
                 }
             }
             #[cfg(target_arch = "powerpc64")]
-            unsafe fn prctl_get_auxv(a1: *mut u8, a2: usize) -> Result<usize, c_int> {
+            unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
                 let r: i64;
                 unsafe {
                     asm!(
@@ -287,8 +289,9 @@ mod tests {
                         "2:",
                         inout("r0") sys::__NR_prctl as u64 => _,
                         inout("r3") sys::PR_GET_AUXV as u64 => r,
-                        inout("r4") ptr_reg!(a1) => _,
-                        inout("r5") a2 as u64 => _,
+                        inout("r4") ptr_reg!(out) => _,
+                        inout("r5") len as u64 => _,
+                        // arg4 and arg5 must be zero.
                         inout("r6") 0_u64 => _,
                         inout("r7") 0_u64 => _,
                         out("r8") _,
@@ -308,13 +311,13 @@ mod tests {
                 }
             }
 
-            let mut auxv: [sys::Elf64_auxv_t; 38] = unsafe { mem::zeroed() };
+            let mut auxv = vec![unsafe { mem::zeroed::<sys::Elf64_auxv_t>() }; 38];
 
-            let old_len = core::mem::size_of_val(&auxv);
+            let old_len = auxv.len() * mem::size_of::<sys::Elf64_auxv_t>();
 
             // SAFETY:
             // - `out_len` does not exceed the size of `auxv`.
-            let _len = unsafe { prctl_get_auxv(auxv.as_mut_ptr().cast::<u8>(), old_len)? };
+            let _len = unsafe { prctl_get_auxv(auxv.as_mut_ptr().cast::<c_void>(), old_len)? };
 
             for aux in &auxv {
                 if aux.a_type == type_ {
@@ -401,7 +404,7 @@ mod tests {
         fn getauxval_sysctl_libc(type_: ffi::c_int) -> ffi::c_ulong {
             let mut auxv: [sys::Elf64_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
 
-            let mut len: c_size_t = core::mem::size_of_val(&auxv) as c_size_t;
+            let mut len = core::mem::size_of_val(&auxv) as c_size_t;
 
             // SAFETY: calling getpid is safe.
             let pid = unsafe { sys::getpid() };
@@ -415,7 +418,7 @@ mod tests {
             #[allow(clippy::cast_possible_truncation)]
             // SAFETY:
             // - `mib.len()` does not exceed the size of `mib`.
-            // - `out_len` does not exceed the size of `out`.
+            // - `len` does not exceed the size of `auxv`.
             // - `sysctl` is thread-safe.
             let res = unsafe {
                 sys::sysctl(
@@ -441,7 +444,10 @@ mod tests {
         }
         // Similar to the above, but call syscall using asm instead of libc.
         // Note that FreeBSD does not guarantee the stability of raw syscall as
-        // much as Linux does (It may actually be stable enough, though: https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html).
+        // much as Linux does (It may actually be stable enough, though:
+        // https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html,
+        // https://lobste.rs/s/yjd59n/crt_free_2023_tips_tricks#c_viakfm,
+        // https://github.com/ziglang/zig/issues/16590).
         //
         // This is currently used only for testing.
         fn getauxval_sysctl_asm_syscall(type_: ffi::c_int) -> Result<ffi::c_ulong, c_int> {
@@ -578,7 +584,7 @@ mod tests {
 
             let mut auxv: [sys::Elf64_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
 
-            let mut len: c_size_t = core::mem::size_of_val(&auxv) as c_size_t;
+            let mut len = core::mem::size_of_val(&auxv) as c_size_t;
 
             let pid = getpid();
             let mib = [
@@ -591,7 +597,7 @@ mod tests {
             #[allow(clippy::cast_possible_truncation)]
             // SAFETY:
             // - `mib.len()` does not exceed the size of `mib`.
-            // - `out_len` does not exceed the size of `out`.
+            // - `len` does not exceed the size of `auxv`.
             // - `sysctl` is thread-safe.
             unsafe {
                 sysctl(
