@@ -289,13 +289,15 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
+        # QEMU + Wine is slow so test only cases where OS-specific code is called.
+        if: startsWith(matrix.target, 'aarch64') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # aarch64 +lse,+lse2
       - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
-        if: startsWith(matrix.target, 'aarch64')
+        # QEMU + Wine is slow so test only cases where OS-specific code is called.
+        if: startsWith(matrix.target, 'aarch64') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
