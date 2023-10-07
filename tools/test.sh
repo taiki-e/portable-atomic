@@ -231,6 +231,10 @@ run() {
         x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     fi
 
+    case "$(basename "${cargo}")" in
+        cargo-clif | cargo-clif.exe) return ;; # LTO is not supported
+    esac
+
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
         CARGO_PROFILE_RELEASE_LTO=fat \

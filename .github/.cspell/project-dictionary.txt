@@ -20,6 +20,7 @@ cinc
 cirruslabs
 clgr
 clidr
+clif
 cmovae
 cmovb
 cmovge
