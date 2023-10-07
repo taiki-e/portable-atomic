@@ -13,17 +13,27 @@
 // be possible to omit the dynamic kernel version check if the std feature is enabled on Rust 1.64+.
 // https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[path = "fallback/outline_atomics.rs"]
 mod fallback;
 
-use core::{arch::asm, cell::UnsafeCell, mem, sync::atomic::Ordering};
+use core::{arch::asm, sync::atomic::Ordering};
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
+use core::{cell::UnsafeCell, mem};
 
-use crate::utils::{Pair, U64};
+use super::core_atomic::{
+    AtomicI16, AtomicI32, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU32, AtomicU8,
+    AtomicUsize,
+};
 
 // https://www.kernel.org/doc/Documentation/arm/kernel_user_helpers.txt
 const KUSER_HELPER_VERSION: usize = 0xFFFF0FFC;
+// __kuser_helper_version >= 3 (kernel version 2.6.15+)
+const KUSER_MEMORY_BARRIER: usize = 0xFFFF0FA0;
 // __kuser_helper_version >= 5 (kernel version 3.1+)
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 const KUSER_CMPXCHG64: usize = 0xFFFF0F60;
+
 #[inline]
 fn __kuser_helper_version() -> i32 {
     use core::sync::atomic::AtomicI32;
@@ -39,6 +49,7 @@ fn __kuser_helper_version() -> i32 {
     CACHE.store(v, Ordering::Relaxed);
     v
 }
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[inline]
 fn has_kuser_cmpxchg64() -> bool {
     // Note: detect_false cfg is intended to make it easy for portable-atomic developers to
@@ -49,6 +60,7 @@ fn has_kuser_cmpxchg64() -> bool {
     }
     __kuser_helper_version() >= 5
 }
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[inline]
 unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
     // SAFETY: the caller must uphold the safety contract.
@@ -59,7 +71,107 @@ unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut 
     }
 }
 
+#[cfg(any(target_feature = "v5te", portable_atomic_target_feature = "v5te"))]
+macro_rules! blx {
+    ($addr:tt) => {
+        concat!("blx ", $addr)
+    };
+}
+#[cfg(not(any(target_feature = "v5te", portable_atomic_target_feature = "v5te")))]
+macro_rules! blx {
+    ($addr:tt) => {
+        concat!("mov lr, pc", "\n", "bx ", $addr)
+    };
+}
+
+macro_rules! atomic_load_store {
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
+        impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
+            #[inline]
+            pub(crate) fn load(&self, order: Ordering) -> $value_type {
+                crate::utils::assert_load_ordering(order);
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    match order {
+                        Ordering::Relaxed => self.inner.load(Ordering::Relaxed),
+                        // Acquire and SeqCst loads are equivalent.
+                        Ordering::Acquire | Ordering::SeqCst => {
+                            debug_assert!(__kuser_helper_version() >= 3);
+                            let src = self.as_ptr();
+                            let out;
+                            asm!(
+                                concat!("ldr", $asm_suffix, " {out}, [{src}]"),
+                                blx!("{kuser_memory_barrier}"),
+                                src = in(reg) src,
+                                out = lateout(reg) out,
+                                kuser_memory_barrier = inout(reg) KUSER_MEMORY_BARRIER => _,
+                                out("lr") _,
+                                options(nostack, preserves_flags),
+                            );
+                            out
+                        }
+                        _ => unreachable!("{:?}", order),
+                    }
+                }
+            }
+            #[inline]
+            #[cfg_attr(
+                any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+                track_caller
+            )]
+            pub(crate) fn store(&self, val: $value_type, order: Ordering) {
+                crate::utils::assert_store_ordering(order);
+                let dst = self.as_ptr();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe {
+                    macro_rules! atomic_store_release {
+                        ($acquire:expr) => {{
+                            debug_assert!(__kuser_helper_version() >= 3);
+                            asm!(
+                                blx!("{kuser_memory_barrier}"),
+                                concat!("str", $asm_suffix, " {val}, [{dst}]"),
+                                $acquire,
+                                dst = in(reg) dst,
+                                val = in(reg) val,
+                                kuser_memory_barrier = inout(reg) KUSER_MEMORY_BARRIER => _,
+                                out("lr") _,
+                                options(nostack, preserves_flags),
+                            )
+                        }};
+                    }
+                    match order {
+                        Ordering::Relaxed => self.inner.store(val, Ordering::Relaxed),
+                        Ordering::Release => atomic_store_release!(""),
+                        Ordering::SeqCst => atomic_store_release!(blx!("{kuser_memory_barrier}")),
+                        _ => unreachable!("{:?}", order),
+                    }
+                }
+            }
+        }
+    };
+}
+
+atomic_load_store!(AtomicI8, i8, "b");
+atomic_load_store!(AtomicU8, u8, "b");
+atomic_load_store!(AtomicI16, i16, "h");
+atomic_load_store!(AtomicU16, u16, "h");
+atomic_load_store!(AtomicI32, i32, "");
+atomic_load_store!(AtomicU32, u32, "");
+atomic_load_store!(AtomicIsize, isize, "");
+atomic_load_store!(AtomicUsize, usize, "");
+atomic_load_store!([T] AtomicPtr, *mut T, "");
+
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
+use crate::utils::{Pair, U64};
+
 // 64-bit atomic load by two 32-bit atomic loads.
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[inline]
 unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     // SAFETY: the caller must uphold the safety contract.
@@ -77,6 +189,7 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     }
 }
 
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 #[inline(always)]
 unsafe fn atomic_update_kuser_cmpxchg64<F>(dst: *mut u64, mut f: F) -> u64
 where
@@ -108,6 +221,7 @@ macro_rules! atomic_with_ifunc {
         unsafe fn $name:ident($($arg:tt)*) $(-> $ret_ty:ty)? { $($kuser_cmpxchg64_fn_body:tt)* }
         fallback = $seqcst_fallback_fn:ident
     ) => {
+        #[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
         #[inline]
         unsafe fn $name($($arg)*) $(-> $ret_ty)? {
             unsafe fn kuser_cmpxchg64_fn($($arg)*) $(-> $ret_ty)? {
@@ -252,6 +366,7 @@ atomic_with_ifunc! {
     fallback = atomic_neg_seqcst
 }
 
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 macro_rules! atomic64 {
     ($atomic_type:ident, $int_type:ident, $atomic_max:ident, $atomic_min:ident) => {
         #[repr(C, align(8))]
@@ -441,7 +556,9 @@ macro_rules! atomic64 {
     };
 }
 
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 atomic64!(AtomicI64, i64, atomic_max, atomic_min);
+#[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
 atomic64!(AtomicU64, u64, atomic_umax, atomic_umin);
 
 #[allow(
@@ -462,10 +579,13 @@ mod tests {
         assert_eq!(version, unsafe { (KUSER_HELPER_VERSION as *const i32).read() });
     }
 
+    #[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
     test_atomic_int!(i64);
+    #[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
     test_atomic_int!(u64);
 
     // load/store/swap implementation is not affected by signedness, so it is
     // enough to test only unsigned types.
+    #[cfg(all(feature = "fallback", not(portable_atomic_no_outline_atomics)))]
     stress_test!(u64);
 }
