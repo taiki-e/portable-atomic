@@ -446,7 +446,6 @@ mod tests {
         // Note that FreeBSD does not guarantee the stability of raw syscall as
         // much as Linux does (It may actually be stable enough, though:
         // https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html,
-        // https://lobste.rs/s/yjd59n/crt_free_2023_tips_tricks#c_viakfm,
         // https://github.com/ziglang/zig/issues/16590).
         //
         // This is currently used only for testing.
