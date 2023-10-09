@@ -108,11 +108,8 @@ default_targets=(
     # rustc --print target-list | grep -E '^s390x'
     s390x-unknown-linux-gnu
 )
+# List of known custom cfgs, excluding those that may be set from build script.
 known_cfgs=(
-    # Public APIs
-    portable_atomic_unsafe_assume_single_core
-    portable_atomic_s_mode
-    portable_atomic_disable_fiq
     portable_atomic_no_outline_atomics
     portable_atomic_outline_atomics
 
