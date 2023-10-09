@@ -811,7 +811,7 @@ fn abort() -> ! {
 }
 
 fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
-    strict::addr(ptr as *mut ()) == usize::MAX
+    ptr as *mut () as usize == usize::MAX
 }
 
 /// Emulate strict provenance.
@@ -823,22 +823,20 @@ fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
     clippy::useless_transmute
 )]
 mod strict {
-    use core::mem;
-
-    /// Get the address of a pointer.
-    #[inline]
-    #[must_use]
-    pub(super) fn addr<T>(ptr: *mut T) -> usize {
-        // SAFETY: Every sized pointer is a valid integer for the time being.
-        unsafe { mem::transmute(ptr) }
-    }
-
     /// Create a new, invalid pointer from an address.
     #[inline]
     #[must_use]
-    pub(super) fn invalid<T>(addr: usize) -> *mut T {
+    pub(super) const fn invalid<T>(addr: usize) -> *mut T {
         // SAFETY: Every integer is a valid pointer as long as it is not dereferenced.
-        unsafe { mem::transmute(addr) }
+        #[cfg(miri)]
+        unsafe {
+            core::mem::transmute(addr)
+        }
+        // const transmute requires Rust 1.56.
+        #[cfg(not(miri))]
+        {
+            addr as *mut T
+        }
     }
 
     /// Create a new pointer with the metadata of `other`.
@@ -864,7 +862,7 @@ mod strict {
         // In the mean-time, this operation is defined to be "as if" it was
         // a wrapping_offset, so we can emulate it as such. This should properly
         // restore pointer provenance even under today's compiler.
-        let self_addr = self::addr(ptr) as isize;
+        let self_addr = ptr as usize as isize;
         let dest_addr = addr as isize;
         let offset = dest_addr.wrapping_sub(self_addr);
 
@@ -876,6 +874,6 @@ mod strict {
     #[inline]
     #[must_use]
     pub(super) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
-        self::with_addr(ptr, f(addr(ptr)))
+        with_addr(ptr, f(ptr as usize))
     }
 }

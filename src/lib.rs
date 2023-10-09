@@ -2159,7 +2159,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            strict::addr(self.fetch_or(mask, order)) & mask != 0
+            self.fetch_or(mask, order) as usize & mask != 0
         }
         #[cfg(not(miri))]
         {
@@ -2204,7 +2204,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            strict::addr(self.fetch_and(!mask, order)) & mask != 0
+            self.fetch_and(!mask, order) as usize & mask != 0
         }
         #[cfg(not(miri))]
         {
@@ -2249,7 +2249,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            strict::addr(self.fetch_xor(mask, order)) & mask != 0
+            self.fetch_xor(mask, order) as usize & mask != 0
         }
         #[cfg(not(miri))]
         {
