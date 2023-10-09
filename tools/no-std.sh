@@ -88,6 +88,8 @@ if [[ -z "${is_custom_toolchain}" ]]; then
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+metadata=$(cargo metadata --format-version=1 --no-deps)
+target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
@@ -179,10 +181,22 @@ run() {
 
     (
         cd "${test_dir}"
-        RUSTFLAGS="${target_rustflags}" \
+        CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" "$@"
-        RUSTFLAGS="${target_rustflags}" \
+        CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --release "$@"
+        case "${target}" in
+            thumbv[4-5]t* | armv[4-5]t*)
+                CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
+                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
+                    x_cargo "${args[@]}" "$@"
+                CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
+                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
+                    x_cargo "${args[@]}" --release "$@"
+                ;;
+        esac
     )
 }
 

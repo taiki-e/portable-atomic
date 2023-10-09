@@ -1,5 +1,2 @@
-[build]
-target-dir = "../../target"
-
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 runner = "mgba -l 4"

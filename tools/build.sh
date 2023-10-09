@@ -427,16 +427,19 @@ build() {
                             ;;
                         bpf* | mips*) ;;
                         *)
-                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+                            CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core" \
+                                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                             offline=(--offline)
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
+                                    CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-disable-fiq" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_disable_fiq" \
                                         x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                     ;;
                                 riscv*)
-                                    RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
+                                    CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-s-mode" \
+                                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
                                         x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                     ;;
                             esac
