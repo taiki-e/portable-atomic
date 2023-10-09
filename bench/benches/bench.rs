@@ -2,7 +2,12 @@
 
 #![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
-#![allow(clippy::only_used_in_recursion)]
+#![allow(
+    clippy::duplicate_mod,
+    clippy::inline_always,
+    clippy::naive_bytecount,
+    clippy::only_used_in_recursion
+)]
 #![feature(asm_experimental_arch, core_intrinsics)]
 
 use std::{
