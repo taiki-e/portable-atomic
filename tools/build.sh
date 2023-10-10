@@ -344,7 +344,7 @@ build() {
     if ! grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
         case "${target}" in
             # TODO: LLVM bug: Undefined temporary symbol error when building std.
-            mips-unknown-linux-gnu | mipsel-unknown-linux-gnu) target_rustflags+=" -C opt-level=3" ;;
+            mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
         esac
     fi
     offline=()

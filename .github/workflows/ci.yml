@@ -242,7 +242,7 @@ jobs:
         if: matrix.target != ''
       # TODO: LLVM bug: Undefined temporary symbol error when building std.
       - run: echo "RELEASE=--release" >>"${GITHUB_ENV}"
-        if: matrix.target == 'mips-unknown-linux-gnu' || matrix.target == 'mipsel-unknown-linux-gnu'
+        if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
 
       - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $RELEASE
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
