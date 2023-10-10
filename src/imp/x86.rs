@@ -12,7 +12,7 @@
 // - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
 //
 // Generated asm:
-// - x86_64 https://godbolt.org/z/8fve4YP1G
+// - x86_64 https://godbolt.org/z/d17eTs5Ec
 
 use core::{arch::asm, sync::atomic::Ordering};
 

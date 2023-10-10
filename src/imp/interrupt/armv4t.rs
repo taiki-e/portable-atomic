@@ -3,7 +3,7 @@
 // Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/5arYrfzYc
+// - armv5te https://godbolt.org/z/Y48cEWvWc
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -71,7 +71,7 @@ pub(super) unsafe fn restore(cpsr: State) {
 // have Data Memory Barrier).
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/a7zcs9hKa
+// - armv5te https://godbolt.org/z/bMxK7M8Ta
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;

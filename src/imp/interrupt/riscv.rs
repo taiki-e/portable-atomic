@@ -5,7 +5,7 @@
 // - https://five-embeddev.com/riscv-isa-manual/latest/supervisor.html#sstatus
 //
 // Generated asm:
-// - riscv64gc https://godbolt.org/z/a78zxf5sW
+// - riscv64gc https://godbolt.org/z/osbzsT679
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

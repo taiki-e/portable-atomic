@@ -54,14 +54,14 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/M6Kh7z5T3
-// - aarch64 msvc https://godbolt.org/z/f6h4onao9
-// - aarch64 (+lse) https://godbolt.org/z/e4jKxxrM5
-// - aarch64 msvc (+lse) https://godbolt.org/z/oav3aYjhM
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/EcW6fsr6K
-// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/aa5ooa4G7
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/nc3eKnseb
-// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/xbdhfzddh
+// - aarch64 https://godbolt.org/z/5Mz1E33vz
+// - aarch64 msvc https://godbolt.org/z/P53d1MsGY
+// - aarch64 (+lse) https://godbolt.org/z/vszahx184
+// - aarch64 msvc (+lse) https://godbolt.org/z/dj4aYerfr
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/dq63s1xT3
+// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/6YhnEbfhT
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/bdWdzcPjT
+// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/c4chKEanb
 
 include!("macros.rs");
 

@@ -3,7 +3,7 @@
 // Adapted from https://github.com/rust-embedded/cortex-m.
 //
 // Generated asm:
-// - armv6-m https://godbolt.org/z/sTezYnaj9
+// - armv6-m https://godbolt.org/z/YxME38xcM
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

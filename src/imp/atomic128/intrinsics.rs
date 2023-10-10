@@ -22,7 +22,7 @@
 //   https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/test/CodeGen/SystemZ/atomicrmw-ops-i128.ll
 //   https://reviews.llvm.org/D146425
 // - On powerpc64, LLVM (as of 17) doesn't support 128-bit atomic min/max:
-//   https://godbolt.org/z/3rebKcbdf
+//   https://github.com/llvm/llvm-project/issues/68390
 // - On powerpc64le, LLVM (as of 17) generates broken code. (wrong result from fetch_add)
 //
 // Refs: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs
