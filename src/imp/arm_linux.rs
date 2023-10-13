@@ -330,15 +330,15 @@ macro_rules! atomic64 {
                 // SAFETY: any data races are prevented by the kernel user helper or the lock
                 // and the raw pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let (res, ok) = atomic_compare_exchange(
+                    let (prev, ok) = atomic_compare_exchange(
                         self.v.get().cast::<u64>(),
                         current as u64,
                         new as u64,
                     );
                     if ok {
-                        Ok(res as $int_type)
+                        Ok(prev as $int_type)
                     } else {
-                        Err(res as $int_type)
+                        Err(prev as $int_type)
                     }
                 }
             }

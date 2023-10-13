@@ -364,17 +364,17 @@ unsafe fn atomic_compare_exchange(
         portable_atomic_target_feature = "quadword-atomics",
     ))]
     // SAFETY: the caller must uphold the safety contract.
-    let (res, ok) = unsafe { atomic_compare_exchange_pwr8(dst, old, new, success) };
+    let (prev, ok) = unsafe { atomic_compare_exchange_pwr8(dst, old, new, success) };
     #[cfg(not(any(
         target_feature = "quadword-atomics",
         portable_atomic_target_feature = "quadword-atomics",
     )))]
     // SAFETY: the caller must uphold the safety contract.
-    let (res, ok) = unsafe { atomic_compare_exchange_ifunc(dst, old, new, success) };
+    let (prev, ok) = unsafe { atomic_compare_exchange_ifunc(dst, old, new, success) };
     if ok {
-        Ok(res)
+        Ok(prev)
     } else {
-        Err(res)
+        Err(prev)
     }
 }
 #[inline]

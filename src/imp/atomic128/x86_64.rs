@@ -387,11 +387,11 @@ unsafe fn atomic_compare_exchange(
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
     // and cfg guarantees that CMPXCHG16B is available at compile-time.
-    let (res, ok) = unsafe { cmpxchg16b(dst, old, new) };
+    let (prev, ok) = unsafe { cmpxchg16b(dst, old, new) };
     #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, and that there are no different kinds of concurrent accesses.
-    let (res, ok) = unsafe {
+    let (prev, ok) = unsafe {
         ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
             if detect::detect().has_cmpxchg16b() {
                 cmpxchg16b
@@ -402,9 +402,9 @@ unsafe fn atomic_compare_exchange(
         })
     };
     if ok {
-        Ok(res)
+        Ok(prev)
     } else {
-        Err(res)
+        Err(prev)
     }
 }
 
