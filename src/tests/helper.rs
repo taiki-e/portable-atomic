@@ -1403,12 +1403,24 @@ macro_rules! __test_atomic_ptr {
 macro_rules! __test_atomic_int_load_store_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
+        use std::{boxed::Box, mem};
         #[test]
         fn impls() {
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+
+            unsafe {
+                let ptr: *mut Align16<$int_type> = Box::into_raw(Box::new(Align16(0)));
+                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                {
+                    let a = <$atomic_type>::from_ptr(ptr.cast::<$int_type>());
+                    *a.as_ptr() = 1;
+                }
+                assert_eq!((*ptr).0, 1);
+                drop(Box::from_raw(ptr));
+            }
         }
     };
 }
@@ -1462,6 +1474,7 @@ macro_rules! __test_atomic_int_pub {
 macro_rules! __test_atomic_float_pub {
     ($atomic_type:ty, $float_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $float_type);
+        use std::{boxed::Box, mem};
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7.0);
@@ -1480,12 +1493,24 @@ macro_rules! __test_atomic_float_pub {
             let b = <$atomic_type>::from(0.0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+
+            unsafe {
+                let ptr: *mut Align16<$float_type> = Box::into_raw(Box::new(Align16(0.0)));
+                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                {
+                    let a = <$atomic_type>::from_ptr(ptr.cast::<$float_type>());
+                    *a.as_ptr() = 1.0;
+                }
+                assert_eq!((*ptr).0, 1.0);
+                drop(Box::from_raw(ptr));
+            }
         }
     };
 }
 macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
+        use std::{boxed::Box, mem};
         #[test]
         fn fetch_nand() {
             let a = <$atomic_type>::new(true);
@@ -1550,6 +1575,17 @@ macro_rules! __test_atomic_bool_pub {
             let b = <$atomic_type>::from(false);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+
+            unsafe {
+                let ptr: *mut bool = Box::into_raw(Box::new(false));
+                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                {
+                    let a = <$atomic_type>::from_ptr(ptr);
+                    *a.as_ptr() = true;
+                }
+                assert_eq!((*ptr), true);
+                drop(Box::from_raw(ptr));
+            }
         }
     };
 }
@@ -1557,6 +1593,7 @@ macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
         use sptr::Strict;
+        use std::{boxed::Box, mem};
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(ptr::null_mut());
@@ -1578,6 +1615,17 @@ macro_rules! __test_atomic_ptr_pub {
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
             assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
+
+            unsafe {
+                let ptr: *mut Align16<*mut u8> = Box::into_raw(Box::new(Align16(ptr::null_mut())));
+                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                {
+                    let a = <$atomic_type>::from_ptr(ptr.cast::<*mut u8>());
+                    *a.as_ptr() = ptr::null_mut::<u8>().wrapping_add(1);
+                }
+                assert_eq!((*ptr).0, ptr::null_mut::<u8>().wrapping_add(1));
+                drop(Box::from_raw(ptr));
+            }
         }
         // https://github.com/rust-lang/rust/blob/1.70.0/library/core/tests/atomic.rs#L130-L213
         #[test]
@@ -2089,6 +2137,9 @@ fn skip_should_panic_test() -> bool {
 fn is_panic_abort() -> bool {
     build_context::PANIC.contains("abort")
 }
+
+#[repr(C, align(16))]
+pub(crate) struct Align16<T>(pub(crate) T);
 
 // Test the cases that should not fail if the memory ordering is implemented correctly.
 // This is still not exhaustive and only tests a few cases.

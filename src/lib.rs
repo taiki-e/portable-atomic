@@ -10,7 +10,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108), [`AtomicBool::fetch_not`](https://github.com/rust-lang/rust/issues/98485).
-- Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
+- Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), [`from_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.from_ptr) and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
 
 <!-- TODO:
@@ -599,6 +599,39 @@ impl AtomicBool {
         Self { v: core::cell::UnsafeCell::new(v as u8) }
     }
 
+    /// Creates a new `AtomicBool` from a pointer.
+    ///
+    /// # Safety
+    ///
+    /// * `ptr` must be aligned to `align_of::<AtomicBool>()` (note that on some platforms this can
+    ///   be bigger than `align_of::<bool>()`).
+    /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+    /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+    ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
+    ///   value (or vice-versa).
+    ///   * In other words, time periods where the value is accessed atomically may not overlap
+    ///     with periods where the value is accessed non-atomically.
+    ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
+    ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
+    ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
+    ///     from the same thread.
+    /// * If this atomic type is *not* lock-free:
+    ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
+    ///     with accesses via the returned value (or vice-versa).
+    ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    ///     be compatible with operations performed by this atomic type.
+    /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
+    ///   these are not supported by the memory model.
+    ///
+    /// [valid]: core::ptr#safety
+    #[inline]
+    #[must_use]
+    pub unsafe fn from_ptr<'a>(ptr: *mut bool) -> &'a Self {
+        #[allow(clippy::cast_ptr_alignment)]
+        // SAFETY: guaranteed by the caller
+        unsafe { &*(ptr as *mut Self) }
+    }
+
     /// Returns `true` if operations on values of this type are lock-free.
     ///
     /// If the compiler or the platform doesn't support the necessary
@@ -661,9 +694,8 @@ impl AtomicBool {
         unsafe { &mut *(self.v.get() as *mut bool) }
     }
 
-    // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
-    // https://github.com/rust-lang/rust/issues/108652
 
     /// Consumes the atomic and returns the contained value.
     ///
@@ -1424,6 +1456,39 @@ impl<T> AtomicPtr<T> {
         Self { inner: imp::AtomicPtr::new(p) }
     }
 
+    /// Creates a new `AtomicPtr` from a pointer.
+    ///
+    /// # Safety
+    ///
+    /// * `ptr` must be aligned to `align_of::<AtomicPtr<T>>()` (note that on some platforms this
+    ///   can be bigger than `align_of::<*mut T>()`).
+    /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+    /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+    ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
+    ///   value (or vice-versa).
+    ///   * In other words, time periods where the value is accessed atomically may not overlap
+    ///     with periods where the value is accessed non-atomically.
+    ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
+    ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
+    ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
+    ///     from the same thread.
+    /// * If this atomic type is *not* lock-free:
+    ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
+    ///     with accesses via the returned value (or vice-versa).
+    ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    ///     be compatible with operations performed by this atomic type.
+    /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
+    ///   these are not supported by the memory model.
+    ///
+    /// [valid]: core::ptr#safety
+    #[inline]
+    #[must_use]
+    pub unsafe fn from_ptr<'a>(ptr: *mut *mut T) -> &'a Self {
+        #[allow(clippy::cast_ptr_alignment)]
+        // SAFETY: guaranteed by the caller
+        unsafe { &*(ptr as *mut Self) }
+    }
+
     /// Returns `true` if operations on values of this type are lock-free.
     ///
     /// If the compiler or the platform doesn't support the necessary
@@ -1486,9 +1551,8 @@ impl<T> AtomicPtr<T> {
         self.inner.get_mut()
     }
 
-    // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
+    // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
-    // https://github.com/rust-lang/rust/issues/108652
 
     /// Consumes the atomic and returns the contained value.
     ///
@@ -2379,6 +2443,42 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
             }
 
             doc_comment! {
+                concat!("Creates a new reference to an atomic integer from a pointer.
+
+# Safety
+
+* `ptr` must be aligned to `align_of::<", stringify!($atomic_type), ">()` (note that on some platforms this
+  can be bigger than `align_of::<", stringify!($int_type), ">()`).
+* `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+* If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+  behind `ptr` must have a happens-before relationship with atomic accesses via
+  the returned value (or vice-versa).
+  * In other words, time periods where the value is accessed atomically may not
+    overlap with periods where the value is accessed non-atomically.
+  * This requirement is trivially satisfied if `ptr` is never used non-atomically
+    for the duration of lifetime `'a`. Most use cases should be able to follow
+    this guideline.
+  * This requirement is also trivially satisfied if all accesses (atomic or not) are
+    done from the same thread.
+* If this atomic type is *not* lock-free:
+  * Any accesses to the value behind `ptr` must have a happens-before relationship
+    with accesses via the returned value (or vice-versa).
+  * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    be compatible with operations performed by this atomic type.
+* This method must not be used to create overlapping or mixed-size atomic
+  accesses, as these are not supported by the memory model.
+
+[valid]: core::ptr#safety"),
+                #[inline]
+                #[must_use]
+                pub unsafe fn from_ptr<'a>(ptr: *mut $int_type) -> &'a Self {
+                    #[allow(clippy::cast_ptr_alignment)]
+                    // SAFETY: guaranteed by the caller
+                    unsafe { &*(ptr as *mut Self) }
+                }
+            }
+
+            doc_comment! {
                 concat!("Returns `true` if operations on values of this type are lock-free.
 
 If the compiler or the platform doesn't support the necessary
@@ -2444,9 +2544,8 @@ assert_eq!(some_var.load(Ordering::SeqCst), 5);
                 }
             }
 
-            // TODO: Add from_mut/get_mut_slice/from_mut_slice/from_ptr once it is stable on std atomic types.
+            // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
-            // https://github.com/rust-lang/rust/issues/108652
 
             doc_comment! {
                 concat!("Consumes the atomic and returns the contained value.
@@ -3442,6 +3541,42 @@ This type has the same in-memory representation as the underlying floating point
                 Self { inner: imp::float::$atomic_type::new(v) }
             }
 
+            doc_comment! {
+                concat!("Creates a new reference to an atomic float from a pointer.
+
+# Safety
+
+* `ptr` must be aligned to `align_of::<", stringify!($atomic_type), ">()` (note that on some platforms this
+  can be bigger than `align_of::<", stringify!($float_type), ">()`).
+* `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+* If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+  behind `ptr` must have a happens-before relationship with atomic accesses via
+  the returned value (or vice-versa).
+  * In other words, time periods where the value is accessed atomically may not
+    overlap with periods where the value is accessed non-atomically.
+  * This requirement is trivially satisfied if `ptr` is never used non-atomically
+    for the duration of lifetime `'a`. Most use cases should be able to follow
+    this guideline.
+  * This requirement is also trivially satisfied if all accesses (atomic or not) are
+    done from the same thread.
+* If this atomic type is *not* lock-free:
+  * Any accesses to the value behind `ptr` must have a happens-before relationship
+    with accesses via the returned value (or vice-versa).
+  * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    be compatible with operations performed by this atomic type.
+* This method must not be used to create overlapping or mixed-size atomic
+  accesses, as these are not supported by the memory model.
+
+[valid]: core::ptr#safety"),
+                #[inline]
+                #[must_use]
+                pub unsafe fn from_ptr<'a>(ptr: *mut $float_type) -> &'a Self {
+                    #[allow(clippy::cast_ptr_alignment)]
+                    // SAFETY: guaranteed by the caller
+                    unsafe { &*(ptr as *mut Self) }
+                }
+            }
+
             /// Returns `true` if operations on values of this type are lock-free.
             ///
             /// If the compiler or the platform doesn't support the necessary
@@ -3476,7 +3611,7 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.get_mut()
             }
 
-            // TODO: Add from_mut once it is stable on std atomic types.
+            // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
             /// Consumes the atomic and returns the contained value.

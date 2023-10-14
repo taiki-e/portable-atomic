@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `from_ptr`.
+
 - Support run-time detection of FEAT_LSE on AArch64 NetBSD. ([#66](https://github.com/taiki-e/portable-atomic/pull/66))
 
 - Support run-time detection on AArch64 on pre-1.61 rustc. ([#98](https://github.com/taiki-e/portable-atomic/pull/98))
