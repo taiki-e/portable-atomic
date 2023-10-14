@@ -79,6 +79,7 @@ lqarx
 lrcpc
 lwsync
 machdep
+mfcr
 mfence
 mgba
 midr

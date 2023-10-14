@@ -24,8 +24,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/f5oo7vh5s
-// - powerpc64le https://godbolt.org/z/vfKEz5Efr
+// - powerpc64 (pwr8) https://godbolt.org/z/nG5dGa38a
+// - powerpc64le https://godbolt.org/z/WEWb7vnTr
 
 include!("macros.rs");
 
@@ -145,31 +145,35 @@ macro_rules! atomic_rmw {
     };
 }
 
+// Extracts and checks the EQ bit of cr0.
+#[inline]
+fn extract_cr0(r: u64) -> bool {
+    r & 0x20000000 != 0
+}
+
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+use atomic_load_pwr8 as atomic_load;
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[cfg(any(
-        target_feature = "quadword-atomics",
-        portable_atomic_target_feature = "quadword-atomics",
-    ))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_load_pwr8(src, order)
+    fn_alias! {
+        // inline(never) is just a hint and also not strictly necessary
+        // because we use ifunc helper macro, but used for clarity.
+        #[inline(never)]
+        unsafe fn(src: *mut u128) -> u128;
+        atomic_load_pwr8_relaxed = atomic_load_pwr8(Ordering::Relaxed);
+        atomic_load_pwr8_acquire = atomic_load_pwr8(Ordering::Acquire);
+        atomic_load_pwr8_seqcst = atomic_load_pwr8(Ordering::SeqCst);
     }
-    #[cfg(not(any(
-        target_feature = "quadword-atomics",
-        portable_atomic_target_feature = "quadword-atomics",
-    )))]
     // SAFETY: the caller must uphold the safety contract.
+    // we only calls atomic_load_pwr8 if quadword-atomics is available.
     unsafe {
-        fn_alias! {
-            // inline(never) is just a hint and also not strictly necessary
-            // because we use ifunc helper macro, but used for clarity.
-            #[inline(never)]
-            unsafe fn(src: *mut u128) -> u128;
-            atomic_load_pwr8_relaxed = atomic_load_pwr8(Ordering::Relaxed);
-            atomic_load_pwr8_acquire = atomic_load_pwr8(Ordering::Acquire);
-            atomic_load_pwr8_seqcst = atomic_load_pwr8(Ordering::SeqCst);
-        }
         match order {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
@@ -257,31 +261,29 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+use atomic_store_pwr8 as atomic_store;
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[cfg(any(
-        target_feature = "quadword-atomics",
-        portable_atomic_target_feature = "quadword-atomics",
-    ))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_store_pwr8(dst, val, order);
+    fn_alias! {
+        // inline(never) is just a hint and also not strictly necessary
+        // because we use ifunc helper macro, but used for clarity.
+        #[inline(never)]
+        unsafe fn(dst: *mut u128, val: u128);
+        atomic_store_pwr8_relaxed = atomic_store_pwr8(Ordering::Relaxed);
+        atomic_store_pwr8_release = atomic_store_pwr8(Ordering::Release);
+        atomic_store_pwr8_seqcst = atomic_store_pwr8(Ordering::SeqCst);
     }
-    #[cfg(not(any(
-        target_feature = "quadword-atomics",
-        portable_atomic_target_feature = "quadword-atomics",
-    )))]
     // SAFETY: the caller must uphold the safety contract.
+    // we only calls atomic_store_pwr8 if quadword-atomics is available.
     unsafe {
-        fn_alias! {
-            // inline(never) is just a hint and also not strictly necessary
-            // because we use ifunc helper macro, but used for clarity.
-            #[inline(never)]
-            unsafe fn(dst: *mut u128, val: u128);
-            atomic_store_pwr8_relaxed = atomic_store_pwr8(Ordering::Relaxed);
-            atomic_store_pwr8_release = atomic_store_pwr8(Ordering::Release);
-            atomic_store_pwr8_seqcst = atomic_store_pwr8(Ordering::SeqCst);
-        }
         match order {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
@@ -364,6 +366,7 @@ unsafe fn atomic_compare_exchange(
         portable_atomic_target_feature = "quadword-atomics",
     ))]
     // SAFETY: the caller must uphold the safety contract.
+    // cfg guarantees that quadword atomics instructions are available at compile-time.
     let (prev, ok) = unsafe { atomic_compare_exchange_pwr8(dst, old, new, success) };
     #[cfg(not(any(
         target_feature = "quadword-atomics",
@@ -390,10 +393,11 @@ unsafe fn atomic_compare_exchange_pwr8(
     // SAFETY: the caller must uphold the safety contract.
     //
     // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
-    let prev = unsafe {
+    unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
         let (mut prev_hi, mut prev_lo);
+        let mut r;
         macro_rules! cmpxchg {
             ($acquire:tt, $release:tt) => {
                 asm!(
@@ -408,13 +412,15 @@ unsafe fn atomic_compare_exchange_pwr8(
                         "stqcx. %r6, 0, {dst}",
                         "bne %cr0, 2b", // continue loop if store failed
                     "3:",
+                    // if compare failed EQ bit is cleared, if stqcx succeeds EQ bit is set.
+                    "mfcr {tmp_lo}",
                     $acquire,
                     end_pwr8!(),
                     dst = in(reg_nonzero) ptr_reg!(dst),
                     old_hi = in(reg) old.pair.hi,
                     old_lo = in(reg) old.pair.lo,
                     tmp_hi = out(reg) _,
-                    tmp_lo = out(reg) _,
+                    tmp_lo = out(reg) r,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
                     in("r6") new.pair.hi,
@@ -427,14 +433,97 @@ unsafe fn atomic_compare_exchange_pwr8(
             };
         }
         atomic_rmw!(cmpxchg, order);
-        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
-    };
-    (prev, prev == old)
+        (U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole, extract_cr0(r))
+    }
 }
 
-// TODO: LLVM appears to generate strong CAS for powerpc64 128-bit weak CAS,
-// so we always use strong CAS for now.
+// Always use strong CAS for outline-atomics.
+#[cfg(not(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+)))]
 use atomic_compare_exchange as atomic_compare_exchange_weak;
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[inline]
+unsafe fn atomic_compare_exchange_weak(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    success: Ordering,
+    failure: Ordering,
+) -> Result<u128, u128> {
+    let success = crate::utils::upgrade_success_ordering(success, failure);
+
+    // SAFETY: the caller must uphold the safety contract.
+    // cfg guarantees that quadword atomics instructions are available at compile-time.
+    let (prev, ok) = unsafe { atomic_compare_exchange_weak_pwr8(dst, old, new, success) };
+    if ok {
+        Ok(prev)
+    } else {
+        Err(prev)
+    }
+}
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[inline]
+unsafe fn atomic_compare_exchange_weak_pwr8(
+    dst: *mut u128,
+    old: u128,
+    new: u128,
+    order: Ordering,
+) -> (u128, bool) {
+    debug_assert!(dst as usize % 16 == 0);
+    debug_assert_pwr8!();
+
+    // SAFETY: the caller must uphold the safety contract.
+    //
+    // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
+    unsafe {
+        let old = U128 { whole: old };
+        let new = U128 { whole: new };
+        let (mut prev_hi, mut prev_lo);
+        let mut r;
+        macro_rules! cmpxchg_weak {
+            ($acquire:tt, $release:tt) => {
+                asm!(
+                    start_pwr8!(),
+                    $release,
+                    "lqarx %r8, 0, {dst}",
+                    "xor {tmp_lo}, %r9, {old_lo}",
+                    "xor {tmp_hi}, %r8, {old_hi}",
+                    "or. {tmp_lo}, {tmp_lo}, {tmp_hi}",
+                    "bne %cr0, 3f", // jump if compare failed
+                    "stqcx. %r6, 0, {dst}",
+                    "3:",
+                    // if compare or stqcx failed EQ bit is cleared, if stqcx succeeds EQ bit is set.
+                    "mfcr {tmp_lo}",
+                    $acquire,
+                    end_pwr8!(),
+                    dst = in(reg_nonzero) ptr_reg!(dst),
+                    old_hi = in(reg) old.pair.hi,
+                    old_lo = in(reg) old.pair.lo,
+                    tmp_hi = out(reg) _,
+                    tmp_lo = out(reg) r,
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    in("r6") new.pair.hi,
+                    in("r7") new.pair.lo,
+                    out("r8") prev_hi,
+                    out("r9") prev_lo,
+                    out("cr0") _,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        atomic_rmw!(cmpxchg_weak, order);
+        (U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole, extract_cr0(r))
+    }
+}
 
 #[cfg(any(
     target_feature = "quadword-atomics",
