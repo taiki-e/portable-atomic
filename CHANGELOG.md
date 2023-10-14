@@ -10,6 +10,16 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Support run-time detection of FEAT_LSE on AArch64 NetBSD. ([#66](https://github.com/taiki-e/portable-atomic/pull/66))
+
+- Support run-time detection on AArch64 on pre-1.61 rustc. ([#98](https://github.com/taiki-e/portable-atomic/pull/98))
+
+- Acknowledge ESP-IDF targets' 64-bit atomics are not lock-free. See [#122](https://github.com/taiki-e/portable-atomic/issues/122) for more.
+
+- Optimize 128-bit weak CAS on powerpc64.
+
+- Optimize interrupt disable on no-std pre-v6 ARM where `unsafe-assume-single-core` and `disable-fiq` are enabled.
+
 ## [1.4.3] - 2023-08-25
 
 - Optimize AArch64 128-bit atomic store/swap/fetch_and/fetch_or when the `lse128` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
