@@ -22,6 +22,8 @@ fn main() {
     println!("cargo:rustc-cfg=portable_atomic_unsafe_assume_single_core");
     #[cfg(feature = "s-mode")]
     println!("cargo:rustc-cfg=portable_atomic_s_mode");
+    #[cfg(feature = "force-amo")]
+    println!("cargo:rustc-cfg=portable_atomic_force_amo");
     #[cfg(feature = "disable-fiq")]
     println!("cargo:rustc-cfg=portable_atomic_disable_fiq");
 

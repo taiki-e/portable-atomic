@@ -88,6 +88,8 @@ if [[ -z "${is_custom_toolchain}" ]]; then
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | sed 's/release: //')
+rustc_minor_version="${rustc_version#*.}"
+rustc_minor_version="${rustc_minor_version%%.*}"
 metadata=$(cargo metadata --format-version=1 --no-deps)
 target_dir=$(jq <<<"${metadata}" -r '.target_directory')
 nightly=''
@@ -195,6 +197,17 @@ run() {
                 CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
                     x_cargo "${args[@]}" --release "$@"
+                ;;
+            riscv??i-* | riscv??im-* | riscv??imc-*)
+                # .option arch requires 1.72
+                if [[ "${rustc_minor_version}" -ge 72 ]]; then
+                    CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
+                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+                        x_cargo "${args[@]}" "$@"
+                    CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
+                        RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+                        x_cargo "${args[@]}" --release "$@"
+                fi
                 ;;
         esac
     )

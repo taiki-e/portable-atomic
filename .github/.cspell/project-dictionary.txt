@@ -4,6 +4,7 @@ alcgr
 algr
 allnoconfig
 aosp
+aqrl
 armasm
 armreg
 Auxinfo
@@ -79,10 +80,12 @@ lqarx
 lrcpc
 lwsync
 machdep
+maxu
 mfcr
 mfence
 mgba
 midr
+minu
 mipsn
 miscompiles
 mmfr
@@ -126,8 +129,10 @@ simavr
 skiboot
 slbgr
 slgr
+sllw
 spinlock
 sreg
+srlw
 sstatus
 stdarch
 stdbool

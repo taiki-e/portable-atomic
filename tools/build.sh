@@ -125,7 +125,7 @@ known_cfgs=(
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/test.sh.
 test_features="float,std,serde,critical-section"
-exclude_features="unsafe-assume-single-core,s-mode,disable-fiq"
+exclude_features="unsafe-assume-single-core,s-mode,force-amo,disable-fiq"
 
 x() {
     local cmd="$1"
@@ -442,6 +442,12 @@ build() {
                                     CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-s-mode" \
                                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
                                         x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                    # .option arch requires 1.72
+                                    if [[ "${rustc_minor_version}" -ge 72 ]]; then
+                                        CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-force-amo" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_force_amo" \
+                                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                    fi
                                     ;;
                             esac
                             ;;
@@ -482,6 +488,12 @@ build() {
                                     CARGO_TARGET_DIR="${target_dir}/assume-single-core-s-mode" \
                                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode" \
                                         x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    # .option arch requires 1.72
+                                    if [[ "${rustc_minor_version}" -ge 72 ]]; then
+                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-force-amo" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_force_amo" \
+                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                    fi
                                     ;;
                             esac
                             ;;
