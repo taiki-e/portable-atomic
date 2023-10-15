@@ -395,194 +395,196 @@ pub(crate) fn gen() -> Result<()> {
                 });
             }
             fs::create_dir_all(out_dir)?;
-            let src_dir = &download_headers(target, download_dir)?;
 
-            let mut files = vec![];
-            for &header in headers {
-                if !header.arch.is_empty() && !header.arch.contains(&target.arch) {
-                    continue;
-                }
-                if !header.os.is_empty() && !header.os.contains(&target.os) {
-                    continue;
-                }
-                if !header.env.is_empty() && !header.env.contains(&target.env) {
-                    continue;
-                }
-
-                let functions = header.functions.join("|");
-                let types = header.types.join("|");
-                let vars = header.vars.join("|");
-
-                let out_file = format!(
-                    "{}.rs",
-                    Utf8PathBuf::from(header.path.replace(['/', '-', ':'], "_"))
-                        .file_stem()
-                        .unwrap()
-                );
-                let out_path = out_dir.join(&out_file);
-
-                let target_flag = &*format!("--target={triple}");
-                let mut clang_args = vec![target_flag, "-nostdinc"];
-                macro_rules! define {
-                    ($name:ident) => {{
-                        clang_args.push(concat!("-D", stringify!($name)));
-                    }};
-                    ($name:ident, $value:literal) => {{
-                        clang_args.push(concat!("-D", stringify!($name), "=", $value));
-                    }};
-                }
-                macro_rules! include_header {
-                    ($value:literal) => {{
-                        clang_args.push(concat!("-include", $value));
-                    }};
-                }
-                let header_path;
-                let include;
-                match target.os {
-                    linux | android => {
-                        let linux_headers_dir = linux_headers_dir(target, src_dir);
-                        if let Some(path) = header.path.strip_prefix("linux-headers:") {
-                            header_path = linux_headers_dir.join("include").join(path);
-                            include = vec![linux_headers_dir.join("include")];
-                        } else if target.os == android {
-                            let bionic_dir = bionic_dir(src_dir).join("libc");
-                            header_path = bionic_dir.join("include").join(header.path);
-                            include = vec![
-                                linux_headers_dir.join("include"),
-                                bionic_dir.join("include"),
-                                bionic_dir.join("kernel/uapi/linux"),
-                                bionic_dir.join("kernel/uapi"),
-                                bionic_dir.join("kernel/android/uapi"),
-                            ];
-                        } else if target.env == gnu {
-                            let glibc_dir = glibc_dir(src_dir);
-                            header_path = glibc_dir.join("include").join(header.path);
-                            include = vec![
-                                glibc_dir.join("include"),
-                                glibc_dir.join("sysdeps").join(glibc_arch(target)),
-                                glibc_dir,
-                            ];
-                        } else {
-                            let headers_dir = libc_headers_dir(target, src_dir);
-                            header_path = headers_dir.join("include").join(header.path);
-                            include = vec![headers_dir.join("include")];
-                        }
-                    }
-                    macos => {
-                        header_path = src_dir.join("bsd").join(header.path);
-                        include = vec![
-                            src_dir.join("bsd"),
-                            src_dir.join("EXTERNAL_HEADERS"),
-                            src_dir.join("osfmk"),
-                            src_dir.parent().unwrap().join("Libc/include"),
-                            src_dir.parent().unwrap().join("libpthread/include"),
-                        ];
-                        // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
-                        define!(_POSIX_C_SOURCE, "200112L");
-                        include_header!("sys/_types/_u_char.h");
-                        include_header!("sys/_types/_u_short.h");
-                        include_header!("sys/_types/_u_int.h");
-                    }
-                    freebsd | openbsd => {
-                        header_path = src_dir.join("include").join(header.path);
-                        include = vec![src_dir.join("include")];
-                        include_header!("sys/types.h");
-                    }
-                    netbsd => {
-                        header_path = src_dir.join("include").join(header.path);
-                        include = vec![
-                            src_dir.join("include"),
-                            src_dir.join("include/sys"),
-                            src_dir.join("lib/libpthread"),
-                        ];
-                    }
-                    fuchsia => {
-                        header_path = src_dir.join(header.path);
-                        include = vec![
-                            src_dir.join("zircon/system/public"),
-                            src_dir.join("zircon/kernel/lib/libc/include"),
-                        ];
-                        define!(_KERNEL);
-                    }
-                    _ => todo!("{target:?}"),
-                }
-                for include in &include {
-                    clang_args.push("-I");
-                    clang_args.push(include.as_str());
-                }
-
-                let bindings = bindgen::builder()
-                    .array_pointers_in_arguments(true)
-                    .derive_debug(false)
-                    .disable_header_comment()
-                    .generate_comments(false)
-                    .layout_tests(false)
-                    .rust_target(bindgen::RustTarget::Stable_1_36)
-                    .use_core()
-                    .header(header_path.as_str())
-                    .clang_args(&clang_args)
-                    .allowlist_function(&functions)
-                    .allowlist_type(&types)
-                    .allowlist_var(&vars)
-                    .raw_line(raw_line)
-                    .generate()
-                    .with_context(|| format!("failed to generate for {}", header.path))?;
-                bindings
-                    .write_to_file(out_path)
-                    .with_context(|| format!("failed to write_to_file for {}", header.path))?;
-
-                files.push((out_file, functions, types, vars));
-            }
             let mut modules = vec![];
-            for (path, functions, types, vars) in &files {
-                let module_name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
-                let mut uses = vec![];
-                // Only export matched names because the module may contain type def.
-                let functions = Regex::new(&format!("^({functions})$"))?;
-                let types = Regex::new(&format!("^({types})$"))?;
-                let vars = Regex::new(&format!("^({vars})$"))?;
-                let f = syn::parse_file(&fs::read_to_string(out_dir.join(path))?)?;
-                for i in f.items {
-                    match i {
-                        syn::Item::ForeignMod(i) => {
-                            for i in i.items {
-                                match i {
-                                    syn::ForeignItem::Fn(i)
-                                        if matches!(i.vis, syn::Visibility::Public(..))
-                                            && functions.is_match(&i.sig.ident.to_string()) =>
-                                    {
-                                        uses.push(format_ident!("{}", i.sig.ident));
-                                    }
-                                    _ => {}
-                                }
+            if !headers.is_empty() {
+                let src_dir = &download_headers(target, download_dir)?;
+                let mut files = vec![];
+                for &header in headers {
+                    if !header.arch.is_empty() && !header.arch.contains(&target.arch) {
+                        continue;
+                    }
+                    if !header.os.is_empty() && !header.os.contains(&target.os) {
+                        continue;
+                    }
+                    if !header.env.is_empty() && !header.env.contains(&target.env) {
+                        continue;
+                    }
+
+                    let functions = header.functions.join("|");
+                    let types = header.types.join("|");
+                    let vars = header.vars.join("|");
+
+                    let out_file = format!(
+                        "{}.rs",
+                        Utf8PathBuf::from(header.path.replace(['/', '-', ':'], "_"))
+                            .file_stem()
+                            .unwrap()
+                    );
+                    let out_path = out_dir.join(&out_file);
+
+                    let target_flag = &*format!("--target={triple}");
+                    let mut clang_args = vec![target_flag, "-nostdinc"];
+                    macro_rules! define {
+                        ($name:ident) => {{
+                            clang_args.push(concat!("-D", stringify!($name)));
+                        }};
+                        ($name:ident, $value:literal) => {{
+                            clang_args.push(concat!("-D", stringify!($name), "=", $value));
+                        }};
+                    }
+                    macro_rules! include_header {
+                        ($value:literal) => {{
+                            clang_args.push(concat!("-include", $value));
+                        }};
+                    }
+                    let header_path;
+                    let include;
+                    match target.os {
+                        linux | android => {
+                            let linux_headers_dir = linux_headers_dir(target, src_dir);
+                            if let Some(path) = header.path.strip_prefix("linux-headers:") {
+                                header_path = linux_headers_dir.join("include").join(path);
+                                include = vec![linux_headers_dir.join("include")];
+                            } else if target.os == android {
+                                let bionic_dir = bionic_dir(src_dir).join("libc");
+                                header_path = bionic_dir.join("include").join(header.path);
+                                include = vec![
+                                    linux_headers_dir.join("include"),
+                                    bionic_dir.join("include"),
+                                    bionic_dir.join("kernel/uapi/linux"),
+                                    bionic_dir.join("kernel/uapi"),
+                                    bionic_dir.join("kernel/android/uapi"),
+                                ];
+                            } else if target.env == gnu {
+                                let glibc_dir = glibc_dir(src_dir);
+                                header_path = glibc_dir.join("include").join(header.path);
+                                include = vec![
+                                    glibc_dir.join("include"),
+                                    glibc_dir.join("sysdeps").join(glibc_arch(target)),
+                                    glibc_dir,
+                                ];
+                            } else {
+                                let headers_dir = libc_headers_dir(target, src_dir);
+                                header_path = headers_dir.join("include").join(header.path);
+                                include = vec![headers_dir.join("include")];
                             }
                         }
-                        syn::Item::Struct(i)
-                            if matches!(i.vis, syn::Visibility::Public(..))
-                                && types.is_match(&i.ident.to_string()) =>
-                        {
-                            uses.push(format_ident!("{}", i.ident));
+                        macos => {
+                            header_path = src_dir.join("bsd").join(header.path);
+                            include = vec![
+                                src_dir.join("bsd"),
+                                src_dir.join("EXTERNAL_HEADERS"),
+                                src_dir.join("osfmk"),
+                                src_dir.parent().unwrap().join("Libc/include"),
+                                src_dir.parent().unwrap().join("libpthread/include"),
+                            ];
+                            // https://github.com/apple-oss-distributions/xnu/blob/5c2921b07a2480ab43ec66f5b9e41cb872bc554f/bsd/sys/cdefs.h#L512-L522
+                            define!(_POSIX_C_SOURCE, "200112L");
+                            include_header!("sys/_types/_u_char.h");
+                            include_header!("sys/_types/_u_short.h");
+                            include_header!("sys/_types/_u_int.h");
                         }
-                        syn::Item::Type(i)
-                            if matches!(i.vis, syn::Visibility::Public(..))
-                                && types.is_match(&i.ident.to_string()) =>
-                        {
-                            uses.push(format_ident!("{}", i.ident));
+                        freebsd | openbsd => {
+                            header_path = src_dir.join("include").join(header.path);
+                            include = vec![src_dir.join("include")];
+                            include_header!("sys/types.h");
                         }
-                        syn::Item::Const(i)
-                            if matches!(i.vis, syn::Visibility::Public(..))
-                                && vars.is_match(&i.ident.to_string()) =>
-                        {
-                            uses.push(format_ident!("{}", i.ident));
+                        netbsd => {
+                            header_path = src_dir.join("include").join(header.path);
+                            include = vec![
+                                src_dir.join("include"),
+                                src_dir.join("include/sys"),
+                                src_dir.join("lib/libpthread"),
+                            ];
                         }
-                        _ => {}
+                        fuchsia => {
+                            header_path = src_dir.join(header.path);
+                            include = vec![
+                                src_dir.join("zircon/system/public"),
+                                src_dir.join("zircon/kernel/lib/libc/include"),
+                            ];
+                            define!(_KERNEL);
+                        }
+                        _ => todo!("{target:?}"),
                     }
+                    for include in &include {
+                        clang_args.push("-I");
+                        clang_args.push(include.as_str());
+                    }
+
+                    let bindings = bindgen::builder()
+                        .array_pointers_in_arguments(true)
+                        .derive_debug(false)
+                        .disable_header_comment()
+                        .generate_comments(false)
+                        .layout_tests(false)
+                        .rust_target(bindgen::RustTarget::Stable_1_36)
+                        .use_core()
+                        .header(header_path.as_str())
+                        .clang_args(&clang_args)
+                        .allowlist_function(&functions)
+                        .allowlist_type(&types)
+                        .allowlist_var(&vars)
+                        .raw_line(raw_line)
+                        .generate()
+                        .with_context(|| format!("failed to generate for {}", header.path))?;
+                    bindings
+                        .write_to_file(out_path)
+                        .with_context(|| format!("failed to write_to_file for {}", header.path))?;
+
+                    files.push((out_file, functions, types, vars));
                 }
-                let uses = uses.iter();
-                modules.push(quote! {
-                    mod #module_name;
-                    #(pub use #module_name::#uses;)*
-                });
+                for (path, functions, types, vars) in &files {
+                    let module_name = format_ident!("{}", Utf8Path::new(path).file_stem().unwrap());
+                    let mut uses = vec![];
+                    // Only export matched names because the module may contain type def.
+                    let functions = Regex::new(&format!("^({functions})$"))?;
+                    let types = Regex::new(&format!("^({types})$"))?;
+                    let vars = Regex::new(&format!("^({vars})$"))?;
+                    let f = syn::parse_file(&fs::read_to_string(out_dir.join(path))?)?;
+                    for i in f.items {
+                        match i {
+                            syn::Item::ForeignMod(i) => {
+                                for i in i.items {
+                                    match i {
+                                        syn::ForeignItem::Fn(i)
+                                            if matches!(i.vis, syn::Visibility::Public(..))
+                                                && functions.is_match(&i.sig.ident.to_string()) =>
+                                        {
+                                            uses.push(format_ident!("{}", i.sig.ident));
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                            }
+                            syn::Item::Struct(i)
+                                if matches!(i.vis, syn::Visibility::Public(..))
+                                    && types.is_match(&i.ident.to_string()) =>
+                            {
+                                uses.push(format_ident!("{}", i.ident));
+                            }
+                            syn::Item::Type(i)
+                                if matches!(i.vis, syn::Visibility::Public(..))
+                                    && types.is_match(&i.ident.to_string()) =>
+                            {
+                                uses.push(format_ident!("{}", i.ident));
+                            }
+                            syn::Item::Const(i)
+                                if matches!(i.vis, syn::Visibility::Public(..))
+                                    && vars.is_match(&i.ident.to_string()) =>
+                            {
+                                uses.push(format_ident!("{}", i.ident));
+                            }
+                            _ => {}
+                        }
+                    }
+                    let uses = uses.iter();
+                    modules.push(quote! {
+                        mod #module_name;
+                        #(pub use #module_name::#uses;)*
+                    });
+                }
             }
             // e.g., clang -E -dM -x c /dev/null -target aarch64-unknown-linux-gnu | grep __CHAR_
             let clang_defs =
