@@ -406,6 +406,9 @@ compile_error!("cfg(portable_atomic_disable_fiq) does not compatible with this t
 #[cfg(portable_atomic_s_mode)]
 #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
 compile_error!("cfg(portable_atomic_s_mode) does not compatible with this target");
+#[cfg(portable_atomic_force_amo)]
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+compile_error!("cfg(portable_atomic_force_amo) does not compatible with this target");
 
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
@@ -416,6 +419,11 @@ compile_error!(
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 compile_error!(
     "cfg(portable_atomic_s_mode) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+);
+#[cfg(portable_atomic_force_amo)]
+#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+compile_error!(
+    "cfg(portable_atomic_force_amo) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
 );
 
 #[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]

@@ -813,10 +813,53 @@ pub(crate) struct Pair<T: Copy> {
     pub(crate) lo: T,
 }
 
+#[allow(dead_code)]
+type MinWord = u32;
+#[cfg(target_arch = "riscv32")]
+type RegSize = u32;
+#[cfg(target_arch = "riscv64")]
+type RegSize = u64;
+// Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.0/src/utils.rs#L210.
+// Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
+//
+// Refs: https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/CodeGen/AtomicExpandPass.cpp#L699
+// (aligned_ptr, shift, mask)
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RegSize, RegSize) {
+    use core::mem;
+    const SHIFT_MASK: bool = !cfg!(any(
+        target_arch = "riscv32",
+        target_arch = "riscv64",
+        target_arch = "loongarch64",
+        target_arch = "s390x",
+    ));
+    let ptr_mask = mem::size_of::<MinWord>() - 1;
+    let aligned_ptr = strict::with_addr(ptr, ptr as usize & !ptr_mask) as *mut MinWord;
+    let ptr_lsb = if SHIFT_MASK {
+        ptr as usize & ptr_mask
+    } else {
+        // We use 32-bit wrapping shift instructions in asm on these platforms.
+        ptr as usize
+    };
+    let shift = if cfg!(any(target_endian = "little", target_arch = "s390x")) {
+        ptr_lsb.wrapping_mul(8)
+    } else {
+        (ptr_lsb ^ (mem::size_of::<MinWord>() - mem::size_of::<T>())).wrapping_mul(8)
+    };
+    let mut mask: RegSize = (1 << (mem::size_of::<T>() * 8)) - 1; // !(0 as T) as RegSize
+    if SHIFT_MASK {
+        mask <<= shift;
+    }
+    (aligned_ptr, shift as RegSize, mask)
+}
+
 /// Emulate strict provenance.
 ///
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
-#[cfg(miri)]
+#[cfg(any(miri, target_arch = "riscv32", target_arch = "riscv64"))]
+#[allow(dead_code)]
 #[allow(clippy::cast_possible_wrap)]
 pub(crate) mod strict {
     /// Replace the address portion of this pointer with a new address.
