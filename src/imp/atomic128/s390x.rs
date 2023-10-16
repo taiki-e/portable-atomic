@@ -231,7 +231,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
 /// `$op` can use the following registers:
 /// - val_hi/val_lo pair: val argument (read-only for `$op`)
 /// - r0/r1 pair: previous value loaded (read-only for `$op`)
-/// - r12/r13 pair: new value that will to stored
+/// - r12/r13 pair: new value that will be stored
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_3 {
@@ -272,7 +272,7 @@ macro_rules! atomic_rmw_cas_3 {
 ///
 /// `$op` can use the following registers:
 /// - r0/r1 pair: previous value loaded (read-only for `$op`)
-/// - r12/r13 pair: new value that will to stored
+/// - r12/r13 pair: new value that will be stored
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_2 {

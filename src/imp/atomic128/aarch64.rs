@@ -943,7 +943,7 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
 /// `$op` can use the following registers:
 /// - val_lo/val_hi pair: val argument (read-only for `$op`)
 /// - prev_lo/prev_hi pair: previous value loaded by ll (read-only for `$op`)
-/// - new_lo/new_hi pair: new value that will to stored by sc
+/// - new_lo/new_hi pair: new value that will be stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
     ($name:ident as $reexport_name:ident $(($preserves_flags:tt))?, $($op:tt)*) => {
         // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
@@ -1001,7 +1001,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
 /// `$op` can use the following registers:
 /// - val_lo/val_hi pair: val argument (read-only for `$op`)
 /// - x6/x7 pair: previous value loaded (read-only for `$op`)
-/// - x4/x5 pair: new value that will to stored
+/// - x4/x5 pair: new value that will be stored
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
         // If FEAT_LSE is not available at compile-time or portable_atomic_ll_sc_rmw cfg is set,
@@ -1069,7 +1069,7 @@ macro_rules! atomic_rmw_cas_3 {
 ///
 /// `$op` can use the following registers:
 /// - prev_lo/prev_hi pair: previous value loaded by ll (read-only for `$op`)
-/// - new_lo/new_hi pair: new value that will to stored by sc
+/// - new_lo/new_hi pair: new value that will be stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
     ($name:ident as $reexport_name:ident $(($preserves_flags:tt))?, $($op:tt)*) => {
         // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
@@ -1123,7 +1123,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
 ///
 /// `$op` can use the following registers:
 /// - x6/x7 pair: previous value loaded (read-only for `$op`)
-/// - x4/x5 pair: new value that will to stored
+/// - x4/x5 pair: new value that will be stored
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
         // If FEAT_LSE is not available at compile-time or portable_atomic_ll_sc_rmw cfg is set,

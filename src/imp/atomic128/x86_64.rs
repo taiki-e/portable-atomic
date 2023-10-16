@@ -480,7 +480,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
 /// `$op` can use the following registers:
 /// - rsi/r8 pair: val argument (read-only for `$op`)
 /// - rax/rdx pair: previous value loaded (read-only for `$op`)
-/// - rbx/rcx pair: new value that will to stored
+/// - rbx/rcx pair: new value that will be stored
 // We could use CAS loop by atomic_compare_exchange here, but using an inline assembly allows
 // omitting the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
 macro_rules! atomic_rmw_cas_3 {
@@ -551,7 +551,7 @@ macro_rules! atomic_rmw_cas_3 {
 ///
 /// `$op` can use the following registers:
 /// - rax/rdx pair: previous value loaded (read-only for `$op`)
-/// - rbx/rcx pair: new value that will to stored
+/// - rbx/rcx pair: new value that will be stored
 // We could use CAS loop by atomic_compare_exchange here, but using an inline assembly allows
 // omitting the storing of condition flags and avoid use of xchg to handle rbx.
 macro_rules! atomic_rmw_cas_2 {

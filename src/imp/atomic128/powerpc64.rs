@@ -574,7 +574,7 @@ unsafe fn atomic_swap_pwr8(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 /// $op can use the following registers:
 /// - val_hi/val_lo pair: val argument (read-only for `$op`)
 /// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
-/// - r8/r9 pair: new value that will to stored by sc
+/// - r8/r9 pair: new value that will be stored by sc
 macro_rules! atomic_rmw_ll_sc_3 {
     ($name:ident as $reexport_name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[cfg(any(
@@ -628,7 +628,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
 ///
 /// $op can use the following registers:
 /// - r6/r7 pair: previous value loaded by ll (read-only for `$op`)
-/// - r8/r9 pair: new value that will to stored by sc
+/// - r8/r9 pair: new value that will be stored by sc
 macro_rules! atomic_rmw_ll_sc_2 {
     ($name:ident as $reexport_name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[cfg(any(
