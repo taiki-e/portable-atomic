@@ -58,10 +58,10 @@
 // - aarch64 msvc https://godbolt.org/z/P53d1MsGY
 // - aarch64 (+lse) https://godbolt.org/z/vszahx184
 // - aarch64 msvc (+lse) https://godbolt.org/z/dj4aYerfr
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/dq63s1xT3
-// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/6YhnEbfhT
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/bdWdzcPjT
-// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/c4chKEanb
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/1E15jjxah
+// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/YreM4n84o
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/Kfeqs54ox
+// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/n6zhjE77s
 
 include!("macros.rs");
 
@@ -228,27 +228,22 @@ macro_rules! atomic_rmw {
     };
 }
 
+// cfg guarantee that the CPU supports FEAT_LSE2.
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+use atomic_load_ldp as atomic_load;
+#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
     // SAFETY: the caller must uphold the safety contract.
-    // cfg guarantee that the CPU supports FEAT_LSE2.
+    // cfg guarantee that the CPU supports FEAT_LSE.
     unsafe {
-        atomic_load_ldp(src, order)
+        _atomic_load_casp(src, order)
     }
-    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    {
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        unsafe {
-            _atomic_load_casp(src, order)
-        }
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            _atomic_load_ldxp_stxp(src, order)
-        }
+    #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        _atomic_load_ldxp_stxp(src, order)
     }
 }
 // If CPU supports FEAT_LSE2, LDP/LDIAPP is single-copy atomic reads,
@@ -387,61 +382,30 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
+// cfg guarantee that the CPU supports FEAT_LSE2.
+#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+use atomic_store_stp as atomic_store;
+#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-    {
-        #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE2 and FEAT_FSE128.
-        unsafe {
-            // Use swpp if stp requires fences.
-            // https://reviews.llvm.org/D143506
-            match order {
-                Ordering::Relaxed => atomic_store_stp(dst, val, order),
-                #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
-                Ordering::Release => atomic_store_stp(dst, val, order),
-                #[cfg(not(any(
-                    target_feature = "rcpc3",
-                    portable_atomic_target_feature = "rcpc3",
-                )))]
-                Ordering::Release => {
-                    _atomic_swap_swpp(dst, val, order);
-                }
-                Ordering::SeqCst => {
-                    _atomic_swap_swpp(dst, val, order);
-                }
-                _ => unreachable!("{:?}", order),
-            }
-        }
-        #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE2.
-        unsafe {
-            atomic_store_stp(dst, val, order);
-        }
+    // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
+    // we use CAS-based atomic RMW.
+    #[cfg(all(
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+        not(portable_atomic_ll_sc_rmw),
+    ))]
+    // SAFETY: the caller must uphold the safety contract.
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    unsafe {
+        _atomic_swap_casp(dst, val, order);
     }
-    #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-    {
-        // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
-        // we use CAS-based atomic RMW.
-        #[cfg(all(
-            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-            not(portable_atomic_ll_sc_rmw),
-        ))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        unsafe {
-            _atomic_swap_casp(dst, val, order);
-        }
-        #[cfg(not(all(
-            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-            not(portable_atomic_ll_sc_rmw),
-        )))]
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            _atomic_store_ldxp_stxp(dst, val, order);
-        }
+    #[cfg(not(all(
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+        not(portable_atomic_ll_sc_rmw),
+    )))]
+    // SAFETY: the caller must uphold the safety contract.
+    unsafe {
+        _atomic_store_ldxp_stxp(dst, val, order);
     }
 }
 // If CPU supports FEAT_LSE2, STP/STILP is single-copy atomic writes,
@@ -458,9 +422,10 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
     // Refs:
     // - STP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STP--A64-
     unsafe {
-        let val = U128 { whole: val };
+        #[rustfmt::skip]
         macro_rules! atomic_store {
-            ($acquire:tt, $release:tt) => {
+            ($acquire:tt, $release:tt) => {{
+                let val = U128 { whole: val };
                 asm!(
                     $release,
                     "stp {val_lo}, {val_hi}, [{dst}]",
@@ -469,13 +434,14 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
                     val_lo = in(reg) val.pair.lo,
                     val_hi = in(reg) val.pair.hi,
                     options(nostack, preserves_flags),
-                )
-            };
+                );
+            }};
         }
         match order {
             Ordering::Relaxed => atomic_store!("", ""),
             #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
             Ordering::Release => {
+                let val = U128 { whole: val };
                 // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
                 // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/STILP--Store-Release-ordered-Pair-of-registers-
                 asm!(
@@ -487,7 +453,24 @@ unsafe fn atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
                 );
             }
             #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+            #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+            Ordering::Release => {
+                // Use swpp if stp requires fences.
+                // https://reviews.llvm.org/D143506
+                // SAFETY: cfg guarantee that the CPU supports FEAT_LSE128.
+                _atomic_swap_swpp(dst, val, order);
+            }
+            #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+            #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
             Ordering::Release => atomic_store!("", "dmb ish"),
+            #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+            Ordering::SeqCst => {
+                // Use swpp if stp requires fences.
+                // https://reviews.llvm.org/D143506
+                // SAFETY: cfg guarantee that the CPU supports FEAT_LSE128.
+                _atomic_swap_swpp(dst, val, order);
+            }
+            #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
             Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
             _ => unreachable!("{:?}", order),
         }
@@ -866,13 +849,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
     }
 }
 // Do not use atomic_rmw_cas_3 because it needs extra MOV to implement swap.
-#[cfg(any(
-    test,
-    all(
-        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-        not(portable_atomic_ll_sc_rmw),
-    )
-))]
+#[cfg(any(test, not(portable_atomic_ll_sc_rmw)))]
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
 unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -1034,13 +1011,7 @@ macro_rules! atomic_rmw_cas_3 {
             not(portable_atomic_ll_sc_rmw),
         ))]
         use $name as $reexport_name;
-        #[cfg(any(
-            test,
-            all(
-                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-                not(portable_atomic_ll_sc_rmw),
-            )
-        ))]
+        #[cfg(any(test, not(portable_atomic_ll_sc_rmw)))]
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -1162,13 +1133,7 @@ macro_rules! atomic_rmw_cas_2 {
             not(portable_atomic_ll_sc_rmw),
         ))]
         use $name as $reexport_name;
-        #[cfg(any(
-            test,
-            all(
-                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-                not(portable_atomic_ll_sc_rmw),
-            )
-        ))]
+        #[cfg(any(test, not(portable_atomic_ll_sc_rmw)))]
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
