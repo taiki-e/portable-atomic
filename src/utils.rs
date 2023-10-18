@@ -138,11 +138,11 @@ macro_rules! impl_debug_and_serde {
         }
         #[cfg(feature = "serde")]
         #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-        impl serde::Serialize for $atomic_type {
+        impl serde::ser::Serialize for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where
-                S: serde::Serializer,
+                S: serde::ser::Serializer,
             {
                 // https://github.com/serde-rs/serde/blob/v1.0.152/serde/src/ser/impls.rs#L958-L959
                 self.load(Ordering::Relaxed).serialize(serializer)
@@ -150,13 +150,13 @@ macro_rules! impl_debug_and_serde {
         }
         #[cfg(feature = "serde")]
         #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-        impl<'de> serde::Deserialize<'de> for $atomic_type {
+        impl<'de> serde::de::Deserialize<'de> for $atomic_type {
             #[allow(clippy::missing_inline_in_public_items)] // serde doesn't use inline on std atomic's Serialize/Deserialize impl
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
             where
-                D: serde::Deserializer<'de>,
+                D: serde::de::Deserializer<'de>,
             {
-                serde::Deserialize::deserialize(deserializer).map(Self::new)
+                serde::de::Deserialize::deserialize(deserializer).map(Self::new)
             }
         }
     };
