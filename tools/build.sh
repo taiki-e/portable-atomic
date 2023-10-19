@@ -139,11 +139,8 @@ x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
         echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
-    if [[ -z "${has_offline}" ]]; then
-        offline=()
-    fi
     RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
-        x cargo ${pre_args[@]+"${pre_args[@]}"} "$@" ${offline[@]+"${offline[@]}"}
+        x cargo ${pre_args[@]+"${pre_args[@]}"} "$@"
     echo
 }
 bail() {
@@ -264,11 +261,6 @@ has_asm=''
 if [[ "${rustc_minor_version}" -ge 59 ]] || { [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; }; then
     has_asm='1'
 fi
-has_offline=''
-# --offline requires 1.36, but, there are some problems on older cargo.
-if [[ "${rustc_minor_version}" -ge 60 ]]; then
-    has_offline='1'
-fi
 
 build() {
     local target="$1"
@@ -348,7 +340,6 @@ build() {
             mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
         esac
     fi
-    offline=()
 
     if [[ -n "${TESTS:-}" ]]; then
         # We use std in main tests, so we cannot build them on no-std targets.
@@ -410,7 +401,6 @@ build() {
             if [[ -n "${has_atomic_cas}" ]]; then
                 RUSTFLAGS="${target_rustflags}" \
                     x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                offline=(--offline)
             else
                 # target without CAS requires asm to implement CAS.
                 if [[ -n "${has_asm}" ]]; then
@@ -418,20 +408,17 @@ build() {
                     if [[ "${rustc_minor_version}" -ge 54 ]]; then
                         RUSTFLAGS="${target_rustflags}" \
                             x_cargo "${args[@]}" --feature-powerset --features portable-atomic/critical-section --manifest-path tests/api-test/Cargo.toml "$@"
-                        offline=(--offline)
                     fi
                     case "${target}" in
                         avr-* | msp430-*) # always single-core
                             RUSTFLAGS="${target_rustflags}" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                            offline=(--offline)
                             ;;
                         bpf* | mips*) ;;
                         *)
                             CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core" \
                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
-                            offline=(--offline)
                             case "${target}" in
                                 thumbv[4-5]t* | armv[4-5]t*)
                                     CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-disable-fiq" \
@@ -518,7 +505,6 @@ build() {
     fi
     RUSTFLAGS="${target_rustflags}" \
         x_cargo "${args[@]}" "$@"
-    offline=(--offline)
     # Check {,no-}outline-atomics
     case "${target}" in
         # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.
