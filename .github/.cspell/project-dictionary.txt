@@ -67,7 +67,6 @@ ldsetp
 ldxp
 lghi
 libcalls
-libdir
 libfdio
 libpthread
 libstd
@@ -103,7 +102,6 @@ nostdinc
 opensbi
 osfmk
 osxsave
-pacman
 picolibc
 posix
 prctl
