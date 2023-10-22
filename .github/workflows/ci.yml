@@ -334,7 +334,7 @@ jobs:
         env:
           SKIP_DEFAULT_TARGET: 1
 
-      - run: cargo minimal-versions build -vvv --workspace --no-private --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD $RELEASE
+      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD $RELEASE
 
   test-bsd:
     needs: tidy
