@@ -25,7 +25,7 @@
 //
 // Generated asm:
 // - powerpc64 (pwr8) https://godbolt.org/z/nG5dGa38a
-// - powerpc64le https://godbolt.org/z/WEWb7vnTr
+// - powerpc64le https://godbolt.org/z/6c99s75e4
 
 include!("macros.rs");
 
@@ -95,40 +95,14 @@ macro_rules! debug_assert_pwr8 {
 // (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
 // However, our code uses the ifunc helper macro that works with function pointers,
 // so we don't have to worry about this unless calling without helper macro.
-#[cfg(not(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics",
-)))]
 macro_rules! start_pwr8 {
     () => {
         ".machine push\n.machine power8"
     };
 }
-#[cfg(not(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics",
-)))]
 macro_rules! end_pwr8 {
     () => {
         ".machine pop"
-    };
-}
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics",
-))]
-macro_rules! start_pwr8 {
-    () => {
-        ""
-    };
-}
-#[cfg(any(
-    target_feature = "quadword-atomics",
-    portable_atomic_target_feature = "quadword-atomics",
-))]
-macro_rules! end_pwr8 {
-    () => {
-        ""
     };
 }
 
