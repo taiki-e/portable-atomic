@@ -228,7 +228,7 @@ macro_rules! debug_assert_lse2 {
 // The .arch directive has a similar effect, but we don't use it due to the following issue:
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 //
-// This is also needed for compatibility with cg_clif:
+// This is also needed for compatibility with rustc_codegen_cranelift:
 // https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
 //
 // Note: If FEAT_LSE is not available at compile-time, we must guarantee that

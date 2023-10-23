@@ -12,15 +12,23 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Add `from_ptr`.
 
-- Support run-time detection of FEAT_LSE on AArch64 NetBSD. ([#66](https://github.com/taiki-e/portable-atomic/pull/66))
-
 - Support run-time detection on AArch64 on pre-1.61 rustc. ([#98](https://github.com/taiki-e/portable-atomic/pull/98))
+
+  This also solves [a compatibility issue with rustc_codegen_cranelift](https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400).
+
+- Support run-time detection of FEAT_LSE2. ([#126](https://github.com/taiki-e/portable-atomic/pull/126))
+
+- Support run-time detection of FEAT_LSE on AArch64 NetBSD. ([#66](https://github.com/taiki-e/portable-atomic/pull/66))
 
 - Acknowledge ESP-IDF targets' 64-bit atomics are not lock-free. See [#122](https://github.com/taiki-e/portable-atomic/issues/122) for more.
 
 - Optimize 128-bit weak CAS on powerpc64.
 
-- Optimize interrupt disable on no-std pre-v6 ARM where `unsafe-assume-single-core` and `disable-fiq` are enabled.
+- Optimize interrupt disable on no-std pre-v6 ARM where `unsafe-assume-single-core` and `disable-fiq` are enabled. ([771c45d](https://github.com/taiki-e/portable-atomic/commit/771c45da2d2afc4f83df033dd4bdf3f976d14a74))
+
+- Improve detection of Apple hardware. ([5c3a43b](https://github.com/taiki-e/portable-atomic/commit/5c3a43b53f1c4188f9dd597599633bc1a315bf44))
+
+- Improve compatibility with the future version of Miri.
 
 ## [1.4.3] - 2023-08-25
 
