@@ -217,7 +217,7 @@ fn main() {
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
             // loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
-            if is_apple {
+            if is_apple || target_cpu().map_or(false, |cpu| cpu.starts_with("apple-")) {
                 println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
             }
         }
@@ -283,7 +283,7 @@ fn main() {
             // See also https://github.com/rust-lang/rust/issues/59932
             let mut has_pwr8_features = target_endian == "little";
             // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-            if let Some(cpu) = target_cpu().as_ref() {
+            if let Some(cpu) = &target_cpu() {
                 if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                     cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                     if let Ok(cpu_version) = cpu_version.parse::<u32>() {
