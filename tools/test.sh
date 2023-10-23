@@ -214,7 +214,7 @@ esac
 
 run() {
     if [[ ${#release[@]} -eq 0 ]]; then
-        if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer="* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer="* ]]; then
+        if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer= ]]; then
             # doctest with debug build on Sanitizer is slow
             x_cargo test ${build_std[@]+"${build_std[@]}"} --tests "$@"
         else
@@ -223,7 +223,7 @@ run() {
     fi
 
     # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
-    if [[ "${RUSTFLAGS:-}" == *"-Z sanitizer=memory"* ]] || [[ "${RUSTFLAGS:-}" == *"-Zsanitizer=memory"* ]]; then
+    if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer=memory ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
             x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
