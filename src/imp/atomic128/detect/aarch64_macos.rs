@@ -6,7 +6,7 @@
 // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L494
 //
 // If macOS supporting Armv9.4-a becomes popular in the future, this module will
-// be used to support outline atomics for FEAT_LSE128/FEAT_LRCPC3.
+// be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.
 //
 // Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 //
@@ -79,13 +79,13 @@ fn _detect(info: &mut CpuInfo) {
     } {
         info.set(CpuInfo::HAS_LSE);
     }
-    // we currently only use FEAT_LSE in outline-atomics.
+    // SAFETY: we passed a valid C string.
+    if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE2\0").unwrap_or(0) != 0 } {
+        info.set(CpuInfo::HAS_LSE2);
+    }
+    // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
     #[cfg(test)]
     {
-        // SAFETY: we passed a valid C string.
-        if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE2\0").unwrap_or(0) != 0 } {
-            info.set(CpuInfo::HAS_LSE2);
-        }
         // SAFETY: we passed a valid C string.
         if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE128\0").unwrap_or(0) != 0 } {
             info.set(CpuInfo::HAS_LSE128);

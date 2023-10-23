@@ -37,7 +37,9 @@ struct AA64Reg {
     aa64isar0: u64,
     #[cfg(test)]
     aa64isar1: u64,
-    #[cfg(test)]
+    // OpenBSD has an API to get this, but currently always returns 0.
+    // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
+    #[cfg_attr(target_os = "openbsd", cfg(test))]
     aa64mmfr2: u64,
 }
 
@@ -47,7 +49,7 @@ fn _detect(info: &mut CpuInfo) {
         aa64isar0,
         #[cfg(test)]
         aa64isar1,
-        #[cfg(test)]
+        #[cfg_attr(target_os = "openbsd", cfg(test))]
         aa64mmfr2,
     } = imp::aa64reg();
 
@@ -56,7 +58,7 @@ fn _detect(info: &mut CpuInfo) {
     let atomic = extract(aa64isar0, 23, 20);
     if atomic >= 2 {
         info.set(CpuInfo::HAS_LSE);
-        // we currently only use FEAT_LSE in outline-atomics.
+        // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
         #[cfg(test)]
         {
             if atomic >= 3 {
@@ -64,7 +66,7 @@ fn _detect(info: &mut CpuInfo) {
             }
         }
     }
-    // we currently only use FEAT_LSE in outline-atomics.
+    // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
     #[cfg(test)]
     {
         // ID_AA64ISAR1_EL1, Instruction Set Attribute Register 1
@@ -72,6 +74,11 @@ fn _detect(info: &mut CpuInfo) {
         if extract(aa64isar1, 23, 20) >= 3 {
             info.set(CpuInfo::HAS_RCPC3);
         }
+    }
+    // OpenBSD has an API to get this, but currently always returns 0.
+    // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
+    #[cfg_attr(target_os = "openbsd", cfg(test))]
+    {
         // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
         // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2?lang=en
         if extract(aa64mmfr2, 35, 32) >= 1 {
@@ -114,21 +121,16 @@ mod imp {
                     options(pure, nomem, nostack, preserves_flags)
                 );
             }
-            #[cfg(test)]
             let aa64mmfr2: u64;
-            #[cfg(test)]
-            {
-                asm!(
-                    "mrs {0}, ID_AA64MMFR2_EL1",
-                    out(reg) aa64mmfr2,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
-            }
+            asm!(
+                "mrs {0}, ID_AA64MMFR2_EL1",
+                out(reg) aa64mmfr2,
+                options(pure, nomem, nostack, preserves_flags)
+            );
             AA64Reg {
                 aa64isar0,
                 #[cfg(test)]
                 aa64isar1,
-                #[cfg(test)]
                 aa64mmfr2,
             }
         }
@@ -225,7 +227,6 @@ mod imp {
             aa64isar0: buf.aa64isar0,
             #[cfg(test)]
             aa64isar1: buf.aa64isar1,
-            #[cfg(test)]
             aa64mmfr2: buf.aa64mmfr2,
         })
     }
@@ -244,7 +245,6 @@ mod imp {
                 aa64isar0: 0,
                 #[cfg(test)]
                 aa64isar1: 0,
-                #[cfg(test)]
                 aa64mmfr2: 0,
             },
         }
@@ -273,6 +273,8 @@ mod imp {
         pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
         #[cfg(test)]
         pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
+        // OpenBSD has an API to get this, but currently always returns 0.
+        // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
         #[cfg(test)]
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
 

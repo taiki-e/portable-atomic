@@ -187,7 +187,6 @@ mod arch {
     // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
     // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
     pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
-    #[cfg(test)]
     pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
 
     #[cold]
@@ -197,12 +196,8 @@ mod arch {
         if hwcap & HWCAP_ATOMICS != 0 {
             info.set(CpuInfo::HAS_LSE);
         }
-        // we currently only use FEAT_LSE in outline-atomics.
-        #[cfg(test)]
-        {
-            if hwcap & HWCAP_USCAT != 0 {
-                info.set(CpuInfo::HAS_LSE2);
-            }
+        if hwcap & HWCAP_USCAT != 0 {
+            info.set(CpuInfo::HAS_LSE2);
         }
     }
 }
@@ -649,6 +644,10 @@ mod tests {
     )]
     const _: fn() = || {
         use test_helper::{libc, sys};
+        #[cfg(not(target_os = "freebsd"))]
+        type AtType = ffi::c_ulong;
+        #[cfg(target_os = "freebsd")]
+        type AtType = ffi::c_int;
         #[cfg(any(target_os = "linux", target_os = "android"))]
         {
             let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
@@ -678,10 +677,10 @@ mod tests {
         }
         #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
         static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
-        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as _);
+        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as AtType);
         #[cfg(not(target_os = "freebsd"))] // libc doesn't have this on FreeBSD
         static_assert!(ffi::AT_HWCAP2 == libc::AT_HWCAP2);
-        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as _);
+        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as AtType);
         #[cfg(target_arch = "aarch64")]
         {
             // static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS); // libc doesn't have this
