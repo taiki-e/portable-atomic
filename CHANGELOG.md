@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.5.0] - 2023-10-23
+
 - Add `from_ptr`.
 
 - Support run-time detection on AArch64 on pre-1.61 rustc. ([#98](https://github.com/taiki-e/portable-atomic/pull/98))
@@ -382,7 +384,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/taiki-e/portable-atomic/compare/v1.4.3...v1.5.0
 [1.4.3]: https://github.com/taiki-e/portable-atomic/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/taiki-e/portable-atomic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/taiki-e/portable-atomic/compare/v1.4.0...v1.4.1
