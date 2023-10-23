@@ -50,8 +50,7 @@ impl CpuInfo {
     /// Whether FEAT_LSE is available
     const HAS_LSE: u32 = 1;
     /// Whether FEAT_LSE2 is available
-    // This is currently only used in tests.
-    #[cfg(test)]
+    #[cfg_attr(not(test), allow(dead_code))]
     const HAS_LSE2: u32 = 2;
     /// Whether FEAT_LSE128 is available
     // This is currently only used in tests.
@@ -67,7 +66,8 @@ impl CpuInfo {
     pub(crate) fn has_lse(self) -> bool {
         self.test(CpuInfo::HAS_LSE)
     }
-    #[cfg(test)]
+    #[cfg_attr(not(test), allow(dead_code))]
+    #[cfg(any(test, not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))))]
     #[inline]
     pub(crate) fn has_lse2(self) -> bool {
         self.test(CpuInfo::HAS_LSE2)
