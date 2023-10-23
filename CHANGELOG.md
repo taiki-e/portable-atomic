@@ -14,6 +14,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Add `from_ptr`.
 
+- Add `force-amo` feature (`portable_atomic_force_amo` cfg) for single-core RISC-V without A-extension. ([#124](https://github.com/taiki-e/portable-atomic/pull/124))
+
 - Support run-time detection on AArch64 on pre-1.61 rustc. ([#98](https://github.com/taiki-e/portable-atomic/pull/98))
 
   This also solves [a compatibility issue with rustc_codegen_cranelift](https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400).
