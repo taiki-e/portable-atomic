@@ -56,7 +56,7 @@
 // Generated asm:
 // - aarch64 https://godbolt.org/z/5Mz1E33vz
 // - aarch64 msvc https://godbolt.org/z/P53d1MsGY
-// - aarch64 (+lse) https://godbolt.org/z/vszahx184
+// - aarch64 (+lse) https://godbolt.org/z/qvaE8n79K
 // - aarch64 msvc (+lse) https://godbolt.org/z/dj4aYerfr
 // - aarch64 (+lse,+lse2) https://godbolt.org/z/1E15jjxah
 // - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/YreM4n84o
@@ -172,6 +172,9 @@ macro_rules! debug_assert_lse {
 // The .arch directive has a similar effect, but we don't use it due to the following issue:
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 //
+// This is also needed for compatibility with cg_clif:
+// https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
+//
 // Note: If FEAT_LSE is not available at compile-time, we must guarantee that
 // the function that uses it is not inlined into a function where it is not
 // clear whether FEAT_LSE is available. Otherwise, (even if we checked whether
@@ -180,17 +183,14 @@ macro_rules! debug_assert_lse {
 // (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
 // However, our code uses the ifunc helper macro that works with function pointers,
 // so we don't have to worry about this unless calling without helper macro.
-#[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
+    target_feature = "lse",
+    portable_atomic_target_feature = "lse",
+    not(portable_atomic_no_outline_atomics),
+))]
 macro_rules! start_lse {
     () => {
         ".arch_extension lse"
-    };
-}
-#[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-macro_rules! start_lse {
-    () => {
-        ""
     };
 }
 
