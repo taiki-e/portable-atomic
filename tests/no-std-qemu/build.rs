@@ -30,5 +30,5 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-check-cfg=names(armv5te,f,d)");
+    println!("cargo:rustc-check-cfg=cfg(armv5te,f,d)");
 }

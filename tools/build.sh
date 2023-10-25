@@ -232,24 +232,24 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     if [[ -z "${is_custom_toolchain}" ]]; then
         rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
-    # -Z check-cfg requires 1.63.0-nightly
-    # we only check this on the recent nightly to avoid old clippy bugs.
+    # The latest syntax of -Z check-cfg requires 1.75.0-nightly.
+    # We only check this on the recent nightly to avoid old clippy bugs.
     # shellcheck disable=SC2207
     if [[ "${rustc_minor_version}" -ge 75 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
         build_scripts=(build.rs portable-atomic-util/build.rs)
-        check_cfg='-Z unstable-options --check-cfg=values(target_pointer_width,"128") --check-cfg=values(target_arch,"xtensa") --check-cfg=values(feature,"cargo-clippy")'
+        check_cfg='-Z unstable-options --check-cfg=cfg(target_pointer_width,values("128")) --check-cfg=cfg(target_arch,values("xtensa")) --check-cfg=cfg(feature,values("cargo-clippy"))'
         known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
         # TODO: handle multi-line target_feature_if
         known_target_feature_values+=($(grep -E 'target_feature_if\("' "${build_scripts[@]}" | sed -E 's/^.*target_feature_if\(//; s/",.*$/"/' | LC_ALL=C sort -u))
-        check_cfg+=" --check-cfg=values(portable_atomic_target_feature,$(IFS=',' && echo "${known_target_feature_values[*]}"))"
-        check_cfg+=" --check-cfg=names($(IFS=',' && echo "${known_cfgs[*]}"))"
+        check_cfg+=" --check-cfg=cfg(portable_atomic_target_feature,values($(IFS=',' && echo "${known_target_feature_values[*]}")))"
+        check_cfg+=" --check-cfg=cfg($(IFS=',' && echo "${known_cfgs[*]}"))"
         subcmd=clippy
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         if [[ -n "${TESTS:-}" ]]; then
-            base_args=("${subcmd}" -Z check-cfg="names,values,output,features")
+            base_args=("${subcmd}" -Z check-cfg)
         else
-            base_args=(hack "${subcmd}" -Z check-cfg="names,values,output,features")
+            base_args=(hack "${subcmd}" -Z check-cfg)
         fi
     fi
 fi
