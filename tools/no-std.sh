@@ -160,6 +160,8 @@ run() {
             test_dir=tests/gba
             linker=link.ld
             target_rustflags+=" -C link-arg=-T${linker}"
+            # https://github.com/rust-lang/compiler-builtins/issues/533
+            args+=(-Z build-std-features=compiler-builtins-weak-intrinsics)
             ;;
         armv5te* | thumbv5te*)
             test_dir=tests/no-std-qemu

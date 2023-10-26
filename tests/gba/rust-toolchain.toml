@@ -1,5 +1,0 @@
-[toolchain]
-# TODO: duplicate symbol error due to https://github.com/rust-lang/compiler-builtins/pull/526
-channel = "nightly-2023-05-25"
-components = ["rust-src"]
-profile = "minimal"
