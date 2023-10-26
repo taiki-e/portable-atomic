@@ -145,7 +145,9 @@ macro_rules! atomic_int {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     let _guard = lock(self.v.get() as usize);
-                    self.v.get().replace(val)
+                    let prev = self.v.get().read();
+                    self.v.get().write(val);
+                    prev
                 }
             }
 

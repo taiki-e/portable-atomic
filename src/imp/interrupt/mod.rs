@@ -185,7 +185,11 @@ impl<T> AtomicPtr<T> {
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
-        with(|| unsafe { self.p.get().replace(ptr) })
+        with(|| unsafe {
+            let prev = self.p.get().read();
+            self.p.get().write(ptr);
+            prev
+        })
     }
 
     #[inline]
@@ -406,7 +410,11 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by disabling interrupts (see
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
-                with(|| unsafe { self.v.get().replace(val) })
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(val);
+                    prev
+                })
             }
 
             #[inline]
@@ -685,7 +693,11 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by disabling interrupts (see
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
-                with(|| unsafe { self.v.get().replace(val) })
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(val);
+                    prev
+                })
             }
 
             #[inline]
