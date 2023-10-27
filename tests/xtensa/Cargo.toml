@@ -14,7 +14,7 @@ test-helper = { path = "../helper" }
 paste = "1"
 
 [target.xtensa-esp32-none-elf.dependencies]
-esp-println = { version = "0.6", default-features = false, features = ["uart", "esp32"] }
+esp-println = { version = "0.7", default-features = false, features = ["uart", "esp32"] }
 esp32-hal = "0.15"
 xtensa-lx-rt = { version = "0.16", features = ["esp32"] }
 
