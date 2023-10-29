@@ -12,7 +12,8 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - riscv64gc https://godbolt.org/z/bn7G3j1vn
+// - riscv64gc https://godbolt.org/z/EETebx7TE
+// - riscv32imac https://godbolt.org/z/8zzv73bKh
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
