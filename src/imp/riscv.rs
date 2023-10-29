@@ -61,7 +61,7 @@ macro_rules! atomic_rmw_amo {
 // 32-bit val.wrapping_shl(shift) but no extra `& (u32::BITS - 1)`
 #[cfg(any(test, portable_atomic_force_amo))]
 #[inline]
-fn sll(val: u32, shift: u32) -> u32 {
+fn sllw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling sll{,w} is safe.
     unsafe {
         let out;
@@ -75,7 +75,7 @@ fn sll(val: u32, shift: u32) -> u32 {
 // 32-bit val.wrapping_shr(shift) but no extra `& (u32::BITS - 1)`
 #[cfg(any(test, portable_atomic_force_amo))]
 #[inline]
-fn srl(val: u32, shift: u32) -> u32 {
+fn srlw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling srl{,w} is safe.
     unsafe {
         let out;
@@ -305,7 +305,7 @@ macro_rules! atomic {
 }
 
 macro_rules! atomic_sub_word {
-    ($atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
+    ($atomic_type:ident, $value_type:ty, $unsigned_type:ty, $asm_suffix:tt) => {
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
         #[cfg(any(test, portable_atomic_force_amo))]
         impl $atomic_type {
@@ -313,35 +313,35 @@ macro_rules! atomic_sub_word {
             pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, mask) = crate::utils::create_sub_word_mask_values(dst);
-                let mask = !sll(mask as u32, shift as u32);
-                let val = sll(val as u32, shift as u32);
+                let mask = !sllw(mask as u32, shift as u32);
+                let val = sllw(val as $unsigned_type as u32, shift as u32);
                 let val = val | mask;
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
-                srl(out, shift as u32) as $value_type
+                srlw(out, shift as u32) as $unsigned_type as $value_type
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                let val = sll(val as u32, shift as u32);
+                let val = sllw(val as $unsigned_type as u32, shift as u32);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(or, dst, val, order, "w") };
-                srl(out, shift as u32) as $value_type
+                srlw(out, shift as u32) as $unsigned_type as $value_type
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                let val = sll(val as u32, shift as u32);
+                let val = sllw(val as $unsigned_type as u32, shift as u32);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(xor, dst, val, order, "w") };
-                srl(out, shift as u32) as $value_type
+                srlw(out, shift as u32) as $unsigned_type as $value_type
             }
 
             #[inline]
@@ -353,10 +353,10 @@ macro_rules! atomic_sub_word {
     };
 }
 
-atomic_sub_word!(AtomicI8, i8, "b");
-atomic_sub_word!(AtomicU8, u8, "b");
-atomic_sub_word!(AtomicI16, i16, "h");
-atomic_sub_word!(AtomicU16, u16, "h");
+atomic_sub_word!(AtomicI8, i8, u8, "b");
+atomic_sub_word!(AtomicU8, u8, u8, "b");
+atomic_sub_word!(AtomicI16, i16, u16, "h");
+atomic_sub_word!(AtomicU16, u16, u16, "h");
 atomic!(AtomicI32, i32, "w", max, min);
 atomic!(AtomicU32, u32, "w", maxu, minu);
 #[cfg(target_arch = "riscv64")]
@@ -525,47 +525,157 @@ mod tests {
             }
         };
         ($atomic_type:ty, $int_type:ident) => {
+            use crate::tests::helper::*;
             ::quickcheck::quickcheck! {
                 fn quickcheck_fetch_and(x: $int_type, y: $int_type) -> bool {
                     for &order in &test_helper::SWAP_ORDERINGS {
-                        let a = <$atomic_type>::new(x);
-                        assert_eq!(a.fetch_and(y, order), x);
-                        assert_eq!(a.load(Ordering::Relaxed), x & y);
-                        let a = <$atomic_type>::new(y);
-                        assert_eq!(a.fetch_and(x, order), y);
-                        assert_eq!(a.load(Ordering::Relaxed), y & x);
+                        for base in [0, !0] {
+                            let mut arr = Align16([
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                            ]);
+                            let a_idx = fastrand::usize(3..=6);
+                            arr.0[a_idx] = <$atomic_type>::new(x);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_and(y, order), x);
+                            assert_eq!(a.load(Ordering::Relaxed), x & y);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            arr.0[a_idx] = <$atomic_type>::new(y);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_and(x, order), y);
+                            assert_eq!(a.load(Ordering::Relaxed), y & x);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                        }
                     }
                     true
                 }
                 fn quickcheck_fetch_or(x: $int_type, y: $int_type) -> bool {
                     for &order in &test_helper::SWAP_ORDERINGS {
-                        let a = <$atomic_type>::new(x);
-                        assert_eq!(a.fetch_or(y, order), x);
-                        assert_eq!(a.load(Ordering::Relaxed), x | y);
-                        let a = <$atomic_type>::new(y);
-                        assert_eq!(a.fetch_or(x, order), y);
-                        assert_eq!(a.load(Ordering::Relaxed), y | x);
+                        for base in [0, !0] {
+                            let mut arr = Align16([
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                            ]);
+                            let a_idx = fastrand::usize(3..=6);
+                            arr.0[a_idx] = <$atomic_type>::new(x);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_or(y, order), x);
+                            assert_eq!(a.load(Ordering::Relaxed), x | y);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            arr.0[a_idx] = <$atomic_type>::new(y);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_or(x, order), y);
+                            assert_eq!(a.load(Ordering::Relaxed), y | x);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                        }
                     }
                     true
                 }
                 fn quickcheck_fetch_xor(x: $int_type, y: $int_type) -> bool {
                     for &order in &test_helper::SWAP_ORDERINGS {
-                        let a = <$atomic_type>::new(x);
-                        assert_eq!(a.fetch_xor(y, order), x);
-                        assert_eq!(a.load(Ordering::Relaxed), x ^ y);
-                        let a = <$atomic_type>::new(y);
-                        assert_eq!(a.fetch_xor(x, order), y);
-                        assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                        for base in [0, !0] {
+                            let mut arr = Align16([
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                            ]);
+                            let a_idx = fastrand::usize(3..=6);
+                            arr.0[a_idx] = <$atomic_type>::new(x);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_xor(y, order), x);
+                            assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            arr.0[a_idx] = <$atomic_type>::new(y);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_xor(x, order), y);
+                            assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                        }
                     }
                     true
                 }
                 fn quickcheck_fetch_not(x: $int_type) -> bool {
                     for &order in &test_helper::SWAP_ORDERINGS {
-                        let a = <$atomic_type>::new(x);
-                        assert_eq!(a.fetch_not(order), x);
-                        assert_eq!(a.load(Ordering::Relaxed), !x);
-                        assert_eq!(a.fetch_not(order), !x);
-                        assert_eq!(a.load(Ordering::Relaxed), x);
+                        for base in [0, !0] {
+                            let mut arr = Align16([
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                                <$atomic_type>::new(base),
+                            ]);
+                            let a_idx = fastrand::usize(3..=6);
+                            arr.0[a_idx] = <$atomic_type>::new(x);
+                            let a = &arr.0[a_idx];
+                            assert_eq!(a.fetch_not(order), x);
+                            assert_eq!(a.load(Ordering::Relaxed), !x);
+                            assert_eq!(a.fetch_not(order), !x);
+                            assert_eq!(a.load(Ordering::Relaxed), x);
+                            for i in 0..a_idx {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                            for i in a_idx + 1..arr.0.len() {
+                                assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                            }
+                        }
                     }
                     true
                 }

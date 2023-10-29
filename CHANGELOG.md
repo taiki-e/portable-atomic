@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix bug in `i{8,16}` `fetch_{or,xor}` on RISC-V without A-extension where `unsafe-assume-single-core` and `force-amo` are enabled.
+
 ## [1.5.0] - 2023-10-23
 
 - Add `from_ptr`.
