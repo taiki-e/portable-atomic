@@ -315,6 +315,7 @@ macro_rules! atomic_sub_word {
                 let dst = self.v.get();
                 let (dst, shift, mask) = crate::utils::create_sub_word_mask_values(dst);
                 let mask = !sllw(mask as u32, shift as u32);
+                // TODO: use zero_extend helper instead of cast for val.
                 let val = sllw(val as $unsigned_type as u32, shift as u32);
                 let val = val | mask;
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
@@ -327,6 +328,7 @@ macro_rules! atomic_sub_word {
             pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
+                // TODO: use zero_extend helper instead of cast for val.
                 let val = sllw(val as $unsigned_type as u32, shift as u32);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
@@ -338,6 +340,7 @@ macro_rules! atomic_sub_word {
             pub(crate) fn fetch_xor(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
+                // TODO: use zero_extend helper instead of cast for val.
                 let val = sllw(val as $unsigned_type as u32, shift as u32);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
