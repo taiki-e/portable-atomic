@@ -12,7 +12,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Fix bug in `i{8,16}` `fetch_{or,xor}` on RISC-V without A-extension where `unsafe-assume-single-core` and `force-amo` are enabled.
 
+- Optimize `swap` for targets that do not have native atomic CAS instructions.
+
 ## [1.5.0] - 2023-10-23
+
+**Note:** This release has been yanked due to a bug fixed in 1.5.1.
 
 - Add `from_ptr`.
 
