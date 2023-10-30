@@ -2004,20 +2004,6 @@ macro_rules! assert_float_op_eq {
     }};
 }
 
-pub(crate) trait FloatExt: Copy {
-    fn epsilon(&self) -> Self;
-}
-impl FloatExt for f32 {
-    fn epsilon(&self) -> Self {
-        Self::EPSILON
-    }
-}
-impl FloatExt for f64 {
-    fn epsilon(&self) -> Self {
-        Self::EPSILON
-    }
-}
-
 #[cfg_attr(not(portable_atomic_no_track_caller), track_caller)]
 pub(crate) fn assert_panic<T: std::fmt::Debug>(f: impl FnOnce() -> T) -> std::string::String {
     let backtrace = std::env::var_os("RUST_BACKTRACE");
