@@ -2369,6 +2369,7 @@ impl<T> AtomicPtr<T> {
 } // cfg_has_atomic_ptr!
 
 macro_rules! atomic_int {
+    // TODO: support AtomicF{16,128} once https://github.com/rust-lang/rust/issues/116909 stabilized.
     (AtomicU32, $int_type:ident, $align:literal) => {
         atomic_int!(int, AtomicU32, $int_type, $align);
         #[cfg(feature = "float")]
