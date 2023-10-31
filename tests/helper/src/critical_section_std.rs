@@ -3,6 +3,8 @@
 // Based on https://github.com/rust-embedded/critical-section/blob/v1.1.1/src/std.rs,
 // but don't use `static mut` and compatible with Rust 1.56 that we run tests.
 
+#![allow(clippy::no_mangle_with_rust_abi)] // critical_section::set_impl uses #[no_mangle] with extern "Rust" function
+
 use std::{
     cell::{Cell, UnsafeCell},
     mem::MaybeUninit,

@@ -25,3 +25,6 @@ static_assertions = "1"
 [[bench]]
 name = "bench"
 harness = false
+
+[lints]
+workspace = true

@@ -2,9 +2,6 @@
 
 // The rustc-cfg emitted by the build script are *not* public API.
 
-#![warn(rust_2018_idioms, single_use_lifetimes, clippy::pedantic)]
-#![allow(clippy::single_match_else, clippy::too_many_lines)]
-
 // version.rs is shared with portable-atomic's build script, and portable-atomic-util only uses a part of it.
 #[allow(dead_code)]
 #[path = "version.rs"]

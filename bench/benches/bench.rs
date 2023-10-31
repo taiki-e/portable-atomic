@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
 #![allow(dead_code, unused_extern_crates)]
 #![allow(
     clippy::duplicate_mod,
     clippy::inline_always,
     clippy::naive_bytecount,
-    clippy::only_used_in_recursion
+    clippy::only_used_in_recursion,
+    clippy::wildcard_imports
 )]
 #![feature(asm_experimental_arch, core_intrinsics)]
 
@@ -270,7 +270,7 @@ fn bench_concurrent_fetch_add<A: AtomicInt<T>, T: Copy + From<u32>>() -> A {
 
 macro_rules! benches {
     ($name:ident, $atomic_type:path, $int_type:ident) => {
-        pub fn $name(c: &mut Criterion) {
+        pub(crate) fn $name(c: &mut Criterion) {
             type A = $atomic_type;
             let mut g = c.benchmark_group(stringify!($name));
             g.bench_function(concat!(stringify!($int_type), "_load"), |b| {

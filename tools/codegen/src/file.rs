@@ -19,7 +19,7 @@ macro_rules! function_name {
     }};
 }
 
-pub fn workspace_root() -> Utf8PathBuf {
+pub(crate) fn workspace_root() -> Utf8PathBuf {
     let mut dir = Utf8PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     dir.pop(); // codegen
     dir.pop(); // tools
@@ -27,7 +27,7 @@ pub fn workspace_root() -> Utf8PathBuf {
 }
 
 #[track_caller]
-pub fn header(function_name: &str) -> String {
+pub(crate) fn header(function_name: &str) -> String {
     // rust-analyzer does not respect outer attribute (#[rustfmt::skip]) on
     // a module without a body. So use inner attribute under cfg(rustfmt).
     format!(
@@ -43,7 +43,11 @@ pub fn header(function_name: &str) -> String {
 }
 
 #[track_caller]
-pub fn write(function_name: &str, path: impl AsRef<Path>, contents: TokenStream) -> Result<()> {
+pub(crate) fn write(
+    function_name: &str,
+    path: impl AsRef<Path>,
+    contents: TokenStream,
+) -> Result<()> {
     write_raw(function_name, path.as_ref(), format_tokens(contents)?)
 }
 
@@ -115,7 +119,11 @@ fn test_format_macros() {
 }
 
 #[track_caller]
-pub fn write_raw(function_name: &str, path: &Path, contents: impl AsRef<[u8]>) -> Result<()> {
+pub(crate) fn write_raw(
+    function_name: &str,
+    path: &Path,
+    contents: impl AsRef<[u8]>,
+) -> Result<()> {
     static LINGUIST_GENERATED: OnceLock<Vec<globset::GlobMatcher>> = OnceLock::new();
     let linguist_generated = LINGUIST_GENERATED.get_or_init(|| {
         let gitattributes = fs::read_to_string(workspace_root().join(".gitattributes")).unwrap();

@@ -860,7 +860,6 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RegS
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
 #[cfg(any(miri, target_arch = "riscv32", target_arch = "riscv64"))]
 #[allow(dead_code)]
-#[allow(clippy::cast_possible_wrap)]
 pub(crate) mod strict {
     /// Replace the address portion of this pointer with a new address.
     #[inline]
@@ -869,14 +868,12 @@ pub(crate) mod strict {
         // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
         //
         // In the mean-time, this operation is defined to be "as if" it was
-        // a wrapping_offset, so we can emulate it as such. This should properly
+        // a wrapping_add, so we can emulate it as such. This should properly
         // restore pointer provenance even under today's compiler.
-        let self_addr = ptr as usize as isize;
-        let dest_addr = addr as isize;
-        let offset = dest_addr.wrapping_sub(self_addr);
+        let offset = addr.wrapping_sub(ptr as usize);
 
         // This is the canonical desugaring of this operation.
-        (ptr as *mut u8).wrapping_offset(offset) as *mut T
+        (ptr as *mut u8).wrapping_add(offset) as *mut T
     }
 
     /// Run an operation of some kind on a pointer.

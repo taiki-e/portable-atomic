@@ -195,11 +195,9 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
         allow(dead_code, unused_variables)
     )
 ))]
+#![cfg_attr(not(portable_atomic_no_unsafe_op_in_unsafe_fn), warn(unsafe_op_in_unsafe_fn))] // unsafe_op_in_unsafe_fn requires Rust 1.52
+#![cfg_attr(portable_atomic_no_unsafe_op_in_unsafe_fn, allow(unused_unsafe))]
 #![warn(
-    rust_2018_idioms,
-    single_use_lifetimes,
-    unreachable_pub,
-    clippy::pedantic,
     // Lints that may help when writing public library.
     missing_debug_implementations,
     missing_docs,
@@ -210,31 +208,11 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     clippy::missing_inline_in_public_items,
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
-    // Lints that may help when writing unsafe code.
-    improper_ctypes,
-    // improper_ctypes_definitions, // requires Rust 1.46
-    // unsafe_op_in_unsafe_fn, // set conditionally since it requires Rust 1.52
-    clippy::as_ptr_cast_mut,
-    clippy::default_union_representation,
-    clippy::inline_asm_x86_att_syntax,
-    clippy::trailing_empty_array,
-    clippy::transmute_undefined_repr,
-    clippy::undocumented_unsafe_blocks,
 )]
-#![cfg_attr(not(portable_atomic_no_unsafe_op_in_unsafe_fn), warn(unsafe_op_in_unsafe_fn))] // unsafe_op_in_unsafe_fn requires Rust 1.52
-#![cfg_attr(portable_atomic_no_unsafe_op_in_unsafe_fn, allow(unused_unsafe))]
 #![allow(
     clippy::cast_lossless,
-    clippy::doc_markdown,
-    clippy::float_cmp,
     clippy::inline_always,
-    clippy::missing_errors_doc,
-    clippy::module_inception,
     clippy::naive_bytecount,
-    clippy::similar_names,
-    clippy::single_match,
-    clippy::too_many_lines,
-    clippy::type_complexity,
     clippy::unreadable_literal
 )]
 // asm_experimental_arch

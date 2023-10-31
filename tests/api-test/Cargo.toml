@@ -17,3 +17,6 @@ portable-atomic = { path = "../.." }
 test-helper = { path = "../helper" }
 
 paste = "1"
+
+[lints]
+workspace = true

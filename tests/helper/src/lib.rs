@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
-#![warn(rust_2018_idioms, single_use_lifetimes, /* unsafe_op_in_unsafe_fn */)]
+#![allow(clippy::missing_panics_doc, clippy::undocumented_unsafe_blocks)]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -22,7 +22,7 @@ pub mod cpuinfo;
 #[cfg(feature = "std")]
 mod critical_section_std;
 #[cfg(feature = "std")]
-mod once_lock;
+pub mod once_lock;
 #[cfg(feature = "std")]
 pub mod serde;
 

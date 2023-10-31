@@ -2,7 +2,7 @@
 
 #![no_main]
 #![no_std]
-#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
+#![warn(unsafe_op_in_unsafe_fn)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]

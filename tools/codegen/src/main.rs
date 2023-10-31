@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![warn(rust_2018_idioms, single_use_lifetimes)]
 #![allow(
+    clippy::enum_glob_use,
     clippy::match_on_vec_items,
     clippy::needless_pass_by_value,
-    clippy::single_match,
-    clippy::unnecessary_wraps
+    clippy::unnecessary_wraps,
+    clippy::wildcard_imports
 )]
 
 #[cfg(unix)]

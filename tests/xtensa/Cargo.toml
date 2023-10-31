@@ -4,9 +4,6 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 
-[workspace]
-resolver = "2"
-
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 test-helper = { path = "../helper" }
@@ -17,6 +14,14 @@ paste = "1"
 esp-println = { version = "0.7", default-features = false, features = ["uart", "esp32"] }
 esp32-hal = "0.15"
 xtensa-lx-rt = { version = "0.16", features = ["esp32"] }
+
+[workspace]
+resolver = "2"
+
+[lints.rust]
+rust_2018_idioms = "warn"
+single_use_lifetimes = "warn"
+# unsafe_op_in_unsafe_fn = "warn" # Set at crate-level instead since https://github.com/rust-lang/rust/pull/100081 is not available on MSRV
 
 [profile.dev]
 opt-level = 'z'

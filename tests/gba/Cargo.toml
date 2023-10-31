@@ -4,15 +4,20 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 
-[workspace]
-resolver = "2"
-
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 test-helper = { path = "../helper" }
 
 gba = "0.11"
 paste = "1"
+
+[workspace]
+resolver = "2"
+
+[lints.rust]
+rust_2018_idioms = "warn"
+single_use_lifetimes = "warn"
+# unsafe_op_in_unsafe_fn = "warn" # Set at crate-level instead since https://github.com/rust-lang/rust/pull/100081 is not available on MSRV
 
 [profile.dev]
 # TODO: "GBA: Illegal opcode: e7ffdefe" on opt-level=0, GBA hang on opt-level={1,s,z}

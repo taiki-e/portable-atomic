@@ -217,7 +217,6 @@ impl<T: ?Sized> Arc<T> {
         unsafe { Self::from_inner(NonNull::new_unchecked(ptr)) }
     }
 
-    #[allow(clippy::needless_pass_by_ref_mut)] // https://github.com/rust-lang/rust-clippy/issues/11180
     unsafe fn get_mut_unchecked(this: &mut Self) -> &mut T {
         // SAFETY: Since we have an exclusive reference, as certified by the caller, this
         // dereference is valid.
@@ -817,11 +816,7 @@ fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
 /// Emulate strict provenance.
 ///
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
-#[allow(
-    clippy::cast_possible_wrap,
-    clippy::transmutes_expressible_as_ptr_casts,
-    clippy::useless_transmute
-)]
+#[allow(clippy::transmutes_expressible_as_ptr_casts, clippy::useless_transmute)]
 mod strict {
     /// Create a new, invalid pointer from an address.
     #[inline]
@@ -860,14 +855,12 @@ mod strict {
         // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
         //
         // In the mean-time, this operation is defined to be "as if" it was
-        // a wrapping_offset, so we can emulate it as such. This should properly
+        // a wrapping_add, so we can emulate it as such. This should properly
         // restore pointer provenance even under today's compiler.
-        let self_addr = ptr as usize as isize;
-        let dest_addr = addr as isize;
-        let offset = dest_addr.wrapping_sub(self_addr);
+        let offset = addr.wrapping_sub(ptr as usize);
 
         // This is the canonical desugaring of this operation.
-        (ptr as *mut u8).wrapping_offset(offset) as *mut T
+        (ptr as *mut u8).wrapping_add(offset) as *mut T
     }
 
     /// Run an operation of some kind on a pointer.

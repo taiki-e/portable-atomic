@@ -2004,6 +2004,7 @@ macro_rules! assert_float_op_eq {
     }};
 }
 
+#[allow(clippy::disallowed_methods)] // set_var/remove_var is fine as we run tests with RUST_TEST_THREADS=1
 #[cfg_attr(not(portable_atomic_no_track_caller), track_caller)]
 pub(crate) fn assert_panic<T: std::fmt::Debug>(f: impl FnOnce() -> T) -> std::string::String {
     let backtrace = std::env::var_os("RUST_BACKTRACE");

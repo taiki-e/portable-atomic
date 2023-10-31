@@ -44,3 +44,6 @@ alloc = []
 
 [dependencies]
 portable-atomic = { version = "1.3", path = "..", default-features = false, features = ["require-cas"] }
+
+[lints]
+workspace = true

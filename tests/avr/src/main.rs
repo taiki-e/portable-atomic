@@ -2,7 +2,7 @@
 
 #![no_main]
 #![no_std]
-#![warn(rust_2018_idioms, single_use_lifetimes, unsafe_op_in_unsafe_fn)]
+#![warn(unsafe_op_in_unsafe_fn)]
 #![feature(panic_info_message)] // <PanicInfo as fmt::Display>::fmt increases binary size than manual printing
 #![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
