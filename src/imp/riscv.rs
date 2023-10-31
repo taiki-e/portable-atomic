@@ -282,8 +282,7 @@ macro_rules! atomic {
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
-                const NOT_MASK: $value_type = (0 as $value_type).wrapping_sub(1);
-                self.fetch_xor(NOT_MASK, order)
+                self.fetch_xor(!0, order)
             }
 
             #[inline]
@@ -350,8 +349,7 @@ macro_rules! atomic_sub_word {
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
-                const NOT_MASK: $value_type = (0 as $value_type).wrapping_sub(1);
-                self.fetch_xor(NOT_MASK, order)
+                self.fetch_xor(!0, order)
             }
         }
     };

@@ -437,12 +437,9 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 1);
                 assert_eq!(a.fetch_max(0, order), 1);
                 assert_eq!(a.load(Ordering::Relaxed), 1);
-                let a = <$atomic_type>::new((0 as $int_type).wrapping_sub(1));
-                assert_eq!(a.fetch_max(0, order), (0 as $int_type).wrapping_sub(1));
-                assert_eq!(
-                    a.load(Ordering::Relaxed),
-                    core::cmp::max((0 as $int_type).wrapping_sub(1), 0)
-                );
+                let a = <$atomic_type>::new(!0);
+                assert_eq!(a.fetch_max(0, order), !0);
+                assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(!0, 0));
             }
         }
         #[test]
@@ -460,12 +457,9 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0);
                 assert_eq!(a.fetch_min(1, order), 0);
                 assert_eq!(a.load(Ordering::Relaxed), 0);
-                let a = <$atomic_type>::new((0 as $int_type).wrapping_sub(1));
-                assert_eq!(a.fetch_min(0, order), (0 as $int_type).wrapping_sub(1));
-                assert_eq!(
-                    a.load(Ordering::Relaxed),
-                    core::cmp::min((0 as $int_type).wrapping_sub(1), 0)
-                );
+                let a = <$atomic_type>::new(!0);
+                assert_eq!(a.fetch_min(0, order), !0);
+                assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(!0, 0));
             }
         }
         #[test]
@@ -495,8 +489,8 @@ macro_rules! __test_atomic_int {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 assert_eq!(a.fetch_neg(order), 5);
-                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
-                assert_eq!(a.fetch_neg(order), (5 as $int_type).wrapping_neg());
+                assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
+                assert_eq!(a.fetch_neg(order), <$int_type>::wrapping_neg(5));
                 assert_eq!(a.load(Ordering::Relaxed), 5);
                 let a = <$atomic_type>::new(<$int_type>::MIN);
                 assert_eq!(a.fetch_neg(order), <$int_type>::MIN);
@@ -512,7 +506,7 @@ macro_rules! __test_atomic_int {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 a.neg(order);
-                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
+                assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), 5);
                 let a = <$atomic_type>::new(<$int_type>::MIN);
@@ -782,7 +776,7 @@ macro_rules! __test_atomic_int {
                 for &order in &test_helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     let b = a.bit_set(bit, order);
-                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    let mask = <$int_type>::wrapping_shl(1, bit);
                     assert_eq!(a.load(Ordering::Relaxed), x | mask);
                     assert_eq!(b, x & mask != 0);
                 }
@@ -792,7 +786,7 @@ macro_rules! __test_atomic_int {
                 for &order in &test_helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     let b = a.bit_clear(bit, order);
-                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    let mask = <$int_type>::wrapping_shl(1, bit);
                     assert_eq!(a.load(Ordering::Relaxed), x & !mask);
                     assert_eq!(b, x & mask != 0);
                 }
@@ -802,7 +796,7 @@ macro_rules! __test_atomic_int {
                 for &order in &test_helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     let b = a.bit_toggle(bit, order);
-                    let mask = (1 as $int_type).wrapping_shl(bit);
+                    let mask = <$int_type>::wrapping_shl(1, bit);
                     assert_eq!(a.load(Ordering::Relaxed), x ^ mask);
                     assert_eq!(b, x & mask != 0);
                 }

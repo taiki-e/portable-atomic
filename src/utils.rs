@@ -220,19 +220,19 @@ macro_rules! impl_default_bit_opts {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_set(&self, bit: u32, order: Ordering) -> bool {
-                let mask = (1 as $int_type).wrapping_shl(bit);
+                let mask = <$int_type>::wrapping_shl(1, bit);
                 self.fetch_or(mask, order) & mask != 0
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
-                let mask = (1 as $int_type).wrapping_shl(bit);
+                let mask = <$int_type>::wrapping_shl(1, bit);
                 self.fetch_and(!mask, order) & mask != 0
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
-                let mask = (1 as $int_type).wrapping_shl(bit);
+                let mask = <$int_type>::wrapping_shl(1, bit);
                 self.fetch_xor(mask, order) & mask != 0
             }
         }

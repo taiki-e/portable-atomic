@@ -243,8 +243,8 @@ macro_rules! __test_atomic_int {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 assert_eq!(a.fetch_neg(order), 5);
-                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
-                assert_eq!(a.fetch_neg(order), (5 as $int_type).wrapping_neg());
+                assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
+                assert_eq!(a.fetch_neg(order), <$int_type>::wrapping_neg(5));
                 assert_eq!(a.load(Ordering::Relaxed), 5);
             }
         }
@@ -253,7 +253,7 @@ macro_rules! __test_atomic_int {
             for &order in &test_helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
                 a.neg(order);
-                assert_eq!(a.load(Ordering::Relaxed), (5 as $int_type).wrapping_neg());
+                assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), 5);
             }

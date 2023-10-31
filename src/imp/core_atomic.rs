@@ -370,8 +370,7 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                const NOT_MASK: $int_type = (0 as $int_type).wrapping_sub(1);
-                self.fetch_xor(NOT_MASK, order)
+                self.fetch_xor(!0, order)
             }
             #[cfg(not(all(
                 any(target_arch = "x86", target_arch = "x86_64"),
