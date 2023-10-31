@@ -2,7 +2,7 @@
 
 // The rustc-cfg emitted by the build script are *not* public API.
 
-#![allow(clippy::match_same_arms)]
+#![allow(clippy::match_same_arms, clippy::needless_pass_by_value)]
 
 #[path = "version.rs"]
 mod version;
@@ -190,7 +190,7 @@ fn main() {
             // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/r8zWGcMhd
             // However, it is unlikely that rustc will support that name, so we ignore it.
             // cmpxchg16b_target_feature stabilized in Rust 1.69.
-            target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, Some(69), true);
+            target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, Stable(69));
         }
         "aarch64" => {
             // For Miri and ThreadSanitizer.
@@ -205,14 +205,14 @@ fn main() {
             // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
             // As of rustc 1.70, target_feature "lse2"/"lse128"/"rcpc3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L58
-            target_feature_if("lse2", is_macos, &version, None, false);
+            target_feature_if("lse2", is_macos, &version, Unavailable);
             // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
             // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
             // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-            has_lse |= target_feature_if("lse128", false, &version, None, false);
-            target_feature_if("rcpc3", false, &version, None, false);
+            has_lse |= target_feature_if("lse128", false, &version, Unavailable);
+            target_feature_if("rcpc3", false, &version, Unavailable);
             // aarch64_target_feature stabilized in Rust 1.61.
-            target_feature_if("lse", has_lse, &version, Some(61), true);
+            target_feature_if("lse", has_lse, &version, Stable(61));
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS loop-based RMW is much slower than LL/SC
             // loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
@@ -261,13 +261,13 @@ fn main() {
                     );
                 }
             }
-            target_feature_if("mclass", is_mclass, &version, None, true);
+            target_feature_if("mclass", is_mclass, &version, Nightly);
             let v6 = known
                 && (subarch.starts_with("v6")
                     || subarch.starts_with("v7")
                     || subarch.starts_with("v8")
                     || subarch.starts_with("v9"));
-            target_feature_if("v6", v6, &version, None, true);
+            target_feature_if("v6", v6, &version, Nightly);
         }
         "powerpc64" => {
             // For Miri and ThreadSanitizer.
@@ -297,7 +297,7 @@ fn main() {
             // Note: As of rustc 1.70, target_feature "quadword-atomics" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs#L226
             // lqarx and stqcx.
-            target_feature_if("quadword-atomics", has_pwr8_features, &version, None, false);
+            target_feature_if("quadword-atomics", has_pwr8_features, &version, Unavailable);
         }
         "s390x" => {
             // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/SystemZ/SystemZFeatures.td
@@ -319,24 +319,30 @@ fn main() {
             // Note: As of rustc 1.70, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.70.0/compiler/rustc_codegen_ssa/src/target_features.rs
             // bcr 14,0
-            target_feature_if("fast-serialization", arch9_features, &version, None, false);
+            target_feature_if("fast-serialization", arch9_features, &version, Unavailable);
             // {l,st}oc{,g}{,r}
-            target_feature_if("load-store-on-cond", arch9_features, &version, None, false);
+            target_feature_if("load-store-on-cond", arch9_features, &version, Unavailable);
             // {al,sl,n,o,x}{,g}rk
-            target_feature_if("distinct-ops", arch9_features, &version, None, false);
+            target_feature_if("distinct-ops", arch9_features, &version, Unavailable);
             // nand (nnr{,g}k), select (sel{,g}r), etc.
-            target_feature_if("miscellaneous-extensions-3", arch13_features, &version, None, false);
+            target_feature_if("miscellaneous-extensions-3", arch13_features, &version, Unavailable);
         }
         _ => {}
     }
 }
 
+enum Availability {
+    Stable(u32),
+    Nightly,
+    Unavailable,
+}
+use Availability::{Nightly, Stable, Unavailable};
+
 fn target_feature_if(
     name: &str,
     mut has_target_feature: bool,
     version: &Version,
-    stabilized: Option<u32>,
-    is_rustc_target_feature: bool,
+    availability: Availability,
 ) -> bool {
     // HACK: Currently, it seems that the only way to handle unstable target
     // features on the stable is to parse the `-C target-feature` in RUSTFLAGS.
@@ -348,12 +354,15 @@ fn target_feature_if(
     // (e.g., https://godbolt.org/z/TfaEx95jc), so this hack works properly on stable.
     //
     // [RFC2045]: https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
-    if is_rustc_target_feature
-        && (version.nightly || stabilized.map_or(false, |stabilized| version.minor >= stabilized))
-    {
-        // In this case, cfg(target_feature = "...") would work, so skip emitting our own target_feature cfg.
-        return false;
-    } else if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+    match availability {
+        // In these cases, cfg(target_feature = "...") would work, so skip emitting our own target_feature cfg.
+        Availability::Stable(stabilized) if version.nightly || version.minor >= stabilized => {
+            return false
+        }
+        Availability::Nightly if version.nightly => return false,
+        _ => {}
+    }
+    if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
         for mut flag in rustflags.to_string_lossy().split('\x1f') {
             flag = strip_prefix(flag, "-C").unwrap_or(flag);
             if let Some(flag) = strip_prefix(flag, "target-feature=") {
