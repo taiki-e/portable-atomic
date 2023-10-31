@@ -56,8 +56,7 @@ jobs:
   tidy:
     uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
     with:
-      # clippy is covered by TESTS=1 ./tools/build.sh
-      clippy: false
+      clippy: false # covered by TESTS=1 ./tools/build.sh
 
   test:
     needs: tidy
@@ -365,6 +364,7 @@ jobs:
           architecture: aarch64
           version: ${{ matrix.version }}
           shell: bash
+          sync_files: runner-to-vm
           run: |
             set -eEuxo pipefail
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
