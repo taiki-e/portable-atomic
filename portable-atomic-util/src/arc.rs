@@ -816,7 +816,6 @@ fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
 /// Emulate strict provenance.
 ///
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
-#[allow(clippy::transmutes_expressible_as_ptr_casts, clippy::useless_transmute)]
 mod strict {
     /// Create a new, invalid pointer from an address.
     #[inline]

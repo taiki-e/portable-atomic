@@ -127,8 +127,6 @@ macro_rules! atomic_bit_opts {
         impl_default_bit_opts!($atomic_type, $int_type);
         #[cfg(not(portable_atomic_llvm_16))]
         impl $atomic_type {
-            // `<integer>::BITS` is not available on old nightly.
-            const BITS: u32 = (core::mem::size_of::<$int_type>() * 8) as u32;
             #[inline]
             pub(crate) fn bit_set(&self, bit: u32, _order: Ordering) -> bool {
                 let dst = self.as_ptr();
@@ -145,7 +143,7 @@ macro_rules! atomic_bit_opts {
                         concat!("lock bts ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                         "setb {r}",
                         dst = in(reg) dst,
-                        bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
+                        bit = in(reg) (bit & ($int_type::BITS - 1)) as $int_type,
                         r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTS modifies the CF flag.
                         options(nostack),
@@ -169,7 +167,7 @@ macro_rules! atomic_bit_opts {
                         concat!("lock btr ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                         "setb {r}",
                         dst = in(reg) dst,
-                        bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
+                        bit = in(reg) (bit & ($int_type::BITS - 1)) as $int_type,
                         r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTR modifies the CF flag.
                         options(nostack),
@@ -193,7 +191,7 @@ macro_rules! atomic_bit_opts {
                         concat!("lock btc ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                         "setb {r}",
                         dst = in(reg) dst,
-                        bit = in(reg) (bit & (Self::BITS - 1)) as $int_type,
+                        bit = in(reg) (bit & ($int_type::BITS - 1)) as $int_type,
                         r = out(reg_byte) r,
                         // Do not use `preserves_flags` because BTC modifies the CF flag.
                         options(nostack),
