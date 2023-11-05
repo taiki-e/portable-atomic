@@ -179,7 +179,7 @@ mod arch {
     use super::{ffi, os, CpuInfo};
 
     // Linux
-    // https://github.com/torvalds/linux/blob/v6.1/arch/arm64/include/uapi/asm/hwcap.h
+    // https://github.com/torvalds/linux/blob/1c41041124bd14dd6610da256a3da4e5b74ce6b1/arch/arm64/include/uapi/asm/hwcap.h
     // FreeBSD
     // Defined in machine/elf.h.
     // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/arm64/include/elf.h
@@ -188,6 +188,14 @@ mod arch {
     // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
     pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
     pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
+    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_pointer_width = "64")]
+    #[cfg(test)]
+    pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
+    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_pointer_width = "64")]
+    #[cfg(test)]
+    pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
@@ -198,6 +206,18 @@ mod arch {
         }
         if hwcap & HWCAP_USCAT != 0 {
             info.set(CpuInfo::HAS_LSE2);
+        }
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "64")]
+        #[cfg(test)]
+        {
+            let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
+            if hwcap2 & HWCAP2_LRCPC3 != 0 {
+                info.set(CpuInfo::HAS_RCPC3);
+            }
+            if hwcap2 & HWCAP2_LSE128 != 0 {
+                info.set(CpuInfo::HAS_LSE128);
+            }
         }
     }
 }
@@ -687,6 +707,14 @@ mod tests {
             static_assert!(arch::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
             // static_assert!(HWCAP_USCAT == libc::HWCAP_USCAT); // libc doesn't have this
             static_assert!(arch::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            #[cfg(target_pointer_width = "64")]
+            {
+                // static_assert!(HWCAP2_LRCPC3 == libc::HWCAP2_LRCPC3); // libc doesn't have this
+                static_assert!(arch::HWCAP2_LRCPC3 == sys::HWCAP2_LRCPC3 as ffi::c_ulong);
+                // static_assert!(HWCAP2_LSE128 == libc::HWCAP2_LSE128); // libc doesn't have this
+                static_assert!(arch::HWCAP2_LSE128 == sys::HWCAP2_LSE128 as ffi::c_ulong);
+            }
         }
         #[cfg(target_arch = "powerpc64")]
         {

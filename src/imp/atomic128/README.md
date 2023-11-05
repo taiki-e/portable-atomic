@@ -34,19 +34,19 @@ As 128-bit atomics-related APIs stabilize in the standard library, implementatio
 
 Here is the table of targets that support run-time feature detection and the instruction or API used:
 
-| target_arch | target_os/target_env | instruction/API | note |
-| ----------- | -------------------- | --------------- | ---- |
-| x86_64      | all (except for sgx) | cpuid           | Enabled by default |
-| aarch64     | linux                | getauxval       | Only enabled by default on `*-linux-gnu*`, and `*-linux-musl*"` (default is static linking)/`*-linux-ohos*` (default is dynamic linking) with dynamic linking enabled. |
-| aarch64     | android              | getauxval       | Enabled by default |
-| aarch64     | freebsd              | elf_aux_info    | Enabled by default |
-| aarch64     | netbsd               | sysctl          | Enabled by default |
-| aarch64     | openbsd              | sysctl          | Enabled by default |
-| aarch64     | macos                | sysctl          | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
-| aarch64     | windows              | IsProcessorFeaturePresent | Enabled by default |
-| aarch64     | fuchsia              | zx_system_get_features | Enabled by default |
-| powerpc64   | linux                | getauxval       | Disabled by default |
-| powerpc64   | freebsd              | elf_aux_info    | Disabled by default |
+| target_arch | target_os/target_env | instruction/API | features | note |
+| ----------- | -------------------- | --------------- | -------- | ---- |
+| x86_64      | all (except for sgx) | cpuid           | all      | Enabled by default |
+| aarch64     | linux                | getauxval       | all      | Only enabled by default on `*-linux-gnu*`, and `*-linux-musl*"` (default is static linking)/`*-linux-ohos*` (default is dynamic linking) with dynamic linking enabled. |
+| aarch64     | android              | getauxval       | all      | Enabled by default |
+| aarch64     | freebsd              | elf_aux_info    | lse, lse2 | Enabled by default |
+| aarch64     | netbsd               | sysctl          | all      | Enabled by default |
+| aarch64     | openbsd              | sysctl          | lse      | Enabled by default |
+| aarch64     | macos                | sysctl          | all      | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
+| aarch64     | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
+| aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
+| powerpc64   | linux                | getauxval       | all      | Disabled by default |
+| powerpc64   | freebsd              | elf_aux_info    | all      | Disabled by default |
 
 Run-time detection is enabled by default on most targets and can be disabled with `--cfg portable_atomic_no_outline_atomics`.
 
