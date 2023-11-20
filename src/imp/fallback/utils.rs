@@ -98,7 +98,7 @@ impl<T> ops::Deref for CachePadded<T> {
     type Target = T;
 
     #[inline]
-    fn deref(&self) -> &T {
+    fn deref(&self) -> &Self::Target {
         &self.value
     }
 }
