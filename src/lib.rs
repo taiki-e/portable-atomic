@@ -298,7 +298,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     feature(stdsimd)
 )]
 // docs.rs only
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 #![cfg_attr(
     all(
         portable_atomic_no_atomic_load_store,
@@ -821,7 +821,7 @@ impl AtomicBool {
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
     #[inline]
-    #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -889,7 +889,7 @@ impl AtomicBool {
     /// }
     /// ```
     #[inline]
-    #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -1673,7 +1673,7 @@ impl<T> AtomicPtr<T> {
     /// let value = some_ptr.compare_exchange(ptr, other_ptr, Ordering::SeqCst, Ordering::Relaxed);
     /// ```
     #[inline]
-    #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -1724,7 +1724,7 @@ impl<T> AtomicPtr<T> {
     /// }
     /// ```
     #[inline]
-    #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -2678,7 +2678,7 @@ assert_eq!(
 assert_eq!(some_var.load(Ordering::Relaxed), 10);
 ```"),
                 #[inline]
-                #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
                     any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
@@ -2732,7 +2732,7 @@ loop {
 }
 ```"),
                 #[inline]
-                #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
                 #[cfg_attr(
                     any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
@@ -3488,7 +3488,7 @@ This type has the same in-memory representation as the underlying floating point
 [`", stringify!($float_type), "`].
 "
             ),
-            #[cfg_attr(docsrs, doc(cfg(feature = "float")))]
+            #[cfg_attr(portable_atomic_doc_cfg, doc(cfg(feature = "float")))]
             // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
             // will show clearer docs.
             #[repr(C, align($align))]
@@ -3676,7 +3676,7 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[inline]
-            #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller
@@ -3711,7 +3711,7 @@ This type has the same in-memory representation as the underlying floating point
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
             #[inline]
-            #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[cfg_attr(portable_atomic_doc_cfg, doc(alias = "compare_and_swap"))]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller

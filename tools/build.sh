@@ -115,7 +115,7 @@ known_cfgs=(
 
     # Not public APIs
     portable_atomic_test_outline_atomics_detect_false
-    docsrs
+    portable_atomic_doc_cfg
     qemu
     rustfmt
     valgrind

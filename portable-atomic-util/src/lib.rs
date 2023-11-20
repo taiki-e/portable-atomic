@@ -58,7 +58,8 @@ See [#1] for other primitives being considered for addition to this crate.
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
 )]
-#![cfg_attr(docsrs, feature(doc_cfg))]
+// docs.rs only
+#![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 
 #[cfg(all(feature = "alloc", not(portable_atomic_no_alloc)))]
 extern crate alloc;
@@ -66,7 +67,7 @@ extern crate alloc;
 extern crate std as alloc;
 
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
-#[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
+#[cfg_attr(portable_atomic_doc_cfg, doc(cfg(any(feature = "alloc", feature = "std"))))]
 mod arc;
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
 pub use arc::{Arc, Weak};
