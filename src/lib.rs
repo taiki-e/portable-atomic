@@ -232,6 +232,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(asm_experimental_arch)
 )]
+#![cfg_attr(target_arch = "bpf", feature(core_intrinsics))]
 // Old nightly only
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.

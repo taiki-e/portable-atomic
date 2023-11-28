@@ -291,6 +291,7 @@ mod atomic_ptr_macros {
     portable_atomic_no_atomic_load_store,
     not(any(
         target_arch = "avr",
+        target_arch = "bpf",
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
@@ -318,6 +319,7 @@ mod atomic_8_16_macros {
     portable_atomic_no_atomic_load_store,
     not(any(
         target_arch = "avr",
+        target_arch = "bpf",
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
@@ -344,6 +346,7 @@ mod atomic_8_16_macros {
         portable_atomic_no_atomic_load_store,
         not(any(
             target_arch = "avr",
+            target_arch = "bpf",
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
@@ -367,6 +370,7 @@ mod atomic_32_macros {
         portable_atomic_no_atomic_load_store,
         not(any(
             target_arch = "avr",
+            target_arch = "bpf",
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
@@ -394,6 +398,7 @@ mod atomic_32_macros {
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                target_arch = "bpf",
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -411,6 +416,7 @@ mod atomic_32_macros {
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                target_arch = "bpf",
             ),
         ),
         target_has_atomic = "64",
@@ -438,6 +444,7 @@ mod atomic_64_macros {
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                target_arch = "bpf",
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -455,6 +462,7 @@ mod atomic_64_macros {
                 feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                target_arch = "bpf",
             ),
         ),
         target_has_atomic = "64",
@@ -531,6 +539,7 @@ mod atomic_64_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        target_arch = "bpf",
     ))
 )]
 #[cfg_attr(
@@ -541,6 +550,7 @@ mod atomic_64_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        target_arch = "bpf",
     ))
 )]
 #[macro_use]
@@ -614,6 +624,7 @@ mod atomic_128_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        target_arch = "bpf",
     )))
 )]
 #[cfg_attr(
@@ -624,6 +635,7 @@ mod atomic_128_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        target_arch = "bpf",
     )))
 )]
 #[macro_use]
@@ -643,6 +655,7 @@ mod atomic_128_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        all(target_arch = "bpf", feature = "fallback"),
     ))
 )]
 #[cfg_attr(
@@ -653,6 +666,7 @@ mod atomic_128_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        all(target_arch = "bpf", feature = "fallback"),
     ))
 )]
 #[macro_use]
@@ -673,6 +687,7 @@ mod atomic_cas_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        all(target_arch = "bpf", feature = "fallback"),
     )))
 )]
 #[cfg_attr(
@@ -683,6 +698,7 @@ mod atomic_cas_macros {
         feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        all(target_arch = "bpf", feature = "fallback"),
     )))
 )]
 #[macro_use]

@@ -6,7 +6,10 @@
 #[cfg(not(any(
     all(
         portable_atomic_no_atomic_load_store,
-        not(all(target_arch = "bpf", not(feature = "critical-section"))),
+        not(all(
+            target_arch = "bpf",
+            not(any(feature = "fallback", feature = "critical-section")),
+        )),
     ),
     portable_atomic_unsafe_assume_single_core,
     target_arch = "avr",
@@ -154,6 +157,7 @@ mod x86;
 // Lock-based fallback implementations
 
 #[cfg(feature = "fallback")]
+#[cfg(not(target_arch = "bpf"))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 #[cfg(any(
@@ -180,6 +184,11 @@ mod x86;
     ))
 ))]
 mod fallback;
+
+#[cfg(target_arch = "bpf")]
+#[cfg(not(feature = "critical-section"))]
+#[path = "fallback/bpf_spin_lock.rs"]
+mod bpf;
 
 // -----------------------------------------------------------------------------
 // Critical section based fallback implementations
@@ -224,6 +233,7 @@ pub(crate) mod float;
     portable_atomic_unsafe_assume_single_core,
     target_arch = "avr",
     target_arch = "msp430",
+    target_arch = "bpf",
 )))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -261,12 +271,16 @@ items! {
     pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
 }
 // bpf
-#[cfg(all(
-    target_arch = "bpf",
-    portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
-))]
-pub(crate) use self::core_atomic::{AtomicI64, AtomicIsize, AtomicPtr, AtomicU64, AtomicUsize};
+#[cfg(target_arch = "bpf")]
+#[cfg(not(feature = "critical-section"))]
+items! {
+    pub(crate) use self::bpf::{
+        AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU32,
+        AtomicU64, AtomicU8, AtomicUsize,
+    };
+    #[cfg(feature = "fallback")]
+    pub(crate) use self::bpf::{AtomicI128, AtomicU128};
+}
 
 // RISC-V without A-extension & !(assume single core | critical section)
 #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
