@@ -35,20 +35,29 @@ for target_spec in $(rustc -Z unstable-options --print all-target-specs-json | j
     min_atomic_width=$(jq <<<"${target_spec}" -r '."min-atomic-width"')
     case "${max_atomic_width}" in
         # `"max-atomic-width" == 0` means that atomic is not supported at all.
-        0) no_atomic+=("${target}") ;;
-        16 | 32 | 64 | 128 | null) ;;
+        0)
+            arch=$(jq <<<"${target_spec}" -r '.arch')
+            case "${arch}" in
+                # We always provide lock-free atomic load/store by default for these targets
+                # regardless of the contents of NO_ATOMIC.
+                avr | msp430 | riscv*) ;;
+                *) no_atomic+=("${target}") ;;
+            esac
+            ;;
+        16 | 32 | 64 | 128 | null)
+            case "${min_atomic_width}" in
+                8 | null) ;;
+                *)
+                    case "${target}" in
+                        bpfeb-unknown-none | bpfel-unknown-none) ;;
+                        *) bail "'${target}' has min-atomic-width == ${min_atomic_width}" ;;
+                    esac
+                    no_atomic+=("${target}")
+                    ;;
+            esac
+            ;;
         # There is no `"max-atomic-width" == 8` targets.
         *) bail "'${target}' has max-atomic-width == ${max_atomic_width}" ;;
-    esac
-    case "${min_atomic_width}" in
-        8 | null) ;;
-        *)
-            case "${target}" in
-                bpfeb-unknown-none | bpfel-unknown-none) ;;
-                *) bail "'${target}' has min-atomic-width == ${min_atomic_width}" ;;
-            esac
-            no_atomic+=("${target}")
-            ;;
     esac
 done
 # old rustc doesn't support all-target-specs-json
