@@ -82,6 +82,8 @@ jobs:
           - rust: nightly
             flags: -C panic=abort -Z panic_abort_tests
           - rust: nightly
+            flags: -Z codegen-backend=cranelift
+          - rust: nightly
             os: macos-latest
           - rust: nightly
             os: windows-latest
@@ -105,6 +107,9 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
+          - rust: nightly
+            target: aarch64-unknown-linux-gnu
+            flags: -Z codegen-backend=cranelift
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
           - rust: stable
@@ -195,6 +200,9 @@ jobs:
             target: riscv64gc-unknown-linux-gnu
           - rust: nightly
             target: riscv64gc-unknown-linux-gnu
+          - rust: nightly
+            target: riscv64gc-unknown-linux-gnu
+            flags: -Z codegen-backend=cranelift
           - rust: nightly
             target: s390x-unknown-linux-gnu
           - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
