@@ -178,6 +178,16 @@ target_lower="${target//-/_}"
 target_lower="${target_lower//./_}"
 target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
 randomize_layout=' -Z randomize-layout'
+cranelift=''
+if [[ "${RUSTFLAGS:-}" =~ -Z( )?codegen-backend=cranelift ]]; then
+    cranelift='1'
+    rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
+    # panic=unwind is not supported yet.
+    # https://github.com/rust-lang/rustc_codegen_cranelift#not-yet-supported
+    flags=' -C panic=abort -Z panic_abort_tests'
+    export RUSTFLAGS="${RUSTFLAGS:-}${flags}"
+    export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}"
+fi
 
 case "${cmd}" in
     build)
@@ -231,9 +241,9 @@ run() {
         x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     fi
 
-    case "$(basename "${cargo}")" in
-        cargo-clif | cargo-clif.exe) return ;; # LTO is not supported
-    esac
+    if [[ -n "${cranelift}" ]]; then
+        return # LTO is not supported
+    fi
 
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
