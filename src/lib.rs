@@ -441,18 +441,6 @@ extern crate std;
 
 #[macro_use]
 mod cfgs;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
-#[cfg(target_pointer_width = "128")]
-pub use cfg_has_atomic_128 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
-#[cfg(target_pointer_width = "16")]
-pub use cfg_has_atomic_16 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
-#[cfg(target_pointer_width = "32")]
-pub use cfg_has_atomic_32 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
-#[cfg(target_pointer_width = "64")]
-pub use cfg_has_atomic_64 as cfg_has_atomic_ptr;
 
 #[macro_use]
 mod utils;
@@ -470,6 +458,180 @@ pub use core::sync::atomic::Ordering;
 pub use core::sync::atomic::{compiler_fence, fence};
 #[cfg(target_arch = "msp430")]
 pub use imp::msp430::{compiler_fence, fence};
+
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "128")]
+pub use {
+    cfg_has_atomic_load_store_128 as cfg_has_atomic_load_store_ptr,
+    cfg_no_atomic_load_store_128 as cfg_no_atomic_load_store_ptr,
+};
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "16")]
+pub use {
+    cfg_has_atomic_load_store_16 as cfg_has_atomic_load_store_ptr,
+    cfg_no_atomic_load_store_16 as cfg_no_atomic_load_store_ptr,
+};
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "32")]
+pub use {
+    cfg_has_atomic_load_store_32 as cfg_has_atomic_load_store_ptr,
+    cfg_no_atomic_load_store_32 as cfg_no_atomic_load_store_ptr,
+};
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "64")]
+pub use {
+    cfg_has_atomic_load_store_64 as cfg_has_atomic_load_store_ptr,
+    cfg_no_atomic_load_store_64 as cfg_no_atomic_load_store_ptr,
+};
+cfg_has_atomic_cas! {
+    /// Enables the given code if all 8-bit atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "8")`, but even if `cfg(target_has_atomic = "8")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_8 as cfg_has_atomic_8;
+    /// Enables the given code if all 16-bit atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "16")`, but even if `cfg(target_has_atomic = "16")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_16 as cfg_has_atomic_16;
+    /// Enables the given code if all 32-bit atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "32")`, but even if `cfg(target_has_atomic = "32")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_32 as cfg_has_atomic_32;
+    /// Enables the given code if all 64-bit atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "64")`, but even if `cfg(target_has_atomic = "64")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_64 as cfg_has_atomic_64;
+    /// Enables the given code if all 128-bit atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "128")`, but even if `cfg(target_has_atomic = "128")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_128 as cfg_has_atomic_128;
+    /// Enables the given code if all pointer-width atomic operations are available.
+    ///
+    /// This has the same semantics as `cfg(target_has_atomic = "ptr")`, but even if `cfg(target_has_atomic = "ptr")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_has_atomic_load_store_ptr as cfg_has_atomic_ptr;
+
+    /// Enables the given code if all 8-bit atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "8"))`, but even if `cfg(target_has_atomic = "8")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_8 as cfg_no_atomic_8;
+    /// Enables the given code if all 16-bit atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "16"))`, but even if `cfg(target_has_atomic = "16")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_16 as cfg_no_atomic_16;
+    /// Enables the given code if all 32-bit atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "32"))`, but even if `cfg(target_has_atomic = "32")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_32 as cfg_no_atomic_32;
+    /// Enables the given code if all 64-bit atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "64"))`, but even if `cfg(target_has_atomic = "64")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_64 as cfg_no_atomic_64;
+    /// Enables the given code if all 128-bit atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "128"))`, but even if `cfg(target_has_atomic = "128")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_128 as cfg_no_atomic_128;
+    /// Enables the given code if all pointer-width atomic operations are *not* available.
+    ///
+    /// This has the same semantics as `cfg(not(target_has_atomic = "ptr"))`, but even if `cfg(target_has_atomic = "ptr")`
+    /// is false, portable-atomic may provide the corresponding operations.
+    #[doc(inline)]
+    pub use cfg_no_atomic_load_store_ptr as cfg_no_atomic_ptr;
+}
+cfg_no_atomic_cas! {
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_8 {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_8 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_16 {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_16 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_32 {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_32 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_64 {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_64 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_128 {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_128 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_has_atomic_ptr {
+        ($($tt:tt)*) => {};
+    }
+    #[allow(missing_docs)]
+    #[macro_export]
+    macro_rules! cfg_no_atomic_ptr {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+}
 
 mod imp;
 
@@ -522,7 +684,7 @@ use core::{fmt, ptr};
 #[cfg(miri)]
 use crate::utils::strict;
 
-cfg_has_atomic_8! {
+cfg_has_atomic_load_store_8! {
 cfg_has_atomic_cas! {
 // See https://github.com/rust-lang/rust/pull/114034 for details.
 // https://github.com/rust-lang/rust/blob/9339f446a5302cd5041d3f3b5e59761f36699167/library/core/src/sync/atomic.rs#L134
@@ -1380,9 +1542,9 @@ impl AtomicBool {
         unsafe { &*(self as *const Self as *const imp::AtomicU8) }
     }
 }
-} // cfg_has_atomic_8!
+} // cfg_has_atomic_load_store_8!
 
-cfg_has_atomic_ptr! {
+cfg_has_atomic_load_store_ptr! {
 /// A raw pointer type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a `*mut T`.
@@ -2359,7 +2521,7 @@ impl<T> AtomicPtr<T> {
         }
     }
 }
-} // cfg_has_atomic_ptr!
+} // cfg_has_atomic_load_store_ptr!
 
 macro_rules! atomic_int {
     // TODO: support AtomicF{16,128} once https://github.com/rust-lang/rust/issues/116909 stabilized.
@@ -3938,7 +4100,7 @@ This is `const fn` on Rust 1.58+."),
     };
 }
 
-cfg_has_atomic_ptr! {
+cfg_has_atomic_load_store_ptr! {
     #[cfg(target_pointer_width = "16")]
     atomic_int!(AtomicIsize, isize, 2);
     #[cfg(target_pointer_width = "16")]
@@ -3957,23 +4119,23 @@ cfg_has_atomic_ptr! {
     atomic_int!(AtomicUsize, usize, 16);
 }
 
-cfg_has_atomic_8! {
+cfg_has_atomic_load_store_8! {
     atomic_int!(AtomicI8, i8, 1);
     atomic_int!(AtomicU8, u8, 1);
 }
-cfg_has_atomic_16! {
+cfg_has_atomic_load_store_16! {
     atomic_int!(AtomicI16, i16, 2);
     atomic_int!(AtomicU16, u16, 2);
 }
-cfg_has_atomic_32! {
+cfg_has_atomic_load_store_32! {
     atomic_int!(AtomicI32, i32, 4);
     atomic_int!(AtomicU32, u32, 4);
 }
-cfg_has_atomic_64! {
+cfg_has_atomic_load_store_64! {
     atomic_int!(AtomicI64, i64, 8);
     atomic_int!(AtomicU64, u64, 8);
 }
-cfg_has_atomic_128! {
+cfg_has_atomic_load_store_128! {
     atomic_int!(AtomicI128, i128, 16);
     atomic_int!(AtomicU128, u128, 16);
 }

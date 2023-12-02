@@ -207,9 +207,9 @@ macro_rules! atomic_float {
     };
 }
 
-cfg_has_atomic_32! {
+cfg_has_atomic_load_store_32! {
     atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
 }
-cfg_has_atomic_64! {
+cfg_has_atomic_load_store_64! {
     atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
 }
