@@ -440,6 +440,21 @@ compile_error!(
 extern crate std;
 
 #[macro_use]
+mod cfgs;
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "128")]
+pub use cfg_has_atomic_128 as cfg_has_atomic_ptr;
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "16")]
+pub use cfg_has_atomic_16 as cfg_has_atomic_ptr;
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "32")]
+pub use cfg_has_atomic_32 as cfg_has_atomic_ptr;
+#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+#[cfg(target_pointer_width = "64")]
+pub use cfg_has_atomic_64 as cfg_has_atomic_ptr;
+
+#[macro_use]
 mod utils;
 
 #[cfg(test)]
