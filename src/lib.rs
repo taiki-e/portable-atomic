@@ -200,7 +200,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 #![warn(
     // Lints that may help when writing public library.
     missing_debug_implementations,
-    missing_docs,
+    // missing_docs,
     clippy::alloc_instead_of_core,
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
@@ -209,6 +209,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
 )]
+#![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
 #![allow(
     clippy::cast_lossless,
     clippy::inline_always,
@@ -441,18 +442,14 @@ extern crate std;
 
 #[macro_use]
 mod cfgs;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
 #[cfg(target_pointer_width = "128")]
-pub use cfg_has_atomic_128 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+pub use {cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "16")]
-pub use cfg_has_atomic_16 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+pub use {cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "32")]
-pub use cfg_has_atomic_32 as cfg_has_atomic_ptr;
-#[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+pub use {cfg_has_atomic_32 as cfg_has_atomic_ptr, cfg_no_atomic_32 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "64")]
-pub use cfg_has_atomic_64 as cfg_has_atomic_ptr;
+pub use {cfg_has_atomic_64 as cfg_has_atomic_ptr, cfg_no_atomic_64 as cfg_no_atomic_ptr};
 
 #[macro_use]
 mod utils;

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+#![allow(missing_docs)]
+
 #[cfg(not(all(
     portable_atomic_no_atomic_load_store,
     not(any(
@@ -12,19 +14,25 @@
 )))]
 #[macro_use]
 mod atomic_8_16_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_8 {
         ($($tt:tt)*) => {
             $($tt)*
         };
     }
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
+    macro_rules! cfg_no_atomic_8 {
+        ($($tt:tt)*) => {};
+    }
     #[macro_export]
     macro_rules! cfg_has_atomic_16 {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_16 {
+        ($($tt:tt)*) => {};
     }
 }
 #[cfg(all(
@@ -39,15 +47,25 @@ mod atomic_8_16_macros {
 ))]
 #[macro_use]
 mod atomic_8_16_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_8 {
         ($($tt:tt)*) => {};
     }
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
+    #[macro_export]
+    macro_rules! cfg_no_atomic_8 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
     #[macro_export]
     macro_rules! cfg_has_atomic_16 {
         ($($tt:tt)*) => {};
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_16 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
     }
 }
 
@@ -66,12 +84,15 @@ mod atomic_8_16_macros {
 ))]
 #[macro_use]
 mod atomic_32_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_32 {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_32 {
+        ($($tt:tt)*) => {};
     }
 }
 #[cfg(not(all(
@@ -89,10 +110,15 @@ mod atomic_32_macros {
 )))]
 #[macro_use]
 mod atomic_32_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_32 {
         ($($tt:tt)*) => {};
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_32 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
     }
 }
 
@@ -132,12 +158,15 @@ mod atomic_32_macros {
 )]
 #[macro_use]
 mod atomic_64_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_64 {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_64 {
+        ($($tt:tt)*) => {};
     }
 }
 #[cfg_attr(
@@ -176,10 +205,15 @@ mod atomic_64_macros {
 )]
 #[macro_use]
 mod atomic_64_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_64 {
         ($($tt:tt)*) => {};
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_64 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
     }
 }
 
@@ -258,12 +292,15 @@ mod atomic_64_macros {
 )]
 #[macro_use]
 mod atomic_128_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_128 {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_128 {
+        ($($tt:tt)*) => {};
     }
 }
 #[cfg_attr(
@@ -341,10 +378,15 @@ mod atomic_128_macros {
 )]
 #[macro_use]
 mod atomic_128_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_128 {
         ($($tt:tt)*) => {};
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_128 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
     }
 }
 
@@ -370,12 +412,15 @@ mod atomic_128_macros {
 )]
 #[macro_use]
 mod atomic_cas_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_cas {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_cas {
+        ($($tt:tt)*) => {};
     }
 }
 #[cfg_attr(
@@ -400,9 +445,37 @@ mod atomic_cas_macros {
 )]
 #[macro_use]
 mod atomic_cas_macros {
-    #[doc(hidden)] // Not public API. (please submit an issue if you want this to be public API)
     #[macro_export]
     macro_rules! cfg_has_atomic_cas {
         ($($tt:tt)*) => {};
     }
+    #[macro_export]
+    macro_rules! cfg_no_atomic_cas {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+}
+
+// Check that all cfg_ macros work.
+mod check {
+    crate::cfg_has_atomic_8! { type _Atomic8 = (); }
+    crate::cfg_no_atomic_8! { type _Atomic8 = (); }
+    crate::cfg_has_atomic_16! { type _Atomic16 = (); }
+    crate::cfg_no_atomic_16! { type _Atomic16 = (); }
+    crate::cfg_has_atomic_32! { type _Atomic32 = (); }
+    crate::cfg_no_atomic_32! { type _Atomic32 = (); }
+    crate::cfg_has_atomic_64! { type _Atomic64 = (); }
+    crate::cfg_no_atomic_64! { type _Atomic64 = (); }
+    crate::cfg_has_atomic_128! { type _Atomic128 = (); }
+    crate::cfg_no_atomic_128! { type _Atomic128 = (); }
+    crate::cfg_has_atomic_ptr! { type _AtomicPtr = (); }
+    crate::cfg_no_atomic_ptr! { type _AtomicPtr = (); }
+    crate::cfg_has_atomic_cas! { type __AtomicPtr = (); }
+    crate::cfg_no_atomic_cas! { type __AtomicPtr = (); }
+    #[allow(unused_imports)]
+    use {
+        _Atomic128 as _, _Atomic16 as _, _Atomic32 as _, _Atomic64 as _, _Atomic8 as _,
+        _AtomicPtr as _, __AtomicPtr as _,
+    };
 }
