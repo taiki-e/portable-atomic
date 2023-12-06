@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-12-06
+
 - Add `cfg_{has,no}_atomic_{8,16,32,64,128,ptr}` macros to enable code when the corresponding atomic implementation is available/unavailable.
 
 - Add `cfg_{has,no}_atomic_cas` macros to enable code when atomic CAS/RMW implementation is available/unavailable.
@@ -400,7 +402,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/taiki-e/portable-atomic/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/taiki-e/portable-atomic/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/taiki-e/portable-atomic/compare/v1.4.3...v1.5.0
 [1.4.3]: https://github.com/taiki-e/portable-atomic/compare/v1.4.2...v1.4.3
