@@ -10,6 +10,12 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `cfg_{has,no}_atomic_{8,16,32,64,128,ptr}` macros to enable code when the corresponding atomic implementation is available/unavailable.
+
+- Add `cfg_{has,no}_atomic_cas` macros to enable code when atomic CAS/RMW implementation is available/unavailable.
+
+- Improve support for RISC-V targets without atomic CAS.
+
 ## [1.5.1] - 2023-10-29
 
 - Fix bug in `i{8,16}` `fetch_{or,xor}` on RISC-V without A-extension where `unsafe-assume-single-core` and `force-amo` are enabled.
