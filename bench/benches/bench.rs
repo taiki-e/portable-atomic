@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![allow(dead_code, unused_extern_crates)]
 #![allow(
+    dead_code,
+    internal_features,
+    unused_extern_crates,
     clippy::duplicate_mod,
     clippy::inline_always,
     clippy::naive_bytecount,

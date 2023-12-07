@@ -282,6 +282,15 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 // Miri and/or ThreadSanitizer only
 // They do not support inline assembly, so we need to use unstable features instead.
 // Since they require nightly compilers anyway, we can use the unstable features.
+// This is not an ideal situation, but it is still better than always using lock-based
+// fallback and causing memory ordering problems to be missed by these checkers.
+#![cfg_attr(
+    all(
+        any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
+        any(miri, portable_atomic_sanitize_thread),
+    ),
+    allow(internal_features)
+)]
 #![cfg_attr(
     all(
         any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
