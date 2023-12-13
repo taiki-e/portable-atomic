@@ -86,7 +86,7 @@ critical-section = { version = "1", optional = true }
 test-helper = { path = "tests/helper", features = ["std"] }
 
 build-context = "0.1"
-crossbeam-utils = "0.8"
+crossbeam-utils = "=0.8.16" # crossbeam-utils 0.8.17 requires Rust 1.61
 fastrand = "2"
 paste = "1"
 quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
