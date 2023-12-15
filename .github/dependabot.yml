@@ -6,6 +6,9 @@ updates:
       interval: daily
     commit-message:
       prefix: ''
+    ignore:
+      # For test on old rustc.
+      - dependency-name: crossbeam-utils
     labels: []
   # crates with [workspace] table are not recognized by the above 'directory: /'
   - package-ecosystem: cargo
