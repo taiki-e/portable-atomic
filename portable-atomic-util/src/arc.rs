@@ -11,7 +11,7 @@ use alloc::boxed::Box;
 
 use core::{
     borrow::Borrow,
-    fmt,
+    cmp, fmt,
     hash::Hash,
     isize,
     marker::PhantomData,
@@ -332,12 +332,13 @@ impl<T: ?Sized> Arc<T> {
     /// ```
     /// use portable_atomic_util::Arc;
     ///
-    /// let five = Arc::new(5);
+    /// let five = Arc::new(5u8);
     /// let five_ptr = Arc::into_raw(five);
     ///
     /// // We should now free the pointer.
     /// // SAFETY: The pointer is valid.
-    /// unsafe { Arc::from_raw(five_ptr) };
+    /// let five = unsafe { Arc::from_raw(five_ptr) };
+    /// assert_eq!(&*five, &5u8);
     /// ```
     #[must_use]
     pub fn into_raw(self) -> *const T {
@@ -359,11 +360,15 @@ impl<T: ?Sized> Arc<T> {
     /// ```
     #[must_use]
     pub fn as_ptr(&self) -> *const T {
+        // Get the alignment of `T`.
+        let alignment = mem::align_of_val(&**self);
+
         // Get the raw pointer.
         let ptr = self.shared.as_ptr() as *mut u8;
 
         // Add the size of the header so that it points to the value.
-        let new_ptr = strict::map_addr(ptr, |addr| addr + mem::size_of::<Header>());
+        let distance = cmp::max(alignment, mem::size_of::<Header>());
+        let new_ptr = strict::map_addr(ptr, |addr| addr + distance);
 
         // Cast the pointer to the correct type.
         strict::with_metadata_of(new_ptr, self.shared.as_ptr() as *mut T)
@@ -391,11 +396,15 @@ impl<T: ?Sized> Arc<T> {
     pub unsafe fn from_raw(ptr: *const T) -> Self {
         // SAFETY: The caller must ensure that the pointer is valid.
         unsafe {
+            // Get the alignment of `T`.
+            let alignment = mem::align_of_val(&*ptr);
+
             // Get the raw pointer.
             let raw_ptr = ptr as *mut u8;
 
             // Subtract the size of the header so that it points to the Shared allocation.
-            let new_ptr = strict::map_addr(raw_ptr, |addr| addr - mem::size_of::<Header>());
+            let distance = cmp::max(alignment, mem::size_of::<Header>());
+            let new_ptr = strict::map_addr(raw_ptr, |addr| addr - distance);
 
             // Cast the pointer to the correct type.
             let shared = strict::with_metadata_of(new_ptr, ptr as *mut Shared<T>);
