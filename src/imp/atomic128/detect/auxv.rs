@@ -283,7 +283,7 @@ mod tests {
                         // arg4 and arg5 must be zero.
                         in("x3") 0_u64,
                         in("x4") 0_u64,
-                        options(nostack, preserves_flags)
+                        options(nostack, preserves_flags),
                     );
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
@@ -315,7 +315,7 @@ mod tests {
                         out("r11") _,
                         out("r12") _,
                         out("cr0") _,
-                        options(nostack, preserves_flags)
+                        options(nostack, preserves_flags),
                     );
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
@@ -586,7 +586,7 @@ mod tests {
                         out("r11") _,
                         out("r12") _,
                         out("cr0") _,
-                        options(nostack, preserves_flags)
+                        options(nostack, preserves_flags),
                     );
                     if r as c_int == -1 {
                         Err(n as c_int)

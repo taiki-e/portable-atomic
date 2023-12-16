@@ -109,7 +109,7 @@ mod imp {
             asm!(
                 "mrs {0}, ID_AA64ISAR0_EL1",
                 out(reg) aa64isar0,
-                options(pure, nomem, nostack, preserves_flags)
+                options(pure, nomem, nostack, preserves_flags),
             );
             #[cfg(test)]
             let aa64isar1: u64;
@@ -118,14 +118,14 @@ mod imp {
                 asm!(
                     "mrs {0}, ID_AA64ISAR1_EL1",
                     out(reg) aa64isar1,
-                    options(pure, nomem, nostack, preserves_flags)
+                    options(pure, nomem, nostack, preserves_flags),
                 );
             }
             let aa64mmfr2: u64;
             asm!(
                 "mrs {0}, ID_AA64MMFR2_EL1",
                 out(reg) aa64mmfr2,
-                options(pure, nomem, nostack, preserves_flags)
+                options(pure, nomem, nostack, preserves_flags),
             );
             AA64Reg {
                 aa64isar0,

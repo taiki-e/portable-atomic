@@ -72,9 +72,21 @@ fn sllw(val: u32, shift: u32) -> u32 {
     unsafe {
         let out;
         #[cfg(target_arch = "riscv32")]
-        asm!("sll {out}, {val}, {shift}", out = lateout(reg) out, val = in(reg) val, shift = in(reg) shift, options(pure, nomem, nostack, preserves_flags));
+        asm!(
+            "sll {out}, {val}, {shift}",
+            out = lateout(reg) out,
+            val = in(reg) val,
+            shift = in(reg) shift,
+            options(pure, nomem, nostack, preserves_flags),
+        );
         #[cfg(target_arch = "riscv64")]
-        asm!("sllw {out}, {val}, {shift}", out = lateout(reg) out, val = in(reg) val, shift = in(reg) shift, options(pure, nomem, nostack, preserves_flags));
+        asm!(
+            "sllw {out}, {val}, {shift}",
+            out = lateout(reg) out,
+            val = in(reg) val,
+            shift = in(reg) shift,
+            options(pure, nomem, nostack, preserves_flags),
+        );
         out
     }
 }
@@ -86,9 +98,21 @@ fn srlw(val: u32, shift: u32) -> u32 {
     unsafe {
         let out;
         #[cfg(target_arch = "riscv32")]
-        asm!("srl {out}, {val}, {shift}", out = lateout(reg) out, val = in(reg) val, shift = in(reg) shift, options(pure, nomem, nostack, preserves_flags));
+        asm!(
+            "srl {out}, {val}, {shift}",
+            out = lateout(reg) out,
+            val = in(reg) val,
+            shift = in(reg) shift,
+            options(pure, nomem, nostack, preserves_flags),
+        );
         #[cfg(target_arch = "riscv64")]
-        asm!("srlw {out}, {val}, {shift}", out = lateout(reg) out, val = in(reg) val, shift = in(reg) shift, options(pure, nomem, nostack, preserves_flags));
+        asm!(
+            "srlw {out}, {val}, {shift}",
+            out = lateout(reg) out,
+            val = in(reg) val,
+            shift = in(reg) shift,
+            options(pure, nomem, nostack, preserves_flags),
+        );
         out
     }
 }
