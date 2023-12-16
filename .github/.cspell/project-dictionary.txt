@@ -28,6 +28,7 @@ cmovl
 cmpd
 cmpld
 cmpxchg
+cond
 cpsid
 cpsie
 CPSR
