@@ -5,7 +5,7 @@
 use portable_atomic_util::Arc;
 
 #[test]
-fn overaligned() {
+fn over_aligned() {
     #[repr(align(128))]
     struct Aligned(u32);
 
