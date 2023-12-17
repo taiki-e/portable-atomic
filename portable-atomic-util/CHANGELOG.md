@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.1.5] - 2023-12-17
+
 - Improve offset calculation in `Arc::{into_raw,as_ptr,from_ptr}`. ([#141](https://github.com/taiki-e/portable-atomic/pull/141), thanks @gtsiam)
 
 ## [0.1.4] - 2023-12-16
@@ -42,7 +44,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.4...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.5...HEAD
+[0.1.5]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.4...portable-atomic-util-0.1.5
 [0.1.4]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.3...portable-atomic-util-0.1.4
 [0.1.3]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.2...portable-atomic-util-0.1.3
 [0.1.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.1...portable-atomic-util-0.1.2
