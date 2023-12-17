@@ -11,7 +11,7 @@ use alloc::boxed::Box;
 
 use core::{
     borrow::Borrow,
-    cmp, fmt,
+    fmt,
     hash::Hash,
     isize,
     marker::PhantomData,
@@ -360,18 +360,14 @@ impl<T: ?Sized> Arc<T> {
     /// ```
     #[must_use]
     pub fn as_ptr(&self) -> *const T {
-        // Get the alignment of `T`.
-        let alignment = mem::align_of_val(&**self);
-
-        // Get the raw pointer.
-        let ptr = self.shared.as_ptr() as *mut u8;
+        // Get offset of the value `T` into the allocation.
+        let offset = Self::value_offset(&**self);
 
         // Add the size of the header so that it points to the value.
-        let distance = cmp::max(alignment, mem::size_of::<Header>());
-        let new_ptr = strict::map_addr(ptr, |addr| addr + distance);
+        let ptr = strict::map_addr(self.shared.as_ptr() as *mut u8, |addr| addr + offset);
 
         // Cast the pointer to the correct type.
-        strict::with_metadata_of(new_ptr, self.shared.as_ptr() as *mut T)
+        strict::with_metadata_of(ptr, self.shared.as_ptr() as *mut T)
     }
 
     /// Convert a raw pointer previously created by `into_raw` into a new `Arc`.
@@ -394,23 +390,49 @@ impl<T: ?Sized> Arc<T> {
     /// ```
     #[must_use]
     pub unsafe fn from_raw(ptr: *const T) -> Self {
-        // SAFETY: The caller must ensure that the pointer is valid.
-        unsafe {
-            // Get the alignment of `T`.
-            let alignment = mem::align_of_val(&*ptr);
+        // Get offset of the value `T` into the allocation.
+        let offset = Self::value_offset(
+            // Safety: The caller asserts that the pointer came from Arc::into_raw(), which should
+            // point to a valid instance of `T`.
+            unsafe { &*ptr },
+        );
 
-            // Get the raw pointer.
-            let raw_ptr = ptr as *mut u8;
+        // Subtract the size of the header so that it points to the Shared allocation.
+        let new_ptr = strict::map_addr(ptr as *mut u8, |addr| addr - offset);
 
-            // Subtract the size of the header so that it points to the Shared allocation.
-            let distance = cmp::max(alignment, mem::size_of::<Header>());
-            let new_ptr = strict::map_addr(raw_ptr, |addr| addr - distance);
+        // Cast the pointer to the correct type.
+        let shared = strict::with_metadata_of(new_ptr, ptr as *mut Shared<T>);
 
-            // Cast the pointer to the correct type.
-            let shared = strict::with_metadata_of(new_ptr, ptr as *mut Shared<T>);
+        // Safety: The caller ensures the original pointer came from a valid `Arc<T>`.
+        unsafe { Self::from_ptr(shared) }
+    }
 
-            Self::from_ptr(shared)
-        }
+    /// Return the number of bytes into the `Shared` struct the held value is placed at.
+    fn value_offset(value: &T) -> usize {
+        // Get the alignment of `T`.
+        let align = mem::align_of_val::<T>(value);
+
+        // Calculate the offset of the data relative to self.
+        let len = mem::size_of::<Header>();
+
+        // Shamelessly ripped off the unstable implementation of `Layout::padding_needed_for()`:
+        //
+        // Offset is: offset = (len + align - 1) & !(align - 1);
+        //
+        // We use modular arithmetic throughout:
+        //
+        // 1. align is guaranteed to be > 0, so align - 1 is never gonna overflow.
+        //
+        // 2. `len + align - 1` can overflow by at most `align - 1`,
+        //    so the &-mask with `!(align - 1)` will ensure that in the
+        //    case of overflow, `len_rounded_up` will itself be 0.
+        //    Thus the returned padding, when added to `len`, yields 0,
+        //    which trivially satisfies the alignment `align`.
+        //
+        // (Of course, attempts to allocate blocks of memory whose
+        // size and padding overflow in the above manner should cause
+        // the allocator to yield an error anyway.)
+        len.wrapping_add(align).wrapping_sub(1) & !align.wrapping_sub(1)
     }
 
     /// Get a [`Weak`] reference from this `Arc`.
