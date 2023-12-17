@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Improve offset calculation in `Arc::{into_raw,as_ptr,from_ptr}`. ([#141](https://github.com/taiki-e/portable-atomic/pull/141), thanks @gtsiam)
+
 ## [0.1.4] - 2023-12-16
 
 - Fix a bug where `Arc::{into_raw,as_ptr}` returned invalid pointers for larger alignment types. ([#138](https://github.com/taiki-e/portable-atomic/pull/138), thanks @notgull)
