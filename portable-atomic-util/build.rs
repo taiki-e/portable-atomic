@@ -33,9 +33,21 @@ fn main() {
     if !version.probe(36, 2019, 4, 14) {
         println!("cargo:rustc-cfg=portable_atomic_no_alloc");
     }
+    // Layout::{align_to,pad_to_align,extend,array} stabilized in Rust 1.44 (nightly-2020-04-22) https://github.com/rust-lang/rust/pull/69362
+    if !version.probe(44, 2020, 4, 21) {
+        println!("cargo:rustc-cfg=portable_atomic_no_alloc_layout_extras");
+    }
+    // min_const_generics stabilized in Rust 1.51 (nightly-2020-12-28): https://github.com/rust-lang/rust/pull/79135
+    if !version.probe(51, 2020, 12, 27) {
+        println!("cargo:rustc-cfg=portable_atomic_no_min_const_generics");
+    }
     // unsafe_op_in_unsafe_fn stabilized in Rust 1.52 (nightly-2021-03-11): https://github.com/rust-lang/rust/pull/79208
     if !version.probe(52, 2021, 3, 10) {
         println!("cargo:rustc-cfg=portable_atomic_no_unsafe_op_in_unsafe_fn");
+    }
+    // https://github.com/rust-lang/rust/pull/84662 merged in Rust 1.56 (nightly-2021-08-02).
+    if !version.probe(56, 2021, 8, 1) {
+        println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");
     }
 
     if version.nightly {

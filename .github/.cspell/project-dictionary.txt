@@ -44,6 +44,7 @@ DESTDIR
 DEVEL
 dlsym
 DWCAS
+elems
 espup
 exynos
 FIQs
@@ -157,6 +158,7 @@ uapi
 uart
 umax
 umin
+unclonable
 unistd
 unparse
 usart

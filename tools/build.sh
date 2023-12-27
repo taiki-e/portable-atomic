@@ -221,7 +221,7 @@ else
     if [[ -n "${TESTS:-}" ]]; then
         # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
         subcmd=check
-        base_args=("${subcmd}")
+        base_args=(hack "${subcmd}")
     else
         base_args=(hack "${subcmd}")
     fi
@@ -247,7 +247,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         if [[ -n "${TESTS:-}" ]]; then
-            base_args=("${subcmd}" -Z check-cfg)
+            base_args=(hack "${subcmd}" -Z check-cfg)
         else
             base_args=(hack "${subcmd}" -Z check-cfg)
         fi
@@ -281,8 +281,9 @@ build() {
         local target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
+    local cfgs
     if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
+        cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
@@ -290,6 +291,7 @@ build() {
             echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
             return 0
         fi
+        cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
         if [[ -n "${TARGET_GROUP:-}" ]]; then
             args+=(-Z build-std="core")
         elif is_no_std "${target}"; then
@@ -383,6 +385,7 @@ build() {
         args+=(
             --tests
             --features "${test_features}"
+            --ignore-unknown-features
             --workspace --exclude bench --exclude portable-atomic-internal-codegen
         )
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
