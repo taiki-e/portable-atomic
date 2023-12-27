@@ -63,6 +63,8 @@ See [#1] for other primitives being considered for addition to this crate.
 
 #[cfg(all(feature = "alloc", not(portable_atomic_no_alloc)))]
 extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
 #[cfg(all(feature = "std", portable_atomic_no_alloc))]
 extern crate std as alloc;
 

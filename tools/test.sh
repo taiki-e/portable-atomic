@@ -42,10 +42,18 @@ x_cargo() {
     if [[ "${cmd}" == "miri" ]] && [[ -n "${MIRIFLAGS:-}" ]]; then
         echo "+ MIRIFLAGS='${MIRIFLAGS}' \\"
     fi
-    if [[ -n "${TS:-}" ]]; then
-        x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@" 2>&1 | "${TS}" -i '%.s  '
+    if type -P cargo-hack; then
+        if [[ -n "${TS:-}" ]]; then
+            x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} hack "$@" 2>&1 | "${TS}" -i '%.s  '
+        else
+            x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} hack "$@"
+        fi
     else
-        x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@"
+        if [[ -n "${TS:-}" ]]; then
+            x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@" 2>&1 | "${TS}" -i '%.s  '
+        else
+            x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@"
+        fi
     fi
     echo
 }
@@ -168,7 +176,11 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-args+=(--features "${test_features}")
+if type -P cargo-hack; then
+    args+=(--features "${test_features}" --ignore-unknown-features)
+else
+    args+=(--features "${test_features}")
+fi
 case "${cmd}" in
     build) ;;
     *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
