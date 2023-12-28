@@ -5,6 +5,7 @@
 Synchronization primitives built with [portable-atomic].
 
 - Provide `Arc`. (optional, requires the `std` or `alloc` feature)
+- Provide `task::Wake`. (optional, requires the `std` or `alloc` feature)
 <!-- - Provide generic `Atomic<T>` type. (optional, requires the `generic` feature) -->
 
 See [#1] for other primitives being considered for addition to this crate.
@@ -73,3 +74,8 @@ extern crate std as alloc;
 mod arc;
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
 pub use arc::{Arc, Weak};
+
+#[cfg(not(portable_atomic_no_futures_api))]
+#[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
+#[cfg_attr(portable_atomic_doc_cfg, doc(cfg(any(feature = "alloc", feature = "std"))))]
+pub mod task;
