@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// The module is based on alloc::sync::Arc, licensed under "Apache-2.0 OR MIT".
+// This module is based on alloc::sync::Arc.
 //
 // The code has been adjusted to work with stable Rust and to
 // avoid UBs (https://github.com/rust-lang/rust/issues/119241).
@@ -77,10 +77,10 @@ macro_rules! acquire {
 
 /// A thread-safe, strongly reference counted pointer.
 ///
-/// This is an equivalent to [`std::sync::Arc`], but using [`portable-atomic`] for synchronization.
+/// This is an equivalent to [`std::sync::Arc`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Arc`] for more details.
 ///
-/// [`portable-atomic`]: https://crates.io/crates/portable-atomic
+/// [portable-atomic]: https://crates.io/crates/portable-atomic
 ///
 /// # Examples
 ///
@@ -126,10 +126,10 @@ impl<T: ?Sized> Arc<T> {
 
 /// A weakly reference counted pointer.
 ///
-/// This is an equivalent to [`std::sync::Weak`], but using [`portable-atomic`] for synchronization.
+/// This is an equivalent to [`std::sync::Weak`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Weak`] for more details.
 ///
-/// [`portable-atomic`]: https://crates.io/crates/portable-atomic
+/// [portable-atomic]: https://crates.io/crates/portable-atomic
 ///
 /// # Examples
 ///
@@ -2389,10 +2389,6 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
 //   - Currently, we cannot implement these since CStr layout is not stable.
-// - alloc::task
-//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CArc%3CW%3E%3E-for-RawWaker
-//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CArc%3CW%3E%3E-for-Waker
-//   - https://doc.rust-lang.org/nightly/alloc/task/trait.Wake.html
 // - std::os
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
