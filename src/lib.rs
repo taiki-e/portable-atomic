@@ -1321,7 +1321,7 @@ impl AtomicBool {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use portable_atomic::{AtomicBool, Ordering};
     ///
     /// let x = AtomicBool::new(false);
@@ -1795,7 +1795,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let ptr: *mut _ = &mut 5;
@@ -3148,7 +3148,7 @@ In particular, this method will not circumvent the [ABA Problem].
 
 # Examples
 
-```rust
+```
 use portable_atomic::{", stringify!($atomic_type), ", Ordering};
 
 let x = ", stringify!($atomic_type), "::new(7);
