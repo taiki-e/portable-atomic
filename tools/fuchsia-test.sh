@@ -16,7 +16,9 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 #
 # Refs:
 # - https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
-# - https://github.com/rust-lang/rust/blob/HEAD/src/ci/docker/scripts/fuchsia-test-runner.py
+# - https://github.com/rust-lang/rust/blob/1.74.0/src/ci/docker/scripts/fuchsia-test-runner.py
+
+# TODO: ffx product-bundle has been removed: https://github.com/rust-lang/rust/pull/117799
 
 x() {
     local cmd="$1"
