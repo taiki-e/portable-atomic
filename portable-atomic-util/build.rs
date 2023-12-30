@@ -37,6 +37,10 @@ fn main() {
     if !version.probe(36, 2019, 4, 24) {
         println!("cargo:rustc-cfg=portable_atomic_no_futures_api");
     }
+    // {read,write}_vectored stabilized in Rust 1.36 (nightly-2019-04-30) https://github.com/rust-lang/rust/pull/60334
+    if !version.probe(36, 2019, 4, 29) {
+        println!("cargo:rustc-cfg=portable_atomic_no_io_vec");
+    }
     // Layout::{align_to,pad_to_align,extend,array} stabilized in Rust 1.44 (nightly-2020-04-22) https://github.com/rust-lang/rust/pull/69362
     if !version.probe(44, 2020, 4, 21) {
         println!("cargo:rustc-cfg=portable_atomic_no_alloc_layout_extras");

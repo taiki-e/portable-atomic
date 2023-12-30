@@ -2389,11 +2389,6 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
 //   - Currently, we cannot implement these since CStr layout is not stable.
-// - std::os
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
 // - std::ffi
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3COsString%3E-for-Arc%3COsStr%3E
@@ -2402,10 +2397,146 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26Path%3E-for-Arc%3CPath%3E
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
 //   - Currently, we cannot implement these since Path layout is not stable.
-// - std::fs
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Write-for-Arc%3CFile%3E
+
+// TODO: maybe we should wait for https://github.com/rust-lang/rust/pull/114655
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
+// #[cfg(feature = "std")]
+// #[cfg(unix)]
+// use std::os::unix::io as fd;
+// // std::os::wasi::io is stabilized in Rust 1.63.
+// #[cfg(feature = "std")]
+// #[cfg(target_os = "wasi")]
+// use std::os::wasi::prelude as fd;
+// /// This impl allows implementing traits that require `AsRawFd` on Arc.
+// /// ```
+// /// # #[cfg(target_os = "wasi")]
+// /// # use std::os::wasi::prelude::AsRawFd;
+// /// # #[cfg(unix)]
+// /// # use std::os::unix::io::AsRawFd;
+// /// use portable_atomic_util::Arc;
+// /// use std::net::UdpSocket;
+// ///
+// /// trait MyTrait: AsRawFd {}
+// /// impl MyTrait for Arc<UdpSocket> {}
+// /// ```
+// #[cfg(feature = "std")]
+// #[cfg(any(unix, target_os = "wasi"))]
+// impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
+//     #[inline]
+//     fn as_raw_fd(&self) -> fd::RawFd {
+//         (**self).as_raw_fd()
+//     }
+// }
+// /// This impl allows implementing traits that require `AsFd` on Arc.
+// /// ```
+// /// # #[cfg(target_os = "wasi")]
+// /// # use std::os::wasi::prelude::AsFd;
+// /// # #[cfg(unix)]
+// /// # use std::os::unix::io::AsFd;
+// /// use portable_atomic_util::Arc;
+// /// use std::net::UdpSocket;
+// ///
+// /// trait MyTrait: AsFd {}
+// /// impl MyTrait for Arc<UdpSocket> {}
+// /// ```
+// #[cfg(feature = "std")]
+// #[cfg(any(unix, target_os = "wasi"))]
+// impl<T: fd::AsFd> fd::AsFd for Arc<T> {
+//     #[inline]
+//     fn as_fd(&self) -> fd::BorrowedFd<'_> {
+//         (**self).as_fd()
+//     }
+// }
+// /// This impl allows implementing traits that require `AsHandle` on Arc.
+// /// ```
+// /// # use std::os::windows::io::AsHandle;
+// /// use portable_atomic_util::Arc;
+// /// use std::fs::File;
+// ///
+// /// trait MyTrait: AsHandle {}
+// /// impl MyTrait for Arc<File> {}
+// /// ```
+// #[cfg(feature = "std")]
+// #[cfg(windows)]
+// impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
+//     #[inline]
+//     fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
+//         (**self).as_handle()
+//     }
+// }
+// /// This impl allows implementing traits that require `AsSocket` on Arc.
+// /// ```
+// /// # use std::os::windows::io::AsSocket;
+// /// use portable_atomic_util::Arc;
+// /// use std::net::UdpSocket;
+// ///
+// /// trait MyTrait: AsSocket {}
+// /// impl MyTrait for Arc<UdpSocket> {}
+// /// ```
+// #[cfg(feature = "std")]
+// #[cfg(windows)]
+// impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
+//     #[inline]
+//     fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
+//         (**self).as_socket()
+//     }
+// }
+
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
+// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Write-for-Arc%3CFile%3E
+// Note: From discussions in https://github.com/rust-lang/rust/pull/94748 and relevant,
+// TcpStream and UnixStream will likely have similar implementations in the future.
+#[cfg(feature = "std")]
+impl std::io::Read for Arc<std::fs::File> {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        (&**self).read(buf)
+    }
+    #[cfg(not(portable_atomic_no_io_vec))]
+    fn read_vectored(&mut self, bufs: &mut [std::io::IoSliceMut<'_>]) -> std::io::Result<usize> {
+        (&**self).read_vectored(bufs)
+    }
+    // fn read_buf(&mut self, cursor: BorrowedCursor<'_>) -> io::Result<()> {
+    //     (&**self).read_buf(cursor)
+    // }
+    // #[inline]
+    // fn is_read_vectored(&self) -> bool {
+    //     (&**self).is_read_vectored()
+    // }
+    fn read_to_end(&mut self, buf: &mut alloc::vec::Vec<u8>) -> std::io::Result<usize> {
+        (&**self).read_to_end(buf)
+    }
+    fn read_to_string(&mut self, buf: &mut alloc::string::String) -> std::io::Result<usize> {
+        (&**self).read_to_string(buf)
+    }
+}
+#[cfg(feature = "std")]
+impl std::io::Write for Arc<std::fs::File> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        (&**self).write(buf)
+    }
+    #[cfg(not(portable_atomic_no_io_vec))]
+    fn write_vectored(&mut self, bufs: &[std::io::IoSlice<'_>]) -> std::io::Result<usize> {
+        (&**self).write_vectored(bufs)
+    }
+    // #[inline]
+    // fn is_write_vectored(&self) -> bool {
+    //     (&**self).is_write_vectored()
+    // }
+    #[inline]
+    fn flush(&mut self) -> std::io::Result<()> {
+        (&**self).flush()
+    }
+}
+#[cfg(feature = "std")]
+impl std::io::Seek for Arc<std::fs::File> {
+    fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+        (&**self).seek(pos)
+    }
+}
 
 // Based on unstable Layout::padding_needed_for.
 #[must_use]
