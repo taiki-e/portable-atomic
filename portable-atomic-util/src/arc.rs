@@ -1461,7 +1461,7 @@ impl<T /*: ?Sized */> Weak<T> {
     pub unsafe fn from_raw(ptr: *const T) -> Self {
         // See Weak::as_ptr for context on how the input pointer is derived.
 
-        let ptr = if is_dangling(ptr as *mut T) {
+        let ptr = if is_dangling(ptr) {
             // This is a dangling Weak.
             ptr as *mut ArcInner<T>
         } else {
@@ -2612,8 +2612,8 @@ fn abort() -> ! {
     panic!("abort")
 }
 
-fn is_dangling<T: ?Sized>(ptr: *mut T) -> bool {
-    ptr as *mut () as usize == usize::MAX
+fn is_dangling<T: ?Sized>(ptr: *const T) -> bool {
+    ptr as *const () as usize == usize::MAX
 }
 
 // Based on unstable alloc::alloc::Global.
