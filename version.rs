@@ -52,8 +52,8 @@ impl Version {
         let version = release.next().unwrap();
         let channel = release.next().unwrap_or_default();
         let mut digits = version.splitn(3, '.');
-        let major = digits.next()?.parse::<u32>().ok()?;
-        if major != 1 {
+        let major = digits.next()?;
+        if major != "1" {
             return None;
         }
         let minor = digits.next()?.parse::<u32>().ok()?;
