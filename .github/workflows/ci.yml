@@ -352,9 +352,6 @@ jobs:
         include:
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '12.4'
-          - target: aarch64-unknown-freebsd
-            os: freebsd
             version: '13.2'
           - target: aarch64-unknown-openbsd
             os: openbsd
