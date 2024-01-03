@@ -606,6 +606,7 @@ impl AtomicBool {
         Self { v: core::cell::UnsafeCell::new(v as u8) }
     }
 
+    // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
     /// Creates a new `AtomicBool` from a pointer.
     ///
     /// # Safety
@@ -1463,6 +1464,7 @@ impl<T> AtomicPtr<T> {
         Self { inner: imp::AtomicPtr::new(p) }
     }
 
+    // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
     /// Creates a new `AtomicPtr` from a pointer.
     ///
     /// # Safety
@@ -2450,6 +2452,7 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
                 }
             }
 
+            // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
             doc_comment! {
                 concat!("Creates a new reference to an atomic integer from a pointer.
 
@@ -3549,6 +3552,7 @@ This type has the same in-memory representation as the underlying floating point
                 Self { inner: imp::float::$atomic_type::new(v) }
             }
 
+            // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
             doc_comment! {
                 concat!("Creates a new reference to an atomic float from a pointer.
 
