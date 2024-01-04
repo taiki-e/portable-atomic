@@ -2093,28 +2093,32 @@ macro_rules! items {
     };
 }
 
-// TODO: CoerceUnsized is needed to cast Arc<[T; N]> -> Arc<[T]>
-// #[cfg(not(portable_atomic_no_min_const_generics))]
-// items! {
-// impl<T, const N: usize> From<[T; N]> for Arc<[T]> {
-//     /// Converts a [`[T; N]`](prim@array) into an `Arc<[T]>`.
-//     ///
-//     /// The conversion moves the array into a newly allocated `Arc`.
-//     ///
-//     /// # Example
-//     ///
-//     /// ```
-//     /// use portable_atomic_util::Arc;
-//     /// let original: [i32; 3] = [1, 2, 3];
-//     /// let shared: Arc<[i32]> = Arc::from(original);
-//     /// assert_eq!(&[1, 2, 3], &shared[..]);
-//     /// ```
-//     #[inline]
-//     fn from(v: [T; N]) -> Self {
-//         Arc::<[T; N]>::from(v)
-//     }
-// }
-// }
+#[cfg(not(portable_atomic_no_min_const_generics))]
+items! {
+impl<T, const N: usize> From<[T; N]> for Arc<[T]> {
+    /// Converts a [`[T; N]`](prim@array) into an `Arc<[T]>`.
+    ///
+    /// The conversion moves the array into a newly allocated `Arc`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    /// let original: [i32; 3] = [1, 2, 3];
+    /// let shared: Arc<[i32]> = Arc::from(original);
+    /// assert_eq!(&[1, 2, 3], &shared[..]);
+    /// ```
+    #[inline]
+    fn from(v: [T; N]) -> Self {
+        // Casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized, so we convert via Box.
+        // Since the compiler knows the actual size and metadata, the intermediate allocation is
+        // optimized and generates the same code as when using CoerceUnsized and convert Arc<[T; N]> to Arc<[T]>.
+        // https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569
+        let v: Box<[T]> = Box::<[T; N]>::from(v);
+        v.into()
+    }
+}
+}
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T: Clone> From<&[T]> for Arc<[T]> {
