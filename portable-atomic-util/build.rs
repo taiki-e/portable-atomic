@@ -57,6 +57,10 @@ fn main() {
     if !version.probe(56, 2021, 8, 1) {
         println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");
     }
+    // io_safety stabilized in Rust 1.63 (nightly-2022-06-16): https://github.com/rust-lang/rust/pull/95118
+    if !version.probe(63, 2022, 6, 15) {
+        println!("cargo:rustc-cfg=portable_atomic_no_io_safety");
+    }
 
     if version.nightly {
         // `cfg(sanitize = "..")` is not stabilized.

@@ -2402,92 +2402,101 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
 //   - Currently, we cannot implement these since Path layout is not stable.
 
-// TODO: maybe we should wait for https://github.com/rust-lang/rust/pull/114655
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
-// #[cfg(feature = "std")]
-// #[cfg(unix)]
-// use std::os::unix::io as fd;
-// // std::os::wasi::io is stabilized in Rust 1.63.
-// #[cfg(feature = "std")]
-// #[cfg(target_os = "wasi")]
-// use std::os::wasi::prelude as fd;
-// /// This impl allows implementing traits that require `AsRawFd` on Arc.
-// /// ```
-// /// # #[cfg(target_os = "wasi")]
-// /// # use std::os::wasi::prelude::AsRawFd;
-// /// # #[cfg(unix)]
-// /// # use std::os::unix::io::AsRawFd;
-// /// use portable_atomic_util::Arc;
-// /// use std::net::UdpSocket;
-// ///
-// /// trait MyTrait: AsRawFd {}
-// /// impl MyTrait for Arc<UdpSocket> {}
-// /// ```
-// #[cfg(feature = "std")]
-// #[cfg(any(unix, target_os = "wasi"))]
-// impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
-//     #[inline]
-//     fn as_raw_fd(&self) -> fd::RawFd {
-//         (**self).as_raw_fd()
-//     }
-// }
-// /// This impl allows implementing traits that require `AsFd` on Arc.
-// /// ```
-// /// # #[cfg(target_os = "wasi")]
-// /// # use std::os::wasi::prelude::AsFd;
-// /// # #[cfg(unix)]
-// /// # use std::os::unix::io::AsFd;
-// /// use portable_atomic_util::Arc;
-// /// use std::net::UdpSocket;
-// ///
-// /// trait MyTrait: AsFd {}
-// /// impl MyTrait for Arc<UdpSocket> {}
-// /// ```
-// #[cfg(feature = "std")]
-// #[cfg(any(unix, target_os = "wasi"))]
-// impl<T: fd::AsFd> fd::AsFd for Arc<T> {
-//     #[inline]
-//     fn as_fd(&self) -> fd::BorrowedFd<'_> {
-//         (**self).as_fd()
-//     }
-// }
-// /// This impl allows implementing traits that require `AsHandle` on Arc.
-// /// ```
-// /// # use std::os::windows::io::AsHandle;
-// /// use portable_atomic_util::Arc;
-// /// use std::fs::File;
-// ///
-// /// trait MyTrait: AsHandle {}
-// /// impl MyTrait for Arc<File> {}
-// /// ```
-// #[cfg(feature = "std")]
-// #[cfg(windows)]
-// impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
-//     #[inline]
-//     fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
-//         (**self).as_handle()
-//     }
-// }
-// /// This impl allows implementing traits that require `AsSocket` on Arc.
-// /// ```
-// /// # use std::os::windows::io::AsSocket;
-// /// use portable_atomic_util::Arc;
-// /// use std::net::UdpSocket;
-// ///
-// /// trait MyTrait: AsSocket {}
-// /// impl MyTrait for Arc<UdpSocket> {}
-// /// ```
-// #[cfg(feature = "std")]
-// #[cfg(windows)]
-// impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
-//     #[inline]
-//     fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
-//         (**self).as_socket()
-//     }
-// }
+// Note: T: ?Sized will be allowed once https://github.com/rust-lang/rust/pull/114655 merged.
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(unix)]
+use std::os::unix::io as fd;
+// - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
+// - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
+// - std::os::wasi::prelude::AsRawFd requires 1.56 (https://github.com/rust-lang/rust/commit/e555003e6d6b6d71ce5509a6b6c7a15861208d6c)
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(target_os = "wasi")]
+use std::os::wasi::prelude as fd;
+/// This impl allows implementing traits that require `AsRawFd` on Arc.
+/// ```
+/// # #[cfg(target_os = "wasi")]
+/// # use std::os::wasi::prelude::AsRawFd;
+/// # #[cfg(unix)]
+/// # use std::os::unix::io::AsRawFd;
+/// use portable_atomic_util::Arc;
+/// use std::net::UdpSocket;
+///
+/// trait MyTrait: AsRawFd {}
+/// impl MyTrait for Arc<UdpSocket> {}
+/// ```
+// AsRawFd has been stable before io_safety, but this impl was added after io_safety: https://github.com/rust-lang/rust/pull/97437
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(any(unix, target_os = "wasi"))]
+impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
+    #[inline]
+    fn as_raw_fd(&self) -> fd::RawFd {
+        (**self).as_raw_fd()
+    }
+}
+/// This impl allows implementing traits that require `AsFd` on Arc.
+/// ```
+/// # #[cfg(target_os = "wasi")]
+/// # use std::os::wasi::prelude::AsFd;
+/// # #[cfg(unix)]
+/// # use std::os::unix::io::AsFd;
+/// use portable_atomic_util::Arc;
+/// use std::net::UdpSocket;
+///
+/// trait MyTrait: AsFd {}
+/// impl MyTrait for Arc<UdpSocket> {}
+/// ```
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(any(unix, target_os = "wasi"))]
+impl<T: fd::AsFd> fd::AsFd for Arc<T> {
+    #[inline]
+    fn as_fd(&self) -> fd::BorrowedFd<'_> {
+        (**self).as_fd()
+    }
+}
+/// This impl allows implementing traits that require `AsHandle` on Arc.
+/// ```
+/// # use std::os::windows::io::AsHandle;
+/// use portable_atomic_util::Arc;
+/// use std::fs::File;
+///
+/// trait MyTrait: AsHandle {}
+/// impl MyTrait for Arc<File> {}
+/// ```
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(windows)]
+impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
+    #[inline]
+    fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
+        (**self).as_handle()
+    }
+}
+/// This impl allows implementing traits that require `AsSocket` on Arc.
+/// ```
+/// # use std::os::windows::io::AsSocket;
+/// use portable_atomic_util::Arc;
+/// use std::net::UdpSocket;
+///
+/// trait MyTrait: AsSocket {}
+/// impl MyTrait for Arc<UdpSocket> {}
+/// ```
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(windows)]
+impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
+    #[inline]
+    fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
+        (**self).as_socket()
+    }
+}
 
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
