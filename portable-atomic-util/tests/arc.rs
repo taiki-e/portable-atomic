@@ -21,7 +21,7 @@ fn over_aligned() {
 
 // https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/library/alloc/src/sync/tests.rs
 #[allow(clippy::many_single_char_names, clippy::undocumented_unsafe_blocks)]
-pub mod alloc_tests {
+mod alloc_tests {
     use std::{
         convert::TryInto,
         sync::{

@@ -199,7 +199,6 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 #![cfg_attr(portable_atomic_no_unsafe_op_in_unsafe_fn, allow(unused_unsafe))]
 #![warn(
     // Lints that may help when writing public library.
-    missing_debug_implementations,
     // missing_docs,
     clippy::alloc_instead_of_core,
     clippy::exhaustive_enums,

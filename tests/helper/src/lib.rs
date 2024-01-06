@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
-#![allow(clippy::missing_panics_doc, clippy::undocumented_unsafe_blocks)]
+#![allow(
+    missing_debug_implementations,
+    clippy::missing_panics_doc,
+    clippy::undocumented_unsafe_blocks
+)]
 
 #[cfg(feature = "std")]
 extern crate std;
