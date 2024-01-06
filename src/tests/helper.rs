@@ -1679,7 +1679,7 @@ macro_rules! __test_atomic_ptr_pub {
             const MASK_PTR: usize = !MASK_TAG;
 
             #[repr(align(16))]
-            struct Tagme(u128);
+            struct Tagme(#[allow(dead_code)] u128);
 
             let tagme = Tagme(1000);
             let ptr = &tagme as *const Tagme as *mut Tagme;
