@@ -2262,7 +2262,7 @@ macro_rules! __stress_test_seqcst {
     }};
 }
 // Catches unwinding panic on architectures with weak memory models.
-#[allow(dead_code, clippy::used_underscore_binding)]
+#[allow(dead_code)]
 pub(crate) fn catch_unwind_on_weak_memory_arch(pat: &str, f: impl Fn()) {
     // With x86 TSO, RISC-V TSO (optional, not default), SPARC TSO (optional, default),
     // and IBM-370 memory models should never be a panic here.
@@ -2297,7 +2297,7 @@ pub(crate) fn catch_unwind_on_weak_memory_arch(pat: &str, f: impl Fn()) {
     }
 }
 // Catches unwinding panic on architectures with non-sequentially consistent memory models.
-#[allow(dead_code, clippy::used_underscore_binding)]
+#[allow(dead_code)]
 pub(crate) fn catch_unwind_on_non_seqcst_arch(pat: &str, f: impl Fn()) {
     if !is_panic_abort() {
         // This could be Err on architectures with non-sequentially consistent memory models.

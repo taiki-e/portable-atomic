@@ -607,7 +607,6 @@ pub(crate) fn gen() -> Result<()> {
             non_camel_case_types,
             non_upper_case_globals,
             unreachable_pub,
-            clippy::struct_field_names,
             clippy::unnecessary_cast,
             clippy::unreadable_literal,
         )]

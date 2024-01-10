@@ -2,7 +2,10 @@
 
 // The rustc-cfg emitted by the build script are *not* public API.
 
-#![allow(clippy::match_same_arms, clippy::needless_pass_by_value)]
+#![allow(
+    clippy::match_same_arms, // https://github.com/rust-lang/rust-clippy/issues/12044
+    clippy::needless_pass_by_value,
+)]
 
 #[path = "version.rs"]
 mod version;
