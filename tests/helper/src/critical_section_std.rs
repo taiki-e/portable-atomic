@@ -25,7 +25,9 @@ fn global_mutex() -> &'static Mutex<()> {
 static GLOBAL_GUARD: SyncUnsafeCell<MaybeUninit<MutexGuard<'static, ()>>> =
     SyncUnsafeCell::new(MaybeUninit::uninit());
 
-std::thread_local!(static IS_LOCKED: Cell<bool> = Cell::new(false));
+std::thread_local! {
+    static IS_LOCKED: Cell<bool> = Cell::new(false);
+}
 
 struct StdCriticalSection;
 critical_section::set_impl!(StdCriticalSection);
