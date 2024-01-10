@@ -895,11 +895,12 @@ impl<T: ?Sized> Arc<T> {
 impl<T: ?Sized> Arc<T> {
     /// Allocates an `ArcInner<T>` with sufficient space for an unsized inner value.
     #[inline]
-    unsafe fn allocate_for_ptr(ptr: *const T) -> *mut ArcInner<T> {
+    unsafe fn allocate_for_value(value: &T) -> *mut ArcInner<T> {
+        let ptr: *const T = value;
         // Allocate for the `ArcInner<T>` using the given value.
         unsafe {
             Self::allocate_for_layout(
-                Layout::for_value(&*ptr),
+                Layout::for_value(value),
                 |layout| Global.allocate(layout),
                 |mem| strict::with_metadata_of(mem, ptr as *mut ArcInner<T>),
             )
@@ -909,7 +910,7 @@ impl<T: ?Sized> Arc<T> {
     fn from_box(src: Box<T>) -> Arc<T> {
         unsafe {
             let value_size = size_of_val(&*src);
-            let ptr = Self::allocate_for_ptr(&*src);
+            let ptr = Self::allocate_for_value(&*src);
 
             // Copy value as bytes
             ptr::copy_nonoverlapping(
