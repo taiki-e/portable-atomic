@@ -657,7 +657,7 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
             }
         }
         if !sparse_checkout.is_empty() {
-            cmd!("git", "sparse-checkout", "init",).dir(&src_dir).run()?;
+            cmd!("git", "sparse-checkout", "init").dir(&src_dir).run()?;
             let mut out = String::from("/*\n!/*/\n"); // always download top-level files
             out.push_str(&sparse_checkout.join("\n"));
             fs::write(src_dir.join(".git/info/sparse-checkout"), out)?;

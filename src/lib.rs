@@ -1921,7 +1921,7 @@ impl<T> AtomicPtr<T> {
     /// let array = [1i32, 2i32];
     /// let atom = AtomicPtr::new(array.as_ptr().wrapping_add(1) as *mut _);
     ///
-    /// assert!(core::ptr::eq(atom.fetch_ptr_sub(1, Ordering::Relaxed), &array[1],));
+    /// assert!(core::ptr::eq(atom.fetch_ptr_sub(1, Ordering::Relaxed), &array[1]));
     /// assert!(core::ptr::eq(atom.load(Ordering::Relaxed), &array[0]));
     /// ```
     #[inline]
