@@ -9,6 +9,7 @@
     non_camel_case_types,
     non_upper_case_globals,
     unreachable_pub,
+    clippy::pub_underscore_fields,
     clippy::unnecessary_cast,
     clippy::unreadable_literal,
 )]
