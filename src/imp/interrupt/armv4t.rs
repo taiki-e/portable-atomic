@@ -119,7 +119,7 @@ pub(crate) mod atomic {
                                     options(nostack, preserves_flags),
                                 );
                             }
-                            _ => unreachable!("{:?}", order),
+                            _ => unreachable!(),
                         }
                         out
                     }

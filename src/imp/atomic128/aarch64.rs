@@ -279,7 +279,7 @@ macro_rules! atomic_rmw {
             Ordering::SeqCst if $write == Ordering::SeqCst => $op!("a", "l", "dmb ish"),
             // AcqRel and SeqCst RMWs are equivalent in non-MSVC environments.
             Ordering::SeqCst => $op!("a", "l", ""),
-            _ => unreachable!("{:?}", $order),
+            _ => unreachable!(),
         }
     };
 }
@@ -404,7 +404,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                         }
                     })
                 }
-                _ => unreachable!("{:?}", order),
+                _ => unreachable!(),
             }
         }
     }
@@ -471,7 +471,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
                     options(nostack, preserves_flags),
                 );
             }
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
         U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
@@ -505,7 +505,7 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Relaxed => atomic_load!("", ""),
             Ordering::Acquire => atomic_load!("a", ""),
             Ordering::SeqCst => atomic_load!("a", "l"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
         U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
@@ -544,7 +544,7 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Relaxed => atomic_load!("", ""),
             Ordering::Acquire => atomic_load!("a", ""),
             Ordering::SeqCst => atomic_load!("a", "l"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
         U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
@@ -678,7 +678,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                         }
                     });
                 }
-                _ => unreachable!("{:?}", order),
+                _ => unreachable!(),
             }
         }
     }
@@ -752,7 +752,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
             }
             #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
             Ordering::SeqCst => atomic_store!("dmb ish", "dmb ish"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -950,7 +950,7 @@ unsafe fn atomic_compare_exchange(
                         }
                     })
                 }
-                _ => unreachable!("{:?}", success),
+                _ => unreachable!(),
             }
         }
     };

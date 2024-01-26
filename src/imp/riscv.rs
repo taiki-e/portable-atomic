@@ -33,7 +33,7 @@ macro_rules! atomic_rmw_amo_order {
             Ordering::Release => $op!(".rl"),
             // AcqRel and SeqCst RMWs are equivalent.
             Ordering::AcqRel | Ordering::SeqCst => $op!(".aqrl"),
-            _ => unreachable!("{:?}", $order),
+            _ => unreachable!(),
         }
     };
 }
@@ -201,7 +201,7 @@ macro_rules! atomic_load_store {
                                 options(nostack, preserves_flags),
                             );
                         }
-                        _ => unreachable!("{:?}", order),
+                        _ => unreachable!(),
                     }
                     out
                 }
@@ -234,7 +234,7 @@ macro_rules! atomic_load_store {
                                 options(nostack, preserves_flags),
                             );
                         }
-                        _ => unreachable!("{:?}", order),
+                        _ => unreachable!(),
                     }
                 }
             }

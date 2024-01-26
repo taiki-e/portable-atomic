@@ -178,7 +178,7 @@ unsafe fn atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     options(nostack, preserves_flags),
                 );
             }
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -359,7 +359,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     }
                 });
             }
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }

@@ -254,7 +254,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
         Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Release => panic!("there is no such thing as a release load"),
         Ordering::AcqRel => panic!("there is no such thing as an acquire-release load"),
-        _ => unreachable!("{:?}", order),
+        _ => unreachable!(),
     }
 }
 
@@ -266,7 +266,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
         Ordering::Release | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Acquire => panic!("there is no such thing as an acquire store"),
         Ordering::AcqRel => panic!("there is no such thing as an acquire-release store"),
-        _ => unreachable!("{:?}", order),
+        _ => unreachable!(),
     }
 }
 
@@ -280,13 +280,13 @@ pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Order
         | Ordering::Relaxed
         | Ordering::Release
         | Ordering::SeqCst => {}
-        _ => unreachable!("{:?}, {:?}", success, failure),
+        _ => unreachable!(),
     }
     match failure {
         Ordering::Acquire | Ordering::Relaxed | Ordering::SeqCst => {}
         Ordering::Release => panic!("there is no such thing as a release failure ordering"),
         Ordering::AcqRel => panic!("there is no such thing as an acquire-release failure ordering"),
-        _ => unreachable!("{:?}, {:?}", success, failure),
+        _ => unreachable!(),
     }
 }
 

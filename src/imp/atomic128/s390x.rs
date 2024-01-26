@@ -125,7 +125,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 portable_atomic_target_feature = "fast-serialization",
             )))]
             Ordering::SeqCst => atomic_store!("bcr 15, 0"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }

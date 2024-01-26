@@ -114,7 +114,7 @@ macro_rules! atomic_rmw {
             Ordering::Release => $op!("", "lwsync"),
             Ordering::AcqRel => $op!("lwsync", "lwsync"),
             Ordering::SeqCst => $op!("lwsync", "sync"),
-            _ => unreachable!("{:?}", $order),
+            _ => unreachable!(),
         }
     };
 }
@@ -176,7 +176,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     }
                 })
             }
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -229,7 +229,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
             }
             Ordering::Acquire => atomic_load_acquire!(""),
             Ordering::SeqCst => atomic_load_acquire!("sync"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
         U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
     }
@@ -286,7 +286,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     }
                 });
             }
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -320,7 +320,7 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::Relaxed => atomic_store!(""),
             Ordering::Release => atomic_store!("lwsync"),
             Ordering::SeqCst => atomic_store!("sync"),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -816,7 +816,7 @@ macro_rules! atomic_rmw_with_ifunc {
                             }
                         })
                     }
-                    _ => unreachable!("{:?}", order),
+                    _ => unreachable!(),
                 }
             }
         }

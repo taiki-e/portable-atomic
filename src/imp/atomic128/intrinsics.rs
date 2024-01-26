@@ -55,7 +55,7 @@ fn strongest_failure_ordering(order: Ordering) -> Ordering {
         Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
         Ordering::SeqCst => Ordering::SeqCst,
         Ordering::Acquire | Ordering::AcqRel => Ordering::Acquire,
-        _ => unreachable!("{:?}", order),
+        _ => unreachable!(),
     }
 }
 
@@ -77,7 +77,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             Acquire => intrinsics::atomic_load_acquire(src),
             Relaxed => intrinsics::atomic_load_relaxed(src),
             SeqCst => intrinsics::atomic_load_seqcst(src),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -97,7 +97,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             Release => intrinsics::atomic_store_release(dst, val),
             Relaxed => intrinsics::atomic_store_relaxed(dst, val),
             SeqCst => intrinsics::atomic_store_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -179,7 +179,7 @@ unsafe fn atomic_compare_exchange(
             (SeqCst, Relaxed) => intrinsics::atomic_cxchg_seqcst_relaxed(dst, old, new),
             (SeqCst, Acquire) => intrinsics::atomic_cxchg_seqcst_acquire(dst, old, new),
             (SeqCst, SeqCst) => intrinsics::atomic_cxchg_seqcst_seqcst(dst, old, new),
-            _ => unreachable!("{:?}, {:?}", success, failure),
+            _ => unreachable!(),
         }
     };
     if ok {
@@ -219,7 +219,7 @@ unsafe fn atomic_compare_exchange_weak(
             (SeqCst, Relaxed) => intrinsics::atomic_cxchgweak_seqcst_relaxed(dst, old, new),
             (SeqCst, Acquire) => intrinsics::atomic_cxchgweak_seqcst_acquire(dst, old, new),
             (SeqCst, SeqCst) => intrinsics::atomic_cxchgweak_seqcst_seqcst(dst, old, new),
-            _ => unreachable!("{:?}, {:?}", success, failure),
+            _ => unreachable!(),
         }
     };
     if ok {
@@ -270,7 +270,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_xchg_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xchg_relaxed(dst, val),
             SeqCst => intrinsics::atomic_xchg_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -287,7 +287,7 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_xadd_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xadd_relaxed(dst, val),
             SeqCst => intrinsics::atomic_xadd_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -304,7 +304,7 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_xsub_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xsub_relaxed(dst, val),
             SeqCst => intrinsics::atomic_xsub_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -321,7 +321,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_and_acqrel(dst, val),
             Relaxed => intrinsics::atomic_and_relaxed(dst, val),
             SeqCst => intrinsics::atomic_and_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -338,7 +338,7 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_nand_acqrel(dst, val),
             Relaxed => intrinsics::atomic_nand_relaxed(dst, val),
             SeqCst => intrinsics::atomic_nand_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -355,7 +355,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_or_acqrel(dst, val),
             Relaxed => intrinsics::atomic_or_relaxed(dst, val),
             SeqCst => intrinsics::atomic_or_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -372,7 +372,7 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_xor_acqrel(dst, val),
             Relaxed => intrinsics::atomic_xor_relaxed(dst, val),
             SeqCst => intrinsics::atomic_xor_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -390,7 +390,7 @@ unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
             AcqRel => intrinsics::atomic_max_acqrel(dst.cast::<i128>(), val as i128),
             Relaxed => intrinsics::atomic_max_relaxed(dst.cast::<i128>(), val as i128),
             SeqCst => intrinsics::atomic_max_seqcst(dst.cast::<i128>(), val as i128),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -408,7 +408,7 @@ unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
             AcqRel => intrinsics::atomic_min_acqrel(dst.cast::<i128>(), val as i128),
             Relaxed => intrinsics::atomic_min_relaxed(dst.cast::<i128>(), val as i128),
             SeqCst => intrinsics::atomic_min_seqcst(dst.cast::<i128>(), val as i128),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -425,7 +425,7 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_umax_acqrel(dst, val),
             Relaxed => intrinsics::atomic_umax_relaxed(dst, val),
             SeqCst => intrinsics::atomic_umax_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
@@ -442,7 +442,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
             AcqRel => intrinsics::atomic_umin_acqrel(dst, val),
             Relaxed => intrinsics::atomic_umin_relaxed(dst, val),
             SeqCst => intrinsics::atomic_umin_seqcst(dst, val),
-            _ => unreachable!("{:?}", order),
+            _ => unreachable!(),
         }
     }
 }
