@@ -2055,7 +2055,7 @@ impl<T: Default> Default for Arc<T> {
     /// assert_eq!(*x, 0);
     /// ```
     fn default() -> Self {
-        Self::new(Default::default())
+        Self::new(T::default())
     }
 }
 
