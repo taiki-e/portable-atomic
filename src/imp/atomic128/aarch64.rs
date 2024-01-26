@@ -211,7 +211,7 @@ macro_rules! debug_assert_lse2 {
     };
 }
 
-// Refs: https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/AArch32-Target-selection-directives?lang=en
+// Refs: https://developer.arm.com/documentation/100067/0611/armclang-Integrated-Assembler/AArch32-Target-selection-directives?lang=en
 //
 // This is similar to #[target_feature(enable = "lse")], except that there are
 // no compiler guarantees regarding (un)inlining, and the scope is within an asm
