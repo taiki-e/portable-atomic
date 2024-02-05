@@ -34,7 +34,7 @@ impl ProcCpuinfo {
             let text = fs::read_to_string("/proc/cpuinfo")?;
             let features = text
                     .lines()
-                    // On qemu-user, there is not 'Features' section because the host's /proc/cpuinfo will be referred to.
+                    // On qemu-user, there is no 'Features' section because the host's /proc/cpuinfo will be referred to.
                     // TODO: check whether a runner is set instead.
                     .find_map(|line| line.strip_prefix("Features")).ok_or("no 'Features' section in /proc/cpuinfo")?
                     .splitn(2, ':')
@@ -126,7 +126,7 @@ impl ProcCpuinfo {
             let text = fs::read_to_string("/proc/cpuinfo")?;
             let cpu = text
                     .lines()
-                    // On qemu-user, there is not 'cpu' section because the host's /proc/cpuinfo will be referred to.
+                    // On qemu-user, there is no 'cpu' section because the host's /proc/cpuinfo will be referred to.
                     // TODO: check whether a runner is set instead.
                     .find_map(|line| line.strip_prefix("cpu")).ok_or("no 'cpu' section in /proc/cpuinfo")?
                     .splitn(2, ':')

@@ -4,7 +4,7 @@
 
 #![allow(unused_macros)]
 
-// On AArch64, the base register of load/store/atomic instructions must be 64-bit.
+// On AArch64, the base register of memory-related instructions must be 64-bit.
 // Passing a 32-bit value to `in(reg)` on AArch64 results in the upper bits
 // having an undefined value, but to work correctly with ILP32 ABI, the upper
 // bits must be zero, which is handled here by casting to u64. Another way to

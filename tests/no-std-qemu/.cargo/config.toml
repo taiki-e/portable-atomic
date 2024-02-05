@@ -10,7 +10,7 @@ runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosti
 [target.thumbv7em-none-eabihf]
 runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.base-none-eabi]
-# TODO: As of QEMU 8.0, QEMU doesn't support -cpu cortex-m23
+# TODO: As of QEMU 8.2, QEMU doesn't support -cpu cortex-m23
 runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabi]
 runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
