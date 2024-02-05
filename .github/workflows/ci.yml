@@ -594,7 +594,7 @@ jobs:
       - id: diff
         run: tools/ci/gen.sh
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         with:
           title: Update generated code
           body: |
