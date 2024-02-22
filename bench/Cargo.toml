@@ -19,7 +19,7 @@ criterion = { default-features = false, git = "https://github.com/taiki-e/criter
 crossbeam-utils = "0.8"
 fastrand = "2"
 paste = "1"
-quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" }  # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + lower MSRV
+quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + lower MSRV
 static_assertions = "1"
 
 [[bench]]
