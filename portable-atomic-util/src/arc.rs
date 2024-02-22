@@ -1392,7 +1392,11 @@ impl<T> Weak<T> {
     #[inline]
     #[must_use]
     pub const fn new() -> Weak<T> {
-        Weak { ptr: unsafe { NonNull::new_unchecked(strict::invalid::<ArcInner<T>>(usize::MAX)) } }
+        Weak {
+            ptr: unsafe {
+                NonNull::new_unchecked(strict::without_provenance::<ArcInner<T>>(usize::MAX))
+            },
+        }
     }
 
     #[inline]
@@ -2645,7 +2649,7 @@ impl Global {
         #[inline]
         fn dangling(layout: Layout) -> NonNull<u8> {
             // SAFETY: align is guaranteed to be non-zero
-            unsafe { NonNull::new_unchecked(strict::invalid::<u8>(layout.align())) }
+            unsafe { NonNull::new_unchecked(strict::without_provenance::<u8>(layout.align())) }
         }
 
         match layout.size() {
@@ -2663,10 +2667,10 @@ impl Global {
 ///
 /// Once strict_provenance is stable, migrate to the standard library's APIs.
 mod strict {
-    /// Create a new, invalid pointer from an address.
+    /// Creates a pointer with the given address and no provenance.
     #[inline]
     #[must_use]
-    pub(super) const fn invalid<T>(addr: usize) -> *mut T {
+    pub(super) const fn without_provenance<T>(addr: usize) -> *mut T {
         // SAFETY: Every integer is a valid pointer as long as it is not dereferenced.
         #[cfg(miri)]
         unsafe {
@@ -2679,7 +2683,7 @@ mod strict {
         }
     }
 
-    /// Create a new pointer with the metadata of `other`.
+    /// Creates a new pointer with the metadata of `other`.
     #[inline]
     #[must_use]
     pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *mut U) -> *mut U {
