@@ -10,8 +10,6 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::sync::atomic::Ordering;
-
 use portable_atomic::*;
 
 #[avr_device::entry]

@@ -9,8 +9,6 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::sync::atomic::Ordering;
-
 use portable_atomic::*;
 
 use esp32_hal as _;

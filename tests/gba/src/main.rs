@@ -9,8 +9,6 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
-use core::sync::atomic::Ordering;
-
 use gba::prelude::*;
 use portable_atomic::*;
 
