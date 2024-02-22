@@ -3,6 +3,7 @@
 #![no_std]
 #![allow(
     missing_debug_implementations,
+    clippy::incompatible_msrv,
     clippy::missing_panics_doc,
     clippy::thread_local_initializer_can_be_made_const, // clippy bug: this lint doesn't consider MSRV
     clippy::undocumented_unsafe_blocks

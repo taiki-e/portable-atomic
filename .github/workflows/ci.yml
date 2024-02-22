@@ -112,6 +112,7 @@ jobs:
             flags: -Z codegen-backend=cranelift
           - rust: nightly-2024-02-05 # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
             target: aarch64_be-unknown-linux-gnu
+            flags: -A unknown_lints # TODO: buggy clippy::incompatible_msrv lint is not available on nightly-2024-02-05, so unknown_lints also need to be allowed.
           - rust: stable
             target: aarch64-unknown-linux-musl
           - rust: stable

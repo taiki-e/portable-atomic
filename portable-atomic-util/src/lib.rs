@@ -58,6 +58,9 @@ See [#1] for other primitives being considered for addition to this crate.
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
 )]
+#![allow(
+    clippy::incompatible_msrv, // false positive: this lint doesn't consider cfg
+)]
 // docs.rs only
 #![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 
