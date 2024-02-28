@@ -18,7 +18,6 @@ cbnz
 ccmp
 cdsg
 cinc
-cirruslabs
 clgr
 clidr
 cmovae

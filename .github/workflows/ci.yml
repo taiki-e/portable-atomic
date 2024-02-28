@@ -84,15 +84,23 @@ jobs:
           - rust: nightly
             flags: -Z codegen-backend=cranelift
           - rust: nightly
-            os: macos-latest
+            # target: x86_64-apple-darwin
+            os: macos-13
           - rust: nightly
+            # target: x86_64-pc-windows-msvc
             os: windows-latest
           - rust: nightly-x86_64-pc-windows-gnu
+            # target: x86_64-pc-windows-gnu
             os: windows-latest
           - rust: nightly-i686-pc-windows-msvc
+            # target: i686-pc-windows-msvc
             os: windows-latest
           - rust: nightly-i686-pc-windows-gnu
+            # target: i686-pc-windows-gnu
             os: windows-latest
+          - rust: nightly
+            target: aarch64-apple-darwin
+            os: macos-14
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
           # - rust: '1.64' # LLVM 14
@@ -239,13 +247,13 @@ jobs:
           target: ${{ matrix.target }}
         if: matrix.target != ''
       - run: echo "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
-        if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64')
+        if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64') && !startsWith(matrix.os, 'macos')
       - run: |
           echo "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
           echo "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
-        if: matrix.target != ''
+        if: matrix.target != '' && !contains(matrix.target, '-darwin')
       # TODO: LLVM bug: Undefined temporary symbol error when building std.
       - run: echo "RELEASE=--release" >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
@@ -295,15 +303,17 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+        # macOS is skipped because it is +lse,+lse2 by default
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # aarch64 +lse,+lse2
       - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
+        # macOS is skipped because it is +lse,+lse2 by default
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
