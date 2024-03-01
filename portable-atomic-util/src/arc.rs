@@ -162,7 +162,7 @@ unsafe impl<T: ?Sized + Sync + Send> Sync for Weak<T> {}
 
 impl<T: ?Sized> fmt::Debug for Weak<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(Weak)")
+        f.write_str("(Weak)")
     }
 }
 
