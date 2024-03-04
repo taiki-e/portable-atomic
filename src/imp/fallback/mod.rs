@@ -92,7 +92,6 @@ fn lock(addr: usize) -> &'static SeqLock {
     // crossbeam-utils 0.8.7 uses 97 here but does not use CachePadded,
     // so the actual concurrency level will be smaller.
     const LEN: usize = 67;
-    #[allow(clippy::declare_interior_mutable_const)]
     const L: CachePadded<SeqLock> = CachePadded::new(SeqLock::new());
     static LOCKS: [CachePadded<SeqLock>; LEN] = [
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,

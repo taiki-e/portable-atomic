@@ -13,7 +13,7 @@
 // - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/LICENSE-MIT
 
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
-#![allow(clippy::undocumented_unsafe_blocks)] // TODO
+#![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
 
 use portable_atomic::{
     self as atomic, hint,
@@ -2638,12 +2638,11 @@ fn is_dangling<T: ?Sized>(ptr: *const T) -> bool {
 //
 // Note: unlike alloc::alloc::Global that returns NonNull<[u8]>,
 // this returns NonNull<u8>.
-#[derive(Copy, Clone, Default, Debug)]
 struct Global;
-#[allow(clippy::trivially_copy_pass_by_ref, clippy::unused_self)]
+#[allow(clippy::unused_self)]
 impl Global {
     #[inline]
-    fn allocate(&self, layout: Layout) -> Option<NonNull<u8>> {
+    fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
         // Layout::dangling is unstable
         #[must_use]
         #[inline]

@@ -3,7 +3,6 @@
 #![no_main]
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
-#![allow(clippy::empty_loop)] // this test crate is #![no_std]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -83,6 +82,7 @@ fn main() -> ! {
     test_atomic_float!(f32);
     test_atomic_float!(f64);
 
+    #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}
 }
 
@@ -90,5 +90,6 @@ fn main() -> ! {
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     println!("{info}");
+    #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}
 }

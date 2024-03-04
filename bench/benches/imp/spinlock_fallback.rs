@@ -61,7 +61,6 @@ fn lock(addr: usize) -> SpinlockGuard<'static> {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
     const LEN: usize = 67;
-    #[allow(clippy::declare_interior_mutable_const)]
     const L: CachePadded<Spinlock> = CachePadded::new(Spinlock::new());
     static LOCKS: [CachePadded<Spinlock>; LEN] = [
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,

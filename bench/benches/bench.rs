@@ -5,7 +5,7 @@
     internal_features,
     unused_extern_crates,
     clippy::duplicate_mod,
-    clippy::incompatible_msrv, // https://github.com/rust-lang/rust-clippy/issues/12257
+    clippy::incompatible_msrv, // similar to https://github.com/rust-lang/rust-clippy/issues/12257, but for bench
     clippy::inline_always,
     clippy::naive_bytecount,
     clippy::only_used_in_recursion,
