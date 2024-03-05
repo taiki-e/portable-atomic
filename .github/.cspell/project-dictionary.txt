@@ -40,7 +40,6 @@ csrsi
 cxchg
 cxchgweak
 DESTDIR
-DEVEL
 dlsym
 DWCAS
 elems
