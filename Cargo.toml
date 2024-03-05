@@ -50,25 +50,25 @@ std = []
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-require-cas
 require-cas = []
 
-# Assume the target is single core, to enable implementations based on disabling interrupts.
-# IMPORTANT: This feature is unsafe. See the documentation for the safety contract:
-# https://github.com/taiki-e/portable-atomic#optional-features-unsafe-assume-single-core
-unsafe-assume-single-core = []
+# # Assume the target is single core, to enable implementations based on disabling interrupts.
+# # IMPORTANT: This feature is unsafe. See the documentation for the safety contract:
+# # https://github.com/taiki-e/portable-atomic#optional-features-unsafe-assume-single-core
+# unsafe-assume-single-core = []
 
-# The following are sub-features of the unsafe-assume-single-core feature and if enabled without
-# the unsafe-assume-single-core feature will result in a compile error.
-# There is no explicit "unsafe-" prefix because the user has already opted in to "unsafe" by
-# enabling the unsafe-assume-single-core feature, but misuse of these features is also usually
-# considered unsound.
-# See the interrupt module's readme for more: https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md
+# # The following are sub-features of the unsafe-assume-single-core feature and if enabled without
+# # the unsafe-assume-single-core feature will result in a compile error.
+# # There is no explicit "unsafe-" prefix because the user has already opted in to "unsafe" by
+# # enabling the unsafe-assume-single-core feature, but misuse of these features is also usually
+# # considered unsound.
+# # See the interrupt module's readme for more: https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md
 
-# For RISC-V targets, generate code for S mode to disable interrupts.
-s-mode = []
-# For RISC-V targets, use AMO instructions even if A-extension is disabled.
-# This feature requires Rust 1.72+.
-force-amo = []
-# For ARM targets, also disable FIQs when disabling interrupts.
-disable-fiq = []
+# # For RISC-V targets, generate code for S mode to disable interrupts.
+# s-mode = []
+# # For RISC-V targets, use AMO instructions even if A-extension is disabled.
+# # This feature requires Rust 1.72+.
+# force-amo = []
+# # For ARM targets, also disable FIQs when disabling interrupts.
+# disable-fiq = []
 
 # Note: serde and critical-section are public dependencies.
 [dependencies]

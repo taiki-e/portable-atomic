@@ -15,6 +15,8 @@ trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}
 # Note: This script requires the following tools:
 # - parse-changelog <https://github.com/taiki-e/parse-changelog>
 
+# TODO: test
+
 x() {
     local cmd="$1"
     shift
@@ -28,17 +30,17 @@ bail() {
     exit 1
 }
 
-crate="${1:?}"
+name="${1:?}"
 version="${2:?}"
 version="${version#v}"
-case "${crate}" in
+case "${name}" in
     portable-atomic)
         tag_prefix="v"
         dir="."
         ;;
     *)
-        tag_prefix="${crate}-"
-        dir="${crate}"
+        tag_prefix="${name}-"
+        dir="${name}"
         ;;
 esac
 tag="${tag_prefix}${version}"
@@ -67,6 +69,8 @@ fi
 
 release_date=$(date -u '+%Y-%m-%d')
 tags=$(git --no-pager tag | (grep -E "^${tag_prefix}[0-9]+" || true))
+docs=("${dir}/README.md" "${dir}/src/lib.rs")
+changed_paths=("${changelog}" "${docs[@]}" "${manifest_path}")
 if [[ -n "${tags}" ]]; then
     # Make sure the same release does not exist in changelog.
     if grep -Eq "^## \\[${version//./\\.}\\]" "${changelog}"; then
@@ -88,7 +92,48 @@ if [[ -n "${tags}" ]]; then
         bail "failed to update ${changelog}"
     fi
     prev_version="${prev_tag#"${tag_prefix}"}"
-    sed -i -e "s/version = \"${prev_version}\" #publish:version/version = \"${version}\" #publish:version/g" "${manifest_path}"
+    # Update version in Cargo.toml.
+    sed -i -e "s/^version = \"${prev_version}\" #publish:version/version = \"${version}\" #publish:version/g" "${manifest_path}"
+    # Update version in readme and lib.rs.
+    for path in "${docs[@]}"; do
+        # TODO: handle pre-release
+        if [[ "${version}" == "0.0."* ]]; then
+            # 0.0.x -> 0.0.x2
+            if grep -Eq "^${name} = \"${prev_version}\"" "${path}"; then
+                sed -i -E -e "s/^${name} = \"${prev_version}\"/${name} = \"${version}\"/g" "${path}"
+            fi
+            if grep -Eq "^${name} = \\{ version = \"${prev_version}\"" "${path}"; then
+                sed -i -E -e "s/^${name} = \\{ version = \"${prev_version}\"/${name} = { version = \"${version}\"/g" "${path}"
+            fi
+        elif [[ "${version}" == "0."* ]]; then
+            prev_major_minor="${prev_version%.*}"
+            major_minor="${version%.*}"
+            if [[ "${prev_major_minor}" != "${major_minor}" ]]; then
+                # 0.x -> 0.x2
+                # 0.x.* -> 0.x2
+                if grep -Eq "^${name} = \"${prev_major_minor}(\\.[0-9]+)?\"" "${path}"; then
+                    sed -i -E -e "s/^${name} = \"${prev_major_minor}(\\.[0-9]+)?\"/${name} = \"${major_minor}\"/g" "${path}"
+                fi
+                if grep -Eq "^${name} = \\{ version = \"${prev_major_minor}(\\.[0-9]+)?\"" "${path}"; then
+                    sed -i -E -e "s/^${name} = \\{ version = \"${prev_major_minor}(\\.[0-9]+)?\"/${name} = { version = \"${major_minor}\"/g" "${path}"
+                fi
+            fi
+        else
+            prev_major="${prev_version%%.*}"
+            major="${version%%.*}"
+            if [[ "${prev_major}" != "${major}" ]]; then
+                # x -> x2
+                # x.* -> x2
+                # x.*.* -> x2
+                if grep -Eq "^${name} = \"${prev_major}(\\.[0-9]+(\\.[0-9]+)?)?\"" "${path}"; then
+                    sed -i -E -e "s/^${name} = \"${prev_major}(\\.[0-9]+(\\.[0-9]+)?)?\"/${name} = \"${major}\"/g" "${path}"
+                fi
+                if grep -Eq "^${name} = \\{ version = \"${prev_major}(\\.[0-9]+(\\.[0-9]+)?)?\"" "${path}"; then
+                    sed -i -E -e "s/^${name} = \\{ version = \"${prev_major}(\\.[0-9]+(\\.[0-9]+)?)?\"/${name} = { version = \"${major}\"/g" "${path}"
+                fi
+            fi
+        fi
+    done
 else
     # Make sure the release exists in changelog.
     if ! grep -Eq "^## \\[${version//./\\.}\\] - ${release_date}$" "${changelog}"; then
@@ -111,8 +156,8 @@ echo "======================================="
 
 if [[ -n "${tags}" ]]; then
     # Create a release commit.
-    x git add "${changelog}" "${manifest_path}"
-    x git commit -m "Release ${crate} ${version}"
+    x git add "${changed_paths[@]}"
+    x git commit -m "Release ${name} ${version}"
 fi
 
 x git tag "${tag}"

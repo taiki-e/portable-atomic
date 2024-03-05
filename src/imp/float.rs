@@ -10,6 +10,8 @@
 // GPU targets have atomic instructions for float, so GPU targets will use
 // architecture-specific implementations instead of this implementation in the
 // future: https://github.com/taiki-e/portable-atomic/issues/34
+//
+// TODO: check https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p3008r0.html
 
 #![cfg_attr(
     all(target_pointer_width = "16", not(feature = "fallback")),

@@ -15,6 +15,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 <!-- TODO:
 - mention Atomic{I,U}*::fetch_neg, Atomic{I*,U*,Ptr}::bit_*, etc.
+- mention perf
 - mention portable-atomic-util crate
 -->
 
@@ -210,6 +211,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     clippy::std_instead_of_core,
 )]
 #![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
+#![cfg_attr(not(feature = "float"), warn(clippy::float_arithmetic))]
 #![allow(
     clippy::cast_lossless,
     clippy::incompatible_msrv, // false positive: this lint doesn't consider cfg
@@ -528,6 +530,8 @@ use core::{fmt, ptr};
 
 #[cfg(miri)]
 use crate::utils::strict;
+
+// TODO: reflect doc updates in https://github.com/rust-lang/rust/pull/120823 / https://github.com/rust-lang/rust/pull/121943 / https://github.com/rust-lang/rust/pull/121977
 
 cfg_has_atomic_8! {
 cfg_has_atomic_cas! {

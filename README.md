@@ -21,6 +21,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 <!-- TODO:
 - mention Atomic{I,U}*::fetch_neg, Atomic{I*,U*,Ptr}::bit_*, etc.
+- mention perf
 - mention portable-atomic-util crate
 -->
 

@@ -75,6 +75,7 @@ macro_rules! acquire {
     };
 }
 
+// TODO: add note and workaround about CoerceUnsized https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569
 /// A thread-safe, strongly reference counted pointer.
 ///
 /// This is an equivalent to [`std::sync::Arc`], but using [portable-atomic] for synchronization.
@@ -528,6 +529,7 @@ impl<T> Arc<[mem::MaybeUninit<T>]> {
 }
 
 impl<T: ?Sized> Arc<T> {
+    // TODO: reflect doc updates in https://github.com/rust-lang/rust/pull/120449 / https://github.com/rust-lang/rust/pull/121287
     /// Constructs an `Arc<T>` from a raw pointer.
     ///
     /// # Safety
@@ -2446,7 +2448,7 @@ use std::os::wasi::prelude as fd;
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(any(unix, target_os = "wasi"))]
-impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
+impl<T: fd::AsRawFd + ?Sized> fd::AsRawFd for Arc<T> {
     #[inline]
     fn as_raw_fd(&self) -> fd::RawFd {
         (**self).as_raw_fd()
@@ -2467,7 +2469,7 @@ impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(any(unix, target_os = "wasi"))]
-impl<T: fd::AsFd> fd::AsFd for Arc<T> {
+impl<T: fd::AsFd + ?Sized> fd::AsFd for Arc<T> {
     #[inline]
     fn as_fd(&self) -> fd::BorrowedFd<'_> {
         (**self).as_fd()
@@ -2485,7 +2487,7 @@ impl<T: fd::AsFd> fd::AsFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(windows)]
-impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
+impl<T: std::os::windows::io::AsHandle + ?Sized> std::os::windows::io::AsHandle for Arc<T> {
     #[inline]
     fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
         (**self).as_handle()
@@ -2503,7 +2505,7 @@ impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(windows)]
-impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
+impl<T: std::os::windows::io::AsSocket + ?Sized> std::os::windows::io::AsSocket for Arc<T> {
     #[inline]
     fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
         (**self).as_socket()

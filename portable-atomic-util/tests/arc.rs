@@ -32,6 +32,8 @@ mod alloc_tests {
         thread,
     };
 
+    // TODO: test with T == Box case
+
     use portable_atomic as atomic;
     use portable_atomic_util::{Arc, Weak};
 
