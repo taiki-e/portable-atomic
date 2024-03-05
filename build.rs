@@ -34,6 +34,8 @@ fn main() {
     let target_os = &*env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
     // HACK: If --target is specified, rustflags is not applied to the build
     // script itself, so the build script will not be rerun when these are changed.
+    // TODO: once https://github.com/rust-lang/cargo/issues/13003 is fixed,
+    // remove this hack in the version that contains the fix.
     //
     // Ideally, the build script should be rebuilt when CARGO_ENCODED_RUSTFLAGS
     // is changed, but since it is an environment variable set by cargo,
