@@ -352,7 +352,8 @@ mod tests {
             let mut digits = release.split('.');
             let major = digits.next().unwrap().parse::<u32>().unwrap();
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
-            if (major, minor) < (6, 4) {
+            // TODO: qemu-user bug?
+            if (major, minor) < (6, 4) || cfg!(qemu) {
                 std::eprintln!("kernel version: {major}.{minor} (no pr_get_auxv)");
                 assert_eq!(getauxval_pr_get_auxv(ffi::AT_HWCAP).unwrap_err(), -22);
                 assert_eq!(getauxval_pr_get_auxv(ffi::AT_HWCAP2).unwrap_err(), -22);
