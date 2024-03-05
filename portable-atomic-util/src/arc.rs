@@ -2411,14 +2411,21 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
-// Note: T: ?Sized will be allowed once https://github.com/rust-lang/rust/pull/114655 merged.
+// TODO:
+// - T: ?Sized will be allowed once https://github.com/rust-lang/rust/pull/114655 merged.
+//   - this doesn't currently applied for AsRawFd/AsSocket: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
+// - std doesn't implement AsRawHandle/AsRawSocket for Arc as of 1.77.
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(unix)]
 use std::os::unix::io as fd;
-// - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
-// - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
+// - std::os::unix::io::AsRawFd and std::os::windows::io::{AsRawHandle, AsRawSocket} are available in all versions
 // - std::os::wasi::prelude::AsRawFd requires 1.56 (https://github.com/rust-lang/rust/commit/e555003e6d6b6d71ce5509a6b6c7a15861208d6c)
+// - std::os::unix::io::AsFd, std::os::wasi::prelude::AsFd, and std::os::windows::io::{AsHandle, AsSocket} require Rust 1.63
+// - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
+// - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
+// - std::os::solid::io::AsFd is unstable (solid_ext, https://github.com/rust-lang/rust/pull/115159)
+// Note: we don't implement unstable ones.
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(target_os = "wasi")]

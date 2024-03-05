@@ -143,7 +143,7 @@ macro_rules! __test_atomic_int {
                 assert_eq!(a.load(Ordering::Relaxed), 0b100001);
             }
         }
-        // TODO: wrong result or compiler segfault
+        // TODO: compiler segfault
         #[cfg(not(target_arch = "xtensa"))]
         __run_test!(fetch_nand);
         #[cfg(not(target_arch = "xtensa"))]
