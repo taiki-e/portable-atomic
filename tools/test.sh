@@ -258,9 +258,17 @@ run() {
     fi
 
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
-    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-        CARGO_PROFILE_RELEASE_LTO=fat \
-        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
+    if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer=memory ]]; then
+        # Workaround https://github.com/google/sanitizers/issues/558
+        CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
+            CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+            CARGO_PROFILE_RELEASE_LTO=fat \
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
+    else
+        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+            CARGO_PROFILE_RELEASE_LTO=fat \
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
+    fi
 
     # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
     if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
