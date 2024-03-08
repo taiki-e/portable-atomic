@@ -30,6 +30,7 @@
     target_pointer_width = "32",
     any(
         target_arch = "aarch64",
+        target_arch = "arm64ec",
         target_arch = "bpf",
         target_arch = "loongarch64",
         target_arch = "mips64",
@@ -66,6 +67,7 @@ macro_rules! ptr_reg {
     target_pointer_width = "32",
     any(
         target_arch = "aarch64",
+        target_arch = "arm64ec",
         target_arch = "bpf",
         target_arch = "loongarch64",
         target_arch = "mips64",
@@ -95,6 +97,7 @@ macro_rules! ptr_reg {
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
     target_arch = "aarch64",
+    target_arch = "arm64ec",
     target_arch = "bpf",
     target_arch = "loongarch64",
     target_arch = "mips64",
@@ -122,6 +125,7 @@ mod fast_atomic_64_macros {
 #[cfg(not(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
     target_arch = "aarch64",
+    target_arch = "arm64ec",
     target_arch = "bpf",
     target_arch = "loongarch64",
     target_arch = "mips64",
