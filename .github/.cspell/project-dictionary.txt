@@ -134,7 +134,6 @@ sstatus
 stdarch
 stdbool
 stddef
-stdsimd
 stilp
 stlxp
 stpq

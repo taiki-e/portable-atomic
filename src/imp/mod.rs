@@ -47,6 +47,7 @@ mod aarch64;
 // x86_64 128-bit atomics
 #[cfg(all(
     target_arch = "x86_64",
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic)),
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(
         target_feature = "cmpxchg16b",
@@ -329,6 +330,10 @@ items! {
         ),
         all(
             target_arch = "x86_64",
+            not(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_no_cmpxchg16b_intrinsic,
+            )),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
@@ -400,6 +405,7 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // x86_64 & (cmpxchg16b | outline-atomics)
 #[cfg(all(
     target_arch = "x86_64",
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic,)),
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(
         target_feature = "cmpxchg16b",

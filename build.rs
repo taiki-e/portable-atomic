@@ -183,7 +183,7 @@ fn main() {
             // For Miri and ThreadSanitizer.
             // https://github.com/rust-lang/rust/pull/109359 (includes https://github.com/rust-lang/stdarch/pull/1358) merged in Rust 1.70 (nightly-2023-03-24).
             if version.nightly && !version.probe(70, 2023, 3, 23) {
-                println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_intrinsic");
+                println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_intrinsic");
             }
 
             // x86_64 Apple targets always support CMPXCHG16B:

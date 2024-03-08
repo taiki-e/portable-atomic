@@ -299,15 +299,6 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(core_intrinsics)
 )]
-// This feature is only enabled for old nightly because cmpxchg16b_intrinsic has been stabilized.
-#![cfg_attr(
-    all(
-        target_arch = "x86_64",
-        portable_atomic_unstable_cmpxchg16b_intrinsic,
-        any(miri, portable_atomic_sanitize_thread),
-    ),
-    feature(stdsimd)
-)]
 // docs.rs only
 #![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 #![cfg_attr(

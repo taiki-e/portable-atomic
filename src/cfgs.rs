@@ -226,6 +226,10 @@ mod atomic_64_macros {
         ),
         all(
             target_arch = "x86_64",
+            not(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_no_cmpxchg16b_intrinsic,
+            )),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
@@ -312,6 +316,10 @@ mod atomic_128_macros {
         ),
         all(
             target_arch = "x86_64",
+            not(all(
+                any(miri, portable_atomic_sanitize_thread),
+                portable_atomic_no_cmpxchg16b_intrinsic,
+            )),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(
                 target_feature = "cmpxchg16b",
