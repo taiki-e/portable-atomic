@@ -170,15 +170,7 @@ fn main() {
         "x86_64" => {
             // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
             if !version.probe(69, 2023, 2, 28) {
-                if version.nightly && is_allowed_feature("cmpxchg16b_target_feature") {
-                    // This feature has not been changed since 1.33
-                    // (https://github.com/rust-lang/rust/commit/fbb56bcf44d28e65a9495decf091b6d0386e540c)
-                    // until it was stabilized in nightly-2023-03-01, so it can be safely enabled in
-                    // nightly, which is older than nightly-2023-03-01.
-                    println!("cargo:rustc-cfg=portable_atomic_unstable_cmpxchg16b_target_feature");
-                } else {
-                    println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
-                }
+                println!("cargo:rustc-cfg=portable_atomic_no_cmpxchg16b_target_feature");
             }
             // For Miri and ThreadSanitizer.
             // https://github.com/rust-lang/rust/pull/109359 (includes https://github.com/rust-lang/stdarch/pull/1358) merged in Rust 1.70 (nightly-2023-03-24).

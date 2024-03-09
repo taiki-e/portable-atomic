@@ -54,7 +54,6 @@ mod aarch64;
         portable_atomic_target_feature = "cmpxchg16b",
         all(
             feature = "fallback",
-            not(portable_atomic_no_cmpxchg16b_target_feature),
             not(portable_atomic_no_outline_atomics),
             not(any(target_env = "sgx", miri)),
         ),
@@ -340,7 +339,6 @@ items! {
                 portable_atomic_target_feature = "cmpxchg16b",
                 all(
                     feature = "fallback",
-                    not(portable_atomic_no_cmpxchg16b_target_feature),
                     not(portable_atomic_no_outline_atomics),
                     not(any(target_env = "sgx", miri)),
                 ),
@@ -405,14 +403,13 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
 // x86_64 & (cmpxchg16b | outline-atomics)
 #[cfg(all(
     target_arch = "x86_64",
-    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic,)),
+    not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic)),
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(
         target_feature = "cmpxchg16b",
         portable_atomic_target_feature = "cmpxchg16b",
         all(
             feature = "fallback",
-            not(portable_atomic_no_cmpxchg16b_target_feature),
             not(portable_atomic_no_outline_atomics),
             not(any(target_env = "sgx", miri)),
         ),

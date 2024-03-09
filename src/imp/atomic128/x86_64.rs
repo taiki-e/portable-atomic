@@ -65,8 +65,15 @@ macro_rules! ptr_modifier {
     };
 }
 
+// Unlike AArch64 and RISC-V, x86's assembler doesn't check instruction
+// requirements for the currently enabled target features. In the first place,
+// there is no option in the x86 assembly for such case, like ARM .arch_extension,
+// RISC-V .option arch, PowerPC .machine, etc.
+// However, we set target_feature(enable) when available (Rust 1.69+) in case a
+// new codegen backend is added that checks for it in the future, or an option
+// is added to the assembler to check for it.
 #[cfg_attr(
-    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    not(portable_atomic_no_cmpxchg16b_target_feature),
     target_feature(enable = "cmpxchg16b")
 )]
 #[inline]
@@ -260,8 +267,9 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
         })
     }
 }
+// See cmpxchg16b() for target_feature(enable).
 #[cfg_attr(
-    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    not(portable_atomic_no_cmpxchg16b_target_feature),
     target_feature(enable = "cmpxchg16b")
 )]
 #[inline]
@@ -363,10 +371,12 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
 }
+// See cmpxchg16b() for target_feature(enable).
 #[cfg_attr(
-    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    not(portable_atomic_no_cmpxchg16b_target_feature),
     target_feature(enable = "cmpxchg16b")
 )]
+#[inline]
 unsafe fn atomic_store_cmpxchg16b(dst: *mut u128, val: u128) {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -413,8 +423,9 @@ use atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
 use atomic_swap_cmpxchg16b as atomic_swap;
+// See cmpxchg16b() for target_feature(enable).
 #[cfg_attr(
-    not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    not(portable_atomic_no_cmpxchg16b_target_feature),
     target_feature(enable = "cmpxchg16b")
 )]
 #[inline]
@@ -487,8 +498,9 @@ macro_rules! atomic_rmw_cas_3 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         use $name as $reexport_name;
+        // See cmpxchg16b() for target_feature(enable).
         #[cfg_attr(
-            not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+            not(portable_atomic_no_cmpxchg16b_target_feature),
             target_feature(enable = "cmpxchg16b")
         )]
         #[inline]
@@ -558,8 +570,9 @@ macro_rules! atomic_rmw_cas_2 {
     ($name:ident as $reexport_name:ident, $($op:tt)*) => {
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         use $name as $reexport_name;
+        // See cmpxchg16b() for target_feature(enable).
         #[cfg_attr(
-            not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+            not(portable_atomic_no_cmpxchg16b_target_feature),
             target_feature(enable = "cmpxchg16b")
         )]
         #[inline]
@@ -729,11 +742,9 @@ macro_rules! atomic_rmw_with_ifunc {
         #[inline]
         unsafe fn $name($($arg)*, _order: Ordering) $(-> $ret_ty)? {
             fn_alias! {
+                // See cmpxchg16b() for target_feature(enable).
                 #[cfg_attr(
-                    not(any(
-                        target_feature = "cmpxchg16b",
-                        portable_atomic_target_feature = "cmpxchg16b",
-                    )),
+                    not(portable_atomic_no_cmpxchg16b_target_feature),
                     target_feature(enable = "cmpxchg16b")
                 )]
                 unsafe fn($($arg)*) $(-> $ret_ty)?;

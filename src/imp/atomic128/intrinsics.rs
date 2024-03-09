@@ -113,7 +113,7 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     #[cfg(target_arch = "x86_64")]
     let (val, ok) = {
-        #[cfg_attr(not(target_feature = "cmpxchg16b"), target_feature(enable = "cmpxchg16b"))]
+        #[target_feature(enable = "cmpxchg16b")]
         #[cfg_attr(target_feature = "cmpxchg16b", inline)]
         #[cfg_attr(not(target_feature = "cmpxchg16b"), inline(never))]
         unsafe fn cmpxchg16b(
