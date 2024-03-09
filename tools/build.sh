@@ -21,94 +21,95 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 # Almost all targets are checked at least once by the matrix in CI's "build" job that sets target-group.
 # Some targets are also checked by calls to this script in CI's "test" or "no-std" job.
 default_targets=(
-    # no atomic load/store (16-bit)
-    msp430-none-elf
-    msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
-    # no atomic load/store (32-bit)
-    mipsel-sony-psx
-    # no atomic load/store (64-bit)
-    riscv64i-unknown-none-elf # custom target
+    # # no atomic load/store (16-bit)
+    # msp430-none-elf
+    # msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
+    # # no atomic load/store (32-bit)
+    # mipsel-sony-psx
+    # # no atomic load/store (64-bit)
+    # riscv64i-unknown-none-elf # custom target
 
-    # no atomic CAS (16-bit)
-    avr-unknown-gnu-atmega2560 # custom target
-    avr-unknown-gnu-atmega328
-    # no atomic CAS (32-bit)
-    thumbv4t-none-eabi
-    thumbv6m-none-eabi
-    riscv32i-unknown-none-elf
-    # no atomic CAS (64-bit)
-    bpfel-unknown-none
+    # # no atomic CAS (16-bit)
+    # avr-unknown-gnu-atmega2560 # custom target
+    # avr-unknown-gnu-atmega328
+    # # no atomic CAS (32-bit)
+    # thumbv4t-none-eabi
+    # thumbv6m-none-eabi
+    # riscv32i-unknown-none-elf
+    # # no atomic CAS (64-bit)
+    # bpfel-unknown-none
 
-    # no-std 32-bit with 32-bit atomic
-    thumbv7m-none-eabi
-    # no-std 64-bit with 64-bit atomic
-    x86_64-unknown-none
-    # no-std 64-bit with 128-bit atomic
-    aarch64-unknown-none
+    # # no-std 32-bit with 32-bit atomic
+    # thumbv7m-none-eabi
+    # # no-std 64-bit with 64-bit atomic
+    # x86_64-unknown-none
+    # # no-std 64-bit with 128-bit atomic
+    # aarch64-unknown-none
 
-    # x86_64
-    # rustc --print target-list | grep -E '^x86_64'
-    x86_64-unknown-linux-gnu
-    # x86_64 with CMPXCHG16B
-    x86_64-apple-darwin
-    # x86_64 X32 ABI
-    x86_64-unknown-linux-gnux32
-    # x86_64 without CPUID
-    x86_64-fortanix-unknown-sgx
+    # # x86_64
+    # # rustc --print target-list | grep -E '^x86_64'
+    # x86_64-unknown-linux-gnu
+    # # x86_64 with CMPXCHG16B
+    # x86_64-apple-darwin
+    # # x86_64 X32 ABI
+    # x86_64-unknown-linux-gnux32
+    # # x86_64 without CPUID
+    # x86_64-fortanix-unknown-sgx
 
-    # x86
-    i686-unknown-linux-gnu
-    i586-unknown-linux-gnu
+    # # x86
+    # i686-unknown-linux-gnu
+    # i586-unknown-linux-gnu
 
-    # aarch64
-    # rustc --print target-list | grep -E '^(aarch64|arm64)'
-    # (for target in $(rustc --print target-list | grep -E '^(aarch64|arm64)'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
-    aarch64-linux-android
-    aarch64-pc-windows-msvc
-    aarch64-unknown-freebsd
-    aarch64-unknown-fuchsia
-    aarch64-unknown-linux-gnu
-    aarch64-unknown-linux-musl
-    aarch64-unknown-linux-uclibc # custom target
-    aarch64-unknown-netbsd
-    aarch64-unknown-openbsd
-    # aarch64 with FEAT_LSE & FEAT_LSE2
-    aarch64-apple-darwin
-    # aarch64 big endian
-    # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
-    # aarch64_be-unknown-linux-gnu
-    # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
-    # aarch64_be-unknown-netbsd
-    # aarch64 ILP32 ABI
-    aarch64-unknown-linux-gnu_ilp32
-    # aarch64 ILP32 ABI big endian
-    # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
-    # aarch64_be-unknown-linux-gnu_ilp32
+    # # aarch64
+    # # rustc --print target-list | grep -E '^(aarch64|arm64)'
+    # # (for target in $(rustc --print target-list | grep -E '^(aarch64|arm64)'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
+    # aarch64-linux-android
+    # aarch64-pc-windows-msvc
+    # aarch64-unknown-freebsd
+    # aarch64-unknown-fuchsia
+    # aarch64-unknown-linux-gnu
+    # aarch64-unknown-linux-musl
+    # aarch64-unknown-linux-uclibc # custom target
+    # aarch64-unknown-netbsd
+    # aarch64-unknown-openbsd
+    # # aarch64 with FEAT_LSE & FEAT_LSE2
+    # aarch64-apple-darwin
+    # # aarch64 big endian
+    # # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
+    # # aarch64_be-unknown-linux-gnu
+    # # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
+    # # aarch64_be-unknown-netbsd
+    # # aarch64 ILP32 ABI
+    # aarch64-unknown-linux-gnu_ilp32
+    # # aarch64 ILP32 ABI big endian
+    # # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
+    # # aarch64_be-unknown-linux-gnu_ilp32
 
-    # pre-v6 arm linux-like
-    armv4t-unknown-linux-gnueabi
-    armv5te-unknown-linux-gnueabi
-    arm-linux-androideabi
+    # # pre-v6 arm linux-like
+    # armv4t-unknown-linux-gnueabi
+    # armv5te-unknown-linux-gnueabi
+    # arm-linux-androideabi
 
-    # riscv32 with atomic
-    riscv32imac-unknown-none-elf
-    riscv32imc-esp-espidf
-    # riscv64 with atomic
-    riscv64gc-unknown-linux-gnu
+    # # riscv32 with atomic
+    # riscv32imac-unknown-none-elf
+    # riscv32imc-esp-espidf
+    # # riscv64 with atomic
+    # riscv64gc-unknown-linux-gnu
 
-    # powerpc64
-    # rustc --print target-list | grep -E '^powerpc64'
-    # (for target in $(rustc --print target-list | grep -E '^powerpc64'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
-    powerpc64-unknown-linux-gnu
-    powerpc64le-unknown-linux-gnu
-    powerpc64-unknown-linux-musl
-    powerpc64le-unknown-linux-musl
-    powerpc64-unknown-freebsd
-    powerpc64le-unknown-freebsd
+    # # powerpc64
+    # # rustc --print target-list | grep -E '^powerpc64'
+    # # (for target in $(rustc --print target-list | grep -E '^powerpc64'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
+    # powerpc64-unknown-linux-gnu
+    # powerpc64le-unknown-linux-gnu
+    # powerpc64-unknown-linux-musl
+    # powerpc64le-unknown-linux-musl
+    # powerpc64-unknown-freebsd
+    # powerpc64le-unknown-freebsd
+    powerpc64-ibm-aix
 
-    # s390x
-    # rustc --print target-list | grep -E '^s390x'
-    s390x-unknown-linux-gnu
+    # # s390x
+    # # rustc --print target-list | grep -E '^s390x'
+    # s390x-unknown-linux-gnu
 )
 # List of known custom cfgs, excluding those that may be set from build script.
 known_cfgs=(

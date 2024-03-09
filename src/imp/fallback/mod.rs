@@ -37,6 +37,7 @@
                 ),
                 target_os = "android",
                 target_os = "freebsd",
+                target_os = "aix",
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),

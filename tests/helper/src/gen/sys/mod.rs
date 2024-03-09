@@ -375,3 +375,21 @@ mod aarch64_fuchsia;
     )
 )]
 pub use aarch64_fuchsia::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "aix",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_ibm_aix;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "aix",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_ibm_aix::*;

@@ -174,6 +174,7 @@ mod c_types {
         let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
+        #[cfg(not(target_os = "aix"))]
         let _: c_char = 0 as std::os::raw::c_char;
         let _: c_char = 0 as sys::c_char;
     };
