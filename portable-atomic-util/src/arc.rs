@@ -242,7 +242,6 @@ impl<T> Arc<T> {
     /// # Example
     ///
     /// ```
-    /// # #![allow(dead_code)]
     /// use portable_atomic_util::{Arc, Weak};
     ///
     /// struct Gadget {
