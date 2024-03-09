@@ -299,12 +299,14 @@ fn main() {
                         );
                     }
                 }
+                let mut v5te = known && subarch.starts_with("v5te");
                 let v6 = known
                     && (subarch.starts_with("v6")
                         || subarch.starts_with("v7")
                         || subarch.starts_with("v8")
                         || subarch.starts_with("v9"));
-                target_feature_fallback("v6", v6);
+                v5te |= target_feature_fallback("v6", v6);
+                target_feature_fallback("v5te", v5te);
                 target_feature_fallback("mclass", mclass);
             }
         }
