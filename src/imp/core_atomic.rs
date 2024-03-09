@@ -22,7 +22,7 @@ unsafe impl Sync for NotRefUnwindSafe {}
 
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
-    inner: core::sync::atomic::AtomicPtr<T>,
+    pub(crate) inner: core::sync::atomic::AtomicPtr<T>,
     // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
     _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
 }
@@ -47,6 +47,13 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn into_inner(self) -> *mut T {
         self.inner.into_inner()
     }
+    #[cfg(not(all(
+        not(any(miri, portable_atomic_sanitize_thread)),
+        not(portable_atomic_no_asm),
+        target_arch = "arm",
+        any(target_os = "linux", target_os = "android"),
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    )))]
     #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -56,6 +63,13 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_load_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.load(order)
     }
+    #[cfg(not(all(
+        not(any(miri, portable_atomic_sanitize_thread)),
+        not(portable_atomic_no_asm),
+        target_arch = "arm",
+        any(target_os = "linux", target_os = "android"),
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    )))]
     #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -127,7 +141,7 @@ macro_rules! atomic_int {
     ($atomic_type:ident, $int_type:ident) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
-            inner: core::sync::atomic::$atomic_type,
+            pub(crate) inner: core::sync::atomic::$atomic_type,
             // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
             _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
         }
@@ -177,6 +191,13 @@ macro_rules! atomic_int {
             pub(crate) fn into_inner(self) -> $int_type {
                 self.inner.into_inner()
             }
+            #[cfg(not(all(
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(portable_atomic_no_asm),
+                target_arch = "arm",
+                any(target_os = "linux", target_os = "android"),
+                not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+            )))]
             #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -186,6 +207,13 @@ macro_rules! atomic_int {
                 crate::utils::assert_load_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.load(order)
             }
+            #[cfg(not(all(
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(portable_atomic_no_asm),
+                target_arch = "arm",
+                any(target_os = "linux", target_os = "android"),
+                not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+            )))]
             #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),

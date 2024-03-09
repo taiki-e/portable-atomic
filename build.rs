@@ -259,12 +259,14 @@ fn main() {
                 }
             }
             target_feature_if("mclass", is_mclass, &version, Nightly);
+            let mut v5te = known && subarch.starts_with("v5te");
             let v6 = known
                 && (subarch.starts_with("v6")
                     || subarch.starts_with("v7")
                     || subarch.starts_with("v8")
                     || subarch.starts_with("v9"));
-            target_feature_if("v6", v6, &version, Nightly);
+            v5te |= target_feature_if("v6", v6, &version, Nightly);
+            target_feature_if("v5te", v5te, &version, Nightly);
         }
         "powerpc64" => {
             // For Miri and ThreadSanitizer.
