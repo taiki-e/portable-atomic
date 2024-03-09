@@ -20,6 +20,7 @@ mod fallback;
 
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(not(target_env = "sgx"))]
+#[cfg_attr(not(target_feature = "sse"), cfg(not(target_feature = "cmpxchg16b")))]
 #[path = "detect/x86_64.rs"]
 mod detect;
 
@@ -131,8 +132,11 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 //
 // Refs: https://www.felixcloutier.com/x86/movdqa:vmovdqa32:vmovdqa64
 //
-// Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
-// https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+// Use cfg(target_feature = "sse") here -- SSE is included in the x86_64
+// baseline and is always available, but the SSE target feature is disabled for
+// use cases such as kernels and firmware that should not use vector registers.
+// So, do not use vector registers unless SSE target feature is enabled.
+// See also https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html.
 #[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]
@@ -208,7 +212,7 @@ macro_rules! load_store_detect {
         {
             // Check CMPXCHG16B first to prevent mixing atomic and non-atomic access.
             if cpuid.has_cmpxchg16b() {
-                // We do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
+                // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() for more.
                 #[cfg(target_feature = "sse")]
                 {
                     if cpuid.has_vmovdqa_atomic() {
@@ -238,8 +242,7 @@ macro_rules! load_store_detect {
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
-    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
-    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() for more.
     // SGX doesn't support CPUID.
     #[cfg(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
@@ -317,8 +320,7 @@ unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    // Do not use vector registers on targets such as x86_64-unknown-none unless SSE is explicitly enabled.
-    // https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html
+    // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() for more.
     // SGX doesn't support CPUID.
     #[cfg(all(
         any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),

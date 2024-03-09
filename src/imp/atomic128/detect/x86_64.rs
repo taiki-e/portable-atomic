@@ -2,7 +2,7 @@
 
 // Adapted from https://github.com/rust-lang/stdarch.
 
-#![cfg_attr(any(not(target_feature = "sse"), portable_atomic_sanitize_thread), allow(dead_code))]
+#![cfg_attr(portable_atomic_sanitize_thread, allow(dead_code))]
 
 // Miri doesn't support inline assembly used in __cpuid: https://github.com/rust-lang/miri/issues/932
 // SGX doesn't support CPUID: https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L105
@@ -13,7 +13,7 @@ include!("common.rs");
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-use core::arch::x86_64::{CpuidResult, _xgetbv};
+use core::arch::x86_64::CpuidResult;
 
 // Workaround for https://github.com/rust-lang/rust/issues/101346
 // It is not clear if our use cases are affected, but we implement this just in case.
@@ -45,8 +45,8 @@ unsafe fn __cpuid(leaf: u32) -> CpuidResult {
 }
 
 // https://en.wikipedia.org/wiki/CPUID
-const VENDOR_ID_INTEL: [u8; 12] = *b"GenuineIntel";
-const VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD";
+const _VENDOR_ID_INTEL: [u8; 12] = *b"GenuineIntel";
+const _VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD";
 
 unsafe fn _vendor_id() -> [u8; 12] {
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L40-L59
@@ -59,9 +59,6 @@ unsafe fn _vendor_id() -> [u8; 12] {
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    // SAFETY: Calling `_vendor_id`` is safe because the CPU has `cpuid` support.
-    let vendor_id = unsafe { _vendor_id() };
-
     // SAFETY: Calling `__cpuid`` is safe because the CPU has `cpuid` support.
     let proc_info_ecx = unsafe { __cpuid(0x0000_0001_u32).ecx };
 
@@ -70,20 +67,29 @@ fn _detect(info: &mut CpuInfo) {
         info.set(CpuInfo::HAS_CMPXCHG16B);
     }
 
-    // VMOVDQA is atomic on Intel and AMD CPUs with AVX.
-    // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
-    if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
-        // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L131-L224
-        let cpu_xsave = test(proc_info_ecx, 26);
-        if cpu_xsave {
-            let cpu_osxsave = test(proc_info_ecx, 27);
-            if cpu_osxsave {
-                // SAFETY: Calling `_xgetbv`` is safe because the CPU has `xsave` support
-                // and OS has set `osxsave`.
-                let xcr0 = unsafe { _xgetbv(0) };
-                let os_avx_support = xcr0 & 6 == 6;
-                if os_avx_support && test(proc_info_ecx, 28) {
-                    info.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
+    // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() in atomic128/x86_64.rs for more.
+    #[cfg(target_feature = "sse")]
+    {
+        use core::arch::x86_64::_xgetbv;
+
+        // SAFETY: Calling `vendor_id`` is safe because the CPU has `cpuid` support.
+        let vendor_id = unsafe { _vendor_id() };
+
+        // VMOVDQA is atomic on Intel and AMD CPUs with AVX.
+        // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
+        if vendor_id == _VENDOR_ID_INTEL || vendor_id == _VENDOR_ID_AMD {
+            // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L131-L224
+            let cpu_xsave = test(proc_info_ecx, 26);
+            if cpu_xsave {
+                let cpu_osxsave = test(proc_info_ecx, 27);
+                if cpu_osxsave {
+                    // SAFETY: Calling `_xgetbv`` is safe because the CPU has `xsave` support
+                    // and OS has set `osxsave`.
+                    let xcr0 = unsafe { _xgetbv(0) };
+                    let os_avx_support = xcr0 & 6 == 6;
+                    if os_avx_support && test(proc_info_ecx, 28) {
+                        info.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
+                    }
                 }
             }
         }
@@ -99,15 +105,14 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
-    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     use super::*;
 
-    #[cfg(not(portable_atomic_test_outline_atomics_detect_false))]
     #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());
         let vendor_id = unsafe { _vendor_id() };
-        if vendor_id == VENDOR_ID_INTEL || vendor_id == VENDOR_ID_AMD {
+        if vendor_id == _VENDOR_ID_INTEL || vendor_id == _VENDOR_ID_AMD {
             assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
         } else {
             assert!(!detect().has_vmovdqa_atomic());
