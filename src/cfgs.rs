@@ -236,7 +236,6 @@ mod atomic_64_macros {
                 portable_atomic_target_feature = "cmpxchg16b",
                 all(
                     feature = "fallback",
-                    not(portable_atomic_no_cmpxchg16b_target_feature),
                     not(portable_atomic_no_outline_atomics),
                     not(any(target_env = "sgx", miri)),
                 ),
@@ -326,7 +325,6 @@ mod atomic_128_macros {
                 portable_atomic_target_feature = "cmpxchg16b",
                 all(
                     feature = "fallback",
-                    not(portable_atomic_no_cmpxchg16b_target_feature),
                     not(portable_atomic_no_outline_atomics),
                     not(any(target_env = "sgx", miri)),
                 ),
