@@ -213,8 +213,7 @@ rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | (grep 'LLVM version: ' || true) | (sed 's/LLVM version: //' || true))
 llvm_version="${llvm_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
-metadata=$(cargo metadata --format-version=1 --no-deps)
-target_dir=$(jq <<<"${metadata}" -r '.target_directory')
+target_dir=$(pwd)/target
 # Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
 subcmd=build
 if [[ -n "${TARGET_GROUP:-}" ]]; then

@@ -134,6 +134,7 @@ rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'release: ' | s
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -Vv | grep 'host: ' | sed 's/host: //')
+target_dir=$(pwd)/target
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
     nightly=1
@@ -260,14 +261,16 @@ run() {
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
     if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer=memory ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
-        CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
+        CARGO_TARGET_DIR="${target_dir}/fat-lto" \
+            CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
             CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
             CARGO_PROFILE_RELEASE_LTO=fat \
-            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     else
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+        CARGO_TARGET_DIR="${target_dir}/fat-lto" \
+            CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
             CARGO_PROFILE_RELEASE_LTO=fat \
-            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests --target-dir target/fat-lto "$@"
+            x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
     fi
 
     # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
@@ -286,14 +289,16 @@ run() {
             *-windows-gnu*) ;;
             *)
                 if [[ ${#build_std[@]} -gt 0 ]]; then
-                    RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+                    CARGO_TARGET_DIR="${target_dir}/careful" \
+                        RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
                         RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
-                        x_cargo careful test -Z doctest-xcompile ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                        x_cargo careful test -Z doctest-xcompile ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
                 else
                     # -Z doctest-xcompile is already passed
-                    RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+                    CARGO_TARGET_DIR="${target_dir}/careful" \
+                        RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
                         RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
-                        x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} --target-dir target/careful "$@"
+                        x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
                 fi
                 ;;
         esac
