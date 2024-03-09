@@ -142,6 +142,35 @@ fn lock(addr: usize) -> &'static SeqLock {
     &LOCKS[addr % LEN]
 }
 
+macro_rules! seq_fence_pre {
+    ($order:tt) => {
+        if $order == Ordering::SeqCst
+            // && cfg!(any(miri, not(any(target_arch = "x86_64", target_arch = "s390x")))) // TODO: optimize
+        {
+            core::sync::atomic::fence(Ordering::SeqCst);
+        }
+    };
+    ($success:tt, $failure:tt) => {
+        if ($success == Ordering::SeqCst || $failure == Ordering::SeqCst)
+            // && cfg!(any(miri, not(any(target_arch = "x86_64", target_arch = "s390x")))) // TODO: optimize
+        {
+            core::sync::atomic::fence(Ordering::SeqCst);
+        }
+    };
+}
+macro_rules! seq_fence_post {
+    ($order:tt) => {
+        if $order == Ordering::SeqCst {
+            core::sync::atomic::fence(Ordering::SeqCst);
+        }
+    };
+    ($success:tt, $failure:tt) => {
+        if $success == Ordering::SeqCst || $failure == Ordering::SeqCst {
+            core::sync::atomic::fence(Ordering::SeqCst);
+        }
+    };
+}
+
 macro_rules! atomic {
     ($atomic_type:ident, $int_type:ident, $align:literal) => {
         #[repr(C, align($align))]
@@ -236,6 +265,7 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
+                seq_fence_pre!(order);
                 let lock = lock(self.v.get().addr());
 
                 // Try doing an optimistic read first.
@@ -243,6 +273,7 @@ macro_rules! atomic {
                     let val = self.optimistic_read();
 
                     if lock.validate_read(stamp) {
+                        seq_fence_post!(order);
                         return val;
                     }
                 }
@@ -252,6 +283,7 @@ macro_rules! atomic {
                 let val = self.read(&guard);
                 // The value hasn't been changed. Drop the guard without incrementing the stamp.
                 guard.abort();
+                seq_fence_post!(order);
                 val
             }
 
@@ -259,15 +291,21 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
-                self.write(val, &guard)
+                self.write(val, &guard);
+                drop(guard);
+                seq_fence_post!(order);
             }
 
             #[inline]
-            pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(val, &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
@@ -281,14 +319,18 @@ macro_rules! atomic {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
+                seq_fence_pre!(success, failure);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 if prev == current {
                     self.write(new, &guard);
+                    drop(guard);
+                    seq_fence_post!(success, failure); // can be seq_fence_post!(success)?
                     Ok(prev)
                 } else {
                     // The value hasn't been changed. Drop the guard without incrementing the stamp.
                     guard.abort();
+                    seq_fence_post!(success, failure); // can be seq_fence_post!(failure)?
                     Err(prev)
                 }
             }
@@ -306,74 +348,101 @@ macro_rules! atomic {
             }
 
             #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev.wrapping_add(val), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev.wrapping_sub(val), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev & val, &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(!(prev & val), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev | val, &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev ^ val, &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(core::cmp::max(prev, val), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(core::cmp::min(prev, val), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
 
             #[inline]
-            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(!prev, &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
             #[inline]
@@ -382,10 +451,13 @@ macro_rules! atomic {
             }
 
             #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                seq_fence_pre!(order);
                 let guard = lock(self.v.get().addr()).write();
                 let prev = self.read(&guard);
                 self.write(prev.wrapping_neg(), &guard);
+                drop(guard);
+                seq_fence_post!(order);
                 prev
             }
             #[inline]
