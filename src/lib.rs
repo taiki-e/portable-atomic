@@ -288,7 +288,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(core_intrinsics)
 )]
-// docs.rs only
+// docs.rs only (cfg is enabled via [package.metadata.docs.rs] in Cargo.toml, not build script)
 #![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 #![cfg_attr(
     all(

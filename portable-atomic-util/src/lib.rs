@@ -62,7 +62,7 @@ See [#1] for other primitives being considered for addition to this crate.
 #![allow(
     clippy::incompatible_msrv, // false positive: this lint doesn't consider cfg
 )]
-// docs.rs only
+// docs.rs only (cfg is enabled via [package.metadata.docs.rs] in Cargo.toml, not build script)
 #![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
 
 #[cfg(all(feature = "alloc", not(portable_atomic_no_alloc)))]
