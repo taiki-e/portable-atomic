@@ -2410,10 +2410,9 @@ impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
 // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
-// TODO:
-// - T: ?Sized will be allowed once https://github.com/rust-lang/rust/pull/114655 merged.
-//   - this doesn't currently applied for AsRawFd/AsSocket: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
-// - std doesn't implement AsRawHandle/AsRawSocket for Arc as of 1.77.
+// Note:
+// - T: ?Sized is currently only allowed on AsFd/AsHandle: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
+// - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.77.
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(unix)]
@@ -2466,7 +2465,7 @@ impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(any(unix, target_os = "wasi"))]
-impl<T: fd::AsFd> fd::AsFd for Arc<T> {
+impl<T: fd::AsFd + ?Sized> fd::AsFd for Arc<T> {
     #[inline]
     fn as_fd(&self) -> fd::BorrowedFd<'_> {
         (**self).as_fd()
@@ -2484,7 +2483,7 @@ impl<T: fd::AsFd> fd::AsFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(windows)]
-impl<T: std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
+impl<T: std::os::windows::io::AsHandle + ?Sized> std::os::windows::io::AsHandle for Arc<T> {
     #[inline]
     fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
         (**self).as_handle()
