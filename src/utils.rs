@@ -130,7 +130,7 @@ macro_rules! const_fn {
 macro_rules! impl_debug_and_serde {
     ($atomic_type:ident) => {
         impl fmt::Debug for $atomic_type {
-            #[allow(clippy::missing_inline_in_public_items)] // fmt is not hot path
+            #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L2024
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
