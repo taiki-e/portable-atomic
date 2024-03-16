@@ -5,3 +5,5 @@
 
 pub const AT_HWCAP: u32 = 16;
 pub const AT_HWCAP2: u32 = 26;
+pub const AT_HWCAP3: u32 = 29;
+pub const AT_HWCAP4: u32 = 30;

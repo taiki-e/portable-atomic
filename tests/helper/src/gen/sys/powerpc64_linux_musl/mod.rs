@@ -7,6 +7,8 @@
 mod linux_headers_linux_auxvec;
 pub use linux_headers_linux_auxvec::AT_HWCAP;
 pub use linux_headers_linux_auxvec::AT_HWCAP2;
+pub use linux_headers_linux_auxvec::AT_HWCAP3;
+pub use linux_headers_linux_auxvec::AT_HWCAP4;
 mod linux_headers_linux_prctl;
 pub use linux_headers_linux_prctl::PR_GET_AUXV;
 mod linux_headers_asm_unistd;
