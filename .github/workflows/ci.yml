@@ -120,9 +120,6 @@ jobs:
             flags: -Z codegen-backend=cranelift
           - rust: nightly-2024-02-05 # TODO: core_simd bug https://github.com/rust-lang/portable-simd/pull/396
             target: aarch64_be-unknown-linux-gnu
-            # TODO: buggy clippy::incompatible_msrv lint is not available on nightly-2024-02-05, so unknown_lints also need to be allowed.
-            # TODO: clippy::thread_local_initializer_can_be_made_const bug has been fixed in the latest nightly: https://github.com/rust-lang/rust-clippy/issues/12404
-            flags: -A unknown_lints -A clippy::thread_local_initializer_can_be_made_const
           - rust: stable
             target: aarch64-unknown-linux-musl
           - rust: stable

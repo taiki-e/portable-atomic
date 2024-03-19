@@ -224,6 +224,7 @@ case "${cmd}" in
         ;;
     valgrind)
         export "CARGO_TARGET_${target_upper}_RUNNER"="valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --track-origins=yes --fair-sched=yes"
+        # TODO: always pass randomize-layout
         export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
         export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
         # doctest on Valgrind is very slow
