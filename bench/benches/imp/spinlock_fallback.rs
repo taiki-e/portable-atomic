@@ -9,12 +9,10 @@
 //
 // This module is currently only enabled on benchmark.
 
-use core::{
-    cell::UnsafeCell,
-    sync::atomic::{AtomicUsize, Ordering},
-};
+use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 use super::fallback::utils::{Backoff, CachePadded};
+use crate::imp::AtomicUsize;
 
 struct Spinlock {
     state: AtomicUsize,
