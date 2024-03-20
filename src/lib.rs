@@ -513,7 +513,7 @@ cfg_has_atomic_8! {
 cfg_has_atomic_cas! {
 // See https://github.com/rust-lang/rust/pull/114034 for details.
 // https://github.com/rust-lang/rust/blob/9339f446a5302cd5041d3f3b5e59761f36699167/library/core/src/sync/atomic.rs#L134
-// https://godbolt.org/z/5W85abT58
+// https://godbolt.org/z/Enh87Ph9b
 #[cfg(portable_atomic_no_cfg_target_has_atomic)]
 const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
     not(portable_atomic_no_atomic_cas),

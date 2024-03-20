@@ -3,7 +3,7 @@
 // Run-time feature detection on aarch64 macOS by using sysctl.
 //
 // This module is currently only enabled on tests because aarch64 macOS always supports FEAT_LSE and FEAT_LSE2.
-// https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L494
+// https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
 //
 // If macOS supporting Armv9.4-a becomes popular in the future, this module will
 // be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.

@@ -54,14 +54,14 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - aarch64 https://godbolt.org/z/5Mz1E33vz
-// - aarch64 msvc https://godbolt.org/z/P53d1MsGY
-// - aarch64 (+lse) https://godbolt.org/z/qvaE8n79K
-// - aarch64 msvc (+lse) https://godbolt.org/z/dj4aYerfr
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/1E15jjxah
-// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/YreM4n84o
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/Kfeqs54ox
-// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/n6zhjE77s
+// - aarch64 https://godbolt.org/z/9Kq15oGs4
+// - aarch64 msvc https://godbolt.org/z/hsWo8eYh4
+// - aarch64 (+lse) https://godbolt.org/z/81TanrTGn
+// - aarch64 msvc (+lse) https://godbolt.org/z/KsannGvTY
+// - aarch64 (+lse,+lse2) https://godbolt.org/z/EzvodM6ca
+// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3rEEs6KE6
+// - aarch64 (+lse2,+lse128) https://godbolt.org/z/PWhsPjGa7
+// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/K8MMhfPT1
 
 include!("macros.rs");
 
@@ -220,7 +220,7 @@ macro_rules! debug_assert_lse2 {
 //
 // The .arch_extension directive is effective until the end of the assembly block and
 // is not propagated to subsequent code, so the end_lse macro is unneeded.
-// https://godbolt.org/z/4oMEW8vWc
+// https://godbolt.org/z/o6EPndP94
 // https://github.com/torvalds/linux/commit/e0d5896bd356cd577f9710a02d7a474cdf58426b
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 // (It seems GCC effectively ignores this directive and always allow FEAT_LSE instructions: https://godbolt.org/z/W9W6rensG)

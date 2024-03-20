@@ -184,7 +184,7 @@ fn main() {
             // Script to get targets that support cmpxchg16b by default:
             // $ (for target in $(rustc --print target-list); do [[ "${target}" == "x86_64"* ]] && rustc --print cfg --target "${target}" | grep -q cmpxchg16b && echo "${target}"; done)
             let has_cmpxchg16b = is_apple;
-            // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/r8zWGcMhd
+            // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/KM3jz616j
             // However, it is unlikely that rustc will support that name, so we ignore it.
             // cmpxchg16b_target_feature stabilized in Rust 1.69.
             target_feature_if("cmpxchg16b", has_cmpxchg16b, &version, Stable(69));
@@ -197,7 +197,7 @@ fn main() {
             }
 
             // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
-            // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L494
+            // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
             let mut has_lse = is_macos;
             // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
             // As of rustc 1.70, target_feature "lse2"/"lse128"/"rcpc3" is not available on rustc side:
@@ -274,8 +274,7 @@ fn main() {
 
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-            // powerpc64le is pwr8+ by default
-            // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/PowerPC/PPC.td#L663
+            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
             // See also https://github.com/rust-lang/rust/issues/59932
             let mut has_pwr8_features = target_endian == "little";
             // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
@@ -286,8 +285,8 @@ fn main() {
                         has_pwr8_features = cpu_version >= 8;
                     }
                 } else {
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/PowerPC/PPC.td#L663
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/PowerPC/PPC.td#L445-L447
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L456
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
@@ -297,11 +296,11 @@ fn main() {
             target_feature_if("quadword-atomics", has_pwr8_features, &version, Unavailable);
         }
         "s390x" => {
-            // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/SystemZ/SystemZFeatures.td
+            // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZFeatures.td
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
-                // https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 match &*cpu {
                     "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14" => {
                         arch9_features = true;
@@ -348,7 +347,7 @@ fn target_feature_if(
     // - CARGO_CFG_TARGET_FEATURE excludes unstable target features on stable.
     //
     // As mentioned in the [RFC2045], unstable target features are also passed to LLVM
-    // (e.g., https://godbolt.org/z/TfaEx95jc), so this hack works properly on stable.
+    // (e.g., https://godbolt.org/z/4rr7rMcfG), so this hack works properly on stable.
     //
     // [RFC2045]: https://rust-lang.github.io/rfcs/2045-target-feature.html#backend-compilation-options
     match availability {

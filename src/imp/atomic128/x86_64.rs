@@ -10,7 +10,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/55n54WeKr
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/YnYE9qT6b
 
 include!("macros.rs");
 

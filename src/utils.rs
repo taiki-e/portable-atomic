@@ -163,7 +163,7 @@ macro_rules! impl_debug_and_serde {
 }
 
 // We do not provide `nand` because it cannot be optimized on neither x86 nor MSP430.
-// https://godbolt.org/z/7TzjKqYvE
+// https://godbolt.org/z/ahWejchbT
 macro_rules! impl_default_no_fetch_ops {
     ($atomic_type:ident, bool) => {
         impl $atomic_type {
@@ -374,7 +374,7 @@ type RegSize = u64;
 // Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.0/src/utils.rs#L210.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
-// Refs: https://github.com/llvm/llvm-project/blob/llvmorg-17.0.0-rc2/llvm/lib/CodeGen/AtomicExpandPass.cpp#L699
+// Refs: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/CodeGen/AtomicExpandPass.cpp#L691
 // (aligned_ptr, shift, mask)
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[allow(dead_code)]
