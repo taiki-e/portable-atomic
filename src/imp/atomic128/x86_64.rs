@@ -150,7 +150,7 @@ unsafe fn atomic_load_vmovdqa(src: *mut u128) -> u128 {
     //
     // atomic load by vmovdqa is always SeqCst.
     unsafe {
-        let out: core::arch::x86_64::__m128;
+        let out: core::arch::x86_64::__m128i;
         asm!(
             concat!("vmovdqa {out}, xmmword ptr [{src", ptr_modifier!(), "}]"),
             src = in(reg) src,
@@ -170,7 +170,7 @@ unsafe fn atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let val: core::arch::x86_64::__m128 = core::mem::transmute(val);
+        let val: core::arch::x86_64::__m128i = core::mem::transmute(val);
         match order {
             // Relaxed and Release stores are equivalent.
             Ordering::Relaxed | Ordering::Release => {
