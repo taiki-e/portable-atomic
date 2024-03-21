@@ -296,6 +296,11 @@ fn main() {
             target_feature_if("quadword-atomics", has_pwr8_features, &version, Unavailable);
         }
         "s390x" => {
+            // For Miri and ThreadSanitizer.
+            if version.nightly && version.llvm >= 18 {
+                println!("cargo:rustc-cfg=portable_atomic_llvm_18");
+            }
+
             // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZFeatures.td
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
