@@ -148,6 +148,7 @@ macro_rules! atomic_bit_opts {
                         // Do not use `preserves_flags` because BTS modifies the CF flag.
                         options(nostack),
                     );
+                    crate::utils::assert_unchecked(r == 0 || r == 1); // may help remove extra test
                     r != 0
                 }
             }
@@ -172,6 +173,7 @@ macro_rules! atomic_bit_opts {
                         // Do not use `preserves_flags` because BTR modifies the CF flag.
                         options(nostack),
                     );
+                    crate::utils::assert_unchecked(r == 0 || r == 1); // may help remove extra test
                     r != 0
                 }
             }
@@ -196,6 +198,7 @@ macro_rules! atomic_bit_opts {
                         // Do not use `preserves_flags` because BTC modifies the CF flag.
                         options(nostack),
                     );
+                    crate::utils::assert_unchecked(r == 0 || r == 1); // may help remove extra test
                     r != 0
                 }
             }

@@ -10,7 +10,7 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/YnYE9qT6b
+// - x86_64 (+cmpxchg16b) https://godbolt.org/z/r5x9M8PdK
 
 include!("macros.rs");
 
@@ -124,6 +124,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         cmpxchg16b!("edi");
         #[cfg(target_pointer_width = "64")]
         cmpxchg16b!("rdi");
+        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra test
         (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r != 0)
     }
 }

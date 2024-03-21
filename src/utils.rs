@@ -246,6 +246,22 @@ macro_rules! items {
     };
 }
 
+#[allow(dead_code)]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+// Stable version of https://doc.rust-lang.org/nightly/std/hint/fn.assert_unchecked.html.
+#[inline(always)]
+#[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+pub(crate) unsafe fn assert_unchecked(cond: bool) {
+    if !cond {
+        if cfg!(debug_assertions) {
+            unreachable!()
+        } else {
+            // SAFETY: the caller promised `cond` is true.
+            unsafe { core::hint::unreachable_unchecked() }
+        }
+    }
+}
+
 // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3155
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
