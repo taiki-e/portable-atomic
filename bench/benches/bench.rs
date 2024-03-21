@@ -51,6 +51,8 @@ mod spinlock_fallback;
 
 const THREADS: usize = 2;
 const N: u32 = 5000;
+const ORDERING: Ordering = Ordering::AcqRel;
+// const ORDERING: Ordering = Ordering::SeqCst;
 
 trait AtomicInt<T: Copy>: Sized + Send + Sync {
     fn new(v: T) -> Self;
@@ -69,24 +71,32 @@ macro_rules! impl_atomic {
             }
             #[inline]
             fn load_(&self) -> $int_type {
-                self.load(Ordering::Acquire)
+                self.load(if ORDERING == Ordering::AcqRel { Ordering::Acquire } else { ORDERING })
             }
             #[inline]
             fn store_(&self, val: $int_type) {
-                self.store(val, Ordering::Release);
+                self.store(
+                    val,
+                    if ORDERING == Ordering::AcqRel { Ordering::Release } else { ORDERING },
+                );
             }
             #[inline]
             fn swap_(&self, val: $int_type) -> $int_type {
-                self.swap(val, Ordering::AcqRel)
+                self.swap(val, ORDERING)
             }
             #[inline]
             fn compare_exchange_(&self, old: $int_type, new: $int_type) -> $int_type {
-                self.compare_exchange(old, new, Ordering::AcqRel, Ordering::Acquire)
-                    .unwrap_or_else(|x| x)
+                self.compare_exchange(
+                    old,
+                    new,
+                    ORDERING,
+                    if ORDERING == Ordering::AcqRel { Ordering::Acquire } else { ORDERING },
+                )
+                .unwrap_or_else(|x| x)
             }
             #[inline]
             fn fetch_add_(&self, val: $int_type) -> $int_type {
-                self.fetch_add(val, Ordering::AcqRel)
+                self.fetch_add(val, ORDERING)
             }
         }
     };
@@ -97,6 +107,7 @@ macro_rules! impl_atomic_no_order {
         impl AtomicInt<$int_type> for $atomic_type {
             #[inline]
             fn new(v: $int_type) -> Self {
+                assert_eq!(ORDERING, Ordering::AcqRel);
                 Self::new(v)
             }
             #[inline]
