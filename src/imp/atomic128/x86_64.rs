@@ -51,14 +51,16 @@ macro_rules! debug_assert_vmovdqa_atomic {
     }};
 }
 
-#[allow(unused_macros)]
+#[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
+#[cfg(target_feature = "sse")]
 #[cfg(target_pointer_width = "32")]
 macro_rules! ptr_modifier {
     () => {
         ":e"
     };
 }
-#[allow(unused_macros)]
+#[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
+#[cfg(target_feature = "sse")]
 #[cfg(target_pointer_width = "64")]
 macro_rules! ptr_modifier {
     () => {
