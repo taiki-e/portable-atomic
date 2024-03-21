@@ -103,8 +103,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    // rbx is reserved by LLVM
-                    "xchg {rbx_tmp}, rbx",
+                    "xchg {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                     "sete r8b",
                     "mov rbx, {rbx_tmp}", // restore rbx
@@ -294,8 +293,7 @@ unsafe fn atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    // rbx is reserved by LLVM
-                    "mov {rbx_tmp}, rbx",
+                    "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                     "xor rbx, rbx", // zeroed rbx
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                     "mov rbx, {rbx_tmp}", // restore rbx
@@ -452,8 +450,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    // rbx is reserved by LLVM
-                    "xchg {rbx_tmp}, rbx",
+                    "xchg {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
                     //
@@ -521,8 +518,7 @@ macro_rules! atomic_rmw_cas_3 {
                 macro_rules! cmpxchg16b {
                     ($rdi:tt) => {
                         asm!(
-                            // rbx is reserved by LLVM
-                            "mov {rbx_tmp}, rbx",
+                            "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //
@@ -592,8 +588,7 @@ macro_rules! atomic_rmw_cas_2 {
                 macro_rules! cmpxchg16b {
                     ($rdi:tt) => {
                         asm!(
-                            // rbx is reserved by LLVM
-                            "mov {rbx_tmp}, rbx",
+                            "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //

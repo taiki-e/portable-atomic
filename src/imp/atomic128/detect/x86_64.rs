@@ -30,8 +30,7 @@ unsafe fn __cpuid(leaf: u32) -> CpuidResult {
     // SAFETY: the caller must guarantee that CPU supports `cpuid`.
     unsafe {
         asm!(
-            // rbx is reserved by LLVM
-            "mov {ebx_tmp:r}, rbx",
+            "mov {ebx_tmp:r}, rbx", // save rbx which is reserved by LLVM
             "cpuid",
             "xchg {ebx_tmp:r}, rbx", // restore rbx
             ebx_tmp = out(reg) ebx,
