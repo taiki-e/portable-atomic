@@ -543,8 +543,7 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@v1
       - name: Install Rust
-        # TODO: LLVM bug https://github.com/rust-lang/rust/issues/122476
-        run: rustup toolchain add nightly-2024-03-13 --no-self-update && rustup default nightly-2024-03-13
+        run: rustup toolchain add nightly --no-self-update && rustup default nightly
       # https://github.com/google/sanitizers/issues/1716 / https://github.com/actions/runner-images/issues/9491
       - run: sudo sysctl vm.mmap_rnd_bits=28
       - uses: taiki-e/install-action@cargo-hack
