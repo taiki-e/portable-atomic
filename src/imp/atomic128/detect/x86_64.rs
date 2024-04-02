@@ -104,6 +104,8 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
+    use std::io::{self, Write};
+
     use super::*;
 
     #[test]
@@ -111,6 +113,11 @@ mod tests {
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());
         let vendor_id = unsafe { _vendor_id() };
+        {
+            let stdout = io::stderr();
+            let mut stdout = stdout.lock();
+            let _ = writeln!(stdout, "\n  vendor_id: {}", std::str::from_utf8(&vendor_id).unwrap());
+        }
         if vendor_id == _VENDOR_ID_INTEL || vendor_id == _VENDOR_ID_AMD {
             assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
         } else {
