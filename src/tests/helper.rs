@@ -256,7 +256,6 @@ macro_rules! __test_atomic_ptr_load_store {
 
 macro_rules! __test_atomic_int {
     ($atomic_type:ty, $int_type:ident, single_thread) => {
-        use core::$int_type;
         #[test]
         fn swap() {
             let a = <$atomic_type>::new(5);
@@ -926,7 +925,6 @@ macro_rules! __test_atomic_int {
 }
 macro_rules! __test_atomic_float {
     ($atomic_type:ty, $float_type:ident, single_thread) => {
-        use core::$float_type;
         #[test]
         fn swap() {
             let a = <$atomic_type>::new(5.);

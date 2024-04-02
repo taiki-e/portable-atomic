@@ -261,8 +261,7 @@ mod tests {
     #[test]
     fn test_linux_like() {
         use c_types::*;
-        use core::{arch::asm, mem};
-        use std::vec;
+        use std::{arch::asm, mem, vec};
         use test_helper::{libc, sys};
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
@@ -397,7 +396,7 @@ mod tests {
     #[test]
     fn test_freebsd() {
         use c_types::*;
-        use core::{arch::asm, mem, ptr};
+        use std::{arch::asm, mem, ptr};
         use test_helper::sys;
 
         // This is almost equivalent to what elf_aux_info does.

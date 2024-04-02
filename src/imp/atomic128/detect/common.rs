@@ -264,7 +264,11 @@ mod tests_common {
 
     #[test]
     fn print_features() {
-        use std::{fmt::Write as _, io::Write, string::String};
+        use std::{
+            fmt::Write as _,
+            io::{self, Write},
+            string::String,
+        };
 
         let mut features = String::new();
         macro_rules! print_feature {
@@ -316,7 +320,7 @@ mod tests_common {
                 )),
             );
         }
-        let stdout = std::io::stderr();
+        let stdout = io::stderr();
         let mut stdout = stdout.lock();
         let _ = stdout.write_all(features.as_bytes());
     }
