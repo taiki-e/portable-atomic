@@ -42,7 +42,7 @@ x_cargo() {
     if [[ "${cmd}" == "miri" ]] && [[ -n "${MIRIFLAGS:-}" ]]; then
         echo "+ MIRIFLAGS='${MIRIFLAGS}' \\"
     fi
-    if type -P cargo-hack; then
+    if type -P cargo-hack &>/dev/null; then
         if [[ -n "${TS:-}" ]]; then
             x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} hack "$@" 2>&1 | "${TS}" -i '%.s  '
         else
@@ -177,7 +177,7 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-if type -P cargo-hack; then
+if type -P cargo-hack &>/dev/null; then
     args+=(--features "${test_features}" --ignore-unknown-features)
 else
     args+=(--features "${test_features}")
