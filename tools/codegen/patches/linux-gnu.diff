@@ -1,3 +1,10 @@
+diff --git a/bminor/glibc/include/features-time64.h b/bminor/glibc/include/features-time64.h
+index 06115b7c..1c7370dc 100644
+--- a/bminor/glibc/include/features-time64.h
++++ b/bminor/glibc/include/features-time64.h
+@@ -1 +1 @@
+-#include_next <features-time64.h>
++// #include_next <features-time64.h>
 diff --git a/bminor/glibc/include/sys/auxv.h b/bminor/glibc/include/sys/auxv.h
 index dd0602b0..6d083f4b 100644
 --- a/bminor/glibc/include/sys/auxv.h
@@ -17,8 +24,8 @@ index dd0602b0..6d083f4b 100644
 +// libc_hidden_proto (__getauxval2)
 
  #endif  /* !_ISOMAC */
-diff --git a/include/sys/cdefs.h b/include/sys/cdefs.h
-index 56adb231..da240141 100644
+diff --git a/bminor/glibc/include/sys/cdefs.h b/bminor/glibc/include/sys/cdefs.h
+index b84ad34a..8f6ef552 100644
 --- a/bminor/glibc/include/sys/cdefs.h
 +++ b/bminor/glibc/include/sys/cdefs.h
 @@ -17,13 +17,13 @@
