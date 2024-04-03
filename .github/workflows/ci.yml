@@ -81,7 +81,7 @@ jobs:
           - rust: nightly
           - rust: nightly
             flags: -C panic=abort -Z panic_abort_tests
-          - rust: nightly
+          - rust: nightly-2024-04-02 # TODO: https://github.com/rust-lang/rustc_codegen_cranelift/issues/1475
             flags: -Z codegen-backend=cranelift
           - rust: nightly
             # target: x86_64-apple-darwin
@@ -115,7 +115,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - rust: nightly
             target: aarch64-unknown-linux-gnu
-          - rust: nightly
+          - rust: nightly-2024-04-02 # TODO: https://github.com/rust-lang/rustc_codegen_cranelift/issues/1475
             target: aarch64-unknown-linux-gnu
             flags: -Z codegen-backend=cranelift
           - rust: nightly
@@ -208,7 +208,7 @@ jobs:
             target: riscv64gc-unknown-linux-gnu
           - rust: nightly
             target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
+          - rust: nightly-2024-04-02 # TODO: https://github.com/rust-lang/rustc_codegen_cranelift/issues/1475
             target: riscv64gc-unknown-linux-gnu
             flags: -Z codegen-backend=cranelift
           - rust: nightly
