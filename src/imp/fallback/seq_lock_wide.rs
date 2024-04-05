@@ -4,10 +4,11 @@
 
 use core::{
     mem::ManuallyDrop,
-    sync::atomic::{self, AtomicUsize, Ordering},
+    sync::atomic::{self, Ordering},
 };
 
 use super::utils::Backoff;
+use crate::imp::AtomicUsize;
 
 // See mod.rs for details.
 pub(super) type AtomicChunk = AtomicUsize;
