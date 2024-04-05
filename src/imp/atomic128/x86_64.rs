@@ -124,14 +124,14 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
                 asm!(
                     "xchg {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
-                    "sete r8b",
+                    "sete cl",
                     "mov rbx, {rbx_tmp}", // restore rbx
                     rbx_tmp = inout(reg) new.pair.lo => _,
                     in("rcx") new.pair.hi,
                     inout("rax") old.pair.lo => prev_lo,
                     inout("rdx") old.pair.hi => prev_hi,
                     in($rdi) dst,
-                    out("r8b") r,
+                    lateout("cl") r,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
                 )
