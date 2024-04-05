@@ -219,10 +219,8 @@ else
     if [[ -n "${TESTS:-}" ]]; then
         # TESTS=1 builds binaries, so cargo build requires toolchain and libraries.
         subcmd=check
-        base_args=(hack "${subcmd}")
-    else
-        base_args=(hack "${subcmd}")
     fi
+    base_args=(hack "${subcmd}")
 fi
 nightly=''
 if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
@@ -248,11 +246,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         export RUSTFLAGS="${RUSTFLAGS:-} -A clippy::duplicated_attributes"
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
-        if [[ -n "${TESTS:-}" ]]; then
-            base_args=(hack "${subcmd}" -Z check-cfg)
-        else
-            base_args=(hack "${subcmd}" -Z check-cfg)
-        fi
+        base_args=(hack "${subcmd}" -Z check-cfg)
     fi
 fi
 export CARGO_TARGET_DIR="${target_dir}"
