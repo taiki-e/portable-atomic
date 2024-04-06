@@ -165,7 +165,11 @@ fn main() {
     }
 
     let is_macos = target_os == "macos";
-    let is_apple = is_macos || target_os == "ios" || target_os == "tvos" || target_os == "watchos";
+    let is_apple = is_macos
+        || target_os == "ios"
+        || target_os == "tvos"
+        || target_os == "watchos"
+        || target_os == "visionos";
     match target_arch {
         "x86_64" => {
             // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
