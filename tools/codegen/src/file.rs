@@ -67,8 +67,8 @@ fn format_macros(bytes: &mut Vec<u8>) {
         if bytes[i..].starts_with(b"!(") {
             i += 2;
             let mut count = 0;
-            while i < bytes.len() {
-                match bytes[i] {
+            while let Some(b) = bytes.get(i) {
+                match b {
                     b'(' => count += 1,
                     b')' => {
                         if count == 0 {

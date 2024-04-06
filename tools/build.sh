@@ -240,10 +240,6 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
         check_cfg+=" --check-cfg=cfg(portable_atomic_target_feature,values($(IFS=',' && echo "${known_target_feature_values[*]}")))"
         check_cfg+=" --check-cfg=cfg($(IFS=',' && echo "${known_cfgs[*]}"))"
         subcmd=clippy
-        # This lint is buggy and also crate-level #![allow(..)] doesn't work.
-        # https://github.com/rust-lang/rust-clippy/issues/12537
-        # https://github.com/rust-lang/rust-clippy/issues/12538
-        export RUSTFLAGS="${RUSTFLAGS:-} -A clippy::duplicated_attributes"
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         target_dir="${target_dir}/check-cfg"
         base_args=(hack "${subcmd}" -Z check-cfg)
