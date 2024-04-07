@@ -288,11 +288,6 @@ macro_rules! atomic64 {
             }
 
             #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.v.into_inner()
-            }
-
-            #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);

@@ -154,11 +154,6 @@ macro_rules! atomic_load_store {
             }
 
             #[inline]
-            pub(crate) fn into_inner(self) -> $value_type {
-                 self.v.into_inner()
-            }
-
-            #[inline]
             pub(crate) const fn as_ptr(&self) -> *mut $value_type {
                 self.v.get()
             }

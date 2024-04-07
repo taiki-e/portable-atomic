@@ -99,12 +99,6 @@ macro_rules! atomic {
                 unsafe { &mut *self.v.get() }
             }
 
-            #[cfg(test)]
-            #[inline]
-            pub(crate) fn into_inner(self) -> $value_type {
-                 self.v.into_inner()
-            }
-
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $value_type {

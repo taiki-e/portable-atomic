@@ -686,22 +686,30 @@ impl AtomicBool {
     // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
-    /// Consumes the atomic and returns the contained value.
-    ///
-    /// This is safe because passing `self` by value guarantees that no other threads are
-    /// concurrently accessing the atomic data.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use portable_atomic::AtomicBool;
-    ///
-    /// let some_bool = AtomicBool::new(true);
-    /// assert_eq!(some_bool.into_inner(), true);
-    /// ```
-    #[inline]
-    pub fn into_inner(self) -> bool {
-        self.v.into_inner() != 0
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_transmute))];
+        /// Consumes the atomic and returns the contained value.
+        ///
+        /// This is safe because passing `self` by value guarantees that no other threads are
+        /// concurrently accessing the atomic data.
+        ///
+        /// This is `const fn` on Rust 1.56+.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// use portable_atomic::AtomicBool;
+        ///
+        /// let some_bool = AtomicBool::new(true);
+        /// assert_eq!(some_bool.into_inner(), true);
+        /// ```
+        #[inline]
+        pub const fn into_inner(self) -> bool {
+            // SAFETY: AtomicBool and u8 have the same size and in-memory representations,
+            // so they can be safely transmuted.
+            // (const UnsafeCell::into_inner is unstable)
+            unsafe { core::mem::transmute::<AtomicBool, u8>(self) != 0 }
+        }
     }
 
     /// Loads a value from the bool.
@@ -1544,23 +1552,31 @@ impl<T> AtomicPtr<T> {
     // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
     // https://github.com/rust-lang/rust/issues/76314
 
-    /// Consumes the atomic and returns the contained value.
-    ///
-    /// This is safe because passing `self` by value guarantees that no other threads are
-    /// concurrently accessing the atomic data.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use portable_atomic::AtomicPtr;
-    ///
-    /// let mut data = 5;
-    /// let atomic_ptr = AtomicPtr::new(&mut data);
-    /// assert_eq!(unsafe { *atomic_ptr.into_inner() }, 5);
-    /// ```
-    #[inline]
-    pub fn into_inner(self) -> *mut T {
-        self.inner.into_inner()
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_transmute))];
+        /// Consumes the atomic and returns the contained value.
+        ///
+        /// This is safe because passing `self` by value guarantees that no other threads are
+        /// concurrently accessing the atomic data.
+        ///
+        /// This is `const fn` on Rust 1.56+.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// use portable_atomic::AtomicPtr;
+        ///
+        /// let mut data = 5;
+        /// let atomic_ptr = AtomicPtr::new(&mut data);
+        /// assert_eq!(unsafe { *atomic_ptr.into_inner() }, 5);
+        /// ```
+        #[inline]
+        pub const fn into_inner(self) -> *mut T {
+            // SAFETY: AtomicPtr<T> and *mut T have the same size and in-memory representations,
+            // so they can be safely transmuted.
+            // (const UnsafeCell::into_inner is unstable)
+            unsafe { core::mem::transmute(self) }
+        }
     }
 
     /// Loads a value from the pointer.
@@ -2539,11 +2555,39 @@ assert_eq!(some_var.load(Ordering::SeqCst), 5);
             // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
+            #[cfg(not(portable_atomic_no_const_transmute))]
             doc_comment! {
                 concat!("Consumes the atomic and returns the contained value.
 
 This is safe because passing `self` by value guarantees that no other threads are
 concurrently accessing the atomic data.
+
+This is `const fn` on Rust 1.56+.
+
+# Examples
+
+```
+use portable_atomic::", stringify!($atomic_type), ";
+
+let some_var = ", stringify!($atomic_type), "::new(5);
+assert_eq!(some_var.into_inner(), 5);
+```"),
+                #[inline]
+                pub const fn into_inner(self) -> $int_type {
+                    // SAFETY: $atomic_type and $int_type have the same size and in-memory representations,
+                    // so they can be safely transmuted.
+                    // (const UnsafeCell::into_inner is unstable)
+                    unsafe { core::mem::transmute(self) }
+                }
+            }
+            #[cfg(portable_atomic_no_const_transmute)]
+            doc_comment! {
+                concat!("Consumes the atomic and returns the contained value.
+
+This is safe because passing `self` by value guarantees that no other threads are
+concurrently accessing the atomic data.
+
+This is `const fn` on Rust 1.56+.
 
 # Examples
 
@@ -2555,7 +2599,10 @@ assert_eq!(some_var.into_inner(), 5);
 ```"),
                 #[inline]
                 pub fn into_inner(self) -> $int_type {
-                    self.inner.into_inner()
+                    // SAFETY: $atomic_type and $int_type have the same size and in-memory representations,
+                    // so they can be safely transmuted.
+                    // (const UnsafeCell::into_inner is unstable)
+                    unsafe { core::mem::transmute(self) }
                 }
             }
 
@@ -3607,13 +3654,21 @@ This type has the same in-memory representation as the underlying floating point
             // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
             // https://github.com/rust-lang/rust/issues/76314
 
-            /// Consumes the atomic and returns the contained value.
-            ///
-            /// This is safe because passing `self` by value guarantees that no other threads are
-            /// concurrently accessing the atomic data.
-            #[inline]
-            pub fn into_inner(self) -> $float_type {
-                self.inner.into_inner()
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_transmute))];
+                /// Consumes the atomic and returns the contained value.
+                ///
+                /// This is safe because passing `self` by value guarantees that no other threads are
+                /// concurrently accessing the atomic data.
+                ///
+                /// This is `const fn` on Rust 1.56+.
+                #[inline]
+                pub const fn into_inner(self) -> $float_type {
+                    // SAFETY: $atomic_type and $float_type have the same size and in-memory representations,
+                    // so they can be safely transmuted.
+                    // (const UnsafeCell::into_inner is unstable)
+                    unsafe { core::mem::transmute(self) }
+                }
             }
 
             /// Loads a value from the atomic float.

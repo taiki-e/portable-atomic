@@ -44,10 +44,6 @@ impl<T> AtomicPtr<T> {
         self.inner.get_mut()
     }
     #[inline]
-    pub(crate) fn into_inner(self) -> *mut T {
-        self.inner.into_inner()
-    }
-    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -172,10 +168,6 @@ macro_rules! atomic_int {
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
                 self.inner.get_mut()
-            }
-            #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.inner.into_inner()
             }
             #[inline]
             #[cfg_attr(

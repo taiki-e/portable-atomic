@@ -36,11 +36,6 @@ macro_rules! atomic128 {
             }
 
             #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.v.into_inner()
-            }
-
-            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller

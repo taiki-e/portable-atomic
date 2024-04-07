@@ -140,11 +140,6 @@ impl<T> AtomicPtr<T> {
     }
 
     #[inline]
-    pub(crate) fn into_inner(self) -> *mut T {
-        self.p.into_inner()
-    }
-
-    #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
@@ -274,11 +269,6 @@ macro_rules! atomic_int {
                 // SAFETY: the mutable reference guarantees unique ownership.
                 // (UnsafeCell::get_mut requires Rust 1.50)
                 unsafe { &mut *self.v.get() }
-            }
-
-            #[inline]
-            pub(crate) fn into_inner(self) -> $int_type {
-                self.v.into_inner()
             }
 
             #[inline]

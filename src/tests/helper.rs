@@ -51,7 +51,7 @@ macro_rules! __test_atomic_int_load_store {
             assert_eq!(*a.get_mut(), 10);
             *a.get_mut() = 5;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
-            assert_eq!(a.into_inner(), 5);
+            assert_eq!(*a.get_mut(), 5);
         }
         // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
@@ -127,7 +127,7 @@ macro_rules! __test_atomic_float_load_store {
             assert_eq!(*a.get_mut(), 10.);
             *a.get_mut() = 5.;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
-            assert_eq!(a.into_inner(), 5.);
+            assert_eq!(*a.get_mut(), 5.);
         }
         // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
@@ -171,7 +171,7 @@ macro_rules! __test_atomic_bool_load_store {
             assert_eq!(*a.get_mut(), false);
             *a.get_mut() = true;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
-            assert_eq!(a.into_inner(), true);
+            assert_eq!(*a.get_mut(), true);
         }
         // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
@@ -217,7 +217,7 @@ macro_rules! __test_atomic_ptr_load_store {
             assert!(a.get_mut().is_null());
             *a.get_mut() = &mut v;
             assert_eq!(a.as_ptr() as *const (), &a as *const _ as *const ());
-            assert!(!a.into_inner().is_null());
+            assert!(!a.get_mut().is_null());
         }
         // https://bugs.llvm.org/show_bug.cgi?id=37061
         #[test]
@@ -1398,10 +1398,17 @@ macro_rules! __test_atomic_int_load_store_pub {
         use std::{boxed::Box, mem};
         #[test]
         fn impls() {
+            #[cfg(not(portable_atomic_no_const_transmute))]
+            const _: $int_type = {
+                let a = <$atomic_type>::new(10);
+                a.into_inner()
+            };
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(a.into_inner(), 0);
+            assert_eq!(b.into_inner(), 0);
 
             unsafe {
                 let ptr: *mut Align16<$int_type> = Box::into_raw(Box::new(Align16(0)));
@@ -1481,10 +1488,17 @@ macro_rules! __test_atomic_float_pub {
         }
         #[test]
         fn impls() {
+            #[cfg(not(portable_atomic_no_const_transmute))]
+            const _: $float_type = {
+                let a = <$atomic_type>::new(10.);
+                a.into_inner()
+            };
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(0.);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(a.into_inner(), 0.);
+            assert_eq!(b.into_inner(), 0.);
 
             unsafe {
                 let ptr: *mut Align16<$float_type> = Box::into_raw(Box::new(Align16(0.)));
@@ -1563,10 +1577,17 @@ macro_rules! __test_atomic_bool_pub {
         }
         #[test]
         fn impls() {
+            #[cfg(not(portable_atomic_no_const_transmute))]
+            const _: bool = {
+                let a = <$atomic_type>::new(true);
+                a.into_inner()
+            };
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(false);
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
+            assert_eq!(a.into_inner(), false);
+            assert_eq!(b.into_inner(), false);
 
             unsafe {
                 let ptr: *mut bool = Box::into_raw(Box::new(false));
@@ -1602,11 +1623,18 @@ macro_rules! __test_atomic_ptr_pub {
         }
         #[test]
         fn impls() {
+            #[cfg(not(portable_atomic_no_const_transmute))]
+            const _: *mut u8 = {
+                let a = <$atomic_type>::new(ptr::null_mut());
+                a.into_inner()
+            };
             let a = <$atomic_type>::default();
             let b = <$atomic_type>::from(ptr::null_mut());
             assert_eq!(a.load(Ordering::SeqCst), b.load(Ordering::SeqCst));
             assert_eq!(std::format!("{:?}", a), std::format!("{:?}", a.load(Ordering::SeqCst)));
             assert_eq!(std::format!("{:p}", a), std::format!("{:p}", a.load(Ordering::SeqCst)));
+            assert_eq!(a.into_inner(), ptr::null_mut());
+            assert_eq!(b.into_inner(), ptr::null_mut());
 
             unsafe {
                 let ptr: *mut Align16<*mut u8> = Box::into_raw(Box::new(Align16(ptr::null_mut())));

@@ -74,6 +74,10 @@ fn main() {
     if !version.probe(52, 2021, 3, 10) {
         println!("cargo:rustc-cfg=portable_atomic_no_unsafe_op_in_unsafe_fn");
     }
+    // const_transmute stabilized in Rust 1.56 (nightly-2021-07-29): https://github.com/rust-lang/rust/pull/85769
+    if !version.probe(56, 2021, 7, 28) {
+        println!("cargo:rustc-cfg=portable_atomic_no_const_transmute");
+    }
     // https://github.com/rust-lang/rust/pull/84662 merged in Rust 1.56 (nightly-2021-08-02).
     if !version.probe(56, 2021, 8, 1) {
         println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");

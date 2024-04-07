@@ -55,11 +55,6 @@ macro_rules! atomic_float {
             }
 
             #[inline]
-            pub(crate) fn into_inner(self) -> $float_type {
-                self.v.into_inner()
-            }
-
-            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller
