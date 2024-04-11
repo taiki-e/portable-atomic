@@ -32,20 +32,6 @@ fn main() {
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
     let target_os = &*env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
-    // HACK: If --target is specified, rustflags is not applied to the build
-    // script itself, so the build script will not be rerun when these are changed.
-    // TODO: once https://github.com/rust-lang/cargo/issues/13003 is fixed,
-    // remove this hack in the version that contains the fix.
-    //
-    // Ideally, the build script should be rebuilt when CARGO_ENCODED_RUSTFLAGS
-    // is changed, but since it is an environment variable set by cargo,
-    // as of 1.62.0-nightly, specifying it as rerun-if-env-changed does not work.
-    println!("cargo:rerun-if-env-changed=CARGO_ENCODED_RUSTFLAGS");
-    println!("cargo:rerun-if-env-changed=RUSTFLAGS");
-    println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
-    let mut target_upper = target.replace(|c: char| c == '-' || c == '.', "_");
-    target_upper.make_ascii_uppercase();
-    println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
 
     let version = match rustc_version() {
         Some(version) => version,
@@ -58,6 +44,22 @@ fn main() {
             Version::LATEST
         }
     };
+
+    // https://github.com/rust-lang/rust/pull/123745 (includes https://github.com/rust-lang/cargo/pull/13560) merged in Rust 1.79 (nightly-2024-04-11).
+    if !version.probe(79, 2024, 4, 10) {
+        // HACK: If --target is specified, rustflags is not applied to the build
+        // script itself, so the build script will not be recompiled when rustflags
+        // is changed. That in itself is not a problem, but the old Cargo does
+        // not rerun the build script as well, which can be problematic.
+        // https://github.com/rust-lang/cargo/issues/13003
+        // This problem has been fixed in 1.79 so only older versions need a workaround.
+        println!("cargo:rerun-if-env-changed=CARGO_ENCODED_RUSTFLAGS");
+        println!("cargo:rerun-if-env-changed=RUSTFLAGS");
+        println!("cargo:rerun-if-env-changed=CARGO_BUILD_RUSTFLAGS");
+        let mut target_upper = target.replace(|c: char| c == '-' || c == '.', "_");
+        target_upper.make_ascii_uppercase();
+        println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
+    }
 
     // Note that this is `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
