@@ -1341,7 +1341,7 @@ macro_rules! __test_atomic_ptr {
             let x = &mut 1;
             for &order in &test_helper::SWAP_ORDERINGS {
                 assert_eq!(a.swap(x, order), ptr::null_mut());
-                assert_eq!(a.swap(ptr::null_mut(), order), x as _);
+                assert_eq!(a.swap(ptr::null_mut(), order), x as *mut _);
             }
         }
         #[test]
@@ -1357,12 +1357,12 @@ macro_rules! __test_atomic_ptr {
                     a.compare_exchange(ptr::null_mut(), x, success, failure),
                     Ok(ptr::null_mut()),
                 );
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
                 assert_eq!(
                     a.compare_exchange(ptr::null_mut(), ptr::null_mut(), success, failure),
-                    Err(x as _),
+                    Err(x as *mut _),
                 );
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
         #[test]
@@ -1382,7 +1382,7 @@ macro_rules! __test_atomic_ptr {
                         Err(x) => old = x,
                     }
                 }
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
     };
@@ -2193,7 +2193,7 @@ macro_rules! __stress_test_acquire_release {
             s.spawn(|_| {
                 for i in 0..n {
                     b.store(i, Ordering::Relaxed);
-                    a.$write(i as _, Ordering::$store_order);
+                    a.$write(i as $int_type, Ordering::$store_order);
                 }
             });
             loop {

@@ -740,7 +740,7 @@ macro_rules! __test_atomic_ptr {
             let x = &mut 1;
             for &order in &test_helper::SWAP_ORDERINGS {
                 assert_eq!(a.swap(x, order), core::ptr::null_mut());
-                assert_eq!(a.swap(core::ptr::null_mut(), order), x as _);
+                assert_eq!(a.swap(core::ptr::null_mut(), order), x as *mut _);
             }
         }
         __run_test!(compare_exchange);
@@ -752,7 +752,7 @@ macro_rules! __test_atomic_ptr {
                     a.compare_exchange(core::ptr::null_mut(), x, success, failure),
                     Ok(core::ptr::null_mut()),
                 );
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
                 assert_eq!(
                     a.compare_exchange(
                         core::ptr::null_mut(),
@@ -760,9 +760,9 @@ macro_rules! __test_atomic_ptr {
                         success,
                         failure
                     ),
-                    Err(x as _),
+                    Err(x as *mut _),
                 );
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
         __run_test!(compare_exchange_weak);
@@ -781,7 +781,7 @@ macro_rules! __test_atomic_ptr {
                         Err(x) => old = x,
                     }
                 }
-                assert_eq!(a.load(Ordering::Relaxed), x as _);
+                assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
         __run_test!(fetch_update);

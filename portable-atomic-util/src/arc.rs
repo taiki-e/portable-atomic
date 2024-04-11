@@ -522,7 +522,7 @@ impl<T> Arc<[mem::MaybeUninit<T>]> {
         let md_self = mem::ManuallyDrop::new(self);
         // SAFETY: [MaybeUninit<T>] has the same layout as [T], and
         // the caller must ensure data is initialized.
-        unsafe { Arc::from_ptr(md_self.ptr.as_ptr() as _) }
+        unsafe { Arc::from_ptr(md_self.ptr.as_ptr() as *mut ArcInner<[T]>) }
     }
 }
 
