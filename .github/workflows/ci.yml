@@ -363,7 +363,13 @@ jobs:
         include:
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '13.2'
+            version: '13.3'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '14.0'
+          - target: aarch64-unknown-netbsd
+            os: netbsd
+            version: '10.0'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.3'
@@ -375,6 +381,7 @@ jobs:
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES TEST_FEATURES
           operating_system: ${{ matrix.os }}
+          # We don't test x86_64 here because there is no OS-specific code on x86_64.
           architecture: aarch64
           version: ${{ matrix.version }}
           shell: bash
@@ -382,9 +389,10 @@ jobs:
           run: |
             set -eEuxo pipefail
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
-            # AArch64 FreeBSD/OpenBSD are tier 3 targets, so install rust from package manager instead of rustup.
+            # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install rust from package manager instead of rustup.
             case "$(uname -s)" in
               FreeBSD) sudo pkg install -y rust ;;
+              NetBSD) sudo pkgin -y install rust ;;
               OpenBSD)
                 # As of OpenBSD 7.3, the built-in git library is very slow.
                 export CARGO_NET_GIT_FETCH_WITH_CLI=true
@@ -394,6 +402,7 @@ jobs:
                 ;;
             esac
             rustc -vV
+            # VM is very slow, so only test OS-specific code and code using them.
             cargo test --features std --tests -- aarch64
 
   build:
