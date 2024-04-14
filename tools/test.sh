@@ -195,6 +195,12 @@ cranelift=''
 if [[ "${RUSTFLAGS:-}" =~ -Z( )?codegen-backend=cranelift ]]; then
     cranelift='1'
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
+else
+    case "$(basename "${cargo}")" in
+        cargo-clif | cargo-clif.exe) cranelift='1' ;;
+    esac
+fi
+if [[ -n "${cranelift}" ]]; then
     # panic=unwind is not supported yet.
     # https://github.com/rust-lang/rustc_codegen_cranelift#not-yet-supported
     flags=' -C panic=abort -Z panic_abort_tests'
