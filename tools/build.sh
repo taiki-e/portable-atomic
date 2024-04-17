@@ -385,6 +385,8 @@ build() {
         case "${target}" in
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
             m68k-unknown-linux-gnu) return 0 ;;
+            # TODO: "error: symbol 'f{ma,max}' is already defined" due to https://github.com/rust-lang/compiler-builtins/pull/577
+            hexagon-unknown-none-elf) return 0 ;;
         esac
         RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
