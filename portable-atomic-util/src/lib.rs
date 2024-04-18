@@ -10,8 +10,6 @@ Synchronization primitives built with [portable-atomic].
 
 See [#1] for other primitives being considered for addition to this crate.
 
-*Compiler support: requires rustc 1.34+*
-
 ## Optional features
 
 - **`std`**<br>

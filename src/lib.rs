@@ -42,8 +42,6 @@ If your crate supports no-std environment and requires atomic CAS, enabling the 
 portable-atomic = { version = "1.3", default-features = false, features = ["require-cas"] }
 ```
 
-*Compiler support: requires rustc 1.34+*
-
 ## 128-bit atomics support
 
 Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
