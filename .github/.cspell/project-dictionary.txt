@@ -95,7 +95,6 @@ neoverse
 newrepo
 newtype
 nngrk
-noconfirm
 nostartfiles
 nostdinc
 opensbi
