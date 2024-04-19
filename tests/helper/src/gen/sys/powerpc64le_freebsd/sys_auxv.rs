@@ -3,10 +3,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-extern "C" {
-    pub fn elf_aux_info(
-        aux: ::std::os::raw::c_int,
-        buf: *mut ::core::ffi::c_void,
-        buflen: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
-}
+extern "C" { pub fn elf_aux_info (aux : :: std :: os :: raw :: c_int , buf : * mut :: core :: ffi :: c_void , buflen : :: std :: os :: raw :: c_int) -> :: std :: os :: raw :: c_int ; }

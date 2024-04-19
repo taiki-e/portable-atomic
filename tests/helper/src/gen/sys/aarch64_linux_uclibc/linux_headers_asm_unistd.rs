@@ -3,4 +3,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const __NR_prctl: u32 = 167;
+pub const __NR_prctl : u32 = 167 ;

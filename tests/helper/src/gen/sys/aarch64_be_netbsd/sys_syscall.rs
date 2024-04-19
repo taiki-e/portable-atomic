@@ -3,4 +3,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const SYS___sysctl: u32 = 202;
+pub const SYS___sysctl : u32 = 202 ;

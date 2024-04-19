@@ -3,4 +3,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const ZX_OK: u32 = 0;
+pub const ZX_OK : u32 = 0 ;

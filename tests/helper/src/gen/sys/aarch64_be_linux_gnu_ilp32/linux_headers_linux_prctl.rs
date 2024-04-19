@@ -3,4 +3,4 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub const PR_GET_AUXV: u32 = 1096112214;
+pub const PR_GET_AUXV : u32 = 1096112214 ;
