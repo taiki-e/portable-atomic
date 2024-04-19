@@ -161,4 +161,4 @@ Start simulator (Ctrl-C to stop).
 
 TODO: Reflects whether the test was successful in the exit code of the script.
 
-[fuchsia-platform-support-doc]: https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
+[fuchsia-platform-support-doc]: https://github.com/rust-lang/rust/blob/1.74.0/src/doc/rustc/src/platform-support/fuchsia.md

@@ -15,7 +15,7 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 # Note: SDK_PATH environment variable must be set.
 #
 # Refs:
-# - https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
+# - https://github.com/rust-lang/rust/blob/1.74.0/src/doc/rustc/src/platform-support/fuchsia.md
 # - https://github.com/rust-lang/rust/blob/1.74.0/src/ci/docker/scripts/fuchsia-test-runner.py
 
 # TODO: ffx product-bundle has been removed: https://github.com/rust-lang/rust/pull/117799
