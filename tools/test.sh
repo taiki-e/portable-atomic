@@ -221,6 +221,7 @@ case "${cmd}" in
         exit 0
         ;;
     miri)
+        rustup ${pre_args[@]+"${pre_args[@]}"} component add miri &>/dev/null
         export MIRIFLAGS="${MIRIFLAGS:-} -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation"
         export RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}"
         export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}"
