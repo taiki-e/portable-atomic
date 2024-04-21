@@ -99,6 +99,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
 fi
 export QEMU_AUDIO_DRV=none
+export PORTABLE_ATOMIC_DENY_WARNINGS=1
 
 run() {
     local target="$1"

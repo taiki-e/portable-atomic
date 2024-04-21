@@ -9,6 +9,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: '10'
+  PORTABLE_ATOMIC_DENY_WARNINGS: '1'
 
 aarch64_linux_test_task:
   name: test ($TARGET)

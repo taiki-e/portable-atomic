@@ -17,6 +17,9 @@ fn main() {
     let version = match rustc_version() {
         Some(version) => version,
         None => {
+            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").unwrap_or_default() == "1" {
+                panic!("unable to determine rustc version")
+            }
             println!(
                 "cargo:warning={}: unable to determine rustc version; assuming latest stable rustc (1.{})",
                 env!("CARGO_PKG_NAME"),

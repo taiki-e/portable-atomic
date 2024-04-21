@@ -247,6 +247,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
 fi
 export CARGO_TARGET_DIR="${target_dir}"
+export PORTABLE_ATOMIC_DENY_WARNINGS=1
 
 has_asm=''
 # asm! requires 1.59

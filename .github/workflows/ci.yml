@@ -23,6 +23,7 @@ env:
   RUSTDOCFLAGS: -D warnings
   RUSTFLAGS: -D warnings
   RUSTUP_MAX_RETRIES: 10
+  PORTABLE_ATOMIC_DENY_WARNINGS: 1
   # NB: sync with:
   # - docs.rs metadata in Cargo.toml
   # - test_features list in tools/build.sh and tools/test.sh.
@@ -380,7 +381,7 @@ jobs:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/cross-platform-actions-action@neoverse-v1
         with:
-          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES TEST_FEATURES
+          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
           # We don't test x86_64 here because there is no OS-specific code on x86_64.
           architecture: aarch64

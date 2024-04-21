@@ -57,6 +57,7 @@ case "${1:-}" in
 esac
 target="$1-unknown-fuchsia"
 shift
+export PORTABLE_ATOMIC_DENY_WARNINGS=1
 
 cargo_options=()
 rest_cargo_options=(--test-threads=1)

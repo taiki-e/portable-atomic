@@ -143,6 +143,7 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     fi
 fi
 export RUST_TEST_THREADS=1
+export PORTABLE_ATOMIC_DENY_WARNINGS=1
 if [[ -n "${CI:-}" ]]; then
     if type -P ts &>/dev/null; then
         TS=ts
