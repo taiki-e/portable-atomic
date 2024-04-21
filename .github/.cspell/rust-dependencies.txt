@@ -7,6 +7,5 @@ fastrand
 globset
 prettyplease
 quickcheck
-semihosting
 sptr
 ufmt
