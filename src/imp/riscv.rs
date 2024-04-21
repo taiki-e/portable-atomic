@@ -17,12 +17,27 @@
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
-// - riscv64gc https://godbolt.org/z/zcx6P6dP3
-// - riscv32imac https://godbolt.org/z/867qK46va
+// - riscv64gc https://godbolt.org/z/x8bhEn39e
+// - riscv32imac https://godbolt.org/z/aG9157dhW
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
+
+#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(target_arch = "riscv32")]
+macro_rules! w {
+    () => {
+        ""
+    };
+}
+#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(target_arch = "riscv64")]
+macro_rules! w {
+    () => {
+        "w"
+    };
+}
 
 #[cfg(any(test, portable_atomic_force_amo))]
 macro_rules! atomic_rmw_amo_order {
@@ -71,17 +86,8 @@ fn sllw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling sll{,w} is safe.
     unsafe {
         let out;
-        #[cfg(target_arch = "riscv32")]
         asm!(
-            "sll {out}, {val}, {shift}",
-            out = lateout(reg) out,
-            val = in(reg) val,
-            shift = in(reg) shift,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-        #[cfg(target_arch = "riscv64")]
-        asm!(
-            "sllw {out}, {val}, {shift}",
+            concat!("sll", w!(), " {out}, {val}, {shift}"),
             out = lateout(reg) out,
             val = in(reg) val,
             shift = in(reg) shift,
@@ -92,29 +98,23 @@ fn sllw(val: u32, shift: u32) -> u32 {
 }
 // 32-bit val.wrapping_shr(shift) but no extra `& (u32::BITS - 1)`
 #[cfg(any(test, portable_atomic_force_amo))]
-#[inline]
-fn srlw(val: u32, shift: u32) -> u32 {
-    // SAFETY: Calling srl{,w} is safe.
-    unsafe {
-        let out;
-        #[cfg(target_arch = "riscv32")]
-        asm!(
-            "srl {out}, {val}, {shift}",
-            out = lateout(reg) out,
-            val = in(reg) val,
-            shift = in(reg) shift,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-        #[cfg(target_arch = "riscv64")]
-        asm!(
-            "srlw {out}, {val}, {shift}",
-            out = lateout(reg) out,
-            val = in(reg) val,
-            shift = in(reg) shift,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-        out
-    }
+macro_rules! srlw {
+    ($val:expr, $shift:expr) => {
+        // SAFETY: Calling srl{,w} is safe.
+        unsafe {
+            let val: u32 = $val;
+            let shift: u32 = $shift;
+            let out;
+            asm!(
+                concat!("srl", w!(), " {out}, {val}, {shift}"),
+                out = lateout(reg) out,
+                val = in(reg) val,
+                shift = in(reg) shift,
+                options(pure, nomem, nostack, preserves_flags),
+            );
+            out
+        }
+    };
 }
 
 macro_rules! atomic_load_store {
@@ -328,6 +328,33 @@ macro_rules! atomic {
     };
 }
 
+#[cfg(any(test, portable_atomic_force_amo))]
+trait ZeroExtend: Copy {
+    /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
+    fn zero_extend(self) -> u32;
+}
+macro_rules! zero_extend {
+    ($int:ident, $uint:ident) => {
+        #[cfg(any(test, portable_atomic_force_amo))]
+        impl ZeroExtend for $uint {
+            #[inline]
+            fn zero_extend(self) -> u32 {
+                self as u32
+            }
+        }
+        #[cfg(any(test, portable_atomic_force_amo))]
+        impl ZeroExtend for $int {
+            #[allow(clippy::cast_sign_loss)]
+            #[inline]
+            fn zero_extend(self) -> u32 {
+                self as $uint as u32
+            }
+        }
+    };
+}
+zero_extend!(i8, u8);
+zero_extend!(i16, u16);
+
 macro_rules! atomic_sub_word {
     ($atomic_type:ident, $value_type:ty, $unsigned_type:ty, $asm_suffix:tt) => {
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
@@ -336,39 +363,36 @@ macro_rules! atomic_sub_word {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
-                let (dst, shift, mask) = crate::utils::create_sub_word_mask_values(dst);
-                let mask = !sllw(mask as u32, shift as u32);
-                // TODO: use zero_extend helper instead of cast for val.
-                let val = sllw(val as $unsigned_type as u32, shift as u32);
-                let val = val | mask;
+                let (dst, shift, mut mask) = crate::utils::create_sub_word_mask_values(dst);
+                mask = !sllw(mask, shift);
+                let mut val = sllw(ZeroExtend::zero_extend(val), shift);
+                val |= mask;
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
-                srlw(out, shift as u32) as $unsigned_type as $value_type
+                srlw!(out, shift)
             }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                // TODO: use zero_extend helper instead of cast for val.
-                let val = sllw(val as $unsigned_type as u32, shift as u32);
+                let val = sllw(ZeroExtend::zero_extend(val), shift);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(or, dst, val, order, "w") };
-                srlw(out, shift as u32) as $unsigned_type as $value_type
+                srlw!(out, shift)
             }
 
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $value_type, order: Ordering) -> $value_type {
                 let dst = self.v.get();
                 let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                // TODO: use zero_extend helper instead of cast for val.
-                let val = sllw(val as $unsigned_type as u32, shift as u32);
+                let val = sllw(ZeroExtend::zero_extend(val), shift);
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(xor, dst, val, order, "w") };
-                srlw(out, shift as u32) as $unsigned_type as $value_type
+                srlw!(out, shift)
             }
 
             #[inline]

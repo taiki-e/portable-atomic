@@ -1673,6 +1673,7 @@ macro_rules! __test_atomic_ptr_pub {
 
             assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst), n.wrapping_add(1));
             assert_eq!(atom.load(Ordering::SeqCst), n);
+            #[allow(clippy::cast_ptr_alignment)]
             let bytes_from_n = |b| n.cast::<u8>().wrapping_add(b).cast::<i64>();
 
             assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst), n);
@@ -2155,6 +2156,7 @@ macro_rules! __stress_test_acquire_release {
     (should_pass, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {
         paste::paste! {
             #[test]
+            #[allow(clippy::cast_possible_truncation)]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 __stress_test_acquire_release!([<Atomic $int_type:camel>],
                     $int_type, $write, $load_order, $store_order);
@@ -2168,6 +2170,7 @@ macro_rules! __stress_test_acquire_release {
             // So, ignore on non-Miri environments by default. See also catch_unwind_on_weak_memory_arch.
             #[test]
             #[cfg_attr(not(miri), ignore)]
+            #[allow(clippy::cast_possible_truncation)]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 can_panic("a=", || __stress_test_acquire_release!([<Atomic $int_type:camel>],
                     $int_type, $write, $load_order, $store_order));

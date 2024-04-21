@@ -381,12 +381,10 @@ pub(crate) struct Pair<T: Copy> {
     pub(crate) lo: T,
 }
 
-#[allow(dead_code)]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 type MinWord = u32;
-#[cfg(target_arch = "riscv32")]
-type RegSize = u32;
-#[cfg(target_arch = "riscv64")]
-type RegSize = u64;
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+type RetInt = u32;
 // Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.0/src/utils.rs#L210.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
@@ -395,7 +393,7 @@ type RegSize = u64;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[allow(dead_code)]
 #[inline]
-pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RegSize, RegSize) {
+pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
     use core::mem;
     const SHIFT_MASK: bool = !cfg!(any(
         target_arch = "riscv32",
@@ -416,11 +414,11 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RegS
     } else {
         (ptr_lsb ^ (mem::size_of::<MinWord>() - mem::size_of::<T>())).wrapping_mul(8)
     };
-    let mut mask: RegSize = (1 << (mem::size_of::<T>() * 8)) - 1; // !(0 as T) as RegSize
+    let mut mask: RetInt = (1 << (mem::size_of::<T>() * 8)) - 1; // !(0 as T) as RetInt
     if SHIFT_MASK {
         mask <<= shift;
     }
-    (aligned_ptr, shift as RegSize, mask)
+    (aligned_ptr, shift as RetInt, mask)
 }
 
 /// Emulate strict provenance.
