@@ -10,7 +10,7 @@ test-helper = { path = "../helper" }
 
 paste = "1"
 semihosting = { version = "0.1", features = ["stdio", "panic-handler"] }
-semihosting-no-std-test-rt = { git = "https://github.com/taiki-e/semihosting.git", rev = "80d16c5", features = ["qemu-system"] }
+semihosting-no-std-test-rt = { git = "https://github.com/taiki-e/semihosting.git", rev = "afa43cc", features = ["qemu-system"] }
 
 # cfg(target_feature = "mclass") is not available on stable/beta.
 [target.thumbv6m-none-eabi.dependencies]

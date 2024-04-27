@@ -2,26 +2,26 @@
 
 # Cortex-M
 [target.thumbv6m-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m0 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m0 -display none -semihosting -kernel"
 [target.thumbv7m-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m3 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m3 -display none -semihosting -kernel"
 [target.thumbv7em-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m4 -display none -semihosting -kernel"
 [target.thumbv7em-none-eabihf]
-runner = "qemu-system-arm -cpu cortex-m4 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m4 -display none -semihosting -kernel"
 [target.thumbv8m.base-none-eabi]
 # TODO: As of QEMU 8.2, QEMU doesn't support -cpu cortex-m23
-runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabi]
-runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihosting -kernel"
 [target.thumbv8m.main-none-eabihf]
-runner = "qemu-system-arm -cpu cortex-m33 -M lm3s6965evb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihosting -kernel"
 
 # ARMv5TE
 [target.armv5te-none-eabi]
-runner = "qemu-system-arm -cpu arm926 -M versatilepb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M versatilepb -cpu arm926 -display none -semihosting -kernel"
 [target.thumbv5te-none-eabi]
-runner = "qemu-system-arm -cpu arm926 -M versatilepb -display none -semihosting -kernel"
+runner = "qemu-system-arm -M versatilepb -cpu arm926 -display none -semihosting -kernel"
 
 # RISC-V
 [target.'cfg(all(target_arch = "riscv32", target_os = "none"))']
