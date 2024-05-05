@@ -60,8 +60,8 @@ See [#1] for other primitives being considered for addition to this crate.
 #![allow(
     clippy::incompatible_msrv, // false positive: this lint doesn't consider cfg
 )]
-// docs.rs only (cfg is enabled via [package.metadata.docs.rs] in Cargo.toml, not build script)
-#![cfg_attr(portable_atomic_doc_cfg, feature(doc_cfg))]
+// docs.rs only (cfg is enabled by docs.rs, not build script)
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(all(feature = "alloc", not(portable_atomic_no_alloc)))]
 extern crate alloc;
@@ -71,12 +71,12 @@ extern crate std;
 extern crate std as alloc;
 
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
-#[cfg_attr(portable_atomic_doc_cfg, doc(cfg(any(feature = "alloc", feature = "std"))))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
 mod arc;
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
 pub use arc::{Arc, Weak};
 
 #[cfg(not(portable_atomic_no_futures_api))]
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
-#[cfg_attr(portable_atomic_doc_cfg, doc(cfg(any(feature = "alloc", feature = "std"))))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
 pub mod task;
