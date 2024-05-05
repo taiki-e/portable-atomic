@@ -107,9 +107,9 @@ unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
 unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 
 #[cfg(not(portable_atomic_no_core_unwind_safe))]
-impl<T: core::panic::RefUnwindSafe + ?Sized> core::panic::UnwindSafe for Arc<T> {}
+impl<T: ?Sized + core::panic::RefUnwindSafe> core::panic::UnwindSafe for Arc<T> {}
 #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
-impl<T: std::panic::RefUnwindSafe + ?Sized> std::panic::UnwindSafe for Arc<T> {}
+impl<T: ?Sized + std::panic::RefUnwindSafe> std::panic::UnwindSafe for Arc<T> {}
 
 impl<T: ?Sized> Arc<T> {
     #[inline]
@@ -2232,7 +2232,7 @@ impl<T> From<Vec<T>> for Arc<[T]> {
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<'a, B> From<Cow<'a, B>> for Arc<B>
 where
-    B: ToOwned + ?Sized,
+    B: ?Sized + ToOwned,
     Arc<B>: From<&'a B> + From<B::Owned>,
 {
     /// Create an atomically reference-counted pointer from
@@ -2378,7 +2378,7 @@ fn data_offset_align(align: usize) -> usize {
 }
 
 #[cfg(feature = "std")]
-impl<T: std::error::Error + ?Sized> std::error::Error for Arc<T> {
+impl<T: ?Sized + std::error::Error> std::error::Error for Arc<T> {
     #[allow(deprecated)]
     fn description(&self) -> &str {
         std::error::Error::description(&**self)
@@ -2465,7 +2465,7 @@ impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(any(unix, target_os = "wasi"))]
-impl<T: fd::AsFd + ?Sized> fd::AsFd for Arc<T> {
+impl<T: ?Sized + fd::AsFd> fd::AsFd for Arc<T> {
     #[inline]
     fn as_fd(&self) -> fd::BorrowedFd<'_> {
         (**self).as_fd()
@@ -2483,7 +2483,7 @@ impl<T: fd::AsFd + ?Sized> fd::AsFd for Arc<T> {
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(windows)]
-impl<T: std::os::windows::io::AsHandle + ?Sized> std::os::windows::io::AsHandle for Arc<T> {
+impl<T: ?Sized + std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
     #[inline]
     fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
         (**self).as_handle()
