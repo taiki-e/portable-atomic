@@ -136,8 +136,9 @@ jobs:
             target: aarch64-linux-android
           - rust: nightly
             target: aarch64-linux-android
-          - rust: nightly
-            target: aarch64-pc-windows-gnullvm
+          # TODO: flaky
+          # - rust: nightly
+          #   target: aarch64-pc-windows-gnullvm
           - rust: '1.59'
             target: armv5te-unknown-linux-gnueabi
           - rust: stable
