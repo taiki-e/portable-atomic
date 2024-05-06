@@ -3,6 +3,7 @@
 #![allow(
     dead_code,
     internal_features,
+    unexpected_cfgs,
     unused_extern_crates,
     clippy::duplicate_mod,
     clippy::incompatible_msrv, // similar to https://github.com/rust-lang/rust-clippy/issues/12257, but for bench

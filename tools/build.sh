@@ -107,17 +107,6 @@ default_targets=(
     # rustc --print target-list | grep -E '^s390x'
     s390x-unknown-linux-gnu
 )
-# List of known custom cfgs, excluding those that may be set from build script.
-known_cfgs=(
-    portable_atomic_no_outline_atomics
-    portable_atomic_outline_atomics
-
-    # Not public APIs
-    portable_atomic_test_outline_atomics_detect_false
-    qemu
-    rustfmt
-    valgrind
-)
 # NB: sync with:
 # - docs.rs metadata in Cargo.toml
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
@@ -227,22 +216,11 @@ if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]
     if [[ -z "${is_custom_toolchain}" ]]; then
         rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
-    # The latest syntax of cargo -Z check-cfg requires 1.75.0-nightly.
-    # rustc --check-cfg has been stabilized in 1.79.
-    # We only check this on the recent nightly to avoid old clippy bugs.
-    # shellcheck disable=SC2207
-    if [[ "${rustc_minor_version}" -ge 79 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
-        build_scripts=(build.rs portable-atomic-util/build.rs)
-        check_cfg='--check-cfg=cfg(target_pointer_width,values("128")) --check-cfg=cfg(target_arch,values("xtensa")) --check-cfg=cfg(target_feature,values("lse2","lse128","rcpc3","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))'
-        known_cfgs+=($(grep -E 'cargo:rustc-cfg=' "${build_scripts[@]}" | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u))
-        # TODO: handle multi-line target_feature_if
-        known_target_feature_values+=($(grep -E 'target_feature_if\("' "${build_scripts[@]}" | sed -E 's/^.*target_feature_if\(//; s/",.*$/"/' | LC_ALL=C sort -u))
-        check_cfg+=" --check-cfg=cfg(portable_atomic_target_feature,values($(IFS=',' && echo "${known_target_feature_values[*]}")))"
-        check_cfg+=" --check-cfg=cfg($(IFS=',' && echo "${known_cfgs[*]}"))"
+    # We only run clippy on the recent nightly to avoid old clippy bugs.
+    if [[ "${rustc_minor_version}" -ge 80 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
         subcmd=clippy
         rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
-        target_dir="${target_dir}/check-cfg"
-        base_args=(hack "${subcmd}" -Z check-cfg)
+        base_args=(hack "${subcmd}")
     fi
 fi
 export CARGO_TARGET_DIR="${target_dir}"

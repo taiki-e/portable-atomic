@@ -4,6 +4,8 @@ use std::env;
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rustc-check-cfg=cfg(armv5te,f,d)");
+    println!(r#"cargo:rustc-check-cfg=cfg(target_arch,values("xtensa"))"#); // for helper.rs
 
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
@@ -29,6 +31,4 @@ fn main() {
             }
         }
     }
-
-    println!("cargo:rustc-check-cfg=cfg(armv5te,f,d)");
 }

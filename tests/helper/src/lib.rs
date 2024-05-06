@@ -7,6 +7,7 @@
     clippy::new_without_default,
     clippy::undocumented_unsafe_blocks
 )]
+#![allow(unknown_lints, unexpected_cfgs)] // https://github.com/rust-lang/rust/issues/124735
 
 #[cfg(feature = "std")]
 extern crate std;
