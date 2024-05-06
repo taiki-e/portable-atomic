@@ -523,7 +523,7 @@ jobs:
           - target: powerpc64le-unknown-linux-gnu
           - target: s390x-unknown-linux-gnu
     runs-on: ubuntu-latest
-    timeout-minutes: 120 # TODO: reduce
+    timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@v1
       - name: Install Rust
