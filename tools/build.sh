@@ -521,28 +521,27 @@ build() {
     esac
     case "${target}" in
         x86_64*)
-            # Apple targets are skipped because they are +cmpxchg16b by default
-            case "${target}" in
-                *-apple-*) ;;
-                *)
-                    CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
-                        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
-                        x_cargo "${args[@]}" "$@"
-                    # Check no-outline-atomics
-                    CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-no-outline-atomics" \
-                        RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics" \
-                        x_cargo "${args[@]}" "$@"
-                    ;;
-            esac
+            # Apple and Windows (except Windows 7, since Rust 1.78) targets are +cmpxchg16b by default
+            if ! grep <<<"${cfgs}" -q 'target_feature="cmpxchg16b"'; then
+                CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
+                    x_cargo "${args[@]}" "$@"
+                # Check no-outline-atomics
+                CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-no-outline-atomics" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics" \
+                    x_cargo "${args[@]}" "$@"
+            fi
             ;;
         aarch64* | arm64*)
-            # macOS is skipped because it is +lse,+lse2 by default
+            # macOS is +lse,+lse2 by default
+            if ! grep <<<"${cfgs}" -q 'target_feature="lse"'; then
+                CARGO_TARGET_DIR="${target_dir}/lse" \
+                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
+                    x_cargo "${args[@]}" "$@"
+            fi
             case "${target}" in
                 *-darwin) ;;
                 *)
-                    CARGO_TARGET_DIR="${target_dir}/lse" \
-                        RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
-                        x_cargo "${args[@]}" "$@"
                     # FEAT_LSE2 doesn't imply FEAT_LSE.
                     CARGO_TARGET_DIR="${target_dir}/lse2" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2" \
