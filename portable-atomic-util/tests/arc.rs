@@ -171,7 +171,7 @@ mod alloc_tests {
 
     #[test]
     fn test_into_from_raw_unsized() {
-        use std::{fmt::Display, string::ToString};
+        use std::fmt::Display;
 
         let arc: Arc<str> = Arc::from("foo");
 
@@ -213,7 +213,7 @@ mod alloc_tests {
     // TODO: See Weak::from_raw
     // #[test]
     // fn test_into_from_weak_raw_unsized() {
-    //     use std::{fmt::Display, string::ToString};
+    //     use std::fmt::Display;
 
     //     let arc: Arc<str> = Arc::from("foo");
     //     let weak: Weak<str> = Arc::downgrade(&arc);
@@ -501,8 +501,6 @@ mod alloc_tests {
     #[test]
     #[should_panic = "test_clone_from_slice_panic"]
     fn test_clone_from_slice_panic() {
-        use std::string::{String, ToString};
-
         struct Fail(u32, String);
 
         impl Clone for Fail {
@@ -515,7 +513,7 @@ mod alloc_tests {
         }
 
         let s: &[Fail] =
-            &[Fail(0, "foo".to_string()), Fail(1, "bar".to_string()), Fail(2, "baz".to_string())];
+            &[Fail(0, "foo".to_owned()), Fail(1, "bar".to_owned()), Fail(2, "baz".to_owned())];
 
         // Should panic, but not cause memory corruption
         let _r: Arc<[Fail]> = Arc::from(s);
@@ -547,7 +545,7 @@ mod alloc_tests {
 
     #[test]
     fn test_from_box_trait() {
-        use std::{fmt::Display, string::ToString};
+        use std::fmt::Display;
 
         let b: Box<dyn Display> = Box::new(123);
         let r: Arc<dyn Display> = Arc::from(b);
