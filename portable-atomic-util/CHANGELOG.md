@@ -10,6 +10,24 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Rewrite `Arc` based on `std::sync::Arc`'s implementation. ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+
+  This fixes accidental API differences with std ([#139](https://github.com/taiki-e/portable-atomic/issues/139), [#140](https://github.com/taiki-e/portable-atomic/issues/140)) and adds many missing APIs compared to std:
+  - Add `Arc::{downcast, into_inner, make_mut, new_cyclic}` ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+  - Implement `{fmt::Display, fmt::Pointer, Error, From<T>, From<Box<T>>, From<Cow<'a,T>>, AsFd, AsRawFd, AsHandle, AsSocket}` for `Arc<T>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142), [78690d7](https://github.com/taiki-e/portable-atomic/commit/78690d7cad3b394119ea147c5773f67806a6ac09), [aba0930](https://github.com/taiki-e/portable-atomic/commit/aba0930269d7075b81810b49bbbbb6c5edc85ea0))
+  - Implement `{From<&[T]>, From<Vec<T>>, From<[T; N]>, FromIterator<T>}` for `Arc<[T]>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142), [5e9f693](https://github.com/taiki-e/portable-atomic/commit/5e9f693dcb43c35187ca95ce1c824e0cb1d3c4f8))
+  - Implement `TryFrom<Arc<[T]>>` for `Arc<[T; N]>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+  - Implement `From<Arc<str>>` for `Arc<[u8]>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+  - Implement `{From<&str>, From<String>}` for `Arc<str>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+  - Implement `{Read, Write, Seek}` for `Arc<File>` ([591ece5](https://github.com/taiki-e/portable-atomic/commit/591ece5bde0f19f1895853791924ee55c51ee61e))
+  - Remove `T: UnwindSafe` bound from `impl UnwindSafe for Arc<T>` ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
+
+- Add `task::Wake`. ([#145](https://github.com/taiki-e/portable-atomic/pull/145))
+
+  This is equivalent to `std::task::Wake`, but using `portable_atomic_util::Arc` as a reference-counted pointer.
+
+- Respect `RUSTC_WRAPPER` in rustc version detection.
+
 ## [0.1.5] - 2023-12-17
 
 - Improve offset calculation in `Arc::{into_raw,as_ptr,from_ptr}`. ([#141](https://github.com/taiki-e/portable-atomic/pull/141), thanks @gtsiam)
