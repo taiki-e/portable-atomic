@@ -100,6 +100,7 @@ opensbi
 osfmk
 osxsave
 picolibc
+pointee
 posix
 prctl
 prefetcher

@@ -80,6 +80,12 @@ macro_rules! acquire {
 /// This is an equivalent to [`std::sync::Arc`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Arc`] for more details.
 ///
+/// **Note:** Unlike `std::sync::Arc`, coercing `Arc<T>` to `Arc<U>` is not supported at all.
+/// This is because coercing the pointee requires the
+/// [unstable `CoerceUnsized` trait](https://doc.rust-lang.org/nightly/core/ops/trait.CoerceUnsized.html).
+/// See [this issue comment](https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569)
+/// for the known workaround.
+///
 /// [portable-atomic]: https://crates.io/crates/portable-atomic
 ///
 /// # Examples
@@ -532,12 +538,19 @@ impl<T: ?Sized> Arc<T> {
     /// # Safety
     ///
     /// The raw pointer must have been previously returned by a call to
-    /// [`Arc<U>::into_raw`][into_raw] where `U` must have the same size and
-    /// alignment as `T`. This is trivially true if `U` is `T`.
-    /// Note that if `U` is not `T` but has the same size and alignment, this is
-    /// basically like transmuting references of different types. See
-    /// [`mem::transmute`] for more information on what
-    /// restrictions apply in this case.
+    /// [`Arc<U>::into_raw`][into_raw] with the following requirements:
+    ///
+    /// * If `U` is sized, it must have the same size and alignment as `T`. This
+    ///   is trivially true if `U` is `T`.
+    /// * If `U` is unsized, its data pointer must have the same size and
+    ///   alignment as `T`. This is trivially true if `Arc<U>` was constructed
+    ///   through `Arc<T>` and then converted to `Arc<U>` through an [unsized
+    ///   coercion].
+    ///
+    /// Note that if `U` or `U`'s data pointer is not `T` but has the same size
+    /// and alignment, this is basically like transmuting references of
+    /// different types. See [`mem::transmute`] for more information
+    /// on what restrictions apply in this case.
     ///
     /// The user of `from_raw` has to make sure a specific value of `T` is only
     /// dropped once.
@@ -546,6 +559,7 @@ impl<T: ?Sized> Arc<T> {
     /// even if the returned `Arc<T>` is never accessed.
     ///
     /// [into_raw]: Arc::into_raw
+    /// [unsized coercion]: https://doc.rust-lang.org/reference/type-coercions.html#unsized-coercions
     ///
     /// # Examples
     ///
@@ -564,6 +578,20 @@ impl<T: ?Sized> Arc<T> {
     /// }
     ///
     /// // The memory was freed when `x` went out of scope above, so `x_ptr` is now dangling!
+    /// ```
+    ///
+    /// Convert a slice back into its original array:
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let x: Arc<[u32]> = Arc::from([1, 2, 3]);
+    /// let x_ptr: *const [u32] = Arc::into_raw(x);
+    ///
+    /// unsafe {
+    ///     let x: Arc<[u32; 3]> = Arc::from_raw(x_ptr.cast::<[u32; 3]>());
+    ///     assert_eq!(&*x, &[1, 2, 3]);
+    /// }
     /// ```
     #[inline]
     pub unsafe fn from_raw(ptr: *const T) -> Self {
@@ -1565,7 +1593,7 @@ impl<T /*: ?Sized */> Weak<T> {
     ///
     /// [`from_raw`]: Weak::from_raw
     /// [`as_ptr`]: Weak::as_ptr
-    #[must_use = "`self` will be dropped if the result is not used"]
+    #[must_use = "losing the pointer will leak memory"]
     pub fn into_raw(self) -> *const T {
         let result = self.as_ptr();
         mem::forget(self);
