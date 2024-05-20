@@ -106,7 +106,6 @@ prctl
 prefetcher
 PRIMASK
 quadword
-qword
 RAII
 rcpc
 reentrancy
