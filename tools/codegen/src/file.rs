@@ -139,7 +139,7 @@ pub(crate) fn write_raw(
         }
         linguist_generated
     });
-    let p = path.strip_prefix(&workspace_root()).unwrap();
+    let p = path.strip_prefix(workspace_root()).unwrap();
     if !linguist_generated.iter().any(|m| m.is_match(p)) {
         eprintln!("warning: you may want to mark {} linguist-generated", p.display());
     }
