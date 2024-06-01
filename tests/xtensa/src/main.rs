@@ -10,7 +10,7 @@ mod helper;
 
 use portable_atomic::*;
 
-use esp32_hal as _;
+use esp_hal as _;
 use esp_println::{print, println};
 
 #[xtensa_lx_rt::entry]
@@ -81,6 +81,8 @@ fn main() -> ! {
     test_atomic_int!(u128);
     test_atomic_float!(f32);
     test_atomic_float!(f64);
+
+    println!("all tests passed");
 
     #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}

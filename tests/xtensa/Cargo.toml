@@ -10,10 +10,11 @@ test-helper = { path = "../helper" }
 
 paste = "1"
 
-[target.xtensa-esp32-none-elf.dependencies]
-esp-println = { version = "0.9", default-features = false, features = ["uart", "esp32"] }
-esp32-hal = "0.18"
-xtensa-lx-rt = { version = "0.16", features = ["esp32"] }
+[target.xtensa-esp32s2-none-elf.dependencies]
+esp-println = { version = "0.9", default-features = false, features = ["uart", "esp32s2"] }
+esp-hal = { version = "0.17", features = ["esp32s2"] }
+xtensa-lx-rt = { version = "0.16", features = ["esp32s2"] }
+spin = { version = "0.9", features = ["portable_atomic"] } # used in xtensa-lx-rt
 
 [workspace]
 resolver = "2"
@@ -33,3 +34,6 @@ opt-level = 'z'
 
 [profile.release]
 opt-level = 'z'
+
+[patch.crates-io]
+portable-atomic = { path = "../.." } # used in xtensa-lx-rt via spin
