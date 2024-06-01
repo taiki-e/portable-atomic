@@ -44,7 +44,6 @@ DWCAS
 elems
 espup
 exynos
-FIQs
 getauxval
 getpid
 HWCAP
@@ -101,7 +100,6 @@ osfmk
 osxsave
 picolibc
 pointee
-posix
 prctl
 prefetcher
 PRIMASK
@@ -114,7 +112,6 @@ rsbegin
 rsend
 rsil
 sbcs
-sched
 selgr
 seqlock
 setb
