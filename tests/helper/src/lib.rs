@@ -2,7 +2,6 @@
 
 #![no_std]
 #![allow(
-    clippy::incompatible_msrv,
     clippy::missing_panics_doc,
     clippy::new_without_default,
     clippy::undocumented_unsafe_blocks

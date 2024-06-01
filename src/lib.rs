@@ -210,7 +210,6 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 #![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
 #![allow(
     clippy::cast_lossless,
-    clippy::incompatible_msrv, // false positive: this lint doesn't consider cfg
     clippy::inline_always,
     clippy::naive_bytecount,
     clippy::unreadable_literal

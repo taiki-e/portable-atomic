@@ -21,9 +21,12 @@ resolver = "2"
 [lints.rust]
 rust_2018_idioms = "warn"
 single_use_lifetimes = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = [
+    "cfg(target_arch,values(\"xtensa\"))",
+] }
 # unsafe_op_in_unsafe_fn = "warn" # Set at crate-level instead since https://github.com/rust-lang/rust/pull/100081 is not available on MSRV
 [lints.clippy]
-lint_groups_priority = { level = "allow", priority = 1 } # clippy bug: https://github.com/rust-lang/rust-clippy/issues/12270
+lint_groups_priority = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/12270
 
 [profile.dev]
 opt-level = 'z'

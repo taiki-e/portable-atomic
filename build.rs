@@ -46,17 +46,9 @@ fn main() {
     };
 
     if version.minor >= 80 {
-        println!(r#"cargo:rustc-check-cfg=cfg(target_pointer_width,values("128"))"#);
-        println!(r#"cargo:rustc-check-cfg=cfg(target_arch,values("xtensa"))"#);
         println!(
             r#"cargo:rustc-check-cfg=cfg(target_feature,values("lse2","lse128","rcpc3","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
-
-        // Known custom cfgs, excluding those that may be set by build script.
-        // Not public API.
-        println!("cargo:rustc-check-cfg=cfg(portable_atomic_test_outline_atomics_detect_false,qemu,valgrind)");
-        // Public APIs, considered unstable unless documented in readme.
-        println!("cargo:rustc-check-cfg=cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics)");
 
         // Custom cfgs set by build script. Not public API.
         // grep -E 'cargo:rustc-cfg=' build.rs | grep -v '=//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ','
