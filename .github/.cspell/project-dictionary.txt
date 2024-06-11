@@ -64,6 +64,7 @@ ldsetp
 ldxp
 lghi
 libcalls
+libelf
 libfdio
 libpthread
 libstd

@@ -1,2 +1,3 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "mgba -l 4"
+runner = "mgba-test-runner"
+# runner = "mgba -l 4"

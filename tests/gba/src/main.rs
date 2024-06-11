@@ -108,7 +108,7 @@ fn main() -> ! {
     test_atomic_float!(f32);
     test_atomic_float!(f64);
 
-    println!("all tests passed");
+    println!("Tests finished successfully");
 
     #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}

@@ -116,20 +116,27 @@ run() {
         local target_flags=(--target "${target}")
     fi
     local subcmd=run
-    case "${target}" in
-        armv4t* | thumbv4t*)
-            # TODO: run tests on CI (investigate mgba-test-runner in https://github.com/agbrs/agb)
-            if ! type -P mgba &>/dev/null; then
-                if [[ -x /usr/games/mgba ]]; then
-                    export PATH="/usr/games:${PATH}"
-                else
+    if [[ -z "${CI:-}" ]]; then
+        case "${target}" in
+            armv4t* | thumbv4t*)
+                if ! type -P mgba-test-runner &>/dev/null; then
+                    echo "no-std test for ${target} requires mgba-test-runner (switched to build-only)"
                     subcmd=build
                 fi
-            fi
-            ;;
+                ;;
+            avr*)
+                if ! type -P simavr &>/dev/null; then
+                    echo "no-std test for ${target} requires simavr (switched to build-only)"
+                    subcmd=build
+                fi
+                ;;
+        esac
+    fi
+    case "${target}" in
         xtensa*)
             # TODO: run test with simulator on CI
             if ! type -P wokwi-server &>/dev/null; then
+                echo "no-std test for ${target} requires wokwi-server (switched to build-only)"
                 subcmd=build
             fi
             ;;
@@ -160,8 +167,6 @@ run() {
             test_dir=tests/gba
             linker=link.ld
             target_rustflags+=" -C link-arg=-T${linker}"
-            # https://github.com/rust-lang/compiler-builtins/issues/533
-            args+=(-Z build-std-features=compiler-builtins-weak-intrinsics)
             ;;
         armv5te* | thumbv5te*)
             test_dir=tests/no-std-qemu

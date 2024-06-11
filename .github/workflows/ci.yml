@@ -87,7 +87,7 @@ jobs:
             flags: -Z codegen-backend=cranelift
           - rust: nightly
             # target: x86_64-apple-darwin
-            os: macos-13
+            os: macos-13 # x86_64
           - rust: nightly
             # target: x86_64-pc-windows-msvc
             os: windows-latest
@@ -102,7 +102,7 @@ jobs:
             os: windows-latest
           - rust: nightly
             target: aarch64-apple-darwin
-            os: macos-14
+            os: macos-14 # aarch64
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
           # - rust: '1.64' # LLVM 14
@@ -478,17 +478,12 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
-      - uses: taiki-e/install-action@cargo-hack
-        if: startsWith(matrix.rust, 'nightly')
-      - uses: taiki-e/install-action@espup
-        if: startsWith(matrix.rust, 'nightly')
       - run: |
           set -eEuxo pipefail
           sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
             avr-libc \
             gcc-avr \
+            libelf-dev \
             qemu-system-arm \
             qemu-system-misc \
             simavr
@@ -499,6 +494,24 @@ jobs:
           sudo mv "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
           sudo mv "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
           rm -rf "opensbi-${OPENSBI_VERSION}-rv-bin"
+      - name: Install Rust
+        run: rustup toolchain add ${{ matrix.rust }} --no-self-update && rustup default ${{ matrix.rust }}
+      - uses: taiki-e/install-action@cargo-hack
+        if: startsWith(matrix.rust, 'nightly')
+      - uses: taiki-e/install-action@espup
+        if: startsWith(matrix.rust, 'nightly')
+      - uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          # https://github.com/agbrs/agb/tree/5fb928a/mgba-test-runner
+          # To install locally:
+          #   apt install libelf-dev
+          #   cargo install mgba-test-runner --git https://github.com/agbrs/agb.git --rev 5fb928a
+          tool: mgba-test-runner
+          git: https://github.com/agbrs/agb.git
+          rev: 5fb928a
+        env:
+          RUSTFLAGS: -W warnings
+        if: startsWith(matrix.rust, 'nightly')
       - run: espup install --targets esp32s2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
