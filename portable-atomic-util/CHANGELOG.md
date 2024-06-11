@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+.
+
 ## [0.2.0] - 2024-05-07
 
 - Rewrite `Arc` based on `std::sync::Arc`'s implementation. ([#142](https://github.com/taiki-e/portable-atomic/pull/142))

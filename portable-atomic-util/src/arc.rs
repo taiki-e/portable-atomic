@@ -2405,18 +2405,22 @@ fn data_offset_align(align: usize) -> usize {
     layout.size() + padding_needed_for(layout, align)
 }
 
-#[cfg(feature = "std")]
-impl<T: ?Sized + std::error::Error> std::error::Error for Arc<T> {
+#[cfg(not(portable_atomic_no_error_in_core))]
+use core::error;
+#[cfg(all(portable_atomic_no_error_in_core, feature = "std"))]
+use std::error;
+#[cfg(any(not(portable_atomic_no_error_in_core), feature = "std"))]
+impl<T: ?Sized + error::Error> error::Error for Arc<T> {
     #[allow(deprecated)]
     fn description(&self) -> &str {
-        std::error::Error::description(&**self)
+        error::Error::description(&**self)
     }
     #[allow(deprecated)]
-    fn cause(&self) -> Option<&dyn std::error::Error> {
-        std::error::Error::cause(&**self)
+    fn cause(&self) -> Option<&dyn error::Error> {
+        error::Error::cause(&**self)
     }
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        std::error::Error::source(&**self)
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        error::Error::source(&**self)
     }
 }
 

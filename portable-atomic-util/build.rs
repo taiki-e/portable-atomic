@@ -33,7 +33,7 @@ fn main() {
         // Custom cfgs set by build script. Not public API.
         // grep -E 'cargo:rustc-cfg=' build.rs | grep -v '=//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ','
         println!(
-            "cargo:rustc-check-cfg=cfg(portable_atomic_no_alloc,portable_atomic_no_alloc_layout_extras,portable_atomic_no_core_unwind_safe,portable_atomic_no_futures_api,portable_atomic_no_io_safety,portable_atomic_no_io_vec,portable_atomic_no_min_const_generics,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_sanitize_thread)"
+            "cargo:rustc-check-cfg=cfg(portable_atomic_no_alloc,portable_atomic_no_alloc_layout_extras,portable_atomic_no_core_unwind_safe,portable_atomic_no_error_in_core,portable_atomic_no_futures_api,portable_atomic_no_io_safety,portable_atomic_no_io_vec,portable_atomic_no_min_const_generics,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_sanitize_thread)"
         );
     }
 
@@ -71,6 +71,10 @@ fn main() {
     // io_safety stabilized in Rust 1.63 (nightly-2022-06-16): https://github.com/rust-lang/rust/pull/95118
     if !version.probe(63, 2022, 6, 15) {
         println!("cargo:rustc-cfg=portable_atomic_no_io_safety");
+    }
+    // error_in_core stabilized in Rust 1.81 (nightly-2024-06-09): https://github.com/rust-lang/rust/pull/125951
+    if !version.probe(81, 2024, 6, 8) {
+        println!("cargo:rustc-cfg=portable_atomic_no_error_in_core");
     }
 
     if version.nightly {
