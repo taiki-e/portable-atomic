@@ -3,7 +3,6 @@
 #![no_main]
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
-#![feature(panic_info_message)] // <PanicInfo as fmt::Display>::fmt increases binary size than manual printing
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -111,12 +110,6 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = semihosting::Usart(arduino_hal::default_serial!(dp, pins, 57600));
 
-    macro_rules! print {
-        ($($tt:tt)*) => {{
-            use core::fmt::Write as _;
-            let _ = write!(serial, $($tt)*);
-        }};
-    }
     macro_rules! println {
         ($($tt:tt)*) => {{
             use core::fmt::Write as _;
@@ -124,17 +117,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         }};
     }
 
-    if let Some(m) = info.message() {
-        print!("panicked at '{m:?}'");
-    } else {
-        print!("panic occurred (no message)");
-    }
-    if let Some(l) = info.location() {
-        println!(", {l}");
-    } else {
-        println!(" (no location info)");
-    }
-
+    println!("{info}");
     semihosting::exit(1)
 }
 
