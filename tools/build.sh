@@ -264,6 +264,10 @@ build() {
         fi
         cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
         if [[ -n "${TARGET_GROUP:-}" ]]; then
+            case "${target}" in
+                # builtin xtensa targets are completely broken with builtin LLVM: https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
+                xtensa-*) return 0 ;;
+            esac
             args+=(-Z build-std="core")
         elif is_no_std "${target}"; then
             args+=(-Z build-std="core,alloc")
