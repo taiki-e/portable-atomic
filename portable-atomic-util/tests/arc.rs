@@ -4,12 +4,13 @@
 
 use portable_atomic_util::Arc;
 
+#[derive(Debug, PartialEq)]
+#[repr(align(128))]
+struct Aligned(u32);
+
 // https://github.com/taiki-e/portable-atomic/issues/37
 #[test]
 fn over_aligned() {
-    #[repr(align(128))]
-    struct Aligned(u32);
-
     let value = Arc::new(Aligned(128));
     let ptr = Arc::into_raw(value);
     // SAFETY: `ptr` should always be a valid `Aligned`.
@@ -17,6 +18,16 @@ fn over_aligned() {
     // SAFETY: `ptr` is a valid reference to an `Arc<Aligned>`.
     let value = unsafe { Arc::from_raw(ptr) };
     assert_eq!(value.0, 128);
+}
+
+#[test]
+fn default() {
+    let v = Arc::<[Aligned]>::default();
+    assert_eq!(v[..], []);
+    let v = Arc::<[()]>::default();
+    assert_eq!(v[..], []);
+    let v = Arc::<str>::default();
+    assert_eq!(&v[..], "");
 }
 
 // https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/library/alloc/src/sync/tests.rs

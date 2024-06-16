@@ -118,6 +118,13 @@ impl<T: ?Sized + core::panic::RefUnwindSafe> core::panic::UnwindSafe for Arc<T> 
 impl<T: ?Sized + std::panic::RefUnwindSafe> std::panic::UnwindSafe for Arc<T> {}
 
 impl<T: ?Sized> Arc<T> {
+    #[cfg(not(portable_atomic_no_min_const_generics))]
+    #[inline]
+    fn into_non_null(this: Self) -> NonNull<ArcInner<T>> {
+        let this = mem::ManuallyDrop::new(this);
+        this.ptr
+    }
+
     #[inline]
     unsafe fn from_inner(ptr: NonNull<ArcInner<T>>) -> Self {
         Self { ptr, phantom: PhantomData }
@@ -2090,6 +2097,34 @@ impl<T: Default> Default for Arc<T> {
     }
 }
 
+#[cfg(not(portable_atomic_no_min_const_generics))]
+impl Default for Arc<str> {
+    /// Creates an empty str inside an Arc.
+    ///
+    /// This may or may not share an allocation with other Arcs.
+    #[inline]
+    fn default() -> Self {
+        let arc: Arc<[u8]> = Arc::default();
+        debug_assert!(core::str::from_utf8(&arc).is_ok());
+        let ptr = Arc::into_non_null(arc);
+        unsafe { Arc::from_ptr(ptr.as_ptr() as *mut ArcInner<str>) }
+    }
+}
+
+#[cfg(not(portable_atomic_no_min_const_generics))]
+impl<T> Default for Arc<[T]> {
+    /// Creates an empty `[T]` inside an Arc.
+    ///
+    /// This may or may not share an allocation with other Arcs.
+    #[inline]
+    fn default() -> Self {
+        // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/bc3618f31ea3866e6abea6995ec3979d12ffc65d/library/alloc/src/sync.rs#L3449-L3460)
+        // for now due to casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized.
+        let arr: [T; 0] = [];
+        Arc::from(arr)
+    }
+}
+
 impl<T: ?Sized + Hash> Hash for Arc<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         (**self).hash(state);
@@ -2428,6 +2463,7 @@ impl<T: ?Sized + error::Error> error::Error for Arc<T> {
 // - alloc::ffi
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
 //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
+//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-Default-for-Arc%3CCStr%3E
 //   - Currently, we cannot implement these since CStr layout is not stable.
 // - std::ffi
 //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E

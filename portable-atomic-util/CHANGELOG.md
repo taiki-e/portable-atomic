@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+.
 
+- Implement `Default` for `Arc<[T]>` and `Arc<str>` at Rust 1.51+. (align to the [std Arc change in Rust 1.80](https://github.com/rust-lang/rust/pull/124640))
+
 ## [0.2.0] - 2024-05-07
 
 - Rewrite `Arc` based on `std::sync::Arc`'s implementation. ([#142](https://github.com/taiki-e/portable-atomic/pull/142))
