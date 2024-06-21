@@ -10,9 +10,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+.
+- Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+. ([30b9f90](https://github.com/taiki-e/portable-atomic/commit/30b9f90346dfad14ab00f1c7e1f988f941330bcf))
 
-- Implement `Default` for `Arc<[T]>` and `Arc<str>` at Rust 1.51+. (align to the [std Arc change in Rust 1.80](https://github.com/rust-lang/rust/pull/124640))
+- Implement `Default` for `Arc<[T]>` and `Arc<str>` at Rust 1.51+. (align to the [std Arc change in Rust 1.80](https://github.com/rust-lang/rust/pull/124640)) ([c6ee296](https://github.com/taiki-e/portable-atomic/commit/c6ee29606984863d008c2cf2209751ed0fa43b14))
+
+- Implement `{AsFd, AsRawFd}` for `Arc<T>` on HermitOS. ([b778244](https://github.com/taiki-e/portable-atomic/commit/b778244917e17bfc431c9add4d028ff26d00e3b7))
 
 ## [0.2.0] - 2024-05-07
 
