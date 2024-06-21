@@ -2,15 +2,14 @@
 
 // This module is based on alloc::sync::Arc.
 //
-// The code has been adjusted to work with stable Rust and to
-// avoid UBs (https://github.com/rust-lang/rust/issues/119241).
+// The code has been adjusted to work with stable Rust.
 //
-// Source: https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/library/alloc/src/sync.rs.
+// Source: https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/sync.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-MIT
 
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
 #![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
@@ -357,15 +356,18 @@ impl<T> Arc<T> {
     /// This will succeed even if there are outstanding weak references.
     ///
     /// It is strongly recommended to use [`Arc::into_inner`] instead if you don't
-    /// want to keep the `Arc` in the [`Err`] case.
-    /// Immediately dropping the [`Err`] payload, like in the expression
-    /// `Arc::try_unwrap(this).ok()`, can still cause the strong count to
-    /// drop to zero and the inner value of the `Arc` to be dropped:
-    /// For instance if two threads each execute this expression in parallel, then
-    /// there is a race condition. The threads could first both check whether they
-    /// have the last clone of their `Arc` via `Arc::try_unwrap`, and then
-    /// both drop their `Arc` in the call to [`ok`][`Result::ok`],
-    /// taking the strong count from two down to zero.
+    /// keep the `Arc` in the [`Err`] case.
+    /// Immediately dropping the [`Err`]-value, as the expression
+    /// `Arc::try_unwrap(this).ok()` does, can cause the strong count to
+    /// drop to zero and the inner value of the `Arc` to be dropped.
+    /// For instance, if two threads execute such an expression in parallel,
+    /// there is a race condition without the possibility of unsafety:
+    /// The threads could first both check whether they own the last instance
+    /// in `Arc::try_unwrap`, determine that they both do not, and then both
+    /// discard and drop their instance in the call to [`ok`][`Result::ok`].
+    /// In this scenario, the value inside the `Arc` is safely destroyed
+    /// by exactly one of the threads, but neither thread will ever be able
+    /// to use the value.
     ///
     /// # Examples
     ///
@@ -408,9 +410,13 @@ impl<T> Arc<T> {
     /// it is guaranteed that exactly one of the calls returns the inner value.
     /// This means in particular that the inner value is not dropped.
     ///
-    /// The similar expression `Arc::try_unwrap(this).ok()` does not
-    /// offer such a guarantee. See the last example below
-    /// and the documentation of [`Arc::try_unwrap`].
+    /// [`Arc::try_unwrap`] is conceptually similar to `Arc::into_inner`, but it
+    /// is meant for different use-cases. If used as a direct replacement
+    /// for `Arc::into_inner` anyway, such as with the expression
+    /// <code>[Arc::try_unwrap]\(this).[ok][Result::ok]()</code>, then it does
+    /// **not** give the same guarantee as described in the previous paragraph.
+    /// For more information, see the examples below and read the documentation
+    /// of [`Arc::try_unwrap`].
     ///
     /// # Examples
     ///
@@ -475,14 +481,11 @@ impl<T> Arc<T> {
     ///
     /// // Create a long list and clone it
     /// let mut x = LinkedList::new();
-    /// # #[cfg(not(miri))]
-    /// for i in 0..100000 {
+    /// let size = 100000;
+    /// # let size = if cfg!(miri) { 100 } else { size };
+    /// for i in 0..size {
     ///     x.push(i); // Adds i to the front of x
     /// }
-    /// # #[cfg(miri)] // Miri is slow
-    /// # for i in 0..100 {
-    /// #     x.push(i); // Adds i to the front of x
-    /// # }
     /// let y = x.clone();
     ///
     /// // Drop the clones in parallel
@@ -1824,20 +1827,17 @@ impl<T: ?Sized> Clone for Weak<T> {
     /// ```
     #[inline]
     fn clone(&self) -> Self {
-        let inner = if let Some(inner) = self.inner() {
-            inner
-        } else {
-            return Self { ptr: self.ptr };
-        };
-        // See comments in Arc::clone() for why this is relaxed. This can use a
-        // fetch_add (ignoring the lock) because the weak count is only locked
-        // where are *no other* weak pointers in existence. (So we can't be
-        // running this code in that case).
-        let old_size = inner.weak.fetch_add(1, Relaxed);
+        if let Some(inner) = self.inner() {
+            // See comments in Arc::clone() for why this is relaxed. This can use a
+            // fetch_add (ignoring the lock) because the weak count is only locked
+            // where are *no other* weak pointers in existence. (So we can't be
+            // running this code in that case).
+            let old_size = inner.weak.fetch_add(1, Relaxed);
 
-        // See comments in Arc::clone() for why we do this (for mem::forget).
-        if old_size > MAX_REFCOUNT {
-            abort();
+            // See comments in Arc::clone() for why we do this (for mem::forget).
+            if old_size > MAX_REFCOUNT {
+                abort();
+            }
         }
 
         Self { ptr: self.ptr }

@@ -57,6 +57,7 @@ See [#1] for other primitives being considered for addition to this crate.
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
 )]
+#![allow(clippy::inline_always)]
 // docs.rs only (cfg is enabled by docs.rs, not build script)
 #![cfg_attr(docsrs, feature(doc_cfg))]
 

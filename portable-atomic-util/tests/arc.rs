@@ -30,23 +30,22 @@ fn default() {
     assert_eq!(&v[..], "");
 }
 
-// https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/library/alloc/src/sync/tests.rs
+// https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/sync/tests.rs
 #[allow(clippy::many_single_char_names, clippy::undocumented_unsafe_blocks)]
 mod alloc_tests {
     use std::{
         convert::TryInto,
-        sync::{
-            atomic::Ordering::{Acquire, SeqCst},
-            mpsc::channel,
-            Mutex,
-        },
+        sync::{mpsc::channel, Mutex},
         thread,
     };
 
-    use portable_atomic as atomic;
+    use portable_atomic::{
+        AtomicBool, AtomicUsize,
+        Ordering::{Acquire, SeqCst},
+    };
     use portable_atomic_util::{Arc, Weak};
 
-    struct Canary(*mut atomic::AtomicUsize);
+    struct Canary(*mut AtomicUsize);
 
     impl Drop for Canary {
         fn drop(&mut self) {
@@ -337,16 +336,16 @@ mod alloc_tests {
 
     #[test]
     fn drop_arc() {
-        let mut canary = atomic::AtomicUsize::new(0);
-        let x = Arc::new(Canary(&mut canary as *mut atomic::AtomicUsize));
+        let mut canary = AtomicUsize::new(0);
+        let x = Arc::new(Canary(&mut canary as *mut AtomicUsize));
         drop(x);
         assert!(canary.load(Acquire) == 1);
     }
 
     #[test]
     fn drop_arc_weak() {
-        let mut canary = atomic::AtomicUsize::new(0);
-        let arc = Arc::new(Canary(&mut canary as *mut atomic::AtomicUsize));
+        let mut canary = AtomicUsize::new(0);
+        let arc = Arc::new(Canary(&mut canary as *mut AtomicUsize));
         let arc_weak = Arc::downgrade(&arc);
         assert!(canary.load(Acquire) == 0);
         drop(arc);
@@ -463,7 +462,7 @@ mod alloc_tests {
     #[test]
     #[cfg_attr(target_os = "emscripten", ignore)]
     fn test_weak_count_locked() {
-        let mut a = Arc::new(atomic::AtomicBool::new(false));
+        let mut a = Arc::new(AtomicBool::new(false));
         let a2 = a.clone();
         let t = thread::spawn(move || {
             // Miri is too slow

@@ -4,12 +4,14 @@
 
 // This module is based on alloc::task::Wake.
 //
-// Source: https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/library/alloc/src/task.rs.
+// The code has been adjusted to work with stable Rust.
+//
+// Source: https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/task.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/5151b8c42712c473e7da56e213926b929d0212ef/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-MIT
 
 use core::{
     mem::ManuallyDrop,
@@ -120,6 +122,15 @@ impl<W: Wake + Send + Sync + 'static> From<Arc<W>> for RawWaker {
 #[inline(always)]
 fn raw_waker<W: Wake + Send + Sync + 'static>(waker: Arc<W>) -> RawWaker {
     // Increment the reference count of the arc to clone it.
+    //
+    // The #[inline(always)] is to ensure that raw_waker and clone_waker are
+    // always generated in the same code generation unit as one another, and
+    // therefore that the structurally identical const-promoted RawWakerVTable
+    // within both functions is deduplicated at LLVM IR code generation time.
+    // This allows optimizing Waker::will_wake to a single pointer comparison of
+    // the vtable pointers, rather than comparing all four function pointers
+    // within the vtables.
+    #[inline(always)]
     unsafe fn clone_waker<W: Wake + Send + Sync + 'static>(waker: *const ()) -> RawWaker {
         // SAFETY: the caller must uphold the safety contract.
         unsafe { Arc::increment_strong_count(waker as *const W) };
