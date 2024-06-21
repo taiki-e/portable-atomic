@@ -28,6 +28,8 @@ use alloc::{
     vec::Vec,
 };
 
+#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+use core::iter::FromIterator;
 use core::{
     alloc::Layout,
     any::Any,
@@ -41,8 +43,6 @@ use core::{
     ptr::{self, NonNull},
     usize,
 };
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
-use core::{iter::FromIterator, slice};
 
 /// A soft limit on the amount of references that may be made to an `Arc`.
 ///
@@ -992,7 +992,7 @@ impl<T> Arc<[T]> {
         impl<T> Drop for Guard<T> {
             fn drop(&mut self) {
                 unsafe {
-                    let slice = slice::from_raw_parts_mut(self.elems, self.n_elems);
+                    let slice = ptr::slice_from_raw_parts_mut(self.elems, self.n_elems);
                     ptr::drop_in_place(slice);
 
                     drop(Box::from_raw(self.ptr));
