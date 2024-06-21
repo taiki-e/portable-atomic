@@ -2490,8 +2490,14 @@ use std::os::unix::io as fd;
 // - std::os::unix::io::AsFd, std::os::wasi::prelude::AsFd, and std::os::windows::io::{AsHandle, AsSocket} require Rust 1.63
 // - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
 // - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
+// - std::os::hermit::io::AsFd requires Rust 1.69 (https://github.com/rust-lang/rust/commit/b5fb4f3d9b1b308d59cab24ef2f9bf23dad948aa)
+// - std::os::fd for HermitOS requires Rust 1.81 (https://github.com/rust-lang/rust/pull/126346)
 // - std::os::solid::io::AsFd is unstable (solid_ext, https://github.com/rust-lang/rust/pull/115159)
 // Note: we don't implement unstable ones.
+#[cfg(not(portable_atomic_no_io_safety))]
+#[cfg(feature = "std")]
+#[cfg(target_os = "hermit")]
+use std::os::hermit::io as fd;
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
 #[cfg(target_os = "wasi")]
@@ -2511,7 +2517,7 @@ use std::os::wasi::prelude as fd;
 // AsRawFd has been stable before io_safety, but this impl was added after io_safety: https://github.com/rust-lang/rust/pull/97437
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
-#[cfg(any(unix, target_os = "wasi"))]
+#[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
 impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
     #[inline]
     fn as_raw_fd(&self) -> fd::RawFd {
@@ -2532,7 +2538,7 @@ impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
 /// ```
 #[cfg(not(portable_atomic_no_io_safety))]
 #[cfg(feature = "std")]
-#[cfg(any(unix, target_os = "wasi"))]
+#[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
 impl<T: ?Sized + fd::AsFd> fd::AsFd for Arc<T> {
     #[inline]
     fn as_fd(&self) -> fd::BorrowedFd<'_> {
