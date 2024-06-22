@@ -316,6 +316,7 @@ LLVM version: 15.0.3",
 }
 
 #[cfg(feature = "serde")]
+#[allow(clippy::as_underscore)]
 #[test]
 fn test_serde() {
     use test_helper::serde::{assert_tokens, DebugPartialEq, Token};
