@@ -1,0 +1,4 @@
+[toolchain]
+channel = "nightly-2024-06-21" # LLVM 18
+components = ["rust-src"]
+profile = "minimal"
