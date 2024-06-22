@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-06-22
+
 - Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+. ([30b9f90](https://github.com/taiki-e/portable-atomic/commit/30b9f90346dfad14ab00f1c7e1f988f941330bcf))
 
 - Implement `Default` for `Arc<[T]>` and `Arc<str>` at Rust 1.51+. (align to the [std Arc change in Rust 1.80](https://github.com/rust-lang/rust/pull/124640)) ([c6ee296](https://github.com/taiki-e/portable-atomic/commit/c6ee29606984863d008c2cf2209751ed0fa43b14))
@@ -70,7 +72,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.1...HEAD
+[0.2.1]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.0...portable-atomic-util-0.2.1
 [0.2.0]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.5...portable-atomic-util-0.2.0
 [0.1.5]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.4...portable-atomic-util-0.1.5
 [0.1.4]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.3...portable-atomic-util-0.1.4
