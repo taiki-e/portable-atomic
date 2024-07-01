@@ -1,7 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: cargo
-    directory: /
+    directories:
+      - /
+      # crates with [workspace] table are not recognized by the above 'directory: /'
+      - /tests/avr
+      - /tests/gba
+      - /tests/no-std-qemu
+      - /tests/xtensa
     schedule:
       interval: daily
     commit-message:
@@ -9,35 +15,6 @@ updates:
     ignore:
       # For test on old rustc.
       - dependency-name: crossbeam-utils
-    labels: []
-  # crates with [workspace] table are not recognized by the above 'directory: /'
-  - package-ecosystem: cargo
-    directory: /tests/avr
-    schedule:
-      interval: daily
-    commit-message:
-      prefix: ''
-    labels: []
-  - package-ecosystem: cargo
-    directory: /tests/gba
-    schedule:
-      interval: daily
-    commit-message:
-      prefix: ''
-    labels: []
-  - package-ecosystem: cargo
-    directory: /tests/no-std-qemu
-    schedule:
-      interval: daily
-    commit-message:
-      prefix: ''
-    labels: []
-  - package-ecosystem: cargo
-    directory: /tests/xtensa
-    schedule:
-      interval: daily
-    commit-message:
-      prefix: ''
     labels: []
   - package-ecosystem: github-actions
     directory: /
