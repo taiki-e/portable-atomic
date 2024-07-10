@@ -403,6 +403,7 @@ mod alloc_tests {
     }
 
     // Make sure deriving works with Arc<T>
+    #[allow(dead_code)]
     #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Default)]
     struct Foo {
         inner: Arc<i32>,
