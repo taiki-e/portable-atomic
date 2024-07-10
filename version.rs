@@ -44,7 +44,8 @@ impl Version {
 
     pub(crate) fn probe(&self, minor: u32, year: u16, month: u8, day: u8) -> bool {
         if self.nightly {
-            self.minor > minor || self.commit_date >= Date::new(year, month, day)
+            self.minor > minor
+                || self.minor == minor && self.commit_date >= Date::new(year, month, day)
         } else {
             self.minor >= minor
         }
