@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.2.2] - 2024-07-11
+
 - Fix [build issue with `esp` toolchain](https://github.com/taiki-e/semihosting/issues/11). ([f8ea85e](https://github.com/taiki-e/portable-atomic/commit/f8ea85e1aa46fa00bc865633fb40b05f8a0c823b))
 
 ## [0.2.1] - 2024-06-22
@@ -76,7 +78,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.2...HEAD
+[0.2.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.1...portable-atomic-util-0.2.2
 [0.2.1]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.0...portable-atomic-util-0.2.1
 [0.2.0]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.5...portable-atomic-util-0.2.0
 [0.1.5]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.4...portable-atomic-util-0.1.5
