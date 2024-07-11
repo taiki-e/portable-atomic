@@ -10,7 +10,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix [build issue with `esp` toolchain](https://github.com/taiki-e/semihosting/issues/11). ([f8ea85e](https://github.com/taiki-e/portable-atomic/commit/f8ea85e1aa46fa00bc865633fb40b05f8a0c823b))
+
 ## [0.2.1] - 2024-06-22
+
+**Note:** This release has been yanked due to an issue fixed in 0.2.2.
 
 - Support `impl Error for Arc<T: Error>` in no-std at Rust 1.81+. ([30b9f90](https://github.com/taiki-e/portable-atomic/commit/30b9f90346dfad14ab00f1c7e1f988f941330bcf))
 
