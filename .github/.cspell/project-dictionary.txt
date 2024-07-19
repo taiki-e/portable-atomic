@@ -49,6 +49,7 @@ getpid
 HWCAP
 ifunc
 includepath
+Iotel
 isel
 iseleq
 iselgt
@@ -173,3 +174,4 @@ xilf
 xmmword
 xsave
 xsub
+Zhaoxin

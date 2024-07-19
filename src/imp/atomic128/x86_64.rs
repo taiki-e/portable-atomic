@@ -146,7 +146,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
     }
 }
 
-// VMOVDQA is atomic on Intel and AMD CPUs with AVX.
+// VMOVDQA is atomic on Intel, AMD, and Zhaoxin CPUs with AVX.
 // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
 //
 // Refs: https://www.felixcloutier.com/x86/movdqa:vmovdqa32:vmovdqa64
@@ -155,7 +155,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 // baseline and is always available, but the SSE target feature is disabled for
 // use cases such as kernels and firmware that should not use vector registers.
 // So, do not use vector registers unless SSE target feature is enabled.
-// See also https://doc.rust-lang.org/nightly/rustc/platform-support/x86_64-unknown-none.html.
+// See also https://github.com/rust-lang/rust/blob/1.77.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
 #[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]
