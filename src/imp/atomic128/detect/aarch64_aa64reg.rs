@@ -320,6 +320,7 @@ mod imp {
         let mut out = 0_u64;
         let mut out_len = OUT_LEN;
         #[allow(clippy::cast_possible_truncation)]
+        let mib_len = mib.len() as ffi::c_uint;
         // SAFETY:
         // - `mib.len()` does not exceed the size of `mib`.
         // - `out_len` does not exceed the size of `out`.
@@ -327,7 +328,7 @@ mod imp {
         let res = unsafe {
             ffi::sysctl(
                 mib.as_ptr(),
-                mib.len() as ffi::c_uint,
+                mib_len,
                 (&mut out as *mut u64).cast::<ffi::c_void>(),
                 &mut out_len,
                 ptr::null_mut(),
@@ -424,7 +425,6 @@ mod tests {
                 new_p: *const c_void,
                 new_len: c_size_t,
             ) -> Result<c_int, c_int> {
-                #[allow(clippy::cast_possible_truncation)]
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
                     let mut n = sys::SYS___sysctl as u64;
@@ -444,6 +444,7 @@ mod tests {
                         in("x5") new_len as u64,
                         options(nostack),
                     );
+                    #[allow(clippy::cast_possible_truncation)]
                     if r as c_int == -1 {
                         Err(n as c_int)
                     } else {
@@ -463,15 +464,15 @@ mod tests {
                 let sz = mem::size_of::<sys::sysctlnode>();
                 let mut olen = 0;
                 #[allow(clippy::cast_possible_truncation)]
+                let mib_len = mib.len() as c_uint;
                 unsafe {
-                    sysctl(mib.as_ptr(), mib.len() as c_uint, ptr::null_mut(), &mut olen, qp, sz)?;
+                    sysctl(mib.as_ptr(), mib_len, ptr::null_mut(), &mut olen, qp, sz)?;
                 }
 
                 let mut nodes = Vec::<sys::sysctlnode>::with_capacity(olen / sz);
                 let np = nodes.as_mut_ptr().cast::<ffi::c_void>();
-                #[allow(clippy::cast_possible_truncation)]
                 unsafe {
-                    sysctl(mib.as_ptr(), mib.len() as c_uint, np, &mut olen, qp, sz)?;
+                    sysctl(mib.as_ptr(), mib_len, np, &mut olen, qp, sz)?;
                     nodes.set_len(olen / sz);
                 }
 
@@ -510,10 +511,11 @@ mod tests {
             let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { core::mem::zeroed() };
             let mut out_len = OUT_LEN;
             #[allow(clippy::cast_possible_truncation)]
+            let mib_len = mib.len() as c_uint;
             unsafe {
                 sysctl(
                     mib.as_ptr(),
-                    mib.len() as c_uint,
+                    mib_len,
                     (&mut buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
                     &mut out_len,
                     ptr::null_mut(),
