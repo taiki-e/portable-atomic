@@ -5,8 +5,9 @@
 // This module is currently only enabled on tests because aarch64 macOS always supports FEAT_LSE and FEAT_LSE2.
 // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
 //
-// If macOS supporting Armv9.4-a becomes popular in the future, this module will
+// If macOS supporting FEAT_LSE128/FEAT_LRCPC3 becomes popular in the future, this module will
 // be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.
+// M4 is armv9.4-a but I don't know if it supports FEAT_LSE128/FEAT_LRCPC3.
 //
 // Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 //

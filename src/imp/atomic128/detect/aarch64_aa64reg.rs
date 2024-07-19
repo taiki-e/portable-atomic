@@ -75,8 +75,8 @@ fn _detect(info: &mut CpuInfo) {
             info.set(CpuInfo::HAS_RCPC3);
         }
     }
-    // OpenBSD has an API to get this, but currently always returns 0.
-    // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
+    // OpenBSD has an API to get AA64MMFR2, but currently always returns 0.
+    // https://github.com/openbsd/src/blob/1847475460684e4251d673e6b1bceb1b38e699c3/sys/arch/arm64/arm64/machdep.c#L367
     #[cfg_attr(target_os = "openbsd", cfg(test))]
     {
         // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2

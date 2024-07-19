@@ -90,6 +90,9 @@ where
             // This is not single-copy atomic reads, but this is ok because subsequent
             // CAS will check for consistency.
             //
+            // ARM's memory model allow mixed-sized atomic access.
+            // https://github.com/rust-lang/unsafe-code-guidelines/issues/345#issuecomment-1172891466
+            //
             // Note that the C++20 memory model does not allow mixed-sized atomic access,
             // so we must use inline assembly to implement byte_wise_atomic_load.
             // (i.e., byte-wise atomic based on the standard library's atomic types
