@@ -4,6 +4,7 @@
 <!-- tidy:crate-doc:start -->
 Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
+<!-- TODO: move atomic_bool_fetch_not to "features that require newer compilers" group once 1.81 became stable: https://github.com/rust-lang/rust/pull/127204 -->
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
@@ -15,8 +16,10 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 
 <!-- TODO:
 - mention Atomic{I,U}*::fetch_neg, Atomic{I*,U*,Ptr}::bit_*, etc.
-- mention portable-atomic-util crate
+- mention optimizations not available in the standard library's equivalents
 -->
+
+portable-atomic version of `std::sync::Arc` is provided by the [portable-atomic-util](https://github.com/taiki-e/portable-atomic/tree/HEAD/portable-atomic-util) crate.
 
 ## Usage
 
