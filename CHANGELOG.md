@@ -12,6 +12,21 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Support run-time detection for cmpxchg16b on x86_64 on pre-1.69 rustc. ([#154](https://github.com/taiki-e/portable-atomic/pull/154))
 
+- Make `into_inner` `const fn` on Rust 1.56+. (align to the [std atomic change in Rust 1.79](https://github.com/rust-lang/rust/pull/123522)) ([dee1f89](https://github.com/taiki-e/portable-atomic/commit/dee1f89739594271e4f5b5d3f122d2762fcbbd7d))
+
+- Work around [rustc_codegen_gcc bug on x86_64](https://github.com/rust-lang/rustc_codegen_gcc/issues/485). ([d938f77](https://github.com/taiki-e/portable-atomic/commit/d938f77f3f2f353cbfb525ac23e63e880cd583df))
+
+- Optimize x86_64 atomics.
+  - Optimize 128-bit load/store on Zhaoxin CPU with AVX. ([86cee8f](https://github.com/taiki-e/portable-atomic/commit/86cee8fccf7deedb5b8cbcb3868ec2e43aca575f))
+  - Optimize 128-bit SeqCst store on Intel/AMD/Zhaoxin CPU with AVX. ([#156](https://github.com/taiki-e/portable-atomic/pull/156), [0483042](https://github.com/taiki-e/portable-atomic/commit/0483042671fad4ccd0bdb691424a967fc2a5cb8e))
+  - Remove needless test in CAS. ([573e025](https://github.com/taiki-e/portable-atomic/commit/573e02586f933a257c8e7383dcf64408b4708b85))
+
+- Make rustc version detection robust for custom toolchains. ([f8ea85e](https://github.com/taiki-e/portable-atomic/commit/f8ea85e1aa46fa00bc865633fb40b05f8a0c823b))
+
+- Respect `RUSTC_WRAPPER` in rustc version detection.
+
+- Our build script is now less likely to be [re-run unnecessarily](https://github.com/taiki-e/portable-atomic/issues/151) in versions where the cargo bug fix is available (cargo 1.79+). ([52c277b](https://github.com/taiki-e/portable-atomic/commit/52c277bc9a9a8031175aaed54987260da1750af4))
+
 ## [1.6.0] - 2023-12-06
 
 - Add `cfg_{has,no}_atomic_{8,16,32,64,128,ptr}` macros to enable code when the corresponding atomic implementation is available/unavailable.
@@ -145,7 +160,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Add `as_ptr` method to all atomic types. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
 
-- Make `AtomicF{32,64}::as_bits` const on Rust 1.58+. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
+- Make `AtomicF{32,64}::as_bits` `const fn` on Rust 1.58+. ([#79](https://github.com/taiki-e/portable-atomic/pull/79))
 
 - Relax ordering in `Serialize` impl to reflect the [upstream change](https://github.com/serde-rs/serde/pull/2263).
 
