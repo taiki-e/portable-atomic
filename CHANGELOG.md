@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.7.0] - 2024-07-19
+
 - Support run-time detection for cmpxchg16b on x86_64 on pre-1.69 rustc. ([#154](https://github.com/taiki-e/portable-atomic/pull/154))
 
 - Make `into_inner` `const fn` on Rust 1.56+. (align to the [std atomic change in Rust 1.79](https://github.com/rust-lang/rust/pull/123522)) ([dee1f89](https://github.com/taiki-e/portable-atomic/commit/dee1f89739594271e4f5b5d3f122d2762fcbbd7d))
@@ -419,7 +421,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/taiki-e/portable-atomic/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/taiki-e/portable-atomic/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/taiki-e/portable-atomic/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/taiki-e/portable-atomic/compare/v1.4.3...v1.5.0
