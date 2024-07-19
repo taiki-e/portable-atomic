@@ -12,6 +12,8 @@
 // Generated asm:
 // - x86_64 (+cmpxchg16b) https://godbolt.org/z/r5x9M8PdK
 
+// TODO: use core::arch::x86_64::cmpxchg16b where available and efficient than asm
+
 include!("macros.rs");
 
 #[cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))]

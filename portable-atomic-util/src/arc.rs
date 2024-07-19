@@ -14,6 +14,8 @@
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
 #![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
 
+// TODO: make make_mut support ?Sized types: https://github.com/rust-lang/rust/pull/116113
+
 use portable_atomic::{
     self as atomic, hint,
     Ordering::{Acquire, Relaxed, Release},
