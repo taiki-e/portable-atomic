@@ -10,7 +10,7 @@
 
 include!("common.rs");
 
-// windows-sys requires Rust 1.56
+// windows-sys requires Rust 1.60
 #[allow(clippy::upper_case_acronyms)]
 mod ffi {
     pub(crate) type DWORD = u32;
