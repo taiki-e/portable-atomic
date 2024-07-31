@@ -127,8 +127,9 @@ jobs:
           - rust: stable
             target: aarch64-unknown-linux-musl
             flags: -C target-feature=-crt-static
-          - rust: nightly
-            target: aarch64-unknown-linux-musl
+          # TODO: https://github.com/rust-lang/rust/issues/128401
+          # - rust: nightly
+          #   target: aarch64-unknown-linux-musl
           - rust: nightly
             target: aarch64-unknown-linux-musl
             flags: -C target-feature=-crt-static
