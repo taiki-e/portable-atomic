@@ -1,6 +1,6 @@
 [package]
 name = "portable-atomic"
-version = "1.7.0" #publish:version
+version = "1.7.1" #publish:version
 edition = "2018"
 rust-version = "1.34"
 license = "Apache-2.0 OR MIT"
@@ -80,6 +80,9 @@ serde = { version = "1.0.103", optional = true, default-features = false }
 #
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-critical-section
 critical-section = { version = "1", optional = true }
+
+[target.'cfg(portable_atomic_critical_section)'.dependencies]
+critical-section = { version = "1" }
 
 [dev-dependencies]
 test-helper = { path = "tests/helper", features = ["std"] }

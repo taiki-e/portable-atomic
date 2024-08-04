@@ -6,7 +6,7 @@
 #[cfg(not(any(
     all(
         portable_atomic_no_atomic_load_store,
-        not(all(target_arch = "bpf", not(feature = "critical-section"))),
+        not(all(target_arch = "bpf", not(portable_atomic_critical_section))),
     ),
     portable_atomic_unsafe_assume_single_core,
     target_arch = "avr",
@@ -15,14 +15,14 @@
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
+        any(target_arch = "riscv32", target_arch = "riscv64", portable_atomic_critical_section),
         portable_atomic_no_atomic_cas,
     )))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
+        any(target_arch = "riscv32", target_arch = "riscv64", portable_atomic_critical_section),
         not(target_has_atomic = "ptr"),
     )))
 )]
@@ -132,7 +132,7 @@ mod arm_linux;
 pub(crate) mod msp430;
 
 // atomic load/store for RISC-V without A-extension
-#[cfg(any(test, not(feature = "critical-section")))]
+#[cfg(any(test, not(portable_atomic_critical_section)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
@@ -191,7 +191,7 @@ mod fallback;
 #[cfg(any(
     all(test, target_os = "none"),
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
+    portable_atomic_critical_section,
     target_arch = "avr",
     target_arch = "msp430",
 ))]
@@ -207,7 +207,7 @@ mod fallback;
     target_arch = "riscv32",
     target_arch = "riscv64",
     target_arch = "xtensa",
-    feature = "critical-section",
+    portable_atomic_critical_section,
 ))]
 mod interrupt;
 
@@ -228,14 +228,14 @@ pub(crate) mod float;
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
+        any(target_arch = "riscv32", target_arch = "riscv64", portable_atomic_critical_section),
         portable_atomic_no_atomic_cas,
     )))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(all(
-        any(target_arch = "riscv32", target_arch = "riscv64", feature = "critical-section"),
+        any(target_arch = "riscv32", target_arch = "riscv64", portable_atomic_critical_section),
         not(target_has_atomic = "ptr"),
     )))
 )]
@@ -264,12 +264,12 @@ items! {
 #[cfg(all(
     target_arch = "bpf",
     portable_atomic_no_atomic_load_store,
-    not(feature = "critical-section"),
+    not(portable_atomic_critical_section),
 ))]
 pub(crate) use self::core_atomic::{AtomicI64, AtomicIsize, AtomicPtr, AtomicU64, AtomicUsize};
 
 // RISC-V without A-extension & !(assume single core | critical section)
-#[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+#[cfg(not(any(portable_atomic_unsafe_assume_single_core, portable_atomic_critical_section)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
@@ -285,7 +285,7 @@ items! {
 // no core atomic CAS & (assume single core | critical section) => critical section based fallback
 #[cfg(any(
     portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
+    portable_atomic_critical_section,
     target_arch = "avr",
     target_arch = "msp430",
 ))]
