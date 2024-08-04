@@ -9,7 +9,7 @@
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
-        feature = "critical-section",
+        portable_atomic_critical_section,
     )),
 )))]
 #[macro_use]
@@ -42,7 +42,7 @@ mod atomic_8_16_macros {
         target_arch = "msp430",
         target_arch = "riscv32",
         target_arch = "riscv64",
-        feature = "critical-section",
+        portable_atomic_critical_section,
     )),
 ))]
 #[macro_use]
@@ -78,7 +78,7 @@ mod atomic_8_16_macros {
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
-            feature = "critical-section",
+            portable_atomic_critical_section,
         )),
     )),
 ))]
@@ -104,7 +104,7 @@ mod atomic_32_macros {
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
-            feature = "critical-section",
+            portable_atomic_critical_section,
         )),
     )),
 )))]
@@ -130,7 +130,7 @@ mod atomic_32_macros {
             any(
                 not(portable_atomic_no_atomic_cas),
                 portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
+                portable_atomic_critical_section,
                 target_arch = "avr",
                 target_arch = "msp430",
             ),
@@ -147,7 +147,7 @@ mod atomic_32_macros {
             any(
                 target_has_atomic = "ptr",
                 portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
+                portable_atomic_critical_section,
                 target_arch = "avr",
                 target_arch = "msp430",
             ),
@@ -177,7 +177,7 @@ mod atomic_64_macros {
             any(
                 not(portable_atomic_no_atomic_cas),
                 portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
+                portable_atomic_critical_section,
                 target_arch = "avr",
                 target_arch = "msp430",
             ),
@@ -194,7 +194,7 @@ mod atomic_64_macros {
             any(
                 target_has_atomic = "ptr",
                 portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
+                portable_atomic_critical_section,
                 target_arch = "avr",
                 target_arch = "msp430",
             ),
@@ -278,7 +278,7 @@ mod atomic_64_macros {
     cfg(any(
         not(portable_atomic_no_atomic_cas),
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     ))
@@ -288,7 +288,7 @@ mod atomic_64_macros {
     cfg(any(
         target_has_atomic = "ptr",
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     ))
@@ -367,7 +367,7 @@ mod atomic_128_macros {
     cfg(not(any(
         not(portable_atomic_no_atomic_cas),
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     )))
@@ -377,7 +377,7 @@ mod atomic_128_macros {
     cfg(not(any(
         target_has_atomic = "ptr",
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     )))
@@ -401,7 +401,7 @@ mod atomic_128_macros {
     cfg(any(
         not(portable_atomic_no_atomic_cas),
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     ))
@@ -411,7 +411,7 @@ mod atomic_128_macros {
     cfg(any(
         target_has_atomic = "ptr",
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     ))
@@ -434,7 +434,7 @@ mod atomic_cas_macros {
     cfg(not(any(
         not(portable_atomic_no_atomic_cas),
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     )))
@@ -444,7 +444,7 @@ mod atomic_cas_macros {
     cfg(not(any(
         target_has_atomic = "ptr",
         portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
+        portable_atomic_critical_section,
         target_arch = "avr",
         target_arch = "msp430",
     )))

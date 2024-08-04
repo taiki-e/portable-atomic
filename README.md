@@ -165,6 +165,9 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 
   Originally, we were providing these as cfgs instead of features, but based on a strong request from the embedded ecosystem, we have agreed to provide them as features as well. See [#94](https://github.com/taiki-e/portable-atomic/pull/94) for more.
 
+- <a name="optional-cfg-portable-atomic"></a>**`--cfg portable_atomic_critical_section`**<br>
+  Since 1.7.1, this cfg is an alias of [`critical-section` feature](#optional-features-critical-section).
+
 - <a name="optional-cfg-no-outline-atomics"></a>**`--cfg portable_atomic_no_outline_atomics`**<br>
   Disable dynamic dispatching by run-time CPU feature detection.
 

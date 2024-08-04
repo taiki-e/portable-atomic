@@ -15,7 +15,7 @@
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-#[cfg(any(test, not(feature = "critical-section")))]
+#[cfg(any(test, not(portable_atomic_critical_section)))]
 use core::cell::UnsafeCell;
 use core::sync::atomic::Ordering;
 
@@ -58,21 +58,21 @@ pub fn compiler_fence(order: Ordering) {
 
 macro_rules! atomic {
     (load_store, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(any(test, not(portable_atomic_critical_section)))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type $(<$($generics)*>)? {
             v: UnsafeCell<$value_type>,
         }
 
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(any(test, not(portable_atomic_critical_section)))]
         // Send is implicitly implemented for atomic integers, but not for atomic pointers.
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(any(test, not(portable_atomic_critical_section)))]
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
 
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(any(test, not(portable_atomic_critical_section)))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[cfg(test)]
             #[inline]
@@ -150,7 +150,7 @@ macro_rules! atomic {
     };
     ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
         atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $asm_suffix);
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(any(test, not(portable_atomic_critical_section)))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[inline]
             pub(crate) fn add(&self, val: $value_type, _order: Ordering) {

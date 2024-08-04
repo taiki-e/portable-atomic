@@ -39,10 +39,10 @@
 // CAS together with atomic load/store. The load/store will not be
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
-#[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+#[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
 use arch::atomic;
 
-#[cfg(not(feature = "critical-section"))]
+#[cfg(not(portable_atomic_critical_section))]
 #[cfg_attr(
     all(
         target_arch = "arm",
@@ -66,16 +66,16 @@ mod arch;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 // Critical section implementations might use locks internally.
-#[cfg(feature = "critical-section")]
+#[cfg(portable_atomic_critical_section)]
 const IS_ALWAYS_LOCK_FREE: bool = false;
 
 // Consider atomic operations based on disabling interrupts on single-core
 // systems are lock-free. (We consider the pre-v6 ARM Linux's atomic operations
 // provided in a similar way by the Linux kernel to be lock-free.)
-#[cfg(not(feature = "critical-section"))]
+#[cfg(not(portable_atomic_critical_section))]
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
-#[cfg(feature = "critical-section")]
+#[cfg(portable_atomic_critical_section)]
 #[inline]
 fn with<F, R>(f: F) -> R
 where
@@ -84,7 +84,7 @@ where
     critical_section::with(|_| f())
 }
 
-#[cfg(not(feature = "critical-section"))]
+#[cfg(not(portable_atomic_critical_section))]
 #[inline]
 fn with<F, R>(f: F) -> R
 where
@@ -143,11 +143,11 @@ impl<T> AtomicPtr<T> {
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
         {
             self.as_native().load(order)
         }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        #[cfg(any(target_arch = "avr", portable_atomic_critical_section))]
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
@@ -158,11 +158,11 @@ impl<T> AtomicPtr<T> {
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+        #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
         {
             self.as_native().store(ptr, order);
         }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+        #[cfg(any(target_arch = "avr", portable_atomic_critical_section))]
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
@@ -228,7 +228,7 @@ impl<T> AtomicPtr<T> {
         self.p.get()
     }
 
-    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+    #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
     #[inline]
     fn as_native(&self) -> &atomic::AtomicPtr<T> {
         // SAFETY: AtomicPtr and atomic::AtomicPtr have the same layout and
@@ -288,11 +288,11 @@ macro_rules! atomic_int {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
                 {
                     self.as_native().load(order)
                 }
-                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                #[cfg(any(target_arch = "avr", portable_atomic_critical_section))]
                 // SAFETY: any data races are prevented by disabling interrupts (see
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
@@ -303,18 +303,18 @@ macro_rules! atomic_int {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
                 {
                     self.as_native().store(val, order);
                 }
-                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                #[cfg(any(target_arch = "avr", portable_atomic_critical_section))]
                 // SAFETY: any data races are prevented by disabling interrupts (see
                 // module-level comments) and the raw pointer is valid because we got it
                 // from a reference.
                 with(|| unsafe { self.v.get().write(val) });
             }
 
-            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+            #[cfg(not(any(target_arch = "avr", portable_atomic_critical_section)))]
             #[inline]
             fn as_native(&self) -> &atomic::$atomic_type {
                 // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
@@ -323,17 +323,17 @@ macro_rules! atomic_int {
             }
         }
 
-        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        #[cfg(not(all(target_arch = "msp430", not(portable_atomic_critical_section))))]
         impl_default_no_fetch_ops!($atomic_type, $int_type);
         impl_default_bit_opts!($atomic_type, $int_type);
-        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        #[cfg(not(all(target_arch = "msp430", not(portable_atomic_critical_section))))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
         }
-        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        #[cfg(all(target_arch = "msp430", not(portable_atomic_critical_section)))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn add(&self, val: $int_type, order: Ordering) {
