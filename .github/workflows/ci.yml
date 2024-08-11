@@ -151,8 +151,9 @@ jobs:
             target: armv7-unknown-linux-gnueabi
           - rust: nightly
             target: armv7-unknown-linux-gnueabihf
-          - rust: nightly
-            target: armeb-unknown-linux-gnueabi
+          # TODO: https://github.com/taiki-e/setup-cross-toolchain-action/commit/622898e562f93582e24946cb394d731a7678e7a3
+          # - rust: nightly
+          #   target: armeb-unknown-linux-gnueabi
           - rust: nightly
             target: arm-linux-androideabi
           - rust: nightly
