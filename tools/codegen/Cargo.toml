@@ -12,11 +12,11 @@ duct = "0.13"
 fs-err = "2"
 globset = { version = "0.4", default-features = false }
 prettyplease = "0.2"
-proc-macro2 = "1"
-quote = "1"
+proc-macro2 = { version = "1", default-features = false }
+quote = { version = "1", default-features = false }
 regex = { version = "1", default-features = false, features = ["std"] }
-syn = { version = "2", features = ["full"] }
-target-spec-json = "0.1.3"
+syn = { version = "2", default-features = false, features = ["parsing", "printing", "clone-impls", "full"] }
+target-spec-json = "0.1"
 
 [lints]
 workspace = true
