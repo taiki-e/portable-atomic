@@ -7,7 +7,6 @@
     unused_extern_crates,
     clippy::duplicate_mod,
     clippy::inline_always,
-    clippy::naive_bytecount,
     clippy::wildcard_imports
 )]
 #![feature(asm_experimental_arch, core_intrinsics)]

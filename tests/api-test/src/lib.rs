@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
-#![allow(unused_imports, clippy::cast_lossless)]
+#![allow(unused_imports)]
 
 #[macro_use]
 mod helper;

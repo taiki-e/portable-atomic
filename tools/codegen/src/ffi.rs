@@ -609,7 +609,6 @@ pub(crate) fn gen() -> Result<()> {
             unreachable_pub,
             clippy::pub_underscore_fields,
             clippy::unnecessary_cast,
-            clippy::unreadable_literal,
         )]
         #(#target_modules)*
     })?;
