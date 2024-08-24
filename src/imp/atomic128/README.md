@@ -41,7 +41,7 @@ Here is the table of targets that support run-time feature detection and the ins
 | aarch64     | android              | getauxval       | all      | Enabled by default |
 | aarch64     | freebsd              | elf_aux_info    | lse, lse2 | Enabled by default |
 | aarch64     | netbsd               | sysctl          | all      | Enabled by default |
-| aarch64     | openbsd              | sysctl          | lse      | Enabled by default |
+| aarch64     | openbsd              | sysctl          | all      | Enabled by default |
 | aarch64     | macos                | sysctl          | all      | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
 | aarch64     | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |

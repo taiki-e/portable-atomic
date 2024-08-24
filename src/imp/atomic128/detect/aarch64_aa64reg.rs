@@ -37,9 +37,6 @@ struct AA64Reg {
     aa64isar0: u64,
     #[cfg(test)]
     aa64isar1: u64,
-    // OpenBSD has an API to get this, but currently always returns 0.
-    // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
-    #[cfg_attr(target_os = "openbsd", cfg(test))]
     aa64mmfr2: u64,
 }
 
@@ -49,7 +46,6 @@ fn _detect(info: &mut CpuInfo) {
         aa64isar0,
         #[cfg(test)]
         aa64isar1,
-        #[cfg_attr(target_os = "openbsd", cfg(test))]
         aa64mmfr2,
     } = imp::aa64reg();
 
@@ -75,15 +71,10 @@ fn _detect(info: &mut CpuInfo) {
             info.set(CpuInfo::HAS_RCPC3);
         }
     }
-    // OpenBSD has an API to get AA64MMFR2, but currently always returns 0.
-    // https://github.com/openbsd/src/blob/1847475460684e4251d673e6b1bceb1b38e699c3/sys/arch/arm64/arm64/machdep.c#L367
-    #[cfg_attr(target_os = "openbsd", cfg(test))]
-    {
-        // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
-        // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2?lang=en
-        if extract(aa64mmfr2, 35, 32) >= 1 {
-            info.set(CpuInfo::HAS_LSE2);
-        }
+    // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
+    // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2?lang=en
+    if extract(aa64mmfr2, 35, 32) >= 1 {
+        info.set(CpuInfo::HAS_LSE2);
     }
 }
 
@@ -266,22 +257,19 @@ mod imp {
         pub(crate) use super::super::c_types::{c_int, c_size_t, c_uint, c_void};
 
         // Defined in sys/sysctl.h.
-        // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/sys/sysctl.h#L82
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h#L82
         pub(crate) const CTL_MACHDEP: c_int = 7;
         // Defined in machine/cpu.h.
-        // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/arch/arm64/include/cpu.h#L25-L40
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/cpu.h#L25-L40
         pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
         #[cfg(test)]
         pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
-        // OpenBSD has an API to get this, but currently always returns 0.
-        // https://github.com/openbsd/src/blob/6a233889798dc3ecb18acc52dce1e57862af2957/sys/arch/arm64/arm64/machdep.c#L371-L377
-        #[cfg(test)]
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
 
         extern "C" {
             // Defined in sys/sysctl.h.
             // https://man.openbsd.org/sysctl.2
-            // https://github.com/openbsd/src/blob/72ccc03bd11da614f31f7ff76e3f6fce99bc1c79/sys/sys/sysctl.h
+            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/openbsd/mod.rs#L1817-L1824
             pub(crate) fn sysctl(
                 name: *const c_int,
@@ -298,19 +286,19 @@ mod imp {
     // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
     // Others are supported on OpenBSD 7.3+.
     // https://github.com/openbsd/src/commit/c7654cd65262d532212f65123ee3905ba200365c
+    // However, on 7.3-7.5, querying AA64MMFR2 returned 0.
+    // https://github.com/openbsd/src/commit/e8331b74e5c20302d4bd948c9db722af688ccfc1
     // sysctl returns an unsupported error if operation is not supported,
     // so we can safely use this function on older versions of OpenBSD.
     pub(super) fn aa64reg() -> AA64Reg {
         let aa64isar0 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR0]).unwrap_or(0);
         #[cfg(test)]
         let aa64isar1 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR1]).unwrap_or(0);
-        #[cfg(test)]
         let aa64mmfr2 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64MMFR2]).unwrap_or(0);
         AA64Reg {
             aa64isar0,
             #[cfg(test)]
             aa64isar1,
-            #[cfg(test)]
             aa64mmfr2,
         }
     }

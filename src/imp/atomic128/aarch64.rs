@@ -90,20 +90,13 @@ include!("macros.rs");
 #[path = "detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg_attr(
-    target_os = "netbsd",
-    cfg(any(
-        test,
-        not(all(
-            any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
-            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-        )),
-    ))
-)]
-#[cfg_attr(
-    target_os = "openbsd",
-    cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))
-)]
+#[cfg(any(
+    test,
+    not(all(
+        any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+    )),
+))]
 #[cfg(any(target_os = "netbsd", target_os = "openbsd"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect;
@@ -198,8 +191,8 @@ macro_rules! debug_assert_lse2 {
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
+                target_os = "openbsd",
                 // These don't support detection of FEAT_LSE2.
-                // target_os = "openbsd",
                 // target_os = "fuchsia",
                 // target_os = "windows",
             ),
@@ -321,8 +314,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
+            target_os = "openbsd",
             // These don't support detection of FEAT_LSE2.
-            // target_os = "openbsd",
             // target_os = "fuchsia",
             // target_os = "windows",
         ),
@@ -348,8 +341,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
+            target_os = "openbsd",
             // These don't support detection of FEAT_LSE2.
-            // target_os = "openbsd",
             // target_os = "fuchsia",
             // target_os = "windows",
         ),
@@ -595,8 +588,8 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
+            target_os = "openbsd",
             // These don't support detection of FEAT_LSE2.
-            // target_os = "openbsd",
             // target_os = "fuchsia",
             // target_os = "windows",
         ),
@@ -622,8 +615,8 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
+            target_os = "openbsd",
             // These don't support detection of FEAT_LSE2.
-            // target_os = "openbsd",
             // target_os = "fuchsia",
             // target_os = "windows",
         ),
