@@ -47,19 +47,16 @@ pub(crate) fn detect() -> CpuInfo {
 
 #[cfg(target_arch = "aarch64")]
 impl CpuInfo {
-    /// Whether FEAT_LSE is available
-    const HAS_LSE: u32 = 1;
-    /// Whether FEAT_LSE2 is available
+    // NB: update test_bit_flags test when adding new flag.
+    const HAS_LSE: u32 = 1; // FEAT_LSE
     #[cfg_attr(not(test), allow(dead_code))]
-    const HAS_LSE2: u32 = 2;
-    /// Whether FEAT_LSE128 is available
-    // This is currently only used in tests.
+    const HAS_LSE2: u32 = 2; // FEAT_LSE2
     #[cfg(test)]
-    const HAS_LSE128: u32 = 3;
-    /// Whether FEAT_LRCPC3 is available
     // This is currently only used in tests.
+    const HAS_LSE128: u32 = 3; // FEAT_LSE128
     #[cfg(test)]
-    const HAS_RCPC3: u32 = 4;
+    // This is currently only used in tests.
+    const HAS_RCPC3: u32 = 4; // FEAT_LRCPC3
 
     #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
     #[inline]
@@ -86,11 +83,10 @@ impl CpuInfo {
 
 #[cfg(target_arch = "x86_64")]
 impl CpuInfo {
-    /// Whether CMPXCHG16B is available
-    const HAS_CMPXCHG16B: u32 = 1;
-    /// Whether VMOVDQA is atomic
+    // NB: update test_bit_flags test when adding new flag.
+    const HAS_CMPXCHG16B: u32 = 1; // CMPXCHG16B
     #[cfg(target_feature = "sse")]
-    const HAS_VMOVDQA_ATOMIC: u32 = 2;
+    const HAS_VMOVDQA_ATOMIC: u32 = 2; // VMOVDQA is atomic
 
     #[cfg(any(
         test,
@@ -109,8 +105,8 @@ impl CpuInfo {
 
 #[cfg(target_arch = "powerpc64")]
 impl CpuInfo {
-    /// Whether lqarx and stqcx. instructions are available
-    const HAS_QUADWORD_ATOMICS: u32 = 1;
+    // NB: update test_bit_flags test when adding new flag.
+    const HAS_QUADWORD_ATOMICS: u32 = 1; // lqarx and stqcx. instructions
 
     #[cfg(any(
         test,
@@ -192,74 +188,36 @@ mod tests_common {
 
     #[test]
     fn test_bit_flags() {
-        let mut x = CpuInfo(0);
+        fn test_flags(flags: &[u32]) {
+            let mut x = CpuInfo(0);
+            for &f in flags {
+                assert!(!x.test(f));
+            }
+            for i in 0..flags.len() {
+                x.set(flags[i]);
+                for &f in &flags[..i + 1] {
+                    assert!(x.test(f));
+                }
+                for &f in &flags[i + 1..] {
+                    assert!(!x.test(f));
+                }
+            }
+            for &f in flags {
+                assert!(x.test(f));
+            }
+        }
         #[cfg(target_arch = "aarch64")]
-        {
-            assert!(!x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_LSE));
-            assert!(!x.test(CpuInfo::HAS_LSE2));
-            assert!(!x.test(CpuInfo::HAS_LSE128));
-            assert!(!x.test(CpuInfo::HAS_RCPC3));
-            x.set(CpuInfo::INIT);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_LSE));
-            assert!(!x.test(CpuInfo::HAS_LSE2));
-            assert!(!x.test(CpuInfo::HAS_LSE128));
-            assert!(!x.test(CpuInfo::HAS_RCPC3));
-            x.set(CpuInfo::HAS_LSE);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_LSE));
-            assert!(!x.test(CpuInfo::HAS_LSE2));
-            assert!(!x.test(CpuInfo::HAS_LSE128));
-            assert!(!x.test(CpuInfo::HAS_RCPC3));
-            x.set(CpuInfo::HAS_LSE2);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_LSE));
-            assert!(x.test(CpuInfo::HAS_LSE2));
-            assert!(!x.test(CpuInfo::HAS_LSE128));
-            assert!(!x.test(CpuInfo::HAS_RCPC3));
-            x.set(CpuInfo::HAS_LSE128);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_LSE));
-            assert!(x.test(CpuInfo::HAS_LSE2));
-            assert!(x.test(CpuInfo::HAS_LSE128));
-            assert!(!x.test(CpuInfo::HAS_RCPC3));
-            x.set(CpuInfo::HAS_RCPC3);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_LSE));
-            assert!(x.test(CpuInfo::HAS_LSE2));
-            assert!(x.test(CpuInfo::HAS_LSE128));
-            assert!(x.test(CpuInfo::HAS_RCPC3));
-        }
+        test_flags(&[
+            CpuInfo::INIT,
+            CpuInfo::HAS_LSE,
+            CpuInfo::HAS_LSE2,
+            CpuInfo::HAS_LSE128,
+            CpuInfo::HAS_RCPC3,
+        ]);
         #[cfg(target_arch = "x86_64")]
-        {
-            assert!(!x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-            x.set(CpuInfo::INIT);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_CMPXCHG16B));
-            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-            x.set(CpuInfo::HAS_CMPXCHG16B);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-            assert!(!x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-            x.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_CMPXCHG16B));
-            assert!(x.test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        }
+        test_flags(&[CpuInfo::INIT, CpuInfo::HAS_CMPXCHG16B, CpuInfo::HAS_VMOVDQA_ATOMIC]);
         #[cfg(target_arch = "powerpc64")]
-        {
-            assert!(!x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
-            x.set(CpuInfo::INIT);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(!x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
-            x.set(CpuInfo::HAS_QUADWORD_ATOMICS);
-            assert!(x.test(CpuInfo::INIT));
-            assert!(x.test(CpuInfo::HAS_QUADWORD_ATOMICS));
-        }
+        test_flags(&[CpuInfo::INIT, CpuInfo::HAS_QUADWORD_ATOMICS]);
     }
 
     #[test]
