@@ -140,7 +140,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 // baseline and is always available, but the SSE target feature is disabled for
 // use cases such as kernels and firmware that should not use vector registers.
 // So, do not use vector registers unless SSE target feature is enabled.
-// See also https://github.com/rust-lang/rust/blob/1.77.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
+// See also https://github.com/rust-lang/rust/blob/1.80.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
 #[cfg(not(any(portable_atomic_no_outline_atomics, target_env = "sgx")))]
 #[cfg(target_feature = "sse")]
 #[target_feature(enable = "avx")]

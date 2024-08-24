@@ -132,12 +132,12 @@ impl CpuInfo {
 mod c_types {
     pub(crate) type c_void = core::ffi::c_void;
     // c_{,u}int is {i,u}32 on non-16-bit architectures
-    // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L160
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L147
     // (16-bit architectures currently don't use this module)
     pub(crate) type c_int = i32;
     pub(crate) type c_uint = u32;
     // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise is {i,u}32
-    // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L176
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L159
     // (Windows currently doesn't use this module - this module is cfg(not(windows)))
     #[cfg(target_pointer_width = "64")]
     pub(crate) type c_long = i64;
@@ -148,11 +148,11 @@ mod c_types {
     #[cfg(not(target_pointer_width = "64"))]
     pub(crate) type c_ulong = u32;
     // c_size_t is currently always usize
-    // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L88
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
     pub(crate) type c_size_t = usize;
     // c_char is u8 by default on most non-Apple/non-Windows ARM/PowerPC/RISC-V/s390x/Hexagon targets
     // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon/AIX/z/OS)
-    // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/ffi/mod.rs#L104
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L83
     // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/lldb/source/Utility/ArchSpec.cpp#L712
     // RISC-V https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/HEAD/riscv-cc.adoc#cc-type-representations
     // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf

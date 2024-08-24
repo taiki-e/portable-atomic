@@ -6,12 +6,12 @@
 //
 // The code has been adjusted to work with stable Rust.
 //
-// Source: https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/task.rs.
+// Source: https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/task.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/1.80.0/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/1.80.0/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/1.80.0/LICENSE-MIT
 
 use core::{
     mem::ManuallyDrop,

@@ -507,7 +507,7 @@ use crate::utils::strict;
 cfg_has_atomic_8! {
 cfg_has_atomic_cas! {
 // See https://github.com/rust-lang/rust/pull/114034 for details.
-// https://github.com/rust-lang/rust/blob/9339f446a5302cd5041d3f3b5e59761f36699167/library/core/src/sync/atomic.rs#L134
+// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
 // https://godbolt.org/z/Enh87Ph9b
 #[cfg(portable_atomic_no_cfg_target_has_atomic)]
 const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
@@ -1030,7 +1030,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        // https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L811-L825
+        // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L956-L970
         if val {
             // !(x & true) == !x
             // We must invert the bool.
@@ -1411,7 +1411,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L2024
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -1419,7 +1419,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L2024
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
         fmt::Pointer::fmt(&self.load(Ordering::Relaxed), f)
     }
 }

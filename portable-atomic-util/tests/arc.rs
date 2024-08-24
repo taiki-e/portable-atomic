@@ -30,7 +30,7 @@ fn default() {
     assert_eq!(&v[..], "");
 }
 
-// https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/sync/tests.rs
+// https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync/tests.rs
 #[allow(clippy::many_single_char_names, clippy::undocumented_unsafe_blocks)]
 mod alloc_tests {
     use std::{

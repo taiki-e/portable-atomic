@@ -23,7 +23,7 @@
 //   https://github.com/llvm/llvm-project/issues/68390
 // - On powerpc64le, LLVM (as of 17) generates broken code. (wrong result from fetch_add)
 //
-// Refs: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs
+// Refs: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs
 
 include!("macros.rs");
 
@@ -45,7 +45,7 @@ use core::{
     sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst},
 };
 
-// https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3128
+// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3267
 #[cfg(target_arch = "x86_64")]
 #[inline]
 fn strongest_failure_ordering(order: Ordering) -> Ordering {

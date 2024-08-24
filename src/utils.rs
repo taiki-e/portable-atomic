@@ -132,7 +132,7 @@ macro_rules! impl_debug_and_serde {
         impl fmt::Debug for $atomic_type {
             #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L2024
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
@@ -263,7 +263,7 @@ pub(crate) unsafe fn assert_unchecked(cond: bool) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3155
+// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3294
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -275,7 +275,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3140
+// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3279
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -287,7 +287,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.70.0/library/core/src/sync/atomic.rs#L3221
+// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3360
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
