@@ -124,7 +124,7 @@ macro_rules! atomic_with_ifunc {
                         kuser_cmpxchg64_fn
                     } else {
                         // Use SeqCst because __kuser_cmpxchg64 is always SeqCst.
-                        // https://github.com/torvalds/linux/blob/v6.1/arch/arm/kernel/entry-armv.S#L918-L925
+                        // https://github.com/torvalds/linux/blob/v6.10/arch/arm/kernel/entry-armv.S#L686-L693
                         fallback::$seqcst_fallback_fn
                     }
                 })

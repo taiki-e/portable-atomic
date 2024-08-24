@@ -73,9 +73,9 @@ mod os {
 
         extern "C" {
             // https://man7.org/linux/man-pages/man3/getauxval.3.html
-            // https://github.com/bminor/glibc/blob/801af9fafd4689337ebf27260aa115335a0cb2bc/misc/sys/auxv.h
-            // https://github.com/bminor/musl/blob/7d756e1c04de6eb3f2b3d3e1141a218bb329fcfb/include/sys/auxv.h
-            // https://github.com/wbx-github/uclibc-ng/blob/cdb07d2cd52af39feb425e6d36c02b30916b9f0a/include/sys/auxv.h
+            // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
+            // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
+            // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
             // https://github.com/picolibc/picolibc/blob/7a8a58aeaa5946cb662577a518051091b691af3a/newlib/libc/picolib/getauxval.c
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
@@ -90,7 +90,7 @@ mod os {
             pub(crate) fn __system_property_get(name: *const c_char, value: *mut c_char) -> c_int;
         }
 
-        // https://github.com/torvalds/linux/blob/v6.1/include/uapi/linux/auxvec.h
+        // https://github.com/torvalds/linux/blob/v6.10/include/uapi/linux/auxvec.h
         #[cfg(any(test, target_arch = "aarch64"))]
         pub(crate) const AT_HWCAP: c_ulong = 16;
         #[cfg(any(test, target_arch = "powerpc64"))]
@@ -138,12 +138,12 @@ mod os {
         extern "C" {
             // Defined in sys/auxv.h.
             // https://man.freebsd.org/elf_aux_info(3)
-            // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/auxv.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/auxv.h
             pub(crate) fn elf_aux_info(aux: c_int, buf: *mut c_void, buf_len: c_int) -> c_int;
         }
 
         // Defined in sys/elf_common.h.
-        // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/sys/elf_common.h
+        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
         #[cfg(any(test, target_arch = "aarch64"))]
         pub(crate) const AT_HWCAP: c_int = 25;
         #[cfg(any(test, target_arch = "powerpc64"))]
@@ -179,10 +179,10 @@ mod arch {
     use super::{ffi, os, CpuInfo};
 
     // Linux
-    // https://github.com/torvalds/linux/blob/1c41041124bd14dd6610da256a3da4e5b74ce6b1/arch/arm64/include/uapi/asm/hwcap.h
+    // https://github.com/torvalds/linux/blob/v6.10/arch/arm64/include/uapi/asm/hwcap.h
     // FreeBSD
     // Defined in machine/elf.h.
-    // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/arm64/include/elf.h
+    // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
     // available on FreeBSD 13.0+ and 12.2+
     // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
     // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
@@ -226,10 +226,10 @@ mod arch {
     use super::{ffi, os, CpuInfo};
 
     // Linux
-    // https://github.com/torvalds/linux/blob/v6.1/arch/powerpc/include/uapi/asm/cputable.h
+    // https://github.com/torvalds/linux/blob/v6.10/arch/powerpc/include/uapi/asm/cputable.h
     // FreeBSD
     // Defined in machine/cpu.h.
-    // https://github.com/freebsd/freebsd-src/blob/deb63adf945d446ed91a9d84124c71f15ae571d1/sys/powerpc/include/cpu.h
+    // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h
     // available on FreeBSD 11.0+
     // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
     pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
@@ -468,7 +468,7 @@ mod tests {
             #[allow(non_camel_case_types)]
             type pid_t = c_int;
 
-            // https://github.com/freebsd/freebsd-src/blob/9888a79adad22ba06b5aff17d05abac0029c537a/lib/libc/aarch64/SYS.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/lib/libc/aarch64/SYS.h
             // https://github.com/golang/go/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/src/syscall/asm_freebsd_arm64.s
             #[cfg(target_arch = "aarch64")]
             #[inline]
@@ -525,7 +525,7 @@ mod tests {
                 }
             }
 
-            // https://github.com/freebsd/freebsd-src/blob/9888a79adad22ba06b5aff17d05abac0029c537a/lib/libc/powerpc64/SYS.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/lib/libc/powerpc64/SYS.h
             #[cfg(target_arch = "powerpc64")]
             #[inline]
             fn getpid() -> pid_t {

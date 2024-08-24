@@ -145,7 +145,7 @@ mod imp {
         extern "C" {
             // Defined in sys/sysctl.h.
             // https://man.netbsd.org/sysctl.3
-            // https://github.com/NetBSD/src/blob/167403557cf60bed09a63fc84d941a1a4bd7d52e/sys/sys/sysctl.h
+            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/sys/sysctl.h
             // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/netbsd/mod.rs#L2582
             pub(crate) fn sysctlbyname(
                 name: *const c_char,
@@ -157,7 +157,7 @@ mod imp {
         }
 
         // Defined in aarch64/armreg.h.
-        // https://github.com/NetBSD/src/blob/167403557cf60bed09a63fc84d941a1a4bd7d52e/sys/arch/aarch64/include/armreg.h#L1626
+        // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/arch/aarch64/include/armreg.h#L1863
         #[derive(Clone, Copy)]
         #[repr(C)]
         pub(crate) struct aarch64_sysctl_cpu_id {
