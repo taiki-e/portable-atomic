@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![allow(unused_macros)]
+#![allow(unused_macros, clippy::undocumented_unsafe_blocks)]
 
 use core::sync::atomic::Ordering;
 
@@ -2025,18 +2025,20 @@ macro_rules! assert_float_op_eq {
     }};
 }
 
-#[allow(clippy::disallowed_methods)] // set_var/remove_var is fine as we run tests with RUST_TEST_THREADS=1
+#[allow(unused_unsafe)] // for old rustc
 #[cfg_attr(not(portable_atomic_no_track_caller), track_caller)]
 pub(crate) fn assert_panic<T: std::fmt::Debug>(f: impl FnOnce() -> T) -> std::string::String {
     let backtrace = std::env::var_os("RUST_BACKTRACE");
     let hook = std::panic::take_hook();
-    std::env::set_var("RUST_BACKTRACE", "0"); // Suppress backtrace
+    // set_var/remove_var is fine as we run tests with RUST_TEST_THREADS=1
+    // std::panic::set_backtrace_style is better way here, but is unstable.
+    unsafe { std::env::set_var("RUST_BACKTRACE", "0") } // Suppress backtrace
     std::panic::set_hook(std::boxed::Box::new(|_| {})); // Suppress panic msg
     let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
     std::panic::set_hook(hook);
     match backtrace {
-        Some(v) => std::env::set_var("RUST_BACKTRACE", v),
-        None => std::env::remove_var("RUST_BACKTRACE"),
+        Some(v) => unsafe { std::env::set_var("RUST_BACKTRACE", v) },
+        None => unsafe { std::env::remove_var("RUST_BACKTRACE") },
     }
     let msg = res.unwrap_err();
     msg.downcast_ref::<std::string::String>()
