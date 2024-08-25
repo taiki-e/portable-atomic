@@ -347,8 +347,7 @@ build() {
                 local test_dir=''
                 # NB: sync with tools/no-std.sh
                 case "${target}" in
-                    # TODO: https://github.com/rust-lang/rust/pull/127853#issuecomment-2257323333
-                    # armv4t* | thumbv4t*) test_dir=tests/gba ;;
+                    armv4t* | thumbv4t*) test_dir=tests/gba ;;
                     arm* | thumb* | riscv*) test_dir=tests/no-std-qemu ;;
                     avr-unknown-gnu-atmega2560) test_dir=tests/avr ;; # tests/avr is for atmega2560 not atmega328
                 esac
