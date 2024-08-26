@@ -15,7 +15,7 @@ prettyplease = "0.2"
 proc-macro2 = { version = "1", default-features = false }
 quote = { version = "1", default-features = false }
 regex = { version = "1", default-features = false, features = ["std"] }
-syn = { version = "2", default-features = false, features = ["parsing", "printing", "clone-impls", "full"] }
+syn = { version = "2", default-features = false, features = ["parsing", "printing", "full"] }
 target-spec-json = "0.1"
 
 [lints]
