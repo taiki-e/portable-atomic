@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: CC0-1.0 */
 /* Linker script for GBA test
- * Adapted from https://github.com/rust-console/gba/blob/v0.11.1/linker_scripts/mono_boot.ld, licensed under CC0-1.0 (public domain).
+ * Adapted from https://github.com/rust-console/gba/blob/v0.12.0/linker_scripts/mono_boot.ld, licensed under CC0-1.0 (public domain).
  */
 
 ENTRY(__start)
