@@ -124,7 +124,6 @@ skiboot
 slbgr
 slgr
 sllw
-spinlock
 sreg
 srlw
 sstatus
