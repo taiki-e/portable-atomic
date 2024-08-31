@@ -47,7 +47,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lse2","lse128","rcpc3","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -227,23 +227,27 @@ fn main() {
                 println!("cargo:rustc-cfg=portable_atomic_new_atomic_intrinsics");
             }
 
-            // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
-            // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
-            let mut has_lse = is_macos;
-            // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-            // As of rustc 1.80, target_feature "lse2"/"lse128"/"rcpc3" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L87
-            target_feature_fallback("lse2", is_macos);
-            // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
-            // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
-            // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-            if version.llvm >= 16 {
-                has_lse |= target_feature_fallback("lse128", false);
-                target_feature_fallback("rcpc3", false);
-            }
-            // aarch64_target_feature stabilized in Rust 1.61.
-            if needs_target_feature_fallback(&version, Some(61)) {
-                target_feature_fallback("lse", has_lse);
+            // target_feature "lse2"/"lse128"/"rcpc3" is unstable and available on rustc side since nightly-2024-08-30: https://github.com/rust-lang/rust/pull/128192
+            if !version.probe(82, 2024, 8, 29) || needs_target_feature_fallback(&version, None) {
+                // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
+                // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
+                // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
+                // Script to get builtin targets that support FEAT_LSE/FEAT_LSE2 by default:
+                // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
+                // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
+                let mut has_lse = is_macos;
+                target_feature_fallback("lse2", is_macos);
+                // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
+                // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
+                // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
+                if version.llvm >= 16 {
+                    has_lse |= target_feature_fallback("lse128", false);
+                    target_feature_fallback("rcpc3", false);
+                }
+                // aarch64_target_feature stabilized in Rust 1.61.
+                if needs_target_feature_fallback(&version, Some(61)) {
+                    target_feature_fallback("lse", has_lse);
+                }
             }
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS-loop-based RMW is much slower than
