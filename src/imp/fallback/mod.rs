@@ -37,6 +37,7 @@
                 ),
                 target_os = "android",
                 target_os = "freebsd",
+                all(target_os = "openbsd", portable_atomic_outline_atomics),
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),

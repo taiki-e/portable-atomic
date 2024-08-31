@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+// Run-time CPU feature detection on x86_64 by using CPUID.
+//
 // Adapted from https://github.com/rust-lang/stdarch.
 
 #![cfg_attr(portable_atomic_sanitize_thread, allow(dead_code))]

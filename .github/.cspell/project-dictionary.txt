@@ -47,6 +47,7 @@ exynos
 getauxval
 getpid
 HWCAP
+hwprobe
 ifunc
 includepath
 Iotel

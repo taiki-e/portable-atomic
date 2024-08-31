@@ -58,6 +58,7 @@ mod fallback;
     ),
     target_os = "android",
     target_os = "freebsd",
+    all(target_os = "openbsd", portable_atomic_outline_atomics),
 ))]
 #[path = "detect/auxv.rs"]
 mod detect;

@@ -28,11 +28,11 @@ Implementations with inline assembly generate assemblies almost equivalent to th
 
 As 128-bit atomics-related APIs stabilize in the standard library, implementations with inline assembly are planned to be updated to get the benefits of both.
 
-## Run-time feature detection
+## Run-time CPU feature detection
 
-[detect](detect) module has run-time feature detection implementations.
+[detect](detect) module has run-time CPU feature detection implementations.
 
-Here is the table of targets that support run-time feature detection and the instruction or API used:
+Here is the table of targets that support run-time CPU feature detection and the instruction or API used:
 
 | target_arch | target_os/target_env | instruction/API | features | note |
 | ----------- | -------------------- | --------------- | -------- | ---- |
@@ -47,6 +47,7 @@ Here is the table of targets that support run-time feature detection and the ins
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
 | powerpc64   | linux                | getauxval       | all      | Disabled by default |
 | powerpc64   | freebsd              | elf_aux_info    | all      | Disabled by default |
+| powerpc64   | openbsd              | elf_aux_info    | all      | Disabled by default |
 
 Run-time detection is enabled by default on most targets and can be disabled with `--cfg portable_atomic_no_outline_atomics`.
 

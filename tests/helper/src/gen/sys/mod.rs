@@ -358,6 +358,24 @@ mod aarch64_openbsd;
 pub use aarch64_openbsd::*;
 #[cfg(
     all(
+        target_arch = "powerpc64",
+        target_os = "openbsd",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_openbsd;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "openbsd",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_openbsd::*;
+#[cfg(
+    all(
         target_arch = "aarch64",
         target_os = "fuchsia",
         target_endian = "little",

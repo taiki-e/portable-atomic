@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time feature detection on aarch64 macOS by using sysctl.
+// Run-time CPU feature detection on aarch64 macOS by using sysctl.
 //
 // This module is currently only enabled on tests because aarch64 macOS always supports FEAT_LSE and FEAT_LSE2.
 // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728

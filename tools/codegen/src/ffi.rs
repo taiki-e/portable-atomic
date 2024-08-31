@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time feature detection on aarch64 usually requires the use of
+// Run-time CPU feature detection on non-x86 systems usually requires the use of
 // platform APIs, and we define our own FFI bindings to those APIs.
 //
 // We use only one or two function(s) and a few types/constants per platform,
@@ -43,6 +43,9 @@ static TARGETS: &[Target] = &[
             "powerpc64le-unknown-linux-gnu",
             "powerpc64-unknown-linux-musl",
             "powerpc64le-unknown-linux-musl",
+            // "riscv64gc-unknown-linux-gnu",
+            // "riscv64gc-unknown-linux-musl",
+            // "riscv64-linux-android",
         ],
         headers: &[
             Header {
@@ -68,7 +71,7 @@ static TARGETS: &[Target] = &[
             Header {
                 path: "linux-headers:asm/unistd.h",
                 types: &[],
-                vars: &["__NR_prctl"],
+                vars: &["__NR_.*"],
                 functions: &[],
                 arch: &[],
                 os: &[],
@@ -91,6 +94,16 @@ static TARGETS: &[Target] = &[
                 vars: &["PPC_FEATURE.*"],
                 functions: &[],
                 arch: &[powerpc64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/torvalds/linux/blob/HEAD/arch/riscv/include/uapi/asm/hwprobe.h
+                path: "linux-headers:asm/hwprobe.h",
+                types: &["riscv_hwprobe"],
+                vars: &["RISCV_HWPROBE_.*"],
+                functions: &[],
+                arch: &[riscv64],
                 os: &[],
                 env: &[],
             },
@@ -133,7 +146,9 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
-        triples: &["aarch64-apple-darwin"],
+        triples: &[
+            "aarch64-apple-darwin",
+        ],
         headers: &[
             Header {
                 // https://github.com/apple-oss-distributions/xnu/blob/HEAD/bsd/sys/sysctl.h
@@ -152,6 +167,7 @@ static TARGETS: &[Target] = &[
             "aarch64-unknown-freebsd",
             "powerpc64-unknown-freebsd",
             "powerpc64le-unknown-freebsd",
+            // "riscv64gc-unknown-freebsd",
         ],
         headers: &[
             Header {
@@ -168,7 +184,7 @@ static TARGETS: &[Target] = &[
                 // https://github.com/freebsd/freebsd-src/blob/HEAD/sys/sys/syscall.h
                 path: "sys/syscall.h",
                 types: &[],
-                vars: &["SYS_getpid", "SYS___sysctl"],
+                vars: &["SYS_.*"],
                 functions: &[],
                 arch: &[],
                 os: &[],
@@ -240,6 +256,7 @@ static TARGETS: &[Target] = &[
         triples: &[
             "aarch64-unknown-netbsd",
             "aarch64_be-unknown-netbsd",
+            // "riscv64gc-unknown-netbsd",
         ],
         headers: &[
             Header {
@@ -256,7 +273,7 @@ static TARGETS: &[Target] = &[
                 // https://github.com/NetBSD/src/blob/HEAD/sys/sys/syscall.h
                 path: "sys/syscall.h",
                 types: &[],
-                vars: &["SYS___sysctl"],
+                vars: &["SYS_.*"],
                 functions: &[],
                 arch: &[],
                 os: &[],
@@ -275,7 +292,11 @@ static TARGETS: &[Target] = &[
         ],
     },
     Target {
-        triples: &["aarch64-unknown-openbsd"],
+        triples: &[
+            "aarch64-unknown-openbsd",
+            "powerpc64-unknown-openbsd",
+            // "riscv64gc-unknown-openbsd",
+        ],
         headers: &[
             Header {
                 // https://github.com/openbsd/src/blob/HEAD/sys/sys/sysctl.h
@@ -283,6 +304,16 @@ static TARGETS: &[Target] = &[
                 types: &[],
                 vars: &["CTL_MACHDEP"],
                 functions: &["sysctl"],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/openbsd/src/blob/HEAD/sys/sys/auxv.h
+                path: "sys/auxv.h",
+                types: &[],
+                vars: &["AT_HWCAP.*"],
+                functions: &["elf_aux_info"],
                 arch: &[],
                 os: &[],
                 env: &[],
@@ -297,10 +328,33 @@ static TARGETS: &[Target] = &[
                 os: &[],
                 env: &[],
             },
+            Header {
+                // https://github.com/openbsd/src/blob/HEAD/sys/arch/arm64/include/elf.h
+                path: "machine/elf.h",
+                types: &[],
+                vars: &["HWCAP.*"],
+                functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/openbsd/src/blob/HEAD/sys/arch/powerpc/include/elf.h
+                path: "machine/elf.h",
+                types: &[],
+                vars: &["PPC_FEATURE.*"],
+                functions: &[],
+                arch: &[powerpc64],
+                os: &[],
+                env: &[],
+            },
         ],
     },
     Target {
-        triples: &["aarch64-unknown-fuchsia"],
+        triples: &[
+            "aarch64-unknown-fuchsia",
+            // "riscv64gc-unknown-fuchsia",
+        ],
         headers: &[
             // TODO: zx_system_get_features
             Header {
@@ -327,7 +381,7 @@ static TARGETS: &[Target] = &[
                 // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
                 path: "zircon/system/public/zircon/features.h",
                 types: &[],
-                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_ISA_.*"],
+                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_.*"],
                 functions: &[],
                 arch: &[aarch64],
                 os: &[],
@@ -423,7 +477,7 @@ pub(crate) fn gen() -> Result<()> {
                     );
                     let out_path = out_dir.join(&out_file);
 
-                    let target_flag = &*format!("--target={triple}");
+                    let target_flag = &*format!("--target={}", target.llvm_target);
                     let mut clang_args = vec![target_flag, "-nostdinc"];
                     macro_rules! define {
                         ($name:ident) => {{
@@ -706,7 +760,7 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
             let linux_arch = linux_arch(target);
             let linux_headers_dir = &linux_headers_dir(target, &src_dir);
             if !linux_headers_dir.exists() {
-                // https://www.kernel.org/doc/Documentation/kbuild/headers_install.txt
+                // https://github.com/torvalds/linux/blob/v6.10/Documentation/kbuild/headers_install.rst
                 cmd!(
                     "make",
                     "headers_install",
@@ -905,6 +959,7 @@ fn glibc_arch(target: &TargetSpec) -> &'static str {
     match target.arch {
         aarch64 => "aarch64",
         powerpc64 => "powerpc/powerpc64",
+        riscv32 | riscv64 => "riscv",
         _ => todo!("{target:?}"),
     }
 }
@@ -914,12 +969,14 @@ fn musl_arch(target: &TargetSpec) -> &'static str {
         aarch64 => "aarch64",
         arm => "arm",
         x86 => "i386",
+        loongarch64 => "loongarch64",
         m68k => "m68k",
         mips | mips32r6 => "mips",
         mips64 | mips64r6 if target.target_pointer_width == "64" => "mips64",
         mips64 | mips64r6 if target.target_pointer_width == "32" => "mipsn32",
         powerpc => "powerpc",
         powerpc64 => "powerpc64",
+        riscv32 => "riscv32",
         riscv64 => "riscv64",
         s390x => "s390x",
         x86_64 if target.target_pointer_width == "32" => "x32",
@@ -932,6 +989,7 @@ fn uclibc_arch(target: &TargetSpec) -> &'static str {
     match target.arch {
         aarch64 => "aarch64",
         arm => "arm",
+        riscv32 => "riscv32",
         riscv64 => "riscv64",
         _ => todo!("{target:?}"),
     }

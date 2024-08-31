@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time feature detection on aarch64 Linux/FreeBSD/NetBSD/OpenBSD by parsing system registers.
+// Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
 //
 // As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on NetBSD/OpenBSD.
 // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
@@ -8,7 +8,7 @@
 //
 // Refs:
 // - https://developer.arm.com/documentation/ddi0601/latest/AArch64-Registers
-// - https://www.kernel.org/doc/Documentation/arm64/cpu-feature-registers.txt
+// - https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm64/cpu-feature-registers.rst
 // - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
 //
 // Supported platforms:
@@ -22,9 +22,10 @@
 //   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
 //
 // For now, this module is only used on NetBSD/OpenBSD.
-// On Linux/FreeBSD, this module is test-only:
-// - On Linux, this approach requires a higher kernel version than Rust supports,
-//   and also does not work with qemu-user (as of QEMU 7.2) and Valgrind.
+//
+// On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
+// - On Linux/Android, this approach requires a higher kernel version than Rust supports,
+//   and also does not work with qemu-user (as of 7.2) and Valgrind (as of 3.19).
 //   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
 //   to false correctly, but qemu-user is setting it to true.)
 // - On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
@@ -49,15 +50,15 @@ fn _detect(info: &mut CpuInfo) {
         aa64mmfr2,
     } = imp::aa64reg();
 
-    // ID_AA64ISAR0_EL1, Instruction Set Attribute Register 0
-    // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0?lang=en
+    // ID_AA64ISAR0_EL1, AArch64 Instruction Set Attribute Register 0
+    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
     let atomic = extract(aa64isar0, 23, 20);
-    if atomic >= 2 {
+    if atomic >= 0b0010 {
         info.set(CpuInfo::HAS_LSE);
         // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
         #[cfg(test)]
         {
-            if atomic >= 3 {
+            if atomic >= 0b0011 {
                 info.set(CpuInfo::HAS_LSE128);
             }
         }
@@ -65,15 +66,15 @@ fn _detect(info: &mut CpuInfo) {
     // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
     #[cfg(test)]
     {
-        // ID_AA64ISAR1_EL1, Instruction Set Attribute Register 1
-        // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1?lang=en
-        if extract(aa64isar1, 23, 20) >= 3 {
+        // ID_AA64ISAR1_EL1, AArch64 Instruction Set Attribute Register 1
+        // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
+        if extract(aa64isar1, 23, 20) >= 0b0011 {
             info.set(CpuInfo::HAS_RCPC3);
         }
     }
     // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
-    // https://developer.arm.com/documentation/ddi0601/2023-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2?lang=en
-    if extract(aa64mmfr2, 35, 32) >= 1 {
+    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
+    if extract(aa64mmfr2, 35, 32) >= 0b0001 {
         info.set(CpuInfo::HAS_LSE2);
     }
 }

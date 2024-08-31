@@ -3,7 +3,7 @@
 // 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 ARM Linux/Android.
 //
 // Refs:
-// - https://www.kernel.org/doc/Documentation/arm/kernel_user_helpers.txt
+// - https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm/kernel_user_helpers.rst
 // - https://github.com/rust-lang/compiler-builtins/blob/0.1.88/src/arm_linux.rs
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
@@ -20,7 +20,7 @@ use core::{arch::asm, cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use crate::utils::{Pair, U64};
 
-// https://www.kernel.org/doc/Documentation/arm/kernel_user_helpers.txt
+// https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm/kernel_user_helpers.rst
 const KUSER_HELPER_VERSION: usize = 0xFFFF0FFC;
 // __kuser_helper_version >= 5 (kernel version 3.1+)
 const KUSER_CMPXCHG64: usize = 0xFFFF0F60;

@@ -22,7 +22,10 @@ mod fallback;
 
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(not(target_env = "sgx"))]
-#[cfg_attr(not(target_feature = "sse"), cfg(not(target_feature = "cmpxchg16b")))]
+#[cfg_attr(
+    not(target_feature = "sse"),
+    cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))
+)]
 #[path = "detect/x86_64.rs"]
 mod detect;
 

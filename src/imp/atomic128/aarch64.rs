@@ -119,6 +119,12 @@ mod detect;
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
 #[path = "detect/aarch64_aa64reg.rs"]
 mod detect_aa64reg;
+// TODO: OpenBSD 7.6+
+// #[cfg(test)]
+// #[cfg(not(portable_atomic_no_outline_atomics))]
+// #[cfg(target_os = "openbsd")]
+// #[path = "detect/auxv.rs"]
+// mod detect_auxv;
 #[cfg(test)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_os = "macos")]

@@ -5,7 +5,7 @@
 // This is for RISC-V targets without atomic CAS. (rustc doesn't provide atomics
 // at all on such targets. https://github.com/rust-lang/rust/pull/114499)
 //
-// Also, optionally provides RMW implementation when force-amo is enabled.
+// Also, optionally provides RMW implementation when force-amo or Zaamo target feature is enabled.
 //
 // Refs:
 // - RISC-V Instruction Set Manual Volume I: Unprivileged ISA
