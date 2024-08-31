@@ -173,4 +173,5 @@ xilf
 xmmword
 xsave
 xsub
+zaamo
 Zhaoxin

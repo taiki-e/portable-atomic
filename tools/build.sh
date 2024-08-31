@@ -408,6 +408,9 @@ build() {
                                         CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-force-amo" \
                                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_force_amo" \
                                             x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
+                                        CARGO_TARGET_DIR="${target_dir}/api-test-assume-single-core-zaamo" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+zaamo" \
+                                            x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                                     fi
                                     ;;
                             esac
@@ -453,6 +456,9 @@ build() {
                                     if [[ "${rustc_minor_version}" -ge 72 ]]; then
                                         CARGO_TARGET_DIR="${target_dir}/assume-single-core-force-amo" \
                                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_force_amo" \
+                                            x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                        CARGO_TARGET_DIR="${target_dir}/assume-single-core-zaamo" \
+                                            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+zaamo" \
                                             x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                                     fi
                                     ;;

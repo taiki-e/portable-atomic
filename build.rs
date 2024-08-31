@@ -47,7 +47,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("zaamo","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -58,7 +58,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -E 'target_feature_fallback\("' build.rs | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ','
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo"))"#
         );
     }
 
@@ -308,6 +308,11 @@ fn main() {
                 target_feature_fallback("v6", v6);
                 target_feature_fallback("mclass", mclass);
             }
+        }
+        "riscv32" | "riscv64" => {
+            // As of rustc 1.80, target_feature "zaamo" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
+            target_feature_fallback("zaamo", false); // amo*.{w,d}
         }
         "powerpc64" => {
             // For Miri and ThreadSanitizer.

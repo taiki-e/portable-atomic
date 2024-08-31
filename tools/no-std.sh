@@ -209,6 +209,12 @@ run() {
                     CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
                         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
                         x_cargo "${args[@]}" --release "$@"
+                    CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+                        x_cargo "${args[@]}" "$@"
+                    CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+                        x_cargo "${args[@]}" --release "$@"
                 fi
                 ;;
         esac

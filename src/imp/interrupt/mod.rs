@@ -172,11 +172,25 @@ impl<T> AtomicPtr<T> {
     #[inline]
     pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         let _ = order;
-        #[cfg(portable_atomic_force_amo)]
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
         {
             self.as_native().swap(ptr, order)
         }
-        #[cfg(not(portable_atomic_force_amo))]
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
@@ -279,10 +293,24 @@ macro_rules! atomic_int {
     };
     (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        #[cfg(not(portable_atomic_force_amo))]
-        atomic_int!(cas[emulate], $atomic_type, $int_type);
-        #[cfg(portable_atomic_force_amo)]
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
         atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        atomic_int!(cas[emulate], $atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -568,7 +596,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    // cfg(portable_atomic_force_amo) 32-bit(RV32)/{32,64}-bit(RV64) RMW
+    // 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
     (cas, $atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
@@ -675,7 +703,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    // cfg(portable_atomic_force_amo) {8,16}-bit RMW
+    // {8,16}-bit RMW with Zaamo extension
     (cas[sub_word], $atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]

@@ -11,9 +11,11 @@
 // - RISC-V Instruction Set Manual Volume I: Unprivileged ISA
 //   https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf
 // - RISC-V Atomics ABI Specification
-//   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/HEAD/riscv-atomic.adoc
+//   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
 // - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
-//   https://five-embeddev.com/riscv-isa-manual/latest/memory.html#sec:memory:porting
+//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/mm-eplan.adoc#code-porting-and-mapping-guidelines
+// - ""Zaamo" Extension for Atomic Memory Operations" in RISC-V Instruction Set Manual:
+//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
@@ -24,14 +26,24 @@
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 #[cfg(target_arch = "riscv32")]
 macro_rules! w {
     () => {
         ""
     };
 }
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 #[cfg(target_arch = "riscv64")]
 macro_rules! w {
     () => {
@@ -39,7 +51,12 @@ macro_rules! w {
     };
 }
 
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 macro_rules! atomic_rmw_amo_order {
     ($op:ident, $order:ident) => {
         match $order {
@@ -52,14 +69,19 @@ macro_rules! atomic_rmw_amo_order {
         }
     };
 }
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 macro_rules! atomic_rmw_amo {
     ($op:ident, $dst:ident, $val:ident, $order:ident, $asm_suffix:tt) => {{
         let out;
         macro_rules! op {
             ($asm_order:tt) => {
                 // SAFETY: The user guaranteed that the AMO instruction is available in this
-                // system by setting the portable_atomic_force_amo and
+                // system by setting the portable_atomic_force_amo/target_feature and
                 // portable_atomic_unsafe_assume_single_core.
                 // The caller of this macro must guarantee the validity of the pointer.
                 asm!(
@@ -80,7 +102,12 @@ macro_rules! atomic_rmw_amo {
     }};
 }
 // 32-bit val.wrapping_shl(shift) but no extra `& (u32::BITS - 1)`
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 #[inline]
 fn sllw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling sll{,w} is safe.
@@ -97,7 +124,12 @@ fn sllw(val: u32, shift: u32) -> u32 {
     }
 }
 // 32-bit val.wrapping_shr(shift) but no extra `& (u32::BITS - 1)`
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 macro_rules! srlw {
     ($val:expr, $shift:expr) => {
         // SAFETY: Calling srl{,w} is safe.
@@ -240,7 +272,11 @@ macro_rules! atomic_load_store {
 macro_rules! atomic_ptr {
     ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
         atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $asm_suffix);
-        #[cfg(portable_atomic_force_amo)]
+        #[cfg(any(
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[inline]
             pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
@@ -257,7 +293,12 @@ macro_rules! atomic {
     ($atomic_type:ident, $value_type:ty, $asm_suffix:tt, $max:tt, $min:tt) => {
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
         // There is no amo{sub,nand,neg}.
-        #[cfg(any(test, portable_atomic_force_amo))]
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
@@ -328,21 +369,36 @@ macro_rules! atomic {
     };
 }
 
-#[cfg(any(test, portable_atomic_force_amo))]
+#[cfg(any(
+    test,
+    portable_atomic_force_amo,
+    target_feature = "zaamo",
+    portable_atomic_target_feature = "zaamo",
+))]
 trait ZeroExtend: Copy {
     /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
     fn zero_extend(self) -> u32;
 }
 macro_rules! zero_extend {
     ($int:ident, $uint:ident) => {
-        #[cfg(any(test, portable_atomic_force_amo))]
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
         impl ZeroExtend for $uint {
             #[inline]
             fn zero_extend(self) -> u32 {
                 self as u32
             }
         }
-        #[cfg(any(test, portable_atomic_force_amo))]
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
         impl ZeroExtend for $int {
             #[allow(clippy::cast_sign_loss)]
             #[inline]
@@ -358,7 +414,12 @@ zero_extend!(i16, u16);
 macro_rules! atomic_sub_word {
     ($atomic_type:ident, $value_type:ty, $unsigned_type:ty, $asm_suffix:tt) => {
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
-        #[cfg(any(test, portable_atomic_force_amo))]
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
