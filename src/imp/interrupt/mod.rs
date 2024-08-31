@@ -176,8 +176,10 @@ impl<T> AtomicPtr<T> {
             any(target_arch = "riscv32", target_arch = "riscv64"),
             any(
                 portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+                all(
+                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+                    portable_atomic_unsafe_assume_single_core,
+                ),
             ),
         ))]
         {
@@ -187,8 +189,10 @@ impl<T> AtomicPtr<T> {
             any(target_arch = "riscv32", target_arch = "riscv64"),
             any(
                 portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+                all(
+                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+                    portable_atomic_unsafe_assume_single_core,
+                ),
             ),
         )))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -297,8 +301,10 @@ macro_rules! atomic_int {
             any(target_arch = "riscv32", target_arch = "riscv64"),
             any(
                 portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+                all(
+                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+                    portable_atomic_unsafe_assume_single_core,
+                ),
             ),
         ))]
         atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
@@ -306,8 +312,10 @@ macro_rules! atomic_int {
             any(target_arch = "riscv32", target_arch = "riscv64"),
             any(
                 portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+                all(
+                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+                    portable_atomic_unsafe_assume_single_core,
+                ),
             ),
         )))]
         atomic_int!(cas[emulate], $atomic_type, $int_type);

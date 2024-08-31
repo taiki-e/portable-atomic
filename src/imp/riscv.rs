@@ -273,6 +273,7 @@ macro_rules! atomic_ptr {
     ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
         atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $asm_suffix);
         #[cfg(any(
+            test,
             portable_atomic_force_amo,
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
@@ -505,6 +506,34 @@ mod tests {
     test_atomic_int_load_store!(isize);
     test_atomic_int_load_store!(usize);
 
+    macro_rules! test_atomic_ptr_amo {
+        () => {
+            #[allow(
+                clippy::alloc_instead_of_core,
+                clippy::std_instead_of_alloc,
+                clippy::std_instead_of_core,
+                clippy::undocumented_unsafe_blocks
+            )]
+            mod test_atomic_ptr_amo {
+                use super::*;
+                test_atomic_ptr_amo!(AtomicPtr<u8>);
+            }
+        };
+        ($atomic_type:ty) => {
+            ::quickcheck::quickcheck! {
+                fn quickcheck_swap(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut(y);
+                    for &order in &test_helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.swap(y, order), x);
+                        assert_eq!(a.swap(x, order), y);
+                    }
+                    true
+                }
+            }
+        };
+    }
     macro_rules! test_atomic_int_amo {
         ($int_type:ident) => {
             paste::paste! {
@@ -793,6 +822,7 @@ mod tests {
             }
         };
     }
+    test_atomic_ptr_amo!();
     test_atomic_int_amo_sub_word!(i8);
     test_atomic_int_amo_sub_word!(u8);
     test_atomic_int_amo_sub_word!(i16);

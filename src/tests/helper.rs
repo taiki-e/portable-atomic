@@ -1385,6 +1385,37 @@ macro_rules! __test_atomic_ptr {
                 assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
+        ::quickcheck::quickcheck! {
+            fn quickcheck_swap(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut(y);
+                for &order in &test_helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.swap(y, order), x);
+                    assert_eq!(a.swap(x, order), y);
+                }
+                true
+            }
+            fn quickcheck_compare_exchange(x: usize, y: usize) -> bool {
+                let z = loop {
+                    let z = fastrand::usize(..);
+                    if z != y {
+                        break z;
+                    }
+                };
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut(y);
+                let z = sptr::invalid_mut(z);
+                for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.compare_exchange(x, y, success, failure).unwrap(), x);
+                    assert_eq!(a.load(Ordering::Relaxed), y);
+                    assert_eq!(a.compare_exchange(z, x, success, failure).unwrap_err(), y);
+                    assert_eq!(a.load(Ordering::Relaxed), y);
+                }
+                true
+            }
+        }
     };
     ($atomic_type:ty) => {
         __test_atomic_ptr!($atomic_type, single_thread);
