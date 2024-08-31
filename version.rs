@@ -73,6 +73,7 @@ impl Version {
         let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
         let nightly = channel == "nightly" || channel == "dev";
 
+        // Note that rustc 1.49-1.50 (and 1.13 or older) don't print LLVM version.
         let llvm_major = (|| {
             let version = verbose_version
                 .lines()

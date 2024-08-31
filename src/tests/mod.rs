@@ -175,6 +175,18 @@ LLVM version: 8.0",
     .unwrap();
     assert_eq!(v, Version::stable(34, 8));
 
+    // rustc 1.50 (rustup)
+    let v = Version::parse(
+        "rustc 1.50.0 (cb75ad5db 2021-02-10)
+binary: rustc
+commit-hash: cb75ad5db02783e8b0222fee363c5f63f7e2cf5b
+commit-date: 2021-02-10
+host: aarch64-unknown-linux-gnu
+release: 1.50.0",
+    )
+    .unwrap();
+    assert_eq!(v, Version::stable(50, 0));
+
     // rustc 1.67 (rustup)
     let v = Version::parse(
         "rustc 1.67.0 (fc594f156 2023-01-24)
@@ -275,7 +287,7 @@ LLVM version: 16.0.0",
     assert_eq!(v.commit_date().month, 0);
     assert_eq!(v.commit_date().day, 0);
 
-    // rustc 1.64 (debian 11: apt-get install cargo)
+    // rustc 1.48 (debian 11: apt-get install cargo)
     let v = Version::parse(
         "rustc 1.48.0
 binary: rustc
