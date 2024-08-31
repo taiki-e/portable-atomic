@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-set -eEuo pipefail
+set -CeEuo pipefail
 IFS=$'\n\t'
-cd "$(dirname "$0")"/..
-
-# shellcheck disable=SC2154
-trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
+trap -- 's=$?; printf >&2 "%s\n" "${0##*/}:${LINENO}: \`${BASH_COMMAND}\` exit with ${s}"; exit ${s}' ERR
+trap -- 'printf >&2 "%s\n" "${0##*/}: trapped SIGINT"; exit 1' SIGINT
+cd -- "$(dirname -- "$0")"/..
 
 # USAGE:
 #    ./tools/fuchsia-test.sh [+toolchain] <aarch64|x86_64> [cargo_options]...
@@ -21,15 +19,13 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 # TODO: ffx product-bundle has been removed: https://github.com/rust-lang/rust/pull/117799
 
 x() {
-    local cmd="$1"
-    shift
     (
         set -x
-        "${cmd}" "$@"
+        "$@"
     )
 }
 bail() {
-    echo >&2 "error: $*"
+    printf >&2 'error: %s\n' "$*"
     exit 1
 }
 
@@ -43,7 +39,7 @@ if [[ "${1:-}" == "+"* ]]; then
     pre_args+=("$1")
     shift
 fi
-cmd="test"
+cmd='test'
 case "${1:-}" in
     emu)
         cmd="$1"
@@ -77,7 +73,7 @@ done
 case "${cmd}" in
     emu)
         x "${tool_dir}"/ffx product-bundle get "terminal.qemu-${arch}"
-        if "${tool_dir}"/ffx emu list | grep -q fuchsia-emulator; then
+        if "${tool_dir}"/ffx emu list | grep -Fq fuchsia-emulator; then
             x "${tool_dir}"/ffx emu stop fuchsia-emulator
         fi
         x "${tool_dir}"/ffx emu start "terminal.qemu-${arch}" --headless
@@ -92,8 +88,8 @@ esac
 
 rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
 target_libdir=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-libdir --target "${target}")
-libstd_name=$(basename "$(ls "${target_libdir}"/libstd-*.so)")
-libtest_name=$(basename "$(ls "${target_libdir}"/libtest-*.so)")
+libstd_name=$(basename -- "$(ls -- "${target_libdir}"/libstd-*.so)")
+libtest_name=$(basename -- "$(ls -- "${target_libdir}"/libtest-*.so)")
 
 export RUSTFLAGS="${RUSTFLAGS:-} -L native=${SDK_PATH}/arch/${arch}/lib -L native=${SDK_PATH}/arch/${arch}/sysroot/lib"
 binary_path=$(./tools/test.sh ${pre_args[@]+"${pre_args[@]}"} build --target "${target}" "${cargo_options[@]}")
@@ -101,19 +97,19 @@ binary_path=$(./tools/test.sh ${pre_args[@]+"${pre_args[@]}"} build --target "${
 package_name=t
 package_dir=target/pkg
 test_output_dir=target/fuchsia-test
+rm -rf -- ./"${package_dir}"
+mkdir -p -- "${package_dir}/meta"
+rm -rf -- ./"${test_output_dir}"
+mkdir -p -- "${test_output_dir}"
+
 test_repo_name=repo
 repo_dir="${package_dir}/${test_repo_name}"
 cml_path="${package_dir}/meta/${package_name}.cml"
 cm_path="${package_dir}/meta/${package_name}.cm"
 manifest_path="${package_dir}/${package_name}.manifest"
-api_level=$("${tool_dir}"/ffx version -v | grep 'api-level' | head -1 | awk -F ' ' '{print $2}')
+api_level=$("${tool_dir}"/ffx version -v | grep -F api-level | head -1 | awk -F ' ' '{print $2}')
 
-rm -rf ./"${package_dir}"
-mkdir -p "${package_dir}/meta"
-rm -rf ./"${test_output_dir}"
-mkdir -p "${test_output_dir}"
-
-cat >${package_dir}/meta/package <<EOF
+cat >"${package_dir}/meta/package" <<EOF
 {
   "name": "${package_name}",
   "version": "0"
@@ -159,7 +155,7 @@ x "${tool_dir}"/cmc compile \
 x "${tool_dir}"/pm \
     -api-level "${api_level}" \
     -o "${manifest_path//./_}" \
-    -m ${manifest_path} \
+    -m "${manifest_path}" \
     build \
     -output-package-manifest "${package_dir}/${package_name}_package_manifest"
 
@@ -167,7 +163,7 @@ x "${tool_dir}"/pm newrepo -repo "${repo_dir}"
 
 x "${tool_dir}"/pm publish \
     -repo "${repo_dir}" \
-    -lp -f <(echo "${package_dir}/${package_name}_package_manifest")
+    -lp -f <(printf '%s\n' "${package_dir}/${package_name}_package_manifest")
 x "${tool_dir}"/ffx repository add-from-pm \
     "${repo_dir}" \
     -r "${package_name}"

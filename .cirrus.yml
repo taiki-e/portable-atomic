@@ -18,21 +18,21 @@ aarch64_linux_test_task:
   arm_container:
     image: rust
   setup_script:
-    - set -ex
+    - set -CeEuxo pipefail
     - lscpu
     - rustup toolchain add nightly --no-self-update && rustup default nightly
     # - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
   test_script:
-    - set -ex
+    - set -CeEuxo pipefail
     - ./tools/test.sh -vv
     # We test doctest only once with the default build conditions because doctest is slow. Both api-test
     # and src/tests have extended copies of doctest, so this will not reduce test coverage.
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
-    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
+    - RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="${RUSTDOCFLAGS} --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
     # Neoverse N1 is ARMv8.2-a and doesn't support FEAT_LSE2.
     # FEAT_LSE2 is tested on aarch64 macOS VM.
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh -vv --tests
+    - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" RUSTDOCFLAGS="${RUSTDOCFLAGS} -C target-feature=+lse" ./tools/test.sh -vv --tests
 
 aarch64_linux_valgrind_task:
   name: valgrind ($TARGET)
@@ -41,14 +41,14 @@ aarch64_linux_valgrind_task:
   arm_container:
     image: rust
   setup_script:
-    - set -ex
+    - set -CeEuxo pipefail
     - rustup toolchain add nightly --no-self-update && rustup default nightly
     - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind # moreutils
   test_script:
-    - set -ex
+    - set -CeEuxo pipefail
     - ./tools/test.sh valgrind -vv
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
-    - RUSTFLAGS="$RUSTFLAGS --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="$RUSTDOCFLAGS --cfg portable_atomic_no_outline_atomics" ./tools/test.sh valgrind -vv
+    - RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="${RUSTDOCFLAGS} --cfg portable_atomic_no_outline_atomics" ./tools/test.sh valgrind -vv
     # +lse
     # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
-    - RUSTFLAGS="$RUSTFLAGS -C target-feature=+lse" RUSTDOCFLAGS="$RUSTDOCFLAGS -C target-feature=+lse" ./tools/test.sh valgrind -vv
+    - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" RUSTDOCFLAGS="${RUSTDOCFLAGS} -C target-feature=+lse" ./tools/test.sh valgrind -vv

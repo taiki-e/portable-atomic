@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-set -eEuo pipefail
+set -CeEuo pipefail
 IFS=$'\n\t'
-cd "$(dirname "$0")"/..
-
-# shellcheck disable=SC2154
-trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
+trap -- 's=$?; printf >&2 "%s\n" "${0##*/}:${LINENO}: \`${BASH_COMMAND}\` exit with ${s}"; exit ${s}' ERR
+trap -- 'printf >&2 "%s\n" "${0##*/}: trapped SIGINT"; exit 1' SIGINT
+cd -- "$(dirname -- "$0")"/..
 
 # USAGE:
 #    ./tools/test.sh [+toolchain] [cargo_options]...
@@ -19,30 +17,28 @@ trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
 test_features="float,std,serde,critical-section"
 
 x() {
-    local cmd="$1"
-    shift
     (
         set -x
-        "${cmd}" "$@"
+        "$@"
     )
 }
 x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
-        echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
+        printf '%s\n' "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
     if [[ -n "${RUSTDOCFLAGS:-}" ]]; then
-        echo "+ RUSTDOCFLAGS='${RUSTDOCFLAGS}' \\"
+        printf '%s\n' "+ RUSTDOCFLAGS='${RUSTDOCFLAGS}' \\"
     fi
     if [[ -n "${CARGO_PROFILE_RELEASE_CODEGEN_UNITS:-}" ]]; then
-        echo "+ CARGO_PROFILE_RELEASE_CODEGEN_UNITS='${CARGO_PROFILE_RELEASE_CODEGEN_UNITS}' \\"
+        printf '%s\n' "+ CARGO_PROFILE_RELEASE_CODEGEN_UNITS='${CARGO_PROFILE_RELEASE_CODEGEN_UNITS}' \\"
     fi
     if [[ -n "${CARGO_PROFILE_RELEASE_LTO:-}" ]]; then
-        echo "+ CARGO_PROFILE_RELEASE_LTO='${CARGO_PROFILE_RELEASE_LTO}' \\"
+        printf '%s\n' "+ CARGO_PROFILE_RELEASE_LTO='${CARGO_PROFILE_RELEASE_LTO}' \\"
     fi
     if [[ "${cmd}" == "miri" ]] && [[ -n "${MIRIFLAGS:-}" ]]; then
-        echo "+ MIRIFLAGS='${MIRIFLAGS}' \\"
+        printf '%s\n' "+ MIRIFLAGS='${MIRIFLAGS}' \\"
     fi
-    if type -P cargo-hack &>/dev/null; then
+    if type -P cargo-hack >/dev/null; then
         if [[ -n "${TS:-}" ]]; then
             x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} hack "$@" 2>&1 | "${TS}" -i '%.s  '
         else
@@ -55,10 +51,10 @@ x_cargo() {
             x "${cargo}" ${pre_args[@]+"${pre_args[@]}"} "$@"
         fi
     fi
-    echo
+    printf '\n'
 }
 bail() {
-    echo >&2 "error: $*"
+    printf >&2 'error: %s\n' "$*"
     exit 1
 }
 
@@ -67,7 +63,7 @@ if [[ "${1:-}" == "+"* ]]; then
     pre_args+=("$1")
     shift
 fi
-cmd="test"
+cmd='test'
 case "${1:-}" in
     build | miri | valgrind)
         cmd="$1"
@@ -126,26 +122,26 @@ while [[ $# -gt 0 ]]; do
 done
 
 cargo="${cargo:-cargo}"
-if type -P rustup &>/dev/null; then
+if type -P rustup >/dev/null; then
     rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list | cut -d' ' -f1)
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
-rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep '^release:' | cut -d' ' -f2)
+rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' | cut -d' ' -f2)
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
-host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep '^host:' | cut -d' ' -f2)
+host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
 target_dir=$(pwd)/target
 nightly=''
-if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
-    if type -P rustup &>/dev/null; then
+    if type -P rustup >/dev/null; then
         rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
 fi
 export RUST_TEST_THREADS=1
 export PORTABLE_ATOMIC_DENY_WARNINGS=1
 if [[ -n "${CI:-}" ]]; then
-    if type -P ts &>/dev/null; then
+    if type -P ts >/dev/null; then
         TS=ts
     elif [[ -e C:/msys64/usr/bin/ts ]]; then
         TS=C:/msys64/usr/bin/ts
@@ -157,7 +153,7 @@ if [[ -z "${target}" ]] && [[ ${#build_std[@]} -gt 0 ]]; then
     target="${target:-"${host}"}"
 fi
 if [[ -n "${target}" ]]; then
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
+    if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             bail "target '${target}' not available on ${rustc_version}"
         fi
@@ -166,8 +162,8 @@ if [[ -n "${target}" ]]; then
         target_flags=(--target "${target}")
     fi
     args+=("${target_flags[@]}")
-    if type -P rustup &>/dev/null; then
-        if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
+    if type -P rustup >/dev/null; then
+        if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
             rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
         elif [[ -n "${nightly}" ]]; then
             if [[ ${#build_std[@]} -eq 0 ]]; then
@@ -178,7 +174,7 @@ if [[ -n "${target}" ]]; then
         fi
     fi
 fi
-if type -P cargo-hack &>/dev/null; then
+if type -P cargo-hack >/dev/null; then
     args+=(--features "${test_features}" --ignore-unknown-features)
 else
     args+=(--features "${test_features}")
@@ -194,11 +190,11 @@ target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
 randomize_layout=' -Z randomize-layout'
 cranelift=''
 if [[ "${RUSTFLAGS:-}" =~ -Z( )?codegen-backend=cranelift ]]; then
-    cranelift='1'
+    cranelift=1
     rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
 else
-    case "$(basename "${cargo}")" in
-        cargo-clif | cargo-clif.exe) cranelift='1' ;;
+    case "$(basename -- "${cargo%.exe}")" in
+        cargo-clif) cranelift=1 ;;
     esac
 fi
 if [[ -n "${cranelift}" ]]; then
@@ -214,11 +210,12 @@ case "${cmd}" in
         TS=''
         args+=(--no-run ${release[@]+"${release[@]}"})
         x_cargo test ${build_std[@]+"${build_std[@]}"} ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
+        manifest_path=$(cargo ${pre_args[@]+"${pre_args[@]}"} locate-project --message-format=plain)
         binary_path=$(
             "${cargo}" ${pre_args[@]+"${pre_args[@]}"} test ${build_std[@]+"${build_std[@]}"} ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" -q --message-format=json \
-                | jq -r "select(.manifest_path == \"$(cargo ${pre_args[@]+"${pre_args[@]}"} locate-project --message-format=plain)\") | select(.executable != null) | .executable"
+                | jq -r --arg manifest_path "${manifest_path}" 'select(.manifest_path == $manifest_path) | if .executable then .executable else empty end'
         )
-        echo "${binary_path}"
+        printf '%s\n' "${binary_path}"
         exit 0
         ;;
     miri)
@@ -283,7 +280,7 @@ run() {
     fi
 
     # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
-    if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful &>/dev/null && [[ "${cargo}" == "cargo" ]]; then
+    if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful >/dev/null && [[ "${cargo}" == "cargo" ]]; then
         # Since nightly-2022-12-23, -Z build-std + -Z randomize-layout + release mode on Windows
         # sometimes causes segfault in build script or proc-macro.
         if [[ "${target}" == *"-windows"* ]]; then

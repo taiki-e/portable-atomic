@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-set -eEuo pipefail
+set -CeEuo pipefail
 IFS=$'\n\t'
-cd "$(dirname "$0")"/..
-
-# shellcheck disable=SC2154
-trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
+trap -- 's=$?; printf >&2 "%s\n" "${0##*/}:${LINENO}: \`${BASH_COMMAND}\` exit with ${s}"; exit ${s}' ERR
+trap -- 'printf >&2 "%s\n" "${0##*/}: trapped SIGINT"; exit 1' SIGINT
+cd -- "$(dirname -- "$0")"/..
 
 # USAGE:
 #    ./tools/no-std.sh [+toolchain] [target]...
@@ -45,23 +43,20 @@ default_targets=(
 )
 
 x() {
-    local cmd="$1"
-    shift
     (
         set -x
-        "${cmd}" "$@"
+        "$@"
     )
 }
 x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
-        echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
+        printf '%s\n' "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
-    RUSTFLAGS="${RUSTFLAGS:-}" \
-        x cargo "$@"
-    echo
+    x cargo "$@"
+    printf '\n'
 }
 bail() {
-    echo >&2 "error: $*"
+    printf >&2 'error: %s\n' "$*"
     exit 1
 }
 
@@ -87,12 +82,12 @@ if [[ -z "${is_custom_toolchain}" ]]; then
     rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list | cut -d' ' -f1)
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
-rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep '^release:' | cut -d' ' -f2)
+rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' | cut -d' ' -f2)
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 target_dir=$(pwd)/target
 nightly=''
-if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
     if [[ -z "${is_custom_toolchain}" ]]; then
         rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
@@ -106,9 +101,9 @@ run() {
     shift
     local args=(${pre_args[@]+"${pre_args[@]}"})
     local target_rustflags="${RUSTFLAGS:-}"
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
+    if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
-            echo "target '${target}' not available on ${rustc_version} (skipped)"
+            printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped)"
             return 0
         fi
         local target_flags=(--target "$(pwd)/target-specs/${target}.json")
@@ -119,14 +114,14 @@ run() {
     if [[ -z "${CI:-}" ]]; then
         case "${target}" in
             armv4t* | thumbv4t*)
-                if ! type -P mgba-test-runner &>/dev/null; then
-                    echo "no-std test for ${target} requires mgba-test-runner (switched to build-only)"
+                if ! type -P mgba-test-runner >/dev/null; then
+                    printf '%s\n' "no-std test for ${target} requires mgba-test-runner (switched to build-only)"
                     subcmd=build
                 fi
                 ;;
             avr*)
-                if ! type -P simavr &>/dev/null; then
-                    echo "no-std test for ${target} requires simavr (switched to build-only)"
+                if ! type -P simavr >/dev/null; then
+                    printf '%s\n' "no-std test for ${target} requires simavr (switched to build-only)"
                     subcmd=build
                 fi
                 ;;
@@ -135,19 +130,19 @@ run() {
     case "${target}" in
         xtensa*)
             # TODO: run test with simulator on CI
-            if ! type -P wokwi-server &>/dev/null; then
-                echo "no-std test for ${target} requires wokwi-server (switched to build-only)"
+            if ! type -P wokwi-server >/dev/null; then
+                printf '%s\n' "no-std test for ${target} requires wokwi-server (switched to build-only)"
                 subcmd=build
             fi
             ;;
     esac
     args+=("${subcmd}" "${target_flags[@]}")
-    if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
+    if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         args+=(-Z build-std="core")
     else
-        echo "target '${target}' requires nightly compiler (skipped)"
+        printf '%s\n' "target '${target}' requires nightly compiler (skipped)"
         return 0
     fi
 
@@ -189,7 +184,7 @@ run() {
     args+=(--all-features)
 
     (
-        cd "${test_dir}"
+        cd -- "${test_dir}"
         CARGO_TARGET_DIR="${target_dir}/no-std-test" \
             RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" "$@"

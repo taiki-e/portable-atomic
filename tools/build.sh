@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-set -eEuo pipefail
+set -CeEuo pipefail
 IFS=$'\n\t'
-cd "$(dirname "$0")"/..
-
-# shellcheck disable=SC2154
-trap 's=$?; echo >&2 "$0: error on line "${LINENO}": ${BASH_COMMAND}"; exit ${s}' ERR
-trap -- 'echo >&2 "$0: trapped SIGINT"; exit 1' SIGINT
+trap -- 's=$?; printf >&2 "%s\n" "${0##*/}:${LINENO}: \`${BASH_COMMAND}\` exit with ${s}"; exit ${s}' ERR
+trap -- 'printf >&2 "%s\n" "${0##*/}: trapped SIGINT"; exit 1' SIGINT
+cd -- "$(dirname -- "$0")"/..
 
 # USAGE:
 #    ./tools/build.sh [+toolchain] [target]...
@@ -62,7 +60,7 @@ default_targets=(
 
     # aarch64
     # rustc --print target-list | grep -E '^(aarch64|arm64)'
-    # (for target in $(rustc --print target-list | grep -E '^(aarch64|arm64)'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
+    # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "aarch64" then .os else empty end' | LC_ALL=C sort -u
     aarch64-linux-android
     aarch64-pc-windows-msvc
     aarch64-unknown-freebsd
@@ -95,7 +93,7 @@ default_targets=(
 
     # powerpc64
     # rustc --print target-list | grep -E '^powerpc64'
-    # (for target in $(rustc --print target-list | grep -E '^powerpc64'); do rustc --print target-spec-json -Z unstable-options --target "${target}" | jq -r '.os'; done) | LC_ALL=C sort -u
+    # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "powerpc64" then .os else empty end' | LC_ALL=C sort -u
     powerpc64-unknown-linux-gnu
     powerpc64le-unknown-linux-gnu
     powerpc64-unknown-linux-musl
@@ -115,23 +113,20 @@ test_features="float,std,serde,critical-section"
 exclude_features="unsafe-assume-single-core,s-mode,force-amo,disable-fiq"
 
 x() {
-    local cmd="$1"
-    shift
     (
         set -x
-        "${cmd}" "$@"
+        "$@"
     )
 }
 x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
-        echo "+ RUSTFLAGS='${RUSTFLAGS}' \\"
+        printf '%s\n' "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
-    RUSTFLAGS="${RUSTFLAGS:-} ${check_cfg:-}" \
-        x cargo ${pre_args[@]+"${pre_args[@]}"} "$@"
-    echo
+    x cargo ${pre_args[@]+"${pre_args[@]}"} "$@"
+    printf '\n'
 }
 bail() {
-    echo "error: $*" >&2
+    printf >&2 'error: %s\n' "$*"
     exit 1
 }
 is_no_std() {
@@ -166,14 +161,14 @@ fi
 if [[ $# -gt 0 ]]; then
     targets=("$@")
 elif [[ -n "${TARGET_GROUP:-}" ]]; then
-    case "${TARGET_GROUP:-}" in
+    case "${TARGET_GROUP}" in
         tier1/tier2) targets=("${rustup_targets[@]}") ;;
         tier3)
             targets=()
             for target in "${all_targets[@]}"; do
                 for t in "${rustup_targets[@]}"; do
                     if [[ "${target}" == "${t}" ]]; then
-                        target=""
+                        target=''
                         break
                     fi
                 done
@@ -193,12 +188,12 @@ if [[ -z "${is_custom_toolchain}" ]]; then
     rustup_target_list=$(rustup ${pre_args[@]+"${pre_args[@]}"} target list | cut -d' ' -f1)
 fi
 rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
-rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep '^release:' | cut -d' ' -f2)
+rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' | cut -d' ' -f2)
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
-llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | (grep '^LLVM version:' || true) | cut -d' ' -f3)
+llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
-host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep '^host:' | cut -d' ' -f2)
+host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
 target_dir=$(pwd)/target
 # Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
 subcmd=build
@@ -212,7 +207,7 @@ else
     base_args=(hack "${subcmd}")
 fi
 nightly=''
-if [[ "${rustc_version}" == *"nightly"* ]] || [[ "${rustc_version}" == *"dev"* ]]; then
+if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
     if [[ -z "${is_custom_toolchain}" ]]; then
         rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
@@ -231,7 +226,7 @@ has_asm=''
 # asm! requires 1.59
 # concat! in asm! requires 1.46.0-nightly (nightly-2020-06-21).
 if [[ "${rustc_minor_version}" -ge 59 ]] || { [[ "${rustc_minor_version}" -ge 46 ]] && [[ -n "${nightly}" ]]; }; then
-    has_asm='1'
+    has_asm=1
 fi
 
 build() {
@@ -239,13 +234,13 @@ build() {
     shift
     local args=("${base_args[@]}")
     local target_rustflags="${RUSTFLAGS:-}"
-    if ! grep <<<"${rustc_target_list}" -Eq "^${target}$" || [[ -f "target-specs/${target}.json" ]]; then
+    if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
-            echo "target '${target}' not available on ${rustc_version} (skipped all checks)"
+            printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped all checks)"
             return 0
         fi
         if [[ "${rustc_minor_version}" -lt 47 ]]; then
-            echo "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
+            printf '%s\n' "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
             return 0
         fi
         local target_flags=(--target "$(pwd)/target-specs/${target}.json")
@@ -254,13 +249,13 @@ build() {
     fi
     args+=("${target_flags[@]}")
     local cfgs
-    if grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
+    if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
         cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
         rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
         # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
         if [[ "${rustc_minor_version}" -lt 39 ]]; then
-            echo "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
+            printf '%s\n' "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
             return 0
         fi
         cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
@@ -278,29 +273,29 @@ build() {
             # On musl, building std with pre-1.59 nightly requires musl toolchain.
             args+=(-Z build-std="core,alloc")
             args+=(--exclude-features "std")
-        elif grep <<<"${cfgs}" -q 'panic="abort"'; then
+        elif grep -Eq '^panic="abort"' <<<"${cfgs}"; then
             args+=(-Z build-std="panic_abort,std")
         else
             args+=(-Z build-std)
         fi
     else
-        echo "target '${target}' requires nightly compiler (skipped all checks)"
+        printf '%s\n' "target '${target}' requires nightly compiler (skipped all checks)"
         return 0
     fi
-    has_atomic_cas='1'
+    has_atomic_cas=1
     # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
     if [[ "${rustc_minor_version}" -ge 40 ]]; then
-        if ! grep <<<"${cfgs}" -q 'target_has_atomic='; then
+        if ! grep -Eq '^target_has_atomic=' <<<"${cfgs}"; then
             has_atomic_cas=''
         fi
     else
-        if ! grep <<<"${cfgs}" -q 'target_has_atomic="cas"'; then
+        if ! grep -Eq '^target_has_atomic="cas"' <<<"${cfgs}"; then
             has_atomic_cas=''
         fi
     fi
     if [[ "${target}" == "riscv"* ]] && [[ -z "${has_atomic_cas}" ]] && [[ -z "${has_asm}" ]]; then
         # RISC-V without A-extension requires asm to implement atomics.
-        echo "target '${target}' requires asm to implement atomics (skipped all checks)"
+        printf '%s\n' "target '${target}' requires asm to implement atomics (skipped all checks)"
         return 0
     fi
     if [[ "${target}" == "avr"* ]]; then
@@ -312,7 +307,7 @@ build() {
             target_rustflags+=" -C opt-level=s"
         fi
     fi
-    if ! grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
+    if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
         case "${target}" in
             # TODO: LLVM bug: Undefined temporary symbol error when building std.
             mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
@@ -330,7 +325,7 @@ build() {
                     thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??i-*-none* | riscv??im-*-none* | riscv??imc-*-none*)
                         target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
                         ;;
-                    bpf* | mips*) build_util_with_critical_section='1' ;;
+                    bpf* | mips*) build_util_with_critical_section=1 ;;
                 esac
             fi
             RUSTFLAGS="${target_rustflags}" \
@@ -419,7 +414,7 @@ build() {
                             ;;
                     esac
                 else
-                    echo "target '${target}' requires asm to implement atomic CAS (skipped API check)"
+                    printf '%s\n' "target '${target}' requires asm to implement atomic CAS (skipped API check)"
                 fi
             fi
         fi
@@ -465,7 +460,7 @@ build() {
                             ;;
                     esac
                 else
-                    echo "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
+                    printf '%s\n' "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
                 case "${target}" in
                     avr-* | msp430-*) ;; # always single-core
@@ -527,7 +522,7 @@ build() {
     case "${target}" in
         x86_64*)
             # Apple and Windows (except Windows 7, since Rust 1.78) targets are +cmpxchg16b by default
-            if ! grep <<<"${cfgs}" -q 'target_feature="cmpxchg16b"'; then
+            if ! grep -Eq '^target_feature="cmpxchg16b"' <<<"${cfgs}"; then
                 CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
                     RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
                     x_cargo "${args[@]}" "$@"
@@ -539,7 +534,7 @@ build() {
             ;;
         aarch64* | arm64*)
             # macOS is +lse,+lse2 by default
-            if ! grep <<<"${cfgs}" -q 'target_feature="lse"'; then
+            if ! grep -Eq '^target_feature="lse"' <<<"${cfgs}"; then
                 CARGO_TARGET_DIR="${target_dir}/lse" \
                     RUSTFLAGS="${target_rustflags} -C target-feature=+lse" \
                     x_cargo "${args[@]}" "$@"
@@ -598,9 +593,9 @@ for target in "${targets[@]}"; do
         for default_target in "${default_targets[@]}"; do
             if [[ "${target}" == "${default_target}" ]]; then
                 if [[ -n "${CI:-}" ]]; then
-                    echo "target '${target}' is included in the default targets list and covered by other CI jobs or matrices (skipped all checks)"
+                    printf '%s\n' "target '${target}' is included in the default targets list and covered by other CI jobs or matrices (skipped all checks)"
                 else
-                    echo "target '${target}' is included in the default targets list (skipped all checks because SKIP_DEFAULT_TARGET is set)"
+                    printf '%s\n' "target '${target}' is included in the default targets list (skipped all checks because SKIP_DEFAULT_TARGET is set)"
                 fi
                 target=''
                 break

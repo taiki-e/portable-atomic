@@ -586,7 +586,7 @@ pub(crate) fn gen() -> Result<()> {
                     });
                 }
             }
-            // e.g., clang -E -dM -x c /dev/null -target aarch64-unknown-linux-gnu | grep __CHAR_
+            // e.g., clang -E -dM -x c /dev/null -target aarch64-unknown-linux-gnu | grep -F __CHAR_
             let clang_defs =
                 cmd!("clang", "-E", "-dM", "-x", "c", "/dev/null", "-target", &target.llvm_target)
                     .read()?;
