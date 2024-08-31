@@ -17,7 +17,7 @@ fn main() {
     let version = match rustc_version() {
         Some(version) => version,
         None => {
-            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").unwrap_or_default() == "1" {
+            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
                 panic!("unable to determine rustc version")
             }
             println!(

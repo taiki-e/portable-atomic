@@ -33,7 +33,7 @@ fn main() {
     let version = match rustc_version() {
         Some(version) => version,
         None => {
-            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").unwrap_or_default() == "1" {
+            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
                 panic!("unable to determine rustc version")
             }
             println!(
@@ -286,7 +286,7 @@ fn main() {
                     "v4t" | "v5te" | "v6" | "v6k" => {}
                     _ => {
                         known = false;
-                        if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").unwrap_or_default() == "1" {
+                        if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
                             panic!("unrecognized arm subarch: {}", target)
                         }
                         println!(
