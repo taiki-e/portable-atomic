@@ -85,6 +85,8 @@ rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' | cut -d' ' -f2)
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
+llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
+llvm_version="${llvm_version%%.*}"
 target_dir=$(pwd)/target
 nightly=''
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
@@ -99,6 +101,9 @@ export PORTABLE_ATOMIC_DENY_WARNINGS=1
 run() {
     local target="$1"
     shift
+    target_lower="${target//-/_}"
+    target_lower="${target_lower//./_}"
+    target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
     local args=(${pre_args[@]+"${pre_args[@]}"})
     local target_rustflags="${RUSTFLAGS:-}"
     if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
@@ -215,6 +220,24 @@ run() {
                     CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
                         x_cargo "${args[@]}" --release "$@"
+                    local arch
+                    case "${target}" in
+                        riscv32*) arch=riscv32 ;;
+                        riscv64*) arch=riscv64 ;;
+                        *) bail "${target}" ;;
+                    esac
+                    # Support for Zabha extension requires LLVM 19+ and QEMU 9.1+.
+                    # https://github.com/qemu/qemu/commit/be4a8db7f304347395b081ae5848bad2f507d0c4
+                    qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version [^ ]+ \(v([^ )]+)\)/\1/p')
+                    if [[ "${llvm_version}" -ge 19 ]] && [[ "${qemu_version}" =~ ^(9\.[^0]|[1-9][0-9]+\.) ]]; then
+                        export "CARGO_TARGET_${target_upper}_RUNNER"="qemu-system-${arch} -M virt -cpu max -display none -semihosting -kernel"
+                        CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
+                            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
+                            x_cargo "${args[@]}" "$@"
+                        CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
+                            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
+                            x_cargo "${args[@]}" --release "$@"
+                    fi
                 fi
                 ;;
         esac

@@ -12,10 +12,12 @@
 //   https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf
 // - RISC-V Atomics ABI Specification
 //   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
-// - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual:
+// - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual
 //   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/mm-eplan.adoc#code-porting-and-mapping-guidelines
-// - ""Zaamo" Extension for Atomic Memory Operations" in RISC-V Instruction Set Manual:
+// - ""Zaamo" Extension for Atomic Memory Operations" in RISC-V Instruction Set Manual
 //   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
+// - ""Zabha" Extension for Byte and Halfword Atomic Memory Operations" in RISC-V Instruction Set Manual
+//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zabha.adoc
 // - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 //
 // Generated asm:
@@ -32,6 +34,7 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
+#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
 #[cfg(target_arch = "riscv32")]
 macro_rules! w {
     () => {
@@ -44,6 +47,7 @@ macro_rules! w {
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
+#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
 #[cfg(target_arch = "riscv64")]
 macro_rules! w {
     () => {
@@ -86,7 +90,7 @@ macro_rules! atomic_rmw_amo {
                 // The caller of this macro must guarantee the validity of the pointer.
                 asm!(
                     ".option push",
-                    // https://github.com/riscv-non-isa/riscv-asm-manual/blob/HEAD/riscv-asm.md#arch
+                    // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
                     ".option arch, +a",
                     concat!("amo", stringify!($op), ".", $asm_suffix, $asm_order, " {out}, {val}, 0({dst})"),
                     ".option pop",
@@ -108,6 +112,7 @@ macro_rules! atomic_rmw_amo {
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
+#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
 #[inline]
 fn sllw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling sll{,w} is safe.
@@ -130,6 +135,7 @@ fn sllw(val: u32, shift: u32) -> u32 {
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
+#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
 macro_rules! srlw {
     ($val:expr, $shift:expr) => {
         // SAFETY: Calling srl{,w} is safe.
@@ -376,6 +382,7 @@ macro_rules! atomic {
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
+#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
 trait ZeroExtend: Copy {
     /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
     fn zero_extend(self) -> u32;
@@ -388,6 +395,7 @@ macro_rules! zero_extend {
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
         ))]
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl ZeroExtend for $uint {
             #[inline]
             fn zero_extend(self) -> u32 {
@@ -400,6 +408,7 @@ macro_rules! zero_extend {
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
         ))]
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl ZeroExtend for $int {
             #[allow(clippy::cast_sign_loss)]
             #[inline]
@@ -413,7 +422,10 @@ zero_extend!(i8, u8);
 zero_extend!(i16, u16);
 
 macro_rules! atomic_sub_word {
-    ($atomic_type:ident, $value_type:ty, $unsigned_type:ty, $asm_suffix:tt) => {
+    ($atomic_type:ident, $value_type:ty, $asm_suffix:tt, $max:tt, $min:tt) => {
+        #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
+        atomic!($atomic_type, $value_type, $asm_suffix, $max, $min);
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
         #[cfg(any(
             test,
@@ -421,6 +433,7 @@ macro_rules! atomic_sub_word {
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
         ))]
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
@@ -465,10 +478,10 @@ macro_rules! atomic_sub_word {
     };
 }
 
-atomic_sub_word!(AtomicI8, i8, u8, "b");
-atomic_sub_word!(AtomicU8, u8, u8, "b");
-atomic_sub_word!(AtomicI16, i16, u16, "h");
-atomic_sub_word!(AtomicU16, u16, u16, "h");
+atomic_sub_word!(AtomicI8, i8, "b", max, min);
+atomic_sub_word!(AtomicU8, u8, "b", maxu, minu);
+atomic_sub_word!(AtomicI16, i16, "h", max, min);
+atomic_sub_word!(AtomicU16, u16, "h", maxu, minu);
 atomic!(AtomicI32, i32, "w", max, min);
 atomic!(AtomicU32, u32, "w", maxu, minu);
 #[cfg(target_arch = "riscv64")]
@@ -660,6 +673,9 @@ mod tests {
                 )]
                 mod [<test_atomic_ $int_type _amo>] {
                     use super::*;
+                    #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
+                    test_atomic_int_amo!([<Atomic $int_type:camel>], $int_type);
+                    #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
                     test_atomic_int_amo_sub_word!([<Atomic $int_type:camel>], $int_type);
                 }
             }

@@ -46,6 +46,7 @@ espup
 exynos
 getauxval
 getpid
+Halfword
 HWCAP
 hwprobe
 ifunc
@@ -175,4 +176,5 @@ xmmword
 xsave
 xsub
 zaamo
+zabha
 Zhaoxin

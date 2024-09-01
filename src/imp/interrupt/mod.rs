@@ -604,7 +604,8 @@ macro_rules! atomic_int {
             }
         }
     };
-    // 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
+    // RISC-V 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
+    // RISC-V 8-bit/16-bit RMW with Zabha extension
     (cas, $atomic_type:ident, $int_type:ident) => {
         impl $atomic_type {
             #[inline]
@@ -711,8 +712,17 @@ macro_rules! atomic_int {
             }
         }
     };
-    // {8,16}-bit RMW with Zaamo extension
+    // RISC-V 8-bit/16-bit RMW with Zaamo extension
     (cas[sub_word], $atomic_type:ident, $int_type:ident) => {
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+        ))]
+        atomic_int!(cas, $atomic_type, $int_type);
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+        )))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
