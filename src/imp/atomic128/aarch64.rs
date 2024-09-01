@@ -248,6 +248,28 @@ macro_rules! start_lse {
         ".arch_extension lse"
     };
 }
+#[cfg(portable_atomic_llvm_16)]
+#[cfg(any(
+    target_feature = "lse128",
+    portable_atomic_target_feature = "lse128",
+    // not(portable_atomic_no_outline_atomics),
+))]
+macro_rules! start_lse128 {
+    () => {
+        ".arch_extension lse128"
+    };
+}
+#[cfg(portable_atomic_llvm_16)]
+#[cfg(any(
+    target_feature = "rcpc3",
+    portable_atomic_target_feature = "rcpc3",
+    // not(portable_atomic_no_outline_atomics),
+))]
+macro_rules! start_rcpc3 {
+    () => {
+        ".arch_extension rcpc3"
+    };
+}
 
 #[cfg(target_endian = "little")]
 macro_rules! select_le_or_be {
@@ -447,6 +469,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
                 // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
                 // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDIAPP--Load-Acquire-RCpc-ordered-Pair-of-registers-
                 asm!(
+                    start_rcpc3!(),
                     "ldiapp {out_lo}, {out_hi}, [{src}]",
                     src = in(reg) ptr_reg!(src),
                     out_hi = lateout(reg) out_hi,
@@ -724,6 +747,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
                 // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
                 // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/STILP--Store-Release-ordered-Pair-of-registers-
                 asm!(
+                    start_rcpc3!(),
                     "stilp {val_lo}, {val_hi}, [{dst}]",
                     dst = in(reg) ptr_reg!(dst),
                     val_lo = in(reg) val.pair.lo,
@@ -1114,6 +1138,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         macro_rules! swap {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
+                    start_lse128!(),
                     concat!("swpp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
                     $fence,
                     dst = in(reg) ptr_reg!(dst),
@@ -1515,6 +1540,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! and {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
+                    start_lse128!(),
                     concat!("ldclrp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
                     $fence,
                     dst = in(reg) ptr_reg!(dst),
@@ -1573,6 +1599,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! or {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
+                    start_lse128!(),
                     concat!("ldsetp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"),
                     $fence,
                     dst = in(reg) ptr_reg!(dst),
