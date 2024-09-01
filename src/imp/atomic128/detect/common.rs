@@ -330,13 +330,27 @@ mod tests_common {
             assert!(detect().test(CpuInfo::HAS_LSE));
             assert!(detect().test(CpuInfo::HAS_LSE2));
             assert!(detect().test(CpuInfo::HAS_LSE128));
+            if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse128: Some(lse128), .. }) = proc_cpuinfo
+            {
+                assert!(lse128);
+            }
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE128));
+            if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse128: Some(lse128), .. }) = proc_cpuinfo
+            {
+                assert!(!lse128);
+            }
         }
         if detect().has_rcpc3() {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
+            if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
+                assert!(rcpc3);
+            }
         } else {
             assert!(!detect().test(CpuInfo::HAS_RCPC3));
+            if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
+                assert!(!rcpc3);
+            }
         }
     }
     #[cfg(target_arch = "powerpc64")]

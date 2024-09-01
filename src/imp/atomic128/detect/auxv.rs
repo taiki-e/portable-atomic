@@ -99,26 +99,6 @@ mod os {
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) use super::super::c_types::{c_char, c_int};
 
-        extern "C" {
-            // Defined in sys/auxv.h.
-            // https://man7.org/linux/man-pages/man3/getauxval.3.html
-            // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
-            // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
-            // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
-            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
-            // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/gnu/mod.rs#L1201
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/linux/musl/mod.rs#L744
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/b64/mod.rs#L333
-            pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
-
-            // Defined in sys/system_properties.h.
-            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/linux_like/android/mod.rs#L3471
-            #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-            pub(crate) fn __system_property_get(name: *const c_char, value: *mut c_char) -> c_int;
-        }
-
         // https://github.com/torvalds/linux/blob/v6.10/include/uapi/linux/auxvec.h
         #[cfg(any(test, target_arch = "aarch64"))]
         pub(crate) const AT_HWCAP: c_ulong = 16;
@@ -129,6 +109,22 @@ mod os {
         // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) const PROP_VALUE_MAX: c_int = 92;
+
+        extern "C" {
+            // Defined in sys/auxv.h.
+            // https://man7.org/linux/man-pages/man3/getauxval.3.html
+            // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
+            // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
+            // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
+            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
+            // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
+            pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
+
+            // Defined in sys/system_properties.h.
+            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
+            #[cfg(all(target_arch = "aarch64", target_os = "android"))]
+            pub(crate) fn __system_property_get(name: *const c_char, value: *mut c_char) -> c_int;
+        }
     }
 
     pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
@@ -164,6 +160,17 @@ mod os {
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 
+        // FreeBSD
+        // Defined in sys/elf_common.h.
+        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
+        // OpenBSD
+        // Defined in sys/auxv.h.
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
+        #[cfg(any(test, target_arch = "aarch64"))]
+        pub(crate) const AT_HWCAP: c_int = 25;
+        #[cfg(any(test, target_arch = "powerpc64"))]
+        pub(crate) const AT_HWCAP2: c_int = 26;
+
         extern "C" {
             // FreeBSD
             // Defined in sys/auxv.h.
@@ -175,17 +182,6 @@ mod os {
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
             pub(crate) fn elf_aux_info(aux: c_int, buf: *mut c_void, buf_len: c_int) -> c_int;
         }
-
-        // FreeBSD
-        // Defined in sys/elf_common.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
-        // OpenBSD
-        // Defined in sys/auxv.h.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
-        #[cfg(any(test, target_arch = "aarch64"))]
-        pub(crate) const AT_HWCAP: c_int = 25;
-        #[cfg(any(test, target_arch = "powerpc64"))]
-        pub(crate) const AT_HWCAP2: c_int = 26;
     }
 
     pub(super) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
@@ -744,17 +740,19 @@ mod tests {
             }
             _elf_aux_info = sys::elf_aux_info;
         }
-        #[cfg(not(any(target_os = "freebsd", target_os = "openbsd")))] // libc doesn't have this on BSDs
+        #[cfg(not(target_os = "openbsd"))] // libc doesn't have this on OpenBSD
         static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
         static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as AtType);
-        #[cfg(not(any(target_os = "freebsd", target_os = "openbsd")))] // libc doesn't have this on BSDs
+        #[cfg(not(target_os = "openbsd"))] // libc doesn't have this on OpenBSD
         static_assert!(ffi::AT_HWCAP2 == libc::AT_HWCAP2);
         static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as AtType);
         #[cfg(target_arch = "aarch64")]
         {
-            // static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS); // libc doesn't have this
+            #[cfg(any(target_os = "linux", target_os = "android"))] // libc doesn't have this on BSDs
+            static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS);
             static_assert!(arch::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
-            // static_assert!(HWCAP_USCAT == libc::HWCAP_USCAT); // libc doesn't have this
+            #[cfg(any(target_os = "linux", target_os = "android"))] // libc doesn't have this on BSDs
+            static_assert!(arch::HWCAP_USCAT == libc::HWCAP_USCAT);
             static_assert!(arch::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
             #[cfg(any(target_os = "linux", target_os = "android"))]
             #[cfg(target_pointer_width = "64")]

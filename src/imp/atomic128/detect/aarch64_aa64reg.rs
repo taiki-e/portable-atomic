@@ -143,20 +143,6 @@ mod imp {
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_char, c_int, c_size_t, c_void};
 
-        extern "C" {
-            // Defined in sys/sysctl.h.
-            // https://man.netbsd.org/sysctl.3
-            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/sys/sysctl.h
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/netbsd/mod.rs#L2582
-            pub(crate) fn sysctlbyname(
-                name: *const c_char,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *const c_void,
-                new_len: c_size_t,
-            ) -> c_int;
-        }
-
         // Defined in aarch64/armreg.h.
         // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/arch/aarch64/include/armreg.h#L1863
         #[derive(Clone, Copy)]
@@ -185,6 +171,19 @@ mod imp {
             pub(crate) pad: u32,
             pub(crate) clidr: u64,
             pub(crate) ctr: u64,
+        }
+
+        extern "C" {
+            // Defined in sys/sysctl.h.
+            // https://man.netbsd.org/sysctl.3
+            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/sys/sysctl.h
+            pub(crate) fn sysctlbyname(
+                name: *const c_char,
+                old_p: *mut c_void,
+                old_len_p: *mut c_size_t,
+                new_p: *const c_void,
+                new_len: c_size_t,
+            ) -> c_int;
         }
     }
 
@@ -271,7 +270,6 @@ mod imp {
             // Defined in sys/sysctl.h.
             // https://man.openbsd.org/sysctl.2
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h
-            // https://github.com/rust-lang/libc/blob/0.2.139/src/unix/bsd/netbsdlike/openbsd/mod.rs#L1817-L1824
             pub(crate) fn sysctl(
                 name: *const c_int,
                 name_len: c_uint,

@@ -69,9 +69,10 @@ mod tests {
         use test_helper::windows_sys;
         let _: ffi::DWORD = 0 as windows_sys::Win32::System::Threading::PROCESSOR_FEATURE_ID;
         let _: ffi::BOOL = 0 as windows_sys::Win32::Foundation::BOOL;
-        let mut _sysctl: unsafe extern "system" fn(ffi::DWORD) -> ffi::BOOL =
+        let mut _is_processor_feature_present: unsafe extern "system" fn(ffi::DWORD) -> ffi::BOOL =
             ffi::IsProcessorFeaturePresent;
-        _sysctl = windows_sys::Win32::System::Threading::IsProcessorFeaturePresent;
+        _is_processor_feature_present =
+            windows_sys::Win32::System::Threading::IsProcessorFeaturePresent;
         static_assert!(ffi::FALSE == windows_sys::Win32::Foundation::FALSE);
         static_assert!(
             ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
