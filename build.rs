@@ -51,12 +51,12 @@ fn main() {
         );
 
         // Custom cfgs set by build script. Not public API.
-        // grep -E 'cargo:rustc-cfg=' build.rs | grep -v '=//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ','
+        // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
             "cargo:rustc-check-cfg=cfg(portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_15,portable_atomic_llvm_16,portable_atomic_llvm_18,portable_atomic_new_atomic_intrinsics,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_feature,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line target_feature_fallback
-        // grep -E 'target_feature_fallback\("' build.rs | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ','
+        // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
             r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo"))"#
         );
@@ -78,9 +78,10 @@ fn main() {
         println!("cargo:rerun-if-env-changed=CARGO_TARGET_{}_RUSTFLAGS", target_upper);
     }
 
-    // Note that this is `no_`*, not `has_*`. This allows treating as the latest
+    // Note that cfgs are `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
     // for non-cargo build systems that don't run the build script.
+
     // atomic_min_max stabilized in Rust 1.45 (nightly-2020-05-30): https://github.com/rust-lang/rust/pull/72324
     if !version.probe(45, 2020, 5, 29) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_min_max");
@@ -212,8 +213,8 @@ fn main() {
                 // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/apple_base.rs#L69-L70
                 // (Since Rust 1.78, Windows (except Windows 7) targets also enable CMPXCHG16B, but
                 // this branch is only used on pre-1.69 that cmpxchg16b_target_feature is unstable.)
-                // Script to get targets that support cmpxchg16b by default:
-                // $ (for target in $(rustc --print target-list); do [[ "${target}" == "x86_64"* ]] && rustc --print cfg --target "${target}" | grep -q cmpxchg16b && echo "${target}"; done)
+                // Script to get builtin targets that support CMPXCHG16B by default:
+                // $ (for target in $(rustc --print target-list | grep -E '^x86_64'); do rustc --print cfg --target "${target}" | grep -Fq '"cmpxchg16b"' && printf '%s\n' "${target}"; done)
                 let has_cmpxchg16b = is_apple;
                 // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/KM3jz616j
                 // However, it is unlikely that rustc will support that name, so we ignore it.
@@ -353,7 +354,9 @@ fn main() {
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
+                // LLVM and GCC recognize the same names:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                // https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.2.0/gcc/config/s390/s390.opt#L58-L125
                 match &*cpu {
                     "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14" => {
                         arch9_features = true;

@@ -31,15 +31,16 @@ fn main() {
 
     if version.minor >= 80 {
         // Custom cfgs set by build script. Not public API.
-        // grep -E 'cargo:rustc-cfg=' build.rs | grep -v '=//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ','
+        // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
             "cargo:rustc-check-cfg=cfg(portable_atomic_no_alloc,portable_atomic_no_alloc_layout_extras,portable_atomic_no_core_unwind_safe,portable_atomic_no_error_in_core,portable_atomic_no_futures_api,portable_atomic_no_io_safety,portable_atomic_no_io_vec,portable_atomic_no_min_const_generics,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_sanitize_thread)"
         );
     }
 
-    // Note that this is `no_`*, not `has_*`. This allows treating as the latest
+    // Note that cfgs are `no_`*, not `has_*`. This allows treating as the latest
     // stable rustc is used when the build script doesn't run. This is useful
     // for non-cargo build systems that don't run the build script.
+
     // alloc stabilized in Rust 1.36 (nightly-2019-04-15) https://github.com/rust-lang/rust/pull/59675
     if !version.probe(36, 2019, 4, 14) {
         println!("cargo:rustc-cfg=portable_atomic_no_alloc");
