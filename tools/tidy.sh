@@ -381,7 +381,9 @@ if [[ -n "$(ls_files '*.md')" ]]; then
         warn "this check is skipped on Solaris due to no node 18+ in upstream package manager"
     elif check_install npm; then
         info "running \`npx -y markdownlint-cli2 \$(git ls-files '*.md')\`"
-        npx -y markdownlint-cli2 $(ls_files '*.md')
+        if ! npx -y markdownlint-cli2 $(ls_files '*.md'); then
+            should_fail=1
+        fi
     fi
 elif [[ -e .markdownlint-cli2.yaml ]]; then
     error ".markdownlint-cli2.yaml is unused"
