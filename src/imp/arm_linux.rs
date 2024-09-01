@@ -4,7 +4,7 @@
 //
 // Refs:
 // - https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm/kernel_user_helpers.rst
-// - https://github.com/rust-lang/compiler-builtins/blob/0.1.88/src/arm_linux.rs
+// - https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs
 //
 // Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 // this module and use fallback implementation instead.

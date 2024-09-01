@@ -16,7 +16,7 @@ pub(crate) fn rustc_version() -> Option<Version> {
     cmd.args(rustc);
     // Use verbose version output because the packagers add extra strings to the normal version output.
     // Do not use long flags (--version --verbose) because clippy-deriver doesn't handle them properly.
-    // -vV is also matched with that cargo internally uses: https://github.com/rust-lang/cargo/blob/14b46ecc62aa671d7477beba237ad9c6a209cf5d/src/cargo/util/rustc.rs#L65
+    // -vV is also matched with that cargo internally uses: https://github.com/rust-lang/cargo/blob/0.80.0/src/cargo/util/rustc.rs#L65
     let output = cmd.arg("-vV").output().ok()?;
     let verbose_version = str::from_utf8(&output.stdout).ok()?;
     Version::parse(verbose_version)
