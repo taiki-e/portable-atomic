@@ -451,19 +451,19 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     unsafe {
         let (out_lo, out_hi);
         macro_rules! atomic_load_relaxed {
-            ($acquire:tt $(, $readonly:tt)?) => {
+            ($acquire:tt) => {
                 asm!(
                     "ldp {out_lo}, {out_hi}, [{src}]",
                     $acquire,
                     src = in(reg) ptr_reg!(src),
                     out_hi = lateout(reg) out_hi,
                     out_lo = lateout(reg) out_lo,
-                    options(nostack, preserves_flags $(, $readonly)?),
+                    options(nostack, preserves_flags),
                 )
             };
         }
         match order {
-            Ordering::Relaxed => atomic_load_relaxed!("", readonly),
+            Ordering::Relaxed => atomic_load_relaxed!(""),
             #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
             Ordering::Acquire => {
                 // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.

@@ -206,34 +206,22 @@ macro_rules! atomic_load_store {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     let out;
+                    macro_rules! atomic_load {
+                        ($acquire:tt, $release:tt) => {
+                            asm!(
+                                $release,
+                                concat!("l", $asm_suffix, " {out}, 0({src})"),
+                                $acquire,
+                                src = in(reg) ptr_reg!(src),
+                                out = lateout(reg) out,
+                                options(nostack, preserves_flags),
+                            )
+                        };
+                    }
                     match order {
-                        Ordering::Relaxed => {
-                            asm!(
-                                concat!("l", $asm_suffix, " {out}, 0({src})"),
-                                src = in(reg) ptr_reg!(src),
-                                out = lateout(reg) out,
-                                options(nostack, preserves_flags, readonly),
-                            );
-                        }
-                        Ordering::Acquire => {
-                            asm!(
-                                concat!("l", $asm_suffix, " {out}, 0({src})"),
-                                "fence r, rw",
-                                src = in(reg) ptr_reg!(src),
-                                out = lateout(reg) out,
-                                options(nostack, preserves_flags),
-                            );
-                        }
-                        Ordering::SeqCst => {
-                            asm!(
-                                "fence rw, rw",
-                                concat!("l", $asm_suffix, " {out}, 0({src})"),
-                                "fence r, rw",
-                                src = in(reg) ptr_reg!(src),
-                                out = lateout(reg) out,
-                                options(nostack, preserves_flags),
-                            );
-                        }
+                        Ordering::Relaxed => atomic_load!("", ""),
+                        Ordering::Acquire => atomic_load!("fence r, rw", ""),
+                        Ordering::SeqCst => atomic_load!("fence r, rw", "fence rw, rw"),
                         _ => unreachable!(),
                     }
                     out
@@ -248,25 +236,21 @@ macro_rules! atomic_load_store {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
+                    macro_rules! atomic_store {
+                        ($release:tt) => {
+                            asm!(
+                                $release,
+                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                                dst = in(reg) ptr_reg!(dst),
+                                val = in(reg) val,
+                                options(nostack, preserves_flags),
+                            )
+                        };
+                    }
                     match order {
-                        Ordering::Relaxed => {
-                            asm!(
-                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                                dst = in(reg) ptr_reg!(dst),
-                                val = in(reg) val,
-                                options(nostack, preserves_flags),
-                            );
-                        }
+                        Ordering::Relaxed => atomic_store!(""),
                         // Release and SeqCst stores are equivalent.
-                        Ordering::Release | Ordering::SeqCst => {
-                            asm!(
-                                "fence rw, w",
-                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                                dst = in(reg) ptr_reg!(dst),
-                                val = in(reg) val,
-                                options(nostack, preserves_flags),
-                            );
-                        }
+                        Ordering::Release | Ordering::SeqCst => atomic_store!("fence rw, w"),
                         _ => unreachable!(),
                     }
                 }

@@ -93,34 +93,21 @@ pub(crate) mod atomic {
 
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
-                pub(crate) fn load(&self, order: Ordering) -> $value_type {
+                pub(crate) fn load(&self, _order: Ordering) -> $value_type {
                     let src = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         let out;
-                        match order {
-                            Ordering::Relaxed => {
-                                asm!(
-                                    concat!("ldr", $asm_suffix, " {out}, [{src}]"),
-                                    src = in(reg) src,
-                                    out = lateout(reg) out,
-                                    options(nostack, preserves_flags, readonly),
-                                );
-                            }
-                            Ordering::Acquire | Ordering::SeqCst => {
-                                // inline asm without nomem/readonly implies compiler fence.
-                                // And compiler fence is fine because the user explicitly declares that
-                                // the system is single-core by using an unsafe cfg.
-                                asm!(
-                                    concat!("ldr", $asm_suffix, " {out}, [{src}]"),
-                                    src = in(reg) src,
-                                    out = lateout(reg) out,
-                                    options(nostack, preserves_flags),
-                                );
-                            }
-                            _ => unreachable!(),
-                        }
+                        // inline asm without nomem/readonly implies compiler fence.
+                        // And compiler fence is fine because the user explicitly declares that
+                        // the system is single-core by using an unsafe cfg.
+                        asm!(
+                            concat!("ldr", $asm_suffix, " {out}, [{src}]"),
+                            src = in(reg) src,
+                            out = lateout(reg) out,
+                            options(nostack, preserves_flags),
+                        );
                         out
                     }
                 }

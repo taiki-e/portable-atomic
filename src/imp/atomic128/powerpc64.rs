@@ -225,7 +225,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
                     // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
                     out("r4") out_hi,
                     out("r5") out_lo,
-                    options(nostack, preserves_flags, readonly),
+                    options(nostack, preserves_flags),
                 );
             }
             Ordering::Acquire => atomic_load_acquire!(""),
