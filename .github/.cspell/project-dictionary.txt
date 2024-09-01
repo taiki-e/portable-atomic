@@ -46,6 +46,7 @@ espup
 exynos
 getauxval
 getpid
+gimli
 Halfword
 HWCAP
 hwprobe
@@ -102,6 +103,7 @@ nostdinc
 opensbi
 osfmk
 osxsave
+phdr
 picolibc
 pointee
 prctl
