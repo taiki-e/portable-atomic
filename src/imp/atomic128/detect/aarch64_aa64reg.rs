@@ -36,41 +36,27 @@ include!("common.rs");
 #[cfg_attr(test, derive(Debug, PartialEq))]
 struct AA64Reg {
     aa64isar0: u64,
-    #[cfg(test)]
     aa64isar1: u64,
     aa64mmfr2: u64,
 }
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    let AA64Reg {
-        aa64isar0,
-        #[cfg(test)]
-        aa64isar1,
-        aa64mmfr2,
-    } = imp::aa64reg();
+    let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
 
     // ID_AA64ISAR0_EL1, AArch64 Instruction Set Attribute Register 0
     // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
     let atomic = extract(aa64isar0, 23, 20);
     if atomic >= 0b0010 {
         info.set(CpuInfo::HAS_LSE);
-        // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
-        #[cfg(test)]
-        {
-            if atomic >= 0b0011 {
-                info.set(CpuInfo::HAS_LSE128);
-            }
+        if atomic >= 0b0011 {
+            info.set(CpuInfo::HAS_LSE128);
         }
     }
-    // we currently only use FEAT_LSE and FEAT_LSE2 in outline-atomics.
-    #[cfg(test)]
-    {
-        // ID_AA64ISAR1_EL1, AArch64 Instruction Set Attribute Register 1
-        // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
-        if extract(aa64isar1, 23, 20) >= 0b0011 {
-            info.set(CpuInfo::HAS_RCPC3);
-        }
+    // ID_AA64ISAR1_EL1, AArch64 Instruction Set Attribute Register 1
+    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
+    if extract(aa64isar1, 23, 20) >= 0b0011 {
+        info.set(CpuInfo::HAS_RCPC3);
     }
     // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
     // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
@@ -103,28 +89,19 @@ mod imp {
                 out(reg) aa64isar0,
                 options(pure, nomem, nostack, preserves_flags),
             );
-            #[cfg(test)]
             let aa64isar1: u64;
-            #[cfg(test)]
-            {
-                asm!(
-                    "mrs {0}, ID_AA64ISAR1_EL1",
-                    out(reg) aa64isar1,
-                    options(pure, nomem, nostack, preserves_flags),
-                );
-            }
+            asm!(
+                "mrs {0}, ID_AA64ISAR1_EL1",
+                out(reg) aa64isar1,
+                options(pure, nomem, nostack, preserves_flags),
+            );
             let aa64mmfr2: u64;
             asm!(
                 "mrs {0}, ID_AA64MMFR2_EL1",
                 out(reg) aa64mmfr2,
                 options(pure, nomem, nostack, preserves_flags),
             );
-            AA64Reg {
-                aa64isar0,
-                #[cfg(test)]
-                aa64isar1,
-                aa64mmfr2,
-            }
+            AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 }
         }
     }
 }
@@ -216,7 +193,6 @@ mod imp {
         }
         Some(AA64Reg {
             aa64isar0: buf.aa64isar0,
-            #[cfg(test)]
             aa64isar1: buf.aa64isar1,
             aa64mmfr2: buf.aa64mmfr2,
         })
@@ -232,12 +208,7 @@ mod imp {
         // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
         match unsafe { sysctl_cpu_id(b"machdep.cpu0.cpu_id\0") } {
             Some(cpu_id) => cpu_id,
-            None => AA64Reg {
-                aa64isar0: 0,
-                #[cfg(test)]
-                aa64isar1: 0,
-                aa64mmfr2: 0,
-            },
+            None => AA64Reg { aa64isar0: 0, aa64isar1: 0, aa64mmfr2: 0 },
         }
     }
 }
@@ -262,7 +233,6 @@ mod imp {
         // Defined in machine/cpu.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/cpu.h#L25-L40
         pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
-        #[cfg(test)]
         pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
 
@@ -291,15 +261,9 @@ mod imp {
     // so we can safely use this function on older versions of OpenBSD.
     pub(super) fn aa64reg() -> AA64Reg {
         let aa64isar0 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR0]).unwrap_or(0);
-        #[cfg(test)]
         let aa64isar1 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR1]).unwrap_or(0);
         let aa64mmfr2 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64MMFR2]).unwrap_or(0);
-        AA64Reg {
-            aa64isar0,
-            #[cfg(test)]
-            aa64isar1,
-            aa64mmfr2,
-        }
+        AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 }
     }
 
     fn sysctl64(mib: &[ffi::c_int]) -> Option<u64> {
@@ -511,9 +475,7 @@ mod tests {
             }
             Ok(AA64Reg {
                 aa64isar0: buf.aa64isar0,
-                #[cfg(test)]
                 aa64isar1: buf.aa64isar1,
-                #[cfg(test)]
                 aa64mmfr2: buf.aa64mmfr2,
             })
         }

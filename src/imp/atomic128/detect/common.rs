@@ -51,11 +51,9 @@ impl CpuInfo {
     const HAS_LSE: u32 = 1; // FEAT_LSE
     #[cfg_attr(not(test), allow(dead_code))]
     const HAS_LSE2: u32 = 2; // FEAT_LSE2
-    #[cfg(test)]
-    // This is currently only used in tests.
+    #[cfg_attr(not(test), allow(dead_code))]
     const HAS_LSE128: u32 = 3; // FEAT_LSE128
-    #[cfg(test)]
-    // This is currently only used in tests.
+    #[cfg_attr(not(test), allow(dead_code))]
     const HAS_RCPC3: u32 = 4; // FEAT_LRCPC3
 
     #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
@@ -69,12 +67,17 @@ impl CpuInfo {
     pub(crate) fn has_lse2(self) -> bool {
         self.test(CpuInfo::HAS_LSE2)
     }
-    #[cfg(test)]
+    #[cfg_attr(not(test), allow(dead_code))]
+    #[cfg(any(
+        test,
+        not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
+    ))]
     #[inline]
     pub(crate) fn has_lse128(self) -> bool {
         self.test(CpuInfo::HAS_LSE128)
     }
-    #[cfg(test)]
+    #[cfg_attr(not(test), allow(dead_code))]
+    #[cfg(any(test, not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))))]
     #[inline]
     pub(crate) fn has_rcpc3(self) -> bool {
         self.test(CpuInfo::HAS_RCPC3)

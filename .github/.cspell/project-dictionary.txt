@@ -67,6 +67,8 @@ ldiapp
 ldsetp
 ldxp
 lghi
+libatomic
+libatomic's
 libcalls
 libelf
 libfdio

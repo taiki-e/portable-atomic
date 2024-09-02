@@ -102,7 +102,11 @@ mod os {
         // https://github.com/torvalds/linux/blob/v6.10/include/uapi/linux/auxvec.h
         #[cfg(any(test, target_arch = "aarch64"))]
         pub(crate) const AT_HWCAP: c_ulong = 16;
-        #[cfg(any(test, target_arch = "powerpc64"))]
+        #[cfg(any(
+            test,
+            all(target_arch = "aarch64", target_pointer_width = "64"),
+            target_arch = "powerpc64",
+        ))]
         pub(crate) const AT_HWCAP2: c_ulong = 26;
 
         // Defined in sys/system_properties.h.
@@ -227,11 +231,9 @@ mod arch {
     pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(target_pointer_width = "64")]
-    #[cfg(test)]
     pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(target_pointer_width = "64")]
-    #[cfg(test)]
     pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
 
     #[cold]
@@ -246,7 +248,6 @@ mod arch {
         }
         #[cfg(any(target_os = "linux", target_os = "android"))]
         #[cfg(target_pointer_width = "64")]
-        #[cfg(test)]
         {
             let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
             if hwcap2 & HWCAP2_LRCPC3 != 0 {
