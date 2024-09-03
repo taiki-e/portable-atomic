@@ -8,7 +8,7 @@ publish = false
 portable-atomic = { path = "../..", features = ["float"] }
 test-helper = { path = "../helper" }
 
-gba = "0.12"
+gba = "0.13"
 paste = "1"
 
 [workspace]
