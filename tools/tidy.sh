@@ -77,10 +77,10 @@ sed_rhs_escape() {
 venv_install_yq() {
     if [[ ! -e "${venv_bin}/yq${exe}" ]]; then
         if [[ ! -d .venv ]]; then
-            "python${py_suffix}" -m venv .venv
+            "python${py_suffix}" -m venv .venv >&2
         fi
         info "installing yq to .venv using pip${py_suffix}"
-        "${venv_bin}/pip${py_suffix}${exe}" install yq
+        "${venv_bin}/pip${py_suffix}${exe}" install yq >&2
     fi
 }
 
@@ -588,7 +588,7 @@ EOF
                 case "${permissions}" in
                     '{"contents":"read"}' | '{"contents":"none"}') ;;
                     null) error "${workflow_path}: top level permissions not found; it must be 'contents: read' or weaker permissions" ;;
-                    *) error "${workflow_path}: only 'contents: read' and weaker permissions are allowed at top level; if you want to use stronger permissions, please set job-level permissions" ;;
+                    *) error "${workflow_path}: only 'contents: read' and weaker permissions are allowed at top level, but found '${permissions}'; if you want to use stronger permissions, please set job-level permissions" ;;
                 esac
                 default_shell=$(jq -r -c '.defaults.run.shell' <<<"${workflow}")
                 # github's default is https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#defaultsrunshell
