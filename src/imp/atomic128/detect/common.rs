@@ -45,83 +45,74 @@ pub(crate) fn detect() -> CpuInfo {
     info
 }
 
-#[cfg(target_arch = "aarch64")]
-impl CpuInfo {
-    // NB: update test_bit_flags test when adding new flag.
-    const HAS_LSE: u32 = 1; // FEAT_LSE
-    #[cfg_attr(not(test), allow(dead_code))]
-    const HAS_LSE2: u32 = 2; // FEAT_LSE2
-    #[cfg_attr(not(test), allow(dead_code))]
-    const HAS_LSE128: u32 = 3; // FEAT_LSE128
-    #[cfg_attr(not(test), allow(dead_code))]
-    const HAS_RCPC3: u32 = 4; // FEAT_LRCPC3
+macro_rules! flags {
+    ($(
+        $(#[$attr:meta])*
+        $flag:ident ($shift:literal, $func:ident, $name:literal, $cfg:meta),
+    )*) => {
+        impl CpuInfo {
+            $(
+                $(#[$attr])*
+                const $flag: u32 = $shift;
+                $(#[$attr])*
+                #[cfg(any(test, not($cfg)))]
+                #[inline]
+                pub(crate) fn $func(self) -> bool {
+                    self.test(Self::$flag)
+                }
+            )*
+            #[cfg(test)] // for test
+            const ALL_FLAGS: &'static [(&'static str, u32, bool)] = &[$(
+                ($name, Self::$flag, cfg!($cfg)),
+            )*];
+        }
+    };
+}
 
-    #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
-    #[inline]
-    pub(crate) fn has_lse(self) -> bool {
-        self.test(CpuInfo::HAS_LSE)
-    }
+#[cfg(target_arch = "aarch64")]
+flags! {
+    // FEAT_LSE, Large System Extensions
+    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-1-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LSE is OPTIONAL from Armv8.0.
+    // > FEAT_LSE is mandatory from Armv8.1.
+    HAS_LSE(1, has_lse, "lse", any(target_feature = "lse", portable_atomic_target_feature = "lse")),
+    // FEAT_LSE2, Large System Extensions version 2
+    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-4-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LSE2 is OPTIONAL from Armv8.2.
+    // > FEAT_LSE2 is mandatory from Armv8.4.
     #[cfg_attr(not(test), allow(dead_code))]
-    #[cfg(any(test, not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))))]
-    #[inline]
-    pub(crate) fn has_lse2(self) -> bool {
-        self.test(CpuInfo::HAS_LSE2)
-    }
+    HAS_LSE2(2, has_lse2, "lse2", any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
+    // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
+    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-9-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LRCPC3 is OPTIONAL from Armv8.2.
+    // > If FEAT_LRCPC3 is implemented, then FEAT_LRCPC2 is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    #[cfg(any(
-        test,
-        not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
-    ))]
-    #[inline]
-    pub(crate) fn has_lse128(self) -> bool {
-        self.test(CpuInfo::HAS_LSE128)
-    }
+    HAS_RCPC3(3, has_rcpc3, "rcpc3", any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")),
+    // FEAT_LSE128, 128-bit Atomics
+    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv9-4-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LSE128 is OPTIONAL from Armv9.3.
+    // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    #[cfg(any(test, not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))))]
-    #[inline]
-    pub(crate) fn has_rcpc3(self) -> bool {
-        self.test(CpuInfo::HAS_RCPC3)
-    }
+    HAS_LSE128(4, has_lse128, "lse128", any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
 }
 
 #[cfg(target_arch = "x86_64")]
-impl CpuInfo {
-    // NB: update test_bit_flags test when adding new flag.
-    const HAS_CMPXCHG16B: u32 = 1; // CMPXCHG16B
+flags! {
+    // cmpxchg16b
+    HAS_CMPXCHG16B(1, has_cmpxchg16b, "cmpxchg16b", any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    // atomic vmovdqa
     #[cfg(target_feature = "sse")]
-    const HAS_VMOVDQA_ATOMIC: u32 = 2; // VMOVDQA is atomic
-
-    #[cfg(any(
-        test,
-        not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
-    ))]
-    #[inline]
-    pub(crate) fn has_cmpxchg16b(self) -> bool {
-        self.test(CpuInfo::HAS_CMPXCHG16B)
-    }
-    #[cfg(target_feature = "sse")]
-    #[inline]
-    pub(crate) fn has_vmovdqa_atomic(self) -> bool {
-        self.test(CpuInfo::HAS_VMOVDQA_ATOMIC)
-    }
+    HAS_VMOVDQA_ATOMIC(2, has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
 }
 
 #[cfg(target_arch = "powerpc64")]
-impl CpuInfo {
-    // NB: update test_bit_flags test when adding new flag.
-    const HAS_QUADWORD_ATOMICS: u32 = 1; // lqarx and stqcx. instructions
-
-    #[cfg(any(
-        test,
-        not(any(
-            target_feature = "quadword-atomics",
-            portable_atomic_target_feature = "quadword-atomics",
-        )),
-    ))]
-    #[inline]
-    pub(crate) fn has_quadword_atomics(self) -> bool {
-        self.test(CpuInfo::HAS_QUADWORD_ATOMICS)
-    }
+flags! {
+    // lqarx and stqcx.
+    HAS_QUADWORD_ATOMICS(1, has_quadword_atomics, "quadword-atomics", any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")),
 }
 
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
@@ -187,40 +178,39 @@ mod c_types {
 )]
 #[cfg(test)]
 mod tests_common {
+    use std::{collections::BTreeSet, vec};
+
     use super::*;
 
     #[test]
     fn test_bit_flags() {
-        fn test_flags(flags: &[u32]) {
-            let mut x = CpuInfo(0);
-            for &f in flags {
-                assert!(!x.test(f));
-            }
-            for i in 0..flags.len() {
-                x.set(flags[i]);
-                for &f in &flags[..i + 1] {
-                    assert!(x.test(f));
-                }
-                for &f in &flags[i + 1..] {
-                    assert!(!x.test(f));
-                }
-            }
-            for &f in flags {
+        let mut flags = vec![("init", CpuInfo::INIT)];
+        flags.extend(CpuInfo::ALL_FLAGS.iter().map(|&(name, flag, _)| (name, flag)));
+        let flag_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
+        let name_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
+        if flag_set.len() != flags.len() {
+            panic!("CpuInfo flag values must be unique")
+        }
+        if name_set.len() != flags.len() {
+            panic!("CpuInfo flag names must be unique")
+        }
+
+        let mut x = CpuInfo(0);
+        for &(_, f) in &flags {
+            assert!(!x.test(f));
+        }
+        for i in 0..flags.len() {
+            x.set(flags[i].1);
+            for &(_, f) in &flags[..i + 1] {
                 assert!(x.test(f));
             }
+            for &(_, f) in &flags[i + 1..] {
+                assert!(!x.test(f));
+            }
         }
-        #[cfg(target_arch = "aarch64")]
-        test_flags(&[
-            CpuInfo::INIT,
-            CpuInfo::HAS_LSE,
-            CpuInfo::HAS_LSE2,
-            CpuInfo::HAS_LSE128,
-            CpuInfo::HAS_RCPC3,
-        ]);
-        #[cfg(target_arch = "x86_64")]
-        test_flags(&[CpuInfo::INIT, CpuInfo::HAS_CMPXCHG16B, CpuInfo::HAS_VMOVDQA_ATOMIC]);
-        #[cfg(target_arch = "powerpc64")]
-        test_flags(&[CpuInfo::INIT, CpuInfo::HAS_QUADWORD_ATOMICS]);
+        for &(_, f) in &flags {
+            assert!(x.test(f));
+        }
     }
 
     #[test]
@@ -232,75 +222,24 @@ mod tests_common {
         };
 
         let mut features = String::new();
-        macro_rules! print_feature {
-            ($name:expr, $enabled:expr $(,)?) => {{
-                let _ = writeln!(features, "  {}: {}", $name, $enabled);
-            }};
-        }
-        #[cfg(target_arch = "aarch64")]
-        {
-            features.push_str("run-time:\n");
-            print_feature!("lse", detect().test(CpuInfo::HAS_LSE));
-            print_feature!("lse2", detect().test(CpuInfo::HAS_LSE2));
-            print_feature!("lse128", detect().test(CpuInfo::HAS_LSE128));
-            print_feature!("rcpc3", detect().test(CpuInfo::HAS_RCPC3));
-            features.push_str("compile-time:\n");
-            print_feature!(
-                "lse",
-                cfg!(any(target_feature = "lse", portable_atomic_target_feature = "lse")),
-            );
-            print_feature!(
-                "lse2",
-                cfg!(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
-            );
-        }
-        #[cfg(target_arch = "x86_64")]
-        {
-            features.push_str("run-time:\n");
-            print_feature!("cmpxchg16b", detect().test(CpuInfo::HAS_CMPXCHG16B));
-            print_feature!("vmovdqa-atomic", detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-            features.push_str("compile-time:\n");
-            print_feature!(
-                "cmpxchg16b",
-                cfg!(any(
-                    target_feature = "cmpxchg16b",
-                    portable_atomic_target_feature = "cmpxchg16b",
-                )),
-            );
-        }
-        #[cfg(target_arch = "powerpc64")]
-        {
-            features.push_str("run-time:\n");
-            print_feature!("quadword-atomics", detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
-            features.push_str("compile-time:\n");
-            print_feature!(
-                "quadword-atomics",
-                cfg!(any(
-                    target_feature = "quadword-atomics",
-                    portable_atomic_target_feature = "quadword-atomics",
-                )),
-            );
+        features.push_str("\nfeatures:\n");
+        for &(name, flag, compile_time) in CpuInfo::ALL_FLAGS {
+            let run_time = detect().test(flag);
+            if run_time == compile_time {
+                let _ = writeln!(features, "  {}: {}", name, run_time);
+            } else {
+                let _ = writeln!(
+                    features,
+                    "  {}: {} (compile-time), {} (run-time)",
+                    name, compile_time, run_time
+                );
+            }
         }
         let stdout = io::stderr();
         let mut stdout = stdout.lock();
         let _ = stdout.write_all(features.as_bytes());
     }
 
-    #[cfg(target_arch = "x86_64")]
-    #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
-    fn test_detect() {
-        if detect().has_cmpxchg16b() {
-            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
-        }
-        if detect().has_vmovdqa_atomic() {
-            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        }
-    }
     #[cfg(target_arch = "aarch64")]
     #[test]
     #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
@@ -354,6 +293,21 @@ mod tests_common {
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
                 assert!(!rcpc3);
             }
+        }
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    fn test_detect() {
+        if detect().has_cmpxchg16b() {
+            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
+        }
+        if detect().has_vmovdqa_atomic() {
+            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         }
     }
     #[cfg(target_arch = "powerpc64")]
