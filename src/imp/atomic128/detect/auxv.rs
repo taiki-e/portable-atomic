@@ -274,13 +274,22 @@ mod arch {
     // Defined in machine/elf.h.
     // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
     pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
+    // Linux 4.5+
+    // https://github.com/torvalds/linux/commit/e708c24cd01ce80b1609d8baccee40ccc3608a01
+    // FreeBSD 12.0+
+    // https://github.com/freebsd/freebsd-src/commit/18f48e0c72f91bc2d4373078a3f1ab1bcab4d8b3
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
+    pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
 
         // power8
-        if hwcap2 & PPC_FEATURE2_ARCH_2_07 != 0 {
+        // Check both 2_07 (power8) and 3_00 (power9, superset of 2_07) because OpenBSD currently only sets the later.
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/powerpc64/cpu.c#L224-L243
+        if hwcap2 & (PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00) != 0 {
             info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
         }
     }
@@ -769,6 +778,10 @@ mod tests {
             // static_assert!(arch::PPC_FEATURE2_ARCH_2_07 == libc::PPC_FEATURE2_ARCH_2_07); // libc doesn't have this
             static_assert!(
                 arch::PPC_FEATURE2_ARCH_2_07 == sys::PPC_FEATURE2_ARCH_2_07 as ffi::c_ulong
+            );
+            // static_assert!(arch::PPC_FEATURE2_ARCH_3_00 == libc::PPC_FEATURE2_ARCH_3_00); // libc doesn't have this
+            static_assert!(
+                arch::PPC_FEATURE2_ARCH_3_00 == sys::PPC_FEATURE2_ARCH_3_00 as ffi::c_ulong
             );
         }
     };
