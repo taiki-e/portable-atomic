@@ -511,6 +511,24 @@ pub use riscv64gc_openbsd::*;
 #[cfg(
     all(
         target_arch = "aarch64",
+        target_os = "illumos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_illumos;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "illumos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_illumos::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
         target_os = "fuchsia",
         target_endian = "little",
         target_pointer_width = "64"

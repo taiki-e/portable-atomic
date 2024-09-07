@@ -45,6 +45,7 @@ elems
 espup
 exynos
 getauxval
+getisax
 getpid
 gimli
 Halfword
@@ -116,6 +117,7 @@ RAII
 rcpc
 reentrancy
 revidr
+richlowe
 rsbegin
 rsend
 rsil

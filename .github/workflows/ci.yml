@@ -639,7 +639,7 @@ jobs:
 
   codegen:
     needs: tidy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos
     timeout-minutes: 60
     permissions:
       contents: read

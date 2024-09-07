@@ -354,6 +354,34 @@ static TARGETS: &[Target] = &[
     },
     Target {
         triples: &[
+            "aarch64-unknown-illumos",
+        ],
+        headers: &[
+            Header {
+                // https://github.com/illumos/illumos-gate/blob/HEAD/usr/src/uts/common/sys/auxv.h
+                // https://github.com/richlowe/illumos-gate/blob/arm64-gate/usr/src/uts/common/sys/auxv.h
+                path: "sys/auxv.h",
+                types: &[],
+                vars: &[],
+                functions: &["getisax"],
+                arch: &[],
+                os: &[],
+                env: &[],
+            },
+            Header {
+                // https://github.com/richlowe/illumos-gate/blob/arm64-gate/usr/src/uts/common/sys/auxv_aarch64.h
+                path: "sys/auxv_aarch64.h",
+                types: &[],
+                vars: &["AV_AARCH64.*"],
+                functions: &[],
+                arch: &[aarch64],
+                os: &[],
+                env: &[],
+            },
+        ],
+    },
+    Target {
+        triples: &[
             "aarch64-unknown-fuchsia",
             "riscv64gc-unknown-fuchsia",
         ],
@@ -552,6 +580,14 @@ pub(crate) fn gen() -> Result<()> {
                                 src_dir.join("include"),
                                 src_dir.join("include/sys"),
                                 src_dir.join("lib/libpthread"),
+                            ];
+                        }
+                        illumos => {
+                            header_path = src_dir.join("usr/src/uts/common").join(header.path);
+                            include = vec![
+                                src_dir.join("usr/src/uts/common"),
+                                src_dir.join("usr/src/uts").join(illumos_arch(target)),
+                                src_dir.join("usr/src/head"),
                             ];
                         }
                         fuchsia => {
@@ -905,6 +941,14 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
                 src_dir.join("include/machine"),
             )?;
         }
+        illumos => {
+            if target.arch == aarch64 {
+                // TODO: use illumos/illumos-gate once merged to upstream
+                src_dir = clone(download_dir, "richlowe/illumos-gate", &["/usr/"])?;
+            } else {
+                todo!("{target:?}")
+            }
+        }
         fuchsia => {
             src_dir = clone(download_dir, "https://fuchsia.googlesource.com/fuchsia", &[])?;
             fs::write(src_dir.join("zircon/kernel/lib/libc/include/stdbool.h"), "")?;
@@ -1025,6 +1069,14 @@ fn openbsd_arch(target: &TargetSpec) -> &'static str {
         powerpc64 => "powerpc64",
         riscv64 => "riscv64",
         sparc64 => "sparc64",
+        _ => todo!("{target:?}"),
+    }
+}
+fn illumos_arch(target: &TargetSpec) -> &'static str {
+    // https://github.com/illumos/illumos-gate/tree/HEAD/usr/src/uts
+    // https://github.com/richlowe/illumos-gate/tree/arm64-gate/usr/src/uts
+    match target.arch {
+        aarch64 => "aarch64",
         _ => todo!("{target:?}"),
     }
 }
