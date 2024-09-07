@@ -1,79 +1,81 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic{I,U}128 implementation on AArch64.
-//
-// There are a few ways to implement 128-bit atomic operations in AArch64.
-//
-// - LDXP/STXP loop (DW LL/SC)
-// - CASP (DWCAS) added as FEAT_LSE (mandatory from armv8.1-a)
-// - LDP/STP (DW load/store) if FEAT_LSE2 (optional from armv8.2-a, mandatory from armv8.4-a) is available
-// - LDIAPP/STILP (DW acquire-load/release-store) added as FEAT_LRCPC3 (optional from armv8.9-a/armv9.4-a) (if FEAT_LSE2 is also available)
-// - LDCLRP/LDSETP/SWPP (DW RMW) added as FEAT_LSE128 (optional from armv9.4-a)
-//
-// This module supports all of these instructions and attempts to select the best
-// one based on compile-time and run-time information about available CPU features
-// and platforms. For example:
-//
-// - If outline-atomics is not enabled and FEAT_LSE is not available at
-//   compile-time, we use LDXP/STXP loop.
-// - If outline-atomics is enabled and FEAT_LSE is not available at
-//   compile-time, we use CASP for CAS if FEAT_LSE is available
-//   at run-time, otherwise, use LDXP/STXP loop.
-// - If FEAT_LSE is available at compile-time, we use CASP for load/store/CAS/RMW.
-//   However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
-//   loop for RMW (by default, it is set on Apple hardware where CASP is slow;
-//   see build script for details).
-// - If outline-atomics is enabled and FEAT_LSE2 is not available at compile-time,
-//   we use LDP/STP (and also LDIAPP/STILP/SWPP if FEAT_LRCPC3/FEAT_LSE128 is
-//   available) for load/store if FEAT_LSE2 is available at run-time, otherwise,
-//   use LDXP/STXP or CASP depending on whether FEAT_LSE is available.
-// - If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
-// - If FEAT_LSE128 is available at compile-time, we use LDCLRP/LDSETP/SWPP for fetch_and/fetch_or/swap/{release,seqcst}-store.
-// - If FEAT_LSE2 and FEAT_LRCPC3 are available at compile-time, we use LDIAPP/STILP for acquire-load/release-store.
-//
-// See each "Instruction selection flow for ..." comment in this file for the exact
-// instruction selection per operation.
-//
-// Note: FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-//
-// Note that we do not separate LL and SC into separate functions, but handle
-// them within a single asm block. This is because it is theoretically possible
-// for the compiler to insert operations that might clear the reservation between
-// LL and SC. Considering the type of operations we are providing and the fact
-// that [progress64](https://github.com/ARM-software/progress64) uses such code,
-// this is probably not a problem for aarch64, but it seems that aarch64 doesn't
-// guarantee it and hexagon is the only architecture with hardware guarantees
-// that such code works. See also:
-//
-// - https://yarchive.net/comp/linux/cmpxchg_ll_sc_portability.html
-// - https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
-// - https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
-//
-// Also, even when using a CAS loop to implement atomic RMW, include the loop itself
-// in the asm block because it is more efficient for some codegen backends.
-// https://github.com/rust-lang/compiler-builtins/issues/339#issuecomment-1191260474
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use intrinsics.rs instead.
-//
-// Refs:
-// - ARM Compiler armasm User Guide
-//   https://developer.arm.com/documentation/dui0801/latest
-// - Arm A-profile A64 Instruction Set Architecture
-//   https://developer.arm.com/documentation/ddi0602/latest
-// - Arm Architecture Reference Manual for A-profile architecture
-//   https://developer.arm.com/documentation/ddi0487/latest
-// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
-//
-// Generated asm:
-// - aarch64 https://godbolt.org/z/9Kq15oGs4
-// - aarch64 msvc https://godbolt.org/z/hsWo8eYh4
-// - aarch64 (+lse) https://godbolt.org/z/81TanrTGn
-// - aarch64 msvc (+lse) https://godbolt.org/z/KsannGvTY
-// - aarch64 (+lse,+lse2) https://godbolt.org/z/EzvodM6ca
-// - aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3rEEs6KE6
-// - aarch64 (+lse2,+lse128) https://godbolt.org/z/PWhsPjGa7
-// - aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/K8MMhfPT1
+/*
+Atomic{I,U}128 implementation on AArch64.
+
+There are a few ways to implement 128-bit atomic operations in AArch64.
+
+- LDXP/STXP loop (DW LL/SC)
+- CASP (DWCAS) added as Armv8.1 FEAT_LSE (optional from Armv8.0, mandatory from Armv8.1)
+- LDP/STP (DW load/store) if Armv8.4 FEAT_LSE2 (optional from Armv8.2, mandatory from Armv8.4) is available
+- LDIAPP/STILP (DW acquire-load/release-store) added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available)
+- LDCLRP/LDSETP/SWPP (DW RMW) added as Armv9.4 FEAT_LSE128 (optional from Armv9.3)
+
+This module supports all of these instructions and attempts to select the best
+one based on compile-time and run-time information about available CPU features
+and platforms. For example:
+
+- If outline-atomics is not enabled and FEAT_LSE is not available at
+  compile-time, we use LDXP/STXP loop.
+- If outline-atomics is enabled and FEAT_LSE is not available at
+  compile-time, we use CASP for CAS if FEAT_LSE is available
+  at run-time, otherwise, use LDXP/STXP loop.
+- If FEAT_LSE is available at compile-time, we use CASP for load/store/CAS/RMW.
+  However, when portable_atomic_ll_sc_rmw cfg is set, use LDXP/STXP loop instead of CASP
+  loop for RMW (by default, it is set on Apple hardware where CASP is slow;
+  see build script for details).
+- If outline-atomics is enabled and FEAT_LSE2 is not available at compile-time,
+  we use LDP/STP (and also LDIAPP/STILP/SWPP if FEAT_LRCPC3/FEAT_LSE128 is
+  available) for load/store if FEAT_LSE2 is available at run-time, otherwise,
+  use LDXP/STXP or CASP depending on whether FEAT_LSE is available.
+- If FEAT_LSE2 is available at compile-time, we use LDP/STP for load/store.
+- If FEAT_LSE128 is available at compile-time, we use LDCLRP/LDSETP/SWPP for fetch_and/fetch_or/swap/{release,seqcst}-store.
+- If FEAT_LSE2 and FEAT_LRCPC3 are available at compile-time, we use LDIAPP/STILP for acquire-load/release-store.
+
+See each "Instruction selection flow for ..." comment in this file for the exact
+instruction selection per operation.
+
+Note: FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
+
+Note that we do not separate LL and SC into separate functions, but handle
+them within a single asm block. This is because it is theoretically possible
+for the compiler to insert operations that might clear the reservation between
+LL and SC. Considering the type of operations we are providing and the fact
+that [progress64](https://github.com/ARM-software/progress64) uses such code,
+this is probably not a problem for AArch64, but it seems that AArch64 doesn't
+guarantee it and hexagon is the only architecture with hardware guarantees
+that such code works. See also:
+
+- https://yarchive.net/comp/linux/cmpxchg_ll_sc_portability.html
+- https://lists.llvm.org/pipermail/llvm-dev/2016-May/099490.html
+- https://lists.llvm.org/pipermail/llvm-dev/2018-June/123993.html
+
+Also, even when using a CAS loop to implement atomic RMW, include the loop itself
+in the asm block because it is more efficient for some codegen backends.
+https://github.com/rust-lang/compiler-builtins/issues/339#issuecomment-1191260474
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use intrinsics.rs instead.
+
+Refs:
+- Arm A-profile A64 Instruction Set Architecture
+  https://developer.arm.com/documentation/ddi0602/2024-06
+- Arm Compiler armasm User Guide
+  https://developer.arm.com/documentation/dui0801/latest
+- Arm Architecture Reference Manual for A-profile architecture
+  https://developer.arm.com/documentation/ddi0487/latest (PDF)
+- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+
+Generated asm:
+- aarch64 https://godbolt.org/z/9Kq15oGs4
+- aarch64 msvc https://godbolt.org/z/hsWo8eYh4
+- aarch64 (+lse) https://godbolt.org/z/81TanrTGn
+- aarch64 msvc (+lse) https://godbolt.org/z/KsannGvTY
+- aarch64 (+lse,+lse2) https://godbolt.org/z/EzvodM6ca
+- aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3rEEs6KE6
+- aarch64 (+lse2,+lse128) https://godbolt.org/z/PWhsPjGa7
+- aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/K8MMhfPT1
+*/
 
 include!("macros.rs");
 
@@ -304,7 +306,7 @@ macro_rules! debug_assert_rcpc3 {
     };
 }
 
-// Refs: https://developer.arm.com/documentation/100067/0611/armclang-Integrated-Assembler/AArch32-Target-selection-directives?lang=en
+// Refs: https://developer.arm.com/documentation/100067/0611/armclang-Integrated-Assembler/AArch32-Target-selection-directives
 //
 // This is similar to #[target_feature(enable = "lse")], except that there are
 // no compiler guarantees regarding (un)inlining, and the scope is within an asm
@@ -611,7 +613,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
-    // Refs: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDP--A64-
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDP--Load-pair-of-registers-
     unsafe {
         let (out_lo, out_hi);
         macro_rules! atomic_load_relaxed {
@@ -680,7 +682,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
-    // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDIAPP--Load-Acquire-RCpc-ordered-Pair-of-registers-
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDIAPP--Load-Acquire-RCpc-ordered-pair-of-registers-
     unsafe {
         let (out_lo, out_hi);
         match order {
@@ -1030,8 +1032,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
-    // Refs:
-    // - STP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STP--A64-
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/STP--Store-pair-of-registers-
     unsafe {
         #[rustfmt::skip]
         macro_rules! atomic_store {
@@ -1109,7 +1110,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
     // 16-byte aligned, that there are no concurrent non-atomic operations.
     //
-    // Refs: https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/STILP--Store-Release-ordered-Pair-of-registers-
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/STILP--Store-release-ordered-pair-of-registers-
     unsafe {
         macro_rules! atomic_store {
             ($acquire:tt) => {{
@@ -1390,9 +1391,7 @@ unsafe fn _atomic_compare_exchange_casp(
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
     // and the CPU supports FEAT_LSE.
     //
-    // Refs:
-    // - https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/CASPA--CASPAL--CASP--CASPL--CASPAL--CASP--CASPL--A64-
-    // - https://developer.arm.com/documentation/ddi0602/2023-06/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-Swap-Pair-of-words-or-doublewords-in-memory-
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-swap-pair-of-words-or-doublewords-in-memory-
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -1434,10 +1433,10 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
     //
     // Refs:
-    // - LDXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDXP--A64-
-    // - LDAXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/LDAXP--A64-
-    // - STXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STXP--A64-
-    // - STLXP: https://developer.arm.com/documentation/dui0801/l/A64-Data-Transfer-Instructions/STLXP--A64-
+    // - LDXP: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDXP--Load-exclusive-pair-of-registers-
+    // - LDAXP: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDAXP--Load-acquire-exclusive-pair-of-registers-
+    // - STXP: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/STXP--Store-exclusive-pair-of-registers-
+    // - STLXP: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/STLXP--Store-release-exclusive-pair-of-registers-
     //
     // Note: Load-Exclusive pair (by itself) does not guarantee atomicity; to complete an atomic
     // operation (even load/store), a corresponding Store-Exclusive pair must succeed.
@@ -1488,7 +1487,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
 
 // casp is always strong, and ldxp requires a corresponding (succeed) stxp for
 // its atomicity (see code comment in _atomic_compare_exchange_ldxp_stxp).
-// (i.e., aarch64 doesn't have 128-bit weak CAS)
+// (i.e., AArch64 doesn't have 128-bit weak CAS)
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 // -----------------------------------------------------------------------------
@@ -1548,8 +1547,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
     // and the CPU supports FEAT_LSE128.
     //
-    // Refs:
-    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/SWPP--SWPPA--SWPPAL--SWPPL--Swap-quadword-in-memory-?lang=en
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/SWPP--SWPPA--SWPPAL--SWPPL--Swap-quadword-in-memory-
     unsafe {
         let val = U128 { whole: val };
         let (prev_lo, prev_hi);
@@ -1950,8 +1948,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
     // and the CPU supports FEAT_LSE128.
     //
-    // Refs:
-    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDCLRP--LDCLRPA--LDCLRPAL--LDCLRPL--Atomic-bit-clear-on-quadword-in-memory-?lang=en
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDCLRP--LDCLRPA--LDCLRPAL--LDCLRPL--Atomic-bit-clear-on-quadword-in-memory-
     unsafe {
         let val = U128 { whole: !val };
         let (prev_lo, prev_hi);
@@ -2009,8 +2006,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
     // and the CPU supports FEAT_LSE128.
     //
-    // Refs:
-    // - https://developer.arm.com/documentation/ddi0602/2023-03/Base-Instructions/LDSETP--LDSETPA--LDSETPAL--LDSETPL--Atomic-bit-set-on-quadword-in-memory-?lang=en
+    // Refs: https://developer.arm.com/documentation/ddi0602/2024-06/Base-Instructions/LDSETP--LDSETPA--LDSETPAL--LDSETPL--Atomic-bit-set-on-quadword-in-memory-
     unsafe {
         let val = U128 { whole: val };
         let (prev_lo, prev_hi);

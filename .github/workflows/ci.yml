@@ -126,7 +126,7 @@ jobs:
             os: windows-latest
           - rust: nightly
             target: aarch64-apple-darwin
-            os: macos-14 # aarch64
+            os: macos-14 # AArch64
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
           # - rust: '1.64' # LLVM 14
@@ -292,7 +292,7 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        # outline-atomics is disabled by default on aarch64 musl with static linking
+        # outline-atomics is disabled by default on AArch64 musl with static linking
         if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
@@ -301,9 +301,9 @@ jobs:
           # __kuser_helper_version < 5, etc., and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
-        # outline-atomics is disabled by default on aarch64 musl with static linking
+        # outline-atomics is disabled by default on AArch64 musl with static linking
         if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
-      # outline-atomics is disabled by default on aarch64 musl with static linking and powerpc64
+      # outline-atomics is disabled by default on AArch64 musl with static linking and powerpc64
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --exclude api-test
         env:

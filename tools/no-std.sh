@@ -10,19 +10,20 @@ cd -- "$(dirname -- "$0")"/..
 #    ./tools/no-std.sh [+toolchain] [target]...
 
 default_targets=(
-    # armv4t
+    # arm
+    # v4T
     armv4t-none-eabi
     thumbv4t-none-eabi
-    # armv5te
+    # v5TE
     armv5te-none-eabi
     thumbv5te-none-eabi
-    # armv6-m
+    # v6-M
     thumbv6m-none-eabi
-    # armv7-m
+    # v7-M
     thumbv7m-none-eabi
     thumbv7em-none-eabi
     thumbv7em-none-eabihf
-    # armv8-m
+    # v8-M
     thumbv8m.base-none-eabi
     thumbv8m.main-none-eabi
     thumbv8m.main-none-eabihf

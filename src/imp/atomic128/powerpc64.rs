@@ -1,31 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic{I,U}128 implementation on PowerPC64.
-//
-// powerpc64 on pwr8+ support 128-bit atomics (load/store/LL/SC):
-// https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-// https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/PowerPC/atomics-i128-ldst.ll
-// https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/PowerPC/atomics-i128.ll
-//
-// powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
-// See also https://github.com/rust-lang/rust/issues/59932
-//
-// Note that we do not separate LL and SC into separate functions, but handle
-// them within a single asm block. This is because it is theoretically possible
-// for the compiler to insert operations that might clear the reservation between
-// LL and SC. See aarch64.rs for details.
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use intrinsics.rs instead.
-//
-// Refs:
-// - Power ISA https://openpowerfoundation.org/specifications/isa
-// - AIX Assembler language reference https://www.ibm.com/docs/en/aix/7.3?topic=aix-assembler-language-reference
-// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
-//
-// Generated asm:
-// - powerpc64 (pwr8) https://godbolt.org/z/71xGhY9qf
-// - powerpc64le https://godbolt.org/z/4TexcjGEz
+/*
+Atomic{I,U}128 implementation on PowerPC64.
+
+powerpc64 on pwr8+ support 128-bit atomics (load/store/LL/SC):
+https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
+https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/PowerPC/atomics-i128-ldst.ll
+https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/PowerPC/atomics-i128.ll
+
+powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
+See also https://github.com/rust-lang/rust/issues/59932
+
+Note that we do not separate LL and SC into separate functions, but handle
+them within a single asm block. This is because it is theoretically possible
+for the compiler to insert operations that might clear the reservation between
+LL and SC. See aarch64.rs for details.
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use intrinsics.rs instead.
+
+Refs:
+- Power ISA https://openpowerfoundation.org/specifications/isa
+- AIX Assembler language reference https://www.ibm.com/docs/en/aix/7.3?topic=aix-assembler-language-reference
+- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+
+Generated asm:
+- powerpc64 (pwr8) https://godbolt.org/z/71xGhY9qf
+- powerpc64le https://godbolt.org/z/4TexcjGEz
+*/
 
 include!("macros.rs");
 

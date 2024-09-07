@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Refs:
-// - https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
-// - https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/supervisor.adoc#supervisor-status-sstatus-register
-//
-// See also src/imp/riscv.rs.
-//
-// Generated asm:
-// - riscv64gc https://godbolt.org/z/zTrzT1Ee7
+/*
+Refs:
+- https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
+- https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/supervisor.adoc#supervisor-status-sstatus-register
+
+See also src/imp/riscv.rs.
+
+Generated asm:
+- riscv64gc https://godbolt.org/z/zTrzT1Ee7
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

@@ -1,29 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic{I,U}128 implementation without inline assembly.
-//
-// Note: This module is currently only enabled on Miri and ThreadSanitizer which
-// do not support inline assembly.
-//
-// This uses `core::arch::x86_64::cmpxchg16b` on x86_64 and
-// `core::intrinsics::atomic_*` on aarch64, powerpc64, and s390x.
-//
-// See README.md of this directory for performance comparison with the
-// implementation with inline assembly.
-//
-// Note:
-// - This currently needs Rust 1.70 on x86_64, otherwise nightly compilers.
-// - On powerpc64, this requires LLVM 15+ and pwr8+ (quadword-atomics LLVM target feature):
-//   https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
-// - On s390x, old LLVM (pre-18) generates libcalls for operations other than load/store/cmpxchg:
-//   https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
-// - On aarch64 big-endian, LLVM (as of 17) generates broken code. (wrong result in stress test)
-//   (on cfg(miri)/cfg(sanitize) it may be fine though)
-// - On powerpc64, LLVM (as of 17) doesn't support 128-bit atomic min/max:
-//   https://github.com/llvm/llvm-project/issues/68390
-// - On powerpc64le, LLVM (as of 17) generates broken code. (wrong result from fetch_add)
-//
-// Refs: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs
+/*
+Atomic{I,U}128 implementation without inline assembly.
+
+Adapted from https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs.
+
+Note: This module is currently only enabled on Miri and ThreadSanitizer which
+do not support inline assembly.
+
+This uses `core::arch::x86_64::cmpxchg16b` on x86_64 and
+`core::intrinsics::atomic_*` on aarch64, powerpc64, and s390x.
+
+See README.md of this directory for performance comparison with the
+implementation with inline assembly.
+
+Note:
+- This currently needs Rust 1.70 on x86_64, otherwise nightly compilers.
+- On powerpc64, this requires LLVM 15+ and pwr8+ (quadword-atomics LLVM target feature):
+  https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
+- On s390x, old LLVM (pre-18) generates libcalls for operations other than load/store/cmpxchg:
+  https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
+- On aarch64 big-endian, LLVM (as of 17) generates broken code. (wrong result in stress test)
+  (on cfg(miri)/cfg(sanitize) it may be fine though)
+- On powerpc64, LLVM (as of 17) doesn't support 128-bit atomic min/max:
+  https://github.com/llvm/llvm-project/issues/68390
+- On powerpc64le, LLVM (as of 17) generates broken code. (wrong result from fetch_add)
+*/
 
 include!("macros.rs");
 

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time CPU feature detection on aarch64 Fuchsia by using zx_system_get_features.
-//
-// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on Fuchsia.
-// https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
-//
-// Refs:
-// - https://fuchsia.dev/fuchsia-src/reference/syscalls/system_get_features
-// - https://github.com/llvm/llvm-project/commit/4e731abc55681751b5d736b613f7720e50eb1ad4
+/*
+Run-time CPU feature detection on AArch64 Fuchsia by using zx_system_get_features.
+
+As of nightly-2024-09-07, is_aarch64_feature_detected doesn't support run-time detection on Fuchsia.
+https://github.com/rust-lang/stdarch/blob/d9466edb4c53cece8686ee6e17b028436ddf4151/crates/std_detect/src/detect/mod.rs
+
+Refs:
+- https://fuchsia.dev/fuchsia-src/reference/syscalls/system_get_features
+- https://github.com/llvm/llvm-project/commit/4e731abc55681751b5d736b613f7720e50eb1ad4
+*/
 
 include!("common.rs");
 
@@ -18,6 +20,7 @@ mod ffi {
 
     // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/errors.h
     pub(crate) const ZX_OK: zx_status_t = 0;
+
     // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
     pub(crate) const ZX_FEATURE_KIND_CPU: u32 = 0;
     pub(crate) const ZX_ARM64_FEATURE_ISA_ATOMICS: u32 = 1 << 8;

@@ -63,7 +63,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Optimize 128-bit weak CAS on powerpc64.
 
-- Optimize interrupt disable on no-std pre-v6 ARM where `unsafe-assume-single-core` and `disable-fiq` are enabled. ([771c45d](https://github.com/taiki-e/portable-atomic/commit/771c45da2d2afc4f83df033dd4bdf3f976d14a74))
+- Optimize interrupt disable on no-std pre-v6 Arm where `unsafe-assume-single-core` and `disable-fiq` are enabled. ([771c45d](https://github.com/taiki-e/portable-atomic/commit/771c45da2d2afc4f83df033dd4bdf3f976d14a74))
 
 - Improve detection of Apple hardware. ([5c3a43b](https://github.com/taiki-e/portable-atomic/commit/5c3a43b53f1c4188f9dd597599633bc1a315bf44))
 
@@ -75,7 +75,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Optimize AArch64 128-bit atomic load/store when the `rcpc3` target feature is enabled at compile-time. ([#68](https://github.com/taiki-e/portable-atomic/pull/68))
 
-- Optimize inline assemblies on ARM, AArch64, and MSP430.
+- Optimize inline assemblies on Arm, AArch64, and MSP430.
 
 ## [1.4.2] - 2023-07-27
 
@@ -99,11 +99,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
   See also [rust-lang/rust#112150](https://github.com/rust-lang/rust/pull/112150).
 
-- Optimize 128-bit atomics on aarch64/s390x.
+- Optimize 128-bit atomics on AArch64/s390x.
 
 ## [1.3.3] - 2023-05-31
 
-- Fix build error on aarch64 ILP32 ABI targets (tier 3).
+- Fix build error on AArch64 ILP32 ABI targets (tier 3).
 
 - Optimize 128-bit atomics on s390x.
 
@@ -139,18 +139,18 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 - Various optimizations
   - Optimize x86_64 128-bit outline-atomics. This improves performance by up to 15% in concurrent RMW/store for cases where the `cmpxchg16b` target feature is not available at compile-time. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
   - Optimize x86_64 128-bit load that uses cmpxchg16b. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
-  - Optimize aarch64 128-bit load that uses FEAT_LSE. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
-  - Optimize pre-ARMv6 Linux/Android 64-bit atomics. ([efacc89](https://github.com/taiki-e/portable-atomic/commit/efacc89c210d7a34ef5e879821112189da5d1901))
+  - Optimize AArch64 128-bit load that uses FEAT_LSE. ([40c4cd4](https://github.com/taiki-e/portable-atomic/commit/40c4cd4f682f1cb153f18d4d6a88795bafaf5667))
+  - Optimize pre-Armv6 Linux/Android 64-bit atomics. ([efacc89](https://github.com/taiki-e/portable-atomic/commit/efacc89c210d7a34ef5e879821112189da5d1901))
   - Support outline-atomics for powerpc64 128-bit atomics. This is currently disabled by default, and can be enabled by `--cfg portable_atomic_outline_atomics`. ([#90](https://github.com/taiki-e/portable-atomic/pull/90))
-  - Optimize aarch64 outline-atomics on linux-musl. On linux-musl, outline-atomics is enabled by default only when dynamic linking is enabled. When static linking is enabled, this can be enabled by `--cfg portable_atomic_outline_atomics`. See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md#run-time-feature-detection) for more. ([8418235](https://github.com/taiki-e/portable-atomic/commit/84182354e4a149074e28bda4683d538e5fb617ce), [31d0862](https://github.com/taiki-e/portable-atomic/commit/31d08623d4e21af207ff2343f5553b9b5a030452))
+  - Optimize AArch64 outline-atomics on linux-musl. On linux-musl, outline-atomics is enabled by default only when dynamic linking is enabled. When static linking is enabled, this can be enabled by `--cfg portable_atomic_outline_atomics`. See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md#run-time-feature-detection) for more. ([8418235](https://github.com/taiki-e/portable-atomic/commit/84182354e4a149074e28bda4683d538e5fb617ce), [31d0862](https://github.com/taiki-e/portable-atomic/commit/31d08623d4e21af207ff2343f5553b9b5a030452))
 
 ## [1.2.0] - 2023-03-25
 
-- Make 64-bit atomics lock-free on ARM Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi, etc.) when the kernel version is 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))
+- Make 64-bit atomics lock-free on Arm Linux/Android targets that do not have 64-bit atomics (e.g., armv5te-unknown-linux-gnueabi, arm-linux-androideabi, etc.) when the kernel version is 3.1 or later. ([#82](https://github.com/taiki-e/portable-atomic/pull/82))
 
-- Fix aarch64 128-bit atomics performance regression on Apple hardware. ([#89](https://github.com/taiki-e/portable-atomic/pull/89))
+- Fix AArch64 128-bit atomics performance regression on Apple hardware. ([#89](https://github.com/taiki-e/portable-atomic/pull/89))
 
-- Optimize 128-bit atomics on aarch64, x86_64, powerpc64, and s390x.
+- Optimize 128-bit atomics on AArch64, x86_64, powerpc64, and s390x.
 
 ## [1.1.0] - 2023-03-24
 
@@ -170,7 +170,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
   - Support outline-atomics for cmpxchg16b on Rust 1.69+ (i.e., on Rust 1.69+, x86_64 128-bit atomics is lock-free on all Intel chips and almost all AMD chips, even if cmpxchg16b is not available at compile-time.). Previously it was only nightly. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
   - portable-atomic no longer enables outline-atomics on target where run-time CPU feature detection is not available. ([#80](https://github.com/taiki-e/portable-atomic/pull/80))
 
-- Optimize aarch64 outline-atomics for 128-bit atomics.
+- Optimize AArch64 outline-atomics for 128-bit atomics.
   - Support more targets and improve performance. ([#63](https://github.com/taiki-e/portable-atomic/pull/63), [#64](https://github.com/taiki-e/portable-atomic/pull/64), [#67](https://github.com/taiki-e/portable-atomic/pull/67), [#69](https://github.com/taiki-e/portable-atomic/pull/69), [#75](https://github.com/taiki-e/portable-atomic/pull/75), [#76](https://github.com/taiki-e/portable-atomic/pull/76), [#77](https://github.com/taiki-e/portable-atomic/pull/77))
     See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md#run-time-feature-detection) for a list of platforms that support outline-atomics.
     Most of these improvements have already been [submitted and accepted in rust-lang/stdarch](https://github.com/rust-lang/stdarch/pulls?q=is%3Apr+author%3Ataiki-e+std_detect) and will soon be available in `std::arch::is_aarch64_feature_detected`.
@@ -244,7 +244,7 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 - Various improvements to `portable_atomic_unsafe_assume_single_core` cfg. ([#44](https://github.com/taiki-e/portable-atomic/pull/44), [#40](https://github.com/taiki-e/portable-atomic/pull/40))
 
-  - Support disabling FIQs on pre-v6 ARM under `portable_atomic_disable_fiq` cfg.
+  - Support disabling FIQs on pre-v6 Arm under `portable_atomic_disable_fiq` cfg.
   - Support RISC-V supervisor mode under `portable_atomic_s_mode` cfg.
   - Optimize interrupt restore on AVR and MSP430. ([#40](https://github.com/taiki-e/portable-atomic/pull/40))
   - Documentation improvements.
@@ -260,7 +260,7 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 ## [0.3.14] - 2022-09-04
 
-- Optimize atomic load/store on no-std pre-v6 ARM when `portable_atomic_unsafe_assume_single_core` cfg is used. ([#36](https://github.com/taiki-e/portable-atomic/pull/36))
+- Optimize atomic load/store on no-std pre-v6 Arm when `portable_atomic_unsafe_assume_single_core` cfg is used. ([#36](https://github.com/taiki-e/portable-atomic/pull/36))
 
 - Support pre-power8 powerpc64le. powerpc64le's default cpu version is power8, but you can technically compile it for the old cpu using the unsafe `-C target-cpu` rustc flag.
 
@@ -274,7 +274,7 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 ## [0.3.12] - 2022-08-13
 
-- Support atomic CAS on no-std pre-v6 ARM targets (e.g., thumbv4t-none-eabi) under unsafe cfg `portable_atomic_unsafe_assume_single_core`. ([#28](https://github.com/taiki-e/portable-atomic/pull/28))
+- Support atomic CAS on no-std pre-v6 Arm targets (e.g., thumbv4t-none-eabi) under unsafe cfg `portable_atomic_unsafe_assume_single_core`. ([#28](https://github.com/taiki-e/portable-atomic/pull/28))
 
 ## [0.3.11] - 2022-08-12
 
@@ -288,7 +288,7 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 - Atomic operations based on disabling interrupts on single-core systems are now considered lock-free.
 
-  The previous behavior was inconsistent because we consider the pre-v6 ARM Linux's atomic operations provided in a similar way by the Linux kernel to be lock-free.
+  The previous behavior was inconsistent because we consider the pre-v6 Arm Linux's atomic operations provided in a similar way by the Linux kernel to be lock-free.
 
 - Respect `-Z allow-features`.
 
@@ -325,7 +325,7 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 - Optimize x86_64 outline-atomics.
 
-- Optimize inline assemblies on ARM and AArch64.
+- Optimize inline assemblies on Arm and AArch64.
 
 - Revert [thumbv6m atomic load/store changes made in 0.3.5](https://github.com/taiki-e/portable-atomic/pull/18). This is because [rust-lang/rust#99595](https://github.com/rust-lang/rust/pull/99595) has been reverted, so this is no longer needed.
 

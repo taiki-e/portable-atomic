@@ -231,7 +231,7 @@ fn main() {
             // target_feature "lse2"/"lse128"/"rcpc3" is unstable and available on rustc side since nightly-2024-08-30: https://github.com/rust-lang/rust/pull/128192
             if !version.probe(82, 2024, 8, 29) || needs_target_feature_fallback(&version, None) {
                 // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-                // aarch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is armv8.5-a:
+                // AArch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is Armv8.5:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
                 // Script to get builtin targets that support FEAT_LSE/FEAT_LSE2 by default:
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
@@ -258,7 +258,7 @@ fn main() {
             }
         }
         "arm" => {
-            // For non-Linux/Android pre-v6 ARM (tier 3) with unsafe_assume_single_core enabled.
+            // For non-Linux/Android pre-v6 Arm (tier 3) with unsafe_assume_single_core enabled.
             // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
             if version.nightly && !version.probe(67, 2022, 11, 5) {
                 println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
@@ -286,16 +286,16 @@ fn main() {
                     // armeb-unknown-linux-gnueabi is v8 & aclass
                     // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
                     _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
-                    // Legacy arm architectures (pre-v7 except v6m) don't have *class target feature.
+                    // Legacy Arm architectures (pre-v7 except v6m) don't have *class target feature.
                     "" => subarch = "v6",
                     "v4t" | "v5te" | "v6" | "v6k" => {}
                     _ => {
                         known = false;
                         if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
-                            panic!("unrecognized arm subarch: {}", target)
+                            panic!("unrecognized Arm subarch: {}", target)
                         }
                         println!(
-                            "cargo:warning={}: unrecognized arm subarch: {}",
+                            "cargo:warning={}: unrecognized Arm subarch: {}",
                             env!("CARGO_PKG_NAME"),
                             target
                         );

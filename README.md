@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
-- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 ARM, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
+- Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 Arm, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108).
 - Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), [`from_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.from_ptr), [`AtomicBool::fetch_not`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.fetch_not) and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
@@ -52,7 +52,7 @@ portable-atomic = { version = "1.3", default-features = false, features = ["requ
 
 ## 128-bit atomics support
 
-Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), aarch64 (Rust 1.59+), powerpc64 (nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), powerpc64 (nightly only), and s390x (nightly only), otherwise the fallback implementation is used.
 
 On x86_64, even if `cmpxchg16b` is not available at compile-time (note: `cmpxchg16b` target feature is enabled by default only on Apple and Windows (except Windows 7) targets), run-time detection checks whether `cmpxchg16b` is available. If `cmpxchg16b` is not available at either compile-time or run-time detection, the fallback implementation is used. See also [`portable_atomic_no_outline_atomics`](#optional-cfg-no-outline-atomics) cfg.
 
@@ -126,7 +126,7 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
     Enabling this feature in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
 
     The following are known cases:
-    - On pre-v6 ARM, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature together.
+    - On pre-v6 Arm, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature together.
     - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you enable the `s-mode` together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
 
     See also [the `interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
@@ -135,7 +135,7 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
 
   It is **very strongly discouraged** to enable this feature in libraries that depend on `portable-atomic`. The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where it is guaranteed to always be sound, for example in a hardware abstraction layer targeting a single-core chip.)
 
-  ARMv6-M (thumbv6m), pre-v6 ARM (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa are currently supported.
+  Armv6-M (thumbv6m), pre-v6 Arm (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa are currently supported.
 
   Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this feature.
 
@@ -167,14 +167,14 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 - <a name="optional-cfg-no-outline-atomics"></a>**`--cfg portable_atomic_no_outline_atomics`**<br>
   Disable dynamic dispatching by run-time CPU feature detection.
 
-  If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE/FEAT_LSE2 (aarch64).
+  If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE/FEAT_LSE2 (AArch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.59+ for aarch64 and x86_64, nightly only for powerpc64 (disabled by default), otherwise it works the same as when this cfg is set.
+  - Dynamic detection is currently only enabled in Rust 1.59+ for x86_64 and AArch64, nightly only for powerpc64 (disabled by default), otherwise it works the same as when this cfg is set.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
   - On some targets, run-time detection is disabled by default mainly for compatibility with older versions of operating systems or incomplete build environments, and can be enabled by `--cfg portable_atomic_outline_atomics`. (When both cfg are enabled, `*_no_*` cfg is preferred.)
-  - Some aarch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well. (portable-atomic's outline-atomics does not depend on the compiler-rt symbols, so even if you need to disable LLVM's outline-atomics, you may not need to disable portable-atomic's outline-atomics.)
+  - Some AArch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well. (portable-atomic's outline-atomics does not depend on the compiler-rt symbols, so even if you need to disable LLVM's outline-atomics, you may not need to disable portable-atomic's outline-atomics.)
 
   See also the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/atomic128/README.md).
 

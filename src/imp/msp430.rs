@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic load/store implementation on MSP430.
-//
-// Adapted from https://github.com/pftbest/msp430-atomic.
-// Including https://github.com/pftbest/msp430-atomic/pull/4 for a compile error fix.
-// Including https://github.com/pftbest/msp430-atomic/pull/5 for a soundness bug fix.
-//
-// Operations not supported here are provided by disabling interrupts.
-// See also src/imp/interrupt/msp430.rs.
-//
-// Note: Ordering is always SeqCst.
-//
-// Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+/*
+Atomic load/store implementation on MSP430.
+
+Adapted from https://github.com/pftbest/msp430-atomic.
+
+Operations not supported here are provided by disabling interrupts.
+See also src/imp/interrupt/msp430.rs.
+
+Note: Ordering is always SeqCst.
+
+Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

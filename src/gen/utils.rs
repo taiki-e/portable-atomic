@@ -11,7 +11,7 @@
 // handle this is to pass it as a pointer and clear the upper bits inside asm,
 // but it is easier to overlook than cast, which can catch overlooks by
 // asm_sub_register lint.
-// See also https://github.com/ARM-software/abi-aa/blob/2023Q3/aapcs64/aapcs64.rst#pointers
+// See also https://github.com/ARM-software/abi-aa/blob/2024Q3/aapcs64/aapcs64.rst#pointers
 //
 // Except for x86_64, which can use 32-bit registers in the destination operand
 // (on x86_64, we use the ptr_modifier macro to handle this), we need to do the
@@ -21,7 +21,7 @@
 // recently submitted to the kernel, but in any case, this should be a safe
 // default for such ABIs).
 //
-// Known architectures that have such ABI are x86_64 (X32), aarch64 (ILP32),
+// Known architectures that have such ABI are x86_64 (X32), AArch64 (ILP32),
 // mips64 (N32), and riscv64 (s64ilp32, not merged yet though). (As of
 // 2023-06-05, only the former two are supported by rustc.) However, we list all
 // known 64-bit architectures because similar ABIs may exist or future added for

@@ -1,35 +1,37 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Critical section based fallback implementations
-//
-// This module supports two different critical section implementations:
-// - Built-in "disable all interrupts".
-// - Call into the `critical-section` crate (which allows the user to plug any implementation).
-//
-// The `critical-section`-based fallback is enabled when the user asks for it with the `critical-section`
-// Cargo feature.
-//
-// The "disable interrupts" fallback is not sound on multi-core systems.
-// Also, this uses privileged instructions to disable interrupts, so it usually
-// doesn't work on unprivileged mode. Using this fallback in an environment where privileged
-// instructions are not available is also usually considered **unsound**,
-// although the details are system-dependent.
-//
-// Therefore, this implementation will only be enabled in one of the following cases:
-//
-// - When the user explicitly declares that the system is single-core and that
-//   privileged instructions are available using an unsafe cfg.
-// - When we can safely assume that the system is single-core and that
-//   privileged instructions are available on the system.
-//
-// AVR, which is single core[^avr1] and LLVM also generates code that disables
-// interrupts [^avr2] in atomic ops by default, is considered the latter.
-// MSP430 as well.
-//
-// See also README.md of this directory.
-//
-// [^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1074
-// [^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
+/*
+Critical section based fallback implementations
+
+This module supports two different critical section implementations:
+- Built-in "disable all interrupts".
+- Call into the `critical-section` crate (which allows the user to plug any implementation).
+
+The `critical-section`-based fallback is enabled when the user asks for it with the `critical-section`
+Cargo feature.
+
+The "disable interrupts" fallback is not sound on multi-core systems.
+Also, this uses privileged instructions to disable interrupts, so it usually
+doesn't work on unprivileged mode. Using this fallback in an environment where privileged
+instructions are not available is also usually considered **unsound**,
+although the details are system-dependent.
+
+Therefore, this implementation will only be enabled in one of the following cases:
+
+- When the user explicitly declares that the system is single-core and that
+  privileged instructions are available using an unsafe cfg.
+- When we can safely assume that the system is single-core and that
+  privileged instructions are available on the system.
+
+AVR, which is single core[^avr1] and LLVM also generates code that disables
+interrupts [^avr2] in atomic ops by default, is considered the latter.
+MSP430 as well.
+
+See also README.md of this directory.
+
+[^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1074
+[^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
+*/
 
 // On some platforms, atomic load/store can be implemented in a more efficient
 // way than disabling interrupts. On MSP430, some RMWs that do not return the
@@ -70,7 +72,7 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 const IS_ALWAYS_LOCK_FREE: bool = false;
 
 // Consider atomic operations based on disabling interrupts on single-core
-// systems are lock-free. (We consider the pre-v6 ARM Linux's atomic operations
+// systems are lock-free. (We consider the pre-v6 Arm Linux's atomic operations
 // provided in a similar way by the Linux kernel to be lock-free.)
 #[cfg(not(feature = "critical-section"))]
 const IS_ALWAYS_LOCK_FREE: bool = true;

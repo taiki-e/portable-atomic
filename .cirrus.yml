@@ -30,8 +30,8 @@ aarch64_linux_test_task:
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
     - RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="${RUSTDOCFLAGS} --cfg portable_atomic_no_outline_atomics" ./tools/test.sh -vv --tests
     # +lse
-    # Neoverse N1 is ARMv8.2-a and doesn't support FEAT_LSE2.
-    # FEAT_LSE2 is tested on aarch64 macOS VM.
+    # Neoverse N1 is Armv8.2 and doesn't support FEAT_LSE2.
+    # FEAT_LSE2 is tested on AArch64 macOS VM.
     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" RUSTDOCFLAGS="${RUSTDOCFLAGS} -C target-feature=+lse" ./tools/test.sh -vv --tests
 
 aarch64_linux_valgrind_task:
@@ -50,5 +50,5 @@ aarch64_linux_valgrind_task:
     # outline-atomics is enabled by default on linux-gnu and linux-musl with dynamic linking.
     - RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_no_outline_atomics" RUSTDOCFLAGS="${RUSTDOCFLAGS} --cfg portable_atomic_no_outline_atomics" ./tools/test.sh valgrind -vv
     # +lse
-    # As of Valgrind 3.19, Valgrind supports atomic instructions of ARMv8.0 and ARMv8.1 (FEAT_LSE).
+    # As of Valgrind 3.19, Valgrind supports atomic instructions of Armv8.0 and Armv8.1 (FEAT_LSE).
     - RUSTFLAGS="${RUSTFLAGS} -C target-feature=+lse" RUSTDOCFLAGS="${RUSTDOCFLAGS} -C target-feature=+lse" ./tools/test.sh valgrind -vv

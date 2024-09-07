@@ -140,7 +140,7 @@ mod c_types {
     // c_size_t is currently always usize
     // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
     pub(crate) type c_size_t = usize;
-    // c_char is u8 by default on most non-Apple/non-Windows ARM/PowerPC/RISC-V/s390x/Hexagon targets
+    // c_char is u8 by default on most non-Apple/non-Windows Arm/PowerPC/RISC-V/s390x/Hexagon targets
     // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon/AIX/z/OS)
     // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L83
     // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/lldb/source/Utility/ArchSpec.cpp#L712

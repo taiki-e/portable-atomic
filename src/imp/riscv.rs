@@ -1,28 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic load/store implementation on RISC-V.
-//
-// This is for RISC-V targets without atomic CAS. (rustc doesn't provide atomics
-// at all on such targets. https://github.com/rust-lang/rust/pull/114499)
-//
-// Also, optionally provides RMW implementation when force-amo or Zaamo target feature is enabled.
-//
-// Refs:
-// - RISC-V Instruction Set Manual Volume I: Unprivileged ISA
-//   https://riscv.org/wp-content/uploads/2019/12/riscv-spec-20191213.pdf
-// - RISC-V Atomics ABI Specification
-//   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
-// - "Mappings from C/C++ primitives to RISC-V primitives." table in RISC-V Instruction Set Manual
-//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/mm-eplan.adoc#code-porting-and-mapping-guidelines
-// - ""Zaamo" Extension for Atomic Memory Operations" in RISC-V Instruction Set Manual
-//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
-// - ""Zabha" Extension for Byte and Halfword Atomic Memory Operations" in RISC-V Instruction Set Manual
-//   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zabha.adoc
-// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
-//
-// Generated asm:
-// - riscv64gc https://godbolt.org/z/x8bhEn39e
-// - riscv32imac https://godbolt.org/z/aG9157dhW
+/*
+Atomic load/store implementation on RISC-V.
+
+This is for RISC-V targets without atomic CAS. (rustc doesn't provide atomics
+at all on such targets. https://github.com/rust-lang/rust/pull/114499)
+
+Also, optionally provides RMW implementation when force-amo or Zaamo target feature is enabled.
+
+Refs:
+- RISC-V Instruction Set Manual
+  https://github.com/riscv/riscv-isa-manual/tree/riscv-isa-release-8b9dc50-2024-08-30
+  "Mappings from C/C++ primitives to RISC-V primitives." table in Code Porting and Mapping Guidelines
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/mm-eplan.adoc#code-porting-and-mapping-guidelines
+  "Zaamo" Extension for Atomic Memory Operations
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
+  "Zabha" Extension for Byte and Halfword Atomic Memory Operations
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zabha.adoc
+- RISC-V Atomics ABI Specification
+  https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
+- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+
+Generated asm:
+- riscv64gc https://godbolt.org/z/x8bhEn39e
+- riscv32imac https://godbolt.org/z/aG9157dhW
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

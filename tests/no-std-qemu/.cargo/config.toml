@@ -17,7 +17,7 @@ runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihost
 [target.thumbv8m.main-none-eabihf]
 runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihosting -kernel"
 
-# ARMv5TE
+# Armv5TE
 [target.armv5te-none-eabi]
 runner = "qemu-system-arm -M versatilepb -cpu arm926 -display none -semihosting -kernel"
 [target.thumbv5te-none-eabi]

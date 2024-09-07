@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Adapted from https://github.com/rust-embedded/msp430.
-//
-// See also src/imp/msp430.rs.
-//
-// Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+/*
+Adapted from https://github.com/rust-embedded/msp430.
+
+See also src/imp/msp430.rs.
+
+Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

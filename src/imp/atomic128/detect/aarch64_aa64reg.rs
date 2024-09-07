@@ -1,35 +1,38 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
-//
-// As of nightly-2023-01-23, is_aarch64_feature_detected doesn't support run-time detection on NetBSD/OpenBSD.
-// https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/mod.rs
-// https://github.com/rust-lang/stdarch/pull/1374
-//
-// Refs:
-// - https://developer.arm.com/documentation/ddi0601/latest/AArch64-Registers
-// - https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm64/cpu-feature-registers.rst
-// - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
-//
-// Supported platforms:
-// - Linux 4.11+ (emulate mrs instruction)
-//   https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
-// - FreeBSD 12.0+ (emulate mrs instruction)
-//   https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
-// - NetBSD 9.0+ (through sysctl)
-//   https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
-// - OpenBSD 7.1+ (through sysctl)
-//   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
-//
-// For now, this module is only used on NetBSD/OpenBSD.
-//
-// On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
-// - On Linux/Android, this approach requires a higher kernel version than Rust supports,
-//   and also does not work with qemu-user (as of 7.2) and Valgrind (as of 3.19).
-//   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
-//   to false correctly, but qemu-user is setting it to true.)
-// - On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
-//   FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+/*
+Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
+
+As of nightly-2024-09-07, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
+https://github.com/rust-lang/stdarch/blob/d9466edb4c53cece8686ee6e17b028436ddf4151/crates/std_detect/src/detect/mod.rs
+Run-time detection on OpenBSD by is_aarch64_feature_detected is supported on Rust 1.70+.
+https://github.com/rust-lang/stdarch/pull/1374
+
+Refs:
+- https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers
+- https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm64/cpu-feature-registers.rst
+- https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
+
+Supported platforms:
+- Linux 4.11+ (emulate mrs instruction)
+  https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
+- FreeBSD 12.0+ (emulate mrs instruction)
+  https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
+- NetBSD 9.0+ (through sysctl)
+  https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
+- OpenBSD 7.1+ (through sysctl)
+  https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
+
+For now, this module is only used on NetBSD/OpenBSD.
+
+On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
+- On Linux/Android, this approach requires a higher kernel version than Rust supports,
+  and also does not work with qemu-user (as of 7.2) and Valgrind (as of 3.19).
+  (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
+  to false correctly, but qemu-user is setting it to true.)
+- On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
+  FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+*/
 
 include!("common.rs");
 
@@ -201,7 +204,7 @@ mod imp {
     pub(super) fn aa64reg() -> AA64Reg {
         // Get system registers for cpu0.
         // If failed, returns default because machdep.cpuN.cpu_id sysctl is not available.
-        // machdep.cpuN.cpu_id sysctl was added on NetBSD 9.0 so it is not available on older versions.
+        // machdep.cpuN.cpu_id sysctl was added in NetBSD 9.0 so it is not available on older versions.
         // SAFETY: we passed a valid name in a C string.
         // It is ok to check only cpu0, even if there are more CPUs.
         // https://github.com/NetBSD/src/commit/bd9707e06ea7d21b5c24df6dfc14cb37c2819416
@@ -230,10 +233,17 @@ mod imp {
         // Defined in sys/sysctl.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h#L82
         pub(crate) const CTL_MACHDEP: c_int = 7;
+
         // Defined in machine/cpu.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/cpu.h#L25-L40
+        // OpenBSD 7.1+
+        // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
         pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
         pub(crate) const CPU_ID_AA64ISAR1: c_int = 3;
+        // OpenBSD 7.3+
+        // https://github.com/openbsd/src/commit/c7654cd65262d532212f65123ee3905ba200365c
+        // However, on OpenBSD 7.3-7.5, querying CPU_ID_AA64MMFR2 always returns 0.
+        // https://github.com/openbsd/src/commit/e8331b74e5c20302d4bd948c9db722af688ccfc1
         pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
 
         extern "C" {
@@ -251,12 +261,6 @@ mod imp {
         }
     }
 
-    // ID_AA64ISAR0_EL1 and ID_AA64ISAR1_EL1 are supported on OpenBSD 7.1+.
-    // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
-    // Others are supported on OpenBSD 7.3+.
-    // https://github.com/openbsd/src/commit/c7654cd65262d532212f65123ee3905ba200365c
-    // However, on 7.3-7.5, querying AA64MMFR2 returned 0.
-    // https://github.com/openbsd/src/commit/e8331b74e5c20302d4bd948c9db722af688ccfc1
     // sysctl returns an unsupported error if operation is not supported,
     // so we can safely use this function on older versions of OpenBSD.
     pub(super) fn aa64reg() -> AA64Reg {

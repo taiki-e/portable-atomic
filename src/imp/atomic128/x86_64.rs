@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic{I,U}128 implementation on x86_64 using CMPXCHG16B (DWCAS).
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use intrinsics.rs instead.
-//
-// Refs:
-// - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
-// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
-//
-// Generated asm:
-// - x86_64 (+cmpxchg16b) https://godbolt.org/z/r5x9M8PdK
+/*
+Atomic{I,U}128 implementation on x86_64 using CMPXCHG16B (DWCAS).
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use intrinsics.rs instead.
+
+Refs:
+- x86 and amd64 instruction reference https://www.felixcloutier.com/x86
+- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+
+Generated asm:
+- x86_64 (+cmpxchg16b) https://godbolt.org/z/r5x9M8PdK
+*/
 
 // TODO: use core::arch::x86_64::cmpxchg16b where available and efficient than asm
 
@@ -75,7 +77,7 @@ macro_rules! ptr_modifier {
 
 // Unlike AArch64 and RISC-V, x86's assembler doesn't check instruction
 // requirements for the currently enabled target features. In the first place,
-// there is no option in the x86 assembly for such case, like ARM .arch_extension,
+// there is no option in the x86 assembly for such case, like Arm .arch_extension,
 // RISC-V .option arch, PowerPC .machine, etc.
 // However, we set target_feature(enable) when available (Rust 1.69+) in case a
 // new codegen backend is added that checks for it in the future, or an option

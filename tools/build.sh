@@ -47,11 +47,11 @@ default_targets=(
     # x86_64
     # rustc --print target-list | grep -E '^x86_64'
     x86_64-unknown-linux-gnu
-    # x86_64 with CMPXCHG16B
+    # with CMPXCHG16B
     x86_64-apple-darwin
-    # x86_64 X32 ABI
+    # X32 ABI
     x86_64-unknown-linux-gnux32
-    # x86_64 without CPUID
+    # no CPUID
     x86_64-fortanix-unknown-sgx
 
     # x86
@@ -70,17 +70,17 @@ default_targets=(
     aarch64-unknown-linux-uclibc # custom target
     aarch64-unknown-netbsd
     aarch64-unknown-openbsd
-    # aarch64 with FEAT_LSE & FEAT_LSE2
+    # FEAT_LSE & FEAT_LSE2
     aarch64-apple-darwin
-    # aarch64 big endian
+    # big endian
     aarch64_be-unknown-linux-gnu
     aarch64_be-unknown-netbsd
-    # aarch64 ILP32 ABI
+    # ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
-    # aarch64 ILP32 ABI big endian
+    # ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
 
-    # pre-v6 arm linux-like
+    # arm pre-v6 linux-like
     armv4t-unknown-linux-gnueabi
     armv5te-unknown-linux-gnueabi
     arm-linux-androideabi

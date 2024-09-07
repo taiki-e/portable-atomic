@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Fallback implementation using global locks.
-//
-// This implementation uses seqlock for global locks.
-//
-// This is basically based on global locks in crossbeam-utils's `AtomicCell`,
-// but seqlock is implemented in a way that does not depend on UB
-// (see comments in optimistic_read method in atomic! macro for details).
-//
-// Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
-// type and the value type must be the same.
+/*
+Fallback implementation using global locks.
+
+This implementation uses seqlock for global locks.
+
+This is basically based on global locks in crossbeam-utils's `AtomicCell`,
+but seqlock is implemented in a way that does not depend on UB
+(see comments in optimistic_read method in atomic! macro for details).
+
+Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
+type and the value type must be the same.
+*/
 
 #![cfg_attr(
     any(
@@ -62,7 +64,7 @@ pub(crate) mod utils;
 // counter will not be increased that fast.
 //
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
-// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
+// AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock.
 cfg_has_fast_atomic_64! {
     mod seq_lock;
@@ -78,7 +80,7 @@ use seq_lock::{SeqLock, SeqLockWriteGuard};
 use utils::CachePadded;
 
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
-// aarch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
+// AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
 // so use it to reduce chunks of byte-wise atomic memcpy.
 use seq_lock::{AtomicChunk, Chunk};
 

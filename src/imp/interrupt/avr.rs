@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Adapted from https://github.com/Rahix/avr-device.
-//
-// Refs:
-// - AVR Instruction Set Manual https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf
+/*
+Adapted from https://github.com/Rahix/avr-device.
+
+Refs:
+- AVR Instruction Set Manual https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

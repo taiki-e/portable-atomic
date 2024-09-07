@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic operations implementation on x86/x86_64.
-//
-// This module provides atomic operations not supported by LLVM or optimizes
-// cases where LLVM code generation is not optimal.
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use CAS loop instead.
-//
-// Refs:
-// - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
-//
-// Generated asm:
-// - x86_64 https://godbolt.org/z/Kcsj1jd9c
+/*
+Atomic operations implementation on x86/x86_64.
+
+This module provides atomic operations not supported by LLVM or optimizes
+cases where LLVM code generation is not optimal.
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use CAS loop instead.
+
+Refs:
+- x86 and amd64 instruction reference https://www.felixcloutier.com/x86
+
+Generated asm:
+- x86_64 https://godbolt.org/z/Kcsj1jd9c
+*/
 
 use core::{arch::asm, sync::atomic::Ordering};
 

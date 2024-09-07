@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Wrap the standard library's atomic types in newtype.
-//
-// This is not a reexport, because we want to backport changes like
-// https://github.com/rust-lang/rust/pull/98383 to old compilers.
+/*
+Wrap the standard library's atomic types in newtype.
+
+This is not a reexport, because we want to backport changes like
+https://github.com/rust-lang/rust/pull/98383 to old compilers.
+*/
 
 use core::{cell::UnsafeCell, marker::PhantomData, sync::atomic::Ordering};
 
@@ -13,6 +15,7 @@ use core::{cell::UnsafeCell, marker::PhantomData, sync::atomic::Ordering};
 // RefUnwindSafe when "linked to std", and that's behavior that our other atomic
 // implementations can't emulate, so use PhantomData<NotRefUnwindSafe> to match
 // conditions where our other atomic implementations implement RefUnwindSafe.
+//
 // If we do not do this, for example, downstream that is only tested on x86_64
 // may incorrectly assume that AtomicU64 always implements RefUnwindSafe even on
 // older rustc, and may be broken on platforms where std AtomicU64 is not available.
@@ -377,7 +380,7 @@ macro_rules! atomic_int {
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
-            // TODO: provide asm-based implementation on AArch64, ARMv7, RISC-V, etc.
+            // TODO: provide asm-based implementation on AArch64, Armv7, RISC-V, etc.
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {

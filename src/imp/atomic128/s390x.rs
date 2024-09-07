@@ -1,28 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Atomic{I,U}128 implementation on s390x.
-//
-// s390x has 128-bit atomic load/store/CAS instructions and other operations are emulated by CAS loop.
-// https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
-// https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
-//
-// LLVM's minimal supported architecture level is z10:
-// https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
-// This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
-// https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use intrinsics.rs instead.
-//
-// Refs:
-// - z/Architecture Principles of Operation https://publibfp.dhe.ibm.com/epubs/pdf/a227832d.pdf
-// - z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
-// - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
-//
-// Generated asm:
-// - s390x https://godbolt.org/z/sbvhjKrMT
-// - s390x (z196) https://godbolt.org/z/Erbqazhv7
-// - s390x (z15) https://godbolt.org/z/GEaePbbsT
+/*
+Atomic{I,U}128 implementation on s390x.
+
+s390x has 128-bit atomic load/store/CAS instructions and other operations are emulated by CAS loop.
+https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb158cc
+https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
+
+LLVM's minimal supported architecture level is z10:
+https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
+This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
+https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use intrinsics.rs instead.
+
+Refs:
+- z/Architecture Principles of Operation https://publibfp.dhe.ibm.com/epubs/pdf/a227832d.pdf
+- z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
+- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+
+Generated asm:
+- s390x https://godbolt.org/z/sbvhjKrMT
+- s390x (z196) https://godbolt.org/z/Erbqazhv7
+- s390x (z15) https://godbolt.org/z/GEaePbbsT
+*/
 
 include!("macros.rs");
 

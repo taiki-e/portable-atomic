@@ -1,19 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time CPU feature detection on aarch64 macOS by using sysctl.
-//
-// This module is currently only enabled on tests because aarch64 macOS always supports FEAT_LSE and FEAT_LSE2.
-// https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
-//
-// If macOS supporting FEAT_LSE128/FEAT_LRCPC3 becomes popular in the future, this module will
-// be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.
-// M4 is armv9.2-a and it doesn't support FEAT_LSE128/FEAT_LRCPC3.
-//
-// Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
-//
-// Note that iOS doesn't support sysctl:
-// - https://developer.apple.com/forums/thread/9440
-// - https://nabla-c0d3.github.io/blog/2015/06/16/ios9-security-privacy
+/*
+Run-time CPU feature detection on AArch64 macOS by using sysctl.
+
+This module is currently only enabled on tests because AArch64 macOS always supports FEAT_LSE and FEAT_LSE2.
+https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
+
+If macOS supporting FEAT_LSE128/FEAT_LRCPC3 becomes popular in the future, this module will
+be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.
+M4 is Armv9.2 and it doesn't support FEAT_LSE128/FEAT_LRCPC3.
+
+Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
+
+Note that iOS doesn't support sysctl:
+- https://developer.apple.com/forums/thread/9440
+- https://nabla-c0d3.github.io/blog/2015/06/16/ios9-security-privacy
+*/
 
 include!("common.rs");
 
@@ -67,7 +69,7 @@ unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    // hw.optional.armv8_1_atomics is available on macOS 11+ (note: aarch64 support was added on macOS 11),
+    // hw.optional.armv8_1_atomics is available on macOS 11+ (note: AArch64 support was added in macOS 11),
     // hw.optional.arm.FEAT_* are only available on macOS 12+.
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea

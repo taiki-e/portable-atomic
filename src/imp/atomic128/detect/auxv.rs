@@ -1,91 +1,93 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
-//
-// Supported platforms:
-// - Linux 6.4+ (through prctl)
-//   https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
-// - glibc 2.16+ (through getauxval)
-//   https://github.com/bminor/glibc/commit/c7683a6d02f3ed59f5cd119b3e8547f45a15912f
-// - musl 1.1.0+ (through getauxval)
-//   https://github.com/bminor/musl/commit/21ada94c4b8c01589367cea300916d7db8461ae7
-// - uClibc-ng 1.0.43+ (through getauxval)
-//   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
-// - Picolibc 1.4.6+ (through getauxval)
-//   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
-// - Android 4.3+ (API level 18+) (through getauxval)
-//   https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49
-// - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
-//   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
-//   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
-// - OpenBSD 7.6+ (through elf_aux_info)
-//   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-//
-// # Linux/Android
-//
-// As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
-// on aarch64 Linux/Android, but on the following platforms, we can safely assume
-// getauxval is linked to the binary.
-//
-// - On glibc (*-linux-gnu*), [aarch64 support is available on glibc 2.17+](https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L35)
-// - On musl (*-linux-musl*, *-linux-ohos*), [aarch64 support is available on musl 1.1.7+](https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
-// - On bionic (*-android*), [64-bit architecture support is available on Android 5.0+ (API level 21+)](https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
-//
-// However, on musl with static linking, it seems that getauxval is not always available, independent of version requirements: https://github.com/rust-lang/rust/issues/89626
-// (That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
-// but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
-// of the same error.)
-//
-// On other Linux targets, we cannot assume that getauxval is always available, so we don't enable
-// run-time detection by default (can be enabled by `--cfg portable_atomic_outline_atomics`).
-//
-// - musl with static linking. See the above for more.
-//   Also, dlsym(getauxval) always returns null when statically linked.
-// - uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*). getauxval was recently added (See the above list).
-// - Picolibc. getauxval was recently added (See the above list).
-//
-// See also https://github.com/rust-lang/stdarch/pull/1375
-//
-// See tests::test_linux_like and aarch64_aa64reg.rs for (test-only) alternative implementations.
-//
-// # FreeBSD
-//
-// As of nightly-2023-01-23, is_aarch64_feature_detected always uses mrs on
-// aarch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
-// on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
-//
-// So use elf_aux_info instead of mrs like compiler-rt does.
-// https://reviews.llvm.org/D109330
-//
-// elf_aux_info is available on FreeBSD 12.0+ and 11.4+:
-// https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
-// https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
-// On FreeBSD, [aarch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/announce),
-// but FreeBSD 11 (11.4) was EoL on 2021-09-30, and FreeBSD 11.3 was EoL on 2020-09-30:
-// https://www.freebsd.org/security/unsupported
-// See also https://github.com/rust-lang/stdarch/pull/611#issuecomment-445464613
-//
-// See tests::test_freebsd and aarch64_aa64reg.rs for (test-only) alternative implementations.
-//
-// # OpenBSD
-//
-// elf_aux_info is available on OpenBSD 7.6+:
-// https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-//
-// On aarch64, there is an alternative that available on older version,
-// so we use it (see aarch64_aa64reg.rs).
-//
-// # PowerPC64
-//
-// On PowerPC64, run-time detection is currently disabled by default mainly for
-// compatibility with older versions of operating systems
-// (can be enabled by `--cfg portable_atomic_outline_atomics`).
-//
-// - On glibc, [powerpc64 support is available on glibc 2.3+](https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L55)
-// - On musl, [powerpc64 support is available on musl 1.1.15+](https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
-// - On FreeBSD, [powerpc64 support is available on FreeBSD 9.0+](https://www.freebsd.org/releases/9.0R/announce)
-//
-// (On uClibc-ng, [powerpc64 is not supported](https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e))
+/*
+Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+
+Supported platforms:
+- Linux 6.4+ (through prctl)
+  https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
+- glibc 2.16+ (through getauxval)
+  https://github.com/bminor/glibc/commit/c7683a6d02f3ed59f5cd119b3e8547f45a15912f
+- musl 1.1.0+ (through getauxval)
+  https://github.com/bminor/musl/commit/21ada94c4b8c01589367cea300916d7db8461ae7
+- uClibc-ng 1.0.43+ (through getauxval)
+  https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
+- Picolibc 1.4.6+ (through getauxval)
+  https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
+- Android 4.3+ (API level 18+) (through getauxval)
+  https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49
+- FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
+  https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
+  https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
+- OpenBSD 7.6+ (through elf_aux_info)
+  https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+
+# Linux/Android
+
+As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
+on AArch64 Linux/Android, but on the following platforms, we can safely assume
+getauxval is linked to the binary.
+
+- On glibc (*-linux-gnu*), [AArch64 support is available on glibc 2.17+](https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L35)
+- On musl (*-linux-musl*, *-linux-ohos*), [AArch64 support is available on musl 1.1.7+](https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
+- On bionic (*-android*), [64-bit architecture support is available on Android 5.0+ (API level 21+)](https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
+
+However, on musl with static linking, it seems that getauxval is not always available, independent of version requirements: https://github.com/rust-lang/rust/issues/89626
+(That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
+but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
+of the same error.)
+
+On other Linux targets, we cannot assume that getauxval is always available, so we don't enable
+run-time detection by default (can be enabled by `--cfg portable_atomic_outline_atomics`).
+
+- musl with static linking. See the above for more.
+  Also, dlsym(getauxval) always returns null when statically linked.
+- uClibc-ng (*-linux-uclibc*, *-l4re-uclibc*). getauxval was recently added (See the above list).
+- Picolibc. getauxval was recently added (See the above list).
+
+See also https://github.com/rust-lang/stdarch/pull/1375
+
+See tests::test_linux_like and aarch64_aa64reg.rs for (test-only) alternative implementations.
+
+# FreeBSD
+
+As of nightly-2023-01-23, is_aarch64_feature_detected always uses mrs on
+AArch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
+on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+
+So use elf_aux_info instead of mrs like compiler-rt does.
+https://reviews.llvm.org/D109330
+
+elf_aux_info is available on FreeBSD 12.0+ and 11.4+:
+https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
+https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
+On FreeBSD, [AArch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/announce),
+but FreeBSD 11 (11.4) was EoL on 2021-09-30, and FreeBSD 11.3 was EoL on 2020-09-30:
+https://www.freebsd.org/security/unsupported
+See also https://github.com/rust-lang/stdarch/pull/611#issuecomment-445464613
+
+See tests::test_freebsd and aarch64_aa64reg.rs for (test-only) alternative implementations.
+
+# OpenBSD
+
+elf_aux_info is available on OpenBSD 7.6+:
+https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+
+On AArch64, there is an alternative that available on older version,
+so we use it (see aarch64_aa64reg.rs).
+
+# PowerPC64
+
+On PowerPC64, run-time detection is currently disabled by default mainly for
+compatibility with older versions of operating systems
+(can be enabled by `--cfg portable_atomic_outline_atomics`).
+
+- On glibc, [powerpc64 support is available on glibc 2.3+](https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L55)
+- On musl, [powerpc64 support is available on musl 1.1.15+](https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
+- On FreeBSD, [powerpc64 support is available on FreeBSD 9.0+](https://www.freebsd.org/releases/9.0R/announce)
+
+(On uClibc-ng, [powerpc64 is not supported](https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e))
+*/
 
 include!("common.rs");
 
@@ -209,8 +211,8 @@ mod os {
     }
 }
 
-// Basically, Linux and FreeBSD use the same hwcap values.
-// FreeBSD supports a subset of the hwcap values supported by Linux.
+// Basically, Linux/FreeBSD/OpenBSD use the same hwcap values.
+// FreeBSD/OpenBSD supports a subset of the hwcap values supported by Linux.
 use arch::_detect;
 #[cfg(target_arch = "aarch64")]
 mod arch {
@@ -218,20 +220,36 @@ mod arch {
 
     // Linux
     // https://github.com/torvalds/linux/blob/v6.10/arch/arm64/include/uapi/asm/hwcap.h
+    // https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm64/elf_hwcaps.rst
     // FreeBSD
     // Defined in machine/elf.h.
     // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
-    // available on FreeBSD 13.0+ and 12.2+
-    // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
-    // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
     // OpenBSD
     // Defined in machine/elf.h.
     // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
+    // Linux 4.3+
+    // https://github.com/torvalds/linux/commit/40a1db2434a1b62332b1af25cfa14d7b8c0301fe
+    // FreeBSD 13.0+/12.2+
+    // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+    // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
     pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
+    // Linux 4.17+
+    // https://github.com/torvalds/linux/commit/7206dc93a58fb76421c4411eefa3c003337bcb2d
+    // FreeBSD 13.0+/12.2+
+    // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+    // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
     pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
+    // Linux 6.7+
+    // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(target_pointer_width = "64")]
     pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
+    // Linux 6.7+
+    // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(target_pointer_width = "64")]
     pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
@@ -265,14 +283,19 @@ mod arch {
 
     // Linux
     // https://github.com/torvalds/linux/blob/v6.10/arch/powerpc/include/uapi/asm/cputable.h
+    // https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/powerpc/elf_hwcaps.rst
     // FreeBSD
     // Defined in machine/cpu.h.
     // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h
-    // available on FreeBSD 11.0+
-    // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
     // OpenBSD
     // Defined in machine/elf.h.
     // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
+    // Linux 3.10+
+    // https://github.com/torvalds/linux/commit/cbbc6f1b1433ef553d57826eee87a84ca49645ce
+    // FreeBSD 11.0+
+    // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
     pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
     // Linux 4.5+
     // https://github.com/torvalds/linux/commit/e708c24cd01ce80b1609d8baccee40ccc3608a01
@@ -451,7 +474,7 @@ mod tests {
 
         // This is almost equivalent to what elf_aux_info does.
         // https://man.freebsd.org/elf_aux_info(3)
-        // On FreeBSD, [aarch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/announce),
+        // On FreeBSD, [AArch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/announce),
         // but elf_aux_info is available on FreeBSD 12.0+ and 11.4+:
         // https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
         // https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
@@ -692,7 +715,7 @@ mod tests {
         );
         assert_eq!(
             os::getauxval(ffi::AT_HWCAP2),
-            // AT_HWCAP2 is only available on FreeBSD 13+, at least for aarch64.
+            // AT_HWCAP2 is only available on FreeBSD 13+, at least for AArch64.
             getauxval_sysctl_asm_syscall(ffi::AT_HWCAP2).unwrap_or(0)
         );
     }

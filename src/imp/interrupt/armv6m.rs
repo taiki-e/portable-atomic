@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Adapted from https://github.com/rust-embedded/cortex-m.
-//
-// Generated asm:
-// - armv6-m https://godbolt.org/z/1sqKnsY6n
+/*
+Adapted from https://github.com/rust-embedded/cortex-m.
+
+Generated asm:
+- armv6-m https://godbolt.org/z/1sqKnsY6n
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

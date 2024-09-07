@@ -66,7 +66,7 @@ s-mode = []
 # For RISC-V targets, use AMO instructions even if A-extension is disabled.
 # This feature requires Rust 1.72+.
 force-amo = []
-# For ARM targets, also disable FIQs when disabling interrupts.
+# For Arm targets, also disable FIQs when disabling interrupts.
 disable-fiq = []
 
 # Note: serde and critical-section are public dependencies.

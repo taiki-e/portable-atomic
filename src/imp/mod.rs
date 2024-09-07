@@ -28,7 +28,7 @@
 )]
 mod core_atomic;
 
-// aarch64 128-bit atomics
+// AArch64 128-bit atomics
 #[cfg(all(
     target_arch = "aarch64",
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
@@ -113,7 +113,7 @@ mod powerpc64;
 #[cfg_attr(not(any(miri, portable_atomic_sanitize_thread)), path = "atomic128/s390x.rs")]
 mod s390x;
 
-// pre-v6 ARM Linux 64-bit atomics
+// pre-v6 Arm Linux 64-bit atomics
 #[cfg(feature = "fallback")]
 // Miri and Sanitizer do not support inline assembly.
 #[cfg(all(
@@ -390,7 +390,7 @@ items! {
 }
 
 // 64-bit atomics (platform-specific)
-// pre-v6 ARM Linux
+// pre-v6 Arm Linux
 #[cfg(feature = "fallback")]
 #[cfg(all(
     target_arch = "arm",
@@ -405,7 +405,7 @@ items! {
 pub(crate) use self::arm_linux::{AtomicI64, AtomicU64};
 
 // 128-bit atomics (platform-specific)
-// aarch64
+// AArch64
 #[cfg(all(
     target_arch = "aarch64",
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),

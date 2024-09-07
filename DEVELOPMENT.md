@@ -17,7 +17,7 @@ portable-atomic/
 │   ├── imp/
 │   │   ├── atomic128/            -- 128-bit atomic implementations (mainly by asm)
 │   │   │   └── detect/           -- Run-time CPU feature detection implementations used for outline-atomics
-│   │   ├── arm_linux.rs          -- 64-bit atomic implementation for pre-v6 ARM Linux/Android
+│   │   ├── arm_linux.rs          -- 64-bit atomic implementation for pre-v6 Arm Linux/Android
 │   │   ├── core_atomic.rs        -- wrapper for core::sync::atomic types
 │   │   ├── fallback/             -- fallback implementation based on global locks
 │   │   ├── float.rs              -- atomic float implementation based on atomic integer
@@ -38,7 +38,7 @@ portable-atomic/
 
 ## Testing powerpc64le using POWER Functional Simulator
 
-We mainly use QEMU to test for targets other than x86_64/aarch64, but some instructions do not work well in QEMU, so we sometimes use other tools. This section describes testing powerpc64le using IBM [POWER Functional Simulator](https://www.ibm.com/support/pages/node/6491145).
+We mainly use QEMU to test for targets other than x86_64/AArch64, but some instructions do not work well in QEMU, so we sometimes use other tools. This section describes testing powerpc64le using IBM [POWER Functional Simulator](https://www.ibm.com/support/pages/node/6491145).
 
 Note: Since QEMU 8.1.1, QEMU now supports all the instructions we use.
 
@@ -149,7 +149,7 @@ Start simulator (Ctrl-C to stop).
 ./tools/fuchsia-test.sh emu aarch64
 ```
 
-(The only fuchsia-specific code in our codebase is for aarch64, so here we use the aarch64 emulator, but if you pass `x86_64` instead of `aarch64` as the first argument of the script, it works for x86_64.)
+(The only fuchsia-specific code in our codebase is for AArch64, so here we use the AArch64 emulator, but if you pass `x86_64` instead of `aarch64` as the first argument of the script, it works for x86_64.)
 
 <!-- omit in toc -->
 ### Run tests

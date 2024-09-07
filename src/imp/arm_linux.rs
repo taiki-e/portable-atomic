@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 ARM Linux/Android.
-//
-// Refs:
-// - https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm/kernel_user_helpers.rst
-// - https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs
-//
-// Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-// this module and use fallback implementation instead.
+/*
+64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 Arm Linux/Android.
+
+Refs:
+- https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm/kernel_user_helpers.rst
+- https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs
+
+Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
+this module and use fallback implementation instead.
+*/
 
 // TODO: Since Rust 1.64, the Linux kernel requirement for Rust when using std is 3.2+, so it should
 // be possible to omit the dynamic kernel version check if the std feature is enabled on Rust 1.64+.
@@ -90,7 +92,7 @@ where
             // This is not single-copy atomic reads, but this is ok because subsequent
             // CAS will check for consistency.
             //
-            // ARM's memory model allow mixed-sized atomic access.
+            // Arm's memory model allow mixed-sized atomic access.
             // https://github.com/rust-lang/unsafe-code-guidelines/issues/345#issuecomment-1172891466
             //
             // Note that the C++20 memory model does not allow mixed-sized atomic access,

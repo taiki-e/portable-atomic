@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en
-//
-// Generated asm:
-// - armv5te https://godbolt.org/z/fhaW3d9Kv
+/*
+Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-
+
+Generated asm:
+- armv5te https://godbolt.org/z/fhaW3d9Kv
+*/
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
@@ -67,8 +69,8 @@ pub(super) unsafe fn restore(cpsr: State) {
     }
 }
 
-// On pre-v6 ARM, we cannot use core::sync::atomic here because they call the
-// `__sync_*` builtins for non-relaxed load/store (because pre-v6 ARM doesn't
+// On pre-v6 Arm, we cannot use core::sync::atomic here because they call the
+// `__sync_*` builtins for non-relaxed load/store (because pre-v6 Arm doesn't
 // have Data Memory Barrier).
 //
 // Generated asm:
