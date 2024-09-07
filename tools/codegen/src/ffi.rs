@@ -43,9 +43,11 @@ static TARGETS: &[Target] = &[
             "powerpc64le-unknown-linux-gnu",
             "powerpc64-unknown-linux-musl",
             "powerpc64le-unknown-linux-musl",
-            // "riscv64gc-unknown-linux-gnu",
-            // "riscv64gc-unknown-linux-musl",
-            // "riscv64-linux-android",
+            "riscv32gc-unknown-linux-gnu",
+            "riscv32gc-unknown-linux-musl",
+            "riscv64gc-unknown-linux-gnu",
+            "riscv64gc-unknown-linux-musl",
+            "riscv64-linux-android",
         ],
         headers: &[
             Header {
@@ -103,7 +105,7 @@ static TARGETS: &[Target] = &[
                 types: &["riscv_hwprobe"],
                 vars: &["RISCV_HWPROBE_.*"],
                 functions: &[],
-                arch: &[riscv64],
+                arch: &[riscv32, riscv64],
                 os: &[],
                 env: &[],
             },
@@ -167,7 +169,7 @@ static TARGETS: &[Target] = &[
             "aarch64-unknown-freebsd",
             "powerpc64-unknown-freebsd",
             "powerpc64le-unknown-freebsd",
-            // "riscv64gc-unknown-freebsd",
+            "riscv64gc-unknown-freebsd",
         ],
         headers: &[
             Header {
@@ -295,7 +297,7 @@ static TARGETS: &[Target] = &[
         triples: &[
             "aarch64-unknown-openbsd",
             "powerpc64-unknown-openbsd",
-            // "riscv64gc-unknown-openbsd",
+            "riscv64gc-unknown-openbsd",
         ],
         headers: &[
             Header {
@@ -353,7 +355,7 @@ static TARGETS: &[Target] = &[
     Target {
         triples: &[
             "aarch64-unknown-fuchsia",
-            // "riscv64gc-unknown-fuchsia",
+            "riscv64gc-unknown-fuchsia",
         ],
         headers: &[
             // TODO: zx_system_get_features
@@ -381,9 +383,9 @@ static TARGETS: &[Target] = &[
                 // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
                 path: "zircon/system/public/zircon/features.h",
                 types: &[],
-                vars: &["ZX_FEATURE_KIND_CPU", "ZX_ARM64_FEATURE_.*"],
+                vars: &["ZX_.*"],
                 functions: &[],
-                arch: &[aarch64],
+                arch: &[],
                 os: &[],
                 env: &[],
             },

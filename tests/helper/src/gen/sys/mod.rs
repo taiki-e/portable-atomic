@@ -232,6 +232,104 @@ mod powerpc64le_linux_musl;
 pub use powerpc64le_linux_musl::*;
 #[cfg(
     all(
+        target_arch = "riscv32",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+mod riscv32gc_linux_gnu;
+#[cfg(
+    all(
+        target_arch = "riscv32",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+pub use riscv32gc_linux_gnu::*;
+#[cfg(
+    all(
+        target_arch = "riscv32",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+mod riscv32gc_linux_musl;
+#[cfg(
+    all(
+        target_arch = "riscv32",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+pub use riscv32gc_linux_musl::*;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64gc_linux_gnu;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "linux",
+        target_env = "gnu",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64gc_linux_gnu::*;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64gc_linux_musl;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "linux",
+        target_env = "musl",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64gc_linux_musl::*;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "android",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64_linux_android;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "android",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64_linux_android::*;
+#[cfg(
+    all(
         target_arch = "aarch64",
         target_os = "macos",
         target_endian = "little",
@@ -302,6 +400,24 @@ mod powerpc64le_freebsd;
     )
 )]
 pub use powerpc64le_freebsd::*;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "freebsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64gc_freebsd;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "freebsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64gc_freebsd::*;
 #[cfg(
     all(
         target_arch = "aarch64",
@@ -376,6 +492,24 @@ mod powerpc64_openbsd;
 pub use powerpc64_openbsd::*;
 #[cfg(
     all(
+        target_arch = "riscv64",
+        target_os = "openbsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64gc_openbsd;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "openbsd",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64gc_openbsd::*;
+#[cfg(
+    all(
         target_arch = "aarch64",
         target_os = "fuchsia",
         target_endian = "little",
@@ -392,3 +526,21 @@ mod aarch64_fuchsia;
     )
 )]
 pub use aarch64_fuchsia::*;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "fuchsia",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod riscv64gc_fuchsia;
+#[cfg(
+    all(
+        target_arch = "riscv64",
+        target_os = "fuchsia",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use riscv64gc_fuchsia::*;
