@@ -265,6 +265,7 @@ mod arch {
             info.set(CpuInfo::HAS_LSE2);
         }
         #[cfg(any(target_os = "linux", target_os = "android"))]
+        // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
         #[cfg(target_pointer_width = "64")]
         {
             let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
