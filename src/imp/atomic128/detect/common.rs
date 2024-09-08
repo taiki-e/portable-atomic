@@ -148,23 +148,48 @@ mod c_types {
     // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf
     // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.2?topic=descriptions-qchars
     // z/OS https://www.ibm.com/docs/en/zos/2.5.0?topic=specifiers-character-types
-    // (macOS is currently the only Apple target that uses this module, and Windows currently doesn't use this module)
-    #[cfg(not(target_os = "macos"))]
+    // (Windows currently doesn't use this module)
+    #[cfg(not(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "watchos",
+        target_os = "visionos",
+    )))]
     pub(crate) type c_char = u8;
     // c_char is i8 on all Apple targets
-    #[cfg(target_os = "macos")]
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "tvos",
+        target_os = "watchos",
+        target_os = "visionos",
+    ))]
     pub(crate) type c_char = i8;
 
     // Static assertions for C type definitions.
     #[cfg(test)]
     const _: fn() = || {
-        use test_helper::{libc, sys};
+        use test_helper::libc;
+        #[cfg(not(any(
+            target_os = "ios",
+            target_os = "tvos",
+            target_os = "watchos",
+            target_os = "visionos",
+        )))]
+        use test_helper::sys;
         let _: c_int = 0 as std::os::raw::c_int;
         let _: c_uint = 0 as std::os::raw::c_uint;
         let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
         let _: c_char = 0 as std::os::raw::c_char;
+        #[cfg(not(any(
+            target_os = "ios",
+            target_os = "tvos",
+            target_os = "watchos",
+            target_os = "visionos",
+        )))] // TODO
         let _: c_char = 0 as sys::c_char;
     };
 }

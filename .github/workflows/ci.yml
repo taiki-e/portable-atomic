@@ -126,7 +126,10 @@ jobs:
             os: windows-latest
           - rust: nightly
             target: aarch64-apple-darwin
-            os: macos-14 # AArch64
+            os: macos-latest # AArch64
+          - rust: nightly
+            target: aarch64-apple-ios-macabi
+            os: macos-latest # AArch64
           - rust: '1.59' # LLVM 13
             target: aarch64-unknown-linux-gnu
           # - rust: '1.64' # LLVM 14

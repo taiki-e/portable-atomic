@@ -18,7 +18,7 @@ Supported platforms:
   https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
 - FreeBSD 12.0+ (emulate mrs instruction)
   https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
-- NetBSD 9.0+ (through sysctl)
+- NetBSD 9.0+ (through sysctl/sysctlbyname)
   https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
 - OpenBSD 7.1+ (through sysctl)
   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8

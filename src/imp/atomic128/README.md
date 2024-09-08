@@ -40,9 +40,9 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64     | linux                | getauxval       | all      | Only enabled by default on `*-linux-gnu*`, and `*-linux-musl*"` (default is static linking)/`*-linux-ohos*` (default is dynamic linking) with dynamic linking enabled. |
 | aarch64     | android              | getauxval       | all      | Enabled by default |
 | aarch64     | freebsd              | elf_aux_info    | lse, lse2 | Enabled by default |
-| aarch64     | netbsd               | sysctl          | all      | Enabled by default |
+| aarch64     | netbsd               | sysctlbyname    | all      | Enabled by default |
 | aarch64     | openbsd              | sysctl          | all      | Enabled by default |
-| aarch64     | macos                | sysctl          | all      | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
+| aarch64     | macos/ios/tvos/watchos/visionos | sysctlbyname    | all      | Currently only used in tests because FEAT_LSE and FEAT_LSE2 are always available at compile-time. |
 | aarch64     | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
 | powerpc64   | linux                | getauxval       | all      | Disabled by default |

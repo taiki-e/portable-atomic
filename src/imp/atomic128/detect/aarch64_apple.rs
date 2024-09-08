@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64 macOS by using sysctl.
+Run-time CPU feature detection on AArch64 Apple targets by using sysctlbyname.
 
 This module is currently only enabled on tests because AArch64 macOS always supports FEAT_LSE and FEAT_LSE2.
 https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
@@ -12,9 +12,10 @@ M4 is Armv9.2 and it doesn't support FEAT_LSE128/FEAT_LRCPC3.
 
 Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 
-Note that iOS doesn't support sysctl:
+TODO: non-macOS targets doesn't always supports FEAT_LSE2, but sysctl on them on the App Store is...?
 - https://developer.apple.com/forums/thread/9440
 - https://nabla-c0d3.github.io/blog/2015/06/16/ios9-security-privacy
+- https://github.com/rust-lang/stdarch/pull/1636
 */
 
 include!("common.rs");
@@ -136,7 +137,14 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use test_helper::{libc, sys};
+        use test_helper::libc;
+        #[cfg(not(any(
+            target_os = "ios",
+            target_os = "tvos",
+            target_os = "watchos",
+            target_os = "visionos",
+        )))]
+        use test_helper::sys;
         let mut _sysctlbyname: unsafe extern "C" fn(
             *const ffi::c_char,
             *mut ffi::c_void,
@@ -145,6 +153,14 @@ mod tests {
             ffi::c_size_t,
         ) -> ffi::c_int = ffi::sysctlbyname;
         _sysctlbyname = libc::sysctlbyname;
-        _sysctlbyname = sys::sysctlbyname;
+        #[cfg(not(any(
+            target_os = "ios",
+            target_os = "tvos",
+            target_os = "watchos",
+            target_os = "visionos",
+        )))] // TODO
+        {
+            _sysctlbyname = sys::sysctlbyname;
+        }
     };
 }
