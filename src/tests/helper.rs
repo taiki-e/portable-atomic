@@ -1987,6 +1987,7 @@ macro_rules! test_atomic_float_pub {
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,
+                clippy::float_arithmetic,
                 clippy::std_instead_of_alloc,
                 clippy::std_instead_of_core,
                 clippy::undocumented_unsafe_blocks
