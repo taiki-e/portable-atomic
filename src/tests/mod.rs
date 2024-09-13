@@ -331,7 +331,37 @@ LLVM version: 15.0.3",
 #[allow(clippy::as_underscore)]
 #[test]
 fn test_serde() {
-    use test_helper::serde::{assert_tokens, DebugPartialEq, Token};
+    use std::fmt;
+
+    use serde::{
+        de::{Deserialize, Deserializer},
+        ser::{Serialize, Serializer},
+    };
+    use serde_test::{assert_tokens, Token};
+
+    #[derive(Debug)]
+    struct DebugPartialEq<T>(T);
+    impl<T: fmt::Debug> PartialEq for DebugPartialEq<T> {
+        fn eq(&self, other: &Self) -> bool {
+            std::format!("{:?}", self) == std::format!("{:?}", other)
+        }
+    }
+    impl<T: Serialize> Serialize for DebugPartialEq<T> {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            self.0.serialize(serializer)
+        }
+    }
+    impl<'de, T: Deserialize<'de>> Deserialize<'de> for DebugPartialEq<T> {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            T::deserialize(deserializer).map(Self)
+        }
+    }
 
     macro_rules! t {
         ($atomic_type:ty, $value_type:ident, $token_type:ident) => {

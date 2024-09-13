@@ -27,8 +27,6 @@ pub mod cpuinfo;
 mod critical_section_std;
 #[cfg(feature = "std")]
 pub mod once_lock;
-#[cfg(feature = "std")]
-pub mod serde;
 
 use core::sync::atomic::Ordering;
 
