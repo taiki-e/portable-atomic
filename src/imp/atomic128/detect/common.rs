@@ -149,22 +149,10 @@ mod c_types {
     // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.2?topic=descriptions-qchars
     // z/OS https://www.ibm.com/docs/en/zos/2.5.0?topic=specifiers-character-types
     // (Windows currently doesn't use this module)
-    #[cfg(not(any(
-        target_os = "macos",
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos",
-    )))]
+    #[cfg(not(target_vendor = "apple"))]
     pub(crate) type c_char = u8;
     // c_char is i8 on all Apple targets
-    #[cfg(any(
-        target_os = "macos",
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos",
-    ))]
+    #[cfg(target_vendor = "apple")]
     pub(crate) type c_char = i8;
 
     // Static assertions for C type definitions.

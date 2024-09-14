@@ -188,12 +188,6 @@ fn main() {
         }
     }
 
-    let is_macos = target_os == "macos";
-    let is_apple = is_macos
-        || target_os == "ios"
-        || target_os == "tvos"
-        || target_os == "watchos"
-        || target_os == "visionos";
     match target_arch {
         "x86_64" => {
             // cmpxchg16b_target_feature stabilized in Rust 1.69 (nightly-2023-03-01): https://github.com/rust-lang/rust/pull/106774
@@ -215,6 +209,7 @@ fn main() {
                 // this branch is only used on pre-1.69 that cmpxchg16b_target_feature is unstable.)
                 // Script to get builtin targets that support CMPXCHG16B by default:
                 // $ (for target in $(rustc --print target-list | grep -E '^x86_64'); do rustc --print cfg --target "${target}" | grep -Fq '"cmpxchg16b"' && printf '%s\n' "${target}"; done)
+                let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";
                 let has_cmpxchg16b = is_apple;
                 // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/KM3jz616j
                 // However, it is unlikely that rustc will support that name, so we ignore it.
@@ -236,6 +231,7 @@ fn main() {
                 // Script to get builtin targets that support FEAT_LSE/FEAT_LSE2 by default:
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
+                let is_macos = target_os == "macos";
                 let mut has_lse = is_macos;
                 target_feature_fallback("lse2", is_macos);
                 // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
@@ -253,6 +249,7 @@ fn main() {
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS-loop-based RMW is much slower than
             // LL/SC-loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
+            let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";
             if is_apple || target_cpu().map_or(false, |cpu| cpu.starts_with("apple-")) {
                 println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
             }

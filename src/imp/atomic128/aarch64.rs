@@ -141,13 +141,7 @@ mod detect_aa64reg;
 // mod detect_auxv;
 #[cfg(test)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(
-    target_os = "macos",
-    target_os = "ios",
-    target_os = "tvos",
-    target_os = "watchos",
-    target_os = "visionos",
-))]
+#[cfg(target_vendor = "apple")]
 #[path = "detect/aarch64_apple.rs"]
 mod detect_apple;
 
