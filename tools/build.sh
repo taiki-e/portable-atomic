@@ -77,6 +77,7 @@ default_targets=(
     aarch64_be-unknown-netbsd
     # ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
+    arm64_32-apple-watchos
     # ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
 

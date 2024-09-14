@@ -349,6 +349,96 @@ pub use aarch64_apple_darwin::*;
 #[cfg(
     all(
         target_arch = "aarch64",
+        target_os = "ios",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_apple_ios;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "ios",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_apple_ios::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "tvos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_apple_tvos;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "tvos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_apple_tvos::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "visionos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_apple_visionos;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "visionos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_apple_visionos::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "watchos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+mod aarch64_apple_watchos;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "watchos",
+        target_endian = "little",
+        target_pointer_width = "64"
+    )
+)]
+pub use aarch64_apple_watchos::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "watchos",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+mod arm64_32_apple_watchos;
+#[cfg(
+    all(
+        target_arch = "aarch64",
+        target_os = "watchos",
+        target_endian = "little",
+        target_pointer_width = "32"
+    )
+)]
+pub use arm64_32_apple_watchos::*;
+#[cfg(
+    all(
+        target_arch = "aarch64",
         target_os = "freebsd",
         target_endian = "little",
         target_pointer_width = "64"

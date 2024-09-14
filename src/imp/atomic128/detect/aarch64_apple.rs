@@ -137,14 +137,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use test_helper::libc;
-        #[cfg(not(any(
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "watchos",
-            target_os = "visionos",
-        )))]
-        use test_helper::sys;
+        use test_helper::{libc, sys};
         let mut _sysctlbyname: unsafe extern "C" fn(
             *const ffi::c_char,
             *mut ffi::c_void,
@@ -153,14 +146,6 @@ mod tests {
             ffi::c_size_t,
         ) -> ffi::c_int = ffi::sysctlbyname;
         _sysctlbyname = libc::sysctlbyname;
-        #[cfg(not(any(
-            target_os = "ios",
-            target_os = "tvos",
-            target_os = "watchos",
-            target_os = "visionos",
-        )))] // TODO
-        {
-            _sysctlbyname = sys::sysctlbyname;
-        }
+        _sysctlbyname = sys::sysctlbyname;
     };
 }

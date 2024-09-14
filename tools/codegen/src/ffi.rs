@@ -150,6 +150,11 @@ static TARGETS: &[Target] = &[
     Target {
         triples: &[
             "aarch64-apple-darwin",
+            "aarch64-apple-ios",
+            "aarch64-apple-tvos",
+            "aarch64-apple-visionos",
+            "aarch64-apple-watchos",
+            "arm64_32-apple-watchos",
         ],
         headers: &[
             Header {
@@ -554,7 +559,7 @@ pub(crate) fn gen() -> Result<()> {
                                 include = vec![headers_dir.join("include")];
                             }
                         }
-                        macos => {
+                        _ if target.vendor.as_deref() == Some("apple") => {
                             header_path = src_dir.join("bsd").join(header.path);
                             include = vec![
                                 src_dir.join("bsd"),
@@ -880,7 +885,7 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
                 fs::write(headers_dir.join("include/stddef.h"), "")?;
             }
         }
-        macos => {
+        _ if target.vendor.as_deref() == Some("apple") => {
             clone(download_dir, "apple-oss-distributions/Libc", &["/include/"])?;
             clone(download_dir, "apple-oss-distributions/libpthread", &["/include/"])?;
             src_dir = clone(download_dir, "apple-oss-distributions/xnu", &[
