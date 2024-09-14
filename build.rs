@@ -226,8 +226,9 @@ fn main() {
             // target_feature "lse2"/"lse128"/"rcpc3" is unstable and available on rustc side since nightly-2024-08-30: https://github.com/rust-lang/rust/pull/128192
             if !version.probe(82, 2024, 8, 29) || needs_target_feature_fallback(&version, None) {
                 // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-                // AArch64 macOS always supports FEAT_LSE and FEAT_LSE2 because it is Armv8.5:
-                // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
+                // AArch64 macOS always supports FEAT_LSE and FEAT_LSE2 because M1 is Armv8.4 with all features of Armv8.5 except FEAT_BTI:
+                // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/AArch64/AArch64Processors.td#L1203
+                // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/AArch64/AArch64Processors.td#L865
                 // Script to get builtin targets that support FEAT_LSE/FEAT_LSE2 by default:
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
@@ -311,7 +312,7 @@ fn main() {
             // As of rustc 1.80, target_feature "zaamo"/"zabha" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
             // zabha implies zaamo in GCC, but do not in LLVM (but enabling it without zaamo is not allowed).
-            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc3/llvm/lib/TargetParser/RISCVISAInfo.cpp#L776-L778
+            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/TargetParser/RISCVISAInfo.cpp#L776-L778
             // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45
             if version.llvm >= 19 {
                 // amo*.{b,h}
@@ -329,7 +330,7 @@ fn main() {
 
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
+            // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/PowerPC/PPC.td#L702
             // See also https://github.com/rust-lang/rust/issues/59932
             let mut has_pwr8_features = target_endian == "little";
             // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
@@ -340,8 +341,11 @@ fn main() {
                         has_pwr8_features = cpu_version >= 8;
                     }
                 } else {
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L674
-                    // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/PowerPC/PPC.td#L456
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/PowerPC/PPC.td#L702
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/PowerPC/PPC.td#L483
+                    // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
+                    // on this target (see CI config for more), "future" is based on pwr10 features.
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
                     has_pwr8_features = cpu == "ppc64le" || cpu == "future";
                 }
             }
@@ -356,12 +360,12 @@ fn main() {
                 println!("cargo:rustc-cfg=portable_atomic_llvm_18");
             }
 
-            // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZFeatures.td
+            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/SystemZ/SystemZFeatures.td
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
                 // LLVM and GCC recognize the same names:
-                // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.2.0/gcc/config/s390/s390.opt#L58-L125
                 match &*cpu {
                     "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14" => {

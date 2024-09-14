@@ -389,7 +389,7 @@ type RetInt = u32;
 // Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.0/src/utils.rs#L210.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
-// Refs: https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/CodeGen/AtomicExpandPass.cpp#L691
+// Refs: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/CodeGen/AtomicExpandPass.cpp#L737
 // (aligned_ptr, shift, mask)
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 #[allow(dead_code)]

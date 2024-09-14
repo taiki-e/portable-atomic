@@ -143,7 +143,7 @@ mod c_types {
     // c_char is u8 by default on most non-Apple/non-Windows Arm/PowerPC/RISC-V/s390x/Hexagon targets
     // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon/AIX/z/OS)
     // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L83
-    // https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/lldb/source/Utility/ArchSpec.cpp#L712
+    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/lldb/source/Utility/ArchSpec.cpp#L712
     // RISC-V https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-cc.adoc#cc-type-representations
     // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf
     // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.2?topic=descriptions-qchars

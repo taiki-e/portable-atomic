@@ -3,8 +3,8 @@
 /*
 Run-time CPU feature detection on AArch64 Apple targets by using sysctlbyname.
 
-This module is currently only enabled on tests because AArch64 macOS always supports FEAT_LSE and FEAT_LSE2.
-https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/include/llvm/TargetParser/AArch64TargetParser.h#L728
+On macOS, this module is currently only enabled on tests because AArch64 macOS
+always supports FEAT_LSE and FEAT_LSE2 (see build script for more).
 
 If macOS supporting FEAT_LSE128/FEAT_LRCPC3 becomes popular in the future, this module will
 be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.

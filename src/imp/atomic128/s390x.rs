@@ -8,7 +8,7 @@ https://github.com/llvm/llvm-project/commit/a11f63a952664f700f076fd754476a2b9eb1
 https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
 
 LLVM's minimal supported architecture level is z10:
-https://github.com/llvm/llvm-project/blob/llvmorg-18.1.2/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
+https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
 This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
 https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
 
