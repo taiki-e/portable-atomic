@@ -24,7 +24,7 @@ Supported platforms:
 
 # Linux/Android
 
-As of nightly-2023-01-23, is_aarch64_feature_detected always uses dlsym by default
+As of Rust 1.69, is_aarch64_feature_detected always uses dlsym by default
 on AArch64 Linux/Android, but on the following platforms, we can safely assume
 getauxval is linked to the binary.
 
@@ -51,7 +51,7 @@ See tests::test_linux_like and aarch64_aa64reg.rs for (test-only) alternative im
 
 # FreeBSD
 
-As of nightly-2023-01-23, is_aarch64_feature_detected always uses mrs on
+As of nightly-2024-09-07, is_aarch64_feature_detected always uses mrs on
 AArch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
 on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
 
@@ -716,7 +716,7 @@ mod tests {
         );
         assert_eq!(
             os::getauxval(ffi::AT_HWCAP2),
-            // AT_HWCAP2 is only available on FreeBSD 13+, at least for AArch64.
+            // AT_HWCAP2 is only available on FreeBSD 13+, at least on AArch64.
             getauxval_sysctl_asm_syscall(ffi::AT_HWCAP2).unwrap_or(0)
         );
     }
