@@ -74,7 +74,7 @@ disable-fiq = []
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-serde
-serde = { version = "1.0.103", optional = true, default-features = false }
+serde = { version = "1.0.60", optional = true, default-features = false }
 
 # Use `critical-section`.
 #
