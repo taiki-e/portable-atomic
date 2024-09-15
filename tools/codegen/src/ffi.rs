@@ -803,7 +803,7 @@ fn download_headers(target: &TargetSpec, download_dir: &Utf8Path) -> Result<Utf8
             let linux_arch = linux_arch(target);
             let linux_headers_dir = &linux_headers_dir(target, &src_dir);
             if !linux_headers_dir.exists() {
-                // https://github.com/torvalds/linux/blob/v6.10/Documentation/kbuild/headers_install.rst
+                // https://github.com/torvalds/linux/blob/HEAD/Documentation/kbuild/headers_install.rst
                 cmd!(
                     "make",
                     "headers_install",

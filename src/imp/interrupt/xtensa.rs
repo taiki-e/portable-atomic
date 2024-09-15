@@ -3,7 +3,7 @@
 /*
 Refs:
 - Xtensa Instruction Set Architecture (ISA) Reference Manual https://0x04.net/~mwk/doc/xtensa.pdf
-- Linux kernel's Xtensa atomic implementation https://github.com/torvalds/linux/blob/v6.10/arch/xtensa/include/asm/atomic.h
+- Linux kernel's Xtensa atomic implementation https://github.com/torvalds/linux/blob/v6.11/arch/xtensa/include/asm/atomic.h
 */
 
 use core::arch::asm;

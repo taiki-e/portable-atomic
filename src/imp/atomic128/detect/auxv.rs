@@ -101,7 +101,7 @@ mod os {
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) use super::super::c_types::{c_char, c_int};
 
-        // https://github.com/torvalds/linux/blob/v6.10/include/uapi/linux/auxvec.h
+        // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
         #[cfg(any(test, target_arch = "aarch64"))]
         pub(crate) const AT_HWCAP: c_ulong = 16;
         #[cfg(any(
@@ -219,8 +219,8 @@ mod arch {
     use super::{ffi, os, CpuInfo};
 
     // Linux
-    // https://github.com/torvalds/linux/blob/v6.10/arch/arm64/include/uapi/asm/hwcap.h
-    // https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/arm64/elf_hwcaps.rst
+    // https://github.com/torvalds/linux/blob/v6.11/arch/arm64/include/uapi/asm/hwcap.h
+    // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/elf_hwcaps.rst
     // FreeBSD
     // Defined in machine/elf.h.
     // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
@@ -283,8 +283,8 @@ mod arch {
     use super::{ffi, os, CpuInfo};
 
     // Linux
-    // https://github.com/torvalds/linux/blob/v6.10/arch/powerpc/include/uapi/asm/cputable.h
-    // https://github.com/torvalds/linux/blob/v6.10/Documentation/arch/powerpc/elf_hwcaps.rst
+    // https://github.com/torvalds/linux/blob/v6.11/arch/powerpc/include/uapi/asm/cputable.h
+    // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/powerpc/elf_hwcaps.rst
     // FreeBSD
     // Defined in machine/cpu.h.
     // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h

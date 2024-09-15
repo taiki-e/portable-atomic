@@ -146,8 +146,8 @@ mod c_types {
     // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0-rc4/lldb/source/Utility/ArchSpec.cpp#L712
     // RISC-V https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-cc.adoc#cc-type-representations
     // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf
-    // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.2?topic=descriptions-qchars
-    // z/OS https://www.ibm.com/docs/en/zos/2.5.0?topic=specifiers-character-types
+    // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.3?topic=specifiers-character-types
+    // z/OS https://www.ibm.com/docs/en/zos/3.1.0?topic=specifiers-character-types
     // (Windows currently doesn't use this module)
     #[cfg(not(target_vendor = "apple"))]
     pub(crate) type c_char = u8;
