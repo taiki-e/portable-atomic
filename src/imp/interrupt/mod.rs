@@ -70,7 +70,6 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 // Critical section implementations might use locks internally.
 #[cfg(feature = "critical-section")]
 const IS_ALWAYS_LOCK_FREE: bool = false;
-
 // Consider atomic operations based on disabling interrupts on single-core
 // systems are lock-free. (We consider the pre-v6 Arm Linux's atomic operations
 // provided in a similar way by the Linux kernel to be lock-free.)
@@ -85,7 +84,6 @@ where
 {
     critical_section::with(|_| f())
 }
-
 #[cfg(not(feature = "critical-section"))]
 #[inline]
 fn with<F, R>(f: F) -> R
@@ -176,12 +174,11 @@ impl<T> AtomicPtr<T> {
         let _ = order;
         #[cfg(all(
             any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
             any(
                 portable_atomic_force_amo,
-                all(
-                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
-                    portable_atomic_unsafe_assume_single_core,
-                ),
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
             ),
         ))]
         {
@@ -189,12 +186,11 @@ impl<T> AtomicPtr<T> {
         }
         #[cfg(not(all(
             any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
             any(
                 portable_atomic_force_amo,
-                all(
-                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
-                    portable_atomic_unsafe_assume_single_core,
-                ),
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
             ),
         )))]
         // SAFETY: any data races are prevented by disabling interrupts (see
@@ -301,23 +297,21 @@ macro_rules! atomic_int {
         atomic_int!(base, $atomic_type, $int_type, $align);
         #[cfg(all(
             any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
             any(
                 portable_atomic_force_amo,
-                all(
-                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
-                    portable_atomic_unsafe_assume_single_core,
-                ),
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
             ),
         ))]
         atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
         #[cfg(not(all(
             any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
             any(
                 portable_atomic_force_amo,
-                all(
-                    any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
-                    portable_atomic_unsafe_assume_single_core,
-                ),
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
             ),
         )))]
         atomic_int!(cas[emulate], $atomic_type, $int_type);
@@ -399,7 +393,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (load_store_critical_session, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (all_critical_session, $atomic_type:ident, $int_type:ident, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
         atomic_int!(cas[emulate], $atomic_type, $int_type);
         impl_default_no_fetch_ops!($atomic_type, $int_type);
@@ -716,15 +710,9 @@ macro_rules! atomic_int {
     };
     // RISC-V 8-bit/16-bit RMW with Zaamo extension
     (cas[sub_word], $atomic_type:ident, $int_type:ident) => {
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
-        ))]
+        #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
         atomic_int!(cas, $atomic_type, $int_type);
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
-        )))]
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
@@ -900,26 +888,25 @@ atomic_int!(load_store_atomic, AtomicI32, i32, 4);
 atomic_int!(load_store_atomic, AtomicU32, u32, 4);
 #[cfg(target_pointer_width = "16")]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicI32, i32, 4);
+atomic_int!(all_critical_session, AtomicI32, i32, 4);
 #[cfg(target_pointer_width = "16")]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicU32, u32, 4);
+atomic_int!(all_critical_session, AtomicU32, u32, 4);
 
-#[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-atomic_int!(load_store_atomic, AtomicI64, i64, 8);
-#[cfg(not(any(target_pointer_width = "16", target_pointer_width = "32")))]
-atomic_int!(load_store_atomic, AtomicU64, u64, 8);
-#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
+cfg_has_fast_atomic_64! {
+    atomic_int!(load_store_atomic, AtomicI64, i64, 8);
+    atomic_int!(load_store_atomic, AtomicU64, u64, 8);
+}
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicI64, i64, 8);
-#[cfg(any(target_pointer_width = "16", target_pointer_width = "32"))]
-#[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicU64, u64, 8);
+cfg_no_fast_atomic_64! {
+    atomic_int!(all_critical_session, AtomicI64, i64, 8);
+    atomic_int!(all_critical_session, AtomicU64, u64, 8);
+}
 
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicI128, i128, 16);
+atomic_int!(all_critical_session, AtomicI128, i128, 16);
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(load_store_critical_session, AtomicU128, u128, 16);
+atomic_int!(all_critical_session, AtomicU128, u128, 16);
 
 #[cfg(test)]
 mod tests {

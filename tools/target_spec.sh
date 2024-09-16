@@ -90,7 +90,6 @@ macro_rules! ptr_reg {
 // and fast, so use it to implement normal sequence lock.
 //
 // See ptr_reg macro for the reason why all known 64-bit architectures are listed.
-#[cfg(feature = "fallback")]
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
 $(sed -E 's/^/    target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
@@ -106,7 +105,6 @@ mod fast_atomic_64_macros {
         (\$(\$tt:tt)*) => {};
     }
 }
-#[cfg(feature = "fallback")]
 #[cfg(not(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
 $(sed -E 's/^/    target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
