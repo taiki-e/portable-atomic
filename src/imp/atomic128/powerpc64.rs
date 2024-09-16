@@ -123,7 +123,7 @@ macro_rules! atomic_rmw {
 }
 
 // Extracts and checks the EQ bit of cr0.
-#[inline]
+#[inline(always)]
 fn extract_cr0(r: u64) -> bool {
     r & 0x20000000 != 0
 }

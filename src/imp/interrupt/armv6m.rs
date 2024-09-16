@@ -15,7 +15,7 @@ pub(super) use core::sync::atomic;
 pub(super) type State = u32;
 
 /// Disables interrupts and returns the previous interrupt state.
-#[inline]
+#[inline(always)]
 pub(super) fn disable() -> State {
     let r: State;
     // SAFETY: reading the priority mask register and disabling interrupts are safe.
@@ -37,7 +37,7 @@ pub(super) fn disable() -> State {
 /// # Safety
 ///
 /// The state must be the one retrieved by the previous `disable`.
-#[inline]
+#[inline(always)]
 pub(super) unsafe fn restore(r: State) {
     if r & 0x1 == 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,

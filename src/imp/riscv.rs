@@ -115,7 +115,7 @@ macro_rules! atomic_rmw_amo {
     portable_atomic_target_feature = "zaamo",
 ))]
 #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-#[inline]
+#[inline(always)]
 fn sllw(val: u32, shift: u32) -> u32 {
     // SAFETY: Calling sll{,w} is safe.
     unsafe {
@@ -383,7 +383,7 @@ macro_rules! zero_extend {
         ))]
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl ZeroExtend for $uint {
-            #[inline]
+            #[inline(always)]
             fn zero_extend(self) -> u32 {
                 self as u32
             }
@@ -397,7 +397,7 @@ macro_rules! zero_extend {
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl ZeroExtend for $int {
             #[allow(clippy::cast_sign_loss)]
-            #[inline]
+            #[inline(always)]
             fn zero_extend(self) -> u32 {
                 self as $uint as u32
             }

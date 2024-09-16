@@ -1362,7 +1362,7 @@ impl AtomicBool {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     fn as_atomic_u8(&self) -> &imp::AtomicU8 {
         // SAFETY: AtomicBool and imp::AtomicU8 have the same layout,
         // and both access data in the same way.
@@ -2321,7 +2321,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[cfg(not(miri))]
-    #[inline]
+    #[inline(always)]
     fn as_atomic_usize(&self) -> &AtomicUsize {
         static_assert!(
             core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()

@@ -13,7 +13,7 @@ use core::arch::asm;
 pub(super) type State = u8;
 
 /// Disables interrupts and returns the previous interrupt state.
-#[inline]
+#[inline(always)]
 pub(super) fn disable() -> State {
     let sreg: State;
     // SAFETY: reading the status register (SREG) and disabling interrupts are safe.
@@ -43,7 +43,7 @@ pub(super) fn disable() -> State {
 /// # Safety
 ///
 /// The state must be the one retrieved by the previous `disable`.
-#[inline]
+#[inline(always)]
 pub(super) unsafe fn restore(sreg: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {

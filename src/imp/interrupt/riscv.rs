@@ -55,7 +55,7 @@ pub(super) type State = u32;
 pub(super) type State = u64;
 
 /// Disables interrupts and returns the previous interrupt state.
-#[inline]
+#[inline(always)]
 pub(super) fn disable() -> State {
     let r: State;
     // SAFETY: reading mstatus and disabling interrupts is safe.
@@ -72,7 +72,7 @@ pub(super) fn disable() -> State {
 /// # Safety
 ///
 /// The state must be the one retrieved by the previous `disable`.
-#[inline]
+#[inline(always)]
 pub(super) unsafe fn restore(r: State) {
     if r & MASK != 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,

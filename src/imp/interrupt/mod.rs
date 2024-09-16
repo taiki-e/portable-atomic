@@ -85,7 +85,7 @@ where
     critical_section::with(|_| f())
 }
 #[cfg(not(feature = "critical-section"))]
-#[inline]
+#[inline(always)]
 fn with<F, R>(f: F) -> R
 where
     F: FnOnce() -> R,
@@ -245,7 +245,7 @@ impl<T> AtomicPtr<T> {
     }
 
     #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-    #[inline]
+    #[inline(always)]
     fn as_native(&self) -> &atomic::AtomicPtr<T> {
         // SAFETY: AtomicPtr and atomic::AtomicPtr have the same layout and
         // guarantee atomicity in a compatible way. (see module-level comments)
@@ -347,7 +347,7 @@ macro_rules! atomic_int {
             }
 
             #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-            #[inline]
+            #[inline(always)]
             fn as_native(&self) -> &atomic::$atomic_type {
                 // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
                 // guarantee atomicity in a compatible way. (see module-level comments)

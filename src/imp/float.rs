@@ -78,7 +78,7 @@ macro_rules! atomic_float {
 
             const_fn! {
                 const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
-                #[inline]
+                #[inline(always)]
                 pub(crate) const fn as_bits(&self) -> &crate::$atomic_int_type {
                     // SAFETY: $atomic_type and $atomic_int_type have the same layout,
                     // and there is no concurrent access to the value that does not go through this method.
