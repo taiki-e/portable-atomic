@@ -40,6 +40,7 @@ type and the value type must be the same.
                 target_os = "android",
                 target_os = "freebsd",
                 all(target_os = "openbsd", portable_atomic_outline_atomics),
+                target_os = "aix",
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),

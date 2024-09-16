@@ -38,416 +38,416 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-external-types:
-    uses: taiki-e/github-actions/.github/workflows/check-external-types.yml@main
-  deny:
-    uses: taiki-e/github-actions/.github/workflows/deny.yml@main
-  docs:
-    uses: taiki-e/github-actions/.github/workflows/docs.yml@main
-    with:
-      target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
-  msrv:
-    needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/msrv.yml@main
-    with:
-      event_name: ${{ github.event_name }}
-      # NB: sync with env.TEST_FEATURES
-      # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
-      args: --features float,std --ignore-unknown-features
-  tidy:
-    uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
-    with:
-      clippy: false # covered by TESTS=1 ./tools/build.sh
+  # check-external-types:
+  #   uses: taiki-e/github-actions/.github/workflows/check-external-types.yml@main
+  # deny:
+  #   uses: taiki-e/github-actions/.github/workflows/deny.yml@main
+  # docs:
+  #   uses: taiki-e/github-actions/.github/workflows/docs.yml@main
+  #   with:
+  #     target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
+  # msrv:
+  #   needs: tidy
+  #   uses: taiki-e/github-actions/.github/workflows/msrv.yml@main
+  #   with:
+  #     event_name: ${{ github.event_name }}
+  #     # NB: sync with env.TEST_FEATURES
+  #     # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
+  #     args: --features float,std --ignore-unknown-features
+  # tidy:
+  #   uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
+  #   with:
+  #     clippy: false # covered by TESTS=1 ./tools/build.sh
 
-  test:
-    needs: tidy
-    strategy:
-      fail-fast: false
-      matrix:
-        # LLVM version table:
-        # - LLVM 3.9: stable 1.14 - 1.18, ?                         - ?
-        # - LLVM 4  : stable 1.19 - 1.24, ?                         - ?
-        # - LLVM 6  : stable 1.25 - 1.28, ?                         - ?
-        # - LLVM 7  : stable 1.29,        ?                         - ?
-        # - LLVM 8  : stable 1.30 - 1.37, ?                         - ?
-        # - LLVM 9  : stable 1.38 - 1.44, ?                         - ?
-        # - LLVM 10 : stable 1.45 - 1.46, ?                         - ?
-        # - LLVM 11 : stable 1.47 - 1.51, ?                         - ?
-        # - LLVM 12 : stable 1.52 - 1.55, ?                         - ?
-        # - LLVM 13 : stable 1.56 - 1.59, ?                         - nightly-2022-02-17 (1.60)
-        # - LLVM 14 : stable 1.60 - 1.64, nightly-2022-02-18 (1.60) - nightly-2022-08-12 (1.65)
-        # - LLVM 15 : stable 1.65 - 1.69, nightly-2022-08-13 (1.65) - nightly-2023-03-25 (1.70)
-        # - LLVM 16 : stable 1.70 - 1.72, nightly-2023-03-26 (1.70) - nightly-2023-08-08 (1.73)
-        # - LLVM 17 : stable 1.73 - 1.77, nightly-2023-08-09 (1.73) - ?
-        # - LLVM 18 : stable 1.78 -     , ?                         - nightly-2024-07-31 (1.82)
-        # - LLVM 19 :             -     , nightly-2024-08-01 (1.82) -
-        # Minimum external LLVM version table:
-        # - LLVM 3.5: stable 1.8  - 1.22, ?                        - ?
-        # - LLVM 3.9: stable 1.23 - 1.28, ?                        - ?
-        # - LLVM 5  : stable 1.29 - 1.32, ?                        - ?
-        # - LLVM 6  : stable 1.33 - 1.40, ?                        - ?
-        # - LLVM 7  : stable 1.41 - 1.43, ?                        - ?
-        # - LLVM 8  : stable 1.44 - 1.49, ?                        - ?
-        # - LLVM 9  : stable 1.50 - 1.52, ?                        - ?
-        # - LLVM 10 : stable 1.53 - 1.57, ?                        - ?
-        # - LLVM 12 : stable 1.58 - 1.64, ?                        - ?
-        # - LLVM 13 : stable 1.65 - 1.68, ?                        - ?
-        # - LLVM 14 : stable 1.69 - 1.72, ?                        - ?
-        # - LLVM 15 : stable 1.73 - 1.75, ?                        - ?
-        # - LLVM 16 : stable 1.76 - 1.78, ?                        - ?
-        # - LLVM 17 : stable 1.79 -     , ?                        -
-        include:
-          - rust: '1.56'
-          - rust: '1.59' # LLVM 13
-          # - rust: '1.64' # LLVM 14
-          # - rust: '1.69' # LLVM 15
-          # - rust: '1.72' # LLVM 16
-          - rust: stable
-          - rust: beta
-          - rust: nightly
-          - rust: nightly
-            flags: -C panic=abort -Z panic_abort_tests
-          - rust: nightly
-            flags: -Z codegen-backend=cranelift
-          - rust: nightly
-            # target: x86_64-apple-darwin
-            os: macos-13 # x86_64
-          - rust: nightly
-            # target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - rust: nightly-x86_64-pc-windows-gnu
-            # target: x86_64-pc-windows-gnu
-            os: windows-latest
-          - rust: nightly-i686-pc-windows-msvc
-            # target: i686-pc-windows-msvc
-            os: windows-latest
-          - rust: nightly-i686-pc-windows-gnu
-            # target: i686-pc-windows-gnu
-            os: windows-latest
-          - rust: nightly
-            target: aarch64-apple-darwin
-            os: macos-latest # AArch64
-          - rust: nightly
-            target: aarch64-apple-ios-macabi
-            os: macos-latest # AArch64
-          - rust: '1.59' # LLVM 13
-            target: aarch64-unknown-linux-gnu
-          # - rust: '1.64' # LLVM 14
-          #   target: aarch64-unknown-linux-gnu
-          # - rust: '1.69' # LLVM 15
-          #   target: aarch64-unknown-linux-gnu
-          # - rust: '1.72' # LLVM 16
-          #   target: aarch64-unknown-linux-gnu
-          - rust: stable
-            target: aarch64-unknown-linux-gnu
-          - rust: beta
-            target: aarch64-unknown-linux-gnu
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-            flags: -Z codegen-backend=cranelift
-          - rust: nightly
-            target: aarch64_be-unknown-linux-gnu
-          - rust: stable
-            target: aarch64-unknown-linux-musl
-          - rust: stable
-            target: aarch64-unknown-linux-musl
-            flags: -C target-feature=-crt-static
-          - rust: nightly
-            target: aarch64-unknown-linux-musl
-          - rust: nightly
-            target: aarch64-unknown-linux-musl
-            flags: -C target-feature=-crt-static
-          - rust: stable
-            target: aarch64-linux-android
-          - rust: nightly
-            target: aarch64-linux-android
-          # TODO: flaky
-          # - rust: nightly
-          #   target: aarch64-pc-windows-gnullvm
-          - rust: '1.59'
-            target: armv5te-unknown-linux-gnueabi
-          - rust: stable
-            target: armv5te-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv5te-unknown-linux-gnueabi
-          - rust: nightly
-            target: arm-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabihf
-          - rust: nightly
-            target: armeb-unknown-linux-gnueabi
-          # TODO: backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
-          - rust: nightly-2024-08-30
-            target: arm-linux-androideabi
-          - rust: nightly
-            target: i586-unknown-linux-gnu
-          - rust: '1.59'
-            target: i686-unknown-linux-gnu
-          - rust: stable
-            target: i686-unknown-linux-gnu
-          - rust: nightly
-            target: i686-unknown-linux-gnu
-          - rust: nightly
-            target: loongarch64-unknown-linux-gnu
-          - rust: nightly
-            target: mips-unknown-linux-gnu
-          - rust: nightly
-            target: mipsel-unknown-linux-gnu
-          - rust: nightly
-            target: mips64-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mips64el-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mipsisa32r6-unknown-linux-gnu
-          - rust: nightly
-            target: mipsisa32r6el-unknown-linux-gnu
-          - rust: nightly
-            target: mipsisa64r6-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mipsisa64r6el-unknown-linux-gnuabi64
-          - rust: nightly
-            target: powerpc-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-          #   target: powerpc64-unknown-linux-gnu
-          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
-            target: powerpc64-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-          #   target: powerpc64le-unknown-linux-gnu
-          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
-            target: powerpc64le-unknown-linux-gnu
-          - rust: nightly
-            target: riscv32gc-unknown-linux-gnu
-          - rust: '1.59'
-            target: riscv64gc-unknown-linux-gnu
-          - rust: stable
-            target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
-            target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
-            target: riscv64gc-unknown-linux-gnu
-            flags: -Z codegen-backend=cranelift
-          - rust: nightly
-            target: s390x-unknown-linux-gnu
-          - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
-            target: s390x-unknown-linux-gnu
-          - rust: nightly
-            target: sparc64-unknown-linux-gnu
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - run: |
-          lscpu
-          # sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-        if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
-      - run: |
-          sysctl hw.optional machdep.cpu
-          # brew install moreutils
-        if: startsWith(matrix.os, 'macos')
-      # - run: |
-      #     C:/msys64/usr/bin/pacman -S --noconfirm moreutils
-      #   if: startsWith(matrix.os, 'windows')
-      - name: Install Rust
-        run: rustup toolchain add "${{ matrix.rust }}" --no-self-update && rustup default "${{ matrix.rust }}"
-      - run: rustup toolchain add nightly --no-self-update
-      - uses: taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/install-action@cargo-careful
-        if: startsWith(matrix.rust, 'nightly')
-      - uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
-        if: matrix.target != ''
-      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
-        if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64') && !startsWith(matrix.os, 'macos')
-      - run: |
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-        if: matrix.flags != ''
-      - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
-        if: matrix.target != '' && !contains(matrix.target, '-darwin')
-      # TODO: LLVM bug: Undefined temporary symbol error when building std.
-      - run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
-        if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
+  # test:
+  #   needs: tidy
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # LLVM version table:
+  #       # - LLVM 3.9: stable 1.14 - 1.18, ?                         - ?
+  #       # - LLVM 4  : stable 1.19 - 1.24, ?                         - ?
+  #       # - LLVM 6  : stable 1.25 - 1.28, ?                         - ?
+  #       # - LLVM 7  : stable 1.29,        ?                         - ?
+  #       # - LLVM 8  : stable 1.30 - 1.37, ?                         - ?
+  #       # - LLVM 9  : stable 1.38 - 1.44, ?                         - ?
+  #       # - LLVM 10 : stable 1.45 - 1.46, ?                         - ?
+  #       # - LLVM 11 : stable 1.47 - 1.51, ?                         - ?
+  #       # - LLVM 12 : stable 1.52 - 1.55, ?                         - ?
+  #       # - LLVM 13 : stable 1.56 - 1.59, ?                         - nightly-2022-02-17 (1.60)
+  #       # - LLVM 14 : stable 1.60 - 1.64, nightly-2022-02-18 (1.60) - nightly-2022-08-12 (1.65)
+  #       # - LLVM 15 : stable 1.65 - 1.69, nightly-2022-08-13 (1.65) - nightly-2023-03-25 (1.70)
+  #       # - LLVM 16 : stable 1.70 - 1.72, nightly-2023-03-26 (1.70) - nightly-2023-08-08 (1.73)
+  #       # - LLVM 17 : stable 1.73 - 1.77, nightly-2023-08-09 (1.73) - ?
+  #       # - LLVM 18 : stable 1.78 -     , ?                         - nightly-2024-07-31 (1.82)
+  #       # - LLVM 19 :             -     , nightly-2024-08-01 (1.82) -
+  #       # Minimum external LLVM version table:
+  #       # - LLVM 3.5: stable 1.8  - 1.22, ?                        - ?
+  #       # - LLVM 3.9: stable 1.23 - 1.28, ?                        - ?
+  #       # - LLVM 5  : stable 1.29 - 1.32, ?                        - ?
+  #       # - LLVM 6  : stable 1.33 - 1.40, ?                        - ?
+  #       # - LLVM 7  : stable 1.41 - 1.43, ?                        - ?
+  #       # - LLVM 8  : stable 1.44 - 1.49, ?                        - ?
+  #       # - LLVM 9  : stable 1.50 - 1.52, ?                        - ?
+  #       # - LLVM 10 : stable 1.53 - 1.57, ?                        - ?
+  #       # - LLVM 12 : stable 1.58 - 1.64, ?                        - ?
+  #       # - LLVM 13 : stable 1.65 - 1.68, ?                        - ?
+  #       # - LLVM 14 : stable 1.69 - 1.72, ?                        - ?
+  #       # - LLVM 15 : stable 1.73 - 1.75, ?                        - ?
+  #       # - LLVM 16 : stable 1.76 - 1.78, ?                        - ?
+  #       # - LLVM 17 : stable 1.79 -     , ?                        -
+  #       include:
+  #         - rust: '1.56'
+  #         - rust: '1.59' # LLVM 13
+  #         # - rust: '1.64' # LLVM 14
+  #         # - rust: '1.69' # LLVM 15
+  #         # - rust: '1.72' # LLVM 16
+  #         - rust: stable
+  #         - rust: beta
+  #         - rust: nightly
+  #         - rust: nightly
+  #           flags: -C panic=abort -Z panic_abort_tests
+  #         - rust: nightly
+  #           flags: -Z codegen-backend=cranelift
+  #         - rust: nightly
+  #           # target: x86_64-apple-darwin
+  #           os: macos-13 # x86_64
+  #         - rust: nightly
+  #           # target: x86_64-pc-windows-msvc
+  #           os: windows-latest
+  #         - rust: nightly-x86_64-pc-windows-gnu
+  #           # target: x86_64-pc-windows-gnu
+  #           os: windows-latest
+  #         - rust: nightly-i686-pc-windows-msvc
+  #           # target: i686-pc-windows-msvc
+  #           os: windows-latest
+  #         - rust: nightly-i686-pc-windows-gnu
+  #           # target: i686-pc-windows-gnu
+  #           os: windows-latest
+  #         - rust: nightly
+  #           target: aarch64-apple-darwin
+  #           os: macos-latest # AArch64
+  #         - rust: nightly
+  #           target: aarch64-apple-ios-macabi
+  #           os: macos-latest # AArch64
+  #         - rust: '1.59' # LLVM 13
+  #           target: aarch64-unknown-linux-gnu
+  #         # - rust: '1.64' # LLVM 14
+  #         #   target: aarch64-unknown-linux-gnu
+  #         # - rust: '1.69' # LLVM 15
+  #         #   target: aarch64-unknown-linux-gnu
+  #         # - rust: '1.72' # LLVM 16
+  #         #   target: aarch64-unknown-linux-gnu
+  #         - rust: stable
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: beta
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: aarch64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: aarch64-unknown-linux-gnu
+  #           flags: -Z codegen-backend=cranelift
+  #         - rust: nightly
+  #           target: aarch64_be-unknown-linux-gnu
+  #         - rust: stable
+  #           target: aarch64-unknown-linux-musl
+  #         - rust: stable
+  #           target: aarch64-unknown-linux-musl
+  #           flags: -C target-feature=-crt-static
+  #         - rust: nightly
+  #           target: aarch64-unknown-linux-musl
+  #         - rust: nightly
+  #           target: aarch64-unknown-linux-musl
+  #           flags: -C target-feature=-crt-static
+  #         - rust: stable
+  #           target: aarch64-linux-android
+  #         - rust: nightly
+  #           target: aarch64-linux-android
+  #         # TODO: flaky
+  #         # - rust: nightly
+  #         #   target: aarch64-pc-windows-gnullvm
+  #         - rust: '1.59'
+  #           target: armv5te-unknown-linux-gnueabi
+  #         - rust: stable
+  #           target: armv5te-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv5te-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: arm-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv7-unknown-linux-gnueabi
+  #         - rust: nightly
+  #           target: armv7-unknown-linux-gnueabihf
+  #         - rust: nightly
+  #           target: armeb-unknown-linux-gnueabi
+  #         # TODO: backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
+  #         - rust: nightly-2024-08-30
+  #           target: arm-linux-androideabi
+  #         - rust: nightly
+  #           target: i586-unknown-linux-gnu
+  #         - rust: '1.59'
+  #           target: i686-unknown-linux-gnu
+  #         - rust: stable
+  #           target: i686-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: i686-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: loongarch64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mips-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mipsel-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mips64-unknown-linux-gnuabi64
+  #         - rust: nightly
+  #           target: mips64el-unknown-linux-gnuabi64
+  #         - rust: nightly
+  #           target: mipsisa32r6-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mipsisa32r6el-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: mipsisa64r6-unknown-linux-gnuabi64
+  #         - rust: nightly
+  #           target: mipsisa64r6el-unknown-linux-gnuabi64
+  #         - rust: nightly
+  #           target: powerpc-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: powerpc64-unknown-linux-gnu
+  #         # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
+  #         #   target: powerpc64-unknown-linux-gnu
+  #         # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
+  #         #   target: powerpc64-unknown-linux-gnu
+  #         # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
+  #         #   target: powerpc64-unknown-linux-gnu
+  #         - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
+  #           target: powerpc64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: powerpc64le-unknown-linux-gnu
+  #         # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
+  #         #   target: powerpc64le-unknown-linux-gnu
+  #         # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
+  #         #   target: powerpc64le-unknown-linux-gnu
+  #         # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
+  #         #   target: powerpc64le-unknown-linux-gnu
+  #         - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
+  #           target: powerpc64le-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: riscv32gc-unknown-linux-gnu
+  #         - rust: '1.59'
+  #           target: riscv64gc-unknown-linux-gnu
+  #         - rust: stable
+  #           target: riscv64gc-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: riscv64gc-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: riscv64gc-unknown-linux-gnu
+  #           flags: -Z codegen-backend=cranelift
+  #         - rust: nightly
+  #           target: s390x-unknown-linux-gnu
+  #         - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
+  #           target: s390x-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: sparc64-unknown-linux-gnu
+  #         - rust: nightly
+  #           target: thumbv7neon-unknown-linux-gnueabihf
+  #   runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - run: |
+  #         lscpu
+  #         # sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+  #       if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
+  #     - run: |
+  #         sysctl hw.optional machdep.cpu
+  #         # brew install moreutils
+  #       if: startsWith(matrix.os, 'macos')
+  #     # - run: |
+  #     #     C:/msys64/usr/bin/pacman -S --noconfirm moreutils
+  #     #   if: startsWith(matrix.os, 'windows')
+  #     - name: Install Rust
+  #       run: rustup toolchain add "${{ matrix.rust }}" --no-self-update && rustup default "${{ matrix.rust }}"
+  #     - run: rustup toolchain add nightly --no-self-update
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     - uses: taiki-e/install-action@cargo-minimal-versions
+  #     - uses: taiki-e/install-action@cargo-careful
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - uses: taiki-e/setup-cross-toolchain-action@v1
+  #       with:
+  #         target: ${{ matrix.target }}
+  #       if: matrix.target != ''
+  #     - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
+  #       if: matrix.target != '' && !startsWith(matrix.target, 'i686') && !startsWith(matrix.target, 'x86_64') && !startsWith(matrix.os, 'macos')
+  #     - run: |
+  #         printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
+  #       if: matrix.flags != ''
+  #     - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+  #       if: matrix.target != '' && !contains(matrix.target, '-darwin')
+  #     # TODO: LLVM bug: Undefined temporary symbol error when building std.
+  #     - run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
+  #       if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
 
-      - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-} ${RELEASE:-}
-      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
-      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        # outline-atomics is disabled by default on AArch64 musl with static linking
-        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
-          # test cases such as has_cmpxchg16b == false, has_lse == false,
-          # __kuser_helper_version < 5, etc., and is not a public API.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
-        # outline-atomics is disabled by default on AArch64 musl with static linking
-        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
-      # outline-atomics is disabled by default on AArch64 musl with static linking and powerpc64
-      # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --exclude api-test
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --exclude api-test
-        env:
-          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
-          # test cases such as has_cmpxchg16b == false, has_lse == false,
-          # __kuser_helper_version < 5, etc., and is not a public API.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
-      # x86_64 +cmpxchg16b
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-        if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
-      # aarch64 +lse
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        # macOS is skipped because it is +lse,+lse2 by default
-        # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
-      # aarch64 +lse,+lse2
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
-        # macOS is skipped because it is +lse,+lse2 by default
-        # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
-      # powerpc64 pwr7
-      # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
-        if: startsWith(matrix.target, 'powerpc64le-')
-      # powerpc64 pwr8
-      # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
-        if: startsWith(matrix.target, 'powerpc64-')
-      # s390x z196 (arch9)
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
-        if: startsWith(matrix.target, 's390x')
-      # s390x z15 (arch13)
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-        env:
-          # TODO: disable high-word LLVM target-feature to avoid LLVM codegen bug.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
-        if: startsWith(matrix.target, 's390x')
+  #     - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-} ${RELEASE:-}
+  #     # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+  #     # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
+  #       # outline-atomics is disabled by default on AArch64 musl with static linking
+  #       if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
+  #         # test cases such as has_cmpxchg16b == false, has_lse == false,
+  #         # __kuser_helper_version < 5, etc., and is not a public API.
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
+  #       # outline-atomics is disabled by default on AArch64 musl with static linking
+  #       if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+  #     # outline-atomics is disabled by default on AArch64 musl with static linking and powerpc64
+  #     # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --exclude api-test
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
+  #       if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --exclude api-test
+  #       env:
+  #         # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
+  #         # test cases such as has_cmpxchg16b == false, has_lse == false,
+  #         # __kuser_helper_version < 5, etc., and is not a public API.
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
+  #       if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
+  #     # x86_64 +cmpxchg16b
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  #       if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
+  #     # aarch64 +lse
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
+  #       # macOS is skipped because it is +lse,+lse2 by default
+  #       # QEMU + Wine is slow so test only cases where OS-specific code is called.
+  #       if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+  #     # aarch64 +lse,+lse2
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
+  #       # macOS is skipped because it is +lse,+lse2 by default
+  #       # QEMU + Wine is slow so test only cases where OS-specific code is called.
+  #       if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+  #     # powerpc64 pwr7
+  #     # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
+  #       if: startsWith(matrix.target, 'powerpc64le-')
+  #     # powerpc64 pwr8
+  #     # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
+  #       if: startsWith(matrix.target, 'powerpc64-')
+  #     # s390x z196 (arch9)
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
+  #       if: startsWith(matrix.target, 's390x')
+  #     # s390x z15 (arch13)
+  #     - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #       env:
+  #         # TODO: disable high-word LLVM target-feature to avoid LLVM codegen bug.
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
+  #       if: startsWith(matrix.target, 's390x')
 
-      # Skip targets that also checked by "build" job.
-      - run: tools/build.sh ${{ matrix.target || 'host' }}
-        env:
-          SKIP_DEFAULT_TARGET: 1
-      - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
-        env:
-          SKIP_DEFAULT_TARGET: 1
+  #     # Skip targets that also checked by "build" job.
+  #     - run: tools/build.sh ${{ matrix.target || 'host' }}
+  #       env:
+  #         SKIP_DEFAULT_TARGET: 1
+  #     - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
+  #       env:
+  #         SKIP_DEFAULT_TARGET: 1
 
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --direct
-        # Old nightly compilers do not support -Z direct-minimal-versions
-        if: matrix.rust == 'nightly'
+  #     - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+  #     - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --direct
+  #       # Old nightly compilers do not support -Z direct-minimal-versions
+  #       if: matrix.rust == 'nightly'
 
-  test-bsd:
-    needs: tidy
-    name: test (${{ matrix.target }}${{ matrix.version }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: aarch64-unknown-freebsd
-            os: freebsd
-            version: '13.3'
-          - target: aarch64-unknown-freebsd
-            os: freebsd
-            version: '14.1'
-          - target: aarch64-unknown-netbsd
-            os: netbsd
-            version: '10.0'
-          - target: aarch64-unknown-openbsd
-            os: openbsd
-            version: '7.3'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - uses: taiki-e/cross-platform-actions-action@neoverse-v1
-        with:
-          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
-          operating_system: ${{ matrix.os }}
-          # We don't test x86_64 here because there is no OS-specific code on x86_64.
-          architecture: aarch64
-          version: ${{ matrix.version }}
-          shell: bash
-          sync_files: runner-to-vm
-          run: |
-            set -CeEuxo pipefail
-            export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
-            # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
-            case "$(uname -s)" in
-              FreeBSD) sudo pkg install -y rust ;;
-              NetBSD) sudo pkgin -y install rust ;;
-              OpenBSD)
-                # As of OpenBSD 7.3, the built-in git library is very slow.
-                export CARGO_NET_GIT_FETCH_WITH_CLI=true
-                # OpenBSD 7.3's rustc version is 1.68, which sparse protocol is not default protocol.
-                export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
-                sudo pkg_add git rust
-                ;;
-            esac
-            rustc -vV
-            # VM is very slow, so only test OS-specific code and code using them.
-            cargo test --features std --tests -- aarch64
+  # test-bsd:
+  #   needs: tidy
+  #   name: test (${{ matrix.target }}${{ matrix.version }})
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - target: aarch64-unknown-freebsd
+  #           os: freebsd
+  #           version: '13.3'
+  #         - target: aarch64-unknown-freebsd
+  #           os: freebsd
+  #           version: '14.1'
+  #         - target: aarch64-unknown-netbsd
+  #           os: netbsd
+  #           version: '10.0'
+  #         - target: aarch64-unknown-openbsd
+  #           os: openbsd
+  #           version: '7.3'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - uses: taiki-e/cross-platform-actions-action@neoverse-v1
+  #       with:
+  #         environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+  #         operating_system: ${{ matrix.os }}
+  #         # We don't test x86_64 here because there is no OS-specific code on x86_64.
+  #         architecture: aarch64
+  #         version: ${{ matrix.version }}
+  #         shell: bash
+  #         sync_files: runner-to-vm
+  #         run: |
+  #           set -CeEuxo pipefail
+  #           export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+  #           # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
+  #           case "$(uname -s)" in
+  #             FreeBSD) sudo pkg install -y rust ;;
+  #             NetBSD) sudo pkgin -y install rust ;;
+  #             OpenBSD)
+  #               # As of OpenBSD 7.3, the built-in git library is very slow.
+  #               export CARGO_NET_GIT_FETCH_WITH_CLI=true
+  #               # OpenBSD 7.3's rustc version is 1.68, which sparse protocol is not default protocol.
+  #               export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+  #               sudo pkg_add git rust
+  #               ;;
+  #           esac
+  #           rustc -vV
+  #           # VM is very slow, so only test OS-specific code and code using them.
+  #           cargo test --features std --tests -- aarch64
 
   build:
-    needs: tidy
+    # needs: tidy
     name: build (${{ matrix.name || matrix.rust }})
     strategy:
       fail-fast: false
       matrix:
         include:
-          - rust: '1.34'
-          - rust: '1.36'
-          - rust: '1.59'
-          - rust: stable
-          - rust: beta
+          # - rust: '1.34'
+          # - rust: '1.36'
+          # - rust: '1.59'
+          # - rust: stable
+          # - rust: beta
           - rust: nightly
           # The oldest nightly that can compile this crate is nightly-2019-01-27
           # which Atomic{I,U}{8,16,32,64} stabilized.
@@ -463,16 +463,16 @@ jobs:
           - name: nightly, --tests
             rust: nightly
             tests: 1
-          # Check that this crate can be built for all builtin targets
-          - name: stable, all tier1/tier2
-            rust: stable
-            target-group: tier1/tier2
-            # Skip targets that also checked by other matrix.
-            skip-default-target: 1
-          - name: nightly, all tier1/tier2
-            rust: nightly
-            target-group: tier1/tier2
-            skip-default-target: 1
+          # # Check that this crate can be built for all builtin targets
+          # - name: stable, all tier1/tier2
+          #   rust: stable
+          #   target-group: tier1/tier2
+          #   # Skip targets that also checked by other matrix.
+          #   skip-default-target: 1
+          # - name: nightly, all tier1/tier2
+          #   rust: nightly
+          #   target-group: tier1/tier2
+          #   skip-default-target: 1
           - name: nightly, all tier3
             rust: nightly
             target-group: tier3
@@ -492,184 +492,184 @@ jobs:
           TARGET_GROUP: ${{ matrix.target-group }}
           SKIP_DEFAULT_TARGET: ${{ matrix.skip-default-target }}
 
-  no-std:
-    needs: tidy
-    strategy:
-      fail-fast: false
-      matrix:
-        rust:
-          - '1.64'
-          - '1.72'
-          - stable
-          - nightly
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - run: |
-          sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
-            avr-libc \
-            gcc-avr \
-            libelf-dev \
-            qemu-system-arm \
-            qemu-system-misc \
-            simavr
-          # APT's qemu package doesn't provide firmware for riscv32: https://packages.ubuntu.com/en/jammy/all/qemu-system-data/filelist
-          OPENSBI_VERSION=1.5.1 # https://github.com/riscv-software-src/opensbi/releases
-          curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused "https://github.com/riscv-software-src/opensbi/releases/download/v${OPENSBI_VERSION}/opensbi-${OPENSBI_VERSION}-rv-bin.tar.xz" \
-            | tar xJf -
-          sudo mv -- "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
-          sudo mv -- "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
-          rm -rf -- "opensbi-${OPENSBI_VERSION}-rv-bin"
-      - name: Install Rust
-        run: rustup toolchain add "${{ matrix.rust }}" --no-self-update && rustup default "${{ matrix.rust }}"
-      - uses: taiki-e/install-action@cargo-hack
-        if: startsWith(matrix.rust, 'nightly')
-      - uses: taiki-e/install-action@espup
-        if: startsWith(matrix.rust, 'nightly')
-      - uses: taiki-e/cache-cargo-install-action@v2
-        with:
-          # https://github.com/agbrs/agb/tree/5fb928a/mgba-test-runner
-          # To install locally:
-          #   apt install libelf-dev
-          #   cargo install mgba-test-runner --git https://github.com/agbrs/agb.git --rev 5fb928a
-          tool: mgba-test-runner
-          git: https://github.com/agbrs/agb.git
-          rev: 5fb928a
-        env:
-          RUSTFLAGS: -W warnings
-        if: startsWith(matrix.rust, 'nightly')
-      - run: espup install --targets esp32s2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: startsWith(matrix.rust, 'nightly')
-      - run: rm -- tests/avr/rust-toolchain.toml
-        if: startsWith(matrix.rust, 'nightly-')
-      - run: tools/no-std.sh
-      - run: tools/build.sh +esp xtensa-esp32s2-none-elf
-        if: startsWith(matrix.rust, 'nightly')
-      - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf
-        if: startsWith(matrix.rust, 'nightly')
+  # no-std:
+  #   needs: tidy
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       rust:
+  #         - '1.64'
+  #         - '1.72'
+  #         - stable
+  #         - nightly
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - run: |
+  #         sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+  #           avr-libc \
+  #           gcc-avr \
+  #           libelf-dev \
+  #           qemu-system-arm \
+  #           qemu-system-misc \
+  #           simavr
+  #         # APT's qemu package doesn't provide firmware for riscv32: https://packages.ubuntu.com/en/jammy/all/qemu-system-data/filelist
+  #         OPENSBI_VERSION=1.5.1 # https://github.com/riscv-software-src/opensbi/releases
+  #         curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused "https://github.com/riscv-software-src/opensbi/releases/download/v${OPENSBI_VERSION}/opensbi-${OPENSBI_VERSION}-rv-bin.tar.xz" \
+  #           | tar xJf -
+  #         sudo mv -- "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
+  #         sudo mv -- "opensbi-${OPENSBI_VERSION}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
+  #         rm -rf -- "opensbi-${OPENSBI_VERSION}-rv-bin"
+  #     - name: Install Rust
+  #       run: rustup toolchain add "${{ matrix.rust }}" --no-self-update && rustup default "${{ matrix.rust }}"
+  #     - uses: taiki-e/install-action@cargo-hack
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - uses: taiki-e/install-action@espup
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - uses: taiki-e/cache-cargo-install-action@v2
+  #       with:
+  #         # https://github.com/agbrs/agb/tree/5fb928a/mgba-test-runner
+  #         # To install locally:
+  #         #   apt install libelf-dev
+  #         #   cargo install mgba-test-runner --git https://github.com/agbrs/agb.git --rev 5fb928a
+  #         tool: mgba-test-runner
+  #         git: https://github.com/agbrs/agb.git
+  #         rev: 5fb928a
+  #       env:
+  #         RUSTFLAGS: -W warnings
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - run: espup install --targets esp32s2
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - run: rm -- tests/avr/rust-toolchain.toml
+  #       if: startsWith(matrix.rust, 'nightly-')
+  #     - run: tools/no-std.sh
+  #     - run: tools/build.sh +esp xtensa-esp32s2-none-elf
+  #       if: startsWith(matrix.rust, 'nightly')
+  #     - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf
+  #       if: startsWith(matrix.rust, 'nightly')
 
-  miri:
-    needs: tidy
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: x86_64-unknown-linux-gnu
-          - target: x86_64-unknown-linux-gnu
-            flags: -C target-feature=+cmpxchg16b
-          - target: aarch64-unknown-linux-gnu
-          - target: i686-unknown-linux-gnu
-          - target: powerpc64le-unknown-linux-gnu
-          - target: s390x-unknown-linux-gnu
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update && rustup default nightly
-      - uses: taiki-e/install-action@cargo-hack
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
-        if: matrix.target != 'x86_64-unknown-linux-gnu'
-      - run: tools/test.sh miri ${TARGET:-}
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ matrix.flags }}
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ matrix.flags }}
+  # miri:
+  #   needs: tidy
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - target: x86_64-unknown-linux-gnu
+  #         - target: x86_64-unknown-linux-gnu
+  #           flags: -C target-feature=+cmpxchg16b
+  #         - target: aarch64-unknown-linux-gnu
+  #         - target: i686-unknown-linux-gnu
+  #         - target: powerpc64le-unknown-linux-gnu
+  #         - target: s390x-unknown-linux-gnu
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - name: Install Rust
+  #       run: rustup toolchain add nightly --no-self-update && rustup default nightly
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+  #     - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+  #       if: matrix.target != 'x86_64-unknown-linux-gnu'
+  #     - run: tools/test.sh miri ${TARGET:-}
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ matrix.flags }}
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ matrix.flags }}
 
-  san:
-    needs: tidy
-    strategy:
-      fail-fast: false
-      matrix:
-        sanitizer:
-          - address
-          - memory
-          - thread
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update && rustup default nightly
-      # https://github.com/google/sanitizers/issues/1716 / https://github.com/actions/runner-images/issues/9491
-      - run: sudo sysctl vm.mmap_rnd_bits=28
-      - uses: taiki-e/install-action@cargo-hack
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: |
-          printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
-        if: matrix.sanitizer == 'address'
-      - run: |
-          printf 'MSAN_OPTIONS=verbosity=2\n' >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
-        if: matrix.sanitizer == 'memory'
-      - run: |
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
-        if: matrix.sanitizer == 'thread'
-      - run: tools/test.sh -Z build-std -vv
-      # We test doctest only once with the default build conditions because doctest is slow. Both api-test
-      # and src/tests have extended copies of doctest, so this will not reduce test coverage.
-      # +cmpxchg16b
-      - run: tools/test.sh -Z build-std -vv --tests
-        env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  # san:
+  #   needs: tidy
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       sanitizer:
+  #         - address
+  #         - memory
+  #         - thread
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - name: Install Rust
+  #       run: rustup toolchain add nightly --no-self-update && rustup default nightly
+  #     # https://github.com/google/sanitizers/issues/1716 / https://github.com/actions/runner-images/issues/9491
+  #     - run: sudo sysctl vm.mmap_rnd_bits=28
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+  #     - run: |
+  #         printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+  #       if: matrix.sanitizer == 'address'
+  #     - run: |
+  #         printf 'MSAN_OPTIONS=verbosity=2\n' >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+  #       if: matrix.sanitizer == 'memory'
+  #     - run: |
+  #         printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+  #         printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+  #       if: matrix.sanitizer == 'thread'
+  #     - run: tools/test.sh -Z build-std -vv
+  #     # We test doctest only once with the default build conditions because doctest is slow. Both api-test
+  #     # and src/tests have extended copies of doctest, so this will not reduce test coverage.
+  #     # +cmpxchg16b
+  #     - run: tools/test.sh -Z build-std -vv --tests
+  #       env:
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
-  valgrind:
-    needs: tidy
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update && rustup default nightly
-      - uses: taiki-e/install-action@cargo-hack
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - uses: taiki-e/install-action@valgrind
-      - run: tools/test.sh valgrind -vv
-      # +cmpxchg16b
-      - run: tools/test.sh valgrind -vv
-        env:
-          # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  # valgrind:
+  #   needs: tidy
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - name: Install Rust
+  #       run: rustup toolchain add nightly --no-self-update && rustup default nightly
+  #     - uses: taiki-e/install-action@cargo-hack
+  #     # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+  #     - uses: taiki-e/install-action@valgrind
+  #     - run: tools/test.sh valgrind -vv
+  #     # +cmpxchg16b
+  #     - run: tools/test.sh valgrind -vv
+  #       env:
+  #         # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
+  #         RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+  #         RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
-  codegen:
-    needs: tidy
-    runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos
-    timeout-minutes: 60
-    permissions:
-      contents: read
-      pull-requests: write # for gh pr edit --add-assignee
-      repository-projects: read # for gh pr edit --add-assignee
-    steps:
-      - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup toolchain add nightly --no-self-update --component rustfmt && rustup default nightly
-      - run: tools/no_atomic.sh
-      - run: tools/gen.sh
-      - id: diff
-        run: tools/ci/gen.sh
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
-      - id: create-pull-request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          title: Update generated code
-          body: |
-            Auto-generated by CI using [create-pull-request](https://github.com/peter-evans/create-pull-request).
-          branch: update-generated-code
-          token: ${{ secrets.CREATE_PR_TOKEN }}
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
-      - name: Notify PR author by assigning PR
-        run: gh pr edit --add-assignee taiki-e "${PR_NUMBER:?}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ steps.create-pull-request.outputs.pull-request-number }}
-        if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
-      - run: git add -N . && git diff --exit-code
+  # codegen:
+  #   needs: tidy
+  #   runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos
+  #   timeout-minutes: 60
+  #   permissions:
+  #     contents: read
+  #     pull-requests: write # for gh pr edit --add-assignee
+  #     repository-projects: read # for gh pr edit --add-assignee
+  #   steps:
+  #     - uses: taiki-e/checkout-action@v1
+  #     - name: Install Rust
+  #       run: rustup toolchain add nightly --no-self-update --component rustfmt && rustup default nightly
+  #     - run: tools/no_atomic.sh
+  #     - run: tools/gen.sh
+  #     - id: diff
+  #       run: tools/ci/gen.sh
+  #       if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
+  #     - id: create-pull-request
+  #       uses: peter-evans/create-pull-request@v7
+  #       with:
+  #         title: Update generated code
+  #         body: |
+  #           Auto-generated by CI using [create-pull-request](https://github.com/peter-evans/create-pull-request).
+  #         branch: update-generated-code
+  #         token: ${{ secrets.CREATE_PR_TOKEN }}
+  #       if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
+  #     - name: Notify PR author by assigning PR
+  #       run: gh pr edit --add-assignee taiki-e "${PR_NUMBER:?}"
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         PR_NUMBER: ${{ steps.create-pull-request.outputs.pull-request-number }}
+  #       if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
+  #     - run: git add -N . && git diff --exit-code

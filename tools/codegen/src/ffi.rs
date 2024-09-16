@@ -424,6 +424,11 @@ static TARGETS: &[Target] = &[
             },
         ],
     },
+    Target {
+        triples: &["powerpc64-ibm-aix"],
+        // TODO: There is no way to access to AIX headers.
+        headers: &[],
+    },
 ];
 
 #[derive(Clone, Copy)]

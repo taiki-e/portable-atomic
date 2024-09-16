@@ -48,6 +48,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | powerpc64   | linux                | getauxval       | all      | Disabled by default |
 | powerpc64   | freebsd              | elf_aux_info    | all      | Disabled by default |
 | powerpc64   | openbsd              | elf_aux_info    | all      | Disabled by default |
+| powerpc64   | aix                  | getsystemcfg    | all      | Disabled by default |
 
 Run-time detection is enabled by default on most targets and can be disabled with `--cfg portable_atomic_no_outline_atomics`.
 

@@ -47,6 +47,7 @@ exynos
 getauxval
 getisax
 getpid
+getsystemcfg
 gimli
 Halfword
 HWCAP

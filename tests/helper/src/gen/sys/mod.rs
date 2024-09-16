@@ -652,3 +652,21 @@ mod riscv64gc_fuchsia;
     )
 )]
 pub use riscv64gc_fuchsia::*;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "aix",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+mod powerpc64_ibm_aix;
+#[cfg(
+    all(
+        target_arch = "powerpc64",
+        target_os = "aix",
+        target_endian = "big",
+        target_pointer_width = "64"
+    )
+)]
+pub use powerpc64_ibm_aix::*;
