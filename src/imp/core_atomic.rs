@@ -139,7 +139,7 @@ macro_rules! atomic_int {
         #[cfg(not(all(
             any(target_arch = "x86", target_arch = "x86_64"),
             not(any(miri, portable_atomic_sanitize_thread)),
-            not(portable_atomic_no_asm),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         )))]
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,
@@ -373,7 +373,7 @@ macro_rules! atomic_int {
             #[cfg(not(all(
                 any(target_arch = "x86", target_arch = "x86_64"),
                 not(any(miri, portable_atomic_sanitize_thread)),
-                not(portable_atomic_no_asm),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -389,7 +389,7 @@ macro_rules! atomic_int {
             #[cfg(not(all(
                 any(target_arch = "x86", target_arch = "x86_64"),
                 not(any(miri, portable_atomic_sanitize_thread)),
-                not(portable_atomic_no_asm),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces

@@ -346,7 +346,9 @@ mod tests {
     #[test]
     fn test_linux_like() {
         use c_types::*;
-        use std::{arch::asm, mem, vec};
+        #[cfg(not(portable_atomic_no_asm))]
+        use std::arch::asm;
+        use std::{mem, vec};
         use test_helper::{libc, sys};
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
@@ -438,11 +440,11 @@ mod tests {
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
             // TODO: qemu-user bug?
             if (major, minor) < (6, 4) || cfg!(qemu) {
-                std::eprintln!("kernel version: {major}.{minor} (no pr_get_auxv)");
+                std::eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 assert_eq!(getauxval_pr_get_auxv(ffi::AT_HWCAP).unwrap_err(), -22);
                 assert_eq!(getauxval_pr_get_auxv(ffi::AT_HWCAP2).unwrap_err(), -22);
             } else {
-                std::eprintln!("kernel version: {major}.{minor} (has pr_get_auxv)");
+                std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(
                     os::getauxval(ffi::AT_HWCAP),
                     getauxval_pr_get_auxv(ffi::AT_HWCAP).unwrap()
@@ -481,7 +483,9 @@ mod tests {
     #[test]
     fn test_freebsd() {
         use c_types::*;
-        use std::{arch::asm, mem, ptr};
+        #[cfg(not(portable_atomic_no_asm))]
+        use std::arch::asm;
+        use std::{mem, ptr};
         use test_helper::sys;
 
         // This is almost equivalent to what elf_aux_info does.

@@ -361,7 +361,9 @@ mod tests {
     fn test_netbsd() {
         use c_types::*;
         use imp::ffi;
-        use std::{arch::asm, mem, ptr, vec, vec::Vec};
+        #[cfg(not(portable_atomic_no_asm))]
+        use std::arch::asm;
+        use std::{mem, ptr, vec, vec::Vec};
         use test_helper::sys;
 
         // Call syscall using asm instead of libc.

@@ -119,7 +119,7 @@ mod s390x;
 #[cfg(all(
     target_arch = "arm",
     not(any(miri, portable_atomic_sanitize_thread)),
-    not(portable_atomic_no_asm),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(target_os = "linux", target_os = "android"),
     not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
     not(portable_atomic_no_outline_atomics),
@@ -156,7 +156,7 @@ mod riscv;
 #[cfg(all(
     any(target_arch = "x86", target_arch = "x86_64"),
     not(any(miri, portable_atomic_sanitize_thread)),
-    not(portable_atomic_no_asm),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
 ))]
 mod x86;
 
@@ -325,7 +325,7 @@ items! {
     #[cfg(not(all(
         target_arch = "arm",
         not(any(miri, portable_atomic_sanitize_thread)),
-        not(portable_atomic_no_asm),
+        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         any(target_os = "linux", target_os = "android"),
         not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
         not(portable_atomic_no_outline_atomics),
@@ -396,7 +396,7 @@ items! {
 #[cfg(all(
     target_arch = "arm",
     not(any(miri, portable_atomic_sanitize_thread)),
-    not(portable_atomic_no_asm),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
     any(target_os = "linux", target_os = "android"),
     not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
     not(portable_atomic_no_outline_atomics),

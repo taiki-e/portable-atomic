@@ -18,7 +18,9 @@ this module and use fallback implementation instead.
 #[path = "fallback/outline_atomics.rs"]
 mod fallback;
 
-use core::{arch::asm, cell::UnsafeCell, mem, sync::atomic::Ordering};
+#[cfg(not(portable_atomic_no_asm))]
+use core::arch::asm;
+use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use crate::utils::{Pair, U64};
 

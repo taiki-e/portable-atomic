@@ -83,7 +83,7 @@ fn test_is_lock_free() {
             feature = "fallback",
             target_arch = "arm",
             not(any(miri, portable_atomic_sanitize_thread)),
-            not(portable_atomic_no_asm),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(target_os = "linux", target_os = "android"),
             not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
             not(portable_atomic_no_outline_atomics),

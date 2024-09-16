@@ -234,9 +234,11 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
-// - asm! on Arm, AArch64, RISC-V, x86_64
+// - asm! on Arm, AArch64, RISC-V, x86, x86_64
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
+// This also helps us test that our assembly code works with the minimum external
+// LLVM version of the first rustc version that inline assembly stabilized.
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
 #![cfg_attr(
     all(
@@ -246,6 +248,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "arm",
             target_arch = "riscv32",
             target_arch = "riscv64",
+            target_arch = "x86",
             target_arch = "x86_64",
         ),
     ),
