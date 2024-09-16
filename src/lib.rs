@@ -320,37 +320,28 @@ compile_error!(
 );
 
 #[cfg(portable_atomic_unsafe_assume_single_core)]
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        not(portable_atomic_no_atomic_cas),
-        not(any(
-            target_arch = "arm",
-            target_arch = "avr",
-            target_arch = "msp430",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "xtensa",
-        )),
-    ))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        target_has_atomic = "ptr",
-        not(any(
-            target_arch = "arm",
-            target_arch = "avr",
-            target_arch = "msp430",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "xtensa",
-        )),
-    ))
-)]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 compile_error!(
-    "cfg(portable_atomic_unsafe_assume_single_core) does not compatible with this target;\n\
-     if you need cfg(portable_atomic_unsafe_assume_single_core) support for this target,\n\
+    "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
+     does not compatible with target that supports atomic CAS;\n\
+     see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
+);
+#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
+#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
+#[cfg(not(any(
+    target_arch = "arm",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "xtensa",
+)))]
+compile_error!(
+    "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
+     is not supported yet on this target;\n\
+     if you need unsafe-assume-single-core support for this target,\n\
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
@@ -361,42 +352,45 @@ compile_error!(
     target_arch = "powerpc64",
     target_arch = "x86_64",
 )))]
-compile_error!("cfg(portable_atomic_no_outline_atomics) does not compatible with this target");
+compile_error!("`portable_atomic_no_outline_atomics` cfg does not compatible with this target");
 #[cfg(portable_atomic_outline_atomics)]
 #[cfg(not(any(target_arch = "aarch64", target_arch = "powerpc64")))]
-compile_error!("cfg(portable_atomic_outline_atomics) does not compatible with this target");
+compile_error!("`portable_atomic_outline_atomics` cfg does not compatible with this target");
+
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(all(
     target_arch = "arm",
     not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass")),
 )))]
-compile_error!("cfg(portable_atomic_disable_fiq) does not compatible with this target");
+compile_error!(
+    "`portable_atomic_disable_fiq` cfg (`disable-fiq` feature) is only available on pre-v6 Arm"
+);
 #[cfg(portable_atomic_s_mode)]
 #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
-compile_error!("cfg(portable_atomic_s_mode) does not compatible with this target");
+compile_error!("`portable_atomic_s_mode` cfg (`s-mode` feature) is only available on RISC-V");
 #[cfg(portable_atomic_force_amo)]
 #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
-compile_error!("cfg(portable_atomic_force_amo) does not compatible with this target");
+compile_error!("`portable_atomic_force_amo` cfg (`force-amo` feature) is only available on RISC-V");
 
 #[cfg(portable_atomic_disable_fiq)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 compile_error!(
-    "cfg(portable_atomic_disable_fiq) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+    "`portable_atomic_disable_fiq` cfg (`disable-fiq` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
 );
 #[cfg(portable_atomic_s_mode)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 compile_error!(
-    "cfg(portable_atomic_s_mode) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+    "`portable_atomic_s_mode` cfg (`s-mode` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
 );
 #[cfg(portable_atomic_force_amo)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 compile_error!(
-    "cfg(portable_atomic_force_amo) may only be used together with cfg(portable_atomic_unsafe_assume_single_core)"
+    "`portable_atomic_force_amo` cfg (`force-amo` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
 );
 
 #[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]
 compile_error!(
-    "you may not enable feature `critical-section` and cfg(portable_atomic_unsafe_assume_single_core) at the same time"
+    "you may not enable `critical-section` feature and `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) at the same time"
 );
 
 #[cfg(feature = "require-cas")]
