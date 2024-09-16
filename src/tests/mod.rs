@@ -388,9 +388,8 @@ fn test_serde() {
     t!(AtomicU32, u32, U32);
     t!(AtomicI64, i64, I64);
     t!(AtomicU64, u64, U64);
-    // TODO: serde_test doesn't support Token::{I128,U128}: https://github.com/serde-rs/test/pull/6
-    // t!(AtomicI128, i128, I128);
-    // t!(AtomicU128, u128, U128);
+    t!(AtomicI128, i128, I128);
+    t!(AtomicU128, u128, U128);
     #[cfg(feature = "float")]
     t!(AtomicF32, f32, F32);
     #[cfg(feature = "float")]
