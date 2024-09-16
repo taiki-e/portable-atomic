@@ -235,13 +235,8 @@ fn main() {
                 let is_macos = target_os == "macos";
                 let mut has_lse = is_macos;
                 target_feature_fallback("lse2", is_macos);
-                // LLVM supports FEAT_LRCPC3 and FEAT_LSE128 on LLVM 16+:
-                // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
-                // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-                if version.llvm >= 16 {
-                    has_lse |= target_feature_fallback("lse128", false);
-                    target_feature_fallback("rcpc3", false);
-                }
+                has_lse |= target_feature_fallback("lse128", false);
+                target_feature_fallback("rcpc3", false);
                 // aarch64_target_feature stabilized in Rust 1.61.
                 if needs_target_feature_fallback(&version, Some(61)) {
                     target_feature_fallback("lse", has_lse);

@@ -564,19 +564,16 @@ build() {
                         x_cargo "${args[@]}" "$@"
                     ;;
             esac
-            # Support for FEAT_LRCPC3 and FEAT_LSE128 requires LLVM 16+.
-            if [[ "${llvm_version}" -ge 16 ]]; then
-                CARGO_TARGET_DIR="${target_dir}/rcpc3" \
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2,+rcpc3" \
-                    x_cargo "${args[@]}" "$@"
-                # FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
-                CARGO_TARGET_DIR="${target_dir}/lse128" \
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128" \
-                    x_cargo "${args[@]}" "$@"
-                CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3" \
-                    RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128,+rcpc3" \
-                    x_cargo "${args[@]}" "$@"
-            fi
+            CARGO_TARGET_DIR="${target_dir}/rcpc3" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+lse,+lse2,+rcpc3" \
+                x_cargo "${args[@]}" "$@"
+            # FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
+            CARGO_TARGET_DIR="${target_dir}/lse128" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128" \
+                x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128,+rcpc3" \
+                x_cargo "${args[@]}" "$@"
             ;;
         powerpc64-*)
             # powerpc64le- (little-endian) is skipped because it is pwr8 by default
