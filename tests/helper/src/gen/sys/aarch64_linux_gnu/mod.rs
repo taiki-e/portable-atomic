@@ -426,6 +426,7 @@ pub use linux_headers_asm_hwcap::HWCAP2_SME_F8F32;
 pub use linux_headers_asm_hwcap::HWCAP2_SME_SF8FMA;
 pub use linux_headers_asm_hwcap::HWCAP2_SME_SF8DP4;
 pub use linux_headers_asm_hwcap::HWCAP2_SME_SF8DP2;
+pub use linux_headers_asm_hwcap::HWCAP2_POE;
 mod sys_auxv;
 pub use sys_auxv::getauxval;
 mod elf;
