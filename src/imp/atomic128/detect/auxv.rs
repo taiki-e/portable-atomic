@@ -305,15 +305,25 @@ mod arch {
     // OpenBSD 7.6+
     // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
     pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
+    // Linux 5.8+
+    // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
+    #[cfg(any(target_os = "linux", target_os = "android"))]
+    pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
 
         // power8
-        // Check both 2_07 (power8) and 3_00 (power9, superset of 2_07) because OpenBSD currently only sets the later.
+        // Check both 2_07 (power8) and later ISAs (which are superset of 2_07) because
+        // OpenBSD currently doesn't set 2_07 even when 3_00 (power9) is set.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/powerpc64/cpu.c#L224-L243
-        if hwcap2 & (PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00) != 0 {
+        // Other OSes should be fine, but check all OSs in the same way just in case.
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        let power8_bits = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
+        #[cfg(not(any(target_os = "linux", target_os = "android")))]
+        let power8_bits = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00;
+        if hwcap2 & power8_bits != 0 {
             info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
         }
     }
@@ -807,6 +817,13 @@ mod tests {
             static_assert!(
                 arch::PPC_FEATURE2_ARCH_3_00 == sys::PPC_FEATURE2_ARCH_3_00 as ffi::c_ulong
             );
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            {
+                // static_assert!(arch::PPC_FEATURE2_ARCH_3_1 == libc::PPC_FEATURE2_ARCH_3_1); // libc doesn't have this
+                static_assert!(
+                    arch::PPC_FEATURE2_ARCH_3_1 == sys::PPC_FEATURE2_ARCH_3_1 as ffi::c_ulong
+                );
+            }
         }
     };
 }
