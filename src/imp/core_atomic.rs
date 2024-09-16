@@ -36,12 +36,9 @@ impl<T> AtomicPtr<T> {
     }
     #[inline]
     pub(crate) fn is_lock_free() -> bool {
-        Self::is_always_lock_free()
+        Self::IS_ALWAYS_LOCK_FREE
     }
-    #[inline]
-    pub(crate) const fn is_always_lock_free() -> bool {
-        true
-    }
+    pub(crate) const IS_ALWAYS_LOCK_FREE: bool = true;
     #[inline]
     pub(crate) fn get_mut(&mut self) -> &mut *mut T {
         self.inner.get_mut()
@@ -157,17 +154,15 @@ macro_rules! atomic_int {
             }
             #[inline]
             pub(crate) fn is_lock_free() -> bool {
-                Self::is_always_lock_free()
+                Self::IS_ALWAYS_LOCK_FREE
             }
-            #[inline]
-            pub(crate) const fn is_always_lock_free() -> bool {
-                // ESP-IDF targets' 64-bit atomics are not lock-free.
-                // https://github.com/rust-lang/rust/pull/115577#issuecomment-1732259297
-                cfg!(not(all(
-                    any(target_arch = "riscv32", target_arch = "xtensa"),
-                    target_os = "espidf",
-                ))) | (core::mem::size_of::<$int_type>() < 8)
-            }
+            // ESP-IDF targets' 64-bit atomics are not lock-free.
+            // https://github.com/rust-lang/rust/pull/115577#issuecomment-1732259297
+            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = cfg!(not(all(
+                any(target_arch = "riscv32", target_arch = "xtensa"),
+                target_os = "espidf",
+            ))) | (core::mem::size_of::<$int_type>()
+                < 8);
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
                 self.inner.get_mut()

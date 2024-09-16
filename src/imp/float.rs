@@ -46,10 +46,8 @@ macro_rules! atomic_float {
             pub(crate) fn is_lock_free() -> bool {
                 crate::$atomic_int_type::is_lock_free()
             }
-            #[inline]
-            pub(crate) const fn is_always_lock_free() -> bool {
-                crate::$atomic_int_type::is_always_lock_free()
-            }
+            pub(crate) const IS_ALWAYS_LOCK_FREE: bool =
+                crate::$atomic_int_type::is_always_lock_free();
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $float_type {

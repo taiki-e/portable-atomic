@@ -652,8 +652,10 @@ impl AtomicBool {
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
-        imp::AtomicU8::is_always_lock_free()
+        imp::AtomicU8::IS_ALWAYS_LOCK_FREE
     }
+    #[cfg(test)]
+    const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
     /// Returns a mutable reference to the underlying [`bool`].
     ///
@@ -1518,8 +1520,10 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[must_use]
     pub const fn is_always_lock_free() -> bool {
-        <imp::AtomicPtr<T>>::is_always_lock_free()
+        <imp::AtomicPtr<T>>::IS_ALWAYS_LOCK_FREE
     }
+    #[cfg(test)]
+    const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
     /// Returns a mutable reference to the underlying pointer.
     ///
@@ -2520,9 +2524,11 @@ const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock
                 #[inline]
                 #[must_use]
                 pub const fn is_always_lock_free() -> bool {
-                    <imp::$atomic_type>::is_always_lock_free()
+                    <imp::$atomic_type>::IS_ALWAYS_LOCK_FREE
                 }
             }
+            #[cfg(test)]
+            const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
             doc_comment! {
                 concat!("Returns a mutable reference to the underlying integer.\n
@@ -3632,8 +3638,10 @@ This type has the same in-memory representation as the underlying floating point
             #[inline]
             #[must_use]
             pub const fn is_always_lock_free() -> bool {
-                <imp::float::$atomic_type>::is_always_lock_free()
+                <imp::float::$atomic_type>::IS_ALWAYS_LOCK_FREE
             }
+            #[cfg(test)]
+            const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
             /// Returns a mutable reference to the underlying float.
             ///

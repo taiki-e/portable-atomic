@@ -19,8 +19,8 @@ macro_rules! __test_atomic_common {
         }
         #[test]
         fn is_lock_free() {
-            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::is_always_lock_free();
-            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
+            const IS_ALWAYS_LOCK_FREE: bool = <$atomic_type>::IS_ALWAYS_LOCK_FREE;
+            assert_eq!(IS_ALWAYS_LOCK_FREE, <$atomic_type>::IS_ALWAYS_LOCK_FREE);
             let is_lock_free = <$atomic_type>::is_lock_free();
             if IS_ALWAYS_LOCK_FREE {
                 // If is_always_lock_free is true, then is_lock_free must always be true.
@@ -31,6 +31,10 @@ macro_rules! __test_atomic_common {
 }
 macro_rules! __test_atomic_pub_common {
     ($atomic_type:ty, $value_type:ty) => {
+        #[test]
+        fn is_always_lock_free() {
+            assert_eq!(<$atomic_type>::IS_ALWAYS_LOCK_FREE, <$atomic_type>::is_always_lock_free());
+        }
         #[test]
         fn assert_ref_unwind_safe() {
             #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]

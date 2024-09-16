@@ -23,10 +23,7 @@ macro_rules! atomic128 {
             pub(crate) fn is_lock_free() -> bool {
                 is_lock_free()
             }
-            #[inline]
-            pub(crate) const fn is_always_lock_free() -> bool {
-                IS_ALWAYS_LOCK_FREE
-            }
+            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
 
             #[inline]
             pub(crate) fn get_mut(&mut self) -> &mut $int_type {
