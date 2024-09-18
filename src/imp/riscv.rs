@@ -238,10 +238,11 @@ macro_rules! atomic_load_store {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     macro_rules! atomic_store {
-                        ($release:tt) => {
+                        ($acquire:tt, $release:tt) => {
                             asm!(
                                 $release,
                                 concat!("s", $asm_suffix, " {val}, 0({dst})"),
+                                $acquire,
                                 dst = in(reg) ptr_reg!(dst),
                                 val = in(reg) val,
                                 options(nostack, preserves_flags),
@@ -249,9 +250,10 @@ macro_rules! atomic_load_store {
                         };
                     }
                     match order {
-                        Ordering::Relaxed => atomic_store!(""),
-                        // Release and SeqCst stores are equivalent.
-                        Ordering::Release | Ordering::SeqCst => atomic_store!("fence rw, w"),
+                        Ordering::Relaxed => atomic_store!("", ""),
+                        Ordering::Release => atomic_store!("", "fence rw, w"),
+                        // https://github.com/llvm/llvm-project/commit/3ea8f2526541884e03d5bd4f4e46f4eb190990b6
+                        Ordering::SeqCst => atomic_store!("fence rw, rw", "fence rw, w"),
                         _ => unreachable!(),
                     }
                 }
