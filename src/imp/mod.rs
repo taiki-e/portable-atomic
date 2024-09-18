@@ -126,6 +126,7 @@ mod s390x;
 ))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
+#[path = "atomic64/arm_linux.rs"]
 mod arm_linux;
 
 // MSP430 atomics

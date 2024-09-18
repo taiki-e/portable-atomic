@@ -15,7 +15,7 @@ this module and use fallback implementation instead.
 // be possible to omit the dynamic kernel version check if the std feature is enabled on Rust 1.64+.
 // https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 
-#[path = "fallback/outline_atomics.rs"]
+#[path = "../fallback/outline_atomics.rs"]
 mod fallback;
 
 #[cfg(not(portable_atomic_no_asm))]

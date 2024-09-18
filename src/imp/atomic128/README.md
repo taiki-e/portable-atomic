@@ -1,4 +1,6 @@
-# Implementation of 128-bit atomics
+# Implementation of 128-bit atomics on 64-bit architectures
+
+(See the [`atomic64` module](../atomic64) for 64-bit atomics on 32-bit architectures.)
 
 ## 128-bit atomics instructions
 
