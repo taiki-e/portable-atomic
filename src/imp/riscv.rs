@@ -26,6 +26,8 @@ Generated asm:
 - riscv32imac https://godbolt.org/z/aG9157dhW
 */
 
+// TODO: Zacas extension
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};

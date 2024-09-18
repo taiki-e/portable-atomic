@@ -587,6 +587,17 @@ build() {
                 RUSTFLAGS="${target_rustflags} -C target-cpu=pwr7" \
                 x_cargo "${args[@]}" "$@"
             ;;
+        riscv64*)
+            case "${target}" in
+                # TODO(riscv64): support CAS in riscv.rs when zacas enabled
+                riscv??i-* | riscv??im-* | riscv??imc-*) ;;
+                *)
+                    CARGO_TARGET_DIR="${target_dir}/zacas" \
+                        RUSTFLAGS="${target_rustflags} -C target-feature=+experimental-zacas" \
+                        x_cargo "${args[@]}" "$@"
+                    ;;
+            esac
+            ;;
         s390x*)
             CARGO_TARGET_DIR="${target_dir}/z196" \
                 RUSTFLAGS="${target_rustflags} -C target-cpu=z196" \

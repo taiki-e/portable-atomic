@@ -242,6 +242,35 @@ mod atomic_64_macros {
             ),
         ),
         all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                // TODO(riscv64)
+                // all(
+                //     feature = "fallback",
+                //     not(portable_atomic_no_outline_atomics),
+                //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+                //     any(
+                //         all(
+                //             target_os = "linux",
+                //             any(
+                //                 target_env = "gnu",
+                //                 all(
+                //                     any(target_env = "musl", target_env = "ohos"),
+                //                     not(target_feature = "crt-static"),
+                //                 ),
+                //                 portable_atomic_outline_atomics,
+                //             ),
+                //         ),
+                //         target_os = "android",
+                //     ),
+                //     not(any(miri, portable_atomic_sanitize_thread)),
+                // ),
+            ),
+        ),
+        all(
             target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(
@@ -329,6 +358,35 @@ mod atomic_128_macros {
                     not(portable_atomic_no_outline_atomics),
                     not(any(target_env = "sgx", miri)),
                 ),
+            ),
+        ),
+        all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                // TODO(riscv64)
+                // all(
+                //     feature = "fallback",
+                //     not(portable_atomic_no_outline_atomics),
+                //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+                //     any(
+                //         all(
+                //             target_os = "linux",
+                //             any(
+                //                 target_env = "gnu",
+                //                 all(
+                //                     any(target_env = "musl", target_env = "ohos"),
+                //                     not(target_feature = "crt-static"),
+                //                 ),
+                //                 portable_atomic_outline_atomics,
+                //             ),
+                //         ),
+                //         target_os = "android",
+                //     ),
+                //     not(any(miri, portable_atomic_sanitize_thread)),
+                // ),
             ),
         ),
         all(

@@ -118,6 +118,14 @@ fn test_is_lock_free() {
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
         ),
         all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+            ),
+        ),
+        all(
             target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(

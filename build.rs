@@ -47,7 +47,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("zaamo","zabha","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("zaamo","zabha","experimental-zacas","quadword-atomics","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -58,7 +58,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo","zabha"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","experimental-zacas","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo","zabha"))"#
         );
     }
 
@@ -308,15 +308,25 @@ fn main() {
             }
         }
         "riscv32" | "riscv64" => {
-            // As of rustc 1.80, target_feature "zaamo"/"zabha" is not available on rustc side:
+            // As of rustc 1.80, target_feature "zaamo"/"zabha"/"zacas" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
-            // zabha implies zaamo in GCC, but do not in LLVM (but enabling it without zaamo is not allowed).
-            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/TargetParser/RISCVISAInfo.cpp#L776-L778
-            // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45
+            // zabha and zacas imply zaamo in GCC, but do not in LLVM (but enabling them without zaamo is not allowed).
+            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/TargetParser/RISCVISAInfo.cpp#L772-L778
+            // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45-L46
             if version.llvm >= 19 {
                 // amo*.{b,h}
-                // available since 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
+                // available since LLVM 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
                 target_feature_fallback("zabha", false);
+            }
+            if version.llvm == 19 {
+                // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
+                // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
+                // attempted to make non-experimental in LLVM 19 https://github.com/llvm/llvm-project/commit/95aab69c109adf29e183090c25dc95c773215746
+                // but reverted in https://github.com/llvm/llvm-project/commit/70e7d26e560173c8b9db4c75ab4a3004cd5f021a
+                // check == 19 instead of range 17..=19 because it is more experimental in LLVM 17/18.
+                // check == 19 instead of >= 19 because "experimental-zacas" feature
+                // may no longer exist when it is marked as non-experimental in LLVM 20.
+                target_feature_fallback("experimental-zacas", false);
             }
             // amo*.{w,d}
             target_feature_fallback("zaamo", false);
