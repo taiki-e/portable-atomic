@@ -1371,6 +1371,123 @@ impl AtomicBool {
         unsafe { &*(self as *const Self as *const imp::AtomicU8) }
     }
 }
+// See https://github.com/taiki-e/portable-atomic/issues/180
+#[cfg(not(feature = "require-cas"))]
+cfg_no_atomic_cas! {
+#[doc(hidden)]
+#[allow(unused_variables, clippy::unused_self)]
+impl<'a> AtomicBool {
+    #[inline]
+    pub fn swap(&self, val: bool, order: Ordering) -> bool
+    where
+        &'a Self: HasSwap,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn compare_exchange(
+        &self,
+        current: bool,
+        new: bool,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<bool, bool>
+    where
+        &'a Self: HasCompareExchange,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn compare_exchange_weak(
+        &self,
+        current: bool,
+        new: bool,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<bool, bool>
+    where
+        &'a Self: HasCompareExchangeWeak,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_and(&self, val: bool, order: Ordering) -> bool
+    where
+        &'a Self: HasFetchAnd,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn and(&self, val: bool, order: Ordering)
+    where
+        &'a Self: HasAnd,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool
+    where
+        &'a Self: HasFetchNand,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_or(&self, val: bool, order: Ordering) -> bool
+    where
+        &'a Self: HasFetchOr,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn or(&self, val: bool, order: Ordering)
+    where
+        &'a Self: HasOr,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool
+    where
+        &'a Self: HasFetchXor,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn xor(&self, val: bool, order: Ordering)
+    where
+        &'a Self: HasXor,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_not(&self, order: Ordering) -> bool
+    where
+        &'a Self: HasFetchNot,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn not(&self, order: Ordering)
+    where
+        &'a Self: HasNot,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_update<F>(
+        &self,
+        set_order: Ordering,
+        fetch_order: Ordering,
+        f: F,
+    ) -> Result<bool, bool>
+    where
+        F: FnMut(bool) -> Option<bool>,
+        &'a Self: HasFetchUpdate,
+    {
+        unimplemented!()
+    }
+}
+} // cfg_no_atomic_cas!
 } // cfg_has_atomic_8!
 
 cfg_has_atomic_ptr! {
@@ -2361,6 +2478,130 @@ impl<T> AtomicPtr<T> {
         }
     }
 }
+// See https://github.com/taiki-e/portable-atomic/issues/180
+#[cfg(not(feature = "require-cas"))]
+cfg_no_atomic_cas! {
+#[doc(hidden)]
+#[allow(unused_variables, clippy::unused_self)]
+impl<'a, T: 'a> AtomicPtr<T> {
+    #[inline]
+    pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T
+    where
+        &'a Self: HasSwap,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn compare_exchange(
+        &self,
+        current: *mut T,
+        new: *mut T,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<*mut T, *mut T>
+    where
+        &'a Self: HasCompareExchange,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn compare_exchange_weak(
+        &self,
+        current: *mut T,
+        new: *mut T,
+        success: Ordering,
+        failure: Ordering,
+    ) -> Result<*mut T, *mut T>
+    where
+        &'a Self: HasCompareExchangeWeak,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_update<F>(
+        &self,
+        set_order: Ordering,
+        fetch_order: Ordering,
+        f: F,
+    ) -> Result<*mut T, *mut T>
+    where
+        F: FnMut(*mut T) -> Option<*mut T>,
+        &'a Self: HasFetchUpdate,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchPtrAdd,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchPtrSub,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchByteAdd,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchByteSub,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchOr,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchAnd,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T
+    where
+        &'a Self: HasFetchXor,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn bit_set(&self, bit: u32, order: Ordering) -> bool
+    where
+        &'a Self: HasBitSet,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool
+    where
+        &'a Self: HasBitClear,
+    {
+        unimplemented!()
+    }
+    #[inline]
+    pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool
+    where
+        &'a Self: HasBitToggle,
+    {
+        unimplemented!()
+    }
+}
+} // cfg_no_atomic_cas!
 } // cfg_has_atomic_ptr!
 
 macro_rules! atomic_int {
@@ -3522,6 +3763,200 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                 }
             }
         }
+        // See https://github.com/taiki-e/portable-atomic/issues/180
+        #[cfg(not(feature = "require-cas"))]
+        cfg_no_atomic_cas! {
+        #[doc(hidden)]
+        #[allow(unused_variables, clippy::unused_self)]
+        impl<'a> $atomic_type {
+            #[inline]
+            pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasSwap,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn compare_exchange(
+                &self,
+                current: $int_type,
+                new: $int_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$int_type, $int_type>
+            where
+                &'a Self: HasCompareExchange,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn compare_exchange_weak(
+                &self,
+                current: $int_type,
+                new: $int_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$int_type, $int_type>
+            where
+                &'a Self: HasCompareExchangeWeak,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchAdd,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn add(&self, val: $int_type, order: Ordering)
+            where
+                &'a Self: HasAdd,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchSub,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn sub(&self, val: $int_type, order: Ordering)
+            where
+                &'a Self: HasSub,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchAnd,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn and(&self, val: $int_type, order: Ordering)
+            where
+                &'a Self: HasAnd,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchNand,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchOr,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn or(&self, val: $int_type, order: Ordering)
+            where
+                &'a Self: HasOr,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchXor,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn xor(&self, val: $int_type, order: Ordering)
+            where
+                &'a Self: HasXor,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_update<F>(
+                &self,
+                set_order: Ordering,
+                fetch_order: Ordering,
+                f: F,
+            ) -> Result<$int_type, $int_type>
+            where
+                F: FnMut($int_type) -> Option<$int_type>,
+                &'a Self: HasFetchUpdate,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchMax,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchMin,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn bit_set(&self, bit: u32, order: Ordering) -> bool
+            where
+                &'a Self: HasBitSet,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool
+            where
+                &'a Self: HasBitClear,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool
+            where
+                &'a Self: HasBitToggle,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_not(&self, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchNot,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn not(&self, order: Ordering)
+            where
+                &'a Self: HasNot,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_neg(&self, order: Ordering) -> $int_type
+            where
+                &'a Self: HasFetchNeg,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn neg(&self, order: Ordering)
+            where
+                &'a Self: HasNeg,
+            {
+                unimplemented!()
+            }
+        }
+        } // cfg_no_atomic_cas!
     };
 
     // AtomicF* impls
@@ -3982,6 +4417,102 @@ This is `const fn` on Rust 1.58+."),
                 }
             }
         }
+        // See https://github.com/taiki-e/portable-atomic/issues/180
+        #[cfg(not(feature = "require-cas"))]
+        cfg_no_atomic_cas! {
+        #[doc(hidden)]
+        #[allow(unused_variables, clippy::unused_self)]
+        impl<'a> $atomic_type {
+            #[inline]
+            pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type
+            where
+                &'a Self: HasSwap,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn compare_exchange(
+                &self,
+                current: $float_type,
+                new: $float_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$float_type, $float_type>
+            where
+                &'a Self: HasCompareExchange,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn compare_exchange_weak(
+                &self,
+                current: $float_type,
+                new: $float_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$float_type, $float_type>
+            where
+                &'a Self: HasCompareExchangeWeak,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchAdd,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchSub,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_update<F>(
+                &self,
+                set_order: Ordering,
+                fetch_order: Ordering,
+                f: F,
+            ) -> Result<$float_type, $float_type>
+            where
+                F: FnMut($float_type) -> Option<$float_type>,
+                &'a Self: HasFetchUpdate,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchMax,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchMin,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_neg(&self, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchNeg,
+            {
+                unimplemented!()
+            }
+            #[inline]
+            pub fn fetch_abs(&self, order: Ordering) -> $float_type
+            where
+                &'a Self: HasFetchAbs,
+            {
+                unimplemented!()
+            }
+        }
+        } // cfg_no_atomic_cas!
     };
 }
 
@@ -4024,3 +4555,354 @@ cfg_has_atomic_128! {
     atomic_int!(AtomicI128, i128, 16);
     atomic_int!(AtomicU128, u128, 16);
 }
+
+// See https://github.com/taiki-e/portable-atomic/issues/180
+#[cfg(not(feature = "require-cas"))]
+cfg_no_atomic_cas! {
+#[cfg(feature = "float")]
+use diagnostic_helper::HasFetchAbs;
+use diagnostic_helper::{
+    HasAdd, HasAnd, HasBitClear, HasBitSet, HasBitToggle, HasCompareExchange,
+    HasCompareExchangeWeak, HasFetchAdd, HasFetchAnd, HasFetchByteAdd, HasFetchByteSub,
+    HasFetchMax, HasFetchMin, HasFetchNand, HasFetchNeg, HasFetchNot, HasFetchOr, HasFetchPtrAdd,
+    HasFetchPtrSub, HasFetchSub, HasFetchUpdate, HasFetchXor, HasNeg, HasNot, HasOr, HasSub,
+    HasSwap, HasXor,
+};
+#[cfg_attr(
+    all(
+        portable_atomic_no_atomic_load_store,
+        not(any(
+            target_arch = "avr",
+            target_arch = "bpf",
+            target_arch = "msp430",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            feature = "critical-section",
+        )),
+    ),
+    allow(dead_code, unreachable_pub)
+)]
+mod diagnostic_helper {
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`swap` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasSwap {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`compare_exchange` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasCompareExchange {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`compare_exchange_weak` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasCompareExchangeWeak {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_add` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchAdd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`add` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasAdd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_sub` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchSub {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`sub` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasSub {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_ptr_add` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchPtrAdd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_ptr_sub` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchPtrSub {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_byte_add` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchByteAdd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_byte_sub` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchByteSub {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_and` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchAnd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`and` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasAnd {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_nand` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchNand {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_or` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchOr {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`or` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasOr {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_xor` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchXor {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`xor` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasXor {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_not` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchNot {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`not` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasNot {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_neg` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchNeg {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`neg` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasNeg {}
+    #[cfg(feature = "float")]
+    #[cfg_attr(target_pointer_width = "16", allow(dead_code, unreachable_pub))]
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_abs` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchAbs {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_min` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchMin {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_max` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchMax {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`fetch_update` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasFetchUpdate {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`bit_set` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasBitSet {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`bit_clear` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasBitClear {}
+    #[doc(hidden)]
+    #[cfg_attr(
+        not(portable_atomic_no_diagnostic_namespace),
+        diagnostic::on_unimplemented(
+            message = "`bit_toggle` requires atomic CAS but not available on this target by default",
+            label = "this associated function is not available on this target by default",
+            note = "consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features",
+            note = "see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+        )
+    )]
+    pub trait HasBitToggle {}
+}
+} // cfg_no_atomic_cas!
