@@ -15,10 +15,10 @@ portable-atomic/
 ├── portable-atomic-util/         -- crate that defines synchronization primitives built with portable-atomic
 ├── src/
 │   ├── imp/
-│   │   ├── atomic128/            -- 128-bit atomic implementations (mainly by asm)
-│   │   │   └── detect/           -- Run-time CPU feature detection implementations used for outline-atomics
-│   │   ├── arm_linux.rs          -- 64-bit atomic implementation for pre-v6 Arm Linux/Android
+│   │   ├── atomic128/            -- 128-bit atomic implementations on 64-bit architectures (mainly by asm)
+│   │   ├── atomic64/             -- 64-bit atomic implementations on 32-bit architectures (mainly by asm)
 │   │   ├── core_atomic.rs        -- wrapper for core::sync::atomic types
+│   │   ├── detect/               -- Run-time CPU feature detection implementations used for outline-atomics
 │   │   ├── fallback/             -- fallback implementation based on global locks
 │   │   ├── float.rs              -- atomic float implementation based on atomic integer
 │   │   ├── interrupt/            -- fallback implementation based on disabling interrupts (for no-std)
