@@ -359,7 +359,7 @@ pub(crate) union U128 {
     pub(crate) pair: Pair<u64>,
 }
 #[allow(dead_code)]
-#[cfg(target_arch = "arm")]
+#[cfg(any(target_arch = "arm", target_arch = "riscv32"))]
 /// A 64-bit value represented as a pair of 32-bit values.
 ///
 /// This type is `#[repr(C)]`, both fields have the same in-memory representation

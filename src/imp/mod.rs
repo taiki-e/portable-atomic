@@ -71,11 +71,11 @@ mod x86_64;
     any(
         target_feature = "experimental-zacas",
         portable_atomic_target_feature = "experimental-zacas",
-        // TODO(riscv64)
+        // TODO(riscv)
         // all(
         //     feature = "fallback",
         //     not(portable_atomic_no_outline_atomics),
-        //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
         //     any(
         //         all(
         //             target_os = "linux",
@@ -163,6 +163,40 @@ mod s390x;
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
 #[path = "atomic64/arm_linux.rs"]
 mod arm_linux;
+
+// riscv32 64-bit atomics
+#[cfg(all(
+    target_arch = "riscv32",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(portable_atomic_no_asm),
+    any(
+        target_feature = "experimental-zacas",
+        portable_atomic_target_feature = "experimental-zacas",
+        // TODO(riscv)
+        // all(
+        //     feature = "fallback",
+        //     not(portable_atomic_no_outline_atomics),
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
+        //     any(
+        //         all(
+        //             target_os = "linux",
+        //             any(
+        //                 target_env = "gnu",
+        //                 all(
+        //                     any(target_env = "musl", target_env = "ohos"),
+        //                     not(target_feature = "crt-static"),
+        //                 ),
+        //                 portable_atomic_outline_atomics,
+        //             ),
+        //         ),
+        //         target_os = "android",
+        //     ),
+        //     not(any(miri, portable_atomic_sanitize_thread)),
+        // ),
+    ),
+))]
+#[path = "atomic64/riscv32.rs"]
+mod riscv32;
 
 // MSP430 atomics
 #[cfg(target_arch = "msp430")]
@@ -366,13 +400,45 @@ items! {
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 items! {
-    #[cfg(not(all(
-        target_arch = "arm",
-        not(any(miri, portable_atomic_sanitize_thread)),
-        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-        any(target_os = "linux", target_os = "android"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-        not(portable_atomic_no_outline_atomics),
+    #[cfg(not(any(
+        all(
+            target_arch = "arm",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(target_os = "linux", target_os = "android"),
+            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+            not(portable_atomic_no_outline_atomics),
+        ),
+        all(
+            target_arch = "riscv32",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                // TODO(riscv)
+                // all(
+                //     feature = "fallback",
+                //     not(portable_atomic_no_outline_atomics),
+                //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
+                //     any(
+                //         all(
+                //             target_os = "linux",
+                //             any(
+                //                 target_env = "gnu",
+                //                 all(
+                //                     any(target_env = "musl", target_env = "ohos"),
+                //                     not(target_feature = "crt-static"),
+                //                 ),
+                //                 portable_atomic_outline_atomics,
+                //             ),
+                //         ),
+                //         target_os = "android",
+                //     ),
+                //     not(any(miri, portable_atomic_sanitize_thread)),
+                // ),
+            ),
+        ),
     )))]
     #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
     #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
@@ -405,11 +471,11 @@ items! {
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",
-                // TODO(riscv64)
+                // TODO(riscv)
                 // all(
                 //     feature = "fallback",
                 //     not(portable_atomic_no_outline_atomics),
-                //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+                //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
                 //     any(
                 //         all(
                 //             target_os = "linux",
@@ -477,6 +543,37 @@ items! {
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
 pub(crate) use self::arm_linux::{AtomicI64, AtomicU64};
+#[cfg(all(
+    target_arch = "riscv32",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(portable_atomic_no_asm),
+    any(
+        target_feature = "experimental-zacas",
+        portable_atomic_target_feature = "experimental-zacas",
+        // TODO(riscv)
+        // all(
+        //     feature = "fallback",
+        //     not(portable_atomic_no_outline_atomics),
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
+        //     any(
+        //         all(
+        //             target_os = "linux",
+        //             any(
+        //                 target_env = "gnu",
+        //                 all(
+        //                     any(target_env = "musl", target_env = "ohos"),
+        //                     not(target_feature = "crt-static"),
+        //                 ),
+        //                 portable_atomic_outline_atomics,
+        //             ),
+        //         ),
+        //         target_os = "android",
+        //     ),
+        //     not(any(miri, portable_atomic_sanitize_thread)),
+        // ),
+    ),
+))]
+pub(crate) use self::riscv32::{AtomicI64, AtomicU64};
 
 // 128-bit atomics (platform-specific)
 // AArch64
@@ -508,11 +605,11 @@ pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
     any(
         target_feature = "experimental-zacas",
         portable_atomic_target_feature = "experimental-zacas",
-        // TODO(riscv64)
+        // TODO(riscv)
         // all(
         //     feature = "fallback",
         //     not(portable_atomic_no_outline_atomics),
-        //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
         //     any(
         //         all(
         //             target_os = "linux",

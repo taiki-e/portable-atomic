@@ -79,7 +79,23 @@ fn test_is_lock_free() {
     assert!(AtomicU32::is_lock_free());
     #[cfg(not(portable_atomic_no_cfg_target_has_atomic))]
     {
-        if cfg!(all(
+        if cfg!(any(
+            target_has_atomic = "64",
+            all(
+                target_arch = "riscv32",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(portable_atomic_no_asm),
+                any(
+                    target_feature = "experimental-zacas",
+                    portable_atomic_target_feature = "experimental-zacas",
+                ),
+            ),
+        )) {
+            assert!(AtomicI64::is_always_lock_free());
+            assert!(AtomicI64::is_lock_free());
+            assert!(AtomicU64::is_always_lock_free());
+            assert!(AtomicU64::is_lock_free());
+        } else if cfg!(all(
             feature = "fallback",
             target_arch = "arm",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -93,11 +109,6 @@ fn test_is_lock_free() {
             assert!(!AtomicI64::is_always_lock_free());
             assert!(AtomicI64::is_lock_free());
             assert!(!AtomicU64::is_always_lock_free());
-            assert!(AtomicU64::is_lock_free());
-        } else if cfg!(target_has_atomic = "64") {
-            assert!(AtomicI64::is_always_lock_free());
-            assert!(AtomicI64::is_lock_free());
-            assert!(AtomicU64::is_always_lock_free());
             assert!(AtomicU64::is_lock_free());
         } else {
             assert!(!AtomicI64::is_always_lock_free());

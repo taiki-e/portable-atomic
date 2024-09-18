@@ -259,8 +259,6 @@ jobs:
             target: riscv64gc-unknown-linux-gnu
           - rust: '1.59' # LLVM 13
             target: riscv64gc-unknown-linux-gnu
-          - rust: '1.73' # LLVM 17 (oldest version we can use experimental-zacas on this target)
-            target: riscv64gc-unknown-linux-gnu
           - rust: stable
             target: riscv64gc-unknown-linux-gnu
           - rust: nightly
@@ -317,6 +315,9 @@ jobs:
       # TODO: LLVM bug: Undefined temporary symbol error when building std.
       - run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
+      # for serde
+      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
+        if: matrix.rust == 'nightly-2024-02-13'
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-} ${RELEASE:-}
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
@@ -388,21 +389,21 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
-      # riscv64 +zabha
+      # riscv +zabha
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zabha
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zabha
           QEMU_CPU: max
         # TODO: cranelift doesn't support cfg(target_feature): https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400
-        if: startsWith(matrix.target, 'riscv64') && !contains(matrix.flags, 'codegen-backend=cranelift')
-      # riscv64 +experimental-zacas
+        if: startsWith(matrix.target, 'riscv') && !contains(matrix.flags, 'codegen-backend=cranelift')
+      # riscv +experimental-zacas
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+experimental-zacas
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+experimental-zacas
         # TODO: cranelift doesn't support cfg(target_feature): https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400
-        if: startsWith(matrix.target, 'riscv64') && !contains(matrix.flags, 'codegen-backend=cranelift')
+        if: startsWith(matrix.target, 'riscv') && !contains(matrix.flags, 'codegen-backend=cranelift')
       # s390x z196 (arch9)
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:

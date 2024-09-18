@@ -375,7 +375,21 @@ macro_rules! atomic {
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_64)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "64")))
+    cfg(any(
+        test,
+        not(any(
+            target_has_atomic = "64",
+            all(
+                target_arch = "riscv32",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(portable_atomic_no_asm),
+                any(
+                    target_feature = "experimental-zacas",
+                    portable_atomic_target_feature = "experimental-zacas",
+                ),
+            ),
+        ))
+    ))
 )]
 cfg_no_fast_atomic_64! {
     atomic!(AtomicI64, i64, 8);
