@@ -64,6 +64,41 @@ mod aarch64;
 #[cfg_attr(not(any(miri, portable_atomic_sanitize_thread)), path = "atomic128/x86_64.rs")]
 mod x86_64;
 
+// riscv64 128-bit atomics
+#[cfg(all(
+    target_arch = "riscv64",
+    not(portable_atomic_no_asm),
+    any(
+        target_feature = "experimental-zacas",
+        portable_atomic_target_feature = "experimental-zacas",
+        // TODO(riscv64)
+        // all(
+        //     feature = "fallback",
+        //     not(portable_atomic_no_outline_atomics),
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+        //     any(
+        //         all(
+        //             target_os = "linux",
+        //             any(
+        //                 target_env = "gnu",
+        //                 all(
+        //                     any(target_env = "musl", target_env = "ohos"),
+        //                     not(target_feature = "crt-static"),
+        //                 ),
+        //                 portable_atomic_outline_atomics,
+        //             ),
+        //         ),
+        //         target_os = "android",
+        //     ),
+        //     not(any(miri, portable_atomic_sanitize_thread)),
+        // ),
+    ),
+))]
+// Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
+#[cfg_attr(any(miri, portable_atomic_sanitize_thread), path = "atomic128/intrinsics.rs")]
+#[cfg_attr(not(any(miri, portable_atomic_sanitize_thread)), path = "atomic128/riscv64.rs")]
+mod riscv64;
+
 // powerpc64 128-bit atomics
 #[cfg(all(
     target_arch = "powerpc64",
@@ -178,6 +213,14 @@ mod x86;
             target_arch = "x86_64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+        ),
+        all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+            ),
         ),
         all(
             target_arch = "powerpc64",
@@ -357,6 +400,35 @@ items! {
             ),
         ),
         all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                // TODO(riscv64)
+                // all(
+                //     feature = "fallback",
+                //     not(portable_atomic_no_outline_atomics),
+                //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+                //     any(
+                //         all(
+                //             target_os = "linux",
+                //             any(
+                //                 target_env = "gnu",
+                //                 all(
+                //                     any(target_env = "musl", target_env = "ohos"),
+                //                     not(target_feature = "crt-static"),
+                //                 ),
+                //                 portable_atomic_outline_atomics,
+                //             ),
+                //         ),
+                //         target_os = "android",
+                //     ),
+                //     not(any(miri, portable_atomic_sanitize_thread)),
+                // ),
+            ),
+        ),
+        all(
             target_arch = "powerpc64",
             portable_atomic_unstable_asm_experimental_arch,
             any(
@@ -429,6 +501,37 @@ pub(crate) use self::aarch64::{AtomicI128, AtomicU128};
     ),
 ))]
 pub(crate) use self::x86_64::{AtomicI128, AtomicU128};
+// riscv64 & zacas
+#[cfg(all(
+    target_arch = "riscv64",
+    not(portable_atomic_no_asm),
+    any(
+        target_feature = "experimental-zacas",
+        portable_atomic_target_feature = "experimental-zacas",
+        // TODO(riscv64)
+        // all(
+        //     feature = "fallback",
+        //     not(portable_atomic_no_outline_atomics),
+        //     any(test, portable_atomic_outline_atomics), // TODO(riscv64): currently disabled by default
+        //     any(
+        //         all(
+        //             target_os = "linux",
+        //             any(
+        //                 target_env = "gnu",
+        //                 all(
+        //                     any(target_env = "musl", target_env = "ohos"),
+        //                     not(target_feature = "crt-static"),
+        //                 ),
+        //                 portable_atomic_outline_atomics,
+        //             ),
+        //         ),
+        //         target_os = "android",
+        //     ),
+        //     not(any(miri, portable_atomic_sanitize_thread)),
+        // ),
+    ),
+))]
+pub(crate) use self::riscv64::{AtomicI128, AtomicU128};
 // powerpc64 & (pwr8 | outline-atomics)
 #[cfg(all(
     target_arch = "powerpc64",

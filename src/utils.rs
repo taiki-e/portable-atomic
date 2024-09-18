@@ -344,6 +344,7 @@ pub(crate) fn zero_extend64_ptr(v: *mut ()) -> core::mem::MaybeUninit<u64> {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "powerpc64",
+    target_arch = "riscv64",
     target_arch = "s390x",
     target_arch = "x86_64",
 ))]

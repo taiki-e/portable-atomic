@@ -261,7 +261,12 @@ macro_rules! atomic128 {
     };
 }
 
-#[cfg(any(target_arch = "powerpc64", target_arch = "s390x", target_arch = "x86_64"))]
+#[cfg(any(
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "x86_64",
+))]
 #[allow(unused_macros)] // also used by intrinsics.rs
 macro_rules! atomic_rmw_by_atomic_update {
     () => {

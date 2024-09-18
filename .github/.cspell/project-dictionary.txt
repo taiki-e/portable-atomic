@@ -3,6 +3,7 @@ adde
 alcgr
 algr
 allnoconfig
+amocas
 aosp
 aqrl
 armasm
@@ -31,6 +32,7 @@ cpsid
 cpsie
 CPSR
 cpuid
+cpus
 cputable
 csel
 cset
@@ -192,4 +194,5 @@ xsave
 xsub
 zaamo
 zabha
+zacas
 Zhaoxin

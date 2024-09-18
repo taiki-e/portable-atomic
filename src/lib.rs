@@ -275,14 +275,24 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 // fallback and causing memory ordering problems to be missed by these checkers.
 #![cfg_attr(
     all(
-        any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
+        any(
+            target_arch = "aarch64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+        ),
         any(miri, portable_atomic_sanitize_thread),
     ),
     allow(internal_features)
 )]
 #![cfg_attr(
     all(
-        any(target_arch = "aarch64", target_arch = "powerpc64", target_arch = "s390x"),
+        any(
+            target_arch = "aarch64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+        ),
         any(miri, portable_atomic_sanitize_thread),
     ),
     feature(core_intrinsics)

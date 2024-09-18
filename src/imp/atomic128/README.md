@@ -10,6 +10,7 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | ----------- | ---- | ----- | --- | --- | ---- |
 | x86_64 | cmpxchg16b or vmovdqa | cmpxchg16b or vmovdqa | cmpxchg16b | cmpxchg16b | cmpxchg16b target feature required. vmovdqa requires Intel, AMD, or Zhaoxin CPU with AVX. <br> Both compile-time and run-time detection are supported for cmpxchg16b. vmovdqa is currently run-time detection only. <br> Requires rustc 1.59+ |
 | aarch64 | ldxp/stxp or casp or ldp/ldiapp | ldxp/stxp or casp or stp/stilp/swpp | ldxp/stxp or casp | ldxp/stxp or casp/swpp/ldclrp/ldsetp | casp requires lse target feature, ldp/stp requires lse2 target feature, ldiapp/stilp requires lse2 and rcpc3 target features, swpp/ldclrp/ldsetp requires lse128 target feature. <br> Both compile-time and run-time detection are supported. <br> Requires rustc 1.59+ |
+| riscv64 | amocas.q | amocas.q | amocas.q | amocas.q | Experimental. Requires experimental-zacas target feature. Currently compile-time detection only due to LLVM marking it as experimental. <br> Requires 1.82+ (LLVM 19+) |
 | powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Requires target-cpu pwr8+ (powerpc64le is pwr8 by default). Both compile-time and run-time detection are supported (run-time detection is currently disabled by default). <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires nightly |
 
@@ -19,7 +20,7 @@ See [aarch64.rs](aarch64.rs) module-level comments for more details on the instr
 
 ## Comparison with core::intrinsics::atomic_\* (core::sync::atomic::Atomic{I,U}128)
 
-This directory has target-specific implementations with inline assembly ([aarch64.rs](aarch64.rs), [x86_64.rs](x86_64.rs), [powerpc64.rs](powerpc64.rs), [s390x.rs](s390x.rs)) and an implementation without inline assembly ([intrinsics.rs](intrinsics.rs)). The latter currently always needs nightly compilers and is only used for Miri and ThreadSanitizer, which do not support inline assembly.
+This directory has target-specific implementations with inline assembly ([aarch64.rs](aarch64.rs), [x86_64.rs](x86_64.rs), [powerpc64.rs](powerpc64.rs), [riscv64.rs](riscv64.rs), [s390x.rs](s390x.rs)) and an implementation without inline assembly ([intrinsics.rs](intrinsics.rs)). The latter currently always needs nightly compilers and is only used for Miri and ThreadSanitizer, which do not support inline assembly.
 
 Implementations with inline assembly generate assemblies almost equivalent to the `core::intrinsics::atomic_*` (used in `core::sync::atomic::Atomic{I,U}128`) for many operations, but some operations may or may not generate more efficient code. For example:
 
@@ -47,6 +48,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64     | macos/ios/tvos/watchos/visionos | sysctlbyname    | all      | Currently only used in tests (see detect/aarch64_apple.rs). |
 | aarch64     | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
+| riscv64     | linux                | riscv_hwprobe   | all      | Currently only used in tests due to LLVM marking zacas as experimental |
 | powerpc64   | linux                | getauxval       | all      | Disabled by default |
 | powerpc64   | freebsd              | elf_aux_info    | all      | Disabled by default |
 | powerpc64   | openbsd              | elf_aux_info    | all      | Disabled by default |

@@ -100,6 +100,18 @@ flags! {
     HAS_LSE128(4, has_lse128, "lse128", any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
 }
 
+#[cfg(target_arch = "powerpc64")]
+flags! {
+    // lqarx and stqcx.
+    HAS_QUADWORD_ATOMICS(1, has_quadword_atomics, "quadword-atomics", any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")),
+}
+
+#[cfg(target_arch = "riscv64")]
+flags! {
+    // amocas.{w,d,q}
+    HAS_ZACAS(1, has_zacas, "zacas", any(target_feature = "experimental-zacas", portable_atomic_target_feature = "experimental-zacas")),
+}
+
 #[cfg(target_arch = "x86_64")]
 flags! {
     // cmpxchg16b
@@ -109,14 +121,8 @@ flags! {
     HAS_VMOVDQA_ATOMIC(2, has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
 }
 
-#[cfg(target_arch = "powerpc64")]
-flags! {
-    // lqarx and stqcx.
-    HAS_QUADWORD_ATOMICS(1, has_quadword_atomics, "quadword-atomics", any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")),
-}
-
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
-#[cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
+#[cfg(not(target_arch = "x86_64"))]
 #[cfg(not(windows))]
 #[allow(dead_code, non_camel_case_types)]
 mod c_types {
@@ -164,6 +170,9 @@ mod c_types {
         let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
+        #[cfg(not(
+            all(target_arch = "riscv64", target_os = "android"), // TODO: https://github.com/rust-lang/rust/issues/129945
+        ))]
         let _: c_char = 0 as std::os::raw::c_char;
         let _: c_char = 0 as sys::c_char;
     };
@@ -295,21 +304,6 @@ mod tests_common {
             }
         }
     }
-    #[cfg(target_arch = "x86_64")]
-    #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
-    fn test_detect() {
-        if detect().has_cmpxchg16b() {
-            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
-        }
-        if detect().has_vmovdqa_atomic() {
-            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        }
-    }
     #[cfg(target_arch = "powerpc64")]
     #[test]
     #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
@@ -325,6 +319,31 @@ mod tests_common {
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(!proc_cpuinfo.power8);
             }
+        }
+    }
+    #[cfg(target_arch = "riscv64")]
+    #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    fn test_detect() {
+        if detect().has_zacas() {
+            assert!(detect().test(CpuInfo::HAS_ZACAS));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_ZACAS));
+        }
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    fn test_detect() {
+        if detect().has_cmpxchg16b() {
+            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
+        }
+        if detect().has_vmovdqa_atomic() {
+            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         }
     }
 }
