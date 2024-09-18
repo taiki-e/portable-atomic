@@ -3647,9 +3647,10 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                 pub fn fetch_not(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_not(order)
                 }
+            }
 
-                doc_comment! {
-                    concat!("Logical negates the current value, and sets the new value to the result.
+            doc_comment! {
+                concat!("Logical negates the current value, and sets the new value to the result.
 
 Unlike `fetch_not`, this does not return the previous value.
 
@@ -3672,11 +3673,10 @@ let foo = ", stringify!($atomic_type), "::new(0);
 foo.not(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), !0);
 ```"),
-                    #[inline]
-                    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-                    pub fn not(&self, order: Ordering) {
-                        self.inner.not(order);
-                    }
+                #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+                pub fn not(&self, order: Ordering) {
+                    self.inner.not(order);
                 }
             }
 
@@ -3706,9 +3706,10 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                 pub fn fetch_neg(&self, order: Ordering) -> $int_type {
                     self.inner.fetch_neg(order)
                 }
+            }
 
-                doc_comment! {
-                    concat!("Negates the current value, and sets the new value to the result.
+            doc_comment! {
+                concat!("Negates the current value, and sets the new value to the result.
 
 Unlike `fetch_neg`, this does not return the previous value.
 
@@ -3732,11 +3733,10 @@ assert_eq!(foo.load(Ordering::Relaxed), 5_", stringify!($int_type), ".wrapping_n
 foo.neg(Ordering::Relaxed);
 assert_eq!(foo.load(Ordering::Relaxed), 5);
 ```"),
-                    #[inline]
-                    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-                    pub fn neg(&self, order: Ordering) {
-                        self.inner.neg(order);
-                    }
+                #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+                pub fn neg(&self, order: Ordering) {
+                    self.inner.neg(order);
                 }
             }
             } // cfg_has_atomic_cas!
