@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic{I,U}128 implementation on riscv64 using amocas.q (DWCAS).
+Atomic{I,U}64 implementation on riscv32 using amocas.d (DWCAS).
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
-this module and use intrinsics.rs instead.
+this module and use fallback implementation instead.
 
 Refs:
 - RISC-V Instruction Set Manual
@@ -15,8 +15,10 @@ Refs:
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
 
 Generated asm:
-- riscv64 (+experimental-zacas) https://godbolt.org/z/5Kc17T1W8
+- riscv32 (+experimental-zacas) https://godbolt.org/z/d3f6EsG3f
 */
+
+// TODO: merge duplicated code with atomic128/riscv64.rs
 
 include!("macros.rs");
 
@@ -53,7 +55,7 @@ mod detect;
 
 use core::{arch::asm, sync::atomic::Ordering};
 
-use crate::utils::{Pair, U128};
+use crate::utils::{Pair, U64};
 
 // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
 #[cfg(any(
@@ -113,8 +115,8 @@ macro_rules! atomic_rmw_amocas_order {
 }
 
 #[inline]
-unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+unsafe fn atomic_load(src: *mut u64, order: Ordering) -> u64 {
+    debug_assert!(src as usize % 8 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -124,22 +126,22 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 asm!(
                     start_zacas!(),
                     $fence,
-                    concat!("amocas.q", $asm_order, " a2, a2, 0({src})"),
+                    concat!("amocas.d", $asm_order, " a2, a2, 0({src})"),
                     end_zacas!(),
                     src = in(reg) ptr_reg!(src),
-                    inout("a2") 0_u64 => out_lo,
-                    inout("a3") 0_u64 => out_hi,
+                    inout("a2") 0_u32 => out_lo,
+                    inout("a3") 0_u32 => out_hi,
                     options(nostack, preserves_flags),
                 )
             };
         }
         atomic_rmw_amocas_order!(load, order);
-        U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
+        U64 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
 
 #[inline]
-unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+unsafe fn atomic_store(dst: *mut u64, val: u64, order: Ordering) {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         atomic_swap(dst, val, order);
@@ -148,26 +150,26 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
 
 #[inline]
 unsafe fn atomic_compare_exchange(
-    dst: *mut u128,
-    old: u128,
-    new: u128,
+    dst: *mut u64,
+    old: u64,
+    new: u64,
     success: Ordering,
     failure: Ordering,
-) -> Result<u128, u128> {
-    debug_assert!(dst as usize % 16 == 0);
+) -> Result<u64, u64> {
+    debug_assert!(dst as usize % 8 == 0);
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must uphold the safety contract.
     let prev = unsafe {
-        let old = U128 { whole: old };
-        let new = U128 { whole: new };
+        let old = U64 { whole: old };
+        let new = U64 { whole: new };
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg {
             ($fence:tt, $asm_order:tt) => {
                 asm!(
                     start_zacas!(),
                     $fence,
-                    concat!("amocas.q", $asm_order, " a4, a2, 0({dst})"),
+                    concat!("amocas.d", $asm_order, " a4, a2, 0({dst})"),
                     end_zacas!(),
                     dst = in(reg) ptr_reg!(dst),
                     // must be allocated to even/odd register pair
@@ -181,7 +183,7 @@ unsafe fn atomic_compare_exchange(
             };
         }
         atomic_rmw_amocas_order!(cmpxchg, order, failure = failure);
-        U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
+        U64 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     };
     if prev == old {
         Ok(prev)
@@ -193,28 +195,28 @@ unsafe fn atomic_compare_exchange(
 // amocas is always strong.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
-// 128-bit atomic load by two 64-bit atomic loads. (see arm_linux.rs for more)
+// 64-bit atomic load by two 32-bit atomic loads. (see arm_linux.rs for more)
 #[inline]
-unsafe fn byte_wise_atomic_load(src: *const u128) -> u128 {
+unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let (out_lo, out_hi);
         asm!(
-            "ld {out_lo}, ({src})",
-            "ld {out_hi}, 8({src})",
+            "lw {out_lo}, ({src})",
+            "lw {out_hi}, 4({src})",
             src = in(reg) ptr_reg!(src),
             out_lo = out(reg) out_lo,
             out_hi = out(reg) out_hi,
             options(pure, nostack, preserves_flags, readonly),
         );
-        U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
+        U64 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
 
 #[inline(always)]
-unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
+unsafe fn atomic_update<F>(dst: *mut u64, order: Ordering, mut f: F) -> u64
 where
-    F: FnMut(u128) -> u128,
+    F: FnMut(u64) -> u64,
 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -254,18 +256,18 @@ const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(
     portable_atomic_target_feature = "experimental-zacas"
 ));
 
-atomic128!(AtomicI128, i128, atomic_max, atomic_min);
-atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
+atomic64!(AtomicI64, i64, atomic_max, atomic_min);
+atomic64!(AtomicU64, u64, atomic_umax, atomic_umin);
 
 #[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    test_atomic_int!(i128);
-    test_atomic_int!(u128);
+    test_atomic_int!(i64);
+    test_atomic_int!(u64);
 
     // load/store/swap implementation is not affected by signedness, so it is
     // enough to test only unsigned types.
-    stress_test!(u128);
+    stress_test!(u64);
 }

@@ -46,6 +46,8 @@ DWCAS
 elems
 espup
 exynos
+fild
+fistp
 getauxval
 getisax
 getpid
@@ -70,6 +72,7 @@ ldclrpa
 ldclrpal
 ldclrpl
 ldiapp
+ldrexd
 ldsetp
 ldsetpa
 ldsetpal
@@ -101,6 +104,8 @@ minu
 mipsn
 miscompiles
 mmfr
+movlps
+movq
 mpidr
 mstatus
 mvfr
@@ -150,6 +155,7 @@ stilp
 stlxp
 stpq
 stqcx
+strexd
 stxp
 subarch
 subc
