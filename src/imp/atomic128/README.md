@@ -32,7 +32,7 @@ As 128-bit atomics-related APIs stabilize in the standard library, implementatio
 
 ## Run-time CPU feature detection
 
-[detect](detect) module has run-time CPU feature detection implementations.
+[detect](../detect) module has run-time CPU feature detection implementations.
 
 Here is the table of targets that support run-time CPU feature detection and the instruction or API used:
 
@@ -57,6 +57,6 @@ On some targets, run-time detection is disabled by default mainly for compatibil
 
 For targets not included in the above table, run-time detection is always disabled and works the same as when `--cfg portable_atomic_no_outline_atomics` is set.
 
-See [detect/auxv.rs](detect/auxv.rs) module-level comments for more details on Linux/Android/FreeBSD/OpenBSD.
+See [detect/auxv.rs](../detect/auxv.rs) module-level comments for more details on Linux/Android/FreeBSD/OpenBSD.
 
 See also [docs on `portable_atomic_no_outline_atomics`](https://github.com/taiki-e/portable-atomic/blob/HEAD/README.md#optional-cfg-no-outline-atomics) in the top-level readme.

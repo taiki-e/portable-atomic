@@ -28,7 +28,7 @@ mod fallback;
     not(target_feature = "sse"),
     cfg(not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")))
 )]
-#[path = "detect/x86_64.rs"]
+#[path = "../detect/x86_64.rs"]
 mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]

@@ -101,7 +101,7 @@ include!("macros.rs");
     target_os = "android",
     target_os = "freebsd",
 ))]
-#[path = "detect/auxv.rs"]
+#[path = "../detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
@@ -112,17 +112,17 @@ mod detect;
     )),
 ))]
 #[cfg(any(target_os = "netbsd", target_os = "openbsd"))]
-#[path = "detect/aarch64_aa64reg.rs"]
+#[path = "../detect/aarch64_aa64reg.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "fuchsia")]
-#[path = "detect/aarch64_fuchsia.rs"]
+#[path = "../detect/aarch64_fuchsia.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "windows")]
-#[path = "detect/aarch64_windows.rs"]
+#[path = "../detect/aarch64_windows.rs"]
 mod detect;
 
 // test only
@@ -131,18 +131,18 @@ mod detect;
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
-#[path = "detect/aarch64_aa64reg.rs"]
+#[path = "../detect/aarch64_aa64reg.rs"]
 mod detect_aa64reg;
 // TODO: OpenBSD 7.6+
 // #[cfg(test)]
 // #[cfg(not(portable_atomic_no_outline_atomics))]
 // #[cfg(target_os = "openbsd")]
-// #[path = "detect/auxv.rs"]
+// #[path = "../detect/auxv.rs"]
 // mod detect_auxv;
 #[cfg(test)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_vendor = "apple")]
-#[path = "detect/aarch64_apple.rs"]
+#[path = "../detect/aarch64_apple.rs"]
 mod detect_apple;
 
 #[cfg(not(portable_atomic_no_asm))]

@@ -37,7 +37,7 @@ mod fallback;
 
 #[cfg(target_arch = "x86_64")]
 #[cfg(not(target_feature = "cmpxchg16b"))]
-#[path = "detect/x86_64.rs"]
+#[path = "../detect/x86_64.rs"]
 mod detect;
 
 use core::sync::atomic::Ordering;
