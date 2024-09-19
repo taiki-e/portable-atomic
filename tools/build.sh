@@ -87,7 +87,10 @@ default_targets=(
     arm-linux-androideabi
 
     # riscv32
+    # rustc --print target-list | grep -E '^riscv32'
+    # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "riscv32" then .os else empty end' | LC_ALL=C sort -u
     # riscv32 with atomic
+    riscv32gc-unknown-linux-gnu
     riscv32imac-unknown-none-elf
     riscv32imc-esp-espidf
     # riscv64
@@ -95,6 +98,8 @@ default_targets=(
     # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "riscv64" then .os else empty end' | LC_ALL=C sort -u
     # riscv64 with atomic
     riscv64gc-unknown-linux-gnu
+    riscv64gc-unknown-linux-musl
+    riscv64-linux-android
 
     # powerpc64
     # rustc --print target-list | grep -E '^powerpc64'
