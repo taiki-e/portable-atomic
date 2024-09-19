@@ -6,6 +6,7 @@
     unexpected_cfgs,
     unused_extern_crates,
     clippy::duplicate_mod,
+    clippy::duplicated_attributes,
     clippy::inline_always,
     clippy::wildcard_imports
 )]
