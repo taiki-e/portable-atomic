@@ -57,6 +57,7 @@ HWCAP
 hwprobe
 ifunc
 includepath
+insn
 Iotel
 isel
 iseleq

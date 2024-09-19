@@ -22,8 +22,10 @@ Refs:
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- riscv64gc https://godbolt.org/z/x8bhEn39e
-- riscv32imac https://godbolt.org/z/aG9157dhW
+- riscv64gc https://godbolt.org/z/q4fhcPEv4
+- riscv64gc (+zabha) https://godbolt.org/z/hde3ao7hx
+- riscv32imac https://godbolt.org/z/7PKMx5KK3
+- riscv32imac (+zabha) https://godbolt.org/z/E1aTff9f7
 */
 
 // TODO: Zacas extension
@@ -65,16 +67,18 @@ macro_rules! w {
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
-macro_rules! atomic_rmw_amo_order {
-    ($op:ident, $order:ident) => {
-        match $order {
-            Ordering::Relaxed => $op!(""),
-            Ordering::Acquire => $op!(".aq"),
-            Ordering::Release => $op!(".rl"),
-            // AcqRel and SeqCst RMWs are equivalent.
-            Ordering::AcqRel | Ordering::SeqCst => $op!(".aqrl"),
-            _ => unreachable!(),
-        }
+macro_rules! atomic_rmw_amo_ext {
+    ("w") => {
+        "+a"
+    };
+    ("d") => {
+        "+a"
+    };
+    ("b") => {
+        "+a,+zabha"
+    };
+    ("h") => {
+        "+a,+zabha"
     };
 }
 #[cfg(any(
@@ -95,7 +99,8 @@ macro_rules! atomic_rmw_amo {
                 asm!(
                     ".option push",
                     // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
-                    ".option arch, +a",
+                    // Note that .insn <value> requires LLVM 19 https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
+                    concat!(".option arch, ", atomic_rmw_amo_ext!($asm_suffix)),
                     concat!("amo", stringify!($op), ".", $asm_suffix, $asm_order, " {out}, {val}, 0({dst})"),
                     ".option pop",
                     dst = in(reg) ptr_reg!($dst),
@@ -105,7 +110,14 @@ macro_rules! atomic_rmw_amo {
                 )
             };
         }
-        atomic_rmw_amo_order!(op, $order);
+        match $order {
+            Ordering::Relaxed => op!(""),
+            Ordering::Acquire => op!(".aq"),
+            Ordering::Release => op!(".rl"),
+            // AcqRel and SeqCst RMWs are equivalent.
+            Ordering::AcqRel | Ordering::SeqCst => op!(".aqrl"),
+            _ => unreachable!(),
+        }
         out
     }};
 }

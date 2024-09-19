@@ -395,8 +395,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zabha
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zabha
           QEMU_CPU: max
-        # TODO: cranelift doesn't support cfg(target_feature): https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400
-        if: startsWith(matrix.target, 'riscv') && !contains(matrix.flags, 'codegen-backend=cranelift')
+        if: startsWith(matrix.target, 'riscv')
       # riscv +experimental-zacas
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
