@@ -6,19 +6,38 @@ Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBS
 Supported platforms:
 - Linux 6.4+ (through prctl)
   https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
+  prctl returns an unsupported error if operation is not supported,
+  so we can safely use this on older versions.
 - glibc 2.16+ (through getauxval)
   https://github.com/bminor/glibc/commit/c7683a6d02f3ed59f5cd119b3e8547f45a15912f
+  Always available on:
+  - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L35)
+  Not always available on:
+  - powerpc64 (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L55)
+  Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 - musl 1.1.0+ (through getauxval)
   https://github.com/bminor/musl/commit/21ada94c4b8c01589367cea300916d7db8461ae7
+  Always available on:
+  - aarch64 (musl 1.1.7+ https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
+  - powerpc64 (musl 1.1.15+ https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
+  Since Rust 1.31, std requires musl 1.1.20+ https://github.com/rust-lang/rust/pull/54430
+  Since Rust 1.37, std requires musl 1.1.22+ https://github.com/rust-lang/rust/pull/61252
+  Since Rust 1.46, std requires musl 1.1.24+ https://github.com/rust-lang/rust/pull/73089
+  Since Rust 1.71, std requires musl 1.2.3+ https://blog.rust-lang.org/2023/05/09/Updating-musl-targets.html
 - uClibc-ng 1.0.43+ (through getauxval)
   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
 - Android 4.3+ (API level 18+) (through getauxval)
   https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49
+  Always available on 64-bit architectures, which is supported on Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
+  Not always available on:
+  - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
+  - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
+  Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
 - OpenBSD 7.6+ (through elf_aux_info)
   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
 

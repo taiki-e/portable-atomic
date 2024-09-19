@@ -99,7 +99,10 @@ macro_rules! atomic_rmw_amo {
                 asm!(
                     ".option push",
                     // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
-                    // Note that .insn <value> requires LLVM 19 https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
+                    // LLVM supports `.option arch` directive on LLVM 17+, so use .insn directive on old LLVM.
+                    // https://github.com/llvm/llvm-project/commit/9e8ed3403c191ab9c4903e8eeb8f732ff8a43cb4
+                    // Note that `.insn <value>` directive requires LLVM 19.
+                    // https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
                     concat!(".option arch, ", atomic_rmw_amo_ext!($asm_suffix)),
                     concat!("amo", stringify!($op), ".", $asm_suffix, $asm_order, " {out}, {val}, 0({dst})"),
                     ".option pop",

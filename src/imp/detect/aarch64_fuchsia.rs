@@ -7,7 +7,7 @@ As of nightly-2024-09-07, is_aarch64_feature_detected doesn't support run-time d
 https://github.com/rust-lang/stdarch/blob/d9466edb4c53cece8686ee6e17b028436ddf4151/crates/std_detect/src/detect/mod.rs
 
 Refs:
-- https://fuchsia.dev/fuchsia-src/reference/syscalls/system_get_features
+- https://fuchsia.dev/reference/syscalls/system_get_features
 - https://github.com/llvm/llvm-project/commit/4e731abc55681751b5d736b613f7720e50eb1ad4
 */
 
@@ -27,7 +27,7 @@ mod ffi {
 
     #[link(name = "zircon")]
     extern "C" {
-        // https://fuchsia.dev/fuchsia-src/reference/syscalls/system_get_features
+        // https://fuchsia.dev/reference/syscalls/system_get_features
         pub(crate) fn zx_system_get_features(kind: u32, features: *mut u32) -> zx_status_t;
     }
 }

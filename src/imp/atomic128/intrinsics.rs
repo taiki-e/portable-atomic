@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic{I,U}128 implementation without inline assembly.
+128-bit atomic implementation without inline assembly.
 
 Adapted from https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs.
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic{I,U}128 implementation on AArch64.
+128-bit atomic implementation on AArch64.
 
 There are a few ways to implement 128-bit atomic operations in AArch64.
 
@@ -1607,10 +1607,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         macro_rules! swap {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 4: 19218002     	swpp	x2, x1, [x0]
-                    // 4: 19a18002     	swppa	x2, x1, [x0]
-                    // 4: 19618002     	swppl	x2, x1, [x0]
-                    // 4: 19e18002     	swppal	x2, x1, [x0]
+                    // 4: 19{2,a,6,e}18002     	swpp{,a,l,al}	x2, x1, [x0]
                     concat!(".inst 0x19", $order, "18002"),
                     $fence,
                     in("x0") ptr_reg!(dst),
@@ -2031,10 +2028,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! clear {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 8: 19211008     	ldclrp	x8, x1, [x0]
-                    // 8: 19a11008     	ldclrpa	x8, x1, [x0]
-                    // 8: 19611008     	ldclrpl	x8, x1, [x0]
-                    // 8: 19e11008     	ldclrpal	x8, x1, [x0]
+                    // 8: 19{2,a,6,e}11008     	ldclrp{,a,l,al}	x8, x1, [x0]
                     concat!(".inst 0x19", $order, "11008"),
                     $fence,
                     in("x0") ptr_reg!(dst),
@@ -2112,10 +2106,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! or {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 4: 19213002     	ldsetp	x2, x1, [x0]
-                    // 4: 19a13002     	ldsetpa	x2, x1, [x0]
-                    // 4: 19613002     	ldsetpl	x2, x1, [x0]
-                    // 4: 19e13002     	ldsetpal	x2, x1, [x0]
+                    // 4: 19{2,a,6,e}13002     	ldsetp{,a,l,al}	x2, x1, [x0]
                     concat!(".inst 0x19", $order, "13002"),
                     $fence,
                     in("x0") ptr_reg!(dst),

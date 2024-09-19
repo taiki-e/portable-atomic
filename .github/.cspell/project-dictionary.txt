@@ -69,15 +69,9 @@ kuser
 ldar
 ldaxp
 ldclrp
-ldclrpa
-ldclrpal
-ldclrpl
 ldiapp
 ldrexd
 ldsetp
-ldsetpa
-ldsetpal
-ldsetpl
 ldxp
 lghi
 libatomic
@@ -164,9 +158,6 @@ subfe
 subfic
 subfze
 swpp
-swppa
-swppal
-swppl
 syscall
 sysctlbyname
 sysctlnode

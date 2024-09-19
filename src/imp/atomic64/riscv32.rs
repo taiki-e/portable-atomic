@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic{I,U}64 implementation on riscv32 using amocas.d (DWCAS).
+64-bit atomic implementation on riscv32 using amocas.d (DWCAS).
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use fallback implementation instead.

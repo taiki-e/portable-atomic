@@ -83,20 +83,20 @@ jobs:
         # - LLVM 19 : stable 1.82 -     , nightly-2024-08-01 (1.82) -
         # (see also https://github.com/rust-lang/rust/commits/master/src/llvm-project)
         # Minimum external LLVM version table:
-        # - LLVM 3.5: stable 1.8  - 1.22, ?                        - ?
-        # - LLVM 3.9: stable 1.23 - 1.28, ?                        - ?
-        # - LLVM 5  : stable 1.29 - 1.32, ?                        - ?
-        # - LLVM 6  : stable 1.33 - 1.40, ?                        - ?
-        # - LLVM 7  : stable 1.41 - 1.43, ?                        - ?
-        # - LLVM 8  : stable 1.44 - 1.49, ?                        - ?
-        # - LLVM 9  : stable 1.50 - 1.52, ?                        - ?
-        # - LLVM 10 : stable 1.53 - 1.57, ?                        - ?
-        # - LLVM 12 : stable 1.58 - 1.64, ?                        - ?
-        # - LLVM 13 : stable 1.65 - 1.68, ?                        - ?
-        # - LLVM 14 : stable 1.69 - 1.72, ?                        - ?
-        # - LLVM 15 : stable 1.73 - 1.75, ?                        - ?
-        # - LLVM 16 : stable 1.76 - 1.78, ?                        - ?
-        # - LLVM 17 : stable 1.79 -     , ?                        -
+        # - LLVM 3.9: stable 1.23 - 1.28, https://github.com/rust-lang/rust/pull/45326
+        # - LLVM 5  : stable 1.29 - 1.32, https://github.com/rust-lang/rust/pull/51899
+        # - LLVM 6  : stable 1.33 - 1.40, https://github.com/rust-lang/rust/pull/56642
+        # - LLVM 7  : stable 1.41 - 1.43, https://github.com/rust-lang/rust/pull/66973
+        # - LLVM 8  : stable 1.44 - 1.49, https://github.com/rust-lang/rust/pull/71147
+        # - LLVM 9  : stable 1.50 - 1.52, https://github.com/rust-lang/rust/pull/78848
+        # - LLVM 10 : stable 1.53 - 1.57, https://github.com/rust-lang/rust/pull/83387
+        # - LLVM 12 : stable 1.58 - 1.64, https://github.com/rust-lang/rust/pull/90175
+        # - LLVM 13 : stable 1.65 - 1.68, https://github.com/rust-lang/rust/pull/100460
+        # - LLVM 14 : stable 1.69 - 1.72, https://github.com/rust-lang/rust/pull/107573
+        # - LLVM 15 : stable 1.73 - 1.75, https://github.com/rust-lang/rust/pull/114148
+        # - LLVM 16 : stable 1.76 - 1.78, https://github.com/rust-lang/rust/pull/117947
+        # - LLVM 17 : stable 1.79 - 1.82, https://github.com/rust-lang/rust/pull/122649
+        # - LLVM 18 : stable 1.83 -     , https://github.com/rust-lang/rust/pull/130487
         include:
           - rust: '1.56'
           - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12

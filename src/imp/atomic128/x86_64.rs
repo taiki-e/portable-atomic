@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic{I,U}128 implementation on x86_64 using CMPXCHG16B (DWCAS).
+128-bit atomic implementation on x86_64 using CMPXCHG16B (DWCAS).
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use intrinsics.rs instead.
