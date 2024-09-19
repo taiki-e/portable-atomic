@@ -170,9 +170,10 @@ mod c_types {
         let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
-        #[cfg(not(
+        #[cfg(not(any(
+            all(target_arch = "aarch64", target_os = "illumos"), // TODO: https://github.com/rust-lang/rust/issues/129945
             all(target_arch = "riscv64", target_os = "android"), // TODO: https://github.com/rust-lang/rust/issues/129945
-        ))]
+        )))]
         let _: c_char = 0 as std::os::raw::c_char;
         let _: c_char = 0 as sys::c_char;
     };

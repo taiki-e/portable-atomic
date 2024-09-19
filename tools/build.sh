@@ -70,6 +70,7 @@ default_targets=(
     aarch64-unknown-linux-uclibc # custom target
     aarch64-unknown-netbsd
     aarch64-unknown-openbsd
+    aarch64-unknown-illumos
     # FEAT_LSE & FEAT_LSE2
     aarch64-apple-darwin
     # big endian
@@ -511,9 +512,9 @@ build() {
             ;;
     esac
     case "${target}" in
-        # portable_atomic_outline_atomics only affects aarch64 Linux and powerpc64.
+        # portable_atomic_outline_atomics only affects aarch64 Linux/illumos and powerpc64.
         # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-        aarch64*-linux-* | powerpc64-*)
+        aarch64*-linux-* | aarch64*-illumos* | powerpc64-*)
             CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
