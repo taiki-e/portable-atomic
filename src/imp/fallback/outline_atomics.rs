@@ -15,16 +15,16 @@ use core::sync::atomic::Ordering;
 #[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
 pub(crate) type Udw = u128;
 #[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
-pub(crate) type AtomicUdw = super::super::fallback::AtomicU128;
+pub(crate) type AtomicUdw = super::super::super::fallback::AtomicU128;
 #[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
-pub(crate) type AtomicIdw = super::super::fallback::AtomicI128;
+pub(crate) type AtomicIdw = super::super::super::fallback::AtomicI128;
 
 #[cfg(target_arch = "arm")]
 pub(crate) type Udw = u64;
 #[cfg(target_arch = "arm")]
-pub(crate) type AtomicUdw = super::super::fallback::AtomicU64;
+pub(crate) type AtomicUdw = super::super::super::fallback::AtomicU64;
 #[cfg(target_arch = "arm")]
-pub(crate) type AtomicIdw = super::super::fallback::AtomicI64;
+pub(crate) type AtomicIdw = super::super::super::fallback::AtomicI64;
 
 // Asserts that the function is called in the correct context.
 macro_rules! debug_assert_outline_atomics {

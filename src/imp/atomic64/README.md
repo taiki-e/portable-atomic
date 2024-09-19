@@ -1,8 +1,8 @@
-# Implementation of 64-bit atomics on 32-bit architectures
+# 64-bit atomic implementations on 32-bit architectures
 
-(See the [`atomic128` module](../atomic128) for 128-bit atomics on 64-bit architectures.)
+(See the [`atomic128` module](../atomic128) for 128-bit atomic implementations on 64-bit architectures.)
 
-## 64-bit atomics instructions
+## 64-bit atomic instructions
 
 Here is the table of targets that support 64-bit atomics and the instructions used:
 
