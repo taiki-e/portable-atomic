@@ -13,6 +13,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64     | netbsd               | sysctlbyname    | all      | Enabled by default |
 | aarch64     | openbsd              | sysctl          | all      | Enabled by default |
 | aarch64     | macos/ios/tvos/watchos/visionos | sysctlbyname    | all      | Currently only used in tests (see [aarch64_apple.rs](aarch64_apple.rs)). |
+| aarch64     | illumos              | getisax         | lse, lse2 | Disabled by default |
 | aarch64     | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
 | riscv32     | linux                | riscv_hwprobe   | all      | Currently only used in tests due to LLVM marking zacas as experimental |
