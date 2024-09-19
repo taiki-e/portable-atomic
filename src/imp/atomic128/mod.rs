@@ -102,3 +102,24 @@ pub(super) mod s390x;
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
 #[cfg_attr(any(miri, portable_atomic_sanitize_thread), path = "intrinsics.rs")]
 pub(super) mod x86_64;
+
+// test only
+#[cfg(test)]
+#[cfg(any(
+    all(target_arch = "aarch64", portable_atomic_new_atomic_intrinsics),
+    all(
+        target_arch = "powerpc64",
+        any(
+            target_feature = "quadword-atomics",
+            portable_atomic_target_feature = "quadword-atomics",
+        ),
+        not(portable_atomic_no_llvm_15),
+    ),
+    all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
+    all(
+        target_arch = "x86_64",
+        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+        not(portable_atomic_no_cmpxchg16b_intrinsic),
+    ),
+))]
+mod intrinsics;
