@@ -53,7 +53,7 @@ fn main() {
         // Custom cfgs set by build script. Not public API.
         // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            "cargo:rustc-check-cfg=cfg(portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_15,portable_atomic_llvm_16,portable_atomic_llvm_18,portable_atomic_new_atomic_intrinsics,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_feature,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
+            "cargo:rustc-check-cfg=cfg(portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_no_llvm_15,portable_atomic_no_llvm_16,portable_atomic_no_llvm_18,portable_atomic_new_atomic_intrinsics,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_feature,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
@@ -167,9 +167,16 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
     }
 
-    if version.llvm >= 16 {
-        println!("cargo:rustc-cfg=portable_atomic_llvm_16");
+    if version.llvm < 18 {
+        println!("cargo:rustc-cfg=portable_atomic_no_llvm_18");
+        if version.llvm < 16 {
+            println!("cargo:rustc-cfg=portable_atomic_no_llvm_16");
+            if version.llvm < 15 {
+                println!("cargo:rustc-cfg=portable_atomic_no_llvm_15");
+            }
+        }
     }
+
     if version.nightly {
         // `cfg(sanitize = "..")` is not stabilized.
         let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
@@ -332,11 +339,6 @@ fn main() {
             target_feature_fallback("zaamo", false);
         }
         "powerpc64" => {
-            // For Miri and ThreadSanitizer.
-            if version.nightly && version.llvm >= 15 {
-                println!("cargo:rustc-cfg=portable_atomic_llvm_15");
-            }
-
             let target_endian =
                 env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
             // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
@@ -364,11 +366,6 @@ fn main() {
             target_feature_fallback("quadword-atomics", has_pwr8_features);
         }
         "s390x" => {
-            // For Miri and ThreadSanitizer.
-            if version.nightly && version.llvm >= 18 {
-                println!("cargo:rustc-cfg=portable_atomic_llvm_18");
-            }
-
             // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+

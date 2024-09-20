@@ -51,7 +51,7 @@ pub(super) mod aarch64;
 ))]
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
 #[cfg_attr(
-    all(any(miri, portable_atomic_sanitize_thread), portable_atomic_llvm_15),
+    all(any(miri, portable_atomic_sanitize_thread), not(portable_atomic_no_llvm_15)),
     path = "intrinsics.rs"
 )]
 pub(super) mod powerpc64;

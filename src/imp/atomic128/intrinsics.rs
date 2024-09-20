@@ -248,13 +248,13 @@ where
 
 // On x86_64, we use core::arch::x86_64::cmpxchg16b instead of core::intrinsics.
 // - On s390x, old LLVM (pre-18) generates libcalls for operations other than load/store/cmpxchg (see also module-level comment).
-#[cfg(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18))))]
+#[cfg(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18)))]
 atomic_rmw_by_atomic_update!();
 // On powerpc64, LLVM doesn't support 128-bit atomic min/max (see also module-level comment).
 #[cfg(target_arch = "powerpc64")]
 atomic_rmw_by_atomic_update!(cmp);
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -271,7 +271,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -288,7 +288,7 @@ unsafe fn atomic_add(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -305,7 +305,7 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -322,7 +322,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -339,7 +339,7 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -356,7 +356,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
@@ -376,7 +376,7 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[cfg(not(any(
     target_arch = "x86_64",
     target_arch = "powerpc64",
-    all(target_arch = "s390x", not(portable_atomic_llvm_18)),
+    all(target_arch = "s390x", portable_atomic_no_llvm_18),
 )))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -398,7 +398,7 @@ unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 #[cfg(not(any(
     target_arch = "x86_64",
     target_arch = "powerpc64",
-    all(target_arch = "s390x", not(portable_atomic_llvm_18)),
+    all(target_arch = "s390x", portable_atomic_no_llvm_18),
 )))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -420,7 +420,7 @@ unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 #[cfg(not(any(
     target_arch = "x86_64",
     target_arch = "powerpc64",
-    all(target_arch = "s390x", not(portable_atomic_llvm_18)),
+    all(target_arch = "s390x", portable_atomic_no_llvm_18),
 )))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -441,7 +441,7 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[cfg(not(any(
     target_arch = "x86_64",
     target_arch = "powerpc64",
-    all(target_arch = "s390x", not(portable_atomic_llvm_18)),
+    all(target_arch = "s390x", portable_atomic_no_llvm_18),
 )))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -459,7 +459,7 @@ unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
@@ -467,7 +467,7 @@ unsafe fn atomic_not(dst: *mut u128, order: Ordering) -> u128 {
     unsafe { atomic_xor(dst, !0, order) }
 }
 
-#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", not(portable_atomic_llvm_18)))))]
+#[cfg(not(any(target_arch = "x86_64", all(target_arch = "s390x", portable_atomic_no_llvm_18))))]
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_neg(dst: *mut u128, order: Ordering) -> u128 {

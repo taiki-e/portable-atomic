@@ -358,7 +358,7 @@ macro_rules! start_lse {
         ".arch_extension lse"
     };
 }
-#[cfg(portable_atomic_llvm_16)]
+#[cfg(not(portable_atomic_no_llvm_16))]
 #[cfg(any(
     target_feature = "lse128",
     portable_atomic_target_feature = "lse128",
@@ -372,7 +372,7 @@ macro_rules! start_lse128 {
         ".arch_extension lse128"
     };
 }
-#[cfg(portable_atomic_llvm_16)]
+#[cfg(not(portable_atomic_no_llvm_16))]
 #[cfg(any(
     target_feature = "rcpc3",
     portable_atomic_target_feature = "rcpc3",
@@ -420,7 +420,7 @@ macro_rules! atomic_rmw {
         }
     };
 }
-#[cfg(not(portable_atomic_llvm_16))]
+#[cfg(portable_atomic_no_llvm_16)]
 #[cfg(any(
     target_feature = "lse128",
     portable_atomic_target_feature = "lse128",
@@ -717,7 +717,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
         let (out_lo, out_hi);
         match order {
             Ordering::Acquire => {
-                #[cfg(portable_atomic_llvm_16)]
+                #[cfg(not(portable_atomic_no_llvm_16))]
                 asm!(
                     start_rcpc3!(),
                     "ldiapp {out_lo}, {out_hi}, [{src}]",
@@ -728,7 +728,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 );
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
-                #[cfg(not(portable_atomic_llvm_16))]
+                #[cfg(portable_atomic_no_llvm_16)]
                 asm!(
                     // 0: d9411800     	ldiapp	x0, x1, [x0]
                     ".inst 0xd9411800",
@@ -739,7 +739,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 );
             }
             Ordering::SeqCst => {
-                #[cfg(portable_atomic_llvm_16)]
+                #[cfg(not(portable_atomic_no_llvm_16))]
                 asm!(
                     start_rcpc3!(),
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
@@ -754,7 +754,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 );
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
-                #[cfg(not(portable_atomic_llvm_16))]
+                #[cfg(portable_atomic_no_llvm_16)]
                 asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
                     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
@@ -1157,7 +1157,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
         macro_rules! atomic_store {
             ($acquire:tt) => {{
                 let val = U128 { whole: val };
-                #[cfg(portable_atomic_llvm_16)]
+                #[cfg(not(portable_atomic_no_llvm_16))]
                 asm!(
                     start_rcpc3!(),
                     "stilp {val_lo}, {val_hi}, [{dst}]",
@@ -1169,7 +1169,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
                 );
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
-                #[cfg(not(portable_atomic_llvm_16))]
+                #[cfg(portable_atomic_no_llvm_16)]
                 asm!(
                     // 0: d9031802     	stilp	x2, x3, [x0]
                     ".inst 0xd9031802",
@@ -1607,7 +1607,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
     unsafe {
         let val = U128 { whole: val };
         let (prev_lo, prev_hi);
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         macro_rules! swap {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
@@ -1621,11 +1621,11 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                 )
             };
         }
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         atomic_rmw!(swap, order);
         // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
         // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         macro_rules! swap {
             ($order:tt, $fence:tt) => {
                 asm!(
@@ -1639,7 +1639,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
                 )
             };
         }
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         atomic_rmw_inst!(swap, order);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
@@ -2028,7 +2028,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     unsafe {
         let val = U128 { whole: !val };
         let (prev_lo, prev_hi);
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         macro_rules! clear {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
@@ -2042,11 +2042,11 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                 )
             };
         }
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         atomic_rmw!(clear, order);
         // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
         // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         macro_rules! clear {
             ($order:tt, $fence:tt) => {
                 asm!(
@@ -2060,7 +2060,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                 )
             };
         }
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         atomic_rmw_inst!(clear, order);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
@@ -2106,7 +2106,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     unsafe {
         let val = U128 { whole: val };
         let (prev_lo, prev_hi);
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         macro_rules! or {
             ($acquire:tt, $release:tt, $fence:tt) => {
                 asm!(
@@ -2120,11 +2120,11 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                 )
             };
         }
-        #[cfg(portable_atomic_llvm_16)]
+        #[cfg(not(portable_atomic_no_llvm_16))]
         atomic_rmw!(or, order);
         // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
         // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         macro_rules! or {
             ($order:tt, $fence:tt) => {
                 asm!(
@@ -2138,7 +2138,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                 )
             };
         }
-        #[cfg(not(portable_atomic_llvm_16))]
+        #[cfg(portable_atomic_no_llvm_16)]
         atomic_rmw_inst!(or, order);
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
