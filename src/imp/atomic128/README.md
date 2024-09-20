@@ -20,7 +20,7 @@ See [aarch64.rs](aarch64.rs) module-level comments for more details on the instr
 
 ## Comparison with core::intrinsics::atomic_\* (core::sync::atomic::Atomic{I,U}128)
 
-This directory has target-specific implementations with inline assembly ([aarch64.rs](aarch64.rs), [x86_64.rs](x86_64.rs), [powerpc64.rs](powerpc64.rs), [riscv64.rs](riscv64.rs), [s390x.rs](s390x.rs)) and an implementation without inline assembly ([intrinsics.rs](intrinsics.rs)). The latter currently always needs nightly compilers and is only used for Miri and ThreadSanitizer, which do not support inline assembly.
+This directory has target-specific implementations with inline assembly [x86_64.rs](x86_64.rs), ([aarch64.rs](aarch64.rs), [riscv64.rs](riscv64.rs), [powerpc64.rs](powerpc64.rs), [s390x.rs](s390x.rs)) and an implementation without inline assembly ([intrinsics.rs](intrinsics.rs)). The latter currently always needs nightly compilers and is only used for Miri and ThreadSanitizer, which do not support inline assembly.
 
 Implementations with inline assembly generate assemblies almost equivalent to the `core::intrinsics::atomic_*` (used in `core::sync::atomic::Atomic{I,U}128`) for many operations, but some operations may or may not generate more efficient code. For example:
 
