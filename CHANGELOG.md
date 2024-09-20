@@ -10,6 +10,52 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Improve diagnostics when method that requires CAS is unavailable. ([#181](https://github.com/taiki-e/portable-atomic/pull/181))
+
+  Before:
+
+  ```text
+  error[E0599]: no method named `compare_exchange` found for struct `portable_atomic::AtomicUsize` in the current scope
+    --> src/race.rs:60:24
+     |
+  60 |             self.inner.compare_exchange(0, value.get(), Ordering::AcqRel, Ordering::Acquire);
+     |                        ^^^^^^^^^^^^^^^^ method not found in `AtomicUsize`
+  ```
+
+  After:
+
+  ```text
+  error[E0277]: `compare_exchange` requires atomic CAS but not available on this target by default
+      --> src/race.rs:60:24
+       |
+  60   |             self.inner.compare_exchange(0, value.get(), Ordering::AcqRel, Ordering::Acquire);
+       |                        ^^^^^^^^^^^^^^^^ this associated function is not available on this target by default
+       |
+       = help: the trait `HasCompareExchange` is not implemented for `&portable_atomic::AtomicUsize`
+       = note: consider enabling one of the `unsafe-assume-single-core` or `critical-section` Cargo features
+       = note: see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more.
+  ```
+
+- Improve compile error messages for some other cases ([19716ac](https://github.com/taiki-e/portable-atomic/commit/19716ac1d3b6082a8cb838af532ccab871041249), [61dcaaa](https://github.com/taiki-e/portable-atomic/commit/61dcaaa320cb347ab799c6c4f4480600692de2ad))
+
+- Various improvements to RISC-V.
+  - riscv64: Support 128-bit atomics when Zacas extension enabled. ([173](https://github.com/taiki-e/portable-atomic/pull/173)) This is currently marked as experimental because LLVM marking the corresponding target feature as experimental.
+  - riscv32: Support 64-bit atomics when Zacas extension enabled. ([173](https://github.com/taiki-e/portable-atomic/pull/173)) This is currently marked as experimental because LLVM marking the corresponding target feature as experimental.
+  - Improvements for RISC-V without A-extension:
+    - Support zaamo target feature. When building for single-core RISC-V without A-extension, this is equivalent to force-amo feature  ([8abba4b](https://github.com/taiki-e/portable-atomic/commit/8abba4b0ea920d23799c2d7b6985617e6392d176))
+    - Support zabha target feature. ([694364a](https://github.com/taiki-e/portable-atomic/commit/694364a179441f723e429516132436c46f5857b4))
+    - Strengthen SeqCst store to improve compatibility with code that uses atomic instruction mapping that differs from LLVM and GCC. ([5b10b15](https://github.com/taiki-e/portable-atomic/commit/5b10b1516e056b16b851e498a271f751152feed9))
+
+- Improve support of run-time detection and outline-atomics:
+  - aarch64: Support run-time detection of FEAT_LRCPC3/FEAT_LSE128 for load/store. ([#174](https://github.com/taiki-e/portable-atomic/pull/174))
+  - aarch64: Support run-time detection of FEAT_LSE2 on OpenBSD. ([4f8c735](https://github.com/taiki-e/portable-atomic/commit/4f8c7350fd80d005233d85191707e4329a5ef484))
+  - aarch64: Support run-time detection of FEAT_LSE/FEAT_LSE2 on illumos (currently disabled by default because illumos AArch64 port is experimental). ([#175](https://github.com/taiki-e/portable-atomic/pull/175))
+  - powerpc64: Support run-time detection on OpenBSD 7.6+ (currently disabled by default for compatibility with old versions). ([09a967b](https://github.com/taiki-e/portable-atomic/commit/09a967b59c217dc9ebb4d78ec114758ef9941fc8))
+
+- aarch64: Support FEAT_LRCPC3/FEAT_LSE128 with pre-16 LLVM. ([#178](https://github.com/taiki-e/portable-atomic/pull/178))
+- aarch64: Improve compile-time detection of FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128. ([10d47de](https://github.com/taiki-e/portable-atomic/commit/10d47def74b9c13fd864436d6118e902f118c028))
+- Relax minimal version of `serde` (supported via optional feature) to 1.0.60.
+
 ## [1.7.0] - 2024-07-19
 
 - Support run-time detection for cmpxchg16b on x86_64 on pre-1.69 rustc. ([#154](https://github.com/taiki-e/portable-atomic/pull/154))
