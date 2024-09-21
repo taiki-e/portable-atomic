@@ -263,7 +263,7 @@ macro_rules! atomic_int {
                 {
                     #[cfg(any(
                         all(
-                            target_arch = "aarch64",
+                            any(target_arch = "aarch64", target_arch = "arm64ec"),
                             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
                         all(
@@ -315,7 +315,7 @@ macro_rules! atomic_int {
                 {
                     #[cfg(any(
                         all(
-                            target_arch = "aarch64",
+                            any(target_arch = "aarch64", target_arch = "arm64ec"),
                             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
                         ),
                         all(

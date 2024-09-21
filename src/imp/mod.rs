@@ -76,6 +76,7 @@ mod atomic64;
 // 128-bit atomic implementations on 64-bit architectures
 #[cfg(any(
     target_arch = "aarch64",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "riscv64",
     target_arch = "s390x",
@@ -96,6 +97,7 @@ mod atomic128;
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
+        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
         all(
             target_arch = "x86_64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
@@ -296,6 +298,7 @@ items! {
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
+        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
         all(
             target_arch = "x86_64",
             not(all(
@@ -398,9 +401,9 @@ pub(crate) use self::atomic64::riscv32::{AtomicI64, AtomicU64};
 
 // 128-bit atomics (platform-specific)
 // AArch64
-#[cfg(all(
-    target_arch = "aarch64",
-    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+#[cfg(any(
+    all(target_arch = "aarch64", any(not(portable_atomic_no_asm), portable_atomic_unstable_asm)),
+    all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch)
 ))]
 pub(crate) use self::atomic128::aarch64::{AtomicI128, AtomicU128};
 // x86_64 & (cmpxchg16b | outline-atomics)

@@ -59,7 +59,7 @@ default_targets=(
     i586-unknown-linux-gnu
 
     # aarch64
-    # rustc --print target-list | grep -E '^(aarch64|arm64)'
+    # rustc --print target-list | grep -E '^(aarch64|arm64)' | grep -v arm64ec
     # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "aarch64" then .os else empty end' | LC_ALL=C sort -u
     aarch64-linux-android
     aarch64-pc-windows-msvc
@@ -81,6 +81,11 @@ default_targets=(
     arm64_32-apple-watchos
     # ILP32 ABI big endian
     aarch64_be-unknown-linux-gnu_ilp32
+
+    # arm64ec
+    # rustc --print target-list | grep -E '^arm64ec'
+    # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "arm64ec" then .os else empty end' | LC_ALL=C sort -u
+    arm64ec-pc-windows-msvc
 
     # arm pre-v6 linux-like
     armv4t-unknown-linux-gnueabi

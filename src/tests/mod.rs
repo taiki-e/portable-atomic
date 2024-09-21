@@ -131,6 +131,7 @@ fn test_is_lock_free() {
         assert!(!AtomicU128::is_lock_free());
     } else if cfg!(any(
         target_arch = "aarch64",
+        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
         all(
             target_arch = "x86_64",
             any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),

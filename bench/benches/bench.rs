@@ -35,7 +35,10 @@ mod tests {
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/mod.rs"]
 mod imp;
-#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
+#[cfg(any(
+    target_arch = "x86_64",
+    all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
+))]
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/atomic128/intrinsics.rs"]
 mod intrinsics;
@@ -343,13 +346,17 @@ macro_rules! benches {
 #[cfg(any(
     target_arch = "x86_64",
     target_arch = "aarch64",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "s390x",
 ))]
 mod bench {
     use super::*;
 
-    #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
+    #[cfg(any(
+        target_arch = "x86_64",
+        all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
+    ))]
     impl_atomic!(intrinsics::AtomicU128, u128);
     impl_atomic!(imp::AtomicU128, u128);
     impl_atomic!(seqlock_fallback::AtomicU128, u128);
@@ -357,7 +364,10 @@ mod bench {
     // impl_atomic!(atomic::Atomic<u128>, u128);
     // impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u128>, u128);
 
-    #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", target_endian = "little")))]
+    #[cfg(any(
+        target_arch = "x86_64",
+        all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
+    ))]
     benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128, u128);
     benches!(bench_portable_atomic_arch, imp::AtomicU128, u128);
     benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128, u128);

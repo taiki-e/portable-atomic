@@ -195,7 +195,8 @@ fn main() {
         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
         if !no_asm
             && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 12)
-                || target_arch == "s390x" && version.probe(71, 2023, 5, 8))
+                || target_arch == "s390x" && version.probe(71, 2023, 5, 8)
+                || target_arch == "arm64ec")
             && is_allowed_feature("asm_experimental_arch")
         {
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
@@ -230,7 +231,7 @@ fn main() {
                 target_feature_fallback("cmpxchg16b", has_cmpxchg16b);
             }
         }
-        "aarch64" => {
+        "aarch64" | "arm64ec" => {
             // For Miri and ThreadSanitizer.
             // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
             if version.nightly && version.probe(64, 2022, 6, 29) {
