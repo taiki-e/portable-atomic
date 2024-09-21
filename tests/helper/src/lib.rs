@@ -24,6 +24,7 @@ pub mod sys;
 #[cfg(feature = "std")]
 pub mod cpuinfo;
 #[cfg(feature = "std")]
+#[cfg(feature = "critical-section")]
 mod critical_section_std;
 #[cfg(feature = "std")]
 pub mod once_lock;
