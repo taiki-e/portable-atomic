@@ -29,8 +29,6 @@ include!("macros.rs");
 #[path = "../fallback/outline_atomics.rs"]
 mod fallback;
 
-// On musl with static linking, it seems that libc is not always available.
-// See detect/auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, portable_atomic_outline_atomics))] // TODO(riscv): currently disabled by default
 #[cfg(any(
@@ -40,17 +38,7 @@ mod fallback;
         portable_atomic_target_feature = "experimental-zacas",
     )),
 ))]
-#[cfg(any(
-    all(
-        target_os = "linux",
-        any(
-            target_env = "gnu",
-            all(any(target_env = "musl", target_env = "ohos"), not(target_feature = "crt-static")),
-            portable_atomic_outline_atomics,
-        ),
-    ),
-    target_os = "android",
-))]
+#[cfg(any(target_os = "linux", target_os = "android"))]
 #[path = "../detect/riscv_linux.rs"]
 mod detect;
 
