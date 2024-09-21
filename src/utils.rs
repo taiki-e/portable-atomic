@@ -48,6 +48,8 @@ macro_rules! doc_comment {
     target_arch = "aarch64",
     target_arch = "arm",
     target_arch = "powerpc64",
+    target_arch = "riscv32",
+    target_arch = "riscv64",
     all(target_arch = "x86_64", not(any(target_env = "sgx", miri))),
 ))]
 macro_rules! ifunc {
@@ -81,6 +83,8 @@ macro_rules! ifunc {
     target_arch = "aarch64",
     target_arch = "arm",
     target_arch = "powerpc64",
+    target_arch = "riscv32",
+    target_arch = "riscv64",
     all(target_arch = "x86_64", not(any(target_env = "sgx", miri))),
 ))]
 macro_rules! fn_alias {

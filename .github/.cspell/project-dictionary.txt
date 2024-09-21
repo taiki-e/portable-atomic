@@ -134,6 +134,7 @@ selgr
 seqlock
 setb
 sete
+sifive
 signedness
 simavr
 skiboot

@@ -107,14 +107,21 @@ fn test_is_lock_free() {
             not(portable_atomic_test_outline_atomics_detect_false),
         )) {
             assert!(!AtomicI64::is_always_lock_free());
-            assert!(AtomicI64::is_lock_free());
             assert!(!AtomicU64::is_always_lock_free());
+            assert!(AtomicI64::is_lock_free());
             assert!(AtomicU64::is_lock_free());
         } else {
             assert!(!AtomicI64::is_always_lock_free());
-            assert!(!AtomicI64::is_lock_free());
             assert!(!AtomicU64::is_always_lock_free());
-            assert!(!AtomicU64::is_lock_free());
+            #[cfg(not(target_arch = "riscv32"))]
+            {
+                assert!(!AtomicI64::is_lock_free());
+                assert!(!AtomicU64::is_lock_free());
+            }
+            #[cfg(target_arch = "riscv32")]
+            {
+                // TODO(riscv): check detect.has_zacas
+            }
         }
     }
     if cfg!(portable_atomic_no_asm) && cfg!(not(portable_atomic_unstable_asm)) {
@@ -130,7 +137,6 @@ fn test_is_lock_free() {
         ),
         all(
             target_arch = "riscv64",
-            not(portable_atomic_no_asm),
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",
@@ -153,7 +159,11 @@ fn test_is_lock_free() {
     } else {
         assert!(!AtomicI128::is_always_lock_free());
         assert!(!AtomicU128::is_always_lock_free());
-        #[cfg(not(any(target_arch = "x86_64", target_arch = "powerpc64")))]
+        #[cfg(not(any(
+            target_arch = "x86_64",
+            target_arch = "powerpc64",
+            target_arch = "riscv64",
+        )))]
         {
             assert!(!AtomicI128::is_lock_free());
             assert!(!AtomicU128::is_lock_free());
@@ -172,6 +182,10 @@ fn test_is_lock_free() {
         #[cfg(target_arch = "powerpc64")]
         {
             // TODO(powerpc64): is_powerpc_feature_detected is unstable
+        }
+        #[cfg(target_arch = "riscv64")]
+        {
+            // TODO(riscv): check detect.has_zacas
         }
     }
 }

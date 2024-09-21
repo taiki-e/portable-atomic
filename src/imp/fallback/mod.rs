@@ -44,6 +44,64 @@ type and the value type must be the same.
             not(any(miri, portable_atomic_sanitize_thread)),
         ),
         all(
+            target_arch = "riscv32",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(portable_atomic_no_asm),
+            not(portable_atomic_no_llvm_19),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                all(
+                    feature = "fallback",
+                    not(portable_atomic_no_outline_atomics),
+                    any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
+                    any(
+                        all(
+                            target_os = "linux",
+                            any(
+                                target_env = "gnu",
+                                all(
+                                    any(target_env = "musl", target_env = "ohos"),
+                                    not(target_feature = "crt-static"),
+                                ),
+                                portable_atomic_outline_atomics,
+                            ),
+                        ),
+                        target_os = "android",
+                    ),
+                ),
+            ),
+        ),
+        all(
+            target_arch = "riscv64",
+            not(portable_atomic_no_asm),
+            not(portable_atomic_no_llvm_19),
+            any(
+                target_feature = "experimental-zacas",
+                portable_atomic_target_feature = "experimental-zacas",
+                all(
+                    feature = "fallback",
+                    not(portable_atomic_no_outline_atomics),
+                    any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
+                    any(
+                        all(
+                            target_os = "linux",
+                            any(
+                                target_env = "gnu",
+                                all(
+                                    any(target_env = "musl", target_env = "ohos"),
+                                    not(target_feature = "crt-static"),
+                                ),
+                                portable_atomic_outline_atomics,
+                            ),
+                        ),
+                        target_os = "android",
+                    ),
+                    not(any(miri, portable_atomic_sanitize_thread)),
+                ),
+            ),
+        ),
+        all(
             target_arch = "arm",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
             any(target_os = "linux", target_os = "android"),
