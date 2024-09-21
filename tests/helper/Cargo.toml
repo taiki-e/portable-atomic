@@ -11,7 +11,7 @@ doc = false
 test = false
 
 [features]
-std = ["critical-section", "fs-err", "libc", "windows-sys"]
+std = ["fs-err", "libc", "windows-sys"]
 
 [dependencies]
 critical-section = { version = "1", optional = true, features = ["restore-state-bool"] }
