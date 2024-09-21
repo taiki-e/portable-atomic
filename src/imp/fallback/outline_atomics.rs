@@ -12,18 +12,18 @@ This module provides helpers to implement them.
 
 use core::sync::atomic::Ordering;
 
-#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "riscv64"))]
 pub(crate) type Udw = u128;
-#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "riscv64"))]
 pub(crate) type AtomicUdw = super::super::super::fallback::AtomicU128;
-#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64"))]
+#[cfg(any(target_arch = "x86_64", target_arch = "powerpc64", target_arch = "riscv64"))]
 pub(crate) type AtomicIdw = super::super::super::fallback::AtomicI128;
 
-#[cfg(target_arch = "arm")]
+#[cfg(any(target_arch = "arm", target_arch = "riscv32"))]
 pub(crate) type Udw = u64;
-#[cfg(target_arch = "arm")]
+#[cfg(any(target_arch = "arm", target_arch = "riscv32"))]
 pub(crate) type AtomicUdw = super::super::super::fallback::AtomicU64;
-#[cfg(target_arch = "arm")]
+#[cfg(any(target_arch = "arm", target_arch = "riscv32"))]
 pub(crate) type AtomicIdw = super::super::super::fallback::AtomicI64;
 
 // Asserts that the function is called in the correct context.
@@ -36,6 +36,10 @@ macro_rules! debug_assert_outline_atomics {
         #[cfg(target_arch = "powerpc64")]
         {
             debug_assert!(!super::detect::detect().has_quadword_atomics());
+        }
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+        {
+            debug_assert!(!super::detect::detect().has_zacas());
         }
         #[cfg(target_arch = "arm")]
         {
@@ -62,6 +66,7 @@ fn_alias! {
     atomic_load_seqcst = atomic_load(Ordering::SeqCst);
 }
 
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
 #[cold]
 pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
     debug_assert_outline_atomics!();
@@ -71,6 +76,7 @@ pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
         (*(dst as *const AtomicUdw)).store(val, order);
     }
 }
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
 fn_alias! {
     #[cold]
     pub(crate) unsafe fn(dst: *mut Udw, val: Udw);
