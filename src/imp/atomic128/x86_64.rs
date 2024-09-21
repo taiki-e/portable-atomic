@@ -440,8 +440,6 @@ unsafe fn atomic_compare_exchange(
 // cmpxchg16b is always strong.
 use atomic_compare_exchange as atomic_compare_exchange_weak;
 
-#[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-use atomic_swap_cmpxchg16b as atomic_swap;
 // See cmpxchg16b() for target_feature(enable).
 #[cfg_attr(
     not(portable_atomic_no_cmpxchg16b_target_feature),
@@ -513,9 +511,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
 // We could use CAS loop by atomic_compare_exchange here, but using an inline assembly allows
 // omitting the storing/comparing of condition flags and reducing uses of xchg/mov to handle rbx.
 macro_rules! atomic_rmw_cas_3 {
-    ($name:ident as $reexport_name:ident, $($op:tt)*) => {
-        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        use $name as $reexport_name;
+    ($name:ident, $($op:tt)*) => {
         // See cmpxchg16b() for target_feature(enable).
         #[cfg_attr(
             not(portable_atomic_no_cmpxchg16b_target_feature),
@@ -584,9 +580,7 @@ macro_rules! atomic_rmw_cas_3 {
 // We could use CAS loop by atomic_compare_exchange here, but using an inline assembly allows
 // omitting the storing of condition flags and avoid use of xchg to handle rbx.
 macro_rules! atomic_rmw_cas_2 {
-    ($name:ident as $reexport_name:ident, $($op:tt)*) => {
-        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        use $name as $reexport_name;
+    ($name:ident, $($op:tt)*) => {
         // See cmpxchg16b() for target_feature(enable).
         #[cfg_attr(
             not(portable_atomic_no_cmpxchg16b_target_feature),
@@ -645,28 +639,28 @@ macro_rules! atomic_rmw_cas_2 {
 }
 
 atomic_rmw_cas_3! {
-    atomic_add_cmpxchg16b as atomic_add,
+    atomic_add_cmpxchg16b,
     "mov rbx, rax",
     "add rbx, rsi",
     "mov rcx, rdx",
     "adc rcx, r8",
 }
 atomic_rmw_cas_3! {
-    atomic_sub_cmpxchg16b as atomic_sub,
+    atomic_sub_cmpxchg16b,
     "mov rbx, rax",
     "sub rbx, rsi",
     "mov rcx, rdx",
     "sbb rcx, r8",
 }
 atomic_rmw_cas_3! {
-    atomic_and_cmpxchg16b as atomic_and,
+    atomic_and_cmpxchg16b,
     "mov rbx, rax",
     "and rbx, rsi",
     "mov rcx, rdx",
     "and rcx, r8",
 }
 atomic_rmw_cas_3! {
-    atomic_nand_cmpxchg16b as atomic_nand,
+    atomic_nand_cmpxchg16b,
     "mov rbx, rax",
     "and rbx, rsi",
     "not rbx",
@@ -675,14 +669,14 @@ atomic_rmw_cas_3! {
     "not rcx",
 }
 atomic_rmw_cas_3! {
-    atomic_or_cmpxchg16b as atomic_or,
+    atomic_or_cmpxchg16b,
     "mov rbx, rax",
     "or rbx, rsi",
     "mov rcx, rdx",
     "or rcx, r8",
 }
 atomic_rmw_cas_3! {
-    atomic_xor_cmpxchg16b as atomic_xor,
+    atomic_xor_cmpxchg16b,
     "mov rbx, rax",
     "xor rbx, rsi",
     "mov rcx, rdx",
@@ -690,14 +684,14 @@ atomic_rmw_cas_3! {
 }
 
 atomic_rmw_cas_2! {
-    atomic_not_cmpxchg16b as atomic_not,
+    atomic_not_cmpxchg16b,
     "mov rbx, rax",
     "not rbx",
     "mov rcx, rdx",
     "not rcx",
 }
 atomic_rmw_cas_2! {
-    atomic_neg_cmpxchg16b as atomic_neg,
+    atomic_neg_cmpxchg16b,
     "mov rbx, rax",
     "neg rbx",
     "mov rcx, 0",
@@ -705,7 +699,7 @@ atomic_rmw_cas_2! {
 }
 
 atomic_rmw_cas_3! {
-    atomic_max_cmpxchg16b as atomic_max,
+    atomic_max_cmpxchg16b,
     "cmp rsi, rax",
     "mov rcx, r8",
     "sbb rcx, rdx",
@@ -715,7 +709,7 @@ atomic_rmw_cas_3! {
     "cmovl rbx, rax",
 }
 atomic_rmw_cas_3! {
-    atomic_umax_cmpxchg16b as atomic_umax,
+    atomic_umax_cmpxchg16b,
     "cmp rsi, rax",
     "mov rcx, r8",
     "sbb rcx, rdx",
@@ -725,7 +719,7 @@ atomic_rmw_cas_3! {
     "cmovb rbx, rax",
 }
 atomic_rmw_cas_3! {
-    atomic_min_cmpxchg16b as atomic_min,
+    atomic_min_cmpxchg16b,
     "cmp rsi, rax",
     "mov rcx, r8",
     "sbb rcx, rdx",
@@ -735,7 +729,7 @@ atomic_rmw_cas_3! {
     "cmovge rbx, rax",
 }
 atomic_rmw_cas_3! {
-    atomic_umin_cmpxchg16b as atomic_umin,
+    atomic_umin_cmpxchg16b,
     "cmp rsi, rax",
     "mov rcx, r8",
     "sbb rcx, rdx",
@@ -745,12 +739,16 @@ atomic_rmw_cas_3! {
     "cmovae rbx, rax",
 }
 
-macro_rules! atomic_rmw_with_ifunc {
+macro_rules! select_atomic_rmw {
     (
         unsafe fn $name:ident($($arg:tt)*) $(-> $ret_ty:ty)?;
         cmpxchg16b = $cmpxchg16b_fn:ident;
         fallback = $seqcst_fallback_fn:ident;
     ) => {
+        // If cmpxchg16b is available at compile-time, we can always use cmpxchg16b_fn.
+        #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
+        use $cmpxchg16b_fn as $name;
+        // Otherwise, we need to do run-time detection and can use cmpxchg16b_fn only if cmpxchg16b is available.
         #[cfg(not(any(
             target_feature = "cmpxchg16b",
             portable_atomic_target_feature = "cmpxchg16b",
@@ -783,67 +781,67 @@ macro_rules! atomic_rmw_with_ifunc {
     };
 }
 
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_swap(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_swap_cmpxchg16b;
     fallback = atomic_swap_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_add(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_add_cmpxchg16b;
     fallback = atomic_add_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_sub(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_sub_cmpxchg16b;
     fallback = atomic_sub_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_and(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_and_cmpxchg16b;
     fallback = atomic_and_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_nand(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_nand_cmpxchg16b;
     fallback = atomic_nand_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_or(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_or_cmpxchg16b;
     fallback = atomic_or_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_xor(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_xor_cmpxchg16b;
     fallback = atomic_xor_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_max(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_max_cmpxchg16b;
     fallback = atomic_max_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_umax(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_umax_cmpxchg16b;
     fallback = atomic_umax_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_min(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_min_cmpxchg16b;
     fallback = atomic_min_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_umin(dst: *mut u128, val: u128) -> u128;
     cmpxchg16b = atomic_umin_cmpxchg16b;
     fallback = atomic_umin_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_not(dst: *mut u128) -> u128;
     cmpxchg16b = atomic_not_cmpxchg16b;
     fallback = atomic_not_seqcst;
 }
-atomic_rmw_with_ifunc! {
+select_atomic_rmw! {
     unsafe fn atomic_neg(dst: *mut u128) -> u128;
     cmpxchg16b = atomic_neg_cmpxchg16b;
     fallback = atomic_neg_seqcst;
