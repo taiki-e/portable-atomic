@@ -69,7 +69,7 @@ macro_rules! flags {
     };
 }
 
-#[cfg(target_arch = "aarch64")]
+#[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 flags! {
     // FEAT_LSE, Large System Extensions
     // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-1-architecture-extension
@@ -250,7 +250,7 @@ mod tests_common {
         let _ = stdout.write_all(features.as_bytes());
     }
 
-    #[cfg(target_arch = "aarch64")]
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     #[test]
     #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
     fn test_detect() {

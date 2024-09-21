@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![cfg(any(target_arch = "aarch64", target_arch = "powerpc64"))]
+#![cfg(any(target_arch = "aarch64", target_arch = "arm64ec", target_arch = "powerpc64"))]
 
 use std::{boxed::Box, path::Path, vec::Vec};
 
@@ -17,7 +17,7 @@ type Result<T, E = Box<dyn std::error::Error + Send + Sync>> = std::result::Resu
 /// This is used for testing to ensure that the result of the CPU feature
 /// detection we are using matches the information we get from the other
 /// approaches.
-#[cfg(target_arch = "aarch64")]
+#[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 #[derive(Debug, Clone, Copy)]
 pub struct ProcCpuinfo {
     pub lse: bool,
@@ -33,7 +33,7 @@ pub struct ProcCpuinfo {
     pub power10: Option<bool>,
 }
 impl ProcCpuinfo {
-    #[cfg(target_arch = "aarch64")]
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     pub fn new() -> Result<Self> {
         use std::process::Command;
         if cfg!(any(target_os = "linux", target_os = "android", target_os = "netbsd")) {

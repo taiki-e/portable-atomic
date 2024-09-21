@@ -47,6 +47,7 @@ macro_rules! doc_comment {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "riscv32",
     target_arch = "riscv64",
@@ -82,6 +83,7 @@ macro_rules! ifunc {
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "riscv32",
     target_arch = "riscv64",
@@ -347,6 +349,7 @@ pub(crate) fn zero_extend64_ptr(v: *mut ()) -> core::mem::MaybeUninit<u64> {
 #[allow(dead_code)]
 #[cfg(any(
     target_arch = "aarch64",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "riscv64",
     target_arch = "s390x",
@@ -379,11 +382,21 @@ pub(crate) union U64 {
 #[repr(C)]
 pub(crate) struct Pair<T: Copy> {
     // little endian order
-    #[cfg(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm"))]
+    #[cfg(any(
+        target_endian = "little",
+        target_arch = "aarch64",
+        target_arch = "arm",
+        target_arch = "arm64ec",
+    ))]
     pub(crate) lo: T,
     pub(crate) hi: T,
     // big endian order
-    #[cfg(not(any(target_endian = "little", target_arch = "aarch64", target_arch = "arm")))]
+    #[cfg(not(any(
+        target_endian = "little",
+        target_arch = "aarch64",
+        target_arch = "arm",
+        target_arch = "arm64ec",
+    )))]
     pub(crate) lo: T,
 }
 
