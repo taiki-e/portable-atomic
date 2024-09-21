@@ -55,20 +55,7 @@ type and the value type must be the same.
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
                     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
-                    any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                target_env = "gnu",
-                                all(
-                                    any(target_env = "musl", target_env = "ohos"),
-                                    not(target_feature = "crt-static"),
-                                ),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "android",
-                    ),
+                    any(target_os = "linux", target_os = "android"),
                 ),
             ),
         ),
@@ -83,20 +70,7 @@ type and the value type must be the same.
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
                     any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
-                    any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                target_env = "gnu",
-                                all(
-                                    any(target_env = "musl", target_env = "ohos"),
-                                    not(target_feature = "crt-static"),
-                                ),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "android",
-                    ),
+                    any(target_os = "linux", target_os = "android"),
                     not(any(miri, portable_atomic_sanitize_thread)),
                 ),
             ),

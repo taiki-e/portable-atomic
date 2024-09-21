@@ -43,6 +43,7 @@ cxchgweak
 DESTDIR
 dlsym
 DWCAS
+ecall
 elems
 espup
 exynos
