@@ -11,6 +11,16 @@ cd -- "$(dirname -- "$0")"/..
 # USAGE:
 #    ./tools/no_atomic.sh
 
+retry() {
+    for i in {1..10}; do
+        if "$@"; then
+            return 0
+        else
+            sleep "${i}"
+        fi
+    done
+    "$@"
+}
 bail() {
     printf >&2 'error: %s\n' "$*"
     exit 1
@@ -21,7 +31,7 @@ file=no_atomic.rs
 # We don't refer to NO_ATOMIC_CAS and NO_ATOMIC_64 in nightly-2022-02-11+
 # because feature(cfg_target_has_atomic) stabilized. So, we get the list
 # as of nightly-2022-02-10.
-rustup toolchain add nightly-2022-02-10 --profile minimal --no-self-update &>/dev/null
+retry rustup toolchain add nightly-2022-02-10 --profile minimal --no-self-update &>/dev/null
 
 no_atomic_cas=()
 no_atomic_64=()
