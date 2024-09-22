@@ -53,6 +53,16 @@ x_cargo() {
     fi
     printf '\n'
 }
+retry() {
+    for i in {1..10}; do
+        if "$@"; then
+            return 0
+        else
+            sleep "${i}"
+        fi
+    done
+    "$@"
+}
 bail() {
     printf >&2 'error: %s\n' "$*"
     exit 1
@@ -135,7 +145,7 @@ nightly=''
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
     if type -P rustup >/dev/null; then
-        rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
+        retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
 fi
 export RUST_TEST_THREADS=1
@@ -164,7 +174,7 @@ if [[ -n "${target}" ]]; then
     args+=("${target_flags[@]}")
     if type -P rustup >/dev/null; then
         if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-            rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
+            retry rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
         elif [[ -n "${nightly}" ]]; then
             if [[ ${#build_std[@]} -eq 0 ]]; then
                 build_std=(-Z build-std)
@@ -191,7 +201,7 @@ randomize_layout=' -Z randomize-layout'
 cranelift=''
 if [[ "${RUSTFLAGS:-}" =~ -Z( )?codegen-backend=cranelift ]]; then
     cranelift=1
-    rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
+    retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
 else
     case "$(basename -- "${cargo%.exe}")" in
         cargo-clif) cranelift=1 ;;
@@ -219,7 +229,7 @@ case "${cmd}" in
         exit 0
         ;;
     miri)
-        rustup ${pre_args[@]+"${pre_args[@]}"} component add miri &>/dev/null
+        retry rustup ${pre_args[@]+"${pre_args[@]}"} component add miri &>/dev/null
         export MIRIFLAGS="${MIRIFLAGS:-} -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation"
         export RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}"
         export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}"
