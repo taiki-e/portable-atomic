@@ -524,21 +524,14 @@ use core::{fmt, ptr};
 use crate::utils::strict;
 
 cfg_has_atomic_8! {
-cfg_has_atomic_cas! {
+cfg_has_atomic_cas_or_amo8! {
 // See https://github.com/rust-lang/rust/pull/114034 for details.
 // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
 // https://godbolt.org/z/Enh87Ph9b
-#[cfg(portable_atomic_no_cfg_target_has_atomic)]
-const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
-    not(portable_atomic_no_atomic_cas),
+const EMULATE_ATOMIC_BOOL: bool = cfg!(
     any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
-));
-#[cfg(not(portable_atomic_no_cfg_target_has_atomic))]
-const EMULATE_ATOMIC_BOOL: bool = cfg!(all(
-    target_has_atomic = "8",
-    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
-));
-} // cfg_has_atomic_cas!
+);
+} // cfg_has_atomic_cas_or_amo8!
 
 /// A boolean type which can be safely shared between threads.
 ///
@@ -783,7 +776,7 @@ impl AtomicBool {
         self.as_atomic_u8().store(val as u8, order);
     }
 
-    cfg_has_atomic_cas! {
+    cfg_has_atomic_cas_or_amo8! {
     /// Stores a value into the bool, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -810,7 +803,9 @@ impl AtomicBool {
             self.as_atomic_u8().swap(val as u8, order) != 0
         }
     }
+    }
 
+    cfg_has_atomic_cas! {
     /// Stores a value into the [`bool`] if the current value is the same as the `current` value.
     ///
     /// The return value is a result indicating whether the new value was written and containing
@@ -938,7 +933,9 @@ impl AtomicBool {
             Err(x) => Err(x != 0),
         }
     }
+    } // cfg_has_atomic_cas!
 
+    cfg_has_atomic_cas_or_amo32! {
     /// Logical "and" with a boolean value.
     ///
     /// Performs a logical "and" operation on the current value and the argument `val`, and sets
@@ -1017,7 +1014,9 @@ impl AtomicBool {
     pub fn and(&self, val: bool, order: Ordering) {
         self.as_atomic_u8().and(val as u8, order);
     }
+    } // cfg_has_atomic_cas_or_amo32!
 
+    cfg_has_atomic_cas_or_amo8! {
     /// Logical "nand" with a boolean value.
     ///
     /// Performs a logical "nand" operation on the current value and the argument `val`, and sets
@@ -1062,7 +1061,9 @@ impl AtomicBool {
             self.swap(true, order)
         }
     }
+    } // cfg_has_atomic_cas!
 
+    cfg_has_atomic_cas_or_amo32! {
     /// Logical "or" with a boolean value.
     ///
     /// Performs a logical "or" operation on the current value and the argument `val`, and sets the
@@ -1291,7 +1292,9 @@ impl AtomicBool {
     pub fn not(&self, order: Ordering) {
         self.xor(true, order);
     }
+    } // cfg_has_atomic_cas_or_amo32!
 
+    cfg_has_atomic_cas! {
     /// Fetches the value, and applies a function to it that returns an optional
     /// new value. Returns a `Result` of `Ok(previous_value)` if the function
     /// returned `Some(_)`, else `Err(previous_value)`.
@@ -1398,6 +1401,7 @@ cfg_no_atomic_cas! {
 #[doc(hidden)]
 #[allow(unused_variables, clippy::unused_self)]
 impl<'a> AtomicBool {
+    cfg_no_atomic_cas_or_amo8! {
     #[inline]
     pub fn swap(&self, val: bool, order: Ordering) -> bool
     where
@@ -1405,6 +1409,7 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo8!
     #[inline]
     pub fn compare_exchange(
         &self,
@@ -1431,6 +1436,7 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool
     where
@@ -1445,6 +1451,8 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo32!
+    cfg_no_atomic_cas_or_amo8! {
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool
     where
@@ -1452,6 +1460,8 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo8!
+    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool
     where
@@ -1494,6 +1504,7 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo32!
     #[inline]
     pub fn fetch_update<F>(
         &self,
@@ -1772,7 +1783,7 @@ impl<T> AtomicPtr<T> {
         self.inner.store(ptr, order);
     }
 
-    cfg_has_atomic_cas! {
+    cfg_has_atomic_cas_or_amo32! {
     /// Stores a value into the pointer, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -1797,7 +1808,9 @@ impl<T> AtomicPtr<T> {
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         self.inner.swap(ptr, order)
     }
+    } // cfg_has_atomic_cas_or_amo32!
 
+    cfg_has_atomic_cas! {
     /// Stores a value into the pointer if the current value is the same as the `current` value.
     ///
     /// The return value is a result indicating whether the new value was written and containing
@@ -1989,7 +2002,9 @@ impl<T> AtomicPtr<T> {
             }
         }
     }
+    } // cfg_has_atomic_cas!
 
+    cfg_has_atomic_cas_or_amo32! {
     /// Offsets the pointer's address by adding `val` (in units of `T`),
     /// returning the previous pointer.
     ///
@@ -2475,7 +2490,7 @@ impl<T> AtomicPtr<T> {
         // and both access data in the same way.
         unsafe { &*(self as *const Self as *const AtomicUsize) }
     }
-    } // cfg_has_atomic_cas!
+    } // cfg_has_atomic_cas_or_amo32!
 
     const_fn! {
         const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -2505,6 +2520,7 @@ cfg_no_atomic_cas! {
 #[doc(hidden)]
 #[allow(unused_variables, clippy::unused_self)]
 impl<'a, T: 'a> AtomicPtr<T> {
+    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T
     where
@@ -2512,6 +2528,7 @@ impl<'a, T: 'a> AtomicPtr<T> {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo32!
     #[inline]
     pub fn compare_exchange(
         &self,
@@ -2551,6 +2568,7 @@ impl<'a, T: 'a> AtomicPtr<T> {
     {
         unimplemented!()
     }
+    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T
     where
@@ -2621,28 +2639,40 @@ impl<'a, T: 'a> AtomicPtr<T> {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo32!
 }
 } // cfg_no_atomic_cas!
 } // cfg_has_atomic_ptr!
 
 macro_rules! atomic_int {
     // TODO: support AtomicF{16,128} once https://github.com/rust-lang/rust/issues/116909 stabilized.
-    (AtomicU32, $int_type:ident, $align:literal) => {
-        atomic_int!(int, AtomicU32, $int_type, $align);
+    (AtomicU32, $int_type:ident, $align:literal,
+        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
+    ) => {
+        atomic_int!(int, AtomicU32, $int_type, $align,
+            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
     };
-    (AtomicU64, $int_type:ident, $align:literal) => {
-        atomic_int!(int, AtomicU64, $int_type, $align);
+    (AtomicU64, $int_type:ident, $align:literal,
+        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
+    ) => {
+        atomic_int!(int, AtomicU64, $int_type, $align,
+            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
         #[cfg(feature = "float")]
         atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
     };
-    ($atomic_type:ident, $int_type:ident, $align:literal) => {
-        atomic_int!(int, $atomic_type, $int_type, $align);
+    ($atomic_type:ident, $int_type:ident, $align:literal,
+        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
+    ) => {
+        atomic_int!(int, $atomic_type, $int_type, $align,
+            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
     };
 
     // Atomic{I,U}* impls
-    (int, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (int, $atomic_type:ident, $int_type:ident, $align:literal,
+        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
+    ) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
 
@@ -2926,7 +2956,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 }
             }
 
-            cfg_has_atomic_cas! {
+            $cfg_has_atomic_cas_or_amo32_or_8! {
             doc_comment! {
                 concat!("Stores a value into the atomic integer, returning the previous value.
 
@@ -2950,7 +2980,9 @@ assert_eq!(some_var.swap(10, Ordering::Relaxed), 5);
                     self.inner.swap(val, order)
                 }
             }
+            } // $cfg_has_atomic_cas_or_amo32_or_8!
 
+            cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Stores a value into the atomic integer if the current value is the same as
 the `current` value.
@@ -3060,7 +3092,9 @@ loop {
                     self.inner.compare_exchange_weak(current, new, success, failure)
                 }
             }
+            } // cfg_has_atomic_cas!
 
+            $cfg_has_atomic_cas_or_amo32_or_8! {
             doc_comment! {
                 concat!("Adds to the current value, returning the previous value.
 
@@ -3176,7 +3210,9 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
                     self.inner.sub(val, order);
                 }
             }
+            } // $cfg_has_atomic_cas_or_amo32_or_8!
 
+            cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Bitwise \"and\" with the current value.
 
@@ -3243,7 +3279,9 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     self.inner.and(val, order);
                 }
             }
+            } // cfg_has_atomic_cas_or_amo32!
 
+            cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Bitwise \"nand\" with the current value.
 
@@ -3272,7 +3310,9 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
                     self.inner.fetch_nand(val, order)
                 }
             }
+            } // cfg_has_atomic_cas!
 
+            cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Bitwise \"or\" with the current value.
 
@@ -3406,7 +3446,9 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     self.inner.xor(val, order);
                 }
             }
+            } // cfg_has_atomic_cas_or_amo32!
 
+            cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Fetches the value, and applies a function to it that returns an optional
 new value. Returns a `Result` of `Ok(previous_value)` if the function returned `Some(_)`, else
@@ -3473,7 +3515,9 @@ assert_eq!(x.load(Ordering::SeqCst), 9);
                     Err(prev)
                 }
             }
+            } // cfg_has_atomic_cas!
 
+            $cfg_has_atomic_cas_or_amo32_or_8! {
             doc_comment! {
                 concat!("Maximum with the current value.
 
@@ -3555,7 +3599,9 @@ assert_eq!(min_foo, 12);
                     self.inner.fetch_min(val, order)
                 }
             }
+        } // $cfg_has_atomic_cas_or_amo32_or_8!
 
+        cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Sets the bit at the specified bit-position to 1.
 
@@ -3700,7 +3746,9 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                     self.inner.not(order);
                 }
             }
+        } // cfg_has_atomic_cas_or_amo32!
 
+        cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Negates the current value, and sets the new value to the result.
 
@@ -3790,6 +3838,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
         #[doc(hidden)]
         #[allow(unused_variables, clippy::unused_self)]
         impl<'a> $atomic_type {
+            $cfg_no_atomic_cas_or_amo32_or_8! {
             #[inline]
             pub fn swap(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3797,6 +3846,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // $cfg_no_atomic_cas_or_amo32_or_8!
             #[inline]
             pub fn compare_exchange(
                 &self,
@@ -3823,6 +3873,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            $cfg_no_atomic_cas_or_amo32_or_8! {
             #[inline]
             pub fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3851,6 +3902,8 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // $cfg_no_atomic_cas_or_amo32_or_8!
+            cfg_no_atomic_cas_or_amo32! {
             #[inline]
             pub fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3865,6 +3918,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // cfg_no_atomic_cas_or_amo32!
             #[inline]
             pub fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3872,6 +3926,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            cfg_no_atomic_cas_or_amo32! {
             #[inline]
             pub fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3900,6 +3955,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // cfg_no_atomic_cas_or_amo32!
             #[inline]
             pub fn fetch_update<F>(
                 &self,
@@ -3913,6 +3969,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            $cfg_no_atomic_cas_or_amo32_or_8! {
             #[inline]
             pub fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type
             where
@@ -3927,6 +3984,8 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // $cfg_no_atomic_cas_or_amo32_or_8!
+            cfg_no_atomic_cas_or_amo32! {
             #[inline]
             pub fn bit_set(&self, bit: u32, order: Ordering) -> bool
             where
@@ -3962,6 +4021,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             {
                 unimplemented!()
             }
+            } // cfg_no_atomic_cas_or_amo32!
             #[inline]
             pub fn fetch_neg(&self, order: Ordering) -> $int_type
             where
@@ -4162,7 +4222,7 @@ This type has the same in-memory representation as the underlying floating point
                 self.inner.store(val, order)
             }
 
-            cfg_has_atomic_cas! {
+            cfg_has_atomic_cas_or_amo32! {
             /// Stores a value into the atomic float, returning the previous value.
             ///
             /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -4174,7 +4234,9 @@ This type has the same in-memory representation as the underlying floating point
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.swap(val, order)
             }
+            } // cfg_has_atomic_cas_or_amo32!
 
+            cfg_has_atomic_cas! {
             /// Stores a value into the atomic float if the current value is the same as
             /// the `current` value.
             ///
@@ -4358,7 +4420,9 @@ This type has the same in-memory representation as the underlying floating point
             pub fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.fetch_min(val, order)
             }
+            } // cfg_has_atomic_cas!
 
+            cfg_has_atomic_cas_or_amo32! {
             /// Negates the current value, and sets the new value to the result.
             ///
             /// Returns the previous value.
@@ -4387,7 +4451,7 @@ This type has the same in-memory representation as the underlying floating point
             pub fn fetch_abs(&self, order: Ordering) -> $float_type {
                 self.inner.fetch_abs(order)
             }
-            } // cfg_has_atomic_cas!
+            } // cfg_has_atomic_cas_or_amo32!
 
             #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
@@ -4444,6 +4508,7 @@ This is `const fn` on Rust 1.58+."),
         #[doc(hidden)]
         #[allow(unused_variables, clippy::unused_self)]
         impl<'a> $atomic_type {
+            cfg_no_atomic_cas_or_amo32! {
             #[inline]
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type
             where
@@ -4451,6 +4516,7 @@ This is `const fn` on Rust 1.58+."),
             {
                 unimplemented!()
             }
+            } // cfg_no_atomic_cas_or_amo32!
             #[inline]
             pub fn compare_exchange(
                 &self,
@@ -4518,6 +4584,7 @@ This is `const fn` on Rust 1.58+."),
             {
                 unimplemented!()
             }
+            cfg_no_atomic_cas_or_amo32! {
             #[inline]
             pub fn fetch_neg(&self, order: Ordering) -> $float_type
             where
@@ -4532,6 +4599,7 @@ This is `const fn` on Rust 1.58+."),
             {
                 unimplemented!()
             }
+            } // cfg_no_atomic_cas_or_amo32!
         }
         } // cfg_no_atomic_cas!
     };
@@ -4539,71 +4607,82 @@ This is `const fn` on Rust 1.58+."),
 
 cfg_has_atomic_ptr! {
     #[cfg(target_pointer_width = "16")]
-    atomic_int!(AtomicIsize, isize, 2);
+    atomic_int!(AtomicIsize, isize, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
     #[cfg(target_pointer_width = "16")]
-    atomic_int!(AtomicUsize, usize, 2);
+    atomic_int!(AtomicUsize, usize, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
     #[cfg(target_pointer_width = "32")]
-    atomic_int!(AtomicIsize, isize, 4);
+    atomic_int!(AtomicIsize, isize, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     #[cfg(target_pointer_width = "32")]
-    atomic_int!(AtomicUsize, usize, 4);
+    atomic_int!(AtomicUsize, usize, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     #[cfg(target_pointer_width = "64")]
-    atomic_int!(AtomicIsize, isize, 8);
+    atomic_int!(AtomicIsize, isize, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     #[cfg(target_pointer_width = "64")]
-    atomic_int!(AtomicUsize, usize, 8);
+    atomic_int!(AtomicUsize, usize, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     #[cfg(target_pointer_width = "128")]
-    atomic_int!(AtomicIsize, isize, 16);
+    atomic_int!(AtomicIsize, isize, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     #[cfg(target_pointer_width = "128")]
-    atomic_int!(AtomicUsize, usize, 16);
+    atomic_int!(AtomicUsize, usize, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
 }
 
 cfg_has_atomic_8! {
-    atomic_int!(AtomicI8, i8, 1);
-    atomic_int!(AtomicU8, u8, 1);
+    atomic_int!(AtomicI8, i8, 1, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
+    atomic_int!(AtomicU8, u8, 1, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
 }
 cfg_has_atomic_16! {
-    atomic_int!(AtomicI16, i16, 2);
-    atomic_int!(AtomicU16, u16, 2);
+    atomic_int!(AtomicI16, i16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
+    atomic_int!(AtomicU16, u16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
 }
 cfg_has_atomic_32! {
-    atomic_int!(AtomicI32, i32, 4);
-    atomic_int!(AtomicU32, u32, 4);
+    atomic_int!(AtomicI32, i32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+    atomic_int!(AtomicU32, u32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
 }
 cfg_has_atomic_64! {
-    atomic_int!(AtomicI64, i64, 8);
-    atomic_int!(AtomicU64, u64, 8);
+    atomic_int!(AtomicI64, i64, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+    atomic_int!(AtomicU64, u64, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
 }
 cfg_has_atomic_128! {
-    atomic_int!(AtomicI128, i128, 16);
-    atomic_int!(AtomicU128, u128, 16);
+    atomic_int!(AtomicI128, i128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+    atomic_int!(AtomicU128, u128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
 }
 
 // See https://github.com/taiki-e/portable-atomic/issues/180
 #[cfg(not(feature = "require-cas"))]
 cfg_no_atomic_cas! {
+cfg_no_atomic_cas_or_amo32! {
 #[cfg(feature = "float")]
 use diagnostic_helper::HasFetchAbs;
 use diagnostic_helper::{
-    HasAdd, HasAnd, HasBitClear, HasBitSet, HasBitToggle, HasCompareExchange,
-    HasCompareExchangeWeak, HasFetchAdd, HasFetchAnd, HasFetchByteAdd, HasFetchByteSub,
-    HasFetchMax, HasFetchMin, HasFetchNand, HasFetchNeg, HasFetchNot, HasFetchOr, HasFetchPtrAdd,
-    HasFetchPtrSub, HasFetchSub, HasFetchUpdate, HasFetchXor, HasNeg, HasNot, HasOr, HasSub,
-    HasSwap, HasXor,
+    HasAnd, HasBitClear, HasBitSet, HasBitToggle, HasFetchAnd, HasFetchByteAdd, HasFetchByteSub,
+    HasFetchNot, HasFetchOr, HasFetchPtrAdd, HasFetchPtrSub, HasFetchXor, HasNot, HasOr, HasXor,
+};
+} // cfg_no_atomic_cas_or_amo32!
+cfg_no_atomic_cas_or_amo8! {
+use diagnostic_helper::{HasAdd, HasSub, HasSwap};
+} // cfg_no_atomic_cas_or_amo8!
+#[cfg_attr(not(feature = "float"), allow(unused_imports))]
+use diagnostic_helper::{
+    HasCompareExchange, HasCompareExchangeWeak, HasFetchAdd, HasFetchMax, HasFetchMin,
+    HasFetchNand, HasFetchNeg, HasFetchSub, HasFetchUpdate, HasNeg,
 };
 #[cfg_attr(
-    all(
-        portable_atomic_no_atomic_load_store,
-        not(any(
-            target_arch = "avr",
-            target_arch = "bpf",
-            target_arch = "msp430",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            feature = "critical-section",
-        )),
+    any(
+        all(
+            portable_atomic_no_atomic_load_store,
+            not(any(
+                target_arch = "avr",
+                target_arch = "bpf",
+                target_arch = "msp430",
+                target_arch = "riscv32",
+                target_arch = "riscv64",
+                feature = "critical-section",
+            )),
+        ),
+        not(feature = "float"),
     ),
     allow(dead_code, unreachable_pub)
 )]
 mod diagnostic_helper {
+    cfg_no_atomic_cas_or_amo8! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4615,6 +4694,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasSwap {}
+    } // cfg_no_atomic_cas_or_amo8!
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4648,6 +4728,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasFetchAdd {}
+    cfg_no_atomic_cas_or_amo8! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4659,6 +4740,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasAdd {}
+    } // cfg_no_atomic_cas_or_amo8!
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4670,6 +4752,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasFetchSub {}
+    cfg_no_atomic_cas_or_amo8! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4681,6 +4764,8 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasSub {}
+    } // cfg_no_atomic_cas_or_amo8!
+    cfg_no_atomic_cas_or_amo32! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4747,6 +4832,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasAnd {}
+    } // cfg_no_atomic_cas_or_amo32!
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4758,6 +4844,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasFetchNand {}
+    cfg_no_atomic_cas_or_amo32! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4824,6 +4911,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasNot {}
+    } // cfg_no_atomic_cas_or_amo32!
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4846,6 +4934,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasNeg {}
+    cfg_no_atomic_cas_or_amo32! {
     #[cfg(feature = "float")]
     #[cfg_attr(target_pointer_width = "16", allow(dead_code, unreachable_pub))]
     #[doc(hidden)]
@@ -4859,6 +4948,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasFetchAbs {}
+    } // cfg_no_atomic_cas_or_amo32!
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4892,6 +4982,7 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasFetchUpdate {}
+    cfg_no_atomic_cas_or_amo32! {
     #[doc(hidden)]
     #[cfg_attr(
         not(portable_atomic_no_diagnostic_namespace),
@@ -4925,5 +5016,6 @@ mod diagnostic_helper {
         )
     )]
     pub trait HasBitToggle {}
+    } // cfg_no_atomic_cas_or_amo32!
 }
 } // cfg_no_atomic_cas!

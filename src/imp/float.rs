@@ -90,7 +90,7 @@ macro_rules! atomic_float {
             }
         }
 
-        cfg_has_atomic_cas! {
+        cfg_has_atomic_cas_or_amo32! {
         impl $atomic_type {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -98,6 +98,7 @@ macro_rules! atomic_float {
                 $float_type::from_bits(self.as_bits().swap(val.to_bits(), order))
             }
 
+            cfg_has_atomic_cas! {
             #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -185,7 +186,7 @@ macro_rules! atomic_float {
             pub(crate) fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x.min(val))
             }
-
+            } // cfg_has_atomic_cas!
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $float_type {
@@ -200,7 +201,7 @@ macro_rules! atomic_float {
                 $float_type::from_bits(self.as_bits().fetch_and(ABS_MASK, order))
             }
         }
-        } // cfg_has_atomic_cas!
+        } // cfg_has_atomic_cas_or_amo32!
     };
 }
 

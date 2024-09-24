@@ -299,6 +299,22 @@ macro_rules! atomic_ptr {
 macro_rules! atomic {
     ($atomic_type:ident, $value_type:ty, $asm_suffix:tt, $max:tt, $min:tt) => {
         atomic_load_store!($atomic_type, $value_type, $asm_suffix);
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
+        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+        impl_default_no_fetch_ops!($atomic_type, $value_type);
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
+        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+        impl_default_bit_opts!($atomic_type, $value_type);
         // There is no amo{sub,nand,neg}.
         #[cfg(any(
             test,
@@ -355,6 +371,14 @@ macro_rules! atomic {
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
                 self.fetch_xor(!0, order)
+            }
+            #[cfg(not(any(
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+            )))]
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
             }
 
             #[inline]
@@ -434,6 +458,15 @@ macro_rules! atomic_sub_word {
             portable_atomic_target_feature = "zaamo",
         ))]
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
+        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+        impl_default_bit_opts!($atomic_type, $value_type);
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
@@ -447,6 +480,14 @@ macro_rules! atomic_sub_word {
                 let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
                 srlw!(out, shift)
             }
+            #[cfg(not(any(
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+            )))]
+            #[inline]
+            pub(crate) fn and(&self, val: $value_type, order: Ordering) {
+                self.fetch_and(val, order);
+            }
 
             #[inline]
             pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
@@ -457,6 +498,14 @@ macro_rules! atomic_sub_word {
                 // pointer passed in is valid because we got it from a reference.
                 let out: u32 = unsafe { atomic_rmw_amo!(or, dst, val, order, "w") };
                 srlw!(out, shift)
+            }
+            #[cfg(not(any(
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+            )))]
+            #[inline]
+            pub(crate) fn or(&self, val: $value_type, order: Ordering) {
+                self.fetch_or(val, order);
             }
 
             #[inline]
@@ -469,10 +518,26 @@ macro_rules! atomic_sub_word {
                 let out: u32 = unsafe { atomic_rmw_amo!(xor, dst, val, order, "w") };
                 srlw!(out, shift)
             }
+            #[cfg(not(any(
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+            )))]
+            #[inline]
+            pub(crate) fn xor(&self, val: $value_type, order: Ordering) {
+                self.fetch_xor(val, order);
+            }
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
                 self.fetch_xor(!0, order)
+            }
+            #[cfg(not(any(
+                portable_atomic_unsafe_assume_single_core,
+                feature = "critical-section",
+            )))]
+            #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
             }
         }
     };

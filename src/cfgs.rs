@@ -496,6 +496,17 @@ mod atomic_cas_macros {
     macro_rules! cfg_no_atomic_cas {
         ($($tt:tt)*) => {};
     }
+    // private
+    macro_rules! cfg_has_atomic_cas_or_amo32 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    macro_rules! cfg_has_atomic_cas_or_amo8 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
 }
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -528,6 +539,73 @@ mod atomic_cas_macros {
         ($($tt:tt)*) => {
             $($tt)*
         };
+    }
+    // private
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(not(any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo")))
+    )]
+    macro_rules! cfg_has_atomic_cas_or_amo32 {
+        ($($tt:tt)*) => {};
+    }
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(not(any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo")))
+    )]
+    macro_rules! cfg_no_atomic_cas_or_amo32 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[cfg(all(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+    ))]
+    macro_rules! cfg_has_atomic_cas_or_amo32 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[cfg(all(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_feature = "zaamo", portable_atomic_target_feature = "zaamo"),
+    ))]
+    macro_rules! cfg_no_atomic_cas_or_amo32 {
+        ($($tt:tt)*) => {};
+    }
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))
+    )]
+    #[cfg_attr(target_arch = "bpf", allow(unused_macros))]
+    macro_rules! cfg_has_atomic_cas_or_amo8 {
+        ($($tt:tt)*) => {};
+    }
+    #[cfg_attr(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))
+    )]
+    #[cfg_attr(target_arch = "bpf", allow(unused_macros))]
+    macro_rules! cfg_no_atomic_cas_or_amo8 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[cfg(all(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+    ))]
+    macro_rules! cfg_has_atomic_cas_or_amo8 {
+        ($($tt:tt)*) => {
+            $($tt)*
+        };
+    }
+    #[cfg(all(
+        any(target_arch = "riscv32", target_arch = "riscv64"),
+        any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+    ))]
+    macro_rules! cfg_no_atomic_cas_or_amo8 {
+        ($($tt:tt)*) => {};
     }
 }
 
