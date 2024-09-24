@@ -2645,33 +2645,10 @@ impl<'a, T: 'a> AtomicPtr<T> {
 } // cfg_has_atomic_ptr!
 
 macro_rules! atomic_int {
-    // TODO: support AtomicF{16,128} once https://github.com/rust-lang/rust/issues/116909 stabilized.
-    (AtomicU32, $int_type:ident, $align:literal,
-        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
-    ) => {
-        atomic_int!(int, AtomicU32, $int_type, $align,
-            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
-        #[cfg(feature = "float")]
-        atomic_int!(float, AtomicF32, f32, AtomicU32, $int_type, $align);
-    };
-    (AtomicU64, $int_type:ident, $align:literal,
-        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
-    ) => {
-        atomic_int!(int, AtomicU64, $int_type, $align,
-            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
-        #[cfg(feature = "float")]
-        atomic_int!(float, AtomicF64, f64, AtomicU64, $int_type, $align);
-    };
+    // Atomic{I,U}* impls
     ($atomic_type:ident, $int_type:ident, $align:literal,
         $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
-    ) => {
-        atomic_int!(int, $atomic_type, $int_type, $align,
-            $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8);
-    };
-
-    // Atomic{I,U}* impls
-    (int, $atomic_type:ident, $int_type:ident, $align:literal,
-        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
+        $(, #[$cfg_float:meta] $atomic_float_type:ident, $float_type:ident)?
     ) => {
         doc_comment! {
             concat!("An integer type which can be safely shared between threads.
@@ -4038,6 +4015,10 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
             }
         }
         } // cfg_no_atomic_cas!
+        $(
+            #[$cfg_float]
+            atomic_int!(float, $atomic_float_type, $float_type, $atomic_type, $int_type, $align);
+        )?
     };
 
     // AtomicF* impls
@@ -4631,18 +4612,24 @@ cfg_has_atomic_8! {
 cfg_has_atomic_16! {
     atomic_int!(AtomicI16, i16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
     atomic_int!(AtomicU16, u16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
+        // TODO: support once https://github.com/rust-lang/rust/issues/116909 stabilized.
+        // #[cfg(all(feature = "float", not(portable_atomic_no_f16)))] AtomicF16, f16);
 }
 cfg_has_atomic_32! {
     atomic_int!(AtomicI32, i32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
-    atomic_int!(AtomicU32, u32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+    atomic_int!(AtomicU32, u32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32,
+        #[cfg(feature = "float")] AtomicF32, f32);
 }
 cfg_has_atomic_64! {
     atomic_int!(AtomicI64, i64, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
-    atomic_int!(AtomicU64, u64, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+    atomic_int!(AtomicU64, u64, 8, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32,
+        #[cfg(feature = "float")] AtomicF64, f64);
 }
 cfg_has_atomic_128! {
     atomic_int!(AtomicI128, i128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
     atomic_int!(AtomicU128, u128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
+        // TODO: support once https://github.com/rust-lang/rust/issues/116909 stabilized.
+        // #[cfg(all(feature = "float", not(portable_atomic_no_f128)))] AtomicF128, f128);
 }
 
 // See https://github.com/taiki-e/portable-atomic/issues/180
