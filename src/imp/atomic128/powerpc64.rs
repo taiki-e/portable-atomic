@@ -716,14 +716,14 @@ unsafe fn atomic_not_pwr8(dst: *mut u128, order: Ordering) -> u128 {
     unsafe { atomic_xor_pwr8(dst, !0, order) }
 }
 
-#[cfg(not(portable_atomic_no_llvm_16))]
+#[cfg(not(portable_atomic_pre_llvm_16))]
 atomic_rmw_ll_sc_2! {
     atomic_neg_pwr8, [out("xer") _,],
     "subfic %r9, %r7, 0",
     "subfze %r8, %r6",
 }
 // LLVM 15 miscompiles subfic.
-#[cfg(portable_atomic_no_llvm_16)]
+#[cfg(portable_atomic_pre_llvm_16)]
 atomic_rmw_ll_sc_2! {
     atomic_neg_pwr8, [zero = in(reg) 0_u64, out("xer") _,],
     "subc %r9, {zero}, %r7",

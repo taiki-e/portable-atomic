@@ -27,7 +27,7 @@ pub(super) mod arm_linux;
     target_arch = "riscv32",
     not(any(miri, portable_atomic_sanitize_thread)),
     not(portable_atomic_no_asm),
-    not(portable_atomic_no_llvm_19),
+    not(portable_atomic_pre_llvm_19),
     any(
         target_feature = "experimental-zacas",
         portable_atomic_target_feature = "experimental-zacas",
