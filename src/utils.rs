@@ -190,7 +190,7 @@ macro_rules! impl_default_no_fetch_ops {
             }
         }
     };
-    ($atomic_type:ident, $int_type:ident) => {
+    ($atomic_type:ident, $int_type:ty) => {
         impl $atomic_type {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -221,7 +221,7 @@ macro_rules! impl_default_no_fetch_ops {
     };
 }
 macro_rules! impl_default_bit_opts {
-    ($atomic_type:ident, $int_type:ident) => {
+    ($atomic_type:ident, $int_type:ty) => {
         impl $atomic_type {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces

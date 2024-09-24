@@ -487,11 +487,17 @@ build() {
                                         CARGO_TARGET_DIR="${target_dir}/assume-single-core-zaamo" \
                                             RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+zaamo" \
                                             x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                        CARGO_TARGET_DIR="${target_dir}/zaamo" \
+                                            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+                                            x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" --exclude portable-atomic-util "$@"
                                         # Support for Zabha extension requires LLVM 19+.
                                         if [[ "${llvm_version}" -ge 19 ]]; then
                                             CARGO_TARGET_DIR="${target_dir}/assume-single-core-zabha" \
                                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core -C target-feature=+zaamo,+zabha" \
                                                 x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
+                                            CARGO_TARGET_DIR="${target_dir}/zabha" \
+                                                RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
+                                                x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" --exclude portable-atomic-util "$@"
                                         fi
                                     fi
                                     ;;
