@@ -225,6 +225,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "msp430",
             all(target_arch = "xtensa", portable_atomic_unsafe_assume_single_core),
             all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
+            all(target_arch = "mips", portable_atomic_unstable_asm_experimental_arch),
             all(target_arch = "powerpc64", portable_atomic_unstable_asm_experimental_arch),
             all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
         ),

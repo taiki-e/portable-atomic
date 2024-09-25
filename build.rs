@@ -200,7 +200,8 @@ fn main() {
         if !no_asm
             && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 12)
                 || target_arch == "s390x" && version.probe(71, 2023, 5, 8)
-                || target_arch == "arm64ec")
+                || target_arch == "arm64ec"
+                || target_arch == "mips")
             && is_allowed_feature("asm_experimental_arch")
         {
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
