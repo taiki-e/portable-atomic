@@ -457,7 +457,7 @@ jobs:
         include:
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '13.3'
+            version: '13.4'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.1'
