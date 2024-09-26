@@ -8,6 +8,7 @@
     clippy::duplicate_mod,
     clippy::duplicated_attributes,
     clippy::inline_always,
+    clippy::used_underscore_items,
     clippy::wildcard_imports
 )]
 #![feature(asm_experimental_arch, core_intrinsics)]
