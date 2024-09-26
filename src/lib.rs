@@ -524,15 +524,6 @@ use core::{fmt, ptr};
 use crate::utils::strict;
 
 cfg_has_atomic_8! {
-cfg_has_atomic_cas_or_amo8! {
-// See https://github.com/rust-lang/rust/pull/114034 for details.
-// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-// https://godbolt.org/z/Enh87Ph9b
-const EMULATE_ATOMIC_BOOL: bool = cfg!(
-    any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"),
-);
-} // cfg_has_atomic_cas_or_amo8!
-
 /// A boolean type which can be safely shared between threads.
 ///
 /// This type has the same in-memory representation as a [`bool`].
@@ -776,7 +767,7 @@ impl AtomicBool {
         self.as_atomic_u8().store(val as u8, order);
     }
 
-    cfg_has_atomic_cas_or_amo8! {
+    cfg_has_atomic_cas_or_amo32! {
     /// Stores a value into the bool, returning the previous value.
     ///
     /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -797,15 +788,19 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
-        if EMULATE_ATOMIC_BOOL {
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        {
+            // See https://github.com/rust-lang/rust/pull/114034 for details.
+            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
+            // https://godbolt.org/z/Enh87Ph9b
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
-        } else {
+        }
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        {
             self.as_atomic_u8().swap(val as u8, order) != 0
         }
     }
-    }
 
-    cfg_has_atomic_cas! {
     /// Stores a value into the [`bool`] if the current value is the same as the `current` value.
     ///
     /// The return value is a result indicating whether the new value was written and containing
@@ -855,7 +850,11 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        if EMULATE_ATOMIC_BOOL {
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        {
+            // See https://github.com/rust-lang/rust/pull/114034 for details.
+            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
+            // https://godbolt.org/z/Enh87Ph9b
             crate::utils::assert_compare_exchange_ordering(success, failure);
             let order = crate::utils::upgrade_success_ordering(success, failure);
             let old = if current == new {
@@ -867,7 +866,9 @@ impl AtomicBool {
                 self.swap(new, order)
             };
             if old == current { Ok(old) } else { Err(old) }
-        } else {
+        }
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        {
             match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
                 Ok(x) => Ok(x != 0),
                 Err(x) => Err(x != 0),
@@ -923,19 +924,25 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        if EMULATE_ATOMIC_BOOL {
-            return self.compare_exchange(current, new, success, failure);
-        }
-
-        match self.as_atomic_u8().compare_exchange_weak(current as u8, new as u8, success, failure)
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
         {
-            Ok(x) => Ok(x != 0),
-            Err(x) => Err(x != 0),
+            // See https://github.com/rust-lang/rust/pull/114034 for details.
+            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
+            // https://godbolt.org/z/Enh87Ph9b
+            self.compare_exchange(current, new, success, failure)
+        }
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        {
+            match self
+                .as_atomic_u8()
+                .compare_exchange_weak(current as u8, new as u8, success, failure)
+            {
+                Ok(x) => Ok(x != 0),
+                Err(x) => Err(x != 0),
+            }
         }
     }
-    } // cfg_has_atomic_cas!
 
-    cfg_has_atomic_cas_or_amo32! {
     /// Logical "and" with a boolean value.
     ///
     /// Performs a logical "and" operation on the current value and the argument `val`, and sets
@@ -1014,9 +1021,7 @@ impl AtomicBool {
     pub fn and(&self, val: bool, order: Ordering) {
         self.as_atomic_u8().and(val as u8, order);
     }
-    } // cfg_has_atomic_cas_or_amo32!
 
-    cfg_has_atomic_cas_or_amo8! {
     /// Logical "nand" with a boolean value.
     ///
     /// Performs a logical "nand" operation on the current value and the argument `val`, and sets
@@ -1061,9 +1066,7 @@ impl AtomicBool {
             self.swap(true, order)
         }
     }
-    } // cfg_has_atomic_cas!
 
-    cfg_has_atomic_cas_or_amo32! {
     /// Logical "or" with a boolean value.
     ///
     /// Performs a logical "or" operation on the current value and the argument `val`, and sets the
@@ -1292,9 +1295,7 @@ impl AtomicBool {
     pub fn not(&self, order: Ordering) {
         self.xor(true, order);
     }
-    } // cfg_has_atomic_cas_or_amo32!
 
-    cfg_has_atomic_cas! {
     /// Fetches the value, and applies a function to it that returns an optional
     /// new value. Returns a `Result` of `Ok(previous_value)` if the function
     /// returned `Some(_)`, else `Err(previous_value)`.
@@ -1362,7 +1363,7 @@ impl AtomicBool {
         }
         Err(prev)
     }
-    } // cfg_has_atomic_cas!
+    } // cfg_has_atomic_cas_or_amo32!
 
     const_fn! {
         // This function is actually `const fn`-compatible on Rust 1.32+,
@@ -1401,7 +1402,7 @@ cfg_no_atomic_cas! {
 #[doc(hidden)]
 #[allow(unused_variables, clippy::unused_self)]
 impl<'a> AtomicBool {
-    cfg_no_atomic_cas_or_amo8! {
+    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn swap(&self, val: bool, order: Ordering) -> bool
     where
@@ -1409,7 +1410,6 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
-    } // cfg_no_atomic_cas_or_amo8!
     #[inline]
     pub fn compare_exchange(
         &self,
@@ -1436,7 +1436,6 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
-    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool
     where
@@ -1451,8 +1450,6 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
-    } // cfg_no_atomic_cas_or_amo32!
-    cfg_no_atomic_cas_or_amo8! {
     #[inline]
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool
     where
@@ -1460,8 +1457,6 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
-    } // cfg_no_atomic_cas_or_amo8!
-    cfg_no_atomic_cas_or_amo32! {
     #[inline]
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool
     where
@@ -1504,7 +1499,6 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
-    } // cfg_no_atomic_cas_or_amo32!
     #[inline]
     pub fn fetch_update<F>(
         &self,
@@ -1518,6 +1512,7 @@ impl<'a> AtomicBool {
     {
         unimplemented!()
     }
+    } // cfg_no_atomic_cas_or_amo32!
 }
 } // cfg_no_atomic_cas!
 } // cfg_has_atomic_8!
@@ -1808,7 +1803,6 @@ impl<T> AtomicPtr<T> {
     pub fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         self.inner.swap(ptr, order)
     }
-    } // cfg_has_atomic_cas_or_amo32!
 
     cfg_has_atomic_cas! {
     /// Stores a value into the pointer if the current value is the same as the `current` value.
@@ -2004,7 +1998,6 @@ impl<T> AtomicPtr<T> {
     }
     } // cfg_has_atomic_cas!
 
-    cfg_has_atomic_cas_or_amo32! {
     /// Offsets the pointer's address by adding `val` (in units of `T`),
     /// returning the previous pointer.
     ///
@@ -2933,6 +2926,7 @@ assert_eq!(some_var.load(Ordering::Relaxed), 10);
                 }
             }
 
+            cfg_has_atomic_cas_or_amo32! {
             $cfg_has_atomic_cas_or_amo32_or_8! {
             doc_comment! {
                 concat!("Stores a value into the atomic integer, returning the previous value.
@@ -3189,7 +3183,6 @@ assert_eq!(foo.load(Ordering::SeqCst), 10);
             }
             } // $cfg_has_atomic_cas_or_amo32_or_8!
 
-            cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Bitwise \"and\" with the current value.
 
@@ -3256,7 +3249,6 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b100001);
                     self.inner.and(val, order);
                 }
             }
-            } // cfg_has_atomic_cas_or_amo32!
 
             cfg_has_atomic_cas! {
             doc_comment! {
@@ -3289,7 +3281,6 @@ assert_eq!(foo.load(Ordering::SeqCst), !(0x13 & 0x31));
             }
             } // cfg_has_atomic_cas!
 
-            cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Bitwise \"or\" with the current value.
 
@@ -3423,7 +3414,6 @@ assert_eq!(foo.load(Ordering::SeqCst), 0b011110);
                     self.inner.xor(val, order);
                 }
             }
-            } // cfg_has_atomic_cas_or_amo32!
 
             cfg_has_atomic_cas! {
             doc_comment! {
@@ -3576,9 +3566,8 @@ assert_eq!(min_foo, 12);
                     self.inner.fetch_min(val, order)
                 }
             }
-        } // $cfg_has_atomic_cas_or_amo32_or_8!
+            } // $cfg_has_atomic_cas_or_amo32_or_8!
 
-        cfg_has_atomic_cas_or_amo32! {
             doc_comment! {
                 concat!("Sets the bit at the specified bit-position to 1.
 
@@ -3723,9 +3712,8 @@ assert_eq!(foo.load(Ordering::Relaxed), !0);
                     self.inner.not(order);
                 }
             }
-        } // cfg_has_atomic_cas_or_amo32!
 
-        cfg_has_atomic_cas! {
+            cfg_has_atomic_cas! {
             doc_comment! {
                 concat!("Negates the current value, and sets the new value to the result.
 
@@ -3786,6 +3774,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
                 }
             }
             } // cfg_has_atomic_cas!
+            } // cfg_has_atomic_cas_or_amo32!
 
             const_fn! {
                 const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
@@ -4215,7 +4204,6 @@ This type has the same in-memory representation as the underlying floating point
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.swap(val, order)
             }
-            } // cfg_has_atomic_cas_or_amo32!
 
             cfg_has_atomic_cas! {
             /// Stores a value into the atomic float if the current value is the same as
@@ -4403,7 +4391,6 @@ This type has the same in-memory representation as the underlying floating point
             }
             } // cfg_has_atomic_cas!
 
-            cfg_has_atomic_cas_or_amo32! {
             /// Negates the current value, and sets the new value to the result.
             ///
             /// Returns the previous value.

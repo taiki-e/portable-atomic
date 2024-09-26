@@ -577,7 +577,7 @@ mod atomic_cas_macros {
         any(target_arch = "riscv32", target_arch = "riscv64"),
         cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))
     )]
-    #[cfg_attr(target_arch = "bpf", allow(unused_macros))]
+    #[allow(unused_macros)]
     macro_rules! cfg_has_atomic_cas_or_amo8 {
         ($($tt:tt)*) => {};
     }
