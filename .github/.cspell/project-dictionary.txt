@@ -1,5 +1,6 @@
 addc
 adde
+aghi
 alcgr
 algr
 allnoconfig
@@ -67,6 +68,7 @@ isellt
 ishld
 isync
 kuser
+lcgr
 ldar
 ldaxp
 ldclrp
@@ -141,6 +143,7 @@ simavr
 skiboot
 slbgr
 slgr
+slgrk
 sllw
 sreg
 srlw
@@ -187,8 +190,6 @@ wokwi
 xadd
 xchg
 xgetbv
-xihf
-xilf
 xmmword
 xsave
 xsub

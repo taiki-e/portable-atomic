@@ -23,9 +23,9 @@ Refs:
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- s390x https://godbolt.org/z/sbvhjKrMT
-- s390x (z196) https://godbolt.org/z/Erbqazhv7
-- s390x (z15) https://godbolt.org/z/GEaePbbsT
+- s390x https://godbolt.org/z/osTYK1Mfz
+- s390x (z196) https://godbolt.org/z/K71PKbnPT
+- s390x (z15) https://godbolt.org/z/dfP1YKc1d
 */
 
 include!("macros.rs");
@@ -74,6 +74,12 @@ macro_rules! select_op {
     ($cond:tt, $a0:tt, $a1:tt, $a2:tt) => {
         concat!("lgr ", $a0, ", ", $a2, "\n", "locgr", $cond, " ", $a0, ", ", $a1)
     };
+}
+
+// Extracts and checks condition code.
+#[inline(always)]
+fn extract_cc(r: i64) -> bool {
+    r.wrapping_add(-268435456) & (1 << 31) != 0
 }
 
 #[inline]
@@ -145,6 +151,7 @@ unsafe fn atomic_compare_exchange(
 ) -> Result<u128, u128> {
     debug_assert!(dst as usize % 16 == 0);
 
+    let r;
     // SAFETY: the caller must uphold the safety contract.
     let prev = unsafe {
         // atomic CAS is always SeqCst.
@@ -153,7 +160,9 @@ unsafe fn atomic_compare_exchange(
         let (prev_hi, prev_lo);
         asm!(
             "cdsg %r0, %r12, 0({dst})",
+            "ipm {r}",
             dst = in(reg) ptr_reg!(dst),
+            r = lateout(reg) r,
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
             inout("r0") old.pair.hi => prev_hi,
             inout("r1") old.pair.lo => prev_lo,
@@ -164,7 +173,7 @@ unsafe fn atomic_compare_exchange(
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if prev == old {
+    if extract_cc(r) {
         Ok(prev)
     } else {
         Err(prev)
@@ -281,7 +290,7 @@ macro_rules! atomic_rmw_cas_3 {
 // We could use atomic_update here, but using an inline assembly allows omitting
 // the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_2 {
-    ($name:ident, $($op:tt)*) => {
+    ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
             debug_assert!(dst as usize % 16 == 0);
@@ -296,6 +305,7 @@ macro_rules! atomic_rmw_cas_2 {
                         "cdsg %r0, %r12, 0({dst})",
                         "jl 2b",
                     dst = in(reg) ptr_reg!(dst),
+                    $($reg)*
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     out("r0") prev_hi,
                     out("r1") prev_lo,
@@ -345,11 +355,11 @@ atomic_rmw_cas_3! {
 atomic_rmw_cas_3! {
     atomic_nand, [],
     distinct_op!("ngr", "%r13", "%r1", "{val_lo}"),
-    "xihf %r13, 4294967295",
-    "xilf %r13, 4294967295",
     distinct_op!("ngr", "%r12", "%r0", "{val_hi}"),
-    "xihf %r12, 4294967295",
-    "xilf %r12, 4294967295",
+    "lcgr %r13, %r13",
+    "aghi %r13, -1",
+    "lcgr %r12, %r12",
+    "aghi %r12, -1",
 }
 
 atomic_rmw_cas_3! {
@@ -428,16 +438,23 @@ atomic_rmw_cas_3! {
 atomic_rmw_by_atomic_update!(cmp);
 
 atomic_rmw_cas_2! {
-    atomic_not,
-    "lgr %r13, %r1",
-    "xihf %r13, 4294967295",
-    "xilf %r13, 4294967295",
-    "lgr %r12, %r0",
-    "xihf %r12, 4294967295",
-    "xilf %r12, 4294967295",
+    atomic_not, [],
+    "lcgr %r13, %r1",
+    "aghi %r13, -1",
+    "lcgr %r12, %r0",
+    "aghi %r12, -1",
 }
+
+#[cfg(any(target_feature = "distinct-ops", portable_atomic_target_feature = "distinct-ops"))]
 atomic_rmw_cas_2! {
-    atomic_neg,
+    atomic_neg, [zero = in(reg) 0_u64,],
+    "slgrk %r13, {zero}, %r1",
+    "lghi %r12, 0",
+    "slbgr %r12, %r0",
+}
+#[cfg(not(any(target_feature = "distinct-ops", portable_atomic_target_feature = "distinct-ops")))]
+atomic_rmw_cas_2! {
+    atomic_neg, [],
     "lghi %r13, 0",
     "slgr %r13, %r1",
     "lghi %r12, 0",
