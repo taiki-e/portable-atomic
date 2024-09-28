@@ -67,14 +67,14 @@ Refs:
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- aarch64 https://godbolt.org/z/9Kq15oGs4
-- aarch64 msvc https://godbolt.org/z/hsWo8eYh4
-- aarch64 (+lse) https://godbolt.org/z/81TanrTGn
-- aarch64 msvc (+lse) https://godbolt.org/z/KsannGvTY
-- aarch64 (+lse,+lse2) https://godbolt.org/z/EzvodM6ca
-- aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/3rEEs6KE6
-- aarch64 (+lse2,+lse128) https://godbolt.org/z/PWhsPjGa7
-- aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/K8MMhfPT1
+- aarch64 https://godbolt.org/z/aEWe7zhMh
+- aarch64 msvc https://godbolt.org/z/Phq7M6MPs
+- aarch64 (+lse) https://godbolt.org/z/9Go3dT6sW
+- aarch64 msvc (+lse) https://godbolt.org/z/vGvc6bTMT
+- aarch64 (+lse,+lse2) https://godbolt.org/z/KddzqsM9o
+- aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/sePheahxh
+- aarch64 (+lse2,+lse128) https://godbolt.org/z/WPqM9M1r3
+- aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/5Mf8dc88Y
 */
 
 include!("macros.rs");
@@ -2069,15 +2069,15 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 atomic_rmw_ll_sc_3! {
     _atomic_nand_ldxp_stxp as atomic_nand (preserves_flags),
     "and {new_lo}, {prev_lo}, {val_lo}",
-    "mvn {new_lo}, {new_lo}",
     "and {new_hi}, {prev_hi}, {val_hi}",
+    "mvn {new_lo}, {new_lo}",
     "mvn {new_hi}, {new_hi}",
 }
 atomic_rmw_cas_3! {
     _atomic_nand_casp as atomic_nand,
     "and x4, x6, {val_lo}",
-    "mvn x4, x4",
     "and x5, x7, {val_hi}",
+    "mvn x4, x4",
     "mvn x5, x5",
 }
 
