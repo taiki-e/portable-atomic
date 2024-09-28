@@ -74,7 +74,7 @@ pub(super) unsafe fn restore(cpsr: State) {
 // have Data Memory Barrier).
 //
 // Generated asm:
-// - armv5te https://godbolt.org/z/Th3z1jevK
+// - armv5te https://godbolt.org/z/deqTqPzqz
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;

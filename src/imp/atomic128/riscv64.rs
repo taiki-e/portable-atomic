@@ -15,7 +15,7 @@ Refs:
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
 
 Generated asm:
-- riscv64 (+experimental-zacas) https://godbolt.org/z/5Kc17T1W8
+- riscv64gc (+experimental-zacas) https://godbolt.org/z/hPY86hWcc
 */
 
 include!("macros.rs");

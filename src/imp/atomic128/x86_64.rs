@@ -11,7 +11,7 @@ Refs:
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- x86_64 (+cmpxchg16b) https://godbolt.org/z/r5x9M8PdK
+- x86_64 (+cmpxchg16b) https://godbolt.org/z/rfs1jxd51
 */
 
 // TODO: use core::arch::x86_64::cmpxchg16b where available and efficient than asm

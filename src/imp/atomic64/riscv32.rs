@@ -15,7 +15,7 @@ Refs:
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
 
 Generated asm:
-- riscv32 (+experimental-zacas) https://godbolt.org/z/d3f6EsG3f
+- riscv32imac (+experimental-zacas) https://godbolt.org/z/sq7f9W7rn
 */
 
 // TODO: merge duplicated code with atomic128/riscv64.rs
