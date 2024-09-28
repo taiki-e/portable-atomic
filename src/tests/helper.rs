@@ -1427,10 +1427,22 @@ macro_rules! __test_atomic_ptr {
     };
 }
 
-macro_rules! __test_atomic_int_load_store_pub {
+macro_rules! __test_atomic_int_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
         use std::{boxed::Box, mem};
+        #[test]
+        fn fetch_update() {
+            let a = <$atomic_type>::new(7);
+            test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
+            for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
+                let a = <$atomic_type>::new(7);
+                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
+                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
+                assert_eq!(a.load(Ordering::SeqCst), 9);
+            }
+        }
         #[test]
         fn impls() {
             #[cfg(not(portable_atomic_no_const_transmute))]
@@ -1454,22 +1466,6 @@ macro_rules! __test_atomic_int_load_store_pub {
                 }
                 assert_eq!((*ptr).0, 1);
                 drop(Box::from_raw(ptr));
-            }
-        }
-    };
-}
-macro_rules! __test_atomic_int_pub {
-    ($atomic_type:ty, $int_type:ident) => {
-        #[test]
-        fn fetch_update() {
-            let a = <$atomic_type>::new(7);
-            test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
-            for &(success, failure) in &test_helper::COMPARE_EXCHANGE_ORDERINGS {
-                let a = <$atomic_type>::new(7);
-                assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
-                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
-                assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
-                assert_eq!(a.load(Ordering::SeqCst), 9);
             }
         }
         ::quickcheck::quickcheck! {
@@ -1823,20 +1819,6 @@ macro_rules! test_atomic_int_load_store {
         }
     };
 }
-macro_rules! test_atomic_bool_load_store {
-    () => {
-        #[allow(
-            clippy::alloc_instead_of_core,
-            clippy::std_instead_of_alloc,
-            clippy::std_instead_of_core,
-            clippy::undocumented_unsafe_blocks
-        )]
-        mod test_atomic_bool {
-            use super::*;
-            __test_atomic_bool_load_store!(AtomicBool);
-        }
-    };
-}
 macro_rules! test_atomic_ptr_load_store {
     () => {
         #[allow(
@@ -1866,21 +1848,6 @@ macro_rules! test_atomic_int_single_thread {
                 __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type, single_thread);
                 __test_atomic_int!([<Atomic $int_type:camel>], $int_type, single_thread);
             }
-        }
-    };
-}
-macro_rules! test_atomic_bool_single_thread {
-    () => {
-        #[allow(
-            clippy::alloc_instead_of_core,
-            clippy::std_instead_of_alloc,
-            clippy::std_instead_of_core,
-            clippy::undocumented_unsafe_blocks
-        )]
-        mod test_atomic_bool {
-            use super::*;
-            __test_atomic_bool_load_store!(AtomicBool, single_thread);
-            __test_atomic_bool!(AtomicBool, single_thread);
         }
     };
 }
@@ -1917,21 +1884,6 @@ macro_rules! test_atomic_int {
         }
     };
 }
-macro_rules! test_atomic_bool {
-    () => {
-        #[allow(
-            clippy::alloc_instead_of_core,
-            clippy::std_instead_of_alloc,
-            clippy::std_instead_of_core,
-            clippy::undocumented_unsafe_blocks
-        )]
-        mod test_atomic_bool {
-            use super::*;
-            __test_atomic_bool_load_store!(AtomicBool);
-            __test_atomic_bool!(AtomicBool);
-        }
-    };
-}
 macro_rules! test_atomic_ptr {
     () => {
         #[allow(
@@ -1962,25 +1914,7 @@ macro_rules! test_atomic_int_pub {
                 use super::*;
                 __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
-                __test_atomic_int_load_store_pub!([<Atomic $int_type:camel>], $int_type);
                 __test_atomic_int_pub!([<Atomic $int_type:camel>], $int_type);
-            }
-        }
-    };
-}
-macro_rules! test_atomic_int_load_store_pub {
-    ($int_type:ident) => {
-        paste::paste! {
-            #[allow(
-                clippy::alloc_instead_of_core,
-                clippy::std_instead_of_alloc,
-                clippy::std_instead_of_core,
-                clippy::undocumented_unsafe_blocks
-            )]
-            mod [<test_atomic_ $int_type>] {
-                use super::*;
-                __test_atomic_int_load_store!([<Atomic $int_type:camel>], $int_type);
-                __test_atomic_int_load_store_pub!([<Atomic $int_type:camel>], $int_type);
             }
         }
     };
