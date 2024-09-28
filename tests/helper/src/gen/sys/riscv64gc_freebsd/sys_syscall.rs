@@ -431,4 +431,5 @@ pub const SYS_timerfd_create: u32 = 585;
 pub const SYS_timerfd_gettime: u32 = 586;
 pub const SYS_timerfd_settime: u32 = 587;
 pub const SYS_kcmp: u32 = 588;
-pub const SYS_MAXSYSCALL: u32 = 589;
+pub const SYS_getrlimitusage: u32 = 589;
+pub const SYS_MAXSYSCALL: u32 = 590;
