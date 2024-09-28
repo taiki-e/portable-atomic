@@ -10,6 +10,15 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- RISC-V without A-extension: Support RMW when Zaamo extension enabled (even when `unsafe-assume-single-core` disabled). ([#185](https://github.com/taiki-e/portable-atomic/pull/185), [9983a8b](https://github.com/taiki-e/portable-atomic/commit/9983a8b9ad66efe4303b95678014369a56839aef))
+  See "operations don't require disabling interrupts" list in [`interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md) for the operations provided.
+
+- Support run-time detection of RISC-V Zacas extension (currently disabled by default). ([#183](https://github.com/taiki-e/portable-atomic/pull/183))
+
+- Support 128-bit atomics on Arm64EC (currently nightly-only) ([#184](https://github.com/taiki-e/portable-atomic/pull/184))
+
+- Improve compile-time detection of powerpc64 quadword-atomics. ([3eb8507](https://github.com/taiki-e/portable-atomic/commit/3eb8507f91c1ab382d9f455b2311a8664a4c33ff))
+
 ## [1.8.0] - 2024-09-20
 
 - Improve diagnostics when method that requires CAS is unavailable. ([#181](https://github.com/taiki-e/portable-atomic/pull/181))
@@ -54,8 +63,10 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
   - aarch64: Support run-time detection of FEAT_LSE/FEAT_LSE2 on illumos (currently disabled by default because illumos AArch64 port is experimental). ([#175](https://github.com/taiki-e/portable-atomic/pull/175))
   - powerpc64: Support run-time detection on OpenBSD 7.6+ (currently disabled by default for compatibility with old versions). ([09a967b](https://github.com/taiki-e/portable-atomic/commit/09a967b59c217dc9ebb4d78ec114758ef9941fc8))
 
-- aarch64: Support FEAT_LRCPC3/FEAT_LSE128 with pre-16 LLVM. ([#178](https://github.com/taiki-e/portable-atomic/pull/178))
-- aarch64: Improve compile-time detection of FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128. ([10d47de](https://github.com/taiki-e/portable-atomic/commit/10d47def74b9c13fd864436d6118e902f118c028))
+- Support AArch64 FEAT_LRCPC3/FEAT_LSE128 with pre-16 LLVM. ([#178](https://github.com/taiki-e/portable-atomic/pull/178))
+
+- Improve compile-time detection of AArch64 FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128. ([10d47de](https://github.com/taiki-e/portable-atomic/commit/10d47def74b9c13fd864436d6118e902f118c028))
+
 - Relax minimal version of `serde` (supported via optional feature) to 1.0.60.
 
 ## [1.7.0] - 2024-07-19
