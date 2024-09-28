@@ -20,10 +20,10 @@ Refs:
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- riscv64gc https://godbolt.org/z/q4fhcPEv4
-- riscv64gc (+zabha) https://godbolt.org/z/hde3ao7hx
-- riscv32imac https://godbolt.org/z/7PKMx5KK3
-- riscv32imac (+zabha) https://godbolt.org/z/E1aTff9f7
+- riscv64gc https://godbolt.org/z/Ws933n9jE
+- riscv64gc (+zabha) https://godbolt.org/z/zEKPPW11f
+- riscv32imac https://godbolt.org/z/TKbYdbaE9
+- riscv32imac (+zabha) https://godbolt.org/z/TnePfK6co
 */
 
 // TODO: Zacas extension
@@ -370,7 +370,14 @@ macro_rules! atomic {
 
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
-                self.fetch_xor(!0, order)
+                let dst = self.v.get();
+                #[cfg(target_arch = "riscv32")]
+                let val: u32 = !0;
+                #[cfg(target_arch = "riscv64")]
+                let val: u64 = !0;
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_rmw_amo!(xor, dst, val, order, $asm_suffix) }
             }
             #[cfg(not(any(
                 portable_atomic_unsafe_assume_single_core,
