@@ -435,6 +435,7 @@ pub use sys_syscall::SYS_timerfd_create;
 pub use sys_syscall::SYS_timerfd_gettime;
 pub use sys_syscall::SYS_timerfd_settime;
 pub use sys_syscall::SYS_kcmp;
+pub use sys_syscall::SYS_getrlimitusage;
 pub use sys_syscall::SYS_MAXSYSCALL;
 mod sys_sysctl;
 pub use sys_sysctl::CTL_KERN;
