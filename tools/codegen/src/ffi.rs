@@ -618,6 +618,7 @@ pub(crate) fn gen() -> Result<()> {
                         .layout_tests(false)
                         .rust_target(bindgen::RustTarget::Stable_1_36)
                         .use_core()
+                        .formatter(bindgen::Formatter::Prettyplease)
                         .header(header_path.as_str())
                         .clang_args(&clang_args)
                         .allowlist_function(&functions)

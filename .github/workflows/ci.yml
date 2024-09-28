@@ -715,8 +715,6 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@nightly
-        with:
-          component: rustfmt
       - run: tools/no_atomic.sh
       - run: tools/gen.sh
       - id: diff
