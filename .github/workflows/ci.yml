@@ -83,20 +83,20 @@ jobs:
         # - LLVM 19 : stable 1.82 -     , nightly-2024-08-01 (1.82) -
         # (see also https://github.com/rust-lang/rust/commits/master/src/llvm-project)
         # Minimum external LLVM version table:
-        # - LLVM 3.9: stable 1.23 - 1.28, https://github.com/rust-lang/rust/pull/45326
-        # - LLVM 5  : stable 1.29 - 1.32, https://github.com/rust-lang/rust/pull/51899
-        # - LLVM 6  : stable 1.33 - 1.40, https://github.com/rust-lang/rust/pull/56642
-        # - LLVM 7  : stable 1.41 - 1.43, https://github.com/rust-lang/rust/pull/66973
-        # - LLVM 8  : stable 1.44 - 1.49, https://github.com/rust-lang/rust/pull/71147
-        # - LLVM 9  : stable 1.50 - 1.52, https://github.com/rust-lang/rust/pull/78848
-        # - LLVM 10 : stable 1.53 - 1.57, https://github.com/rust-lang/rust/pull/83387
-        # - LLVM 12 : stable 1.58 - 1.64, https://github.com/rust-lang/rust/pull/90175
-        # - LLVM 13 : stable 1.65 - 1.68, https://github.com/rust-lang/rust/pull/100460
-        # - LLVM 14 : stable 1.69 - 1.72, https://github.com/rust-lang/rust/pull/107573
-        # - LLVM 15 : stable 1.73 - 1.75, https://github.com/rust-lang/rust/pull/114148
-        # - LLVM 16 : stable 1.76 - 1.78, https://github.com/rust-lang/rust/pull/117947
-        # - LLVM 17 : stable 1.79 - 1.82, https://github.com/rust-lang/rust/pull/122649
-        # - LLVM 18 : stable 1.83 -     , https://github.com/rust-lang/rust/pull/130487
+        # - LLVM 3.9: stable 1.23 - 1.28, since https://github.com/rust-lang/rust/pull/45326
+        # - LLVM 5  : stable 1.29 - 1.32, since https://github.com/rust-lang/rust/pull/51899
+        # - LLVM 6  : stable 1.33 - 1.40, since https://github.com/rust-lang/rust/pull/56642
+        # - LLVM 7  : stable 1.41 - 1.43, since https://github.com/rust-lang/rust/pull/66973
+        # - LLVM 8  : stable 1.44 - 1.49, since https://github.com/rust-lang/rust/pull/71147
+        # - LLVM 9  : stable 1.50 - 1.52, since https://github.com/rust-lang/rust/pull/78848
+        # - LLVM 10 : stable 1.53 - 1.57, since https://github.com/rust-lang/rust/pull/83387
+        # - LLVM 12 : stable 1.58 - 1.64, since https://github.com/rust-lang/rust/pull/90175
+        # - LLVM 13 : stable 1.65 - 1.68, since https://github.com/rust-lang/rust/pull/100460
+        # - LLVM 14 : stable 1.69 - 1.72, since https://github.com/rust-lang/rust/pull/107573
+        # - LLVM 15 : stable 1.73 - 1.75, since https://github.com/rust-lang/rust/pull/114148
+        # - LLVM 16 : stable 1.76 - 1.78, since https://github.com/rust-lang/rust/pull/117947
+        # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
+        # - LLVM 18 : stable 1.83 -     , since https://github.com/rust-lang/rust/pull/130487
         include:
           - rust: '1.56'
           - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
@@ -431,9 +431,8 @@ jobs:
       # s390x z15 (arch13)
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
-          # TODO: disable high-word LLVM target-feature to avoid LLVM codegen bug.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15
         if: startsWith(matrix.target, 's390x')
 
       # Skip targets that also checked by "build" job.
@@ -706,7 +705,7 @@ jobs:
 
   codegen:
     needs: tidy
-    runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos
+    runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos # TODO: use ubuntu-latest once https://github.com/actions/runner-images/issues/10636 done
     timeout-minutes: 60
     permissions:
       contents: read
