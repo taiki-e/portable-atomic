@@ -30,8 +30,7 @@ jobs:
       contents: write
     steps:
       - uses: taiki-e/checkout-action@v1
-      - name: Install Rust
-        run: rustup update stable --no-self-update
+      - uses: taiki-e/github-actions/install-rust@stable
       - run: cargo package
       - uses: taiki-e/create-gh-release-action@v1
         with:
