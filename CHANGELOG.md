@@ -10,6 +10,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.9.0] - 2024-09-28
+
 - RISC-V without A-extension: Support RMW when Zaamo extension enabled (even when `unsafe-assume-single-core` disabled). ([#185](https://github.com/taiki-e/portable-atomic/pull/185), [9983a8b](https://github.com/taiki-e/portable-atomic/commit/9983a8b9ad66efe4303b95678014369a56839aef))
   See "operations don't require disabling interrupts" list in [`interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md) for the operations provided.
 
@@ -480,7 +482,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/taiki-e/portable-atomic/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/taiki-e/portable-atomic/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/taiki-e/portable-atomic/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/taiki-e/portable-atomic/compare/v1.5.1...v1.6.0
