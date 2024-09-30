@@ -113,7 +113,7 @@ include!("common.rs");
 use os::ffi;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 mod os {
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::c_ulong;
@@ -180,7 +180,7 @@ mod os {
 }
 #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
 mod os {
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
@@ -231,7 +231,7 @@ mod os {
 }
 
 // Basically, Linux/FreeBSD/OpenBSD use the same hwcap values.
-// FreeBSD/OpenBSD supports a subset of the hwcap values supported by Linux.
+// FreeBSD and OpenBSD usually support a subset of the hwcap values supported by Linux.
 use arch::_detect;
 #[cfg(target_arch = "aarch64")]
 mod arch {

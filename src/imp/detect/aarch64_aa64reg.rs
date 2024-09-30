@@ -118,12 +118,12 @@ mod imp {
 
     use super::AA64Reg;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_char, c_int, c_size_t, c_void};
 
-        // Defined in aarch64/armreg.h.
+        // Defined in machine/armreg.h.
         // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/arch/aarch64/include/armreg.h#L1863
         #[derive(Clone, Copy)]
         #[repr(C)]
@@ -225,7 +225,7 @@ mod imp {
 
     use super::AA64Reg;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_size_t, c_uint, c_void};

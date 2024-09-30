@@ -121,7 +121,7 @@ flags! {
     HAS_VMOVDQA_ATOMIC(2, has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
 }
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+// core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
 #[cfg(not(target_arch = "x86_64"))]
 #[cfg(not(windows))]
 #[allow(dead_code, non_camel_case_types)]

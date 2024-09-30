@@ -22,7 +22,7 @@ include!("common.rs");
 
 use core::ptr;
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc will soon require Rust 1.47
+// core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
 #[allow(non_camel_case_types)]
 mod ffi {
     pub(crate) use super::c_types::{c_char, c_int, c_size_t, c_void};
