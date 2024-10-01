@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub type __int32_t = ::std::os::raw::c_int;
 pub type __pid_t = __int32_t;
 pub type pid_t = __pid_t;

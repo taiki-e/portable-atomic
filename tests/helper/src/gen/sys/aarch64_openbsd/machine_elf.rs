@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const HWCAP_FP: u32 = 1;
 pub const HWCAP_ASIMD: u32 = 2;
 pub const HWCAP_EVTSTRM: u32 = 4;

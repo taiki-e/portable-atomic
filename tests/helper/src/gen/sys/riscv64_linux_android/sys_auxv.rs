@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 extern "C" {
     pub fn getauxval(__type: ::std::os::raw::c_ulong) -> ::std::os::raw::c_ulong;
 }

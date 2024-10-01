@@ -3,12 +3,15 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
+pub const CTL_MAXNAME: u32 = 12;
 extern "C" {
     pub fn sysctlbyname(
         arg1: *const ::std::os::raw::c_char,
         arg2: *mut ::core::ffi::c_void,
-        arg3: *mut usize,
-        arg4: *mut ::core::ffi::c_void,
-        arg5: usize,
+        oldlenp: *mut usize,
+        arg3: *mut ::core::ffi::c_void,
+        newlen: usize,
     ) -> ::std::os::raw::c_int;
 }

@@ -3,6 +3,9 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
+pub const CPU_COMPATIBLE: u32 = 1;
 pub const CPU_ID_AA64ISAR0: u32 = 2;
 pub const CPU_ID_AA64ISAR1: u32 = 3;
 pub const CPU_ID_AA64ISAR2: u32 = 4;
@@ -13,3 +16,5 @@ pub const CPU_ID_AA64PFR0: u32 = 8;
 pub const CPU_ID_AA64PFR1: u32 = 9;
 pub const CPU_ID_AA64SMFR0: u32 = 10;
 pub const CPU_ID_AA64ZFR0: u32 = 11;
+pub const CPU_LIDACTION: u32 = 12;
+pub const CPU_MAXID: u32 = 13;

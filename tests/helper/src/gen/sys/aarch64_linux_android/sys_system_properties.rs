@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const PROP_VALUE_MAX: u32 = 92;
 extern "C" {
     pub fn __system_property_get(

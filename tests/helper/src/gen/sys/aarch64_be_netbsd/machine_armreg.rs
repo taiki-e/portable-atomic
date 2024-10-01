@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct aarch64_sysctl_cpu_id {

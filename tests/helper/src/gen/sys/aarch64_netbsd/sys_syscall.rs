@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const SYS_MAXSYSARGS: u32 = 8;
 pub const SYS_syscall: u32 = 0;
 pub const SYS_exit: u32 = 1;

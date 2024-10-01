@@ -3,21 +3,13 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
-pub type u_int = ::std::os::raw::c_uint;
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub type u_quad_t = u64;
 pub const SYSCTL_VERS_1: u32 = 16777216;
+pub const SYSCTL_VERSION: u32 = 16777216;
 pub const CTL_QUERY: i32 = -2;
 pub type sysctlfn = *mut ::core::ffi::c_void;
-extern "C" {
-    pub fn sysctl(
-        arg1: *const ::std::os::raw::c_int,
-        arg2: u_int,
-        arg3: *mut ::core::ffi::c_void,
-        arg4: *mut usize,
-        arg5: *const ::core::ffi::c_void,
-        arg6: usize,
-    ) -> ::std::os::raw::c_int;
-}
 extern "C" {
     pub fn sysctlbyname(
         arg1: *const ::std::os::raw::c_char,

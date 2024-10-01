@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const CTL_KERN: u32 = 1;
 pub const KERN_PROC: u32 = 14;
 pub const KERN_PROC_AUXV: u32 = 36;

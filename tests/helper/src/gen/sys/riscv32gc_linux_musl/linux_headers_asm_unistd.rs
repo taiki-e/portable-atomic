@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const __NR_io_setup: u32 = 0;
 pub const __NR_io_destroy: u32 = 1;
 pub const __NR_io_submit: u32 = 2;

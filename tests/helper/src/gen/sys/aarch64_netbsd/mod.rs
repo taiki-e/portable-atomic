@@ -4,12 +4,6 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
-mod sys_sysctl;
-pub use sys_sysctl::SYSCTL_VERS_1;
-pub use sys_sysctl::CTL_QUERY;
-pub use sys_sysctl::sysctl;
-pub use sys_sysctl::sysctlbyname;
-pub use sys_sysctl::sysctlnode;
 mod sys_syscall;
 pub use sys_syscall::SYS_MAXSYSARGS;
 pub use sys_syscall::SYS_syscall;
@@ -469,6 +463,12 @@ pub use sys_syscall::SYS_epoll_pwait2;
 pub use sys_syscall::SYS___dup3100;
 pub use sys_syscall::SYS_MAXSYSCALL;
 pub use sys_syscall::SYS_NSYSENT;
-mod aarch64_armreg;
-pub use aarch64_armreg::aarch64_sysctl_cpu_id;
+mod sys_sysctl;
+pub use sys_sysctl::SYSCTL_VERS_1;
+pub use sys_sysctl::SYSCTL_VERSION;
+pub use sys_sysctl::CTL_QUERY;
+pub use sys_sysctl::sysctlbyname;
+pub use sys_sysctl::sysctlnode;
+mod machine_armreg;
+pub use machine_armreg::aarch64_sysctl_cpu_id;
 pub type c_char = u8;

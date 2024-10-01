@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![allow(
+    clippy::assigning_clones,
+    clippy::collapsible_else_if,
     clippy::enum_glob_use,
     clippy::needless_pass_by_value,
     clippy::unnecessary_wraps,
@@ -14,10 +16,7 @@ mod file;
 #[cfg(unix)]
 mod ffi;
 
-use anyhow::Result;
-
-fn main() -> Result<()> {
+fn main() {
     #[cfg(unix)]
-    ffi::gen()?;
-    Ok(())
+    ffi::gen();
 }

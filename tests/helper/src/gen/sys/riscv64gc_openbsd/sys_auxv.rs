@@ -3,8 +3,14 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
+pub const AT_NULL: u32 = 0;
+pub const AT_IGNORE: u32 = 1;
+pub const AT_PAGESZ: u32 = 6;
 pub const AT_HWCAP: u32 = 25;
 pub const AT_HWCAP2: u32 = 26;
+pub const AT_COUNT: u32 = 27;
 extern "C" {
     pub fn elf_aux_info(
         aux: ::std::os::raw::c_int,
