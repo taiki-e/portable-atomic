@@ -358,7 +358,7 @@ mod tests {
     #[allow(clippy::cast_possible_wrap)]
     #[cfg(target_os = "netbsd")]
     #[test]
-    fn test_netbsd() {
+    fn test_alternative() {
         use c_types::*;
         use imp::ffi;
         #[cfg(not(portable_atomic_no_asm))]
@@ -371,7 +371,7 @@ mod tests {
         // much as Linux does (It may actually be stable enough, though: https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html).
         //
         // This is currently used only for testing.
-        unsafe fn sysctl_cpu_id_asm_syscall(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
+        unsafe fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
             // https://github.com/golang/go/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/src/syscall/asm_netbsd_arm64.s
             #[inline]
             unsafe fn sysctl(
@@ -489,7 +489,7 @@ mod tests {
         unsafe {
             assert_eq!(
                 imp::sysctl_cpu_id(b"machdep.cpu0.cpu_id\0").unwrap(),
-                sysctl_cpu_id_asm_syscall(&[b"machdep", b"cpu0", b"cpu_id"]).unwrap()
+                sysctl_cpu_id_no_libc(&[b"machdep", b"cpu0", b"cpu_id"]).unwrap()
             );
         }
     }

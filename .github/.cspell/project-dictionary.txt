@@ -46,7 +46,9 @@ dlfcn
 dlsym
 DWCAS
 ecall
+EINVAL
 elems
+ENOENT
 espup
 evbmips
 exynos

@@ -125,9 +125,9 @@ mod tests {
     // We use asm-based syscall for compatibility with non-libc targets.
     // This test tests that our ones and libc::syscall returns the same result.
     #[test]
-    fn test_linux_like() {
-        use test_helper::libc;
-        unsafe fn __libc_riscv_hwprobe(
+    fn test_alternative() {
+        use test_helper::sys;
+        unsafe fn __riscv_hwprobe_libc(
             pairs: *mut ffi::riscv_hwprobe,
             pair_count: ffi::c_size_t,
             cpu_set_size: ffi::c_size_t,
@@ -136,15 +136,15 @@ mod tests {
         ) -> ffi::c_long {
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                libc::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
+                sys::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
             }
         }
-        fn libc_riscv_hwprobe(out: &mut ffi::riscv_hwprobe) -> bool {
-            unsafe { __libc_riscv_hwprobe(out, 1, 0, ptr::null_mut(), 0) == 0 }
+        fn riscv_hwprobe_libc(out: &mut ffi::riscv_hwprobe) -> bool {
+            unsafe { __riscv_hwprobe_libc(out, 1, 0, ptr::null_mut(), 0) == 0 }
         }
         let mut out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
         let mut libc_out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
-        assert_eq!(riscv_hwprobe(&mut out), libc_riscv_hwprobe(&mut libc_out));
+        assert_eq!(riscv_hwprobe(&mut out), riscv_hwprobe_libc(&mut libc_out));
         assert_eq!(out, libc_out);
     }
 
