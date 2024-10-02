@@ -125,9 +125,9 @@ mod tests {
     // We use asm-based syscall for compatibility with non-libc targets.
     // This test tests that our ones and libc::syscall returns the same result.
     #[test]
-    fn test_linux_like() {
+    fn test_alternative() {
         use test_helper::libc;
-        unsafe fn __libc_riscv_hwprobe(
+        unsafe fn __riscv_hwprobe_libc(
             pairs: *mut ffi::riscv_hwprobe,
             pair_count: ffi::c_size_t,
             cpu_set_size: ffi::c_size_t,
@@ -139,12 +139,12 @@ mod tests {
                 libc::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
             }
         }
-        fn libc_riscv_hwprobe(out: &mut ffi::riscv_hwprobe) -> bool {
-            unsafe { __libc_riscv_hwprobe(out, 1, 0, ptr::null_mut(), 0) == 0 }
+        fn riscv_hwprobe_libc(out: &mut ffi::riscv_hwprobe) -> bool {
+            unsafe { __riscv_hwprobe_libc(out, 1, 0, ptr::null_mut(), 0) == 0 }
         }
         let mut out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
         let mut libc_out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
-        assert_eq!(riscv_hwprobe(&mut out), libc_riscv_hwprobe(&mut libc_out));
+        assert_eq!(riscv_hwprobe(&mut out), riscv_hwprobe_libc(&mut libc_out));
         assert_eq!(out, libc_out);
     }
 
@@ -165,13 +165,6 @@ mod tests {
     const _: fn() = || {
         use std::mem;
         use test_helper::sys;
-        // TODO: syscall
-        // static_assert!(ffi::__NR_riscv_hwprobe == libc::__NR_riscv_hwprobe); // libc doesn't have this
-        static_assert!(ffi::__NR_riscv_hwprobe == sys::__NR_riscv_hwprobe as ffi::c_long);
-        // static_assert!(ffi::RISCV_HWPROBE_KEY_IMA_EXT_0 == libc::RISCV_HWPROBE_KEY_IMA_EXT_0); // libc doesn't have this
-        static_assert!(ffi::RISCV_HWPROBE_KEY_IMA_EXT_0 == sys::RISCV_HWPROBE_KEY_IMA_EXT_0 as i64);
-        // static_assert!(ffi::RISCV_HWPROBE_EXT_ZACAS == libc::RISCV_HWPROBE_EXT_ZACAS); // libc doesn't have this
-        static_assert!(ffi::RISCV_HWPROBE_EXT_ZACAS == sys::RISCV_HWPROBE_EXT_ZACAS);
         // libc doesn't have this
         // static_assert!(
         //     mem::size_of::<ffi::riscv_hwprobe>()
@@ -182,5 +175,25 @@ mod tests {
         );
         let ffi: ffi::riscv_hwprobe = unsafe { mem::zeroed() };
         let _ = sys::riscv_hwprobe { key: ffi.key, value: ffi.value };
+        // static_assert!(ffi::__NR_riscv_hwprobe == libc::__NR_riscv_hwprobe); // libc doesn't have this
+        static_assert!(ffi::__NR_riscv_hwprobe == sys::__NR_riscv_hwprobe as ffi::c_long);
+        // static_assert!(ffi::RISCV_HWPROBE_KEY_IMA_EXT_0 == libc::RISCV_HWPROBE_KEY_IMA_EXT_0); // libc doesn't have this
+        static_assert!(ffi::RISCV_HWPROBE_KEY_IMA_EXT_0 == sys::RISCV_HWPROBE_KEY_IMA_EXT_0 as i64);
+        // static_assert!(ffi::RISCV_HWPROBE_EXT_ZACAS == libc::RISCV_HWPROBE_EXT_ZACAS); // libc doesn't have this
+        static_assert!(ffi::RISCV_HWPROBE_EXT_ZACAS == sys::RISCV_HWPROBE_EXT_ZACAS);
+        #[cfg(not(all(
+            target_os = "linux",
+            any(
+                target_arch = "riscv32",
+                all(target_arch = "riscv64", target_pointer_width = "64"),
+            ),
+        )))]
+        {
+            use test_helper::libc;
+            let mut _syscall: unsafe extern "C" fn(num: ffi::c_long, ...) -> ffi::c_long =
+                ffi::syscall;
+            _syscall = libc::syscall;
+            _syscall = sys::syscall;
+        }
     };
 }
