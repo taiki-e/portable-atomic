@@ -3,4 +3,6 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const ZX_OK: u32 = 0;

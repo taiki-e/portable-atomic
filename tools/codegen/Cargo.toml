@@ -5,7 +5,6 @@ edition = "2018"
 publish = false
 
 [dependencies]
-anyhow = "1"
 bindgen = { default-features = false, features = ["prettyplease", "runtime"], git = "https://github.com/taiki-e/rust-bindgen.git", branch = "dev" } # https://github.com/rust-lang/rust-bindgen/pull/2369 + avoid https://github.com/rust-lang/cargo/issues/10623 + avoid bug on generate c str option
 camino = "1"
 duct = "0.13"

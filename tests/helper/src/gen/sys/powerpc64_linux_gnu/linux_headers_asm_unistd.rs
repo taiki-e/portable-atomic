@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const __NR_restart_syscall: u32 = 0;
 pub const __NR_exit: u32 = 1;
 pub const __NR_fork: u32 = 2;

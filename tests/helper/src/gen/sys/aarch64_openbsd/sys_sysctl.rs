@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub type u_int = ::std::os::raw::c_uint;
 pub const CTL_MACHDEP: u32 = 7;
 extern "C" {

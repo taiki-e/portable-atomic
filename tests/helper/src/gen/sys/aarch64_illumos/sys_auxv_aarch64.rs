@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const AV_AARCH64_FP: u32 = 1;
 pub const AV_AARCH64_ADVSIMD: u32 = 2;
 pub const AV_AARCH64_SVE: u32 = 4;

@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub type __s64 = ::std::os::raw::c_longlong;
 pub type __u64 = ::std::os::raw::c_ulonglong;
 #[repr(C)]

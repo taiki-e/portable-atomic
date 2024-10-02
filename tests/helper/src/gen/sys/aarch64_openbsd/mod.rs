@@ -4,14 +4,22 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
+mod dlfcn;
+pub use dlfcn::RTLD_DEFAULT;
+pub use dlfcn::dlsym;
+mod sys_auxv;
+pub use sys_auxv::AT_NULL;
+pub use sys_auxv::AT_IGNORE;
+pub use sys_auxv::AT_PAGESZ;
+pub use sys_auxv::AT_HWCAP;
+pub use sys_auxv::AT_HWCAP2;
+pub use sys_auxv::AT_COUNT;
+pub use sys_auxv::elf_aux_info;
 mod sys_sysctl;
 pub use sys_sysctl::CTL_MACHDEP;
 pub use sys_sysctl::sysctl;
-mod sys_auxv;
-pub use sys_auxv::AT_HWCAP;
-pub use sys_auxv::AT_HWCAP2;
-pub use sys_auxv::elf_aux_info;
 mod machine_cpu;
+pub use machine_cpu::CPU_COMPATIBLE;
 pub use machine_cpu::CPU_ID_AA64ISAR0;
 pub use machine_cpu::CPU_ID_AA64ISAR1;
 pub use machine_cpu::CPU_ID_AA64ISAR2;
@@ -22,6 +30,8 @@ pub use machine_cpu::CPU_ID_AA64PFR0;
 pub use machine_cpu::CPU_ID_AA64PFR1;
 pub use machine_cpu::CPU_ID_AA64SMFR0;
 pub use machine_cpu::CPU_ID_AA64ZFR0;
+pub use machine_cpu::CPU_LIDACTION;
+pub use machine_cpu::CPU_MAXID;
 mod machine_elf;
 pub use machine_elf::HWCAP_FP;
 pub use machine_elf::HWCAP_ASIMD;

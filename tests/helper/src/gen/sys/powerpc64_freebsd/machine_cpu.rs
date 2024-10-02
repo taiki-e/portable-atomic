@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const PPC_FEATURE_32: u32 = 2147483648;
 pub const PPC_FEATURE_64: u32 = 1073741824;
 pub const PPC_FEATURE_601_INSTR: u32 = 536870912;

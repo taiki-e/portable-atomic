@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const ZX_FEATURE_KIND_CPU: u32 = 0u8 as u32;
 pub const ZX_FEATURE_KIND_HW_BREAKPOINT_COUNT: u32 = 1u8 as u32;
 pub const ZX_FEATURE_KIND_HW_WATCHPOINT_COUNT: u32 = 2u8 as u32;
@@ -30,5 +32,6 @@ pub const ZX_ARM64_FEATURE_ISA_RNDR: u32 = 131072u32 as u32;
 pub const ZX_ARM64_FEATURE_ISA_SHA512: u32 = 262144u32 as u32;
 pub const ZX_ARM64_FEATURE_ISA_I8MM: u32 = 524288u32 as u32;
 pub const ZX_ARM64_FEATURE_ISA_SVE: u32 = 1048576u32 as u32;
+pub const ZX_ARM64_FEATURE_ISA_ARM32: u32 = 2097152u32 as u32;
 pub const ZX_ARM64_FEATURE_ISA_SHA2: u32 = 64u8 as u32;
 pub const ZX_ARM64_FEATURE_ADDRESS_TAGGING_TBI: u32 = 1u8 as u32;

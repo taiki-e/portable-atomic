@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 extern "C" {
     pub fn elf_aux_info(
         aux: ::std::os::raw::c_int,

@@ -4,13 +4,23 @@
 // It is not intended for manual editing.
 
 #![cfg_attr(rustfmt, rustfmt::skip)]
+mod dlfcn;
+pub use dlfcn::RTLD_DEFAULT;
+pub use dlfcn::dlsym;
+mod sys_auxv;
+pub use sys_auxv::AT_NULL;
+pub use sys_auxv::AT_IGNORE;
+pub use sys_auxv::AT_PAGESZ;
+pub use sys_auxv::AT_HWCAP;
+pub use sys_auxv::AT_HWCAP2;
+pub use sys_auxv::AT_COUNT;
+pub use sys_auxv::elf_aux_info;
 mod sys_sysctl;
 pub use sys_sysctl::CTL_MACHDEP;
 pub use sys_sysctl::sysctl;
-mod sys_auxv;
-pub use sys_auxv::AT_HWCAP;
-pub use sys_auxv::AT_HWCAP2;
-pub use sys_auxv::elf_aux_info;
+mod machine_cpu;
+pub use machine_cpu::CPU_ALTIVEC;
+pub use machine_cpu::CPU_MAXID;
 mod machine_elf;
 pub use machine_elf::PPC_FEATURE_32;
 pub use machine_elf::PPC_FEATURE_64;

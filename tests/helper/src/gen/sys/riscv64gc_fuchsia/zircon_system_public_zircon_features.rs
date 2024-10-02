@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub const ZX_FEATURE_KIND_CPU: u32 = 0u8 as u32;
 pub const ZX_FEATURE_KIND_HW_BREAKPOINT_COUNT: u32 = 1u8 as u32;
 pub const ZX_FEATURE_KIND_HW_WATCHPOINT_COUNT: u32 = 2u8 as u32;

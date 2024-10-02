@@ -3,6 +3,8 @@
 // (gen function at tools/codegen/src/ffi.rs).
 // It is not intended for manual editing.
 
+#![cfg_attr(rustfmt, rustfmt::skip)]
+
 pub type uint_t = ::std::os::raw::c_uint;
 extern "C" {
     pub fn getisax(arg1: *mut u32, arg2: uint_t) -> uint_t;
