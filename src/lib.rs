@@ -662,25 +662,30 @@ impl AtomicBool {
     #[cfg(test)]
     const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
-    /// Returns a mutable reference to the underlying [`bool`].
-    ///
-    /// This is safe because the mutable reference guarantees that no other threads are
-    /// concurrently accessing the atomic data.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use portable_atomic::{AtomicBool, Ordering};
-    ///
-    /// let mut some_bool = AtomicBool::new(true);
-    /// assert_eq!(*some_bool.get_mut(), true);
-    /// *some_bool.get_mut() = false;
-    /// assert_eq!(some_bool.load(Ordering::SeqCst), false);
-    /// ```
-    #[inline]
-    pub fn get_mut(&mut self) -> &mut bool {
-        // SAFETY: the mutable reference guarantees unique ownership.
-        unsafe { &mut *(self.v.get() as *mut bool) }
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        /// Returns a mutable reference to the underlying [`bool`].
+        ///
+        /// This is safe because the mutable reference guarantees that no other threads are
+        /// concurrently accessing the atomic data.
+        ///
+        /// This is `const fn` on Rust 1.83+.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// use portable_atomic::{AtomicBool, Ordering};
+        ///
+        /// let mut some_bool = AtomicBool::new(true);
+        /// assert_eq!(*some_bool.get_mut(), true);
+        /// *some_bool.get_mut() = false;
+        /// assert_eq!(some_bool.load(Ordering::SeqCst), false);
+        /// ```
+        #[inline]
+        pub const fn get_mut(&mut self) -> &mut bool {
+            // SAFETY: the mutable reference guarantees unique ownership.
+            unsafe { &mut *self.as_ptr() }
+        }
     }
 
     // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
@@ -1669,25 +1674,32 @@ impl<T> AtomicPtr<T> {
     #[cfg(test)]
     const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
-    /// Returns a mutable reference to the underlying pointer.
-    ///
-    /// This is safe because the mutable reference guarantees that no other threads are
-    /// concurrently accessing the atomic data.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use portable_atomic::{AtomicPtr, Ordering};
-    ///
-    /// let mut data = 10;
-    /// let mut atomic_ptr = AtomicPtr::new(&mut data);
-    /// let mut other_data = 5;
-    /// *atomic_ptr.get_mut() = &mut other_data;
-    /// assert_eq!(unsafe { *atomic_ptr.load(Ordering::SeqCst) }, 5);
-    /// ```
-    #[inline]
-    pub fn get_mut(&mut self) -> &mut *mut T {
-        self.inner.get_mut()
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        /// Returns a mutable reference to the underlying pointer.
+        ///
+        /// This is safe because the mutable reference guarantees that no other threads are
+        /// concurrently accessing the atomic data.
+        ///
+        /// This is `const fn` on Rust 1.83+.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// use portable_atomic::{AtomicPtr, Ordering};
+        ///
+        /// let mut data = 10;
+        /// let mut atomic_ptr = AtomicPtr::new(&mut data);
+        /// let mut other_data = 5;
+        /// *atomic_ptr.get_mut() = &mut other_data;
+        /// assert_eq!(unsafe { *atomic_ptr.load(Ordering::SeqCst) }, 5);
+        /// ```
+        #[inline]
+        pub const fn get_mut(&mut self) -> &mut *mut T {
+            // SAFETY: the mutable reference guarantees unique ownership.
+            // (core::sync::atomic::Atomic*::get_mut is not const yet)
+            unsafe { &mut *self.as_ptr() }
+        }
     }
 
     // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.
@@ -2792,10 +2804,38 @@ const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock
             #[cfg(test)]
             const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
+            #[cfg(not(portable_atomic_no_const_mut_refs))]
             doc_comment! {
                 concat!("Returns a mutable reference to the underlying integer.\n
 This is safe because the mutable reference guarantees that no other threads are
 concurrently accessing the atomic data.
+
+This is `const fn` on Rust 1.83+.
+
+# Examples
+
+```
+use portable_atomic::{", stringify!($atomic_type), ", Ordering};
+
+let mut some_var = ", stringify!($atomic_type), "::new(10);
+assert_eq!(*some_var.get_mut(), 10);
+*some_var.get_mut() = 5;
+assert_eq!(some_var.load(Ordering::SeqCst), 5);
+```"),
+                #[inline]
+                pub const fn get_mut(&mut self) -> &mut $int_type {
+                    // SAFETY: the mutable reference guarantees unique ownership.
+                    // (core::sync::atomic::Atomic*::get_mut is not const yet)
+                    unsafe { &mut *self.as_ptr() }
+                }
+            }
+            #[cfg(portable_atomic_no_const_mut_refs)]
+            doc_comment! {
+                concat!("Returns a mutable reference to the underlying integer.\n
+This is safe because the mutable reference guarantees that no other threads are
+concurrently accessing the atomic data.
+
+This is `const fn` on Rust 1.83+.
 
 # Examples
 
@@ -2809,7 +2849,8 @@ assert_eq!(some_var.load(Ordering::SeqCst), 5);
 ```"),
                 #[inline]
                 pub fn get_mut(&mut self) -> &mut $int_type {
-                    self.inner.get_mut()
+                    // SAFETY: the mutable reference guarantees unique ownership.
+                    unsafe { &mut *self.as_ptr() }
                 }
             }
 
@@ -4129,13 +4170,19 @@ This type has the same in-memory representation as the underlying floating point
             #[cfg(test)]
             const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
-            /// Returns a mutable reference to the underlying float.
-            ///
-            /// This is safe because the mutable reference guarantees that no other threads are
-            /// concurrently accessing the atomic data.
-            #[inline]
-            pub fn get_mut(&mut self) -> &mut $float_type {
-                self.inner.get_mut()
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+                /// Returns a mutable reference to the underlying float.
+                ///
+                /// This is safe because the mutable reference guarantees that no other threads are
+                /// concurrently accessing the atomic data.
+                ///
+                /// This is `const fn` on Rust 1.83+.
+                #[inline]
+                pub const fn get_mut(&mut self) -> &mut $float_type {
+                    // SAFETY: the mutable reference guarantees unique ownership.
+                    unsafe { &mut *self.as_ptr() }
+                }
             }
 
             // TODO: Add from_mut/get_mut_slice/from_mut_slice once it is stable on std atomic types.

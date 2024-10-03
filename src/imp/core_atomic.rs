@@ -40,10 +40,6 @@ impl<T> AtomicPtr<T> {
     }
     pub(crate) const IS_ALWAYS_LOCK_FREE: bool = true;
     #[inline]
-    pub(crate) fn get_mut(&mut self) -> &mut *mut T {
-        self.inner.get_mut()
-    }
-    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -163,10 +159,6 @@ macro_rules! atomic_int {
                 target_os = "espidf",
             ))) | (core::mem::size_of::<$int_type>()
                 < 8);
-            #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                self.inner.get_mut()
-            }
             #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),

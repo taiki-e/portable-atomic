@@ -26,13 +26,6 @@ macro_rules! atomic128 {
             pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
 
             #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $int_type {
-                // SAFETY: the mutable reference guarantees unique ownership.
-                // (UnsafeCell::get_mut requires Rust 1.50)
-                unsafe { &mut *self.v.get() }
-            }
-
-            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller

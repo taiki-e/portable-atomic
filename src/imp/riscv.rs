@@ -199,13 +199,6 @@ macro_rules! atomic_load_store {
             pub(crate) const IS_ALWAYS_LOCK_FREE: bool = true;
 
             #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $value_type {
-                // SAFETY: the mutable reference guarantees unique ownership.
-                // (UnsafeCell::get_mut requires Rust 1.50)
-                unsafe { &mut *self.v.get() }
-            }
-
-            #[inline]
             pub(crate) const fn as_ptr(&self) -> *mut $value_type {
                 self.v.get()
             }

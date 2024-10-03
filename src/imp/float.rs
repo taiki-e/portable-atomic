@@ -50,13 +50,6 @@ macro_rules! atomic_float {
                 crate::$atomic_int_type::is_always_lock_free();
 
             #[inline]
-            pub(crate) fn get_mut(&mut self) -> &mut $float_type {
-                // SAFETY: the mutable reference guarantees unique ownership.
-                // (UnsafeCell::get_mut requires Rust 1.50)
-                unsafe { &mut *self.v.get() }
-            }
-
-            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller
