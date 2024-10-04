@@ -461,5 +461,6 @@ pub const SYS_epoll_create1: u32 = 502;
 pub const SYS_epoll_ctl: u32 = 503;
 pub const SYS_epoll_pwait2: u32 = 504;
 pub const SYS___dup3100: u32 = 505;
-pub const SYS_MAXSYSCALL: u32 = 506;
+pub const SYS_semtimedop: u32 = 506;
+pub const SYS_MAXSYSCALL: u32 = 507;
 pub const SYS_NSYSENT: u32 = 512;

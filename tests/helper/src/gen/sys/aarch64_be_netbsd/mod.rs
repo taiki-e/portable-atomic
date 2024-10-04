@@ -461,6 +461,7 @@ pub use sys_syscall::SYS_epoll_create1;
 pub use sys_syscall::SYS_epoll_ctl;
 pub use sys_syscall::SYS_epoll_pwait2;
 pub use sys_syscall::SYS___dup3100;
+pub use sys_syscall::SYS_semtimedop;
 pub use sys_syscall::SYS_MAXSYSCALL;
 pub use sys_syscall::SYS_NSYSENT;
 mod sys_sysctl;
