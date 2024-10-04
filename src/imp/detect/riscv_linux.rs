@@ -126,7 +126,6 @@ mod tests {
     // This test tests that our ones and libc::syscall returns the same result.
     #[test]
     fn test_alternative() {
-        use test_helper::libc;
         unsafe fn __riscv_hwprobe_libc(
             pairs: *mut ffi::riscv_hwprobe,
             pair_count: ffi::c_size_t,
@@ -189,7 +188,6 @@ mod tests {
             ),
         )))]
         {
-            use test_helper::libc;
             let mut _syscall: unsafe extern "C" fn(num: ffi::c_long, ...) -> ffi::c_long =
                 ffi::syscall;
             _syscall = libc::syscall;

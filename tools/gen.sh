@@ -13,5 +13,3 @@ cd -- "$(dirname -- "$0")"/..
 set -x
 
 ./tools/target_spec.sh
-
-cargo run --manifest-path tools/codegen/Cargo.toml

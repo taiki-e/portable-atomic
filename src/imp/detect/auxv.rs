@@ -389,7 +389,7 @@ mod tests {
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::{mem, vec};
-        use test_helper::{libc, sys};
+        use test_helper::sys;
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
         // https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
@@ -560,7 +560,7 @@ mod tests {
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::{mem, ptr};
-        use test_helper::{libc, sys};
+        use test_helper::sys;
 
         // This is almost equivalent to what elf_aux_info does.
         // https://man.freebsd.org/elf_aux_info(3)
@@ -824,8 +824,6 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        #[cfg(not(target_os = "openbsd"))]
-        use test_helper::libc;
         use test_helper::sys;
         #[cfg(not(any(target_os = "freebsd", target_os = "openbsd")))]
         type AtType = ffi::c_ulong;

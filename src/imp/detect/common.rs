@@ -164,7 +164,7 @@ mod c_types {
     // Static assertions for C type definitions.
     #[cfg(test)]
     const _: fn() = || {
-        use test_helper::{libc, sys};
+        use test_helper::sys;
         let _: c_int = 0 as std::os::raw::c_int;
         let _: c_uint = 0 as std::os::raw::c_uint;
         let _: c_long = 0 as std::os::raw::c_long;

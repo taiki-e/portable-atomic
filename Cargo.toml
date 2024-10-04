@@ -82,7 +82,7 @@ serde = { version = "1.0.60", optional = true, default-features = false }
 critical-section = { version = "1", optional = true }
 
 [dev-dependencies]
-test-helper = { path = "tests/helper", features = ["std", "critical-section"] }
+test-helper = { git = "https://github.com/taiki-e/test-helper.git", branch = "main", features = ["std", "sys", "cpuinfo", "critical-section"] }
 
 build-context = "0.1"
 crossbeam-utils = "=0.8.16" # The latest crossbeam-utils requires Rust 1.60
@@ -93,6 +93,15 @@ serde_test = { git = "https://github.com/taiki-e/serde_test.git", branch = "dev"
 sptr = "0.3"
 static_assertions = "1"
 
+[target.'cfg(unix)'.dev-dependencies]
+libc = "0.2.140"
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+] }
+
 [lints]
 workspace = true
 
@@ -101,8 +110,6 @@ members = [
     "bench",
     "portable-atomic-util",
     "tests/api-test",
-    "tests/helper",
-    "tools/codegen",
 ]
 
 # This table is shared by projects under github.com/taiki-e.

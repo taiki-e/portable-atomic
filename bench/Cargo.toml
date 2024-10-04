@@ -11,7 +11,7 @@ fallback = []
 std = []
 
 [dev-dependencies]
-test-helper = { path = "../tests/helper", features = ["std"] }
+test-helper = { git = "https://github.com/taiki-e/test-helper.git", branch = "main", features = ["std", "sys", "cpuinfo", "critical-section"] }
 
 # atomic = "0.6"
 build-context = "0.1"
@@ -21,6 +21,15 @@ fastrand = "2"
 paste = "1"
 quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + lower MSRV
 static_assertions = "1"
+
+[target.'cfg(unix)'.dev-dependencies]
+libc = "0.2.140"
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+] }
 
 [[bench]]
 name = "bench"

@@ -6,7 +6,6 @@ publish = false
 
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
-test-helper = { path = "../helper" }
 
 avr-device = "0.6"
 paste = "1"

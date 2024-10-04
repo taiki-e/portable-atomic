@@ -61,7 +61,7 @@ fn run() {
 
     // TODO: undefined reference to `__sync_synchronize'
     #[cfg(not(armv5te))]
-    for &order in &test_helper::FENCE_ORDERINGS {
+    for &order in &helper::FENCE_ORDERINGS {
         fence(order);
         compiler_fence(order);
     }

@@ -15,6 +15,8 @@ pub(crate) mod helper;
 #[path = "../../version.rs"]
 mod version;
 
+use test_helper as _;
+
 use super::*;
 
 test_atomic_bool_pub!();

@@ -86,7 +86,7 @@ fn main() -> ! {
     println!("starting tests...");
 
     // TODO: undefined reference to `__sync_synchronize'
-    // for &order in &test_helper::FENCE_ORDERINGS {
+    // for &order in &helper::FENCE_ORDERINGS {
     //     fence(order);
     //     compiler_fence(order);
     // }

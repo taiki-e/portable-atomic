@@ -513,7 +513,7 @@ mod tests {
     const _: fn() = || {
         use imp::ffi;
         use std::mem;
-        use test_helper::{libc, sys};
+        use test_helper::sys;
         // libc doesn't have this
         // static_assert!(
         //     mem::size_of::<ffi::aarch64_sysctl_cpu_id>()
@@ -563,7 +563,7 @@ mod tests {
     )]
     const _: fn() = || {
         use imp::ffi;
-        use test_helper::{libc, sys};
+        use test_helper::sys;
         static_assert!(ffi::CTL_MACHDEP == libc::CTL_MACHDEP);
         static_assert!(ffi::CTL_MACHDEP == sys::CTL_MACHDEP as ffi::c_int);
         // static_assert!(ffi::CPU_ID_AA64ISAR0 == libc::CPU_ID_AA64ISAR0); // libc doesn't have this

@@ -598,11 +598,12 @@ mod tests {
             }
         };
         ($atomic_type:ty) => {
+            use crate::tests::helper;
             ::quickcheck::quickcheck! {
                 fn quickcheck_swap(x: usize, y: usize) -> bool {
                     let x = sptr::invalid_mut(x);
                     let y = sptr::invalid_mut(y);
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.swap(y, order), x);
                         assert_eq!(a.swap(x, order), y);
@@ -628,9 +629,10 @@ mod tests {
             }
         };
         ($atomic_type:ty, $int_type:ident) => {
+            use crate::tests::helper;
             ::quickcheck::quickcheck! {
                 fn quickcheck_swap(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.swap(y, order), x);
                         assert_eq!(a.swap(x, order), y);
@@ -638,7 +640,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_add(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_add(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), x.wrapping_add(y));
@@ -649,7 +651,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_sub(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_sub(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), x.wrapping_sub(y));
@@ -660,7 +662,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_and(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_and(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), x & y);
@@ -671,7 +673,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_or(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_or(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), x | y);
@@ -682,7 +684,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_xor(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_xor(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), x ^ y);
@@ -693,7 +695,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_max(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_max(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), core::cmp::max(x, y));
@@ -704,7 +706,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_min(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_min(y, order), x);
                         assert_eq!(a.load(Ordering::Relaxed), core::cmp::min(x, y));
@@ -715,7 +717,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_not(x: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.fetch_not(order), x);
                         assert_eq!(a.load(Ordering::Relaxed), !x);
@@ -746,10 +748,10 @@ mod tests {
             }
         };
         ($atomic_type:ty, $int_type:ident) => {
-            use crate::tests::helper::*;
+            use crate::tests::helper::{self, *};
             ::quickcheck::quickcheck! {
                 fn quickcheck_fetch_and(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         for base in [0, !0] {
                             let mut arr = Align16([
                                 <$atomic_type>::new(base),
@@ -789,7 +791,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_or(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         for base in [0, !0] {
                             let mut arr = Align16([
                                 <$atomic_type>::new(base),
@@ -829,7 +831,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_xor(x: $int_type, y: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         for base in [0, !0] {
                             let mut arr = Align16([
                                 <$atomic_type>::new(base),
@@ -869,7 +871,7 @@ mod tests {
                     true
                 }
                 fn quickcheck_fetch_not(x: $int_type) -> bool {
-                    for &order in &test_helper::SWAP_ORDERINGS {
+                    for &order in &helper::SWAP_ORDERINGS {
                         for base in [0, !0] {
                             let mut arr = Align16([
                                 <$atomic_type>::new(base),

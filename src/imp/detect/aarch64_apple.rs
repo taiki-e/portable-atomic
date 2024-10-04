@@ -129,7 +129,7 @@ mod tests {
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::mem;
-        use test_helper::{libc, sys};
+        use test_helper::sys;
         // Call syscall using asm instead of libc.
         // Note that macOS does not guarantee the stability of raw syscall.
         // (And they actually changed it: https://go-review.googlesource.com/c/go/+/25495)
@@ -274,7 +274,7 @@ mod tests {
         clippy::no_effect_underscore_binding
     )]
     const _: fn() = || {
-        use test_helper::{libc, sys};
+        use test_helper::sys;
         let mut _sysctlbyname: unsafe extern "C" fn(
             *const ffi::c_char,
             *mut ffi::c_void,
