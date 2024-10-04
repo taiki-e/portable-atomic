@@ -1405,7 +1405,7 @@ impl AtomicBool {
 #[cfg(not(feature = "require-cas"))]
 cfg_no_atomic_cas! {
 #[doc(hidden)]
-#[allow(unused_variables, clippy::unused_self)]
+#[allow(unused_variables, clippy::unused_self, clippy::extra_unused_lifetimes)]
 impl<'a> AtomicBool {
     cfg_no_atomic_cas_or_amo32! {
     #[inline]
@@ -2523,7 +2523,7 @@ impl<T> AtomicPtr<T> {
 #[cfg(not(feature = "require-cas"))]
 cfg_no_atomic_cas! {
 #[doc(hidden)]
-#[allow(unused_variables, clippy::unused_self)]
+#[allow(unused_variables, clippy::unused_self, clippy::extra_unused_lifetimes)]
 impl<'a, T: 'a> AtomicPtr<T> {
     cfg_no_atomic_cas_or_amo32! {
     #[inline]
@@ -3843,7 +3843,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
         #[cfg(not(feature = "require-cas"))]
         cfg_no_atomic_cas! {
         #[doc(hidden)]
-        #[allow(unused_variables, clippy::unused_self)]
+        #[allow(unused_variables, clippy::unused_self, clippy::extra_unused_lifetimes)]
         impl<'a> $atomic_type {
             $cfg_no_atomic_cas_or_amo32_or_8! {
             #[inline]
@@ -4521,7 +4521,7 @@ This is `const fn` on Rust 1.58+."),
         #[cfg(not(feature = "require-cas"))]
         cfg_no_atomic_cas! {
         #[doc(hidden)]
-        #[allow(unused_variables, clippy::unused_self)]
+        #[allow(unused_variables, clippy::unused_self, clippy::extra_unused_lifetimes)]
         impl<'a> $atomic_type {
             cfg_no_atomic_cas_or_amo32! {
             #[inline]
