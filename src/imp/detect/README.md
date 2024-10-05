@@ -16,6 +16,8 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64     | illumos              | getisax         | lse, lse2 | Disabled by default |
 | aarch64/arm64ec | windows              | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
+| arm         | linux                | getauxval       | all      | Disabled by default |
+| arm         | android              | getauxval       | all      | Disabled by default |
 | riscv32/riscv64 | linux/android    | riscv_hwprobe   | all      | Disabled by default |
 | powerpc64   | linux                | getauxval       | all      | Disabled by default |
 | powerpc64   | freebsd              | elf_aux_info    | all      | Disabled by default |
