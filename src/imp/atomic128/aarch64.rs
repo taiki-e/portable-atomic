@@ -134,7 +134,7 @@ mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
 #[cfg(target_os = "windows")]
-#[path = "../detect/aarch64_windows.rs"]
+#[path = "../detect/arm_windows.rs"]
 mod detect;
 
 // test only

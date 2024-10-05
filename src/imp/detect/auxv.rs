@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
 - Linux 6.4+ (through prctl)
@@ -13,6 +13,7 @@ Supported platforms:
   Always available on:
   - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L35)
   Not always available on:
+  - arm (glibc 2.1+ https://github.com/bminor/glibc/blob/glibc-2.1/NEWS#L96)
   - powerpc64 (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L55)
   Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 - musl 1.1.0+ (through getauxval)
@@ -20,6 +21,8 @@ Supported platforms:
   Always available on:
   - aarch64 (musl 1.1.7+ https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
   - powerpc64 (musl 1.1.15+ https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
+  Not always available on:
+  - arm (musl 0.8.3+ https://github.com/bminor/musl/blob/v0.8.3/WHATSNEW#L354)
   Since Rust 1.31, std requires musl 1.1.20+ https://github.com/rust-lang/rust/pull/54430
   Since Rust 1.37, std requires musl 1.1.22+ https://github.com/rust-lang/rust/pull/61252
   Since Rust 1.46, std requires musl 1.1.24+ https://github.com/rust-lang/rust/pull/73089
@@ -36,6 +39,7 @@ Supported platforms:
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
   Not always available on:
   - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
+  - arm (FreeBSD 10.1+ https://www.freebsd.org/releases/10.1R/announce/)
   - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
 - OpenBSD 7.6+ (through elf_aux_info)
@@ -95,6 +99,12 @@ https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
 On AArch64, there is an alternative that available on older version,
 so we use it (see aarch64_aa64reg.rs).
 
+# Arm
+
+- On glibc, [Arm support is available on glibc 2.1+](https://github.com/bminor/glibc/blob/glibc-2.1/NEWS#L96)
+- On musl, [Arm support is available on musl 0.8.3+](https://github.com/bminor/musl/blob/v0.8.3/WHATSNEW#L354)
+- On FreeBSD, [Arm support is available on FreeBSD 10.1+](https://www.freebsd.org/releases/10.1R/announce/)
+
 # PowerPC64
 
 On PowerPC64, run-time detection is currently disabled by default mainly for
@@ -116,12 +126,16 @@ mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
-        pub(crate) use super::super::c_types::c_ulong;
+        #[cfg(target_arch = "arm")]
+        pub(crate) use super::super::c_types::c_char;
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) use super::super::c_types::{c_char, c_int};
+        pub(crate) use super::super::c_types::{c_ulong, c_void};
 
         // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
-        #[cfg(any(test, target_arch = "aarch64"))]
+        #[cfg(any(test, target_arch = "arm"))]
+        pub(crate) const AT_PLATFORM: c_ulong = 15;
+        #[cfg(any(test, target_arch = "aarch64", target_arch = "arm"))]
         pub(crate) const AT_HWCAP: c_ulong = 16;
         #[cfg(any(
             test,
@@ -143,7 +157,8 @@ mod os {
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
             // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
-            pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
+            // Use pointer instead of c_ulong (same size on unix-like systems except for CHERI): https://github.com/rust-lang/rust/issues/95496
+            pub(crate) fn getauxval(type_: c_ulong) -> *mut c_void;
 
             // Defined in sys/system_properties.h.
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
@@ -152,7 +167,7 @@ mod os {
         }
     }
 
-    pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
+    pub(super) fn getauxval(type_: ffi::c_ulong) -> *mut ffi::c_void {
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         {
             // Samsung Exynos 9810 has a bug that big and little cores have different
@@ -183,6 +198,8 @@ mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
+        #[cfg(target_arch = "arm")]
+        pub(crate) use super::super::c_types::c_char;
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 
         // FreeBSD
@@ -191,7 +208,7 @@ mod os {
         // OpenBSD
         // Defined in sys/auxv.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
-        #[cfg(any(test, target_arch = "aarch64"))]
+        #[cfg(any(test, target_arch = "aarch64", target_arch = "arm"))]
         pub(crate) const AT_HWCAP: c_int = 25;
         #[cfg(any(test, target_arch = "powerpc64"))]
         pub(crate) const AT_HWCAP2: c_int = 26;
@@ -209,10 +226,11 @@ mod os {
         }
     }
 
-    pub(super) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
+    pub(super) fn getauxval(aux: ffi::c_int) -> *mut ffi::c_void {
         #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
         const OUT_LEN: ffi::c_int = core::mem::size_of::<ffi::c_ulong>() as ffi::c_int;
-        let mut out: ffi::c_ulong = 0;
+        // Use pointer instead of c_ulong (same size on unix-like systems except for CHERI): https://github.com/rust-lang/rust/issues/95496
+        let mut out: *mut ffi::c_void = 0;
         // SAFETY:
         // - the pointer is valid because we got it from a reference.
         // - `OUT_LEN` is the same as the size of `out`.
@@ -220,7 +238,7 @@ mod os {
         unsafe {
             let res = ffi::elf_aux_info(
                 aux,
-                (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                (&mut out as *mut *mut ffi::c_void).cast::<ffi::c_void>(),
                 OUT_LEN,
             );
             // If elf_aux_info fails, `out` will be left at zero (which is the proper default value).
@@ -275,8 +293,7 @@ mod arch {
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
-        let hwcap = os::getauxval(ffi::AT_HWCAP);
-
+        let hwcap = os::getauxval(ffi::AT_HWCAP) as ffi::c_ulong;
         if hwcap & HWCAP_ATOMICS != 0 {
             info.set(CpuInfo::HAS_LSE);
         }
@@ -287,12 +304,64 @@ mod arch {
         // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
         #[cfg(target_pointer_width = "64")]
         {
-            let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
+            let hwcap2 = os::getauxval(ffi::AT_HWCAP2) as ffi::c_ulong;
             if hwcap2 & HWCAP2_LRCPC3 != 0 {
                 info.set(CpuInfo::HAS_RCPC3);
             }
             if hwcap2 & HWCAP2_LSE128 != 0 {
                 info.set(CpuInfo::HAS_LSE128);
+            }
+        }
+    }
+}
+#[cfg(target_arch = "arm")]
+mod arch {
+    use super::{ffi, os, CpuInfo};
+
+    // Linux
+    // https://github.com/torvalds/linux/blob/v6.11/arch/arm/include/uapi/asm/hwcap.h
+    // FreeBSD
+    // Defined in machine/elf.h.
+    // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm/include/elf.h
+    // OpenBSD
+    // Defined in machine/elf.h.
+    // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm/include/elf.h
+    // Linux 2.6.36+
+    // https://github.com/torvalds/linux/commit/f159f4ed55bb0fa5470800641e03a13a7e0eae6e
+    // FreeBSD 12.0+/11.2+
+    // https://github.com/freebsd/freebsd-src/commit/0cbf724ed03571bc90ed22c3b4bf8c6c7b2da564
+    // https://github.com/freebsd/freebsd-src/commit/8a997f45df4e28bcabd074e41eee7d73e0ea9e5b
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+    pub(super) const HWCAP_TLS: ffi::c_ulong = 1 << 15;
+    // Linux 3.11+
+    // https://github.com/torvalds/linux/commit/a469abd0f868c902b75532579bf87553dcf1b360
+    // FreeBSD 12.0+/11.2+
+    // https://github.com/freebsd/freebsd-src/commit/0cbf724ed03571bc90ed22c3b4bf8c6c7b2da564
+    // https://github.com/freebsd/freebsd-src/commit/8a997f45df4e28bcabd074e41eee7d73e0ea9e5b
+    // OpenBSD 7.6+
+    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+    pub(super) const HWCAP_LPAE: ffi::c_ulong = 1 << 20;
+
+    #[cold]
+    pub(super) fn _detect(info: &mut CpuInfo) {
+        let hwcap = os::getauxval(ffi::AT_HWCAP) as ffi::c_ulong;
+        if hwcap & HWCAP_LPAE != 0 {
+            // LPAE implies v7, v7 implies v6
+            info.set(CpuInfo::HAS_V6);
+            info.set(CpuInfo::HAS_V7);
+            info.set(CpuInfo::HAS_LPAE);
+        } else if hwcap & HWCAP_TLS != 0 {
+            // TLS implies v6
+            info.set(CpuInfo::HAS_V6);
+            // https://github.com/bminor/musl/blob/v1.2.5/src/thread/arm/__set_thread_area.c
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            {
+                let s = os::getauxval(ffi::AT_PLATFORM) as *const ffi::c_char;
+                if unsafe { *s != b'v' || *s.add(1) != b'6' || (*s.add(2)).wrapping_sub(b'0') < 10 }
+                {
+                    info.set(CpuInfo::HAS_V7);
+                }
             }
         }
     }
@@ -331,8 +400,7 @@ mod arch {
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
-        let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
-
+        let hwcap2 = os::getauxval(ffi::AT_HWCAP2) as ffi::c_ulong;
         // power8
         // Check both 2_07 (power8) and later ISAs (which are superset of 2_07) because
         // OpenBSD currently doesn't set 2_07 even when 3_00 (power9) is set.
@@ -378,6 +446,17 @@ mod tests {
                 core::str::from_utf8(core::slice::from_raw_parts(arch.as_ptr(), len as usize))
                     .unwrap()
             );
+        }
+    }
+
+    #[allow(clippy::cast_sign_loss)]
+    #[cfg(target_arch = "arm")]
+    #[test]
+    fn test_arm() {
+        unsafe {
+            let s = os::getauxval(ffi::AT_PLATFORM) as *const ffi::c_char;
+            let s = std::ffi::CStr::from_ptr(s);
+            std::eprintln!("AT_PLATFORM={:?}", core::str::from_utf8(s.to_bytes()).unwrap());
         }
     }
 
@@ -531,21 +610,21 @@ mod tests {
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP),
+                    os::getauxval(ffi::AT_HWCAP) as ffi::c_ulong,
                     getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap()
                 );
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP2),
+                    os::getauxval(ffi::AT_HWCAP2) as ffi::c_ulong,
                     getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap()
                 );
                 #[cfg(target_pointer_width = "64")]
                 {
                     assert_eq!(
-                        os::getauxval(ffi::AT_HWCAP),
+                        os::getauxval(ffi::AT_HWCAP) as ffi::c_ulong,
                         getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap()
                     );
                     assert_eq!(
-                        os::getauxval(ffi::AT_HWCAP2),
+                        os::getauxval(ffi::AT_HWCAP2) as ffi::c_ulong,
                         getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap()
                     );
                 }
@@ -837,9 +916,17 @@ mod tests {
         static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as AtType);
         #[cfg(any(target_os = "linux", target_os = "android"))]
         {
-            let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
-            _getauxval = libc::getauxval;
-            _getauxval = sys::getauxval;
+            #[cfg(target_arch = "arm")]
+            {
+                static_assert!(ffi::AT_PLATFORM == libc::AT_PLATFORM);
+                static_assert!(ffi::AT_PLATFORM == sys::AT_PLATFORM as AtType);
+            }
+            // let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
+            // _getauxval = libc::getauxval;
+            // #[cfg(not(target_arch = "arm"))] // TODO
+            // {
+            //     _getauxval = sys::getauxval;
+            // }
         }
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         {

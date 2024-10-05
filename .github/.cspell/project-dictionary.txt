@@ -83,14 +83,17 @@ libstd
 libtcl
 libtest
 linkall
+LOADSTORE
 locgr
 locgre
+LPAE
 lqarx
 lrcpc
 lwsync
 machdep
 MAXNAME
 maxu
+memd
 mfcr
 mfence
 mgba
@@ -145,6 +148,7 @@ stilp
 stlxp
 stpq
 stqcx
+strd
 strexd
 stxp
 subarch

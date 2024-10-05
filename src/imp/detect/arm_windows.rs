@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64 Windows by using IsProcessorFeaturePresent.
+Run-time CPU feature detection on Arm/AArch64 Windows by using IsProcessorFeaturePresent.
 
 Run-time detection of FEAT_LSE on Windows by is_aarch64_feature_detected is supported on Rust 1.70+.
 https://github.com/rust-lang/stdarch/pull/1373
@@ -13,6 +13,7 @@ include!("common.rs");
 
 // windows-sys requires Rust 1.60
 #[allow(clippy::upper_case_acronyms)]
+#[cfg_attr(test, allow(dead_code))]
 mod ffi {
     pub(crate) type DWORD = u32;
     pub(crate) type BOOL = i32;
@@ -20,6 +21,9 @@ mod ffi {
     pub(crate) const FALSE: BOOL = 0;
 
     // Defined in winnt.h of Windows SDK.
+    #[cfg(any(test, target_arch = "arm"))]
+    pub(crate) const PF_ARM_64BIT_LOADSTORE_ATOMIC: DWORD = 25;
+    #[cfg(any(test, target_arch = "aarch64"))]
     pub(crate) const PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE: DWORD = 34;
 
     extern "system" {
@@ -28,14 +32,36 @@ mod ffi {
     }
 }
 
-#[cold]
-fn _detect(info: &mut CpuInfo) {
-    // SAFETY: calling IsProcessorFeaturePresent is safe, and FALSE is also
-    // returned if the HAL does not support detection of the specified feature.
-    if unsafe {
-        ffi::IsProcessorFeaturePresent(ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE) != ffi::FALSE
-    } {
-        info.set(CpuInfo::HAS_LSE);
+use arch::_detect;
+#[cfg(target_arch = "aarch64")]
+mod arch {
+    use super::{ffi, os, CpuInfo};
+
+    #[cold]
+    pub(super) fn _detect(info: &mut CpuInfo) {
+        // SAFETY: calling IsProcessorFeaturePresent is safe, and FALSE is also
+        // returned if the HAL does not support detection of the specified feature.
+        if unsafe {
+            ffi::IsProcessorFeaturePresent(ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE)
+                != ffi::FALSE
+        } {
+            info.set(CpuInfo::HAS_LSE);
+        }
+    }
+}
+#[cfg(target_arch = "arm")]
+mod arch {
+    use super::{ffi, os, CpuInfo};
+
+    #[cold]
+    pub(super) fn _detect(info: &mut CpuInfo) {
+        // SAFETY: calling IsProcessorFeaturePresent is safe, and FALSE is also
+        // returned if the HAL does not support detection of the specified feature.
+        if unsafe {
+            ffi::IsProcessorFeaturePresent(ffi::PF_ARM_64BIT_LOADSTORE_ATOMIC) != ffi::FALSE
+        } {
+            info.set(CpuInfo::HAS_LPAE);
+        }
     }
 }
 
@@ -75,6 +101,10 @@ mod tests {
         _is_processor_feature_present =
             windows_sys::Win32::System::Threading::IsProcessorFeaturePresent;
         static_assert!(ffi::FALSE == windows_sys::Win32::Foundation::FALSE);
+        static_assert!(
+            ffi::PF_ARM_64BIT_LOADSTORE_ATOMIC
+                == windows_sys::Win32::System::Threading::PF_ARM_64BIT_LOADSTORE_ATOMIC
+        );
         static_assert!(
             ffi::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
                 == windows_sys::Win32::System::Threading::PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE
