@@ -47,7 +47,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("zaamo","zabha","experimental-zacas","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("experimental-zacas","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -323,16 +323,14 @@ fn main() {
             }
         }
         "riscv32" | "riscv64" => {
-            // As of rustc 1.80, target_feature "zaamo"/"zabha"/"zacas" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
-            // zabha and zacas imply zaamo in GCC, but do not in LLVM (but enabling them without zaamo is not allowed).
+            // zabha and zacas imply zaamo in GCC and Rust, but do not in LLVM (but enabling them
+            // without zaamo or a is not allowed, so we can assume zaamo is available when zabha is enabled).
             // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/TargetParser/RISCVISAInfo.cpp#L772-L778
             // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45-L46
-            if version.llvm >= 19 {
-                // amo*.{b,h}
-                // available since LLVM 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
-                target_feature_fallback("zabha", false);
-            }
+            // https://github.com/rust-lang/rust/pull/130877
+            let mut has_zaamo = false;
+            // As of rustc 1.80, target_feature "zacas" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
             if version.llvm == 19 {
                 // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
                 // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
@@ -341,10 +339,19 @@ fn main() {
                 // check == 19 instead of range 17..=19 because it is more experimental in LLVM 17/18.
                 // check == 19 instead of >= 19 because "experimental-zacas" feature
                 // may no longer exist when it is marked as non-experimental in LLVM 20.
-                target_feature_fallback("experimental-zacas", false);
+                // https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
+                has_zaamo |= target_feature_fallback("experimental-zacas", false);
             }
-            // amo*.{w,d}
-            target_feature_fallback("zaamo", false);
+            // target_feature "zaamo"/"zabha" is unstable and available on rustc side since nightly-2024-10-02: https://github.com/rust-lang/rust/pull/130877
+            if !version.probe(83, 2024, 10, 1) || needs_target_feature_fallback(&version, None) {
+                if version.llvm >= 19 {
+                    // amo*.{b,h}
+                    // available since LLVM 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
+                    has_zaamo |= target_feature_fallback("zabha", false);
+                }
+                // amo*.{w,d}
+                target_feature_fallback("zaamo", has_zaamo);
+            }
         }
         "powerpc64" => {
             // target_feature "quadword-atomics" is unstable and available on rustc side since nightly-2024-09-28: https://github.com/rust-lang/rust/pull/130873
