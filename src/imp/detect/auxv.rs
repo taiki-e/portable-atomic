@@ -326,7 +326,9 @@ mod arch {
     pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
     // Linux 5.8+
     // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    // FreeBSD 15.0+
+    // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
+    #[cfg(not(target_os = "openbsd"))]
     pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
 
     #[cold]
@@ -338,10 +340,10 @@ mod arch {
         // OpenBSD currently doesn't set 2_07 even when 3_00 (power9) is set.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/powerpc64/cpu.c#L224-L243
         // Other OSes should be fine, but check all OSs in the same way just in case.
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(not(target_os = "openbsd"))]
         let power8_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
-        #[cfg(not(any(target_os = "linux", target_os = "android")))]
+        #[cfg(target_os = "openbsd")]
         let power8_or_later = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00;
         if hwcap2 & power8_or_later != 0 {
             info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
@@ -892,7 +894,7 @@ mod tests {
             static_assert!(
                 arch::PPC_FEATURE2_ARCH_3_00 == sys::PPC_FEATURE2_ARCH_3_00 as ffi::c_ulong
             );
-            #[cfg(any(target_os = "linux", target_os = "android"))]
+            #[cfg(not(target_os = "openbsd"))]
             {
                 // static_assert!(arch::PPC_FEATURE2_ARCH_3_1 == libc::PPC_FEATURE2_ARCH_3_1); // libc doesn't have this
                 static_assert!(
