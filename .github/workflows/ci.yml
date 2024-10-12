@@ -467,7 +467,7 @@ jobs:
             version: '10.0'
           - target: aarch64-unknown-openbsd
             os: openbsd
-            version: '7.3'
+            version: '7.6'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -488,13 +488,7 @@ jobs:
             case "$(uname -s)" in
               FreeBSD) sudo pkg install -y rust ;;
               NetBSD) sudo pkgin -y install rust ;;
-              OpenBSD)
-                # As of OpenBSD 7.3, the built-in git library is very slow.
-                export CARGO_NET_GIT_FETCH_WITH_CLI=true
-                # OpenBSD 7.3's rustc version is 1.68, which sparse protocol is not default protocol.
-                export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
-                sudo pkg_add git rust
-                ;;
+              OpenBSD) sudo pkg_add rust ;;
             esac
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
