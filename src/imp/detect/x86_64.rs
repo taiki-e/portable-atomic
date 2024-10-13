@@ -54,6 +54,7 @@ fn __cpuid(leaf: u32) -> CpuidResult {
 const _VENDOR_ID_INTEL: [u32; 3] = _vender(b"GenuineIntel"); // Intel
 const _VENDOR_ID_INTEL2: [u32; 3] = _vender(b"GenuineIotel"); // Intel https://github.com/InstLatx64/InstLatx64/commit/8fdd319884c67d2c6ec1ca0c595b42c1c4b8d803
 const _VENDOR_ID_AMD: [u32; 3] = _vender(b"AuthenticAMD"); // AMD
+const _VENDOR_ID_CENTAUR: [u32; 3] = _vender(b"CentaurHauls"); // Centaur/VIA/Zhaoxin
 const _VENDOR_ID_ZHAOXIN: [u32; 3] = _vender(b"  Shanghai  "); // Zhaoxin
 const fn _vender(b: &[u8; 12]) -> [u32; 3] {
     [
@@ -66,18 +67,24 @@ fn _vendor_id() -> [u32; 3] {
     let CpuidResult { ebx, ecx, edx, .. } = __cpuid(0);
     [ebx, edx, ecx]
 }
-fn _vendor_has_vmovdqa_atomic(vendor_id: [u32; 3]) -> bool {
+fn _vendor_has_vmovdqa_atomic(vendor_id: [u32; 3], family: u32) -> bool {
     // VMOVDQA is atomic on Intel, AMD, and Zhaoxin CPUs with AVX.
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
     vendor_id == _VENDOR_ID_INTEL
         || vendor_id == _VENDOR_ID_INTEL2
         || vendor_id == _VENDOR_ID_AMD
         || vendor_id == _VENDOR_ID_ZHAOXIN
+        || vendor_id == _VENDOR_ID_CENTAUR && family > 6
 }
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    let proc_info_ecx = __cpuid(0x0000_0001_u32).ecx;
+    let CpuidResult {
+        #[cfg(target_feature = "sse")]
+            eax: proc_info_eax,
+        ecx: proc_info_ecx,
+        ..
+    } = __cpuid(1);
 
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L111
     if test(proc_info_ecx, 13) {
@@ -100,7 +107,8 @@ fn _detect(info: &mut CpuInfo) {
                 let os_avx_support = xcr0 & 6 == 6;
                 if os_avx_support && test(proc_info_ecx, 28) {
                     let vendor_id = _vendor_id();
-                    if _vendor_has_vmovdqa_atomic(vendor_id) {
+                    let family = (proc_info_eax >> 8) & 0x0F;
+                    if _vendor_has_vmovdqa_atomic(vendor_id, family) {
                         info.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
                     }
                 }
@@ -143,7 +151,9 @@ mod tests {
                 vendor_id[2],
             );
         }
-        if _vendor_has_vmovdqa_atomic(vendor_id) {
+        let CpuidResult { eax: proc_info_eax, .. } = __cpuid(1);
+        let family = (proc_info_eax >> 8) & 0x0F;
+        if _vendor_has_vmovdqa_atomic(vendor_id, family) {
             assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
         } else {
             assert!(!detect().has_vmovdqa_atomic());
