@@ -51,18 +51,22 @@ fn __cpuid(leaf: u32) -> CpuidResult {
 }
 
 // https://en.wikipedia.org/wiki/CPUID
-const _VENDOR_ID_INTEL: [u8; 12] = *b"GenuineIntel"; // Intel
-const _VENDOR_ID_INTEL2: [u8; 12] = *b"GenuineIotel"; // Intel https://github.com/InstLatx64/InstLatx64/commit/8fdd319884c67d2c6ec1ca0c595b42c1c4b8d803
-const _VENDOR_ID_AMD: [u8; 12] = *b"AuthenticAMD"; // AMD
-const _VENDOR_ID_ZHAOXIN: [u8; 12] = *b"  Shanghai  "; // Zhaoxin
-fn _vendor_id() -> [u8; 12] {
-    // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L40-L59
-    let CpuidResult { ebx, ecx, edx, .. } = __cpuid(0);
-    let vendor_id: [[u8; 4]; 3] = [ebx.to_ne_bytes(), edx.to_ne_bytes(), ecx.to_ne_bytes()];
-    // SAFETY: transmute is safe because `[u8; 12]` and `[[u8; 4]; 3]` has the same layout.
-    unsafe { core::mem::transmute(vendor_id) }
+const _VENDOR_ID_INTEL: [u32; 3] = _vender(b"GenuineIntel"); // Intel
+const _VENDOR_ID_INTEL2: [u32; 3] = _vender(b"GenuineIotel"); // Intel https://github.com/InstLatx64/InstLatx64/commit/8fdd319884c67d2c6ec1ca0c595b42c1c4b8d803
+const _VENDOR_ID_AMD: [u32; 3] = _vender(b"AuthenticAMD"); // AMD
+const _VENDOR_ID_ZHAOXIN: [u32; 3] = _vender(b"  Shanghai  "); // Zhaoxin
+const fn _vender(b: &[u8; 12]) -> [u32; 3] {
+    [
+        u32::from_ne_bytes([b[0], b[1], b[2], b[3]]),
+        u32::from_ne_bytes([b[4], b[5], b[6], b[7]]),
+        u32::from_ne_bytes([b[8], b[9], b[10], b[11]]),
+    ]
 }
-fn _vendor_has_vmovdqa_atomic(vendor_id: [u8; 12]) -> bool {
+fn _vendor_id() -> [u32; 3] {
+    let CpuidResult { ebx, ecx, edx, .. } = __cpuid(0);
+    [ebx, edx, ecx]
+}
+fn _vendor_has_vmovdqa_atomic(vendor_id: [u32; 3]) -> bool {
     // VMOVDQA is atomic on Intel, AMD, and Zhaoxin CPUs with AVX.
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
     vendor_id == _VENDOR_ID_INTEL
@@ -114,7 +118,10 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
-    use std::io::{self, Write};
+    use std::{
+        io::{self, Write},
+        mem,
+    };
 
     use super::*;
 
@@ -126,12 +133,24 @@ mod tests {
         {
             let stdout = io::stderr();
             let mut stdout = stdout.lock();
-            let _ = writeln!(stdout, "\n  vendor_id: {}", std::str::from_utf8(&vendor_id).unwrap());
+            let _ = writeln!(
+                stdout,
+                "\n  vendor_id: {} (ebx: {:x}, edx: {:x}, ecx: {:x})",
+                std::str::from_utf8(&unsafe { mem::transmute::<[u32; 3], [u8; 12]>(vendor_id) })
+                    .unwrap(),
+                vendor_id[0],
+                vendor_id[1],
+                vendor_id[2],
+            );
         }
         if _vendor_has_vmovdqa_atomic(vendor_id) {
             assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
         } else {
             assert!(!detect().has_vmovdqa_atomic());
         }
+        assert_eq!(
+            unsafe { mem::transmute::<[u32; 3], [u8; 12]>(_VENDOR_ID_INTEL) },
+            *b"GenuineIntel"
+        );
     }
 }
