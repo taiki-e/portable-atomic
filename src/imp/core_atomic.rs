@@ -265,10 +265,15 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
-                        target_arch = "mips",
-                        target_arch = "mips32r6",
-                        target_arch = "mips64",
-                        target_arch = "mips64r6",
+                        // all(
+                        //     any(
+                        //         target_arch = "mips",
+                        //         target_arch = "mips32r6",
+                        //         target_arch = "mips64",
+                        //         target_arch = "mips64r6",
+                        //     ),
+                        //     portable_atomic_pre_llvm_19,
+                        // ),
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
@@ -276,16 +281,16 @@ macro_rules! atomic_int {
                         // HACK: the following operations are currently broken (at least on qemu-user):
                         // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
-                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode): fixed in LLVM 19
+                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least): fixed in LLVM 19
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode): fixed in LLVM 19
+                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least): fixed in LLVM 19
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
                         // See also:
                         // https://github.com/llvm/llvm-project/issues/61880
-                        // https://github.com/llvm/llvm-project/issues/61881
+                        // https://github.com/llvm/llvm-project/issues/61881 (fixed in LLVM 19)
                         // https://github.com/llvm/llvm-project/issues/61882
                         // https://github.com/taiki-e/portable-atomic/issues/2
                         // https://github.com/rust-lang/rust/issues/100650
@@ -317,10 +322,15 @@ macro_rules! atomic_int {
                                 portable_atomic_target_feature = "v6",
                             )),
                         ),
-                        target_arch = "mips",
-                        target_arch = "mips32r6",
-                        target_arch = "mips64",
-                        target_arch = "mips64r6",
+                        // all(
+                        //     any(
+                        //         target_arch = "mips",
+                        //         target_arch = "mips32r6",
+                        //         target_arch = "mips64",
+                        //         target_arch = "mips64r6",
+                        //     ),
+                        //     portable_atomic_pre_llvm_19,
+                        // ),
                         target_arch = "powerpc",
                         target_arch = "powerpc64",
                     ))]
@@ -328,16 +338,16 @@ macro_rules! atomic_int {
                         // HACK: the following operations are currently broken (at least on qemu-user):
                         // - aarch64's `AtomicI{8,16}::fetch_{max,min}` (release mode + lse)
                         // - armv5te's `Atomic{I,U}{8,16}::fetch_{max,min}`
-                        // - mips's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
-                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode)
-                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
+                        // - mips's `AtomicI8::fetch_{max,min}` (release mode): fixed in LLVM 19
+                        // - mipsel's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least): fixed in LLVM 19
+                        // - mips64's `AtomicI8::fetch_{max,min}` (release mode): fixed in LLVM 19
+                        // - mips64el's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least): fixed in LLVM 19
                         // - powerpc's `AtomicI{8,16}::fetch_{max,min}`
                         // - powerpc64's `AtomicI{8,16}::fetch_{max,min}` (debug mode, at least)
                         // - powerpc64le's `AtomicU{8,16}::fetch_{max,min}` (release mode + fat LTO)
                         // See also:
                         // https://github.com/llvm/llvm-project/issues/61880
-                        // https://github.com/llvm/llvm-project/issues/61881
+                        // https://github.com/llvm/llvm-project/issues/61881 (fixed in LLVM 19)
                         // https://github.com/llvm/llvm-project/issues/61882
                         // https://github.com/taiki-e/portable-atomic/issues/2
                         // https://github.com/rust-lang/rust/issues/100650
@@ -367,7 +377,7 @@ macro_rules! atomic_int {
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
-            // TODO: provide asm-based implementation on AArch64, Armv7, RISC-V, etc.
+            // TODO: provide asm-based implementation on AArch64 without FEAT_LSE, Armv7, RISC-V, etc.
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {

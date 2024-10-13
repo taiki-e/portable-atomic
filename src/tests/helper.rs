@@ -1086,9 +1086,7 @@ macro_rules! __test_atomic_float {
             }
             fn quickcheck_fetch_add(x: $float_type, y: $float_type) -> bool {
                 if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
-                    // TODO: rustc bug:
-                    // https://github.com/rust-lang/rust/issues/72327
-                    // https://github.com/rust-lang/rust/issues/73288
+                    // TODO: rustc bug: https://github.com/rust-lang/rust/issues/114479
                     return true;
                 }
                 for &order in &helper::SWAP_ORDERINGS {
@@ -1103,9 +1101,7 @@ macro_rules! __test_atomic_float {
             }
             fn quickcheck_fetch_sub(x: $float_type, y: $float_type) -> bool {
                 if cfg!(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))) {
-                    // TODO: rustc bug:
-                    // https://github.com/rust-lang/rust/issues/72327
-                    // https://github.com/rust-lang/rust/issues/73288
+                    // TODO: rustc bug: https://github.com/rust-lang/rust/issues/114479
                     return true;
                 }
                 for &order in &helper::SWAP_ORDERINGS {
