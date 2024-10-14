@@ -349,7 +349,7 @@ build() {
             local build_util_with_critical_section=''
             if [[ -z "${has_atomic_cas}" ]]; then
                 case "${target}" in
-                    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??i-*-none* | riscv??im-*-none* | riscv??imc-*-none*)
+                    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none*)
                         target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
                         ;;
                     bpf* | mips*) build_util_with_critical_section=1 ;;
@@ -619,7 +619,7 @@ build() {
         riscv*)
             case "${target}" in
                 # TODO(riscv): support CAS in riscv.rs when zacas enabled
-                riscv??i-* | riscv??im-* | riscv??imc-*) ;;
+                riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*) ;;
                 *)
                     CARGO_TARGET_DIR="${target_dir}/zacas" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+experimental-zacas" \

@@ -32,8 +32,13 @@ default_targets=(
     riscv32i-unknown-none-elf
     riscv32im-unknown-none-elf
     riscv32imc-unknown-none-elf
+    riscv32ima-unknown-none-elf
     riscv32imac-unknown-none-elf
+    riscv32imafc-unknown-none-elf
     riscv32gc-unknown-none-elf # custom target
+    riscv32e-unknown-none-elf
+    riscv32em-unknown-none-elf
+    riscv32emc-unknown-none-elf
     # riscv64
     riscv64i-unknown-none-elf # custom target
     riscv64imac-unknown-none-elf
@@ -167,7 +172,7 @@ run() {
         thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
-        riscv??i-* | riscv??im-* | riscv??imc-*)
+        riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
             ;;
     esac
@@ -216,7 +221,7 @@ run() {
                     RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
                     x_cargo "${args[@]}" --release "$@"
                 ;;
-            riscv??i-* | riscv??im-* | riscv??imc-*)
+            riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
                 # .option arch requires 1.72
                 if [[ "${rustc_minor_version}" -ge 72 ]]; then
                     CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
