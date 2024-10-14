@@ -361,8 +361,8 @@ compile_error!(
 #[cfg(portable_atomic_no_outline_atomics)]
 #[cfg(not(any(
     target_arch = "aarch64",
-    target_arch = "arm64ec",
     target_arch = "arm",
+    target_arch = "arm64ec",
     target_arch = "powerpc64",
     target_arch = "riscv32",
     target_arch = "riscv64",
