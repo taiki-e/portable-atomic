@@ -26,7 +26,7 @@ Generated asm:
 - riscv32imac (+zabha) https://godbolt.org/z/TnePfK6co
 */
 
-// TODO: Zacas extension
+// TODO: Zacas/Zalrsc extension
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
