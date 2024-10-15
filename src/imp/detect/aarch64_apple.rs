@@ -20,7 +20,7 @@ TODO: non-macOS targets doesn't always supports FEAT_LSE2, but sysctl on them on
 
 include!("common.rs");
 
-use core::ptr;
+use core::{mem, ptr};
 
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
 #[allow(non_camel_case_types)]
@@ -41,7 +41,7 @@ mod ffi {
 }
 
 unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
-    const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u32>() as ffi::c_size_t;
+    const OUT_LEN: ffi::c_size_t = mem::size_of::<u32>() as ffi::c_size_t;
 
     debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
     debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
@@ -215,7 +215,7 @@ mod tests {
                 }
             }
 
-            const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u32>() as ffi::c_size_t;
+            const OUT_LEN: ffi::c_size_t = mem::size_of::<u32>() as ffi::c_size_t;
 
             debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
             debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);

@@ -114,7 +114,7 @@ mod imp {
     // https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
     // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
 
-    use core::ptr;
+    use core::{mem, ptr};
 
     use super::AA64Reg;
 
@@ -169,14 +169,14 @@ mod imp {
 
     pub(super) unsafe fn sysctl_cpu_id(name: &[u8]) -> Option<AA64Reg> {
         const OUT_LEN: ffi::c_size_t =
-            core::mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
+            mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
 
         debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
         debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
 
         // SAFETY: all fields of aarch64_sysctl_cpu_id are zero-able and we use
         // the result when machdep.cpuN.cpu_id sysctl was successful.
-        let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { core::mem::zeroed() };
+        let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
         let mut out_len = OUT_LEN;
         // SAFETY:
         // - the caller must guarantee that `name` is ` machdep.cpuN.cpu_id` in a C string.
@@ -221,7 +221,7 @@ mod imp {
     // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
     // https://github.com/golang/go/commit/cd54ef1f61945459486e9eea2f016d99ef1da925
 
-    use core::ptr;
+    use core::{mem, ptr};
 
     use super::AA64Reg;
 
@@ -273,7 +273,7 @@ mod imp {
     }
 
     fn sysctl64(mib: &[ffi::c_int]) -> Option<u64> {
-        const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u64>() as ffi::c_size_t;
+        const OUT_LEN: ffi::c_size_t = mem::size_of::<u64>() as ffi::c_size_t;
         let mut out = 0_u64;
         let mut out_len = OUT_LEN;
         #[allow(clippy::cast_possible_truncation)]
@@ -341,19 +341,27 @@ mod tests {
                 aa64mmfr2.to_string(),
             );
         }
+        let atomic = extract(aa64isar0, 23, 20);
         if detect().test(CpuInfo::HAS_LSE) {
-            let atomic = extract(aa64isar0, 23, 20);
             if detect().test(CpuInfo::HAS_LSE128) {
-                assert_eq!(atomic, 3);
+                assert_eq!(atomic, 0b0011);
             } else {
-                assert_eq!(atomic, 2);
+                assert_eq!(atomic, 0b0010);
             }
+        } else {
+            assert_eq!(atomic, 0b0000);
         }
-        if detect().test(CpuInfo::HAS_LSE2) {
-            assert_eq!(extract(aa64mmfr2, 35, 32), 1);
-        }
+        let lrcpc = extract(aa64isar1, 23, 20);
         if detect().test(CpuInfo::HAS_RCPC3) {
-            assert_eq!(extract(aa64isar1, 23, 20), 3);
+            assert_eq!(lrcpc, 0b0011);
+        } else {
+            assert!(lrcpc < 0b0011, "{}", lrcpc);
+        }
+        let at = extract(aa64mmfr2, 35, 32);
+        if detect().test(CpuInfo::HAS_LSE2) {
+            assert_eq!(at, 0b0001);
+        } else {
+            assert_eq!(at, 0b0000);
         }
     }
 
@@ -463,11 +471,11 @@ mod tests {
             }
 
             const OUT_LEN: ffi::c_size_t =
-                core::mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
+                mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
 
             let mib = name_to_mib(name)?;
 
-            let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { core::mem::zeroed() };
+            let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
             let mut out_len = OUT_LEN;
             #[allow(clippy::cast_possible_truncation)]
             let mib_len = mib.len() as c_uint;

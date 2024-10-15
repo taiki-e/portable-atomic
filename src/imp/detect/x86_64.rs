@@ -128,7 +128,7 @@ fn _detect(info: &mut CpuInfo) {
 mod tests {
     use std::{
         io::{self, Write},
-        mem,
+        mem, str,
     };
 
     use super::*;
@@ -144,7 +144,7 @@ mod tests {
             let _ = writeln!(
                 stdout,
                 "\n  vendor_id: {} (ebx: {:x}, edx: {:x}, ecx: {:x})",
-                std::str::from_utf8(&unsafe { mem::transmute::<[u32; 3], [u8; 12]>(vendor_id) })
+                str::from_utf8(&unsafe { mem::transmute::<[u32; 3], [u8; 12]>(vendor_id) })
                     .unwrap(),
                 vendor_id[0],
                 vendor_id[1],

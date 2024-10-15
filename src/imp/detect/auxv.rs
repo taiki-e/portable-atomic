@@ -182,6 +182,8 @@ mod os {
 }
 #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
 mod os {
+    use core::mem;
+
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
@@ -215,7 +217,7 @@ mod os {
 
     pub(super) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
         #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
-        const OUT_LEN: ffi::c_int = core::mem::size_of::<ffi::c_ulong>() as ffi::c_int;
+        const OUT_LEN: ffi::c_int = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
         let mut out: ffi::c_ulong = 0;
         // SAFETY:
         // - the pointer is valid because we got it from a reference.
@@ -392,13 +394,17 @@ mod tests {
     }
 
     #[cfg(any(target_os = "linux", target_os = "android"))]
-    #[cfg(target_pointer_width = "64")]
+    #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
     #[test]
     fn test_alternative() {
         use c_types::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
-        use std::{mem, vec};
+        use std::{mem, str, vec};
+        #[cfg(target_pointer_width = "32")]
+        use sys::Elf32_auxv_t as Elf_auxv_t;
+        #[cfg(target_pointer_width = "64")]
+        use sys::Elf64_auxv_t as Elf_auxv_t;
         use test_helper::sys;
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
@@ -463,9 +469,9 @@ mod tests {
                 }
             }
 
-            let mut auxv = vec![unsafe { mem::zeroed::<sys::Elf64_auxv_t>() }; 38];
+            let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
 
-            let old_len = auxv.len() * mem::size_of::<sys::Elf64_auxv_t>();
+            let old_len = auxv.len() * mem::size_of::<Elf_auxv_t>();
 
             // SAFETY:
             // - `out_len` does not exceed the size of `auxv`.
@@ -496,9 +502,9 @@ mod tests {
                 }
             }
 
-            let mut auxv = vec![unsafe { mem::zeroed::<sys::Elf64_auxv_t>() }; 38];
+            let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
 
-            let old_len = auxv.len() * mem::size_of::<sys::Elf64_auxv_t>();
+            let old_len = auxv.len() * mem::size_of::<Elf_auxv_t>();
 
             // SAFETY:
             // - `out_len` does not exceed the size of `auxv`.
@@ -518,7 +524,7 @@ mod tests {
             let mut u = mem::zeroed();
             assert_eq!(libc::uname(&mut u), 0);
             let release = std::ffi::CStr::from_ptr(u.release.as_ptr());
-            let release = core::str::from_utf8(release.to_bytes()).unwrap();
+            let release = str::from_utf8(release.to_bytes()).unwrap();
             let mut digits = release.split('.');
             let major = digits.next().unwrap().parse::<u32>().unwrap();
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
@@ -527,17 +533,14 @@ mod tests {
                 std::eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 assert_eq!(getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap_err(), -1);
                 assert_eq!(getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap_err(), -1);
-                #[cfg(target_pointer_width = "64")]
-                {
-                    assert_eq!(
-                        getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap_err(),
-                        -libc::EINVAL
-                    );
-                    assert_eq!(
-                        getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap_err(),
-                        -libc::EINVAL
-                    );
-                }
+                assert_eq!(
+                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap_err(),
+                    -libc::EINVAL
+                );
+                assert_eq!(
+                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap_err(),
+                    -libc::EINVAL
+                );
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(
@@ -548,17 +551,14 @@ mod tests {
                     os::getauxval(ffi::AT_HWCAP2),
                     getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap()
                 );
-                #[cfg(target_pointer_width = "64")]
-                {
-                    assert_eq!(
-                        os::getauxval(ffi::AT_HWCAP),
-                        getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap()
-                    );
-                    assert_eq!(
-                        os::getauxval(ffi::AT_HWCAP2),
-                        getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap()
-                    );
-                }
+                assert_eq!(
+                    os::getauxval(ffi::AT_HWCAP),
+                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap()
+                );
+                assert_eq!(
+                    os::getauxval(ffi::AT_HWCAP2),
+                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap()
+                );
             }
         }
     }
@@ -588,7 +588,7 @@ mod tests {
         fn getauxval_sysctl_libc(type_: ffi::c_int) -> Result<ffi::c_ulong, c_int> {
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
 
-            let mut len = core::mem::size_of_val(&auxv) as c_size_t;
+            let mut len = mem::size_of_val(&auxv) as c_size_t;
 
             // SAFETY: calling getpid is safe.
             let pid = unsafe { libc::getpid() };
@@ -768,7 +768,7 @@ mod tests {
 
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
 
-            let mut len = core::mem::size_of_val(&auxv) as c_size_t;
+            let mut len = mem::size_of_val(&auxv) as c_size_t;
 
             let pid = getpid();
             let mib = [
@@ -804,17 +804,17 @@ mod tests {
             Err(0)
         }
 
+        // AT_HWCAP2 is only available on FreeBSD 13+ on AArch64.
+        let hwcap2_else = |e| if cfg!(target_arch = "aarch64") { 0 } else { panic!("{:?}", e) };
         assert_eq!(os::getauxval(ffi::AT_HWCAP), getauxval_sysctl_libc(ffi::AT_HWCAP).unwrap());
         assert_eq!(
             os::getauxval(ffi::AT_HWCAP2),
-            // AT_HWCAP2 is only available on FreeBSD 13+, at least on AArch64.
-            getauxval_sysctl_libc(ffi::AT_HWCAP2).unwrap_or(0)
+            getauxval_sysctl_libc(ffi::AT_HWCAP2).unwrap_or_else(hwcap2_else)
         );
         assert_eq!(os::getauxval(ffi::AT_HWCAP), getauxval_sysctl_no_libc(ffi::AT_HWCAP).unwrap());
         assert_eq!(
             os::getauxval(ffi::AT_HWCAP2),
-            // AT_HWCAP2 is only available on FreeBSD 13+, at least on AArch64.
-            getauxval_sysctl_no_libc(ffi::AT_HWCAP2).unwrap_or(0)
+            getauxval_sysctl_no_libc(ffi::AT_HWCAP2).unwrap_or_else(hwcap2_else)
         );
     }
 
