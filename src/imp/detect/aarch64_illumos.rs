@@ -33,10 +33,11 @@ mod ffi {
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    let mut out = [0_u32; 2];
+    const OUT_LEN: ffi::c_uint = 2;
+    let mut out = [0_u32; OUT_LEN as usize];
     // SAFETY: the pointer is valid because we got it from a reference.
     unsafe {
-        ffi::getisax(out.as_mut_ptr(), 2);
+        ffi::getisax(out.as_mut_ptr(), OUT_LEN);
     }
     if out[0] & ffi::AV_AARCH64_LSE != 0 {
         info.set(CpuInfo::HAS_LSE);
