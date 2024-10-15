@@ -59,7 +59,7 @@ mod tests {
     // (Unlike libc, windows-sys programmatically generates bindings from Windows
     // API metadata, so it should be enough to check compatibility with the
     // windows-sys' signatures/values.)
-    // See also tools/codegen/src/ffi.rs.
+    // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
     // TODO(codegen): auto-generate this test
     #[allow(
         clippy::cast_possible_wrap,

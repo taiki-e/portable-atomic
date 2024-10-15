@@ -122,10 +122,42 @@ flags! {
 }
 
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
-#[cfg(not(target_arch = "x86_64"))]
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 #[cfg(not(windows))]
-#[allow(dead_code, non_camel_case_types)]
+#[allow(dead_code, unused_macros, non_camel_case_types)]
+#[macro_use]
 mod c_types {
+    macro_rules! sys_const {
+        ($(
+            $(#[$attr:meta])*
+            $vis:vis const $name:ident: $ty:ty = $val:expr;
+        )*) => {
+            $(
+                $(#[$attr])*
+                $vis const $name: $ty = $val;
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same values.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(
+                clippy::cast_possible_wrap,
+                clippy::cast_sign_loss,
+                clippy::cast_possible_truncation,
+            )]
+            const _: fn() = || {
+                $(
+                    $(#[$attr])*
+                    static_assert!($name == test_helper::sys::$name as $ty);
+                )*
+            };
+        };
+    }
+
     pub(crate) type c_void = core::ffi::c_void;
     // c_{,u}int is {i,u}32 on non-16-bit architectures
     // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L147
@@ -137,10 +169,10 @@ mod c_types {
     // (Windows currently doesn't use this module - this module is cfg(not(windows)))
     #[cfg(target_pointer_width = "64")]
     pub(crate) type c_long = i64;
-    #[cfg(not(target_pointer_width = "64"))]
-    pub(crate) type c_long = i32;
     #[cfg(target_pointer_width = "64")]
     pub(crate) type c_ulong = u64;
+    #[cfg(not(target_pointer_width = "64"))]
+    pub(crate) type c_long = i32;
     #[cfg(not(target_pointer_width = "64"))]
     pub(crate) type c_ulong = u32;
     // c_size_t is currently always usize

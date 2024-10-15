@@ -120,20 +120,22 @@ mod os {
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) use super::super::c_types::{c_char, c_int};
 
-        // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
-        #[cfg(any(test, target_arch = "aarch64"))]
-        pub(crate) const AT_HWCAP: c_ulong = 16;
-        #[cfg(any(
-            test,
-            all(target_arch = "aarch64", target_pointer_width = "64"),
-            target_arch = "powerpc64",
-        ))]
-        pub(crate) const AT_HWCAP2: c_ulong = 26;
+        sys_const! {
+            // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
+            #[cfg(any(test, target_arch = "aarch64"))]
+            pub(crate) const AT_HWCAP: c_ulong = 16;
+            #[cfg(any(
+                test,
+                all(target_arch = "aarch64", target_pointer_width = "64"),
+                target_arch = "powerpc64",
+            ))]
+            pub(crate) const AT_HWCAP2: c_ulong = 26;
 
-        // Defined in sys/system_properties.h.
-        // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
-        #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-        pub(crate) const PROP_VALUE_MAX: c_int = 92;
+            // Defined in sys/system_properties.h.
+            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
+            #[cfg(all(target_arch = "aarch64", target_os = "android"))]
+            pub(crate) const PROP_VALUE_MAX: c_int = 92;
+        }
 
         extern "C" {
             // Defined in sys/auxv.h.
@@ -185,16 +187,18 @@ mod os {
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 
-        // FreeBSD
-        // Defined in sys/elf_common.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
-        // OpenBSD
-        // Defined in sys/auxv.h.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
-        #[cfg(any(test, target_arch = "aarch64"))]
-        pub(crate) const AT_HWCAP: c_int = 25;
-        #[cfg(any(test, target_arch = "powerpc64"))]
-        pub(crate) const AT_HWCAP2: c_int = 26;
+        sys_const! {
+            // FreeBSD
+            // Defined in sys/elf_common.h.
+            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
+            // OpenBSD
+            // Defined in sys/auxv.h.
+            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
+            #[cfg(any(test, target_arch = "aarch64"))]
+            pub(crate) const AT_HWCAP: c_int = 25;
+            #[cfg(any(test, target_arch = "powerpc64"))]
+            pub(crate) const AT_HWCAP2: c_int = 26;
+        }
 
         extern "C" {
             // FreeBSD
@@ -237,41 +241,43 @@ use arch::_detect;
 mod arch {
     use super::{ffi, os, CpuInfo};
 
-    // Linux
-    // https://github.com/torvalds/linux/blob/v6.11/arch/arm64/include/uapi/asm/hwcap.h
-    // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/elf_hwcaps.rst
-    // FreeBSD
-    // Defined in machine/elf.h.
-    // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
-    // OpenBSD
-    // Defined in machine/elf.h.
-    // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
-    // Linux 4.3+
-    // https://github.com/torvalds/linux/commit/40a1db2434a1b62332b1af25cfa14d7b8c0301fe
-    // FreeBSD 13.0+/12.2+
-    // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
-    // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
-    // OpenBSD 7.6+
-    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-    pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
-    // Linux 4.17+
-    // https://github.com/torvalds/linux/commit/7206dc93a58fb76421c4411eefa3c003337bcb2d
-    // FreeBSD 13.0+/12.2+
-    // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
-    // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
-    // OpenBSD 7.6+
-    // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-    pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
-    // Linux 6.7+
-    // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
-    #[cfg(any(target_os = "linux", target_os = "android"))]
-    #[cfg(target_pointer_width = "64")]
-    pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
-    // Linux 6.7+
-    // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
-    #[cfg(any(target_os = "linux", target_os = "android"))]
-    #[cfg(target_pointer_width = "64")]
-    pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
+    sys_const! {
+        // Linux
+        // https://github.com/torvalds/linux/blob/v6.11/arch/arm64/include/uapi/asm/hwcap.h
+        // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/elf_hwcaps.rst
+        // FreeBSD
+        // Defined in machine/elf.h.
+        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
+        // OpenBSD
+        // Defined in machine/elf.h.
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
+        // Linux 4.3+
+        // https://github.com/torvalds/linux/commit/40a1db2434a1b62332b1af25cfa14d7b8c0301fe
+        // FreeBSD 13.0+/12.2+
+        // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+        pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
+        // Linux 4.17+
+        // https://github.com/torvalds/linux/commit/7206dc93a58fb76421c4411eefa3c003337bcb2d
+        // FreeBSD 13.0+/12.2+
+        // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+        pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
+        // Linux 6.7+
+        // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "64")]
+        pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
+        // Linux 6.7+
+        // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "64")]
+        pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
+    }
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
@@ -301,35 +307,37 @@ mod arch {
 mod arch {
     use super::{ffi, os, CpuInfo};
 
-    // Linux
-    // https://github.com/torvalds/linux/blob/v6.11/arch/powerpc/include/uapi/asm/cputable.h
-    // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/powerpc/elf_hwcaps.rst
-    // FreeBSD
-    // Defined in machine/cpu.h.
-    // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h
-    // OpenBSD
-    // Defined in machine/elf.h.
-    // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
-    // Linux 3.10+
-    // https://github.com/torvalds/linux/commit/cbbc6f1b1433ef553d57826eee87a84ca49645ce
-    // FreeBSD 11.0+
-    // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
-    // OpenBSD 7.6+
-    // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
-    pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
-    // Linux 4.5+
-    // https://github.com/torvalds/linux/commit/e708c24cd01ce80b1609d8baccee40ccc3608a01
-    // FreeBSD 12.0+
-    // https://github.com/freebsd/freebsd-src/commit/18f48e0c72f91bc2d4373078a3f1ab1bcab4d8b3
-    // OpenBSD 7.6+
-    // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
-    pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
-    // Linux 5.8+
-    // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
-    // FreeBSD 15.0+
-    // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
-    #[cfg(not(target_os = "openbsd"))]
-    pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
+    sys_const! {
+        // Linux
+        // https://github.com/torvalds/linux/blob/v6.11/arch/powerpc/include/uapi/asm/cputable.h
+        // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/powerpc/elf_hwcaps.rst
+        // FreeBSD
+        // Defined in machine/cpu.h.
+        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h
+        // OpenBSD
+        // Defined in machine/elf.h.
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
+        // Linux 3.10+
+        // https://github.com/torvalds/linux/commit/cbbc6f1b1433ef553d57826eee87a84ca49645ce
+        // FreeBSD 11.0+
+        // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
+        pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
+        // Linux 4.5+
+        // https://github.com/torvalds/linux/commit/e708c24cd01ce80b1609d8baccee40ccc3608a01
+        // FreeBSD 12.0+
+        // https://github.com/freebsd/freebsd-src/commit/18f48e0c72f91bc2d4373078a3f1ab1bcab4d8b3
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
+        pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
+        // Linux 5.8+
+        // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
+        // FreeBSD 15.0+
+        // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
+        #[cfg(not(target_os = "openbsd"))]
+        pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
+    }
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
@@ -813,30 +821,16 @@ mod tests {
     // Static assertions for FFI bindings.
     // This checks that FFI bindings defined in this crate, FFI bindings defined
     // in libc, and FFI bindings generated for the platform's latest header file
-    // using bindgen have compatible signatures (or the same values if constants).
+    // using bindgen have compatible signatures.
     // Since this is static assertion, we can detect problems with
     // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
     // without actually running tests on these platforms.
-    // See also tools/codegen/src/ffi.rs.
+    // As for constants, they are checked by static assertions generated by sys_const!.
+    // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
     // TODO(codegen): auto-generate this test
-    #[allow(
-        clippy::cast_possible_wrap,
-        clippy::cast_sign_loss,
-        clippy::cast_possible_truncation,
-        clippy::no_effect_underscore_binding
-    )]
+    #[allow(clippy::no_effect_underscore_binding)]
     const _: fn() = || {
         use test_helper::sys;
-        #[cfg(not(any(target_os = "freebsd", target_os = "openbsd")))]
-        type AtType = ffi::c_ulong;
-        #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
-        type AtType = ffi::c_int;
-        #[cfg(not(target_os = "openbsd"))] // libc doesn't have this on OpenBSD
-        static_assert!(ffi::AT_HWCAP == libc::AT_HWCAP);
-        static_assert!(ffi::AT_HWCAP == sys::AT_HWCAP as AtType);
-        #[cfg(not(target_os = "openbsd"))] // libc doesn't have this on OpenBSD
-        static_assert!(ffi::AT_HWCAP2 == libc::AT_HWCAP2);
-        static_assert!(ffi::AT_HWCAP2 == sys::AT_HWCAP2 as AtType);
         #[cfg(any(target_os = "linux", target_os = "android"))]
         {
             let mut _getauxval: unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong = ffi::getauxval;
@@ -851,8 +845,6 @@ mod tests {
             ) -> ffi::c_int = ffi::__system_property_get;
             ___system_property_get = libc::__system_property_get;
             ___system_property_get = sys::__system_property_get;
-            static_assert!(ffi::PROP_VALUE_MAX == libc::PROP_VALUE_MAX);
-            static_assert!(ffi::PROP_VALUE_MAX == sys::PROP_VALUE_MAX as ffi::c_int);
         }
         #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
         {
@@ -866,41 +858,6 @@ mod tests {
                 _elf_aux_info = libc::elf_aux_info;
             }
             _elf_aux_info = sys::elf_aux_info;
-        }
-        #[cfg(target_arch = "aarch64")]
-        {
-            #[cfg(any(target_os = "linux", target_os = "android"))] // libc doesn't have this on BSDs
-            static_assert!(arch::HWCAP_ATOMICS == libc::HWCAP_ATOMICS);
-            static_assert!(arch::HWCAP_ATOMICS == sys::HWCAP_ATOMICS as ffi::c_ulong);
-            #[cfg(any(target_os = "linux", target_os = "android"))] // libc doesn't have this on BSDs
-            static_assert!(arch::HWCAP_USCAT == libc::HWCAP_USCAT);
-            static_assert!(arch::HWCAP_USCAT == sys::HWCAP_USCAT as ffi::c_ulong);
-            #[cfg(any(target_os = "linux", target_os = "android"))]
-            #[cfg(target_pointer_width = "64")]
-            {
-                // static_assert!(HWCAP2_LRCPC3 == libc::HWCAP2_LRCPC3); // libc doesn't have this
-                static_assert!(arch::HWCAP2_LRCPC3 == sys::HWCAP2_LRCPC3 as ffi::c_ulong);
-                // static_assert!(HWCAP2_LSE128 == libc::HWCAP2_LSE128); // libc doesn't have this
-                static_assert!(arch::HWCAP2_LSE128 == sys::HWCAP2_LSE128 as ffi::c_ulong);
-            }
-        }
-        #[cfg(target_arch = "powerpc64")]
-        {
-            // static_assert!(arch::PPC_FEATURE2_ARCH_2_07 == libc::PPC_FEATURE2_ARCH_2_07); // libc doesn't have this
-            static_assert!(
-                arch::PPC_FEATURE2_ARCH_2_07 == sys::PPC_FEATURE2_ARCH_2_07 as ffi::c_ulong
-            );
-            // static_assert!(arch::PPC_FEATURE2_ARCH_3_00 == libc::PPC_FEATURE2_ARCH_3_00); // libc doesn't have this
-            static_assert!(
-                arch::PPC_FEATURE2_ARCH_3_00 == sys::PPC_FEATURE2_ARCH_3_00 as ffi::c_ulong
-            );
-            #[cfg(not(target_os = "openbsd"))]
-            {
-                // static_assert!(arch::PPC_FEATURE2_ARCH_3_1 == libc::PPC_FEATURE2_ARCH_3_1); // libc doesn't have this
-                static_assert!(
-                    arch::PPC_FEATURE2_ARCH_3_1 == sys::PPC_FEATURE2_ARCH_3_1 as ffi::c_ulong
-                );
-            }
         }
     };
 }
