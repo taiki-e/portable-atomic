@@ -1459,6 +1459,7 @@ macro_rules! __test_atomic_int_pub {
             #[cfg(not(portable_atomic_no_const_mut_refs))]
             const GET_MUT: $atomic_type = {
                 let mut a = <$atomic_type>::new(10);
+                let _ = unsafe { <$atomic_type>::from_ptr(a.as_ptr()) };
                 *a.get_mut() = 5;
                 a
             };
@@ -1547,6 +1548,7 @@ macro_rules! __test_atomic_float_pub {
             #[cfg(not(portable_atomic_no_const_mut_refs))]
             const GET_MUT: $atomic_type = {
                 let mut a = <$atomic_type>::new(10.);
+                let _ = unsafe { <$atomic_type>::from_ptr(a.as_ptr()) };
                 *a.get_mut() = 5.;
                 a
             };
@@ -1650,6 +1652,7 @@ macro_rules! __test_atomic_bool_pub {
             #[cfg(not(portable_atomic_no_const_mut_refs))]
             const GET_MUT: $atomic_type = {
                 let mut a = <$atomic_type>::new(true);
+                let _ = unsafe { <$atomic_type>::from_ptr(a.as_ptr()) };
                 *a.get_mut() = false;
                 a
             };
@@ -1710,6 +1713,7 @@ macro_rules! __test_atomic_ptr_pub {
             #[cfg(not(portable_atomic_no_const_mut_refs))]
             const GET_MUT: $atomic_type = {
                 let mut a = <$atomic_type>::new(ptr::null_mut());
+                let _ = unsafe { <$atomic_type>::from_ptr(a.as_ptr()) };
                 *a.get_mut() = ptr::null_mut::<u8>().wrapping_add(1);
                 a
             };

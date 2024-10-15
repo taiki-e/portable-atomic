@@ -586,37 +586,42 @@ impl AtomicBool {
     }
 
     // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
-    /// Creates a new `AtomicBool` from a pointer.
-    ///
-    /// # Safety
-    ///
-    /// * `ptr` must be aligned to `align_of::<AtomicBool>()` (note that on some platforms this can
-    ///   be bigger than `align_of::<bool>()`).
-    /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
-    /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
-    ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
-    ///   value (or vice-versa).
-    ///   * In other words, time periods where the value is accessed atomically may not overlap
-    ///     with periods where the value is accessed non-atomically.
-    ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
-    ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
-    ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
-    ///     from the same thread.
-    /// * If this atomic type is *not* lock-free:
-    ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
-    ///     with accesses via the returned value (or vice-versa).
-    ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
-    ///     be compatible with operations performed by this atomic type.
-    /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
-    ///   these are not supported by the memory model.
-    ///
-    /// [valid]: core::ptr#safety
-    #[inline]
-    #[must_use]
-    pub unsafe fn from_ptr<'a>(ptr: *mut bool) -> &'a Self {
-        #[allow(clippy::cast_ptr_alignment)]
-        // SAFETY: guaranteed by the caller
-        unsafe { &*(ptr as *mut Self) }
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        /// Creates a new `AtomicBool` from a pointer.
+        ///
+        /// This is `const fn` on Rust 1.83+.
+        ///
+        /// # Safety
+        ///
+        /// * `ptr` must be aligned to `align_of::<AtomicBool>()` (note that on some platforms this can
+        ///   be bigger than `align_of::<bool>()`).
+        /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+        /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+        ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
+        ///   value (or vice-versa).
+        ///   * In other words, time periods where the value is accessed atomically may not overlap
+        ///     with periods where the value is accessed non-atomically.
+        ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
+        ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
+        ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
+        ///     from the same thread.
+        /// * If this atomic type is *not* lock-free:
+        ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
+        ///     with accesses via the returned value (or vice-versa).
+        ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+        ///     be compatible with operations performed by this atomic type.
+        /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
+        ///   these are not supported by the memory model.
+        ///
+        /// [valid]: core::ptr#safety
+        #[inline]
+        #[must_use]
+        pub const unsafe fn from_ptr<'a>(ptr: *mut bool) -> &'a Self {
+            #[allow(clippy::cast_ptr_alignment)]
+            // SAFETY: guaranteed by the caller
+            unsafe { &*(ptr as *mut Self) }
+        }
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -1598,37 +1603,42 @@ impl<T> AtomicPtr<T> {
     }
 
     // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
-    /// Creates a new `AtomicPtr` from a pointer.
-    ///
-    /// # Safety
-    ///
-    /// * `ptr` must be aligned to `align_of::<AtomicPtr<T>>()` (note that on some platforms this
-    ///   can be bigger than `align_of::<*mut T>()`).
-    /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
-    /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
-    ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
-    ///   value (or vice-versa).
-    ///   * In other words, time periods where the value is accessed atomically may not overlap
-    ///     with periods where the value is accessed non-atomically.
-    ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
-    ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
-    ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
-    ///     from the same thread.
-    /// * If this atomic type is *not* lock-free:
-    ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
-    ///     with accesses via the returned value (or vice-versa).
-    ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
-    ///     be compatible with operations performed by this atomic type.
-    /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
-    ///   these are not supported by the memory model.
-    ///
-    /// [valid]: core::ptr#safety
-    #[inline]
-    #[must_use]
-    pub unsafe fn from_ptr<'a>(ptr: *mut *mut T) -> &'a Self {
-        #[allow(clippy::cast_ptr_alignment)]
-        // SAFETY: guaranteed by the caller
-        unsafe { &*(ptr as *mut Self) }
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        /// Creates a new `AtomicPtr` from a pointer.
+        ///
+        /// This is `const fn` on Rust 1.83+.
+        ///
+        /// # Safety
+        ///
+        /// * `ptr` must be aligned to `align_of::<AtomicPtr<T>>()` (note that on some platforms this
+        ///   can be bigger than `align_of::<*mut T>()`).
+        /// * `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+        /// * If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+        ///   behind `ptr` must have a happens-before relationship with atomic accesses via the returned
+        ///   value (or vice-versa).
+        ///   * In other words, time periods where the value is accessed atomically may not overlap
+        ///     with periods where the value is accessed non-atomically.
+        ///   * This requirement is trivially satisfied if `ptr` is never used non-atomically for the
+        ///     duration of lifetime `'a`. Most use cases should be able to follow this guideline.
+        ///   * This requirement is also trivially satisfied if all accesses (atomic or not) are done
+        ///     from the same thread.
+        /// * If this atomic type is *not* lock-free:
+        ///   * Any accesses to the value behind `ptr` must have a happens-before relationship
+        ///     with accesses via the returned value (or vice-versa).
+        ///   * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+        ///     be compatible with operations performed by this atomic type.
+        /// * This method must not be used to create overlapping or mixed-size atomic accesses, as
+        ///   these are not supported by the memory model.
+        ///
+        /// [valid]: core::ptr#safety
+        #[inline]
+        #[must_use]
+        pub const unsafe fn from_ptr<'a>(ptr: *mut *mut T) -> &'a Self {
+            #[allow(clippy::cast_ptr_alignment)]
+            // SAFETY: guaranteed by the caller
+            unsafe { &*(ptr as *mut Self) }
+        }
     }
 
     /// Returns `true` if operations on values of this type are lock-free.
@@ -2721,8 +2731,49 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
             }
 
             // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
+            #[cfg(not(portable_atomic_no_const_mut_refs))]
             doc_comment! {
                 concat!("Creates a new reference to an atomic integer from a pointer.
+
+This is `const fn` on Rust 1.83+.
+
+# Safety
+
+* `ptr` must be aligned to `align_of::<", stringify!($atomic_type), ">()` (note that on some platforms this
+  can be bigger than `align_of::<", stringify!($int_type), ">()`).
+* `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+* If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+  behind `ptr` must have a happens-before relationship with atomic accesses via
+  the returned value (or vice-versa).
+  * In other words, time periods where the value is accessed atomically may not
+    overlap with periods where the value is accessed non-atomically.
+  * This requirement is trivially satisfied if `ptr` is never used non-atomically
+    for the duration of lifetime `'a`. Most use cases should be able to follow
+    this guideline.
+  * This requirement is also trivially satisfied if all accesses (atomic or not) are
+    done from the same thread.
+* If this atomic type is *not* lock-free:
+  * Any accesses to the value behind `ptr` must have a happens-before relationship
+    with accesses via the returned value (or vice-versa).
+  * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    be compatible with operations performed by this atomic type.
+* This method must not be used to create overlapping or mixed-size atomic
+  accesses, as these are not supported by the memory model.
+
+[valid]: core::ptr#safety"),
+                #[inline]
+                #[must_use]
+                pub const unsafe fn from_ptr<'a>(ptr: *mut $int_type) -> &'a Self {
+                    #[allow(clippy::cast_ptr_alignment)]
+                    // SAFETY: guaranteed by the caller
+                    unsafe { &*(ptr as *mut Self) }
+                }
+            }
+            #[cfg(portable_atomic_no_const_mut_refs)]
+            doc_comment! {
+                concat!("Creates a new reference to an atomic integer from a pointer.
+
+This is `const fn` on Rust 1.83+.
 
 # Safety
 
@@ -4107,8 +4158,49 @@ This type has the same in-memory representation as the underlying floating point
             }
 
             // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
+            #[cfg(not(portable_atomic_no_const_mut_refs))]
             doc_comment! {
                 concat!("Creates a new reference to an atomic float from a pointer.
+
+This is `const fn` on Rust 1.83+.
+
+# Safety
+
+* `ptr` must be aligned to `align_of::<", stringify!($atomic_type), ">()` (note that on some platforms this
+  can be bigger than `align_of::<", stringify!($float_type), ">()`).
+* `ptr` must be [valid] for both reads and writes for the whole lifetime `'a`.
+* If this atomic type is [lock-free](Self::is_lock_free), non-atomic accesses to the value
+  behind `ptr` must have a happens-before relationship with atomic accesses via
+  the returned value (or vice-versa).
+  * In other words, time periods where the value is accessed atomically may not
+    overlap with periods where the value is accessed non-atomically.
+  * This requirement is trivially satisfied if `ptr` is never used non-atomically
+    for the duration of lifetime `'a`. Most use cases should be able to follow
+    this guideline.
+  * This requirement is also trivially satisfied if all accesses (atomic or not) are
+    done from the same thread.
+* If this atomic type is *not* lock-free:
+  * Any accesses to the value behind `ptr` must have a happens-before relationship
+    with accesses via the returned value (or vice-versa).
+  * Any concurrent accesses to the value behind `ptr` for the duration of lifetime `'a` must
+    be compatible with operations performed by this atomic type.
+* This method must not be used to create overlapping or mixed-size atomic
+  accesses, as these are not supported by the memory model.
+
+[valid]: core::ptr#safety"),
+                #[inline]
+                #[must_use]
+                pub const unsafe fn from_ptr<'a>(ptr: *mut $float_type) -> &'a Self {
+                    #[allow(clippy::cast_ptr_alignment)]
+                    // SAFETY: guaranteed by the caller
+                    unsafe { &*(ptr as *mut Self) }
+                }
+            }
+            #[cfg(portable_atomic_no_const_mut_refs)]
+            doc_comment! {
+                concat!("Creates a new reference to an atomic float from a pointer.
+
+This is `const fn` on Rust 1.83+.
 
 # Safety
 

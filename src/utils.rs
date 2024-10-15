@@ -120,14 +120,14 @@ macro_rules! const_fn {
     (
         const_if: #[cfg($($cfg:tt)+)];
         $(#[$($attr:tt)*])*
-        $vis:vis const fn $($rest:tt)*
+        $vis:vis const $($rest:tt)*
     ) => {
         #[cfg($($cfg)+)]
         $(#[$($attr)*])*
-        $vis const fn $($rest)*
+        $vis const $($rest)*
         #[cfg(not($($cfg)+))]
         $(#[$($attr)*])*
-        $vis fn $($rest)*
+        $vis $($rest)*
     };
 }
 
