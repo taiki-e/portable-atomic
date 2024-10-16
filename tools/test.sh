@@ -186,7 +186,10 @@ if [[ -n "${target}" ]]; then
 fi
 if type -P cargo-hack >/dev/null; then
     args+=(--features "${test_features}" --ignore-unknown-features)
+elif [[ -n "${CI:-}" ]]; then
+    bail "cargo-hack is required"
 else
+    echo "warning: cargo-hack is required to run full tests"
     args+=(--features "${test_features}")
 fi
 case "${cmd}" in
