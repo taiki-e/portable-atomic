@@ -4,17 +4,15 @@
 //
 // The code has been adjusted to work with stable Rust.
 //
-// Source: https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/sync.rs.
+// Source: https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/library/alloc/src/sync.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/LICENSE-MIT
 
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
 #![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
-
-// TODO: make make_mut support ?Sized types: https://github.com/rust-lang/rust/pull/116113
 
 use portable_atomic::{
     self as atomic, hint,
@@ -28,9 +26,6 @@ use alloc::{
     string::String,
     vec::Vec,
 };
-
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
-use core::iter::FromIterator;
 use core::{
     alloc::Layout,
     any::Any,
@@ -38,7 +33,7 @@ use core::{
     hash::{Hash, Hasher},
     isize,
     marker::PhantomData,
-    mem::{self, align_of_val, size_of_val},
+    mem::{self, align_of_val, size_of_val, ManuallyDrop},
     ops::Deref,
     pin::Pin,
     ptr::{self, NonNull},
@@ -76,7 +71,8 @@ macro_rules! acquire {
     };
 }
 
-/// A thread-safe, strongly reference counted pointer.
+/// A thread-safe reference-counting pointer. 'Arc' stands for 'Atomically
+/// Reference Counted'.
 ///
 /// This is an equivalent to [`std::sync::Arc`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Arc`] for more details.
@@ -99,6 +95,7 @@ macro_rules! acquire {
 ///
 /// for _ in 0..10 {
 ///     let five = Arc::clone(&five);
+///
 ///     thread::spawn(move || {
 ///         assert_eq!(*five, 5);
 ///     });
@@ -119,9 +116,8 @@ impl<T: ?Sized + core::panic::RefUnwindSafe> core::panic::UnwindSafe for Arc<T> 
 impl<T: ?Sized + std::panic::RefUnwindSafe> std::panic::UnwindSafe for Arc<T> {}
 
 impl<T: ?Sized> Arc<T> {
-    #[cfg(not(portable_atomic_no_min_const_generics))]
     #[inline]
-    fn into_non_null(this: Self) -> NonNull<ArcInner<T>> {
+    fn into_inner_non_null(this: Self) -> NonNull<ArcInner<T>> {
         let this = mem::ManuallyDrop::new(this);
         this.ptr
     }
@@ -138,11 +134,15 @@ impl<T: ?Sized> Arc<T> {
     }
 }
 
-/// A weakly reference counted pointer.
+#[allow(clippy::too_long_first_doc_paragraph)]
+/// `Weak` is a version of [`Arc`] that holds a non-owning reference to the
+/// managed allocation. The allocation is accessed by calling [`upgrade`] on the `Weak`
+/// pointer, which returns an <code>[Option]<[Arc]\<T>></code>.
 ///
 /// This is an equivalent to [`std::sync::Weak`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Weak`] for more details.
 ///
+/// [`upgrade`]: Weak::upgrade
 /// [portable-atomic]: https://crates.io/crates/portable-atomic
 ///
 /// # Examples
@@ -196,7 +196,6 @@ struct ArcInner<T: ?Sized> {
 }
 
 /// Calculate layout for `ArcInner<T>` using the inner value's layout
-#[inline]
 fn arc_inner_layout_for_value_layout(layout: Layout) -> Layout {
     // Calculate layout using the given value layout.
     // Previously, layout was calculated on the expression
@@ -263,7 +262,7 @@ impl<T> Arc<T> {
     /// }
     ///
     /// impl Gadget {
-    ///     /// Construct a reference counted Gadget.
+    ///     /// Constructs a reference counted Gadget.
     ///     fn new() -> Arc<Self> {
     ///         // `me` is a `Weak<Gadget>` pointing at the new allocation of the
     ///         // `Arc` we're constructing.
@@ -273,7 +272,7 @@ impl<T> Arc<T> {
     ///         })
     ///     }
     ///
-    ///     /// Return a reference counted pointer to Self.
+    ///     /// Returns a reference counted pointer to Self.
     ///     fn me(&self) -> Arc<Self> {
     ///         self.me.upgrade().unwrap()
     ///     }
@@ -301,7 +300,7 @@ impl<T> Arc<T> {
 
         // Now we can properly initialize the inner value and turn our weak
         // reference into a strong reference.
-        let strong = unsafe {
+        unsafe {
             let inner = init_ptr.as_ptr();
             ptr::write(data_ptr::<T>(inner, &data), data);
 
@@ -320,20 +319,36 @@ impl<T> Arc<T> {
             let prev_value = (*inner).strong.fetch_add(1, Release);
             debug_assert_eq!(prev_value, 0, "No prior strong references should exist");
 
-            Self::from_inner(init_ptr)
-        };
+            // Strong references should collectively own a shared weak reference,
+            // so don't run the destructor for our old weak reference.
+            mem::forget(weak);
 
-        // Strong references should collectively own a shared weak reference,
-        // so don't run the destructor for our old weak reference.
-        mem::forget(weak);
-        strong
+            Self::from_inner(init_ptr)
+        }
     }
 
+    /// Constructs a new `Arc` with uninitialized contents.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let mut five = Arc::<u32>::new_uninit();
+    ///
+    /// // Deferred initialization:
+    /// Arc::get_mut(&mut five).unwrap().write(5);
+    ///
+    /// let five = unsafe { five.assume_init() };
+    ///
+    /// assert_eq!(*five, 5)
+    /// ```
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
     #[inline]
     #[must_use]
-    fn new_uninit_ptr() -> NonNull<ArcInner<T>> {
+    pub fn new_uninit() -> Arc<mem::MaybeUninit<T>> {
         unsafe {
-            NonNull::new_unchecked(Self::allocate_for_layout(
+            Arc::from_ptr(Arc::allocate_for_layout(
                 Layout::new::<T>(),
                 |layout| Global.allocate(layout),
                 |ptr| ptr as *mut _,
@@ -347,9 +362,7 @@ impl<T> Arc<T> {
     pub fn pin(data: T) -> Pin<Self> {
         unsafe { Pin::new_unchecked(Self::new(data)) }
     }
-}
 
-impl<T> Arc<T> {
     /// Returns the inner value, if the `Arc` has exactly one strong reference.
     ///
     /// Otherwise, an [`Err`] is returned with the same `Arc` that was
@@ -391,15 +404,13 @@ impl<T> Arc<T> {
 
         acquire!(this.inner().strong);
 
-        unsafe {
-            let elem = ptr::read(&this.ptr.as_ref().data);
+        let this = ManuallyDrop::new(this);
+        let elem: T = unsafe { ptr::read(&this.ptr.as_ref().data) };
 
-            // Make a weak pointer to clean up the implicit strong-weak reference
-            let _weak = Weak { ptr: this.ptr };
-            mem::forget(this);
+        // Make a weak pointer to clean up the implicit strong-weak reference
+        let _weak = Weak { ptr: this.ptr };
 
-            Ok(elem)
-        }
+        Ok(elem)
     }
 
     /// Returns the inner value, if the `Arc` has exactly one strong reference.
@@ -525,22 +536,108 @@ impl<T> Arc<T> {
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T> Arc<[T]> {
+    /// Constructs a new atomically reference-counted slice with uninitialized contents.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let mut values = Arc::<[u32]>::new_uninit_slice(3);
+    ///
+    /// // Deferred initialization:
+    /// let data = Arc::get_mut(&mut values).unwrap();
+    /// data[0].write(1);
+    /// data[1].write(2);
+    /// data[2].write(3);
+    ///
+    /// let values = unsafe { values.assume_init() };
+    ///
+    /// assert_eq!(*values, [1, 2, 3])
+    /// ```
     #[inline]
     #[must_use]
-    fn new_uninit_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
+    pub fn new_uninit_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
         unsafe { Arc::from_ptr(Arc::allocate_for_slice(len)) }
+    }
+}
+
+#[cfg(not(portable_atomic_no_maybe_uninit))]
+impl<T> Arc<mem::MaybeUninit<T>> {
+    /// Converts to `Arc<T>`.
+    ///
+    /// # Safety
+    ///
+    /// As with [`MaybeUninit::assume_init`],
+    /// it is up to the caller to guarantee that the inner value
+    /// really is in an initialized state.
+    /// Calling this when the content is not yet fully initialized
+    /// causes immediate undefined behavior.
+    ///
+    /// [`MaybeUninit::assume_init`]: mem::MaybeUninit::assume_init
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let mut five = Arc::<u32>::new_uninit();
+    ///
+    /// // Deferred initialization:
+    /// Arc::get_mut(&mut five).unwrap().write(5);
+    ///
+    /// let five = unsafe { five.assume_init() };
+    ///
+    /// assert_eq!(*five, 5)
+    /// ```
+    #[must_use = "`self` will be dropped if the result is not used"]
+    #[inline]
+    pub unsafe fn assume_init(self) -> Arc<T> {
+        let ptr = Arc::into_inner_non_null(self);
+        // SAFETY: MaybeUninit<T> has the same layout as T, and
+        // the caller must ensure data is initialized.
+        unsafe { Arc::from_inner(ptr.cast::<ArcInner<T>>()) }
     }
 }
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T> Arc<[mem::MaybeUninit<T>]> {
+    /// Converts to `Arc<[T]>`.
+    ///
+    /// # Safety
+    ///
+    /// As with [`MaybeUninit::assume_init`],
+    /// it is up to the caller to guarantee that the inner value
+    /// really is in an initialized state.
+    /// Calling this when the content is not yet fully initialized
+    /// causes immediate undefined behavior.
+    ///
+    /// [`MaybeUninit::assume_init`]: mem::MaybeUninit::assume_init
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let mut values = Arc::<[u32]>::new_uninit_slice(3);
+    ///
+    /// // Deferred initialization:
+    /// let data = Arc::get_mut(&mut values).unwrap();
+    /// data[0].write(1);
+    /// data[1].write(2);
+    /// data[2].write(3);
+    ///
+    /// let values = unsafe { values.assume_init() };
+    ///
+    /// assert_eq!(*values, [1, 2, 3])
+    /// ```
     #[must_use = "`self` will be dropped if the result is not used"]
     #[inline]
-    unsafe fn assume_init(self) -> Arc<[T]> {
-        let md_self = mem::ManuallyDrop::new(self);
+    pub unsafe fn assume_init(self) -> Arc<[T]> {
+        let ptr = Arc::into_inner_non_null(self);
         // SAFETY: [MaybeUninit<T>] has the same layout as [T], and
         // the caller must ensure data is initialized.
-        unsafe { Arc::from_ptr(md_self.ptr.as_ptr() as *mut ArcInner<[T]>) }
+        unsafe { Arc::from_ptr(ptr.as_ptr() as *mut ArcInner<[T]>) }
     }
 }
 
@@ -641,7 +738,8 @@ impl<T: ?Sized> Arc<T> {
     ///     // the `Arc` between threads.
     ///     let five = Arc::from_raw(ptr);
     ///     assert_eq!(2, Arc::strong_count(&five));
-    ///     # Arc::decrement_strong_count(ptr); // avoid memory leak
+    /// #   // Prevent leaks for Miri.
+    /// #   Arc::decrement_strong_count(ptr);
     /// }
     /// ```
     #[inline]
@@ -703,13 +801,13 @@ impl<T: ?Sized> Arc<T> {
     /// let x = Arc::new("hello".to_owned());
     /// let x_ptr = Arc::into_raw(x);
     /// assert_eq!(unsafe { &*x_ptr }, "hello");
-    /// # unsafe { drop(Arc::from_raw(x_ptr)) } // avoid memory leak
+    /// # // Prevent leaks for Miri.
+    /// # drop(unsafe { Arc::from_raw(x_ptr) });
     /// ```
     #[must_use = "losing the pointer will leak memory"]
     pub fn into_raw(this: Self) -> *const T {
-        let ptr = Self::as_ptr(&this);
-        mem::forget(this);
-        ptr
+        let this = ManuallyDrop::new(this);
+        Self::as_ptr(&*this)
     }
 
     /// Provides a raw pointer to the data.
@@ -1088,7 +1186,7 @@ impl<T: ?Sized> Deref for Arc<T> {
     }
 }
 
-impl<T: Clone> Arc<T> {
+impl<T: ?Sized + CloneToUninit> Arc<T> {
     /// Makes a mutable reference into the given `Arc`.
     ///
     /// If there are other `Arc` pointers to the same allocation, then `make_mut` will
@@ -1141,6 +1239,8 @@ impl<T: Clone> Arc<T> {
     /// ```
     #[inline]
     pub fn make_mut(this: &mut Self) -> &mut T {
+        let size_of_val = mem::size_of_val::<T>(&**this);
+
         // Note that we hold both a strong reference and a weak reference.
         // Thus, releasing our strong reference only will not, by itself, cause
         // the memory to be deallocated.
@@ -1151,13 +1251,18 @@ impl<T: Clone> Arc<T> {
         // deallocated.
         if this.inner().strong.compare_exchange(1, 0, Acquire, Relaxed).is_err() {
             // Another strong pointer exists, so we must clone.
-            // Pre-allocate memory to allow writing the cloned value directly.
-            let arc = Self::new_uninit_ptr();
-            unsafe {
-                let data = data_ptr::<T>(arc.as_ptr(), &**this);
-                data.write((**this).clone());
-                *this = Self::from_inner(arc);
-            }
+
+            let this_data_ref: &T = this;
+            // `in_progress` drops the allocation if we panic before finishing initializing it.
+            let mut in_progress: UniqueArcUninit<T> = UniqueArcUninit::new(this_data_ref);
+
+            let initialized_clone = unsafe {
+                // Clone. If the clone panics, `in_progress` will be dropped and clean up.
+                this_data_ref.clone_to_uninit(in_progress.data_ptr());
+                // Cast type of pointer, now that it is initialized.
+                in_progress.into_arc()
+            };
+            *this = initialized_clone;
         } else if this.inner().weak.load(Relaxed) != 1 {
             // Relaxed suffices in the above because this is fundamentally an
             // optimization: we are always racing with weak pointers being
@@ -1175,12 +1280,22 @@ impl<T: Clone> Arc<T> {
             // up the ArcInner as needed.
             let _weak = Weak { ptr: this.ptr };
 
-            // Can just steal the data, all that's left are `Weak`s
-            let arc = Self::new_uninit_ptr();
+            // Can just steal the data, all that's left is `Weak`s
+            //
+            // We don't need panic-protection like the above branch does, but we might as well
+            // use the same mechanism.
+            let mut in_progress: UniqueArcUninit<T> = UniqueArcUninit::new(&**this);
             unsafe {
-                let data = data_ptr::<T>(arc.as_ptr(), &**this);
-                data.copy_from_nonoverlapping(&**this, 1);
-                ptr::write(this, Self::from_inner(arc));
+                // Initialize `in_progress` with move of **this.
+                // We have to express this in terms of bytes because `T: ?Sized`; there is no
+                // operation that just copies a value based on its `size_of_val()`.
+                ptr::copy_nonoverlapping(
+                    &**this as *const T as *const u8,
+                    in_progress.data_ptr() as *mut u8,
+                    size_of_val,
+                );
+
+                ptr::write(this, in_progress.into_arc());
             }
         } else {
             // We were the sole reference of either kind; bump back up the
@@ -1192,7 +1307,9 @@ impl<T: Clone> Arc<T> {
         // either unique to begin with, or became one upon cloning the contents.
         unsafe { Self::get_mut_unchecked(this) }
     }
+}
 
+impl<T: Clone> Arc<T> {
     /// If we have the only reference to `T` then unwrap it. Otherwise, clone `T` and return the
     /// clone.
     ///
@@ -1376,7 +1493,7 @@ impl<T: ?Sized> Drop for Arc<T> {
 }
 
 impl Arc<dyn Any + Send + Sync> {
-    /// Attempt to downcast the `Arc<dyn Any + Send + Sync>` to a concrete type.
+    /// Attempts to downcast the `Arc<dyn Any + Send + Sync>` to a concrete type.
     ///
     /// # Examples
     ///
@@ -1404,9 +1521,8 @@ impl Arc<dyn Any + Send + Sync> {
     {
         if (*self).is::<T>() {
             unsafe {
-                let ptr = self.ptr.cast::<ArcInner<T>>();
-                mem::forget(self);
-                Ok(Arc::from_inner(ptr))
+                let ptr = Arc::into_inner_non_null(self);
+                Ok(Arc::from_inner(ptr.cast::<ArcInner<T>>()))
             }
         } else {
             Err(self)
@@ -1430,8 +1546,8 @@ impl<T> Weak<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub const fn new() -> Weak<T> {
-        Weak {
+    pub const fn new() -> Self {
+        Self {
             ptr: unsafe {
                 NonNull::new_unchecked(strict::without_provenance::<ArcInner<T>>(usize::MAX))
             },
@@ -1510,7 +1626,6 @@ impl<T /*: ?Sized */> Weak<T> {
             ptr as *mut ArcInner<T>
         } else {
             // Otherwise, we're guaranteed the pointer came from a non-dangling Weak.
-
             // TODO: data_offset calls align_of_val which needs to create a reference
             // to data but we cannot create a reference to data here since data in Weak
             // can be dropped concurrently from another thread. Therefore, we can
@@ -1607,9 +1722,7 @@ impl<T /*: ?Sized */> Weak<T> {
     /// [`as_ptr`]: Weak::as_ptr
     #[must_use = "losing the pointer will leak memory"]
     pub fn into_raw(self) -> *const T {
-        let result = self.as_ptr();
-        mem::forget(self);
-        result
+        ManuallyDrop::new(self).as_ptr()
     }
 }
 
@@ -2108,7 +2221,7 @@ impl Default for Arc<str> {
     fn default() -> Self {
         let arc: Arc<[u8]> = Arc::default();
         debug_assert!(core::str::from_utf8(&arc).is_ok());
-        let ptr = Arc::into_non_null(arc);
+        let ptr = Arc::into_inner_non_null(arc);
         unsafe { Arc::from_ptr(ptr.as_ptr() as *mut ArcInner<str>) }
     }
 }
@@ -2191,7 +2304,7 @@ impl<T, const N: usize> From<[T; N]> for Arc<[T]> {
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T: Clone> From<&[T]> for Arc<[T]> {
-    /// Allocate a reference-counted slice and fill it by cloning `v`'s items.
+    /// Allocates a reference-counted slice and fills it by cloning `v`'s items.
     ///
     /// # Example
     ///
@@ -2209,7 +2322,7 @@ impl<T: Clone> From<&[T]> for Arc<[T]> {
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl From<&str> for Arc<str> {
-    /// Allocate a reference-counted `str` and copy `v` into it.
+    /// Allocates a reference-counted `str` and copies `v` into it.
     ///
     /// # Example
     ///
@@ -2229,7 +2342,7 @@ impl From<&str> for Arc<str> {
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl From<String> for Arc<str> {
-    /// Allocate a reference-counted `str` and copy `v` into it.
+    /// Allocates a reference-counted `str` and copies `v` into it.
     ///
     /// # Example
     ///
@@ -2264,7 +2377,7 @@ impl<T: ?Sized> From<Box<T>> for Arc<T> {
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T> From<Vec<T>> for Arc<[T]> {
-    /// Allocate a reference-counted slice and move `v`'s items into it.
+    /// Allocates a reference-counted slice and moves `v`'s items into it.
     ///
     /// # Example
     ///
@@ -2300,8 +2413,8 @@ where
     B: ?Sized + ToOwned,
     Arc<B>: From<&'a B> + From<B::Owned>,
 {
-    /// Create an atomically reference-counted pointer from
-    /// a clone-on-write pointer by copying its content.
+    /// Creates an atomically reference-counted pointer from a clone-on-write
+    /// pointer by copying its content.
     ///
     /// # Example
     ///
@@ -2348,7 +2461,8 @@ impl<T, const N: usize> core::convert::TryFrom<Arc<[T]>> for Arc<[T; N]> {
 
     fn try_from(boxed_slice: Arc<[T]>) -> Result<Self, Self::Error> {
         if boxed_slice.len() == N {
-            Ok(unsafe { Self::from_raw(Arc::into_raw(boxed_slice) as *mut [T; N]) })
+            let ptr = Arc::into_inner_non_null(boxed_slice);
+            Ok(unsafe { Self::from_inner(ptr.cast::<ArcInner<[T; N]>>()) })
         } else {
             Err(boxed_slice)
         }
@@ -2357,7 +2471,7 @@ impl<T, const N: usize> core::convert::TryFrom<Arc<[T]>> for Arc<[T; N]> {
 }
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
-impl<T> FromIterator<T> for Arc<[T]> {
+impl<T> core::iter::FromIterator<T> for Arc<[T]> {
     /// Takes each element in the `Iterator` and collects it into an `Arc<[T]>`.
     ///
     /// # Performance characteristics
@@ -2415,7 +2529,7 @@ impl<T: ?Sized> AsRef<T> for Arc<T> {
 
 impl<T: ?Sized> Unpin for Arc<T> {}
 
-/// Get the pointer to data within the given an `ArcInner`.
+/// Gets the pointer to data within the given an `ArcInner`.
 ///
 /// # Safety
 ///
@@ -2429,7 +2543,7 @@ unsafe fn data_ptr<T: ?Sized>(arc: *mut ArcInner<T>, data: &T) -> *mut T {
     }
 }
 
-/// Get the offset within an `ArcInner` for the payload behind a pointer.
+/// Gets the offset within an `ArcInner` for the payload behind a pointer.
 fn data_offset<T: ?Sized>(ptr: &T) -> usize {
     // Align the unsized value to the end of the ArcInner.
     // Because RcBox is repr(C), it will always be the last field in memory.
@@ -2440,6 +2554,58 @@ fn data_offset<T: ?Sized>(ptr: &T) -> usize {
 fn data_offset_align(align: usize) -> usize {
     let layout = Layout::new::<ArcInner<()>>();
     layout.size() + padding_needed_for(layout, align)
+}
+
+/// A unique owning pointer to an [`ArcInner`] **that does not imply the contents are initialized,**
+/// but will deallocate it (without dropping the value) when dropped.
+///
+/// This is a helper for [`Arc::make_mut()`] to ensure correct cleanup on panic.
+struct UniqueArcUninit<T: ?Sized> {
+    ptr: NonNull<ArcInner<T>>,
+    layout_for_value: Layout,
+}
+
+impl<T: ?Sized> UniqueArcUninit<T> {
+    /// Allocates an ArcInner with layout suitable to contain `for_value` or a clone of it.
+    fn new(for_value: &T) -> Self {
+        let layout = Layout::for_value(for_value);
+        let ptr = unsafe { Arc::allocate_for_value(for_value) };
+        Self { ptr: NonNull::new(ptr).unwrap(), layout_for_value: layout }
+    }
+
+    /// Returns the pointer to be written into to initialize the [`Arc`].
+    fn data_ptr(&mut self) -> *mut T {
+        let offset = data_offset_align(self.layout_for_value.align());
+        unsafe { strict::byte_add(self.ptr.as_ptr(), offset) as *mut T }
+    }
+
+    /// Upgrade this into a normal [`Arc`].
+    ///
+    /// # Safety
+    ///
+    /// The data must have been initialized (by writing to [`Self::data_ptr()`]).
+    unsafe fn into_arc(self) -> Arc<T> {
+        let this = ManuallyDrop::new(self);
+        let ptr = this.ptr.as_ptr();
+
+        // SAFETY: The pointer is valid as per `UniqueArcUninit::new`, and the caller is responsible
+        // for having initialized the data.
+        unsafe { Arc::from_ptr(ptr) }
+    }
+}
+
+impl<T: ?Sized> Drop for UniqueArcUninit<T> {
+    fn drop(&mut self) {
+        // SAFETY:
+        // * new() produced a pointer safe to deallocate.
+        // * We own the pointer unless into_arc() was called, which forgets us.
+        unsafe {
+            Global.deallocate(
+                self.ptr.cast::<u8>(),
+                arc_inner_layout_for_value_layout(self.layout_for_value),
+            );
+        }
+    }
 }
 
 #[cfg(not(portable_atomic_no_error_in_core))]
@@ -2461,179 +2627,310 @@ impl<T: ?Sized + error::Error> error::Error for Arc<T> {
     }
 }
 
-// TODO: Other trait implementations that are stable but we currently don't provide:
-// - alloc::ffi
-//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
-//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
-//   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-Default-for-Arc%3CCStr%3E
-//   - Currently, we cannot implement these since CStr layout is not stable.
-// - std::ffi
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3COsString%3E-for-Arc%3COsStr%3E
-//   - Currently, we cannot implement these since OsStr layout is not stable.
-// - std::path
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26Path%3E-for-Arc%3CPath%3E
-//   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
-//   - Currently, we cannot implement these since Path layout is not stable.
+#[cfg(feature = "std")]
+mod std_impls {
+    use super::Arc;
 
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
-// Note:
-// - T: ?Sized is currently only allowed on AsFd/AsHandle: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
-// - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.77.
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(unix)]
-use std::os::unix::io as fd;
-// - std::os::unix::io::AsRawFd and std::os::windows::io::{AsRawHandle, AsRawSocket} are available in all versions
-// - std::os::wasi::prelude::AsRawFd requires 1.56 (https://github.com/rust-lang/rust/commit/e555003e6d6b6d71ce5509a6b6c7a15861208d6c)
-// - std::os::unix::io::AsFd, std::os::wasi::prelude::AsFd, and std::os::windows::io::{AsHandle, AsSocket} require Rust 1.63
-// - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
-// - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
-// - std::os::hermit::io::AsFd requires Rust 1.69 (https://github.com/rust-lang/rust/commit/b5fb4f3d9b1b308d59cab24ef2f9bf23dad948aa)
-// - std::os::fd for HermitOS requires Rust 1.81 (https://github.com/rust-lang/rust/pull/126346)
-// - std::os::solid::io::AsFd is unstable (solid_ext, https://github.com/rust-lang/rust/pull/115159)
-// Note: we don't implement unstable ones.
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(target_os = "hermit")]
-use std::os::hermit::io as fd;
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(target_os = "wasi")]
-use std::os::wasi::prelude as fd;
-/// This impl allows implementing traits that require `AsRawFd` on Arc.
-/// ```
-/// # #[cfg(target_os = "wasi")]
-/// # use std::os::wasi::prelude::AsRawFd;
-/// # #[cfg(unix)]
-/// # use std::os::unix::io::AsRawFd;
-/// use portable_atomic_util::Arc;
-/// use std::net::UdpSocket;
-///
-/// trait MyTrait: AsRawFd {}
-/// impl MyTrait for Arc<UdpSocket> {}
-/// ```
-// AsRawFd has been stable before io_safety, but this impl was added after io_safety: https://github.com/rust-lang/rust/pull/97437
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
-impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
-    #[inline]
-    fn as_raw_fd(&self) -> fd::RawFd {
-        (**self).as_raw_fd()
+    // TODO: Other trait implementations that are stable but we currently don't provide:
+    // - alloc::ffi
+    //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
+    //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
+    //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-Default-for-Arc%3CCStr%3E
+    //   - Currently, we cannot implement these since CStr layout is not stable.
+    // - std::ffi
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3COsString%3E-for-Arc%3COsStr%3E
+    //   - Currently, we cannot implement these since OsStr layout is not stable.
+    // - std::path
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26Path%3E-for-Arc%3CPath%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
+    //   - Currently, we cannot implement these since Path layout is not stable.
+
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
+    // Note:
+    // - T: ?Sized is currently only allowed on AsFd/AsHandle: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
+    // - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.77.
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(unix)]
+    use std::os::unix::io as fd;
+    // - std::os::unix::io::AsRawFd and std::os::windows::io::{AsRawHandle, AsRawSocket} are available in all versions
+    // - std::os::wasi::prelude::AsRawFd requires 1.56 (https://github.com/rust-lang/rust/commit/e555003e6d6b6d71ce5509a6b6c7a15861208d6c)
+    // - std::os::unix::io::AsFd, std::os::wasi::prelude::AsFd, and std::os::windows::io::{AsHandle, AsSocket} require Rust 1.63
+    // - std::os::wasi::io::AsFd requires Rust 1.65 (https://github.com/rust-lang/rust/pull/103308)
+    // - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
+    // - std::os::hermit::io::AsFd requires Rust 1.69 (https://github.com/rust-lang/rust/commit/b5fb4f3d9b1b308d59cab24ef2f9bf23dad948aa)
+    // - std::os::fd for HermitOS requires Rust 1.81 (https://github.com/rust-lang/rust/pull/126346)
+    // - std::os::solid::io::AsFd is unstable (solid_ext, https://github.com/rust-lang/rust/pull/115159)
+    // Note: we don't implement unstable ones.
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(target_os = "hermit")]
+    use std::os::hermit::io as fd;
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(target_os = "wasi")]
+    use std::os::wasi::prelude as fd;
+    /// This impl allows implementing traits that require `AsRawFd` on Arc.
+    /// ```
+    /// # #[cfg(target_os = "hermit")]
+    /// # use std::os::hermit::io::AsRawFd;
+    /// # #[cfg(target_os = "wasi")]
+    /// # use std::os::wasi::prelude::AsRawFd;
+    /// # #[cfg(unix)]
+    /// # use std::os::unix::io::AsRawFd;
+    /// use portable_atomic_util::Arc;
+    /// use std::net::UdpSocket;
+    ///
+    /// trait MyTrait: AsRawFd {}
+    /// impl MyTrait for Arc<UdpSocket> {}
+    /// ```
+    // AsRawFd has been stable before io_safety, but this impl was added after io_safety: https://github.com/rust-lang/rust/pull/97437
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
+    impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
+        #[inline]
+        fn as_raw_fd(&self) -> fd::RawFd {
+            (**self).as_raw_fd()
+        }
     }
-}
-/// This impl allows implementing traits that require `AsFd` on Arc.
-/// ```
-/// # #[cfg(target_os = "wasi")]
-/// # use std::os::wasi::prelude::AsFd;
-/// # #[cfg(unix)]
-/// # use std::os::unix::io::AsFd;
-/// use portable_atomic_util::Arc;
-/// use std::net::UdpSocket;
-///
-/// trait MyTrait: AsFd {}
-/// impl MyTrait for Arc<UdpSocket> {}
-/// ```
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
-impl<T: ?Sized + fd::AsFd> fd::AsFd for Arc<T> {
-    #[inline]
-    fn as_fd(&self) -> fd::BorrowedFd<'_> {
-        (**self).as_fd()
+    /// This impl allows implementing traits that require `AsFd` on Arc.
+    /// ```
+    /// # #[cfg(target_os = "hermit")]
+    /// # use std::os::hermit::io::AsFd;
+    /// # #[cfg(target_os = "wasi")]
+    /// # use std::os::wasi::prelude::AsFd;
+    /// # #[cfg(unix)]
+    /// # use std::os::unix::io::AsFd;
+    /// use portable_atomic_util::Arc;
+    /// use std::net::UdpSocket;
+    ///
+    /// trait MyTrait: AsFd {}
+    /// impl MyTrait for Arc<UdpSocket> {}
+    /// ```
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
+    impl<T: ?Sized + fd::AsFd> fd::AsFd for Arc<T> {
+        #[inline]
+        fn as_fd(&self) -> fd::BorrowedFd<'_> {
+            (**self).as_fd()
+        }
     }
-}
-/// This impl allows implementing traits that require `AsHandle` on Arc.
-/// ```
-/// # use std::os::windows::io::AsHandle;
-/// use portable_atomic_util::Arc;
-/// use std::fs::File;
-///
-/// trait MyTrait: AsHandle {}
-/// impl MyTrait for Arc<File> {}
-/// ```
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(windows)]
-impl<T: ?Sized + std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
-    #[inline]
-    fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
-        (**self).as_handle()
+    /// This impl allows implementing traits that require `AsHandle` on Arc.
+    /// ```
+    /// # use std::os::windows::io::AsHandle;
+    /// use portable_atomic_util::Arc;
+    /// use std::fs::File;
+    ///
+    /// trait MyTrait: AsHandle {}
+    /// impl MyTrait for Arc<File> {}
+    /// ```
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(windows)]
+    impl<T: ?Sized + std::os::windows::io::AsHandle> std::os::windows::io::AsHandle for Arc<T> {
+        #[inline]
+        fn as_handle(&self) -> std::os::windows::io::BorrowedHandle<'_> {
+            (**self).as_handle()
+        }
     }
-}
-/// This impl allows implementing traits that require `AsSocket` on Arc.
-/// ```
-/// # use std::os::windows::io::AsSocket;
-/// use portable_atomic_util::Arc;
-/// use std::net::UdpSocket;
-///
-/// trait MyTrait: AsSocket {}
-/// impl MyTrait for Arc<UdpSocket> {}
-/// ```
-#[cfg(not(portable_atomic_no_io_safety))]
-#[cfg(feature = "std")]
-#[cfg(windows)]
-impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
-    #[inline]
-    fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
-        (**self).as_socket()
+    /// This impl allows implementing traits that require `AsSocket` on Arc.
+    /// ```
+    /// # use std::os::windows::io::AsSocket;
+    /// use portable_atomic_util::Arc;
+    /// use std::net::UdpSocket;
+    ///
+    /// trait MyTrait: AsSocket {}
+    /// impl MyTrait for Arc<UdpSocket> {}
+    /// ```
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(windows)]
+    impl<T: std::os::windows::io::AsSocket> std::os::windows::io::AsSocket for Arc<T> {
+        #[inline]
+        fn as_socket(&self) -> std::os::windows::io::BorrowedSocket<'_> {
+            (**self).as_socket()
+        }
+    }
+
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
+    // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Write-for-Arc%3CFile%3E
+    // Note: From discussions in https://github.com/rust-lang/rust/pull/94748 and relevant,
+    // TcpStream and UnixStream will likely have similar implementations in the future.
+    impl std::io::Read for Arc<std::fs::File> {
+        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+            (&**self).read(buf)
+        }
+        #[cfg(not(portable_atomic_no_io_vec))]
+        fn read_vectored(
+            &mut self,
+            bufs: &mut [std::io::IoSliceMut<'_>],
+        ) -> std::io::Result<usize> {
+            (&**self).read_vectored(bufs)
+        }
+        // fn read_buf(&mut self, cursor: BorrowedCursor<'_>) -> io::Result<()> {
+        //     (&**self).read_buf(cursor)
+        // }
+        // #[inline]
+        // fn is_read_vectored(&self) -> bool {
+        //     (&**self).is_read_vectored()
+        // }
+        fn read_to_end(&mut self, buf: &mut alloc::vec::Vec<u8>) -> std::io::Result<usize> {
+            (&**self).read_to_end(buf)
+        }
+        fn read_to_string(&mut self, buf: &mut alloc::string::String) -> std::io::Result<usize> {
+            (&**self).read_to_string(buf)
+        }
+    }
+    impl std::io::Write for Arc<std::fs::File> {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            (&**self).write(buf)
+        }
+        #[cfg(not(portable_atomic_no_io_vec))]
+        fn write_vectored(&mut self, bufs: &[std::io::IoSlice<'_>]) -> std::io::Result<usize> {
+            (&**self).write_vectored(bufs)
+        }
+        // #[inline]
+        // fn is_write_vectored(&self) -> bool {
+        //     (&**self).is_write_vectored()
+        // }
+        #[inline]
+        fn flush(&mut self) -> std::io::Result<()> {
+            (&**self).flush()
+        }
+    }
+    impl std::io::Seek for Arc<std::fs::File> {
+        fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+            (&**self).seek(pos)
+        }
     }
 }
 
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
-// https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Write-for-Arc%3CFile%3E
-// Note: From discussions in https://github.com/rust-lang/rust/pull/94748 and relevant,
-// TcpStream and UnixStream will likely have similar implementations in the future.
-#[cfg(feature = "std")]
-impl std::io::Read for Arc<std::fs::File> {
-    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        (&**self).read(buf)
+use self::clone::CloneToUninit;
+mod clone {
+    use core::ptr;
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    use core::{
+        mem::{self, MaybeUninit},
+        slice,
+    };
+
+    // Based on unstable core::clone::CloneToUninit.
+    // This trait is private and cannot be implemented for types outside of `portable-atomic-util`.
+    #[doc(hidden)] // private API
+    pub unsafe trait CloneToUninit {
+        unsafe fn clone_to_uninit(&self, dst: *mut Self);
     }
-    #[cfg(not(portable_atomic_no_io_vec))]
-    fn read_vectored(&mut self, bufs: &mut [std::io::IoSliceMut<'_>]) -> std::io::Result<usize> {
-        (&**self).read_vectored(bufs)
+    unsafe impl<T: Clone> CloneToUninit for T {
+        #[inline]
+        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+            // SAFETY: we're calling a specialization with the same contract
+            unsafe { clone_one(self, dst) }
+        }
     }
-    // fn read_buf(&mut self, cursor: BorrowedCursor<'_>) -> io::Result<()> {
-    //     (&**self).read_buf(cursor)
-    // }
-    // #[inline]
-    // fn is_read_vectored(&self) -> bool {
-    //     (&**self).is_read_vectored()
-    // }
-    fn read_to_end(&mut self, buf: &mut alloc::vec::Vec<u8>) -> std::io::Result<usize> {
-        (&**self).read_to_end(buf)
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    unsafe impl<T: Clone> CloneToUninit for [T] {
+        #[inline]
+        #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+            // SAFETY: we're calling a specialization with the same contract
+            unsafe { clone_slice(self, dst) }
+        }
     }
-    fn read_to_string(&mut self, buf: &mut alloc::string::String) -> std::io::Result<usize> {
-        (&**self).read_to_string(buf)
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    unsafe impl CloneToUninit for str {
+        #[inline]
+        #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+            // SAFETY: str is just a [u8] with UTF-8 invariant
+            unsafe { self.as_bytes().clone_to_uninit(dst as *mut [u8]) }
+        }
     }
-}
-#[cfg(feature = "std")]
-impl std::io::Write for Arc<std::fs::File> {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        (&**self).write(buf)
-    }
-    #[cfg(not(portable_atomic_no_io_vec))]
-    fn write_vectored(&mut self, bufs: &[std::io::IoSlice<'_>]) -> std::io::Result<usize> {
-        (&**self).write_vectored(bufs)
-    }
-    // #[inline]
-    // fn is_write_vectored(&self) -> bool {
-    //     (&**self).is_write_vectored()
-    // }
+    // Note: Currently, we cannot implement this for CStr/OsStr/Path since theirs layout is not stable.
+
     #[inline]
-    fn flush(&mut self) -> std::io::Result<()> {
-        (&**self).flush()
+    unsafe fn clone_one<T: Clone>(src: &T, dst: *mut T) {
+        // SAFETY: The safety conditions of clone_to_uninit() are a superset of those of
+        // ptr::write().
+        unsafe {
+            // We hope the optimizer will figure out to create the cloned value in-place,
+            // skipping ever storing it on the stack and the copy to the destination.
+            ptr::write(dst, src.clone());
+        }
     }
-}
-#[cfg(feature = "std")]
-impl std::io::Seek for Arc<std::fs::File> {
-    fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
-        (&**self).seek(pos)
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    unsafe fn clone_slice<T: Clone>(src: &[T], dst: *mut [T]) {
+        let len = src.len();
+
+        // SAFETY: The produced `&mut` is valid because:
+        // * The caller is obligated to provide a pointer which is valid for writes.
+        // * All bytes pointed to are in MaybeUninit, so we don't care about the memory's
+        //   initialization status.
+        let uninit_ref = unsafe { &mut *(dst as *mut [MaybeUninit<T>]) };
+
+        // This is the most likely mistake to make, so check it as a debug assertion.
+        debug_assert_eq!(
+            len,
+            uninit_ref.len(),
+            "clone_to_uninit() source and destination must have equal lengths",
+        );
+
+        // Copy the elements
+        let mut initializing = InitializingSlice::from_fully_uninit(uninit_ref);
+        for element_ref in src {
+            // If the clone() panics, `initializing` will take care of the cleanup.
+            initializing.push(element_ref.clone());
+        }
+        // If we reach here, then the entire slice is initialized, and we've satisfied our
+        // responsibilities to the caller. Disarm the cleanup guard by forgetting it.
+        mem::forget(initializing);
+    }
+
+    /// Ownership of a collection of values stored in a non-owned `[MaybeUninit<T>]`, some of which
+    /// are not yet initialized. This is sort of like a `Vec` that doesn't own its allocation.
+    /// Its responsibility is to provide cleanup on unwind by dropping the values that *are*
+    /// initialized, unless disarmed by forgetting.
+    ///
+    /// This is a helper for `impl<T: Clone> CloneToUninit for [T]`.
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    struct InitializingSlice<'a, T> {
+        data: &'a mut [MaybeUninit<T>],
+        /// Number of elements of `*self.data` that are initialized.
+        initialized_len: usize,
+    }
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    impl<'a, T> InitializingSlice<'a, T> {
+        #[inline]
+        fn from_fully_uninit(data: &'a mut [MaybeUninit<T>]) -> Self {
+            Self { data, initialized_len: 0 }
+        }
+        /// Push a value onto the end of the initialized part of the slice.
+        ///
+        /// # Panics
+        ///
+        /// Panics if the slice is already fully initialized.
+        #[inline]
+        fn push(&mut self, value: T) {
+            self.data[self.initialized_len] = MaybeUninit::new(value);
+            self.initialized_len += 1;
+        }
+    }
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    impl<T> Drop for InitializingSlice<'_, T> {
+        #[cold] // will only be invoked on unwind
+        fn drop(&mut self) {
+            let initialized_slice = unsafe {
+                slice::from_raw_parts_mut(self.data.as_mut_ptr() as *mut T, self.initialized_len)
+            };
+            // SAFETY:
+            // * the pointer is valid because it was made from a mutable reference
+            // * `initialized_len` counts the initialized elements as an invariant of this type,
+            //   so each of the pointed-to elements is initialized and may be dropped.
+            unsafe {
+                ptr::drop_in_place::<[T]>(initialized_slice);
+            }
+        }
     }
 }
 
@@ -2723,6 +3020,7 @@ struct Global;
 #[allow(clippy::unused_self)]
 impl Global {
     #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
         // Layout::dangling is unstable
         #[must_use]
@@ -2739,6 +3037,15 @@ impl Global {
                 let raw_ptr = alloc::alloc::alloc(layout);
                 NonNull::new(raw_ptr)
             },
+        }
+    }
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
+        if layout.size() != 0 {
+            // SAFETY: `layout` is non-zero in size,
+            // other conditions must be upheld by the caller
+            unsafe { alloc::alloc::dealloc(ptr.as_ptr(), layout) }
         }
     }
 }

@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![cfg(any(feature = "std", feature = "alloc"))]
+#![allow(clippy::undocumented_unsafe_blocks)]
 
-use portable_atomic_util::Arc;
+use std::{borrow::Cow, panic};
+
+use portable_atomic_util::{Arc, Weak};
 
 #[derive(Debug, PartialEq)]
 #[repr(align(128))]
@@ -30,8 +33,71 @@ fn default() {
     assert_eq!(&v[..], "");
 }
 
+#[test]
+fn cow_from() {
+    let o = Cow::Owned("abc".to_owned());
+    let b = Cow::Borrowed("def");
+    let o: Arc<str> = Arc::from(o);
+    let b: Arc<str> = Arc::from(b);
+    assert_eq!(&*o, "abc");
+    assert_eq!(&*b, "def");
+}
+
+#[test]
+fn make_mut_unsized() {
+    let mut v: Arc<[i32]> = Arc::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    Arc::make_mut(&mut v)[0] += 10;
+    assert_eq!(&*v, [11, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    let v1 = Arc::clone(&v);
+    let v2 = Arc::make_mut(&mut v);
+    v2[1] += 10;
+    assert_eq!(&*v1, [11, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    assert_eq!(&*v2, [11, 12, 3, 4, 5, 6, 7, 8, 9, 10]);
+    assert_eq!(&*v, [11, 12, 3, 4, 5, 6, 7, 8, 9, 10]);
+    drop(v1);
+    let w = Arc::downgrade(&v);
+    Arc::make_mut(&mut v)[2] += 10;
+    assert_eq!(&*v, [11, 12, 13, 4, 5, 6, 7, 8, 9, 10]);
+    assert!(w.upgrade().is_none());
+}
+
+#[test]
+fn make_mut_clone_panic() {
+    struct C(#[allow(dead_code)] Box<u8>);
+    impl Clone for C {
+        fn clone(&self) -> Self {
+            panic!()
+        }
+    }
+    let mut v: Arc<[C]> = Arc::from([C(Box::new(1)), C(Box::new(2))]);
+    let _v = Arc::make_mut(&mut v);
+    let v1 = Arc::clone(&v);
+    if !is_panic_abort() {
+        panic::catch_unwind(panic::AssertUnwindSafe(|| {
+            let _v = Arc::make_mut(&mut v);
+        }))
+        .unwrap_err();
+    }
+    drop(v1);
+}
+
+#[test]
+fn weak_dangling() {
+    let w = Weak::<Aligned>::new();
+    let p = Weak::into_raw(w);
+    let w = unsafe { Weak::from_raw(p) };
+    let w2 = Weak::clone(&w);
+    assert!(w.upgrade().is_none());
+    assert!(w2.upgrade().is_none());
+}
+
+// For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
+fn is_panic_abort() -> bool {
+    build_context::PANIC.contains("abort")
+}
+
 // https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync/tests.rs
-#[allow(clippy::many_single_char_names, clippy::undocumented_unsafe_blocks)]
+#[allow(clippy::many_single_char_names)]
 mod alloc_tests {
     use std::{
         convert::TryInto,
