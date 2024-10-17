@@ -147,8 +147,8 @@ mod tests {
                 new_len: c_size_t,
             ) -> Result<c_int, c_int> {
                 // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/osfmk/mach/i386/syscall_sw.h#L158
-                #[inline(always)]
-                fn syscall_construct_unix(n: u64) -> u64 {
+                #[inline]
+                const fn syscall_construct_unix(n: u64) -> u64 {
                     const SYSCALL_CLASS_UNIX: u64 = 2;
                     const SYSCALL_CLASS_SHIFT: u64 = 24;
                     const SYSCALL_CLASS_MASK: u64 = 0xFF << SYSCALL_CLASS_SHIFT;
