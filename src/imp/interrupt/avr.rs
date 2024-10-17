@@ -5,6 +5,9 @@ Adapted from https://github.com/Rahix/avr-device.
 
 Refs:
 - AVR Instruction Set Manual https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf
+
+Generated asm:
+- avr https://godbolt.org/z/W5jxGsToc
 */
 
 #[cfg(not(portable_atomic_no_asm))]

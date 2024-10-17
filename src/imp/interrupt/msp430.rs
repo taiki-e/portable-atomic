@@ -6,6 +6,9 @@ Adapted from https://github.com/rust-embedded/msp430.
 See also src/imp/msp430.rs.
 
 Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+
+Generated asm:
+- msp430 https://godbolt.org/z/fc6h89xac
 */
 
 #[cfg(not(portable_atomic_no_asm))]
