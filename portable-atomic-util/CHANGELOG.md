@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.2.3] - 2024-10-17
+
 - Add `new_uninit`/`new_uninit_slice`/`assume_init` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.82](https://github.com/rust-lang/rust/pull/129401)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
 
 - Support `make_mut` on `Arc<[T]>` and `Arc<str>` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.81](https://github.com/rust-lang/rust/pull/116113)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
@@ -84,7 +86,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.2...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.3...HEAD
+[0.2.3]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.2...portable-atomic-util-0.2.3
 [0.2.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.1...portable-atomic-util-0.2.2
 [0.2.1]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.0...portable-atomic-util-0.2.1
 [0.2.0]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.1.5...portable-atomic-util-0.2.0
