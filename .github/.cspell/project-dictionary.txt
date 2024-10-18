@@ -73,6 +73,7 @@ ldiapp
 ldrexd
 ldsetp
 ldxp
+lgcc
 lghi
 libatomic
 libatomic's
@@ -83,6 +84,7 @@ libstd
 libtcl
 libtest
 linkall
+lmul
 locgr
 locgre
 lqarx
@@ -91,6 +93,7 @@ lwsync
 machdep
 MAXNAME
 maxu
+mcpu
 mfcr
 mfence
 mgba
@@ -101,6 +104,7 @@ mmfr
 movlps
 movq
 mpidr
+mspdebug
 mstatus
 mvfr
 negs
@@ -132,6 +136,7 @@ sete
 sifive
 signedness
 simavr
+simio
 skiboot
 slbgr
 slgr
