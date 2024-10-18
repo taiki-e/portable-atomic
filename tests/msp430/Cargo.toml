@@ -1,0 +1,59 @@
+[package]
+name = "msp430-test"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+default = ["bool", "ptr", "isize", "usize", "i8", "u8"]
+# NB: Sync feature list with tools/no-std.sh
+bool = []
+ptr = []
+isize = []
+usize = []
+i8 = []
+u8 = []
+i16 = []
+u16 = []
+i32 = []
+u32 = []
+i64 = []
+u64 = []
+i128 = []
+u128 = []
+f32 = ["portable-atomic/float"]
+f64 = ["portable-atomic/float"]
+
+[dependencies]
+portable-atomic = { path = "../.." }
+
+msp430-rt = "0.4"
+msp430f5529 = { git = "https://github.com/cr1901/msp430f5529", rev = "23946ef9bb0365caabd2c30ad14c2c9ab2d425c7", features = ["rt"] }
+paste = "1"
+ufmt = "0.2"
+
+[workspace]
+resolver = "2"
+
+[lints.rust]
+rust_2018_idioms = "warn"
+single_use_lifetimes = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(target_arch,values("xtensa"))',
+    'cfg(qemu)',
+] }
+# unsafe_op_in_unsafe_fn = "warn" # Set at crate-level instead since https://github.com/rust-lang/rust/pull/100081 is not available on MSRV
+[lints.clippy]
+lint_groups_priority = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/12920
+
+[profile.dev]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"

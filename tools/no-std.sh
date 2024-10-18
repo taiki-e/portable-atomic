@@ -46,6 +46,9 @@ default_targets=(
 
     # avr
     avr-unknown-gnu-atmega2560 # custom target
+
+    # msp430
+    msp430-none-elf
 )
 
 x() {
@@ -146,6 +149,12 @@ run() {
                     subcmd=build
                 fi
                 ;;
+            msp430*)
+                if ! type -P mspdebug >/dev/null; then
+                    printf '%s\n' "no-std test for ${target} requires mspdebug (switched to build-only)"
+                    subcmd=build
+                fi
+                ;;
         esac
     fi
     case "${target}" in
@@ -195,6 +204,18 @@ run() {
         avr*)
             test_dir=tests/avr
             ;;
+        msp430*)
+            test_dir=tests/msp430
+            runner="$(pwd)/tools/mspdebug-test-runner.sh"
+            export "CARGO_TARGET_${target_upper}_RUNNER"="${runner}"
+            # Refs: https://github.com/rust-embedded/msp430-quickstart/blob/535cd3c810ec6096a1dd0546ea290ed94aa6fd01/.cargo/config
+            linker=link.x
+            target_rustflags+=" -C link-arg=-T${linker}"
+            target_rustflags+=" -C link-arg=-nostartfiles"
+            target_rustflags+=" -C link-arg=-mcpu=msp430"
+            target_rustflags+=" -C link-arg=-lmul_f5"
+            target_rustflags+=" -C link-arg=-lgcc"
+            ;;
         xtensa*)
             test_dir=tests/xtensa
             linker=linkall.x
@@ -202,7 +223,10 @@ run() {
             ;;
         *) bail "unrecognized target '${target}'" ;;
     esac
-    args+=(--all-features)
+    case "${target}" in
+        msp430*) ;;
+        *) args+=(--all-features) ;;
+    esac
 
     (
         cd -- "${test_dir}"
@@ -258,6 +282,20 @@ run() {
                             x_cargo "${args[@]}" --release "$@"
                     fi
                 fi
+                ;;
+            msp430*)
+                # Note: We cannot test everything at once due to size.
+                # bool, ptr, isize, usize, i8, u8 are covered by the run with the default feature.
+                # integers can be grouped because they are small enough.
+                # NB: Sync feature list with tests/msp430/Cargo.toml
+                for feature in i16,u16,i32,u32,i64,u64,i128,u128 f32 f64; do
+                    # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+                    #     RUSTFLAGS="${target_rustflags}" \
+                    #     x_cargo "${args[@]}" --features "${feature}" "$@"
+                    CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+                        RUSTFLAGS="${target_rustflags}" \
+                        x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
+                done
                 ;;
         esac
     )

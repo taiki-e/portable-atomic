@@ -372,6 +372,8 @@ build() {
                     armv4t* | thumbv4t*) test_dir=tests/gba ;;
                     arm* | thumb* | riscv*) test_dir=tests/no-std-qemu ;;
                     avr-unknown-gnu-atmega2560) test_dir=tests/avr ;; # tests/avr is for atmega2560 not atmega328
+                    msp430*) test_dir=tests/msp430 ;;
+                    xtensa*) test_dir=tests/xtensa ;;
                 esac
                 if [[ -n "${test_dir}" ]]; then
                     RUSTFLAGS="${target_rustflags}" \
