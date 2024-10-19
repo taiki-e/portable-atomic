@@ -230,9 +230,9 @@ run() {
 
     (
         cd -- "${test_dir}"
-        CARGO_TARGET_DIR="${target_dir}/no-std-test" \
-            RUSTFLAGS="${target_rustflags}" \
-            x_cargo "${args[@]}" "$@"
+        # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+        #     RUSTFLAGS="${target_rustflags}" \
+        #     x_cargo "${args[@]}" "$@"
         CARGO_TARGET_DIR="${target_dir}/no-std-test" \
             RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --release "$@"

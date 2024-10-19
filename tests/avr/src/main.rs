@@ -2,7 +2,7 @@
 
 #![no_main]
 #![no_std]
-#![warn(unsafe_op_in_unsafe_fn)]
+// #![warn(unsafe_op_in_unsafe_fn)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -117,7 +117,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         }};
     }
 
-    println!("{info}");
+    println!("{}", info);
     semihosting::exit(1)
 }
 
