@@ -94,7 +94,10 @@ include!("macros.rs");
         target_os = "linux",
         any(
             target_env = "gnu",
-            all(any(target_env = "musl", target_env = "ohos"), not(target_feature = "crt-static")),
+            all(
+                any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
+                not(target_feature = "crt-static"),
+            ),
             portable_atomic_outline_atomics,
         ),
     ),
@@ -177,7 +180,7 @@ macro_rules! debug_assert_lse {
                     any(
                         target_env = "gnu",
                         all(
-                            any(target_env = "musl", target_env = "ohos"),
+                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
                         ),
                         portable_atomic_outline_atomics,
@@ -214,7 +217,7 @@ macro_rules! debug_assert_lse2 {
                     any(
                         target_env = "gnu",
                         all(
-                            any(target_env = "musl", target_env = "ohos"),
+                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
                         ),
                         portable_atomic_outline_atomics,
@@ -255,7 +258,7 @@ macro_rules! debug_assert_lse128 {
                     any(
                         target_env = "gnu",
                         all(
-                            any(target_env = "musl", target_env = "ohos"),
+                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
                         ),
                         portable_atomic_outline_atomics,
@@ -296,7 +299,7 @@ macro_rules! debug_assert_rcpc3 {
                     any(
                         target_env = "gnu",
                         all(
-                            any(target_env = "musl", target_env = "ohos"),
+                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
                         ),
                         portable_atomic_outline_atomics,
@@ -509,7 +512,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,
@@ -606,7 +609,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,
@@ -932,7 +935,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,
@@ -1037,7 +1040,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,
@@ -1263,7 +1266,7 @@ unsafe fn atomic_compare_exchange(
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,
@@ -1402,7 +1405,7 @@ unsafe fn atomic_compare_exchange(
                 any(
                     target_env = "gnu",
                     all(
-                        any(target_env = "musl", target_env = "ohos"),
+                        any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                         not(target_feature = "crt-static"),
                     ),
                     portable_atomic_outline_atomics,

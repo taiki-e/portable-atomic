@@ -37,6 +37,7 @@ csrrci
 csrsi
 cxchg
 cxchgweak
+dlfcn
 dlsym
 DWCAS
 ecall
@@ -128,6 +129,7 @@ revidr
 rsbegin
 rsend
 rsil
+RTLD
 sbcs
 selgr
 seqlock

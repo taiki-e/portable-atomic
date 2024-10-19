@@ -386,7 +386,7 @@ build() {
             --tests
             --features "${test_features}"
             --ignore-unknown-features
-            --workspace --exclude bench --exclude portable-atomic-internal-codegen
+            --workspace --exclude bench
         )
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
         case "${target}" in
@@ -528,18 +528,22 @@ build() {
         x_cargo "${args[@]}" "$@"
     # Check {,no-}outline-atomics
     case "${target}" in
-        # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.
-        # powerpc64 is skipped because outline-atomics is currently disabled by default on powerpc64.
-        x86_64* | aarch64* | arm*)
+        # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
+        # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking
+        # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+        # RISC-V Linux is skipped because outline-atomics is currently disabled by default on riscv.
+        aarch64*-linux-musl* | powerpc64-*-linux-musl*) ;;
+        x86_64* | aarch64* | arm* | powerpc64-*)
             CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
             ;;
     esac
     case "${target}" in
-        # portable_atomic_outline_atomics only affects aarch64 Linux/illumos and powerpc64.
+        # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux/illumos, powerpc64, and RISC-V Linux.
         # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-        aarch64*-linux-* | aarch64*-illumos* | powerpc64-*)
+        aarch64*-linux-gnu*) ;;
+        aarch64*-linux-* | aarch64*-illumos* | powerpc64-* | riscv*-linux-*)
             CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
@@ -556,9 +560,10 @@ build() {
                 RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
                 x_cargo "${args[@]}" "$@"
             case "${target}" in
-                # portable_atomic_no_outline_atomics only affects x86_64, aarch64, arm, and powerpc64.
-                # powerpc64 is skipped because outline-atomics is currently disabled by default on powerpc64.
-                x86_64* | aarch64* | arm*)
+                # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
+                # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+                # RISC-V Linux is skipped because its implementation does not change depending on whether or not crt-static is enabled.
+                x86_64* | aarch64* | arm* | powerpc64-*)
                     CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
                         RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
                         x_cargo "${args[@]}" "$@"
