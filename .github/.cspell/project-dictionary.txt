@@ -88,6 +88,7 @@ linkall
 lmul
 locgr
 locgre
+LPAE
 lqarx
 lrcpc
 lwsync

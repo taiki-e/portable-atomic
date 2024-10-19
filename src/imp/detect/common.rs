@@ -100,6 +100,14 @@ flags! {
     HAS_LSE128(4, has_lse128, "lse128", any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
 }
 
+#[cfg(target_arch = "arm")]
+flags! {
+    // v6
+    HAS_V6(1, has_v6, "v6", any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    // v7
+    HAS_V7(2, has_v7, "v7", any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+}
+
 #[cfg(target_arch = "powerpc64")]
 flags! {
     // lqarx and stqcx.
@@ -394,6 +402,22 @@ mod tests_common {
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
                 assert!(!rcpc3);
             }
+        }
+    }
+    #[cfg(target_arch = "arm")]
+    #[test]
+    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    fn test_detect() {
+        if detect().has_v6() {
+            assert!(detect().test(CpuInfo::HAS_V6));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_V6));
+        }
+        if detect().has_v7() {
+            assert!(detect().test(CpuInfo::HAS_V6));
+            assert!(detect().test(CpuInfo::HAS_V7));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_V7));
         }
     }
     #[cfg(target_arch = "powerpc64")]

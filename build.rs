@@ -58,7 +58,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","experimental-zacas","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo","zabha"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","experimental-zacas","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","thumb-mode","v6","v7","zaamo","zabha"))"#
         );
     }
 
@@ -319,7 +319,18 @@ fn main() {
                         || subarch.starts_with("v8")
                         || subarch.starts_with("v9"));
                 target_feature_fallback("v6", v6);
+                // TODO: v7
                 target_feature_fallback("mclass", mclass);
+                // armv7-linux-androideabi and armv7-sony-vita-newlibeabihf are also enable +thumb-mode.
+                // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/spec/targets/armv7_linux_androideabi.rs#L27
+                // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/spec/targets/armv7_sony_vita_newlibeabihf.rs#L39
+                // $ (for target in $(rustc --print target-list | grep -E '^arm'); do rustc --print cfg --target "${target}" | grep -Fq '"thumb-mode"' && printf '%s\n' "${target}"; done)
+                // There is no builtin target that starts with thumb but not in thumb-mode.
+                // $ (for target in $(rustc --print target-list | grep -E '^thumb'); do rustc --print cfg --target "${target}" | grep -Fq '"thumb-mode"' || printf '%s\n' "${target}"; done)
+                let thumb_mode = target.starts_with("thumb")
+                    || target == "armv7-linux-androideabi"
+                    || target == "armv7-sony-vita-newlibeabihf";
+                target_feature_fallback("thumb-mode", thumb_mode);
             }
         }
         "riscv32" | "riscv64" => {
