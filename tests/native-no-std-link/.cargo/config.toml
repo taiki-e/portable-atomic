@@ -1,0 +1,4 @@
+[build]
+# target-dir = "../../target"
+# rustflags = ["--print", "link-args", "-C", "target-feature=-outline-atomics"]
+# rustflags = ["--print", "link-args", "-C", "target-feature=-outline-atomics,+crt-static"]
