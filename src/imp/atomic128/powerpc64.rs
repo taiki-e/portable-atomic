@@ -41,7 +41,6 @@ mod fallback;
 // On musl with static linking, it seems that getauxval is not always available.
 // See detect/auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(test, portable_atomic_outline_atomics))] // TODO(powerpc64): currently disabled by default
 #[cfg(any(
     test,
     not(any(
@@ -54,13 +53,16 @@ mod fallback;
         target_os = "linux",
         any(
             target_env = "gnu",
-            all(any(target_env = "musl", target_env = "ohos"), not(target_feature = "crt-static")),
+            all(
+                any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
+                not(target_feature = "crt-static"),
+            ),
             portable_atomic_outline_atomics,
         ),
     ),
     target_os = "android",
     target_os = "freebsd",
-    all(target_os = "openbsd", portable_atomic_outline_atomics),
+    all(target_os = "openbsd", not(target_feature = "crt-static")),
 ))]
 #[path = "../detect/auxv.rs"]
 mod detect;

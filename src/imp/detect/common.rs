@@ -149,6 +149,7 @@ mod c_types {
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(test)]
             #[allow(
+                unused_attributes, // for #[allow(..)] in $(#[$attr])*
                 clippy::cast_possible_wrap,
                 clippy::cast_sign_loss,
                 clippy::cast_possible_truncation,
@@ -156,9 +157,27 @@ mod c_types {
             const _: fn() = || {
                 $(
                     $(#[$attr])*
-                    static_assert!($name == test_helper::sys::$name as $ty);
+                    sys_const_cmp!($name, $ty);
                 )*
             };
+        };
+    }
+    #[cfg(test)]
+    macro_rules! sys_const_cmp {
+        (RTLD_DEFAULT, $ty:ty) => {
+            // ptr comparison and ptr-to-int cast are not stable on const context, so use ptr-to-int
+            // transmute and compare its result.
+            static_assert!(
+                // SAFETY: Pointer-to-integer transmutes are valid (since we are okay with losing the
+                // provenance here). (Same as <pointer>::addr().)
+                unsafe {
+                    core::mem::transmute::<$ty, usize>(RTLD_DEFAULT)
+                        == core::mem::transmute::<$ty, usize>(test_helper::sys::RTLD_DEFAULT)
+                }
+            );
+        };
+        ($name:ident, $ty:ty) => {
+            static_assert!($name == test_helper::sys::$name as $ty);
         };
     }
     /// Defines functions with #[cfg(test)] static assertions which checks

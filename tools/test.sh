@@ -194,7 +194,7 @@ else
 fi
 case "${cmd}" in
     build) ;;
-    *) args+=(--workspace --exclude bench --exclude portable-atomic-internal-codegen) ;;
+    *) args+=(--workspace --exclude bench) ;;
 esac
 target="${target:-"${host}"}"
 target_lower="${target//-/_}"

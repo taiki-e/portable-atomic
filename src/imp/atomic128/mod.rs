@@ -28,14 +28,13 @@ pub(super) mod aarch64;
         all(
             feature = "fallback",
             not(portable_atomic_no_outline_atomics),
-            any(test, portable_atomic_outline_atomics), // TODO(powerpc64): currently disabled by default
             any(
                 all(
                     target_os = "linux",
                     any(
                         target_env = "gnu",
                         all(
-                            any(target_env = "musl", target_env = "ohos"),
+                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
                         ),
                         portable_atomic_outline_atomics,
@@ -43,7 +42,7 @@ pub(super) mod aarch64;
                 ),
                 target_os = "android",
                 target_os = "freebsd",
-                all(target_os = "openbsd", portable_atomic_outline_atomics),
+                all(target_os = "openbsd", not(target_feature = "crt-static")),
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),
