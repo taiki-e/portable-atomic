@@ -2233,7 +2233,7 @@ impl<T> Default for Arc<[T]> {
     /// This may or may not share an allocation with other Arcs.
     #[inline]
     fn default() -> Self {
-        // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/893f95f1f7c663c67c884120003b3bf21b0af61a/library/alloc/src/sync.rs#L3452-L3463)
+        // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync.rs#L3449)
         // for now due to casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized.
         let arr: [T; 0] = [];
         Arc::from(arr)

@@ -14,6 +14,7 @@ portable-atomic/
 ├── version.rs                    -- rustc version detection code used by build script
 ├── portable-atomic-util/         -- crate that defines synchronization primitives built with portable-atomic
 ├── src/
+│   ├── cfgs.rs                   -- definitions of cfg_{has,no}_* macros
 │   ├── imp/
 │   │   ├── atomic128/            -- 128-bit atomic implementations on 64-bit architectures (mainly by asm)
 │   │   ├── atomic64/             -- 64-bit atomic implementations on 32-bit architectures (mainly by asm)
@@ -21,7 +22,7 @@ portable-atomic/
 │   │   ├── detect/               -- Run-time CPU feature detection implementations used for outline-atomics
 │   │   ├── fallback/             -- fallback implementation based on global locks
 │   │   ├── float.rs              -- atomic float implementation based on atomic integer
-│   │   ├── interrupt/            -- fallback implementation based on disabling interrupts (for no-std)
+│   │   ├── interrupt/            -- fallback implementation based on disabling interrupts or critical-section (for no-std)
 │   │   ├── msp430.rs             -- atomic implementation for MSP430 (by asm)
 │   │   ├── riscv.rs              -- atomic implementation for RISC-V without A-extension (by asm)
 │   │   └── x86.rs                -- atomic implementation for x86/x86_64 (by asm)
@@ -31,8 +32,11 @@ portable-atomic/
 ├── target-specs/                 -- specs of custom targets used for tests
 ├── tests/
 │   ├── api-test/                 -- API check
-│   ├── {avr,gba,no-std-qemu}/    -- tests for no-std targets
-│   └── helper/                   -- test helpers
+│   ├── avr/                      -- tests for no-std AVR targets
+│   ├── gba/                      -- tests for no-std Armv4T targets
+│   ├── msp430/                   -- tests for no-std MSP430 targets
+│   ├── no-std-qemu/              -- tests for no-std Cortex-M/Armv5TE/RISC-V targets
+│   └── xtensa/                   -- tests for no-std Xtensa targets
 └── tools/                        -- tools for CI and/or development
 ```
 

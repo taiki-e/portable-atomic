@@ -163,6 +163,7 @@ pub(crate) mod float;
 
 // -----------------------------------------------------------------------------
 
+// has CAS | (has core atomic & !(avr | msp430 | critical section)) => core atomic
 #[cfg(not(any(
     portable_atomic_no_atomic_load_store,
     target_arch = "avr",
@@ -213,7 +214,7 @@ items! {
     )]
     pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
 }
-// bpf
+// bpf & !(critical section) => core atomic
 #[cfg(all(
     target_arch = "bpf",
     portable_atomic_no_atomic_load_store,
@@ -381,6 +382,7 @@ items! {
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_64))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "64")))]
 pub(crate) use self::atomic64::arm_linux::{AtomicI64, AtomicU64};
+// riscv32 & (zacas | outline-atomics)
 #[cfg(all(
     target_arch = "riscv32",
     not(any(miri, portable_atomic_sanitize_thread)),
@@ -422,7 +424,7 @@ pub(crate) use self::atomic128::aarch64::{AtomicI128, AtomicU128};
     ),
 ))]
 pub(crate) use self::atomic128::x86_64::{AtomicI128, AtomicU128};
-// riscv64 & zacas
+// riscv64 & (zacas | outline-atomics)
 #[cfg(all(
     target_arch = "riscv64",
     not(portable_atomic_no_asm),
