@@ -61,12 +61,7 @@ mod tests {
     // windows-sys' signatures/values.)
     // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
     // TODO(codegen): auto-generate this test
-    #[allow(
-        clippy::cast_possible_wrap,
-        clippy::cast_sign_loss,
-        clippy::cast_possible_truncation,
-        clippy::no_effect_underscore_binding
-    )]
+    #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     const _: fn() = || {
         let _: ffi::DWORD = 0 as windows_sys::Win32::System::Threading::PROCESSOR_FEATURE_ID;
         let _: ffi::BOOL = 0 as windows_sys::Win32::Foundation::BOOL;

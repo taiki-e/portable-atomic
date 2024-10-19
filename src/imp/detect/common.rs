@@ -127,6 +127,8 @@ flags! {
 #[allow(dead_code, unused_macros, non_camel_case_types)]
 #[macro_use]
 mod c_types {
+    /// Defines constants with #[cfg(test)] static assertions which checks
+    /// values are the same as the platform's latest header files' ones.
     // Note: This macro is sys_const!({ }), not sys_const! { }.
     // An extra brace is used in input to make contents rustfmt-able:.
     macro_rules! sys_const {
@@ -155,6 +157,42 @@ mod c_types {
                 $(
                     $(#[$attr])*
                     static_assert!($name == test_helper::sys::$name as $ty);
+                )*
+            };
+        };
+    }
+    /// Defines functions with #[cfg(test)] static assertions which checks
+    /// signatures are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_fn!({ }), not sys_fn! { }.
+    // An extra brace is used in input to make contents rustfmt-able:.
+    macro_rules! sys_fn {
+        ({
+            $(#[$extern_attr:meta])*
+            extern $abi:literal {$(
+                $(#[$fn_attr:meta])*
+                $vis:vis fn $name:ident($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?;
+            )*}
+        }) => {
+            $(#[$extern_attr])*
+            extern $abi {$(
+                $(#[$fn_attr])*
+                $vis fn $name($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
+            )*}
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same signatures.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            const _: fn() = || {
+                $(
+                    $(#[$fn_attr])*
+                    {
+                        let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
+                        _f = test_helper::sys::$name;
+                    }
                 )*
             };
         };
