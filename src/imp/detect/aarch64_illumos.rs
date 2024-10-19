@@ -16,12 +16,12 @@ include!("common.rs");
 mod ffi {
     pub(crate) use super::c_types::c_uint;
 
-    sys_const! {
+    sys_const!({
         // Defined in sys/auxv_aarch64.h.
         // https://github.com/richlowe/illumos-gate/blob/arm64-gate/usr/src/uts/common/sys/auxv_aarch64.h
         pub(crate) const AV_AARCH64_LSE: u32 = 1 << 15;
         pub(crate) const AV_AARCH64_2_LSE2: u32 = 1 << 2;
-    }
+    });
 
     extern "C" {
         // Defined in sys/auxv.h.

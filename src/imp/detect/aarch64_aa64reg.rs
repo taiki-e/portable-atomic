@@ -230,7 +230,7 @@ mod imp {
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_size_t, c_uint, c_void};
 
-        sys_const! {
+        sys_const!({
             // Defined in sys/sysctl.h.
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h#L82
             pub(crate) const CTL_MACHDEP: c_int = 7;
@@ -246,7 +246,7 @@ mod imp {
             // However, on OpenBSD 7.3-7.5, querying CPU_ID_AA64MMFR2 always returns 0.
             // https://github.com/openbsd/src/commit/e8331b74e5c20302d4bd948c9db722af688ccfc1
             pub(crate) const CPU_ID_AA64MMFR2: c_int = 7;
-        }
+        });
 
         extern "C" {
             // Defined in sys/sysctl.h.

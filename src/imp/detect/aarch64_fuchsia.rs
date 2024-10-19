@@ -18,14 +18,14 @@ mod ffi {
     // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/types.h
     pub(crate) type zx_status_t = i32;
 
-    sys_const! {
+    sys_const!({
         // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/errors.h
         pub(crate) const ZX_OK: zx_status_t = 0;
 
         // https://fuchsia.googlesource.com/fuchsia/+/refs/heads/main/zircon/system/public/zircon/features.h
         pub(crate) const ZX_FEATURE_KIND_CPU: u32 = 0;
         pub(crate) const ZX_ARM64_FEATURE_ISA_ATOMICS: u32 = 1 << 8;
-    }
+    });
 
     #[link(name = "zircon")]
     extern "C" {

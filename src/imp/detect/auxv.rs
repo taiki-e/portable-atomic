@@ -120,7 +120,7 @@ mod os {
         #[cfg(all(target_arch = "aarch64", target_os = "android"))]
         pub(crate) use super::super::c_types::{c_char, c_int};
 
-        sys_const! {
+        sys_const!({
             // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
             #[cfg(any(test, target_arch = "aarch64"))]
             pub(crate) const AT_HWCAP: c_ulong = 16;
@@ -135,7 +135,7 @@ mod os {
             // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
             #[cfg(all(target_arch = "aarch64", target_os = "android"))]
             pub(crate) const PROP_VALUE_MAX: c_int = 92;
-        }
+        });
 
         extern "C" {
             // Defined in sys/auxv.h.
@@ -189,7 +189,7 @@ mod os {
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 
-        sys_const! {
+        sys_const!({
             // FreeBSD
             // Defined in sys/elf_common.h.
             // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
@@ -200,7 +200,7 @@ mod os {
             pub(crate) const AT_HWCAP: c_int = 25;
             #[cfg(any(test, target_arch = "powerpc64"))]
             pub(crate) const AT_HWCAP2: c_int = 26;
-        }
+        });
 
         extern "C" {
             // FreeBSD
@@ -243,7 +243,7 @@ use arch::_detect;
 mod arch {
     use super::{ffi, os, CpuInfo};
 
-    sys_const! {
+    sys_const!({
         // Linux
         // https://github.com/torvalds/linux/blob/v6.11/arch/arm64/include/uapi/asm/hwcap.h
         // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/elf_hwcaps.rst
@@ -279,7 +279,7 @@ mod arch {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         #[cfg(target_pointer_width = "64")]
         pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
-    }
+    });
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
@@ -309,7 +309,7 @@ mod arch {
 mod arch {
     use super::{ffi, os, CpuInfo};
 
-    sys_const! {
+    sys_const!({
         // Linux
         // https://github.com/torvalds/linux/blob/v6.11/arch/powerpc/include/uapi/asm/cputable.h
         // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/powerpc/elf_hwcaps.rst
@@ -339,7 +339,7 @@ mod arch {
         // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
         #[cfg(not(target_os = "openbsd"))]
         pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
-    }
+    });
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {

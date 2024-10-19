@@ -27,7 +27,7 @@ mod ffi {
         pub(crate) value: u64,
     }
 
-    sys_const! {
+    sys_const!({
         pub(crate) const __NR_riscv_hwprobe: c_long = 258;
 
         // https://github.com/torvalds/linux/blob/v6.11/arch/riscv/include/uapi/asm/hwprobe.h
@@ -35,7 +35,7 @@ mod ffi {
         // Linux 6.8+
         // https://github.com/torvalds/linux/commit/154a3706122978eeb34d8223d49285ed4f3c61fa
         pub(crate) const RISCV_HWPROBE_EXT_ZACAS: u64 = 1 << 34;
-    }
+    });
 
     #[cfg(not(all(
         target_os = "linux",

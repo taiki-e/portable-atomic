@@ -127,11 +127,13 @@ flags! {
 #[allow(dead_code, unused_macros, non_camel_case_types)]
 #[macro_use]
 mod c_types {
+    // Note: This macro is sys_const!({ }), not sys_const! { }.
+    // An extra brace is used in input to make contents rustfmt-able:.
     macro_rules! sys_const {
-        ($(
+        ({$(
             $(#[$attr:meta])*
             $vis:vis const $name:ident: $ty:ty = $val:expr;
-        )*) => {
+        )*}) => {
             $(
                 $(#[$attr])*
                 $vis const $name: $ty = $val;
