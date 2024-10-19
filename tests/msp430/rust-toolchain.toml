@@ -1,0 +1,7 @@
+[toolchain]
+# last version that we use llvm_asm
+# we also need to edit ~/.cargo/registry/src/github.com-1ecc6299db9ec823/compiler_builtins-0.1.55/src/int/mul.rs
+# to disable __muldi3 on msp430.
+channel = "nightly-2021-12-15" # LLVM 13
+components = ["rust-src"]
+profile = "minimal"

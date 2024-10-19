@@ -2,7 +2,7 @@
 
 #![no_main]
 #![no_std]
-#![warn(unsafe_op_in_unsafe_fn)]
+// #![warn(unsafe_op_in_unsafe_fn)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -150,7 +150,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
         };
     }
 
-    println!("{info}"); // this println takes a lot of spaces but better panic message is useful...
+    println!("{}", info); // this println takes a lot of spaces but better panic message is useful...
     #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}
 }

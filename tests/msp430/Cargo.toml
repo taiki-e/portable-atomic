@@ -27,10 +27,18 @@ f64 = ["portable-atomic/float"]
 [dependencies]
 portable-atomic = { path = "../.." }
 
-msp430-rt = "0.4"
-msp430f5529 = { git = "https://github.com/cr1901/msp430f5529", rev = "23946ef9bb0365caabd2c30ad14c2c9ab2d425c7", features = ["rt"] }
+msp430-rt = "0.2"
+# msp430-rt = "0.4"
+msp430f5529 = { version = "0.1", features = ["rt"] }
+# msp430f5529 = { git = "https://github.com/cr1901/msp430f5529", rev = "23946ef9bb0365caabd2c30ad14c2c9ab2d425c7", features = ["rt"] }
 paste = "1"
-ufmt = "0.2"
+ufmt = "0.1"
+# ufmt = "0.2"
+
+# For MSRV
+[target.'cfg(any())'.dependencies]
+proc-macro2 = "=1.0.65"
+quote = "=1.0.30"
 
 [workspace]
 resolver = "2"
