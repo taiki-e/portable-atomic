@@ -154,12 +154,10 @@ mod c_types {
                 clippy::cast_sign_loss,
                 clippy::cast_possible_truncation,
             )]
-            const _: fn() = || {
-                $(
-                    $(#[$attr])*
-                    sys_const_cmp!($name, $ty);
-                )*
-            };
+            const _: fn() = || {$(
+                $(#[$attr])*
+                sys_const_cmp!($name, $ty);
+            )*};
         };
     }
     #[cfg(test)]
@@ -205,15 +203,70 @@ mod c_types {
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(test)]
-            const _: fn() = || {
-                $(
-                    $(#[$fn_attr])*
-                    {
-                        let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
-                        _f = test_helper::sys::$name;
-                    }
-                )*
-            };
+            const _: fn() = || {$(
+                $(#[$fn_attr])*
+                {
+                    let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
+                    _f = test_helper::sys::$name;
+                }
+            )*};
+        };
+    }
+    /// Defines #[repr(C)] structs with #[cfg(test)] static assertions which checks
+    /// fields are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_struct!({ }), not sys_struct! { }.
+    // An extra brace is used in input to make contents rustfmt-able:.
+    macro_rules! sys_struct {
+        ({$(
+            $(#[$struct_attr:meta])*
+            $struct_vis:vis struct $struct_name:ident {$(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_name:ident: $field_ty:ty,
+            )*}
+        )*}) => {
+            $(
+                $(#[$struct_attr])*
+                #[derive(Copy, Clone)]
+                #[cfg_attr(test, derive(Debug, PartialEq))]
+                #[repr(C)]
+                $struct_vis struct $struct_name {$(
+                    $(#[$field_attr])*
+                    $field_vis $field_name: $field_ty,
+                )*}
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same fields.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(clippy::undocumented_unsafe_blocks)]
+            const _: fn() = || {$(
+                $(#[$struct_attr])*
+                {
+                    static_assert!(
+                        core::mem::size_of::<$struct_name>()
+                            == core::mem::size_of::<test_helper::sys::$struct_name>()
+                    );
+                    let s: $struct_name = unsafe { core::mem::zeroed() };
+                    // field names and types
+                    let _ = test_helper::sys::$struct_name {$(
+                        $(#[$field_attr])*
+                        $field_name: s.$field_name,
+                    )*};
+                    // field offsets
+                    #[cfg(not(portable_atomic_no_offset_of))]
+                    {$(
+                        $(#[$field_attr])*
+                        static_assert!(
+                            core::mem::offset_of!($struct_name, $field_name) ==
+                            core::mem::offset_of!(test_helper::sys::$struct_name, $field_name),
+                        );
+                    )*}
+                }
+            )*};
         };
     }
 
