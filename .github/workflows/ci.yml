@@ -56,6 +56,11 @@ jobs:
       args: --features float,std --ignore-unknown-features
   tidy:
     uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
+    permissions:
+      contents: read
+      pull-requests: write # for gh pr edit --add-assignee
+      repository-projects: read # for gh pr edit --add-assignee
+    secrets: inherit
     with:
       clippy: false # covered by TESTS=1 ./tools/build.sh
 

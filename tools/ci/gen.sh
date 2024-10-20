@@ -14,8 +14,8 @@ if [[ -z "${CI:-}" ]]; then
     bail "this script is intended to call from release workflow on CI"
 fi
 
-git config user.name "Taiki Endo"
-git config user.email "te316e89@gmail.com"
+git config user.name 'Taiki Endo'
+git config user.email 'te316e89@gmail.com'
 
 has_update=''
 for path in no_atomic.rs src/gen/*; do
