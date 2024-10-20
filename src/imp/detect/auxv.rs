@@ -11,9 +11,9 @@ Supported platforms:
 - glibc 2.16+ (through getauxval)
   https://github.com/bminor/glibc/commit/c7683a6d02f3ed59f5cd119b3e8547f45a15912f
   Always available on:
-  - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L35)
+  - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L36)
   Not always available on:
-  - powerpc64 (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L55)
+  - powerpc64 (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L56)
   Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 - musl 1.1.0+ (through getauxval)
   https://github.com/bminor/musl/commit/21ada94c4b8c01589367cea300916d7db8461ae7
@@ -109,42 +109,9 @@ mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
-        #[cfg(any(
-            test,
-            all(target_arch = "aarch64", target_os = "android"),
-            not(any(
-                all(
-                    target_os = "linux",
-                    any(
-                        all(target_env = "gnu", target_arch = "aarch64"),
-                        target_env = "musl",
-                        target_env = "ohos",
-                    ),
-                ),
-                all(target_os = "android", target_pointer_width = "64"),
-                portable_atomic_outline_atomics,
-            )),
-        ))]
-        pub(crate) use super::super::c_types::c_char;
-        #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-        pub(crate) use super::super::c_types::c_int;
         pub(crate) use super::super::c_types::c_ulong;
-        #[cfg(any(
-            test,
-            not(any(
-                all(
-                    target_os = "linux",
-                    any(
-                        all(target_env = "gnu", target_arch = "aarch64"),
-                        target_env = "musl",
-                        target_env = "ohos",
-                    ),
-                ),
-                all(target_os = "android", target_pointer_width = "64"),
-                portable_atomic_outline_atomics,
-            )),
-        ))]
-        pub(crate) use super::super::c_types::c_void;
+        #[allow(unused_imports)]
+        pub(crate) use super::super::c_types::{c_char, c_int, c_void};
 
         sys_const!({
             // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
@@ -312,13 +279,7 @@ mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
-        #[cfg(any(
-            test,
-            not(any(
-                all(target_os = "freebsd", target_arch = "aarch64"),
-                portable_atomic_outline_atomics,
-            )),
-        ))]
+        #[allow(unused_imports)]
         pub(crate) use super::super::c_types::c_char;
         pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
 

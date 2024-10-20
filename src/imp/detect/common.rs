@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #[derive(Clone, Copy)]
+#[repr(transparent)]
 pub(crate) struct CpuInfo(u32);
 
 impl CpuInfo {
-    const INIT: u32 = 0;
-
     #[inline]
     fn set(&mut self, bit: u32) {
         self.0 = set(self.0, bit);
@@ -51,6 +50,7 @@ macro_rules! flags {
         $flag:ident ($shift:literal, $func:ident, $name:literal, $cfg:meta),
     )*) => {
         impl CpuInfo {
+            const INIT: u32 = 0;
             $(
                 $(#[$attr])*
                 const $flag: u32 = $shift;
