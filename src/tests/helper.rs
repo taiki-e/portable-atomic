@@ -1687,7 +1687,8 @@ macro_rules! __test_atomic_bool_pub {
 macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
-        use sptr::Strict;
+        #[allow(unused_imports)]
+        use sptr::Strict; // for old rustc
         use std::{boxed::Box, mem};
         #[test]
         fn fetch_update() {

@@ -1549,7 +1549,7 @@ impl<T> Weak<T> {
     pub const fn new() -> Self {
         Self {
             ptr: unsafe {
-                NonNull::new_unchecked(strict::without_provenance::<ArcInner<T>>(usize::MAX))
+                NonNull::new_unchecked(strict::without_provenance_mut::<ArcInner<T>>(usize::MAX))
             },
         }
     }
@@ -3027,7 +3027,7 @@ impl Global {
         #[inline]
         fn dangling(layout: Layout) -> NonNull<u8> {
             // SAFETY: align is guaranteed to be non-zero
-            unsafe { NonNull::new_unchecked(strict::without_provenance::<u8>(layout.align())) }
+            unsafe { NonNull::new_unchecked(strict::without_provenance_mut::<u8>(layout.align())) }
         }
 
         match layout.size() {
@@ -3050,15 +3050,16 @@ impl Global {
     }
 }
 
-/// Emulate strict provenance.
-///
-/// Once strict_provenance is stable, migrate to the standard library's APIs.
+// TODO: use stabilized core::ptr strict_provenance helpers https://github.com/rust-lang/rust/pull/130350
 mod strict {
-    /// Creates a pointer with the given address and no provenance.
-    #[inline]
+    #[inline(always)]
     #[must_use]
-    pub(super) const fn without_provenance<T>(addr: usize) -> *mut T {
-        // SAFETY: Every integer is a valid pointer as long as it is not dereferenced.
+    pub(super) const fn without_provenance_mut<T>(addr: usize) -> *mut T {
+        // An int-to-pointer transmute currently has exactly the intended semantics: it creates a
+        // pointer without provenance. Note that this is *not* a stable guarantee about transmute
+        // semantics, it relies on sysroot crates having special status.
+        // SAFETY: every valid integer is also a valid pointer (as long as you don't dereference that
+        // pointer).
         #[cfg(miri)]
         unsafe {
             core::mem::transmute(addr)

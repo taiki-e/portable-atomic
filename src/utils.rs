@@ -440,28 +440,21 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     (aligned_ptr, shift as RetInt, mask)
 }
 
-/// Emulate strict provenance.
-///
-/// Once strict_provenance is stable, migrate to the standard library's APIs.
+// TODO: use stabilized core::ptr strict_provenance helpers https://github.com/rust-lang/rust/pull/130350
 #[cfg(any(miri, target_arch = "riscv32", target_arch = "riscv64"))]
 #[allow(dead_code)]
 pub(crate) mod strict {
-    /// Replace the address portion of this pointer with a new address.
     #[inline]
     #[must_use]
     pub(crate) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
-        // FIXME(strict_provenance_magic): I am magic and should be a compiler intrinsic.
-        //
-        // In the mean-time, this operation is defined to be "as if" it was
-        // a wrapping_add, so we can emulate it as such. This should properly
-        // restore pointer provenance even under today's compiler.
+        // This should probably be an intrinsic to avoid doing any sort of arithmetic, but
+        // meanwhile, we can implement it with `wrapping_offset`, which preserves the pointer's
+        // provenance.
         let offset = addr.wrapping_sub(ptr as usize);
-
-        // This is the canonical desugaring of this operation.
         (ptr as *mut u8).wrapping_add(offset) as *mut T
     }
 
-    /// Run an operation of some kind on a pointer.
+    #[cfg(miri)]
     #[inline]
     #[must_use]
     pub(crate) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
