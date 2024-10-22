@@ -20,8 +20,12 @@ Supported platforms:
   https://github.com/freebsd/freebsd-src/commit/398810619cb32abf349f8de23f29510b2ee0839b
 - NetBSD 9.0+ (through sysctl/sysctlbyname)
   https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
+  sysctl/sysctlbyname returns an unsupported error if operation is not supported,
+  so we can safely use this on older versions.
 - OpenBSD 7.1+ (through sysctl)
   https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
+  sysctl returns an unsupported error if operation is not supported,
+  so we can safely use this on older versions.
 
 For now, this module is only used on NetBSD/OpenBSD.
 

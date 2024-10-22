@@ -12,8 +12,9 @@ Supported platforms:
   https://github.com/bminor/glibc/commit/c7683a6d02f3ed59f5cd119b3e8547f45a15912f
   Always available on:
   - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L36)
+  - powerpc64 (le) (glibc 2.19+ https://github.com/bminor/glibc/blob/glibc-2.19/NEWS#L108)
   Not always available on:
-  - powerpc64 (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L56)
+  - powerpc64 (be) (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L56)
   Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 - musl 1.1.0+ (through getauxval)
   https://github.com/bminor/musl/commit/21ada94c4b8c01589367cea300916d7db8461ae7
@@ -28,7 +29,7 @@ Supported platforms:
   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
   Not always available on:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
-  ([powerpc64 is not supported](https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e))
+  (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
 - Android 4.3+ (API level 18+) (through getauxval)
@@ -42,6 +43,7 @@ Supported platforms:
   - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
   - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
+  Since Rust 1.84, std requires FreeBSD 13+ https://github.com/rust-lang/rust/pull/120869
 - OpenBSD 7.6+ (through elf_aux_info)
   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
   Not always available on:
@@ -61,6 +63,8 @@ of the same error.)
 On platforms that we cannot assume that getauxval/elf_aux_info is always available, so we use dlsym
 instead of directly calling getauxval/elf_aux_info. (You can force getauxval/elf_aux_info to be
 called directly instead of using dlsym by `--cfg portable_atomic_outline_atomics`).
+
+Also, note that dlsym usually not working with static linking.
 
 # Linux/Android
 
@@ -135,7 +139,13 @@ mod os {
                     all(
                         target_os = "linux",
                         any(
-                            all(target_env = "gnu", target_arch = "aarch64"),
+                            all(
+                                target_env = "gnu",
+                                any(
+                                    target_arch = "aarch64",
+                                    all(target_arch = "powerpc64", target_endian = "little"),
+                                ),
+                            ),
                             target_env = "musl",
                             target_env = "ohos",
                         ),
@@ -166,7 +176,13 @@ mod os {
                     all(
                         target_os = "linux",
                         any(
-                            all(target_env = "gnu", target_arch = "aarch64"),
+                            all(
+                                target_env = "gnu",
+                                any(
+                                    target_arch = "aarch64",
+                                    all(target_arch = "powerpc64", target_endian = "little"),
+                                ),
+                            ),
                             target_env = "musl",
                             target_env = "ohos",
                         ),
@@ -188,7 +204,13 @@ mod os {
                         all(
                             target_os = "linux",
                             any(
-                                all(target_env = "gnu", target_arch = "aarch64"),
+                                all(
+                                    target_env = "gnu",
+                                    any(
+                                        target_arch = "aarch64",
+                                        all(target_arch = "powerpc64", target_endian = "little"),
+                                    ),
+                                ),
                                 target_env = "musl",
                                 target_env = "ohos",
                             ),
@@ -237,7 +259,13 @@ mod os {
             all(
                 target_os = "linux",
                 any(
-                    all(target_env = "gnu", target_arch = "aarch64"),
+                    all(
+                        target_env = "gnu",
+                        any(
+                            target_arch = "aarch64",
+                            all(target_arch = "powerpc64", target_endian = "little"),
+                        ),
+                    ),
                     target_env = "musl",
                     target_env = "ohos",
                 ),
@@ -250,7 +278,13 @@ mod os {
             all(
                 target_os = "linux",
                 any(
-                    all(target_env = "gnu", target_arch = "aarch64"),
+                    all(
+                        target_env = "gnu",
+                        any(
+                            target_arch = "aarch64",
+                            all(target_arch = "powerpc64", target_endian = "little"),
+                        ),
+                    ),
                     target_env = "musl",
                     target_env = "ohos",
                 ),

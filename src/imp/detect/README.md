@@ -17,7 +17,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64/arm64ec | windows          | IsProcessorFeaturePresent | lse | Enabled by default |
 | aarch64     | fuchsia              | zx_system_get_features | lse | Enabled by default |
 | riscv32/riscv64 | linux/android    | riscv_hwprobe   | all      | Disabled by default |
-| powerpc64   | linux                | getauxval       | all      | Only enabled by default on `*-linux-gnu*` and `*-linux-{musl,ohos,uclibc}*` with dynamic linking enabled (musl is static linking by default). (dlsym is used by default if needed for compatibility with older versions) |
+| powerpc64   | linux                | getauxval       | all      | Only enabled by default on `*-linux-{gnu,musl,ohos,uclibc}*` with dynamic linking enabled (musl is static linking by default). (dlsym is used by default if needed for compatibility with older versions) |
 | powerpc64   | freebsd              | elf_aux_info    | all      | Enabled by default (dlsym is used by default for compatibility with older versions) |
 | powerpc64   | openbsd              | elf_aux_info    | all      | Enabled by default (dlsym is used by default for compatibility with older versions) |
 

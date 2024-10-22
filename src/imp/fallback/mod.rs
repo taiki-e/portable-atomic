@@ -28,7 +28,10 @@ type and the value type must be the same.
                 all(
                     target_os = "linux",
                     any(
-                        target_env = "gnu",
+                        all(
+                            target_env = "gnu",
+                            any(target_endian = "little", not(target_feature = "crt-static")),
+                        ),
                         all(
                             any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
                             not(target_feature = "crt-static"),
@@ -38,7 +41,7 @@ type and the value type must be the same.
                 ),
                 target_os = "android",
                 target_os = "freebsd",
-                all(target_os = "openbsd", not(target_feature = "crt-static")),
+                target_os = "openbsd",
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),
