@@ -301,8 +301,6 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
-      - run: rustup toolchain add nightly --no-self-update
-        if: startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022') || startsWith(matrix.rust, 'nightly-2023')
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
       - uses: taiki-e/install-action@cargo-careful
@@ -459,8 +457,8 @@ jobs:
       - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         if: matrix.rust != 'nightly-2021-08-21'
       - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --direct
-        # Old nightly compilers do not support -Z direct-minimal-versions
-        if: matrix.rust == 'nightly'
+        # -Z direct-minimal-versions requires Cargo 1.70.
+        if: (!(startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022') || startsWith(matrix.rust, 'nightly-2023')))
 
   test-bsd:
     needs: tidy
