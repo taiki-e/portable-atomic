@@ -57,8 +57,8 @@ macro_rules! debug_assert_zacas {
 }
 
 // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
-// So, we currently always using .insn directive.
-// `.insn <value>` directive requires LLVM 19.
+// So, we currently always using .4byte directive.
+// Note that `.insn <value>` directive requires LLVM 19.
 // https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
 // // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
 // macro_rules! start_zacas {
@@ -73,7 +73,7 @@ macro_rules! debug_assert_zacas {
 // }
 
 // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
-// So, we currently always using .insn directive.
+// So, we currently always using .4byte directive.
 // macro_rules! atomic_rmw_amocas_order {
 //     ($op:ident, $order:ident) => {
 //         atomic_rmw_amocas_order!($op, $order, failure = $order)
@@ -173,7 +173,7 @@ unsafe fn atomic_load_zacas(src: *mut u128, order: Ordering) -> u128 {
     unsafe {
         let (out_lo, out_hi);
         // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
-        // So, we currently always using .insn directive.
+        // So, we currently always using .4byte directive.
         // macro_rules! load {
         //     ($fence:tt, $asm_order:tt) => {
         //         asm!(
@@ -194,7 +194,7 @@ unsafe fn atomic_load_zacas(src: *mut u128, order: Ordering) -> u128 {
                 asm!(
                     $fence,
                     // 4: 2{8,c,a,e}c5462f     	amocas.q{,.aq,.rl,.aqrl}	a2, a2, (a0)
-                    concat!(".insn 0x2", $insn_order, "c5462f"),
+                    concat!(".4byte 0x2", $insn_order, "c5462f"),
                     in("a0") ptr_reg!(src),
                     inout("a2") 0_u64 => out_lo,
                     inout("a3") 0_u64 => out_hi,
@@ -324,7 +324,7 @@ unsafe fn atomic_compare_exchange_zacas(
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
-        // So, we currently always using .insn directive.
+        // So, we currently always using .4byte directive.
         // macro_rules! cmpxchg {
         //     ($fence:tt, $asm_order:tt) => {
         //         asm!(
@@ -349,7 +349,7 @@ unsafe fn atomic_compare_exchange_zacas(
                 asm!(
                     $fence,
                     // c: 2{8,c,a,e}c5472f     	amocas.q{,.aq,.rl,.aqrl}	a4, a2, (a0)
-                    concat!(".insn 0x2", $insn_order, "c5472f"),
+                    concat!(".4byte 0x2", $insn_order, "c5472f"),
                     in("a0") ptr_reg!(dst),
                     // must be allocated to even/odd register pair
                     inout("a4") old.pair.lo => prev_lo,

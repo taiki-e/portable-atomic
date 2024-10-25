@@ -158,7 +158,6 @@ mod atomic_32_macros {
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
             not(portable_atomic_no_asm),
-            not(portable_atomic_pre_llvm_19),
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",
@@ -221,7 +220,6 @@ mod atomic_64_macros {
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
             not(portable_atomic_no_asm),
-            not(portable_atomic_pre_llvm_19),
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",
@@ -277,7 +275,6 @@ mod atomic_64_macros {
         all(
             target_arch = "riscv64",
             not(portable_atomic_no_asm),
-            not(portable_atomic_pre_llvm_19),
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",
@@ -386,7 +383,6 @@ mod atomic_128_macros {
         all(
             target_arch = "riscv64",
             not(portable_atomic_no_asm),
-            not(portable_atomic_pre_llvm_19),
             any(
                 target_feature = "experimental-zacas",
                 portable_atomic_target_feature = "experimental-zacas",

@@ -46,7 +46,7 @@ portable-atomic = { version = "1.3", default-features = false, features = ["requ
 
 ## 128-bit atomics support
 
-Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), riscv64 (Rust 1.82+), powerpc64 (nightly only), s390x (nightly only), and Arm64EC (nightly only), otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), riscv64 (Rust 1.59+), powerpc64 (nightly only), s390x (nightly only), and Arm64EC (nightly only), otherwise the fallback implementation is used.
 
 On x86_64, even if `cmpxchg16b` is not available at compile-time (note: `cmpxchg16b` target feature is enabled by default only on Apple and Windows (except Windows 7) targets), run-time detection checks whether `cmpxchg16b` is available. If `cmpxchg16b` is not available at either compile-time or run-time detection, the fallback implementation is used. See also [`portable_atomic_no_outline_atomics`](#optional-cfg-no-outline-atomics) cfg.
 
@@ -164,7 +164,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
   If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE/FEAT_LSE2 (AArch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.59+ for x86_64 and AArch64, Rust 1.82+ for RISC-V (disabled by default), nightly only for powerpc64 and Arm64EC, otherwise it works the same as when this cfg is set.
+  - Dynamic detection is currently only enabled in Rust 1.59+ for x86_64, AArch64, and RISC-V (disabled by default on RISC-V), nightly only for powerpc64 and Arm64EC, otherwise it works the same as when this cfg is set.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
   - On some targets, run-time detection is disabled by default mainly for incomplete build environments, and can be enabled by `--cfg portable_atomic_outline_atomics`. (When both cfg are enabled, `*_no_*` cfg is preferred.)
