@@ -17,7 +17,7 @@ pub(super) type State = u32;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
 pub(super) fn disable() -> State {
-    let r: State;
+    let primask: State;
     // SAFETY: reading the priority mask register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
@@ -25,11 +25,11 @@ pub(super) fn disable() -> State {
         asm!(
             "mrs {0}, PRIMASK",
             "cpsid i",
-            out(reg) r,
+            out(reg) primask,
             options(nostack, preserves_flags),
         );
     }
-    r
+    primask
 }
 
 /// Restores the previous interrupt state.
@@ -38,8 +38,8 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(r: State) {
-    if r & 0x1 == 0 {
+pub(super) unsafe fn restore(primask: State) {
+    if primask & 0x1 == 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {

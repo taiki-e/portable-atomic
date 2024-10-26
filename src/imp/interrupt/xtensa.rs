@@ -15,16 +15,16 @@ pub(super) type State = u32;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
 pub(super) fn disable() -> State {
-    let r: State;
+    let ps: State;
     // SAFETY: reading the PS special register and disabling all interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Interrupt level 15 to disable all interrupts.
         // SYNC after RSIL is not required.
-        asm!("rsil {0}, 15", out(reg) r, options(nostack));
+        asm!("rsil {0}, 15", out(reg) ps, options(nostack));
     }
-    r
+    ps
 }
 
 /// Restores the previous interrupt state.
@@ -33,7 +33,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(r: State) {
+pub(super) unsafe fn restore(ps: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     // and we've checked that interrupts were enabled before disabling interrupts.
     unsafe {
@@ -42,7 +42,7 @@ pub(super) unsafe fn restore(r: State) {
         asm!(
             "wsr.ps {0}",
             "rsync",
-            in(reg) r,
+            in(reg) ps,
             options(nostack),
         );
     }

@@ -57,14 +57,14 @@ pub(super) type State = u64;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
 pub(super) fn disable() -> State {
-    let r: State;
-    // SAFETY: reading mstatus and disabling interrupts is safe.
+    let status: State;
+    // SAFETY: reading mstatus/sstatus and disabling interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
-        asm!(concat!("csrrci {0}, ", status!(), ", ", mask!()), out(reg) r, options(nostack, preserves_flags));
+        asm!(concat!("csrrci {0}, ", status!(), ", ", mask!()), out(reg) status, options(nostack, preserves_flags));
     }
-    r
+    status
 }
 
 /// Restores the previous interrupt state.
@@ -73,8 +73,8 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(r: State) {
-    if r & MASK != 0 {
+pub(super) unsafe fn restore(status: State) {
+    if status & MASK != 0 {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {

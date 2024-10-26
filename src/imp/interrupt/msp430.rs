@@ -21,7 +21,7 @@ pub(super) type State = u16;
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
 pub(super) fn disable() -> State {
-    let r: State;
+    let sr: State;
     // SAFETY: reading the status register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
@@ -29,18 +29,18 @@ pub(super) fn disable() -> State {
         // Do not use `preserves_flags` because DINT modifies the GIE (global interrupt enable) bit of the status register.
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
-            "mov R2, {0}",
+            "mov r2, {0}",
             "dint {{ nop",
-            out(reg) r,
+            out(reg) sr,
             options(nostack),
         );
         #[cfg(portable_atomic_no_asm)]
         {
-            llvm_asm!("mov R2, $0" : "=r"(r) ::: "volatile");
+            llvm_asm!("mov r2, $0" : "=r"(sr) ::: "volatile");
             llvm_asm!("dint { nop" ::: "memory" : "volatile");
         }
     }
-    r
+    sr
 }
 
 /// Restores the previous interrupt state.
@@ -49,7 +49,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(r: State) {
+pub(super) unsafe fn restore(sr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
         // This clobbers the entire status register, but we never explicitly modify
@@ -62,8 +62,8 @@ pub(super) unsafe fn restore(r: State) {
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         // Do not use `preserves_flags` because MOV modifies the status register.
         #[cfg(not(portable_atomic_no_asm))]
-        asm!("nop {{ mov {0}, R2 {{ nop", in(reg) r, options(nostack));
+        asm!("nop {{ mov {0}, r2 {{ nop", in(reg) sr, options(nostack));
         #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("nop { mov $0, R2 { nop" :: "r"(r) : "memory" : "volatile");
+        llvm_asm!("nop { mov $0, r2 { nop" :: "r"(sr) : "memory" : "volatile");
     }
 }
