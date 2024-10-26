@@ -36,6 +36,8 @@ Supported platforms:
   https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49
   Always available on:
   - 64-bit architectures (Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
+  Since Rust 1.68, std requires API level 19+ https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25.html
+  Since Rust 1.82, std requires API level 21+ https://github.com/rust-lang/rust/pull/120593
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
@@ -234,27 +236,6 @@ mod os {
 
     pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
     pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
-        #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-        {
-            // Samsung Exynos 9810 has a bug that big and little cores have different
-            // ISAs. And on older Android (pre-9), the kernel incorrectly reports
-            // that features available only on some cores are available on all cores.
-            // https://reviews.llvm.org/D114523
-            let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
-            // SAFETY: we've passed a valid C string and a buffer with max length.
-            let len = unsafe {
-                ffi::__system_property_get(
-                    b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
-                    arch.as_mut_ptr().cast::<ffi::c_char>(),
-                )
-            };
-            // On Exynos, ro.arch is not available on Android 12+, but it is fine
-            // because Android 9+ includes the fix.
-            if len > 0 && arch.starts_with(b"exynos9810") {
-                return 0;
-            }
-        }
-
         #[cfg(any(
             all(
                 target_os = "linux",
@@ -474,6 +455,27 @@ mod arch {
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
+        #[cfg(target_os = "android")]
+        {
+            // Samsung Exynos 9810 has a bug that big and little cores have different
+            // ISAs. And on older Android (pre-9), the kernel incorrectly reports
+            // that features available only on some cores are available on all cores.
+            // https://reviews.llvm.org/D114523
+            let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
+            // SAFETY: we've passed a valid C string and a buffer with max length.
+            let len = unsafe {
+                ffi::__system_property_get(
+                    b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
+                    arch.as_mut_ptr().cast::<ffi::c_char>(),
+                )
+            };
+            // On Exynos, ro.arch is not available on Android 12+, but it is fine
+            // because Android 9+ includes the fix.
+            if len > 0 && arch.starts_with(b"exynos9810") {
+                return;
+            }
+        }
+
         let hwcap = os::getauxval(ffi::AT_HWCAP);
 
         if hwcap & HWCAP_ATOMICS != 0 {
