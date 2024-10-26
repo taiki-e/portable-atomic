@@ -19,10 +19,21 @@ aarch64_linux_test_task:
     image: rust
   setup_script:
     - set -CeEuxo pipefail
+    - |
+      retry() {
+        for i in {1..10}; do
+          if "$@"; then
+            return 0
+          else
+            sleep "${i}"
+          fi
+        done
+        "$@"
+      }
     - lscpu
-    - rustup toolchain add nightly --no-self-update && rustup default nightly
-    # - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-    - curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-${TARGET}.tar.gz" | tar xzf - -C "${CARGO_HOME}/bin"
+    - retry rustup toolchain add nightly --no-self-update && rustup default nightly
+    # - retry apt-get -o Acquire::Retries=10 -qq update && retry apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+    - retry curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-${TARGET}.tar.gz" | tar xzf - -C "${CARGO_HOME}/bin"
   test_script:
     - set -CeEuxo pipefail
     - ./tools/test.sh -vv
@@ -43,9 +54,20 @@ aarch64_linux_valgrind_task:
     image: rust
   setup_script:
     - set -CeEuxo pipefail
-    - rustup toolchain add nightly --no-self-update && rustup default nightly
-    - apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind # moreutils
-    - curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-${TARGET}.tar.gz" | tar xzf - -C "${CARGO_HOME}/bin"
+    - |
+      retry() {
+        for i in {1..10}; do
+          if "$@"; then
+            return 0
+          else
+            sleep "${i}"
+          fi
+        done
+        "$@"
+      }
+    - retry rustup toolchain add nightly --no-self-update && rustup default nightly
+    - retry apt-get -o Acquire::Retries=10 -qq update && retry apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends valgrind # moreutils
+    - retry curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-${TARGET}.tar.gz" | tar xzf - -C "${CARGO_HOME}/bin"
   test_script:
     - set -CeEuxo pipefail
     - ./tools/test.sh valgrind -vv
