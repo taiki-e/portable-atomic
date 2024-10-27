@@ -514,13 +514,23 @@ jobs:
           sync_files: runner-to-vm
           run: |
             set -CeEuxo pipefail
+            retry() {
+              for i in {1..10}; do
+                if "$@"; then
+                  return 0
+                else
+                  sleep "${i}"
+                fi
+              done
+              "$@"
+            }
             export CI=true
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
             # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
             case "$(uname -s)" in
-              FreeBSD) sudo pkg install -y rust ;;
-              NetBSD) sudo pkgin -y install rust ;;
-              OpenBSD) sudo pkg_add rust ;;
+              FreeBSD) retry sudo pkg install -y rust ;;
+              NetBSD) retry sudo pkgin -y install rust ;;
+              OpenBSD) retry sudo pkg_add rust ;;
             esac
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
