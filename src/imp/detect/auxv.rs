@@ -33,7 +33,8 @@ Supported platforms:
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
 - Android 4.3+ (API level 18+) (through getauxval)
-  https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h#L49
+  https://github.com/aosp-mirror/platform_bionic/commit/2c5153b043b44e9935a334ae9b2d5a4bc5258b40
+  https://github.com/aosp-mirror/platform_bionic/commit/655e430b28d7404f763e7ebefe84fba5a387666d
   Always available on:
   - 64-bit architectures (Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
   Since Rust 1.68, std requires API level 19+ https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25.html
@@ -134,7 +135,7 @@ mod os {
             // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
             // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/dlfcn.h
+            // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
             #[cfg(any(
                 test,
                 not(any(
@@ -159,7 +160,7 @@ mod os {
             pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
 
             // Defined in sys/system_properties.h.
-            // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
+            // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/system_properties.h
             #[cfg(all(target_arch = "aarch64", target_os = "android"))]
             pub(crate) const PROP_VALUE_MAX: c_int = 92;
         });
@@ -171,7 +172,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
-                // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/auxv.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
                 #[cfg(any(
                     test,
@@ -199,7 +200,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-                // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/dlfcn.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
                 #[cfg(any(
                     test,
                     not(any(
@@ -224,7 +225,7 @@ mod os {
                 pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
                 // Defined in sys/system_properties.h.
-                // https://github.com/aosp-mirror/platform_bionic/blob/d3ebc2f7c49a9893b114124d4a6b315f3a328764/libc/include/sys/system_properties.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/system_properties.h
                 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
                 pub(crate) fn __system_property_get(
                     name: *const c_char,
