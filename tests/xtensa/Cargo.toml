@@ -11,9 +11,7 @@ paste = "1"
 
 [target.xtensa-esp32s2-none-elf.dependencies]
 esp-println = { version = "0.12", default-features = false, features = ["uart", "esp32s2"] }
-esp-hal = { version = "0.21", features = ["esp32s2"] }
-xtensa-lx-rt = { version = "0.17", features = ["esp32s2"] }
-spin = { version = "0.9", features = ["portable_atomic"] } # used in xtensa-lx-rt
+esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", branch = "dev", features = ["esp32s2"] }
 
 [workspace]
 resolver = "2"
@@ -32,4 +30,4 @@ opt-level = 'z'
 opt-level = 'z'
 
 [patch.crates-io]
-portable-atomic = { path = "../.." } # used in xtensa-lx-rt via spin
+portable-atomic = { path = "../.." } # used in esp-hal

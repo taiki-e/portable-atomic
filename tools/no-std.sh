@@ -178,7 +178,7 @@ run() {
 
     # NB: sync with tools/build.sh
     case "${target}" in
-        thumbv[4-5]t* | armv[4-5]t* | thumbv6m*)
+        thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
         riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)

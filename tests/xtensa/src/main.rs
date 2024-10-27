@@ -8,12 +8,10 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
+use esp_println::{print, println};
 use portable_atomic::*;
 
-use esp_hal as _;
-use esp_println::{print, println};
-
-#[xtensa_lx_rt::entry]
+#[esp_hal::entry]
 fn main() -> ! {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
@@ -82,7 +80,7 @@ fn main() -> ! {
     test_atomic_float!(f32);
     test_atomic_float!(f64);
 
-    println!("all tests passed");
+    println!("Tests finished successfully");
 
     #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}
