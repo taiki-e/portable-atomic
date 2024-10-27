@@ -240,7 +240,7 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
         retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
     # We only run clippy on the recent nightly to avoid old clippy bugs.
-    if [[ "${rustc_minor_version}" -ge 80 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
+    if [[ "${rustc_minor_version}" -ge 84 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
         subcmd=clippy
         retry rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         base_args=(hack "${subcmd}")

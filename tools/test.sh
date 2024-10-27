@@ -189,7 +189,7 @@ if type -P cargo-hack >/dev/null; then
 elif [[ -n "${CI:-}" ]]; then
     bail "cargo-hack is required"
 else
-    echo "warning: cargo-hack is required to run full tests"
+    printf >&2 "warning: cargo-hack is required to run full tests\n"
     args+=(--features "${test_features}")
 fi
 case "${cmd}" in
