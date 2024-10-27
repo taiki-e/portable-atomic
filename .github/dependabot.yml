@@ -6,6 +6,7 @@ updates:
       # crates with [workspace] table are not recognized by the above 'directory: /'
       - /tests/avr
       - /tests/gba
+      - /tests/msp430
       - /tests/no-std-qemu
       - /tests/xtensa
     schedule:
