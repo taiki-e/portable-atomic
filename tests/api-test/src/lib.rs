@@ -54,7 +54,7 @@ pub fn all() {
     }
 
     // https://github.com/ayrtonm/psx-sdk-rs/issues/6
-    #[cfg(not(all(target_arch = "mips", target_env = "psx")))]
+    #[cfg(not(all(target_arch = "mips", any(target_os = "psx", target_env = "psx"))))]
     for &order in &helper::FENCE_ORDERINGS {
         portable_atomic::fence(order);
         portable_atomic::compiler_fence(order);
