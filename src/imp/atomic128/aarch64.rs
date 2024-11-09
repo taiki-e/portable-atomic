@@ -1103,7 +1103,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
                 _atomic_swap_swpp(dst, val, order);
             }
 
-            // if compile_time(FEAT_LRCPC3) && order != relaxed:
+            // if compile_time(FEAT_LRCPC3) && order != relaxed => stilp
             // SAFETY: cfg guarantee that the CPU supports FEAT_LRCPC3.
             #[cfg(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3"))]
             Ordering::Release => _atomic_store_stilp(dst, val, order),

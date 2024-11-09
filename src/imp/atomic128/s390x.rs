@@ -19,7 +19,6 @@ this module and use intrinsics.rs instead.
 
 Refs:
 - z/Architecture Principles of Operation https://publibfp.dhe.ibm.com/epubs/pdf/a227832d.pdf
-- z/Architecture Reference Summary https://www.ibm.com/support/pages/zarchitecture-reference-summary
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:

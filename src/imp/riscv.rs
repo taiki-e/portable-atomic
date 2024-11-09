@@ -10,7 +10,6 @@ Also, optionally provides RMW implementation when force-amo or Zaamo target feat
 
 Refs:
 - RISC-V Instruction Set Manual
-  https://github.com/riscv/riscv-isa-manual/tree/riscv-isa-release-8b9dc50-2024-08-30
   "Zaamo" Extension for Atomic Memory Operations
   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
   "Zabha" Extension for Byte and Halfword Atomic Memory Operations

@@ -197,7 +197,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
 
     // SAFETY: the caller must uphold the safety contract.
     //
-    // Refs: "3.3.4 Fixed Point Load and Store Quadword Instructions" of Power ISA
+    // Refs: Section 3.3.4 "Fixed Point Load and Store Quadword Instructions" of Power ISA 3.1C Book I
     unsafe {
         let (out_hi, out_lo);
         macro_rules! atomic_load_acquire {
@@ -309,7 +309,7 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
 
     // SAFETY: the caller must uphold the safety contract.
     //
-    // Refs: "3.3.4 Fixed Point Load and Store Quadword Instructions" of Power ISA
+    // Refs: Section 3.3.4 "Fixed Point Load and Store Quadword Instructions" of Power ISA 3.1C Book I
     unsafe {
         let val = U128 { whole: val };
         macro_rules! atomic_store {
@@ -378,7 +378,7 @@ unsafe fn atomic_compare_exchange_pwr8(
 
     // SAFETY: the caller must uphold the safety contract.
     //
-    // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
+    // Refs: Section 4.6.2.2 "128-bit Load And Reserve and Store Conditional Instructions" of Power ISA 3.1C Book II
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -468,7 +468,7 @@ unsafe fn atomic_compare_exchange_weak_pwr8(
 
     // SAFETY: the caller must uphold the safety contract.
     //
-    // Refs: "4.6.2.2 128-bit Load And Reserve and Store Conditional Instructions" of Power ISA
+    // Refs: Section 4.6.2.2 "128-bit Load And Reserve and Store Conditional Instructions" of Power ISA 3.1C Book II
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };

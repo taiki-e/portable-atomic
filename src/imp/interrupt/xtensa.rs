@@ -2,8 +2,10 @@
 
 /*
 Refs:
-- Xtensa Instruction Set Architecture (ISA) Reference Manual https://0x04.net/~mwk/doc/xtensa.pdf
-- Linux kernel's Xtensa atomic implementation https://github.com/torvalds/linux/blob/v6.11/arch/xtensa/include/asm/atomic.h
+- Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors
+  https://www.cadence.com/content/dam/cadence-www/global/en_US/documents/tools/silicon-solutions/compute-ip/isa-summary.pdf
+- Linux kernel's Xtensa atomic implementation
+  https://github.com/torvalds/linux/blob/v6.11/arch/xtensa/include/asm/atomic.h
 */
 
 use core::arch::asm;

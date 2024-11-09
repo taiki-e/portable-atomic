@@ -8,7 +8,6 @@ this module and use intrinsics.rs instead.
 
 Refs:
 - RISC-V Instruction Set Manual
-  https://github.com/riscv/riscv-isa-manual/tree/riscv-isa-release-8b9dc50-2024-08-30
   "Zacas" Extension for Atomic Compare-and-Swap (CAS) Instructions
   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zacas.adoc
 - RISC-V Atomics ABI Specification
