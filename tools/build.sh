@@ -74,13 +74,15 @@ default_targets=(
     # FEAT_LSE & FEAT_LSE2
     aarch64-apple-darwin
     # big endian
-    aarch64_be-unknown-linux-gnu
-    aarch64_be-unknown-netbsd
+    # TODO: https://github.com/BurntSushi/memchr/pull/162
+    # aarch64_be-unknown-linux-gnu
+    # aarch64_be-unknown-netbsd
     # ILP32 ABI
     aarch64-unknown-linux-gnu_ilp32
     arm64_32-apple-watchos
     # ILP32 ABI big endian
-    aarch64_be-unknown-linux-gnu_ilp32
+    # TODO: https://github.com/BurntSushi/memchr/pull/162
+    # aarch64_be-unknown-linux-gnu_ilp32
 
     # arm64ec
     # rustc --print target-list | grep -E '^arm64ec'

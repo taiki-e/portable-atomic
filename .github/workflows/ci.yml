@@ -162,7 +162,7 @@ jobs:
           - rust: nightly
             target: aarch64-unknown-linux-gnu
             flags: -Z codegen-backend=cranelift
-          - rust: nightly
+          - rust: nightly-2024-11-07 # TODO: https://github.com/BurntSushi/memchr/pull/162
             target: aarch64_be-unknown-linux-gnu
           - rust: stable
             target: aarch64-unknown-linux-musl
