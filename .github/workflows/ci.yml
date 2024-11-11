@@ -291,6 +291,8 @@ jobs:
           - rust: nightly
             target: riscv64gc-unknown-linux-gnu
             flags: -Z codegen-backend=cranelift
+          # - rust: '1.84' # LLVM 19 (oldest stable version we can use asm on this target)
+          #   target: s390x-unknown-linux-gnu
           - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
             target: s390x-unknown-linux-gnu
           # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17

@@ -119,7 +119,7 @@ mod atomic128;
                 portable_atomic_target_feature = "quadword-atomics",
             ),
         ),
-        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "s390x", not(portable_atomic_no_asm)),
     ))
 ))]
 mod fallback;
@@ -363,7 +363,7 @@ items! {
                 ),
             ),
         ),
-        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "s390x", not(portable_atomic_no_asm)),
     )))]
     pub(crate) use self::fallback::{AtomicI128, AtomicU128};
 }
@@ -475,5 +475,5 @@ pub(crate) use self::atomic128::riscv64::{AtomicI128, AtomicU128};
 ))]
 pub(crate) use self::atomic128::powerpc64::{AtomicI128, AtomicU128};
 // s390x
-#[cfg(all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch))]
+#[cfg(all(target_arch = "s390x", not(portable_atomic_no_asm)))]
 pub(crate) use self::atomic128::s390x::{AtomicI128, AtomicU128};

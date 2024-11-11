@@ -153,7 +153,7 @@ fn test_is_lock_free() {
                 portable_atomic_target_feature = "quadword-atomics",
             ),
         ),
-        all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "s390x", not(portable_atomic_no_asm)),
     )) {
         assert!(AtomicI128::is_always_lock_free());
         assert!(AtomicI128::is_lock_free());

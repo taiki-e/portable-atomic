@@ -79,7 +79,7 @@ pub(super) mod powerpc64;
 pub(super) mod riscv64;
 
 // s390x
-#[cfg(all(target_arch = "s390x", portable_atomic_unstable_asm_experimental_arch))]
+#[cfg(all(target_arch = "s390x", not(portable_atomic_no_asm)))]
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
 #[cfg_attr(any(miri, portable_atomic_sanitize_thread), path = "intrinsics.rs")]
 pub(super) mod s390x;
