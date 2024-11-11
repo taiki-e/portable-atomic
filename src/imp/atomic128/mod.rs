@@ -9,7 +9,7 @@ See README.md for details.
 // AArch64
 #[cfg(any(
     all(target_arch = "aarch64", any(not(portable_atomic_no_asm), portable_atomic_unstable_asm)),
-    all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch)
+    all(target_arch = "arm64ec", not(portable_atomic_no_asm))
 ))]
 // Use intrinsics.rs on Miri and Sanitizer that do not support inline assembly.
 #[cfg_attr(

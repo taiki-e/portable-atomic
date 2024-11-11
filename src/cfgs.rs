@@ -254,7 +254,7 @@ mod atomic_64_macros {
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
-        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "arm64ec", not(portable_atomic_no_asm)),
         all(
             target_arch = "x86_64",
             not(all(
@@ -362,7 +362,7 @@ mod atomic_128_macros {
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
-        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "arm64ec", not(portable_atomic_no_asm)),
         all(
             target_arch = "x86_64",
             not(all(

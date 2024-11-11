@@ -46,7 +46,7 @@ portable-atomic = { version = "1.3", default-features = false, features = ["requ
 
 ## 128-bit atomics support
 
-Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), riscv64 (Rust 1.59+), s390x (Rust 1.84+), Arm64EC (nightly only), and powerpc64 (nightly only), otherwise the fallback implementation is used.
+Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), riscv64 (Rust 1.59+), Arm64EC (Rust 1.84+), s390x (Rust 1.84+), and powerpc64 (nightly only), otherwise the fallback implementation is used.
 
 On x86_64, even if `cmpxchg16b` is not available at compile-time (note: `cmpxchg16b` target feature is enabled by default only on Apple and Windows (except Windows 7) targets), run-time detection checks whether `cmpxchg16b` is available. If `cmpxchg16b` is not available at either compile-time or run-time detection, the fallback implementation is used. See also [`portable_atomic_no_outline_atomics`](#optional-cfg-no-outline-atomics) cfg.
 
@@ -164,7 +164,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
   If dynamic dispatching by run-time CPU feature detection is enabled, it allows maintaining support for older CPUs while using features that are not supported on older CPUs, such as CMPXCHG16B (x86_64) and FEAT_LSE/FEAT_LSE2 (AArch64).
 
   Note:
-  - Dynamic detection is currently only enabled in Rust 1.59+ for x86_64, AArch64, and RISC-V (disabled by default on RISC-V), nightly only for powerpc64 and Arm64EC, otherwise it works the same as when this cfg is set.
+  - Dynamic detection is currently only supported in x86_64, AArch64, RISC-V (disabled by default on RISC-V), Arm64EC, and powerpc64, otherwise it works the same as when this cfg is set.
   - If the required target features are enabled at compile-time, the atomic operations are inlined.
   - This is compatible with no-std (as with all features except `std`).
   - On some targets, run-time detection is disabled by default mainly for incomplete build environments, and can be enabled by `--cfg portable_atomic_outline_atomics`. (When both cfg are enabled, `*_no_*` cfg is preferred.)
@@ -215,7 +215,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 #![allow(clippy::inline_always, clippy::used_underscore_items)]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
-// On tier 2 platforms (arm64ec and powerpc64), we use cfg set by build script to
+// On tier 2 platforms (powerpc64), we use cfg set by build script to
 // determine whether this feature is available or not.
 #![cfg_attr(
     all(
@@ -224,7 +224,6 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "avr",
             target_arch = "msp430",
             all(target_arch = "xtensa", portable_atomic_unsafe_assume_single_core),
-            all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
             all(target_arch = "powerpc64", portable_atomic_unstable_asm_experimental_arch),
         ),
     ),
@@ -234,7 +233,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
-// - asm! on AArch64, Arm, RISC-V, x86, x86_64, s390x
+// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, s390x
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
 // This also helps us test that our assembly code works with the minimum external
@@ -255,7 +254,10 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     feature(asm)
 )]
 #![cfg_attr(
-    all(portable_atomic_unstable_asm_experimental_arch, target_arch = "s390x"),
+    all(
+        portable_atomic_unstable_asm_experimental_arch,
+        any(target_arch = "arm64ec", target_arch = "s390x"),
+    ),
     feature(asm_experimental_arch)
 )]
 #![cfg_attr(

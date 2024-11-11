@@ -97,7 +97,7 @@ mod atomic128;
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
-        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "arm64ec", not(portable_atomic_no_asm)),
         all(
             target_arch = "x86_64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
@@ -298,7 +298,7 @@ items! {
             target_arch = "aarch64",
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
         ),
-        all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch),
+        all(target_arch = "arm64ec", not(portable_atomic_no_asm)),
         all(
             target_arch = "x86_64",
             not(all(
@@ -404,7 +404,7 @@ pub(crate) use self::atomic64::riscv32::{AtomicI64, AtomicU64};
 // AArch64
 #[cfg(any(
     all(target_arch = "aarch64", any(not(portable_atomic_no_asm), portable_atomic_unstable_asm)),
-    all(target_arch = "arm64ec", portable_atomic_unstable_asm_experimental_arch)
+    all(target_arch = "arm64ec", not(portable_atomic_no_asm))
 ))]
 pub(crate) use self::atomic128::aarch64::{AtomicI128, AtomicU128};
 // x86_64 & (cmpxchg16b | outline-atomics)
