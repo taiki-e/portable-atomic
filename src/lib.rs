@@ -342,7 +342,7 @@ compile_error!(
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 compile_error!(
     "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
-     does not compatible with target that supports atomic CAS;\n\
+     is not compatible with target that supports atomic CAS;\n\
      see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
 );
 #[cfg(portable_atomic_unsafe_assume_single_core)]
