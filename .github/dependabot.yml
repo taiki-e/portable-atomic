@@ -16,6 +16,7 @@ updates:
     ignore:
       # For test on old rustc.
       - dependency-name: crossbeam-utils
+      - dependency-name: libc
     labels: []
     groups:
       cargo:

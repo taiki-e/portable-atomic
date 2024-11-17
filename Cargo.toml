@@ -94,7 +94,7 @@ sptr = "0.3"
 static_assertions = "1"
 
 [target.'cfg(unix)'.dev-dependencies]
-libc = "0.2"
+libc = "=0.2.163" # newer libc requires Rust 1.63
 
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.59", features = [
