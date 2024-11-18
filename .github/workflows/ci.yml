@@ -102,6 +102,8 @@ jobs:
         # - LLVM 16 : stable 1.76 - 1.78, since https://github.com/rust-lang/rust/pull/117947
         # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
         # - LLVM 18 : stable 1.83 -     , since https://github.com/rust-lang/rust/pull/130487
+        # NOTE that some commented-out LLVM version entries are kept here, which may be temporarily uncommented if
+        # needed to investigate possible issues that may arise between LLVM and code generated for certain targets.
         include:
           - rust: '1.56'
           - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
