@@ -486,7 +486,7 @@ jobs:
 
   test-bsd:
     needs: tidy
-    name: test (${{ matrix.target }}${{ matrix.version }})
+    name: BSD OS test (${{ matrix.target }}${{ matrix.version }})
     strategy:
       fail-fast: false
       matrix:
