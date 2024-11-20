@@ -11,7 +11,7 @@ Run-time detection on AArch64 illumos is currently disabled by default as AArch6
 
 include!("common.rs");
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
+// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
 #[allow(non_camel_case_types)]
 mod ffi {
     pub(crate) use super::c_types::c_uint;

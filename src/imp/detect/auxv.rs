@@ -113,7 +113,7 @@ include!("common.rs");
 use os::ffi;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 mod os {
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
         pub(crate) use super::super::c_types::c_ulong;
@@ -292,7 +292,7 @@ mod os {
 mod os {
     use core::mem;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc 1.0 plans to require Rust 1.63
+    // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
         #[allow(unused_imports)]
