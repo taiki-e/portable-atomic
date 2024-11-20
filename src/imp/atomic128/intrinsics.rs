@@ -16,7 +16,7 @@ implementation with inline assembly.
 
 Note:
 - This currently needs Rust 1.70 on x86_64, otherwise nightly compilers.
-- On powerpc64, this requires LLVM 15+ and pwr8+ (quadword-atomics LLVM target feature):
+- On powerpc64, this requires LLVM 15+ and quadword-atomics target feature:
   https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
 - On s390x, old LLVM (pre-18) generates libcalls for operations other than load/store/cmpxchg:
   https://github.com/llvm/llvm-project/commit/c568927f3e2e7d9804ea74ecbf11c16c014ddcbc
