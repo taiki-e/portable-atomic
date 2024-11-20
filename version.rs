@@ -71,7 +71,11 @@ impl Version {
         }
         let minor = digits.next()?.parse::<u32>().ok()?;
         let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
-        let nightly = channel == "nightly" || channel == "dev";
+        let nightly = match env::var_os("RUSTC_BOOTSTRAP") {
+            // When -1 is passed rustc works like stable, e.g., cfg(target_feature = "unstable_target_feature") will never be set. https://github.com/rust-lang/rust/pull/132993
+            Some(ref v) if v == "-1" => false,
+            _ => channel == "nightly" || channel == "dev",
+        };
 
         // Note that rustc 1.49-1.50 (and 1.13 or older) don't print LLVM version.
         let llvm_major = (|| {
