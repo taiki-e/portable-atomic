@@ -404,7 +404,7 @@ pub(crate) struct Pair<T: Copy> {
 type MinWord = u32;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 type RetInt = u32;
-// Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.0/src/utils.rs#L210.
+// Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.4/src/utils.rs#L255.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
 // Refs: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/CodeGen/AtomicExpandPass.cpp#L737
@@ -414,11 +414,23 @@ type RetInt = u32;
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
     use core::mem;
+    // RISC-V, MIPS, SPARC, LoongArch, Xtensa: shift amount of 32-bit shift instructions is 5 bits unsigned (0-31).
+    // PowerPC, C-SKY: shift amount of 32-bit shift instructions is 6 bits unsigned (0-63) and shift amount 32-63 means "clear".
+    // Arm: shift amount of 32-bit shift instructions is 8 bits unsigned (0-255).
+    // Hexagon: shift amount of 32-bit shift instructions is 7 bits signed (-64-63) and negative shift amount means "reverse the direction of the shift".
+    // (On s390x, we don't use the mask returned from this function.)
     const SHIFT_MASK: bool = !cfg!(any(
+        target_arch = "loongarch64",
+        target_arch = "mips",
+        target_arch = "mips32r6",
+        target_arch = "mips64",
+        target_arch = "mips64r6",
         target_arch = "riscv32",
         target_arch = "riscv64",
-        target_arch = "loongarch64",
         target_arch = "s390x",
+        target_arch = "sparc",
+        target_arch = "sparc64",
+        target_arch = "xtensa",
     ));
     let ptr_mask = mem::size_of::<MinWord>() - 1;
     let aligned_ptr = strict::with_addr(ptr, ptr as usize & !ptr_mask) as *mut MinWord;
