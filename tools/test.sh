@@ -202,7 +202,7 @@ target_lower="${target_lower//./_}"
 target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
 randomize_layout=' -Z randomize-layout'
 cranelift=''
-if [[ "${RUSTFLAGS:-}" =~ -Z( )?codegen-backend=cranelift ]]; then
+if [[ "${RUSTFLAGS:-}" =~ -Z\ *codegen-backend=cranelift ]]; then
     cranelift=1
     retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
 else
@@ -258,7 +258,7 @@ esac
 
 run() {
     if [[ ${#release[@]} -eq 0 ]]; then
-        if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer= ]]; then
+        if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer= ]]; then
             # doctest with debug build on Sanitizer is slow
             x_cargo test ${build_std[@]+"${build_std[@]}"} --tests "$@"
         else
@@ -267,7 +267,7 @@ run() {
     fi
 
     # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
-    if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer=memory ]]; then
+    if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
             x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
@@ -280,7 +280,7 @@ run() {
     fi
 
     # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
-    if [[ "${RUSTFLAGS:-}" =~ -Z( )?sanitizer=memory ]]; then
+    if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
         # Workaround https://github.com/google/sanitizers/issues/558
         CARGO_TARGET_DIR="${target_dir}/fat-lto" \
             CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
