@@ -122,7 +122,6 @@ mod os {
 
         sys_const!({
             // https://github.com/torvalds/linux/blob/v6.11/include/uapi/linux/auxvec.h
-            #[cfg(any(test, target_arch = "aarch64"))]
             pub(crate) const AT_HWCAP: c_ulong = 16;
             #[cfg(any(
                 test,
@@ -306,7 +305,6 @@ mod os {
             // OpenBSD
             // Defined in sys/auxv.h.
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
-            #[cfg(any(test, target_arch = "aarch64"))]
             pub(crate) const AT_HWCAP: c_int = 25;
             #[cfg(any(test, target_arch = "powerpc64"))]
             pub(crate) const AT_HWCAP2: c_int = 26;
@@ -513,6 +511,13 @@ mod arch {
         // OpenBSD
         // Defined in machine/elf.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
+        // Linux 2.6.16+
+        // https://github.com/torvalds/linux/commit/80f15dc703b3677d0b025bafd215f1f3664c8978
+        // FreeBSD 11.0+
+        // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
+        pub(super) const PPC_FEATURE_BOOKE: ffi::c_ulong = 0x00008000;
         // Linux 3.10+
         // https://github.com/torvalds/linux/commit/cbbc6f1b1433ef553d57826eee87a84ca49645ce
         // FreeBSD 11.0+
@@ -537,19 +542,27 @@ mod arch {
 
     #[cold]
     pub(super) fn _detect(info: &mut CpuInfo) {
+        let hwcap = os::getauxval(ffi::AT_HWCAP);
+        if hwcap & PPC_FEATURE_BOOKE != 0 {
+            // quadword-atomics (Load/Store Quadword category in ISA 2.07) is requirement of ISA 2.07
+            // server processors. It is always optional in ISA 2.07 BookE (embedded category)
+            // processors and there is no corresponding HWCAP bit. (Although there are no ISA 2.07
+            // BookE processors that appear to be supported on these platforms.)
+            // Refs: Appendix B "Platform Support Requirements" of Power ISA 2.07B
+            // https://ibm.ent.box.com/s/jd5w15gz301s5b5dt375mshpq9c3lh4u
+            return;
+        }
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
-
-        // power8
-        // Check both 2_07 (power8) and later ISAs (which are superset of 2_07) because
-        // OpenBSD currently doesn't set 2_07 even when 3_00 (power9) is set.
+        // Check both 2_07 and later ISAs (which are superset of 2_07) because
+        // OpenBSD currently doesn't set 2_07 even when 3_00 is set.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/powerpc64/cpu.c#L224-L243
         // Other OSes should be fine, but check all OSs in the same way just in case.
         #[cfg(not(target_os = "openbsd"))]
-        let power8_or_later =
+        let isa_2_07_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
         #[cfg(target_os = "openbsd")]
-        let power8_or_later = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00;
-        if hwcap2 & power8_or_later != 0 {
+        let isa_2_07_or_later = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00;
+        if hwcap2 & isa_2_07_or_later != 0 {
             info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
         }
     }

@@ -11,6 +11,7 @@ Auxinfo
 auxv
 auxvec
 bitops
+BOOKE
 callthru
 casp
 cbnz
