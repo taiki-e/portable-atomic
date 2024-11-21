@@ -38,6 +38,30 @@ See [#1] for other primitives being considered for addition to this crate.
 [portable-atomic]: https://github.com/taiki-e/portable-atomic
 [#1]: https://github.com/taiki-e/portable-atomic/issues/1
 
+## Optional cfg
+
+One of the ways to enable cfg is to set [rustflags in the cargo config](https://doc.rust-lang.org/cargo/reference/config.html#targettriplerustflags):
+
+```toml
+# .cargo/config.toml
+[target.<target>]
+rustflags = ["--cfg", "portable_atomic_unstable_coerce_unsized"]
+```
+
+Or set environment variable:
+
+```sh
+RUSTFLAGS="--cfg portable_atomic_unstable_coerce_unsized" cargo ...
+```
+
+- <a name="portable-atomic-unstable-coerce-unsized"></a>**`--cfg portable_atomic_unstable_coerce_unsized`**<br> support standard coercing of `Arc<T>` to `Arc<U>`
+
+<!-- TODO: add standard coercing of `Weak<T>` to `Weak<U>` as well, with testing & documentation updates -->
+
+This coercing requires Rust nightly to compile (with help from [unstable `CoerceUnsized` trait](https://doc.rust-lang.org/nightly/core/ops/trait.CoerceUnsized.html)).
+
+See [this issue comment](https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569) for another known workaround.
+
 <!-- tidy:crate-doc:end -->
 
 ## License

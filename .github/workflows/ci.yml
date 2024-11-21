@@ -349,6 +349,10 @@ jobs:
         if: matrix.rust == 'nightly-2024-02-13'
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_unstable_coerce_unsized
+        if: startsWith(matrix.rust, 'nightly')
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
       # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
@@ -368,7 +372,8 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
         # powerpc64 is skipped because tested below.
-        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
+        # TODO: arm-linux-androideabi is removed due to an issue between Rust nightly & QEMU in CI testing - needs investigation
+        if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           QEMU_CPU: power7 # no quadword-atomics

@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `portable_atomic_unstable_coerce_unsized` cfg option (requires Rust nightly)
+
 ## [0.2.3] - 2024-10-17
 
 - Add `new_uninit`/`new_uninit_slice`/`assume_init` to `Arc` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.82](https://github.com/rust-lang/rust/pull/129401)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
