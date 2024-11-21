@@ -111,7 +111,7 @@ macro_rules! atomic_rmw_amocas_order_insn {
     target_feature = "experimental-zacas",
     portable_atomic_target_feature = "experimental-zacas",
 ))]
-use atomic_load_zacas as atomic_load;
+use self::atomic_load_zacas as atomic_load;
 // Otherwise, we need to do run-time detection and can use zacas_fn only if zacas is available.
 #[cfg(not(any(
     target_feature = "experimental-zacas",
@@ -367,7 +367,7 @@ unsafe fn atomic_compare_exchange_zacas(
 }
 
 // amocas is always strong.
-use atomic_compare_exchange as atomic_compare_exchange_weak;
+use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 // 128-bit atomic load by two 64-bit atomic loads. (see arm_linux.rs for more)
 #[inline]
@@ -424,7 +424,7 @@ macro_rules! select_atomic_rmw {
             target_feature = "experimental-zacas",
             portable_atomic_target_feature = "experimental-zacas",
         ))]
-        use $zacas_fn as $name;
+        use self::$zacas_fn as $name;
         // Otherwise, we need to do run-time detection and can use zacas_fn only if zacas is available.
         #[cfg(not(any(
             target_feature = "experimental-zacas",

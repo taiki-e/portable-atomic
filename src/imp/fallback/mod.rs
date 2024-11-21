@@ -108,13 +108,15 @@ cfg_no_fast_atomic_64! {
 
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
-use seq_lock::{SeqLock, SeqLockWriteGuard};
-use utils::CachePadded;
+use self::{
+    seq_lock::{SeqLock, SeqLockWriteGuard},
+    utils::CachePadded,
+};
 
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,
 // so use it to reduce chunks of byte-wise atomic memcpy.
-use seq_lock::{AtomicChunk, Chunk};
+use self::seq_lock::{AtomicChunk, Chunk};
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
 #[inline]

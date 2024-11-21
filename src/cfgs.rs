@@ -626,7 +626,7 @@ mod check {
     crate::cfg_has_atomic_cas! { type __AtomicPtr = (); }
     crate::cfg_no_atomic_cas! { type __AtomicPtr = (); }
     #[allow(unused_imports)]
-    use {
+    use self::{
         _Atomic128 as _, _Atomic16 as _, _Atomic32 as _, _Atomic64 as _, _Atomic8 as _,
         _AtomicPtr as _, __AtomicPtr as _,
     };

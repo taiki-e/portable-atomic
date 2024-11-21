@@ -110,7 +110,7 @@ so we use it (see aarch64_aa64reg.rs).
 
 include!("common.rs");
 
-use os::ffi;
+use self::os::ffi;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
@@ -409,7 +409,7 @@ mod os {
 
 // Basically, Linux/FreeBSD/OpenBSD use the same hwcap values.
 // FreeBSD and OpenBSD usually support a subset of the hwcap values supported by Linux.
-use arch::_detect;
+use self::arch::_detect;
 #[cfg(target_arch = "aarch64")]
 mod arch {
     use super::{ffi, os, CpuInfo};

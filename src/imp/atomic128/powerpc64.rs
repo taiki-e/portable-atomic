@@ -138,7 +138,7 @@ fn extract_cr0(r: u64) -> bool {
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 ))]
-use atomic_load_pwr8 as atomic_load;
+use self::atomic_load_pwr8 as atomic_load;
 // Otherwise, we need to do run-time detection and can use pwr8_fn only if quadword-atomics is available.
 #[cfg(not(any(
     target_feature = "quadword-atomics",
@@ -250,7 +250,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 ))]
-use atomic_store_pwr8 as atomic_store;
+use self::atomic_store_pwr8 as atomic_store;
 // Otherwise, we need to do run-time detection and can use pwr8_fn only if quadword-atomics is available.
 #[cfg(not(any(
     target_feature = "quadword-atomics",
@@ -428,7 +428,7 @@ unsafe fn atomic_compare_exchange_pwr8(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 )))]
-use atomic_compare_exchange as atomic_compare_exchange_weak;
+use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
@@ -747,7 +747,7 @@ macro_rules! select_atomic_rmw {
             target_feature = "quadword-atomics",
             portable_atomic_target_feature = "quadword-atomics",
         ))]
-        use $pwr8_fn as $name;
+        use self::$pwr8_fn as $name;
         // Otherwise, we need to do run-time detection and can use pwr8_fn only if quadword-atomics is available.
         #[cfg(not(any(
             target_feature = "quadword-atomics",

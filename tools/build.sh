@@ -236,6 +236,7 @@ else
     base_args=(hack "${subcmd}")
 fi
 nightly=''
+base_rustflags="${RUSTFLAGS:-}"
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
     if [[ -z "${is_custom_toolchain}" ]]; then
@@ -246,6 +247,7 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
         subcmd=clippy
         retry rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         base_args=(hack "${subcmd}")
+        base_rustflags+=' -Z crate-attr=feature(unqualified_local_imports) -W unqualified_local_imports'
     fi
 fi
 export CARGO_TARGET_DIR="${target_dir}"
@@ -262,7 +264,7 @@ build() {
     local target="$1"
     shift
     local args=("${base_args[@]}")
-    local target_rustflags="${RUSTFLAGS:-}"
+    local target_rustflags="${base_rustflags}"
     if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped all checks)"

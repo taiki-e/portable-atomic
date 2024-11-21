@@ -452,13 +452,13 @@ extern crate std;
 #[macro_use]
 mod cfgs;
 #[cfg(target_pointer_width = "128")]
-pub use {cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no_atomic_ptr};
+pub use self::{cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "16")]
-pub use {cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
+pub use self::{cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "32")]
-pub use {cfg_has_atomic_32 as cfg_has_atomic_ptr, cfg_no_atomic_32 as cfg_no_atomic_ptr};
+pub use self::{cfg_has_atomic_32 as cfg_has_atomic_ptr, cfg_no_atomic_32 as cfg_no_atomic_ptr};
 #[cfg(target_pointer_width = "64")]
-pub use {cfg_has_atomic_64 as cfg_has_atomic_ptr, cfg_no_atomic_64 as cfg_no_atomic_ptr};
+pub use self::{cfg_has_atomic_64 as cfg_has_atomic_ptr, cfg_no_atomic_64 as cfg_no_atomic_ptr};
 
 #[macro_use]
 mod utils;
@@ -470,12 +470,12 @@ mod tests;
 #[doc(no_inline)]
 pub use core::sync::atomic::Ordering;
 
-#[doc(no_inline)]
 // LLVM doesn't support fence/compiler_fence for MSP430.
+#[cfg(target_arch = "msp430")]
+pub use self::imp::msp430::{compiler_fence, fence};
+#[doc(no_inline)]
 #[cfg(not(target_arch = "msp430"))]
 pub use core::sync::atomic::{compiler_fence, fence};
-#[cfg(target_arch = "msp430")]
-pub use imp::msp430::{compiler_fence, fence};
 
 mod imp;
 
@@ -4768,17 +4768,17 @@ cfg_has_atomic_128! {
 cfg_no_atomic_cas! {
 cfg_no_atomic_cas_or_amo32! {
 #[cfg(feature = "float")]
-use diagnostic_helper::HasFetchAbs;
-use diagnostic_helper::{
+use self::diagnostic_helper::HasFetchAbs;
+use self::diagnostic_helper::{
     HasAnd, HasBitClear, HasBitSet, HasBitToggle, HasFetchAnd, HasFetchByteAdd, HasFetchByteSub,
     HasFetchNot, HasFetchOr, HasFetchPtrAdd, HasFetchPtrSub, HasFetchXor, HasNot, HasOr, HasXor,
 };
 } // cfg_no_atomic_cas_or_amo32!
 cfg_no_atomic_cas_or_amo8! {
-use diagnostic_helper::{HasAdd, HasSub, HasSwap};
+use self::diagnostic_helper::{HasAdd, HasSub, HasSwap};
 } // cfg_no_atomic_cas_or_amo8!
 #[cfg_attr(not(feature = "float"), allow(unused_imports))]
-use diagnostic_helper::{
+use self::diagnostic_helper::{
     HasCompareExchange, HasCompareExchangeWeak, HasFetchAdd, HasFetchMax, HasFetchMin,
     HasFetchNand, HasFetchNeg, HasFetchSub, HasFetchUpdate, HasNeg,
 };

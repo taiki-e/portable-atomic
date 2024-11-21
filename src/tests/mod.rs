@@ -196,7 +196,7 @@ fn test_is_lock_free() {
 // test version parsing code used in the build script.
 #[test]
 fn test_rustc_version() {
-    use version::Version;
+    use self::version::Version;
 
     // rustc 1.34 (rustup)
     let v = Version::parse(

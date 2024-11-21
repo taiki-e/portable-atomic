@@ -180,7 +180,7 @@ unsafe fn atomic_compare_exchange(
 }
 
 // cdsg is always strong.
-use atomic_compare_exchange as atomic_compare_exchange_weak;
+use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 #[cfg(not(any(
     target_feature = "load-store-on-cond",

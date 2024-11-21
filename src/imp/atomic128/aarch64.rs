@@ -483,7 +483,7 @@ Note:
 // if compile_time(FEAT_LSE2) => ldp:
 // cfg guarantee that the CPU supports FEAT_LSE2.
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-use _atomic_load_ldp as atomic_load;
+use self::_atomic_load_ldp as atomic_load;
 #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
 #[inline]
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
@@ -883,7 +883,7 @@ Note:
 // if compile_time(FEAT_LSE2) => stp:
 // cfg guarantee that the CPU supports FEAT_LSE2.
 #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-use _atomic_store_stp as atomic_store;
+use self::_atomic_store_stp as atomic_store;
 #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
@@ -1579,15 +1579,15 @@ Note:
     any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     not(portable_atomic_ll_sc_rmw),
 ))]
-use _atomic_swap_casp as atomic_swap;
+use self::_atomic_swap_casp as atomic_swap;
 #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
 #[cfg(not(all(
     any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     not(portable_atomic_ll_sc_rmw),
 )))]
-use _atomic_swap_ldxp_stxp as atomic_swap;
+use self::_atomic_swap_ldxp_stxp as atomic_swap;
 #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
-use _atomic_swap_swpp as atomic_swap;
+use self::_atomic_swap_swpp as atomic_swap;
 #[cfg(any(
     target_feature = "lse128",
     portable_atomic_target_feature = "lse128",
@@ -1750,7 +1750,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
         )))]
-        use $name as $reexport_name;
+        use self::$name as $reexport_name;
         #[cfg(any(
             test,
             not(all(
@@ -1808,7 +1808,7 @@ macro_rules! atomic_rmw_cas_3 {
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
         ))]
-        use $name as $reexport_name;
+        use self::$name as $reexport_name;
         #[cfg(any(test, not(portable_atomic_ll_sc_rmw)))]
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
@@ -1876,7 +1876,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
         )))]
-        use $name as $reexport_name;
+        use self::$name as $reexport_name;
         #[cfg(any(
             test,
             not(all(
@@ -1930,7 +1930,7 @@ macro_rules! atomic_rmw_cas_2 {
             any(target_feature = "lse", portable_atomic_target_feature = "lse"),
             not(portable_atomic_ll_sc_rmw),
         ))]
-        use $name as $reexport_name;
+        use self::$name as $reexport_name;
         #[cfg(any(test, not(portable_atomic_ll_sc_rmw)))]
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]

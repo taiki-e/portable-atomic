@@ -6,7 +6,7 @@
 
 #[path = "version.rs"]
 mod version;
-use version::{rustc_version, Version};
+use self::version::{rustc_version, Version};
 
 use std::{env, str};
 

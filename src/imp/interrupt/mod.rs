@@ -42,7 +42,7 @@ See also README.md of this directory.
 // called while interrupts are disabled, and since the load/store is
 // atomic, it is not affected by interrupts even if interrupts are enabled.
 #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-use arch::atomic;
+use self::arch::atomic;
 
 #[cfg(not(feature = "critical-section"))]
 #[cfg_attr(

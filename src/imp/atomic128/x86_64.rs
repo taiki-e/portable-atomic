@@ -438,7 +438,7 @@ unsafe fn atomic_compare_exchange(
 }
 
 // cmpxchg16b is always strong.
-use atomic_compare_exchange as atomic_compare_exchange_weak;
+use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
 // See cmpxchg16b() for target_feature(enable).
 #[cfg_attr(
@@ -747,7 +747,7 @@ macro_rules! select_atomic_rmw {
     ) => {
         // If cmpxchg16b is available at compile-time, we can always use cmpxchg16b_fn.
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
-        use $cmpxchg16b_fn as $name;
+        use self::$cmpxchg16b_fn as $name;
         // Otherwise, we need to do run-time detection and can use cmpxchg16b_fn only if cmpxchg16b is available.
         #[cfg(not(any(
             target_feature = "cmpxchg16b",

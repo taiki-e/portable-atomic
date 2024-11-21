@@ -72,7 +72,7 @@ extern crate std as alloc;
 #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
 mod arc;
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
-pub use arc::{Arc, Weak};
+pub use self::arc::{Arc, Weak};
 
 #[cfg(not(portable_atomic_no_futures_api))]
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
