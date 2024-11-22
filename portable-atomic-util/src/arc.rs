@@ -2,7 +2,7 @@
 
 // This module is based on alloc::sync::Arc.
 //
-// The code has been adjusted to work with stable Rust (with unstable cfg option).
+// The code has been adjusted to work with stable Rust (and optionally support some unstable features).
 //
 // Source: https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/library/alloc/src/sync.rs.
 //
