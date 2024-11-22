@@ -48,13 +48,16 @@ Or set environment variable:
 RUSTFLAGS="--cfg portable_atomic_unstable_coerce_unsized" cargo ...
 ```
 
-- <a name="portable-atomic-unstable-coerce-unsized"></a>**`--cfg portable_atomic_unstable_coerce_unsized`**<br> support standard coercing of `Arc<T>` to `Arc<U>`
+- <a name="optional-cfg-unstable-coerce-unsized"></a>**`--cfg portable_atomic_unstable_coerce_unsized`**<br>
+  Support coercing of `Arc<T>` to `Arc<U>` as in `std::sync::Arc`.
 
-<!-- TODO: add standard coercing of `Weak<T>` to `Weak<U>` as well, with testing & documentation updates -->
+  <!-- TODO: add coercing of `Weak<T>` to `Weak<U>` as well, with testing & documentation updates -->
 
-This coercing requires Rust nightly to compile (with help from [unstable `CoerceUnsized` trait](https://doc.rust-lang.org/nightly/core/ops/trait.CoerceUnsized.html)).
+  This cfg requires Rust nightly because this coercing requires [unstable `CoerceUnsized` trait](https://doc.rust-lang.org/nightly/core/ops/trait.CoerceUnsized.html).
 
-See [this issue comment](https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569) for another known workaround.
+  See [this issue comment](https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569) for another known workaround.
+
+  **Note:** This cfg is unstable and outside of the normal semver guarantees and minor or patch versions of portable-atomic-util may make breaking changes to them at any time.
 
 <!-- tidy:crate-doc:end -->
 */

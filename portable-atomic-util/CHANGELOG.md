@@ -12,7 +12,9 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Add `portable_atomic_unstable_coerce_unsized` cfg option (requires Rust nightly)
+- Add unstable `portable_atomic_unstable_coerce_unsized` cfg (requires Rust nightly). ([#195](https://github.com/taiki-e/portable-atomic/pull/195), thanks @brodycj)
+
+- Respect [`RUSTC_BOOTSTRAP=-1` recently added in nightly](https://github.com/rust-lang/rust/pull/132993) in rustc version detection. ([5b2847a](https://github.com/taiki-e/portable-atomic/commit/5b2847a8b99aa2a57a6c80f5a47327b2764f08cc))
 
 ## [0.2.3] - 2024-10-17
 
