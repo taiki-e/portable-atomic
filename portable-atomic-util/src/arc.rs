@@ -2,7 +2,7 @@
 
 // This module is based on alloc::sync::Arc.
 //
-// The code has been adjusted to work with stable Rust.
+// The code has been adjusted to work with stable Rust (and optionally support some unstable features).
 //
 // Source: https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/library/alloc/src/sync.rs.
 //
@@ -39,6 +39,8 @@ use core::{
     ptr::{self, NonNull},
     usize,
 };
+#[cfg(portable_atomic_unstable_coerce_unsized)]
+use core::{marker::Unsize, ops::CoerceUnsized};
 
 /// A soft limit on the amount of references that may be made to an `Arc`.
 ///
@@ -77,11 +79,13 @@ macro_rules! acquire {
 /// This is an equivalent to [`std::sync::Arc`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Arc`] for more details.
 ///
-/// **Note:** Unlike `std::sync::Arc`, coercing `Arc<T>` to `Arc<U>` is not supported at all.
+/// **Note:** Unlike `std::sync::Arc`, coercing `Arc<T>` to `Arc<U>` is only possible if
+/// the optional cfg `portable_atomic_unstable_coerce_unsized` is enabled, as documented at the crate-level documentation,
+/// and this optional cfg item is only supported with Rust nightly version.
 /// This is because coercing the pointee requires the
 /// [unstable `CoerceUnsized` trait](https://doc.rust-lang.org/nightly/core/ops/trait.CoerceUnsized.html).
 /// See [this issue comment](https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569)
-/// for the known workaround.
+/// for a workaround that works without depending on unstable features.
 ///
 /// [portable-atomic]: https://crates.io/crates/portable-atomic
 ///
@@ -115,6 +119,9 @@ impl<T: ?Sized + core::panic::RefUnwindSafe> core::panic::UnwindSafe for Arc<T> 
 #[cfg(all(portable_atomic_no_core_unwind_safe, feature = "std"))]
 impl<T: ?Sized + std::panic::RefUnwindSafe> std::panic::UnwindSafe for Arc<T> {}
 
+#[cfg(portable_atomic_unstable_coerce_unsized)]
+impl<T: ?Sized + Unsize<U>, U: ?Sized> CoerceUnsized<Arc<U>> for Arc<T> {}
+
 impl<T: ?Sized> Arc<T> {
     #[inline]
     fn into_inner_non_null(this: Self) -> NonNull<ArcInner<T>> {
@@ -141,6 +148,10 @@ impl<T: ?Sized> Arc<T> {
 ///
 /// This is an equivalent to [`std::sync::Weak`], but using [portable-atomic] for synchronization.
 /// See the documentation for [`std::sync::Weak`] for more details.
+///
+/// <!-- TODO: support coercing `Weak<T>` to `Weak<U>` with testing, if optional cfg `portable_atomic_unstable_coerce_unsized` is enabled -->
+/// **Note:** Unlike `std::sync::Weak`, coercing `Weak<T>` to `Weak<U>` is not possible, not even if
+/// the optional cfg `portable_atomic_unstable_coerce_unsized` is enabled.
 ///
 /// [`upgrade`]: Weak::upgrade
 /// [portable-atomic]: https://crates.io/crates/portable-atomic
@@ -1508,11 +1519,11 @@ impl Arc<dyn Any + Send + Sync> {
     /// }
     ///
     /// let my_string = "Hello World".to_string();
-    // TODO: CoerceUnsized is needed to cast Arc<String> -> Arc<dyn Any + Send + Sync> directly.
-    // /// print_if_string(Arc::new(my_string));
-    // /// print_if_string(Arc::new(0i8));
     /// print_if_string(Arc::from(Box::new(my_string) as Box<dyn Any + Send + Sync>));
     /// print_if_string(Arc::from(Box::new(0i8) as Box<dyn Any + Send + Sync>));
+    /// // or with "--cfg portable_atomic_unstable_coerce_unsized" in RUSTFLAGS (requires Rust nightly):
+    /// // print_if_string(Arc::new(my_string));
+    /// // print_if_string(Arc::new(0i8));
     /// ```
     #[inline]
     pub fn downcast<T>(self) -> Result<Arc<T>, Self>
@@ -2234,7 +2245,7 @@ impl<T> Default for Arc<[T]> {
     #[inline]
     fn default() -> Self {
         // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync.rs#L3449)
-        // for now due to casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized.
+        // for now since casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized.
         let arr: [T; 0] = [];
         Arc::from(arr)
     }

@@ -134,6 +134,8 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(portable_atomic_test_outline_atomics_detect_false,qemu,valgrind)',
     # Public APIs, considered unstable unless documented in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics)',
+    # Public unstable API(s) - portable-atomic-util
+    'cfg(portable_atomic_unstable_coerce_unsized)',
 ] }
 unreachable_pub = "warn"
 # unsafe_op_in_unsafe_fn = "warn" # Set at crate-level instead since https://github.com/rust-lang/rust/pull/100081 is not available on MSRV
