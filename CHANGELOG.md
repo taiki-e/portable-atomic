@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.10.0] - 2024-11-23
+
 - Update to stabilized [s390x](https://github.com/rust-lang/rust/pull/131258) and [Arm64EC](https://github.com/rust-lang/rust/pull/131781) inline assembly. ([97645c1](https://github.com/taiki-e/portable-atomic/commit/97645c1b2b938249f16eacb0fe696d4c7bb96754), [e1d1a97](https://github.com/taiki-e/portable-atomic/commit/e1d1a97cd1ab4bd04b45962c44ca1e9f0f9e1456))
 
 - Make `get_mut` `const fn` on Rust 1.83+. ([0dea68c](https://github.com/taiki-e/portable-atomic/commit/0dea68c26e2bba3a83a849e2f137a2da445fc014))
@@ -507,7 +509,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/taiki-e/portable-atomic/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/taiki-e/portable-atomic/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/taiki-e/portable-atomic/compare/v1.6.0...v1.7.0
