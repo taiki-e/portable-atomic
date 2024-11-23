@@ -4,11 +4,36 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+Releases may yanked if there is a security bug, a soundness bug, or a regression.
+
 <!--
 Note: In this file, do not use the hard wrap in the middle of a sentence for compatibility with GitHub comment style markdown rendering.
 -->
 
 ## [Unreleased]
+
+- Update to stabilized [s390x](https://github.com/rust-lang/rust/pull/131258) and [Arm64EC](https://github.com/rust-lang/rust/pull/131781) inline assembly. ([97645c1](https://github.com/taiki-e/portable-atomic/commit/97645c1b2b938249f16eacb0fe696d4c7bb96754), [e1d1a97](https://github.com/taiki-e/portable-atomic/commit/e1d1a97cd1ab4bd04b45962c44ca1e9f0f9e1456))
+
+- Make `get_mut` `const fn` on Rust 1.83+. ([0dea68c](https://github.com/taiki-e/portable-atomic/commit/0dea68c26e2bba3a83a849e2f137a2da445fc014))
+
+- Make `from_ptr` `const fn` on Rust 1.83+. (align to the [std atomic change in Rust 1.84](https://github.com/rust-lang/rust/pull/131717)) ([50532d8](https://github.com/taiki-e/portable-atomic/commit/50532d8ce92408976307431a2f1a94000c630b23))
+
+- Various optimizations:
+  - RISC-V without A-extension: Optimize 16-bit fetch_not when Zabha enabled. ([a487a09](https://github.com/taiki-e/portable-atomic/commit/a487a094ab99fdf8ef3413b943c9c154a352d8c4))
+  - s390x: Optimize 128-bit CAS/RMW. ([fba028d](https://github.com/taiki-e/portable-atomic/commit/fba028d7618e47b3de5b352c1789ea52f45298b4), [33ab2c1](https://github.com/taiki-e/portable-atomic/commit/33ab2c19719b29c0a30df8d011d0cd4003495dc8))
+  - PowerPC64: Optimize 128-bit Acquire/AcqRel/SeqCst CAS/RMW and 128-bit CAS with Relaxed failure ordering. ([33ab2c1](https://github.com/taiki-e/portable-atomic/commit/33ab2c19719b29c0a30df8d011d0cd4003495dc8))
+  - AVR: Optimize 8-bit load/store. ([33ab2c1](https://github.com/taiki-e/portable-atomic/commit/33ab2c19719b29c0a30df8d011d0cd4003495dc8))
+
+- Improve support of run-time detection and outline-atomics:
+  - Enable run-time detection by default on powerpc64 and aarch64 linux-uclibc. ([#193](https://github.com/taiki-e/portable-atomic/pull/193))
+  - Improve run-time detection of powerpc64 quadword-atomics. ([1e3bfda](https://github.com/taiki-e/portable-atomic/commit/1e3bfda29bf6eb06a359f24554f19fc080ae57eb))
+  - Improve run-time detection of Zhaoxin CPU. ([f283d2a](https://github.com/taiki-e/portable-atomic/commit/f283d2a1deb94e84676a2c1ee678439f507482db))
+
+- Support RISC-V Zacas extension on pre-1.82 rustc. ([#194](https://github.com/taiki-e/portable-atomic/pull/194))
+
+- Improve compile-time detection of RISC-V Zaamo/Zabha extensions. ([673137a](https://github.com/taiki-e/portable-atomic/commit/673137afb87b731ed19a1b0717059468712fad1d))
+
+- Respect [`RUSTC_BOOTSTRAP=-1` recently added in nightly](https://github.com/rust-lang/rust/pull/132993) in rustc version detection. ([5b2847a](https://github.com/taiki-e/portable-atomic/commit/5b2847a8b99aa2a57a6c80f5a47327b2764f08cc))
 
 ## [1.9.0] - 2024-09-28
 
