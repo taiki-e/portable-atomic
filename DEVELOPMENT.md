@@ -18,6 +18,7 @@ portable-atomic/
 │   ├── imp/
 │   │   ├── atomic128/            -- 128-bit atomic implementations on 64-bit architectures (mainly by asm)
 │   │   ├── atomic64/             -- 64-bit atomic implementations on 32-bit architectures (mainly by asm)
+│   │   ├── avr.rs                -- atomic implementation for AVR (by asm)
 │   │   ├── core_atomic.rs        -- wrapper for core::sync::atomic types
 │   │   ├── detect/               -- Run-time CPU feature detection implementations used for outline-atomics
 │   │   ├── fallback/             -- fallback implementation based on global locks

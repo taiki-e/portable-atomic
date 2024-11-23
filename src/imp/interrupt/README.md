@@ -25,6 +25,7 @@ For some targets, the implementation can be changed by explicitly enabling featu
 Some operations don't require disabling interrupts:
 
 - On architectures except for AVR: loads and stores with pointer size or smaller
+- On AVR: 8-bit loads and stores
 - On MSP430 additionally: {8,16}-bit `add,sub,and,or,xor,not`
 - On RISC-V with the `zaamo` target feature (or `portable_atomic_target_feature="zaamo"` cfg or `force-amo` feature or `portable_atomic_force_amo` cfg) additionally: 32-bit(RV32)/{32,64}-bit(RV64) `swap,fetch_{add,sub,and,or,xor,not,max,min},add,sub,and,or,xor,not`, {8,16}-bit `fetch_{and,or,xor,not},and,or,xor,not`[^1], and all operations of `AtomicBool`
 

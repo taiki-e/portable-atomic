@@ -2,8 +2,11 @@
 
 /*
 Refs:
-- https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
-- https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/supervisor.adoc#supervisor-status-sstatus-register
+- RISC-V Instruction Set Manual
+  Machine Status (mstatus and mstatush) Registers
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
+  Supervisor Status (sstatus) Register
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/supervisor.adoc#supervisor-status-sstatus-register
 
 See also src/imp/riscv.rs.
 
@@ -62,7 +65,11 @@ pub(super) fn disable() -> State {
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
-        asm!(concat!("csrrci {0}, ", status!(), ", ", mask!()), out(reg) status, options(nostack, preserves_flags));
+        asm!(
+            concat!("csrrci {status}, ", status!(), ", ", mask!()), // atomic { status = status!(); status!() &= !mask!() }
+            status = out(reg) status,
+            options(nostack, preserves_flags),
+        );
     }
     status
 }
@@ -79,7 +86,10 @@ pub(super) unsafe fn restore(status: State) {
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-            asm!(concat!("csrsi ", status!(), ", ", mask!()), options(nostack, preserves_flags));
+            asm!(
+                concat!("csrsi ", status!(), ", ", mask!()), // atomic { status!() |= mask!() }
+                options(nostack, preserves_flags),
+            );
         }
     }
 }

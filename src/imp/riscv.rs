@@ -6,7 +6,11 @@ Atomic load/store implementation on RISC-V.
 This is for RISC-V targets without atomic CAS. (rustc doesn't provide atomics
 at all on such targets. https://github.com/rust-lang/rust/pull/114499)
 
-Also, optionally provides RMW implementation when force-amo or Zaamo target feature is enabled.
+Also, optionally provides RMW implementation when Zaamo extension or force-amo feature is enabled.
+
+See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
+detailed description of the atomic and synchronize instructions in this architecture:
+https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#risc-v
 
 Refs:
 - RISC-V Instruction Set Manual
@@ -16,7 +20,8 @@ Refs:
   https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zabha.adoc
 - RISC-V Atomics ABI Specification
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
-- atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
+- atomic-maybe-uninit
+  https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
 - riscv64gc https://godbolt.org/z/Ws933n9jE
@@ -86,7 +91,7 @@ macro_rules! atomic_rmw_amo_ext {
     portable_atomic_target_feature = "zaamo",
 ))]
 macro_rules! atomic_rmw_amo {
-    ($op:ident, $dst:ident, $val:ident, $order:ident, $asm_suffix:tt) => {{
+    ($op:ident, $dst:ident, $val:ident, $order:ident, $size:tt) => {{
         let out;
         macro_rules! op {
             ($asm_order:tt) => {
@@ -97,12 +102,12 @@ macro_rules! atomic_rmw_amo {
                 asm!(
                     ".option push",
                     // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
-                    // LLVM supports `.option arch` directive on LLVM 17+, so use .insn directive on old LLVM.
+                    // LLVM supports `.option arch` directive on LLVM 17+.
                     // https://github.com/llvm/llvm-project/commit/9e8ed3403c191ab9c4903e8eeb8f732ff8a43cb4
                     // Note that `.insn <value>` directive requires LLVM 19.
                     // https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
-                    concat!(".option arch, ", atomic_rmw_amo_ext!($asm_suffix)),
-                    concat!("amo", stringify!($op), ".", $asm_suffix, $asm_order, " {out}, {val}, 0({dst})"),
+                    concat!(".option arch, ", atomic_rmw_amo_ext!($size)),
+                    concat!("amo", stringify!($op), ".", $size, $asm_order, " {out}, {val}, 0({dst})"), // atomic { _x = *dst; *dst = op(_x, val); out = _x }
                     ".option pop",
                     dst = in(reg) ptr_reg!($dst),
                     val = in(reg) $val,
@@ -136,7 +141,7 @@ fn sllw(val: u32, shift: u32) -> u32 {
     unsafe {
         let out;
         asm!(
-            concat!("sll", w!(), " {out}, {val}, {shift}"),
+            concat!("sll", w!(), " {out}, {val}, {shift}"), // out = val << shift & 31
             out = lateout(reg) out,
             val = in(reg) val,
             shift = in(reg) shift,
@@ -161,7 +166,7 @@ macro_rules! srlw {
             let shift: u32 = $shift;
             let out;
             asm!(
-                concat!("srl", w!(), " {out}, {val}, {shift}"),
+                concat!("srl", w!(), " {out}, {val}, {shift}"), // out = val >> shift & 31
                 out = lateout(reg) out,
                 val = in(reg) val,
                 shift = in(reg) shift,
@@ -173,7 +178,7 @@ macro_rules! srlw {
 }
 
 macro_rules! atomic_load_store {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type $(<$($generics)*>)? {
             v: UnsafeCell<$value_type>,
@@ -216,9 +221,9 @@ macro_rules! atomic_load_store {
                     macro_rules! atomic_load {
                         ($acquire:tt, $release:tt) => {
                             asm!(
-                                $release,
-                                concat!("l", $asm_suffix, " {out}, 0({src})"),
-                                $acquire,
+                                $release,                                // fence
+                                concat!("l", $size, " {out}, 0({src})"), // atomic { out = *src }
+                                $acquire,                                // fence
                                 src = in(reg) ptr_reg!(src),
                                 out = lateout(reg) out,
                                 options(nostack, preserves_flags),
@@ -246,9 +251,9 @@ macro_rules! atomic_load_store {
                     macro_rules! atomic_store {
                         ($acquire:tt, $release:tt) => {
                             asm!(
-                                $release,
-                                concat!("s", $asm_suffix, " {val}, 0({dst})"),
-                                $acquire,
+                                $release,                                // fence
+                                concat!("s", $size, " {val}, 0({dst})"), // atomic { *dst = val }
+                                $acquire,                                // fence
                                 dst = in(reg) ptr_reg!(dst),
                                 val = in(reg) val,
                                 options(nostack, preserves_flags),
@@ -269,8 +274,8 @@ macro_rules! atomic_load_store {
 }
 
 macro_rules! atomic_ptr {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
-        atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $asm_suffix);
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+        atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $size);
         #[cfg(any(
             test,
             portable_atomic_force_amo,
@@ -283,15 +288,15 @@ macro_rules! atomic_ptr {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(swap, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
             }
         }
     };
 }
 
 macro_rules! atomic {
-    ($atomic_type:ident, $value_type:ty, $asm_suffix:tt, $max:tt, $min:tt) => {
-        atomic_load_store!($atomic_type, $value_type, $asm_suffix);
+    ($atomic_type:ident, $value_type:ty, $size:tt, $max:tt, $min:tt) => {
+        atomic_load_store!($atomic_type, $value_type, $size);
         #[cfg(any(
             test,
             portable_atomic_force_amo,
@@ -321,7 +326,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(swap, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
             }
 
             #[inline]
@@ -329,7 +334,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(add, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(add, dst, val, order, $size) }
             }
 
             #[inline]
@@ -342,7 +347,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(and, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(and, dst, val, order, $size) }
             }
 
             #[inline]
@@ -350,7 +355,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(or, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(or, dst, val, order, $size) }
             }
 
             #[inline]
@@ -358,7 +363,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(xor, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
             }
 
             #[inline]
@@ -370,7 +375,7 @@ macro_rules! atomic {
                 let val: u64 = !0;
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(xor, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
             }
             #[cfg(not(any(
                 portable_atomic_unsafe_assume_single_core,
@@ -386,7 +391,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!($max, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!($max, dst, val, order, $size) }
             }
 
             #[inline]
@@ -394,7 +399,7 @@ macro_rules! atomic {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!($min, dst, val, order, $asm_suffix) }
+                unsafe { atomic_rmw_amo!($min, dst, val, order, $size) }
             }
         }
     };
@@ -446,11 +451,11 @@ zero_extend!(i8, u8);
 zero_extend!(i16, u16);
 
 macro_rules! atomic_sub_word {
-    ($atomic_type:ident, $value_type:ty, $asm_suffix:tt, $max:tt, $min:tt) => {
+    ($atomic_type:ident, $value_type:ty, $size:tt, $max:tt, $min:tt) => {
         #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
-        atomic!($atomic_type, $value_type, $asm_suffix, $max, $min);
+        atomic!($atomic_type, $value_type, $size, $max, $min);
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        atomic_load_store!($atomic_type, $value_type, $asm_suffix);
+        atomic_load_store!($atomic_type, $value_type, $size);
         #[cfg(any(
             test,
             portable_atomic_force_amo,

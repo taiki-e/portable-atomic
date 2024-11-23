@@ -1,7 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-64-bit atomic implementation on riscv32 using amocas.d (DWCAS).
+64-bit atomic implementation on riscv32.
+
+This architecture provides the following 64-bit atomic instructions:
+
+- amocas.d: CAS (Zacas extension)
+
+See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
+detailed description of the atomic and synchronize instructions in this architecture:
+https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#risc-v
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use fallback implementation instead.
@@ -169,18 +177,18 @@ unsafe fn atomic_load(src: *mut u64, order: Ordering) -> u64 {
 unsafe fn atomic_load_zacas(src: *mut u64, order: Ordering) -> u64 {
     debug_assert!(src as usize % 8 == 0);
     debug_assert_zacas!();
+    let (out_lo, out_hi);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let (out_lo, out_hi);
         // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
         // So, we currently always using .4byte directive.
         // macro_rules! load {
         //     ($fence:tt, $asm_order:tt) => {
         //         asm!(
         //             start_zacas!(),
-        //             $fence,
-        //             concat!("amocas.d", $asm_order, " a2, a2, 0({src})"),
+        //             $fence,                                               // fence
+        //             concat!("amocas.d", $asm_order, " a2, a2, 0({src})"), // atomic { if *dst == a2:a3 { *dst = a2:a3 } else { a2:a3 = *dst } }
         //             end_zacas!(),
         //             src = in(reg) ptr_reg!(src),
         //             inout("a2") 0_u32 => out_lo,
@@ -193,8 +201,8 @@ unsafe fn atomic_load_zacas(src: *mut u64, order: Ordering) -> u64 {
         macro_rules! load {
             ($fence:tt, $insn_order:tt) => {
                 asm!(
-                    $fence,
-                    // 4: 2{8,c,a,e}c5362f     	amocas.d{,.aq,.rl,.aqrl}	a2, a2, (a0)
+                    $fence,                                  // fence
+                    // amocas.d{,.aq,.rl,.aqrl} a2, a2, (a0) // atomic { if *a0 == a2:a3 { *a0 = a2:a3 } else { a2:a3 = *a0 } }
                     concat!(".4byte 0x2", $insn_order, "c5362f"),
                     in("a0") ptr_reg!(src),
                     inout("a2") 0_u32 => out_lo,
@@ -318,20 +326,20 @@ unsafe fn atomic_compare_exchange_zacas(
     debug_assert!(dst as usize % 8 == 0);
     debug_assert_zacas!();
     let order = crate::utils::upgrade_success_ordering(success, failure);
+    let old = U64 { whole: old };
+    let new = U64 { whole: new };
+    let (prev_lo, prev_hi);
 
     // SAFETY: the caller must uphold the safety contract.
-    let prev = unsafe {
-        let old = U64 { whole: old };
-        let new = U64 { whole: new };
-        let (prev_lo, prev_hi);
+    unsafe {
         // LLVM doesn't support `.option arch, +zabha` directive as of LLVM 19 because it is experimental.
         // So, we currently always using .4byte directive.
         // macro_rules! cmpxchg {
         //     ($fence:tt, $asm_order:tt) => {
         //         asm!(
         //             start_zacas!(),
-        //             $fence,
-        //             concat!("amocas.d", $asm_order, " a4, a2, 0({dst})"),
+        //             $fence,                                               // fence
+        //             concat!("amocas.d", $asm_order, " a4, a2, 0({dst})"), // atomic { if *dst == a4:a5 { *dst = a2:a3 } else { a4:a5 = *dst } }
         //             end_zacas!(),
         //             dst = in(reg) ptr_reg!(dst),
         //             // must be allocated to even/odd register pair
@@ -348,8 +356,8 @@ unsafe fn atomic_compare_exchange_zacas(
         macro_rules! cmpxchg {
             ($fence:tt, $insn_order:tt) => {
                 asm!(
-                    $fence,
-                    // 10: 2{8,c,a,e}c5372f     	amocas.d{,.aq,.rl,.aqrl}	a4, a2, (a0)
+                    $fence,                                  // fence
+                    // amocas.d{,.aq,.rl,.aqrl} a4, a2, (a0) // atomic { if *a0 == a4:a5 { *a0 = a2:a3 } else { a4:a5 = *a0 } }
                     concat!(".4byte 0x2", $insn_order, "c5372f"),
                     in("a0") ptr_reg!(dst),
                     // must be allocated to even/odd register pair
@@ -363,23 +371,24 @@ unsafe fn atomic_compare_exchange_zacas(
             };
         }
         atomic_rmw_amocas_order_insn!(cmpxchg, order, failure = failure);
-        U64 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
-    };
-    (prev, prev == old)
+        let prev = U64 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole;
+        (prev, prev == old.whole)
+    }
 }
 
 // amocas is always strong.
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-// 64-bit atomic load by two 32-bit atomic loads. (see arm_linux.rs for more)
+// 64-bit atomic load by two 32-bit atomic loads.
 #[inline]
 unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
+    let (out_lo, out_hi);
+
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let (out_lo, out_hi);
         asm!(
-            "lw {out_lo}, ({src})",
-            "lw {out_hi}, 4({src})",
+            "lw {out_lo}, ({src})",  // atomic { out_lo = *src }
+            "lw {out_hi}, 4({src})", // atomic { out_hi = *src.add(4) }
             src = in(reg) ptr_reg!(src),
             out_lo = out(reg) out_lo,
             out_hi = out(reg) out_hi,
@@ -389,28 +398,10 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     }
 }
 
-#[inline(always)]
-unsafe fn atomic_update_zacas<F>(dst: *mut u64, order: Ordering, mut f: F) -> u64
-where
-    F: FnMut(u64) -> u64,
-{
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let mut prev = byte_wise_atomic_load(dst);
-        loop {
-            let next = f(prev);
-            match atomic_compare_exchange_weak(dst, prev, next, order, Ordering::Relaxed) {
-                Ok(x) => return x,
-                Err(x) => prev = x,
-            }
-        }
-    }
-}
-
 macro_rules! select_atomic_rmw {
     (
         unsafe fn $name:ident(dst: *mut u64 $(, $($arg:tt)*)?) $(-> $ret_ty:ty)? {
-            $($zacas_fn_body:tt)*
+            |$zacas_fn_binding:ident| $($zacas_fn_body:tt)*
         }
         zacas = $zacas_fn:ident;
         non_seqcst_fallback = $non_seqcst_fallback_fn:ident;
@@ -419,7 +410,26 @@ macro_rules! select_atomic_rmw {
         #[inline]
         unsafe fn $zacas_fn(dst: *mut u64 $(, $($arg)*)?, order: Ordering) $(-> $ret_ty)? {
             // SAFETY: the caller must uphold the safety contract.
-            unsafe { atomic_update_zacas(dst, order, $($zacas_fn_body)*) }
+            unsafe {
+                // This is not single-copy atomic reads, but this is ok because subsequent
+                // CAS will check for consistency.
+                //
+                // Note that the C++20 memory model does not allow mixed-sized atomic access,
+                // so we must use inline assembly to implement byte_wise_atomic_load.
+                // (i.e., byte-wise atomic based on the standard library's atomic types
+                // cannot be used here).
+                let mut prev = byte_wise_atomic_load(dst);
+                loop {
+                    let next = {
+                        let $zacas_fn_binding = prev;
+                        $($zacas_fn_body)*
+                    };
+                    match atomic_compare_exchange_weak(dst, prev, next, order, Ordering::Relaxed) {
+                        Ok(x) => return x,
+                        Err(x) => prev = x,
+                    }
+                }
+            }
         }
         // If zacas is available at compile-time, we can always use zacas_fn.
         #[cfg(any(
@@ -503,7 +513,7 @@ macro_rules! select_atomic_rmw {
 
 select_atomic_rmw! {
     unsafe fn atomic_swap(dst: *mut u64, val: u64) -> u64 {
-        |_| val
+        |_x| val
     }
     zacas = atomic_swap_zacas;
     non_seqcst_fallback = atomic_swap_non_seqcst;
@@ -605,7 +615,7 @@ select_atomic_rmw! {
 }
 select_atomic_rmw! {
     unsafe fn atomic_neg(dst: *mut u64) -> u64 {
-        u64::wrapping_neg
+        |x| x.wrapping_neg()
     }
     zacas = atomic_neg_zacas;
     non_seqcst_fallback = atomic_neg_non_seqcst;

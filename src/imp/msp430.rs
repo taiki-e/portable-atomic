@@ -1,24 +1,32 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic load/store implementation on MSP430.
+Atomic implementation on MSP430.
 
 Adapted from https://github.com/pftbest/msp430-atomic.
 
 Operations not supported here are provided by disabling interrupts.
 See also src/imp/interrupt/msp430.rs.
 
+See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
+detailed description of the atomic and synchronize instructions in this architecture:
+https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#msp430
+
 Note: Ordering is always SeqCst.
 
-Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+Refs:
+- MSP430x5xx and MSP430x6xx Family User's Guide, Rev. Q
+  https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+- atomic-maybe-uninit
+  https://github.com/taiki-e/atomic-maybe-uninit
 
 Generated asm:
-- msp430 https://godbolt.org/z/jaodMM4KM
+- msp430 https://godbolt.org/z/MGrd4jPoq
 */
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-#[cfg(any(test, not(feature = "critical-section")))]
+#[cfg(not(feature = "critical-section"))]
 use core::cell::UnsafeCell;
 use core::sync::atomic::Ordering;
 
@@ -60,37 +68,23 @@ pub fn compiler_fence(order: Ordering) {
 }
 
 macro_rules! atomic {
-    (load_store, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
-        #[cfg(any(test, not(feature = "critical-section")))]
+    (load_store, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+        #[cfg(not(feature = "critical-section"))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type $(<$($generics)*>)? {
             v: UnsafeCell<$value_type>,
         }
 
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(not(feature = "critical-section"))]
         // Send is implicitly implemented for atomic integers, but not for atomic pointers.
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(not(feature = "critical-section"))]
         // SAFETY: any data races are prevented by atomic operations.
         unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
 
-        #[cfg(any(test, not(feature = "critical-section")))]
+        #[cfg(not(feature = "critical-section"))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
-            #[cfg(test)]
-            #[inline]
-            pub(crate) const fn new(v: $value_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
-            }
-
-            #[cfg(test)]
-            #[inline]
-            pub(crate) fn is_lock_free() -> bool {
-                Self::IS_ALWAYS_LOCK_FREE
-            }
-            #[cfg(test)]
-            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = true;
-
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $value_type {
@@ -102,14 +96,14 @@ macro_rules! atomic {
                     let out;
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("mov", $asm_suffix, " @{src}, {out}"),
+                        concat!("mov.", $size, " @{src}, {out}"), // atomic { out = *src }
                         src = in(reg) src,
                         out = lateout(reg) out,
                         options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("mov", $asm_suffix, " $1, $0")
+                        concat!("mov.", $size, " $1, $0")
                         : "=r"(out) : "*m"(src) : "memory" : "volatile"
                     );
                     out
@@ -126,23 +120,23 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("mov", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("mov.", $size, " {val}, 0({dst})"), // atomic { *dst = val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("mov", $asm_suffix, " $1, $0")
+                        concat!("mov.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
             }
         }
     };
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
-        atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $asm_suffix);
-        #[cfg(any(test, not(feature = "critical-section")))]
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+        atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $size);
+        #[cfg(not(feature = "critical-section"))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[inline]
             pub(crate) fn add(&self, val: $value_type, _order: Ordering) {
@@ -152,7 +146,7 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("add", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("add.", $size, " {val}, 0({dst})"), // atomic { *dst += val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         // Do not use `preserves_flags` because ADD modifies the V, N, Z, and C bits of the status register.
@@ -160,7 +154,7 @@ macro_rules! atomic {
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("add", $asm_suffix, " $1, $0")
+                        concat!("add.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
@@ -174,7 +168,7 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("sub", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("sub.", $size, " {val}, 0({dst})"), // atomic { *dst -= val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         // Do not use `preserves_flags` because SUB modifies the V, N, Z, and C bits of the status register.
@@ -182,7 +176,7 @@ macro_rules! atomic {
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("sub", $asm_suffix, " $1, $0")
+                        concat!("sub.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
@@ -196,7 +190,7 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("and", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("and.", $size, " {val}, 0({dst})"), // atomic { *dst &= val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         // Do not use `preserves_flags` because AND modifies the V, N, Z, and C bits of the status register.
@@ -204,7 +198,7 @@ macro_rules! atomic {
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("and", $asm_suffix, " $1, $0")
+                        concat!("and.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
@@ -218,14 +212,14 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("bis", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("bis.", $size, " {val}, 0({dst})"), // atomic { *dst |= val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("bis", $asm_suffix, " $1, $0")
+                        concat!("bis.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
@@ -239,7 +233,7 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("xor", $asm_suffix, " {val}, 0({dst})"),
+                        concat!("xor.", $size, " {val}, 0({dst})"), // atomic { *dst ^= val }
                         dst = in(reg) dst,
                         val = in(reg) val,
                         // Do not use `preserves_flags` because XOR modifies the V, N, Z, and C bits of the status register.
@@ -247,7 +241,7 @@ macro_rules! atomic {
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("xor", $asm_suffix, " $1, $0")
+                        concat!("xor.", $size, " $1, $0")
                         :: "*m"(dst), "ir"(val) : "memory" : "volatile"
                     );
                 }
@@ -261,26 +255,26 @@ macro_rules! atomic {
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
-                        concat!("inv", $asm_suffix, " 0({dst})"),
+                        concat!("inv.", $size, " 0({dst})"), // atomic { *dst = !*dst }
                         dst = in(reg) dst,
                         // Do not use `preserves_flags` because INV modifies the V, N, Z, and C bits of the status register.
                         options(nostack),
                     );
                     #[cfg(portable_atomic_no_asm)]
                     llvm_asm!(
-                        concat!("inv", $asm_suffix, " $0")
+                        concat!("inv.", $size, " $0")
                         :: "*m"(dst) : "memory" : "volatile"
                     );
                 }
             }
         }
-    }
+    };
 }
 
-atomic!(AtomicI8, i8, ".b");
-atomic!(AtomicU8, u8, ".b");
-atomic!(AtomicI16, i16, ".w");
-atomic!(AtomicU16, u16, ".w");
-atomic!(AtomicIsize, isize, ".w");
-atomic!(AtomicUsize, usize, ".w");
-atomic!(load_store, [T] AtomicPtr, *mut T, ".w");
+atomic!(AtomicI8, i8, "b");
+atomic!(AtomicU8, u8, "b");
+atomic!(AtomicI16, i16, "w");
+atomic!(AtomicU16, u16, "w");
+atomic!(AtomicIsize, isize, "w");
+atomic!(AtomicUsize, usize, "w");
+atomic!(load_store, [T] AtomicPtr, *mut T, "w");

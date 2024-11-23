@@ -5,7 +5,9 @@ Adapted from https://github.com/rust-embedded/msp430.
 
 See also src/imp/msp430.rs.
 
-Refs: https://www.ti.com/lit/ug/slau208q/slau208q.pdf
+Refs:
+- MSP430x5xx and MSP430x6xx Family User's Guide, Rev. Q
+  https://www.ti.com/lit/ug/slau208q/slau208q.pdf
 
 Generated asm:
 - msp430 https://godbolt.org/z/fc6h89xac
@@ -27,11 +29,12 @@ pub(super) fn disable() -> State {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Do not use `preserves_flags` because DINT modifies the GIE (global interrupt enable) bit of the status register.
+        // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
-            "mov r2, {0}",
-            "dint {{ nop",
-            out(reg) sr,
+            "mov r2, {sr}", // sr = SR
+            "dint {{ nop",  // SR.GIE = 0
+            sr = out(reg) sr,
             options(nostack),
         );
         #[cfg(portable_atomic_no_asm)]
@@ -49,7 +52,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(sr: State) {
+pub(super) unsafe fn restore(prev_sr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     unsafe {
         // This clobbers the entire status register, but we never explicitly modify
@@ -61,9 +64,14 @@ pub(super) unsafe fn restore(sr: State) {
         //
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         // Do not use `preserves_flags` because MOV modifies the status register.
+        // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
         #[cfg(not(portable_atomic_no_asm))]
-        asm!("nop {{ mov {0}, r2 {{ nop", in(reg) sr, options(nostack));
+        asm!(
+            "nop {{ mov {prev_sr}, r2 {{ nop", // SR = prev_sr
+            prev_sr = in(reg) prev_sr,
+            options(nostack),
+        );
         #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("nop { mov $0, r2 { nop" :: "r"(sr) : "memory" : "volatile");
+        llvm_asm!("nop { mov $0, r2 { nop" :: "r"(prev_sr) : "memory" : "volatile");
     }
 }

@@ -37,6 +37,12 @@
 )]
 mod core_atomic;
 
+// AVR
+#[cfg(target_arch = "avr")]
+#[cfg(not(portable_atomic_no_asm))]
+#[cfg(not(feature = "critical-section"))]
+mod avr;
+
 // MSP430
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;

@@ -377,15 +377,14 @@ fn main() {
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
                 let target_endian =
                     env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-                // powerpc64le is pwr8+ by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
+                // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
                 // See also https://github.com/rust-lang/rust/issues/59932
-                let mut has_pwr8_features = target_endian == "little";
-                // https://github.com/llvm/llvm-project/commit/549e118e93c666914a1045fde38a2cac33e1e445
+                let mut pwr8_features = target_endian == "little";
                 if let Some(cpu) = &target_cpu() {
                     if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
-                            has_pwr8_features = cpu_version >= 8;
+                            pwr8_features = cpu_version >= 8;
                         }
                     } else {
                         // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
@@ -393,11 +392,12 @@ fn main() {
                         // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
                         // on this target (see CI config for more), "future" is based on pwr10 features.
                         // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
-                        has_pwr8_features = cpu == "ppc64le" || cpu == "future";
+                        pwr8_features = cpu == "future" || cpu == "ppc64le";
                     }
                 }
+                // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L409
                 // lqarx and stqcx.
-                target_feature_fallback("quadword-atomics", has_pwr8_features);
+                target_feature_fallback("quadword-atomics", pwr8_features);
             }
         }
         "s390x" => {
@@ -421,12 +421,14 @@ fn main() {
             }
             // As of rustc 1.80, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs
+            // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
             // bcr 14,0
             target_feature_fallback("fast-serialization", arch9_features);
             // {l,st}oc{,g}{,r}
             target_feature_fallback("load-store-on-cond", arch9_features);
             // {al,sl,n,o,x}{,g}rk
             target_feature_fallback("distinct-ops", arch9_features);
+            // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L301
             // nand (nnr{,g}k), select (sel{,g}r), etc.
             target_feature_fallback("miscellaneous-extensions-3", arch13_features);
         }
