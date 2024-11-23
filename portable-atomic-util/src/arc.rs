@@ -14,6 +14,8 @@
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
 #![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
 
+// https://github.com/rust-lang/rust/pull/131460
+
 use portable_atomic::{
     self as atomic, hint,
     Ordering::{Acquire, Relaxed, Release},

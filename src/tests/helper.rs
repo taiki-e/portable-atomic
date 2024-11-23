@@ -1335,6 +1335,126 @@ macro_rules! __test_atomic_bool {
                 }
                 true
             }
+            fn quickcheck_fetch_and(x: bool, y: bool) -> bool {
+                for &order in &helper::SWAP_ORDERINGS {
+                    for &base in &[false, true] {
+                        let mut arr = Align16([
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                        ]);
+                        let a_idx = fastrand::usize(3..=6);
+                        arr.0[a_idx] = <$atomic_type>::new(x);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_and(y, order), x);
+                        assert_eq!(a.load(Ordering::Relaxed), x & y);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        arr.0[a_idx] = <$atomic_type>::new(y);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_and(x, order), y);
+                        assert_eq!(a.load(Ordering::Relaxed), y & x);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                    }
+                }
+                true
+            }
+            fn quickcheck_fetch_or(x: bool, y: bool) -> bool {
+                for &order in &helper::SWAP_ORDERINGS {
+                    for &base in &[false, true] {
+                        let mut arr = Align16([
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                        ]);
+                        let a_idx = fastrand::usize(3..=6);
+                        arr.0[a_idx] = <$atomic_type>::new(x);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_or(y, order), x);
+                        assert_eq!(a.load(Ordering::Relaxed), x | y);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        arr.0[a_idx] = <$atomic_type>::new(y);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_or(x, order), y);
+                        assert_eq!(a.load(Ordering::Relaxed), y | x);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                    }
+                }
+                true
+            }
+            fn quickcheck_fetch_xor(x: bool, y: bool) -> bool {
+                for &order in &helper::SWAP_ORDERINGS {
+                    for &base in &[false, true] {
+                        let mut arr = Align16([
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                        ]);
+                        let a_idx = fastrand::usize(3..=6);
+                        arr.0[a_idx] = <$atomic_type>::new(x);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_xor(y, order), x);
+                        assert_eq!(a.load(Ordering::Relaxed), x ^ y);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        arr.0[a_idx] = <$atomic_type>::new(y);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_xor(x, order), y);
+                        assert_eq!(a.load(Ordering::Relaxed), y ^ x);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                    }
+                }
+                true
+            }
         }
     };
     ($atomic_type:ty) => {
@@ -1680,6 +1800,40 @@ macro_rules! __test_atomic_bool_pub {
                 }
                 assert_eq!((*ptr), true);
                 drop(Box::from_raw(ptr));
+            }
+        }
+        ::quickcheck::quickcheck! {
+            fn quickcheck_fetch_not(x: bool) -> bool {
+                for &order in &helper::SWAP_ORDERINGS {
+                    for &base in &[false, true] {
+                        let mut arr = Align16([
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                            <$atomic_type>::new(base),
+                        ]);
+                        let a_idx = fastrand::usize(3..=6);
+                        arr.0[a_idx] = <$atomic_type>::new(x);
+                        let a = &arr.0[a_idx];
+                        assert_eq!(a.fetch_not(order), x);
+                        assert_eq!(a.load(Ordering::Relaxed), !x);
+                        assert_eq!(a.fetch_not(order), !x);
+                        assert_eq!(a.load(Ordering::Relaxed), x);
+                        for i in 0..a_idx {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                        for i in a_idx + 1..arr.0.len() {
+                            assert_eq!(arr.0[i].load(Ordering::Relaxed), base, "invalid value written");
+                        }
+                    }
+                }
+                true
             }
         }
     };

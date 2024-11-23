@@ -519,6 +519,7 @@ pub mod hint {
         #[allow(deprecated)]
         core::sync::atomic::spin_loop_hint();
     }
+    // TODO: re-export core::hint::spin_loop on Rust 1.49+
 }
 
 #[cfg(doc)]
@@ -527,6 +528,9 @@ use core::{fmt, ptr};
 
 #[cfg(miri)]
 use crate::utils::strict;
+
+// TODO: reflect doc updates in https://github.com/rust-lang/rust/pull/120823 / https://github.com/rust-lang/rust/pull/121943 / https://github.com/rust-lang/rust/pull/121977 / https://github.com/rust-lang/rust/pull/126213
+// TODO: AtomicU*::saturating_sub https://github.com/llvm/llvm-project/pull/105568
 
 cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
@@ -807,7 +811,8 @@ impl AtomicBool {
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://godbolt.org/z/ofbGGdx44
+            // TODO: only do this on riscv when a/zaamo is enabled
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
         #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
@@ -869,7 +874,8 @@ impl AtomicBool {
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://godbolt.org/z/ofbGGdx44
+            // TODO: only do this on riscv when a/zaamo is enabled
             crate::utils::assert_compare_exchange_ordering(success, failure);
             let order = crate::utils::upgrade_success_ordering(success, failure);
             let old = if current == new {
@@ -943,7 +949,8 @@ impl AtomicBool {
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://godbolt.org/z/ofbGGdx44
+            // TODO: only do this on riscv when a/zaamo is enabled
             self.compare_exchange(current, new, success, failure)
         }
         #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
@@ -990,7 +997,22 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_and(val as u8, order) != 0
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            // See https://github.com/rust-lang/rust/pull/119462 for details.
+            if val {
+                // We still need to do a RMW operation for ordering.
+                // We don't want to change existing value so just add 0 to it.
+               self.as_atomic_u8().fetch_add(0, order) != 0
+            } else {
+                // (x & false) == false
+                self.swap(false, order)
+            }
+        }
+        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        {
+            self.as_atomic_u8().fetch_and(val as u8, order) != 0
+        }
     }
 
     /// Logical "and" with a boolean value.
@@ -1007,7 +1029,6 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_and` on some platforms.
     ///
-    /// - x86/x86_64: `lock and` instead of `cmpxchg` loop
     /// - MSP430: `and` instead of disabling interrupts
     ///
     /// Note: On x86/x86_64, the use of either function should not usually
@@ -1034,6 +1055,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
+        // no needed to do a trick used in fetch_and for x86, since there is `lock and`
         self.as_atomic_u8().and(val as u8, order);
     }
 
@@ -1114,7 +1136,22 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_or(val as u8, order) != 0
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            // See https://github.com/rust-lang/rust/pull/119462 for details.
+            if val {
+                // (x | true) == true
+                self.swap(true, order)
+            } else {
+                // We still need to do a RMW operation for ordering.
+                // We don't want to change existing value so just add 0 to it.
+                self.as_atomic_u8().fetch_add(0, order) != 0
+            }
+        }
+        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        {
+            self.as_atomic_u8().fetch_or(val as u8, order) != 0
+        }
     }
 
     /// Logical "or" with a boolean value.
@@ -1131,7 +1168,6 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
-    /// - x86/x86_64: `lock or` instead of `cmpxchg` loop
     /// - MSP430: `bis` instead of disabling interrupts
     ///
     /// Note: On x86/x86_64, the use of either function should not usually
@@ -1158,6 +1194,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn or(&self, val: bool, order: Ordering) {
+        // no needed to do a trick used in fetch_or for x86, since there is `lock or`
         self.as_atomic_u8().or(val as u8, order);
     }
 
@@ -1193,7 +1230,62 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
+        #[cfg(all(
+            any(target_arch = "x86", target_arch = "x86_64"),
+            not(any(miri, portable_atomic_sanitize_thread)),
+        ))]
+        unsafe {
+            #[cfg(not(portable_atomic_no_asm))]
+            use core::arch::asm;
+            #[cfg(target_pointer_width = "32")]
+            macro_rules! ptr_modifier {
+                () => {
+                    ":e"
+                };
+            }
+            #[cfg(target_pointer_width = "64")]
+            macro_rules! ptr_modifier {
+                () => {
+                    ""
+                };
+            }
+            let r: u8;
+            if val {
+                // TODO: avoid branch?
+                if self.v.get() as usize % 2 == 0 {
+                    asm!(
+                        concat!("lock btc word ptr [{dst", ptr_modifier!(), "}], 0"),
+                        "setb {r}",
+                        dst = in(reg) self.v.get(),
+                        r = out(reg_byte) r,
+                        // Do not use `preserves_flags` because BTC modifies the CF flag.
+                        options(nostack),
+                    );
+                } else {
+                    asm!(
+                        concat!("lock btc word ptr [{dst", ptr_modifier!(), "}], 8"),
+                        "setb {r}",
+                        dst = in(reg) self.v.get().sub(1),
+                        r = out(reg_byte) r,
+                        // Do not use `preserves_flags` because BTC modifies the CF flag.
+                        options(nostack),
+                    );
+                }
+                crate::utils::assert_unchecked(r == 0 || r == 1); // may help remove extra test
+                r != 0
+            } else {
+                // (true ^ false) == (true & true) == true
+                // (false ^ false) == (false & true) == false
+                self.fetch_and(true, order)
+            }
+        }
+        #[cfg(not(all(
+            any(target_arch = "x86", target_arch = "x86_64"),
+            not(any(miri, portable_atomic_sanitize_thread)),
+        )))]
+        {
+            self.as_atomic_u8().fetch_xor(val as u8, order) != 0
+        }
     }
 
     /// Logical "xor" with a boolean value.
@@ -1210,7 +1302,6 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
     /// - MSP430: `xor` instead of disabling interrupts
     ///
     /// Note: On x86/x86_64, the use of either function should not usually
@@ -1237,6 +1328,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
+        // no needed to do a trick used in fetch_xor for x86, since there is `lock xor`
         self.as_atomic_u8().xor(val as u8, order);
     }
 
@@ -1285,7 +1377,6 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
     /// - MSP430: `xor` instead of disabling interrupts
     ///
     /// Note: On x86/x86_64, the use of either function should not usually

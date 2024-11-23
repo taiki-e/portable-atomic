@@ -162,6 +162,7 @@ macro_rules! atomic {
             #[inline]
             fn optimistic_read(&self) -> $int_type {
                 // Using `MaybeUninit<[usize; Self::LEN]>` here doesn't change codegen: https://godbolt.org/z/86f8s733M
+                // TODO: ^ is not correct for opt-level=z
                 let mut dst: [Chunk; Self::LEN] = [0; Self::LEN];
                 // SAFETY:
                 // - There are no threads that perform non-atomic concurrent write operations.
@@ -193,6 +194,7 @@ macro_rules! atomic {
             fn read(&self, _guard: &SeqLockWriteGuard<'static>) -> $int_type {
                 // This calls optimistic_read that can return teared value, but the resulting value
                 // is guaranteed not to be teared because we hold the lock to write.
+                // TODO: revert https://github.com/taiki-e/portable-atomic/commit/fd513248843f3f8f89b4b4445068a3ddd2dd1cb4 since https://github.com/rust-lang/rust/pull/128778 merged
                 self.optimistic_read()
             }
 

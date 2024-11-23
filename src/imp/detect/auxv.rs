@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/L4Re/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
 - Linux 6.4+ (through prctl)
@@ -30,6 +30,7 @@ Supported platforms:
   Not always available on:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
   (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
+  L4Re 24.08+ uses uClibc-ng 1.0.49+ https://github.com/kernkonzept/l4re-core/commit/5a5aa27afff255022fbac85c6dfded04856522cd
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
 - Android 4.3+ (API level 18+) (through getauxval)
@@ -47,6 +48,7 @@ Supported platforms:
   - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
   Since Rust 1.84, std requires FreeBSD 13+ https://github.com/rust-lang/rust/pull/120869
+    TODO: https://github.com/rust-lang/rust/pull/132228 or https://github.com/rust-lang/rust/pull/132232
 - OpenBSD 7.6+ (through elf_aux_info)
   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
   Not always available on:
@@ -111,7 +113,7 @@ so we use it (see aarch64_aa64reg.rs).
 include!("common.rs");
 
 use self::os::ffi;
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
 mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
@@ -134,6 +136,7 @@ mod os {
             // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
             // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
+            // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/dlfcn.h
             // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
             #[cfg(any(
                 test,
@@ -171,6 +174,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
+                // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/sys/auxv.h
                 // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
                 #[cfg(any(
@@ -199,6 +203,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
+                // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/dlfcn.h
                 // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
                 #[cfg(any(
                     test,
@@ -442,12 +447,12 @@ mod arch {
         pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
         #[cfg(target_pointer_width = "64")]
         pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
         #[cfg(target_pointer_width = "64")]
         pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
     });
@@ -483,7 +488,7 @@ mod arch {
         if hwcap & HWCAP_USCAT != 0 {
             info.set(CpuInfo::HAS_LSE2);
         }
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
         // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
         #[cfg(target_pointer_width = "64")]
         {
@@ -585,6 +590,7 @@ mod tests {
     #[cfg(all(target_arch = "aarch64", target_os = "android"))]
     #[test]
     fn test_android() {
+        use std::{eprintln, slice, str};
         unsafe {
             let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
             let len = ffi::__system_property_get(
@@ -592,17 +598,16 @@ mod tests {
                 arch.as_mut_ptr().cast::<ffi::c_char>(),
             );
             assert!(len >= 0);
-            std::eprintln!("len={}", len);
-            std::eprintln!("arch={:?}", arch);
-            std::eprintln!(
+            eprintln!("len={}", len);
+            eprintln!("arch={:?}", arch);
+            eprintln!(
                 "arch={:?}",
-                core::str::from_utf8(core::slice::from_raw_parts(arch.as_ptr(), len as usize))
-                    .unwrap()
+                str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
             );
         }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
     #[test]
     fn test_dlsym_getauxval() {
         unsafe {
@@ -680,7 +685,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(any(target_os = "linux", target_os = "l4re", target_os = "android"))]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
     #[test]
     fn test_alternative() {

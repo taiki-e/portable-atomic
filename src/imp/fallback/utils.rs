@@ -71,6 +71,7 @@ use core::ops;
 // - https://github.com/torvalds/linux/blob/3516bd729358a2a9b090c1905bd2a3fa926e24c6/arch/sparc/include/asm/cache.h#L19
 //
 // All others are assumed to have 64-byte cache line size.
+// TODO: riscv Za128rs? https://github.com/riscv/riscv-profiles/issues/79
 #[cfg_attr(
     not(any(
         target_arch = "x86_64",

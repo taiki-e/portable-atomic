@@ -81,7 +81,7 @@ pub(crate) mod atomic {
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
     macro_rules! atomic {
-        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $asm_suffix:tt) => {
+        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $suffix:tt) => {
             #[repr(transparent)]
             pub(crate) struct $atomic_type $(<$($generics)*>)? {
                 v: UnsafeCell<$value_type>,
@@ -105,7 +105,7 @@ pub(crate) mod atomic {
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
                         asm!(
-                            concat!("ldr", $asm_suffix, " {out}, [{src}]"),
+                            concat!("ldr", $suffix, " {out}, [{src}]"),
                             src = in(reg) src,
                             out = lateout(reg) out,
                             options(nostack, preserves_flags),
@@ -124,7 +124,7 @@ pub(crate) mod atomic {
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
                         asm!(
-                            concat!("str", $asm_suffix, " {val}, [{dst}]"),
+                            concat!("str", $suffix, " {val}, [{dst}]"),
                             dst = in(reg) dst,
                             val = in(reg) val,
                             options(nostack, preserves_flags),

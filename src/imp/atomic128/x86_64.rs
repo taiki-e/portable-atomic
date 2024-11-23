@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-128-bit atomic implementation on x86_64 using CMPXCHG16B (DWCAS).
+128-bit atomic implementation on x86_64.
+
+This architecture provides the following 128-bit atomic instructions:
+
+- CMPXCHG16B: CAS (CMPXCHG16B)
+- VMOVDQA: load/store (Intel, AMD, or Zhaoxin CPU with AVX)
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use intrinsics.rs instead.

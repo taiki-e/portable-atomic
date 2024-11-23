@@ -54,6 +54,8 @@ fn __cpuid(leaf: u32) -> CpuidResult {
 const _VENDOR_ID_INTEL: [u32; 3] = _vender(b"GenuineIntel"); // Intel
 const _VENDOR_ID_INTEL2: [u32; 3] = _vender(b"GenuineIotel"); // Intel https://github.com/InstLatx64/InstLatx64/commit/8fdd319884c67d2c6ec1ca0c595b42c1c4b8d803
 const _VENDOR_ID_AMD: [u32; 3] = _vender(b"AuthenticAMD"); // AMD
+const _VENDOR_ID_HYGON: [u32; 3] = _vender(b"HygonGenuine"); // Hygon
+const _VENDOR_ID_VIA: [u32; 3] = _vender(b"VIA VIA VIA "); // VIA
 const _VENDOR_ID_CENTAUR: [u32; 3] = _vender(b"CentaurHauls"); // Centaur/VIA/Zhaoxin
 const _VENDOR_ID_ZHAOXIN: [u32; 3] = _vender(b"  Shanghai  "); // Zhaoxin
 const fn _vender(b: &[u8; 12]) -> [u32; 3] {
@@ -70,6 +72,7 @@ fn _vendor_id() -> [u32; 3] {
 fn _vendor_has_vmovdqa_atomic(vendor_id: [u32; 3], family: u32) -> bool {
     // VMOVDQA is atomic on Intel, AMD, and Zhaoxin CPUs with AVX.
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104688 for details.
+    // TODO: boost assume always true https://github.com/boostorg/atomic/commit/24a41db3e61627d99895f7e324b3d725d1be27c1
     vendor_id == _VENDOR_ID_INTEL
         || vendor_id == _VENDOR_ID_INTEL2
         || vendor_id == _VENDOR_ID_AMD

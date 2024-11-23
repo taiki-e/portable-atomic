@@ -10,6 +10,14 @@ Releases may yanked if there is a security bug, a soundness bug, or a regression
 Note: In this file, do not use the hard wrap in the middle of a sentence for compatibility with GitHub comment style markdown rendering.
 -->
 
+TODO:
+
+- detect on l4re
+- arm_linux: pre-v7
+- atomic ptr pair (double ptr)
+- aarch64: FEAT_LSE dynamic for load
+- aarch64: FEAT_LSE128 dynamic for swap/and/or
+
 ## [Unreleased]
 
 ## [1.10.0] - 2024-11-23

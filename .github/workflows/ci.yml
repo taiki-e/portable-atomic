@@ -608,12 +608,18 @@ jobs:
       fail-fast: false
       matrix:
         rust:
+          # TODO: test on macOS
           - '1.64' # LLVM 14
           # - '1.69' # LLVM 15
           - '1.72' # LLVM 16
           # - '1.77' # LLVM 17
           # - '1.81' # LLVM 18
           - stable
+          - nightly-2022-08-12 # Rust 1.65, LLVM 14
+          - nightly-2023-03-25 # Rust 1.70, LLVM 15
+          - nightly-2023-08-08 # Rust 1.73, LLVM 16
+          - nightly-2024-02-13 # Rust 1.78, LLVM 17
+          - nightly-2024-07-31 # Rust 1.82, LLVM 18
           - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -686,6 +692,10 @@ jobs:
         if: startsWith(matrix.rust, 'nightly-')
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32s2-none-elf
+        if: matrix.rust == 'stable'
+      - run: tools/build.sh +esp xtensa-esp32s2-none-elf
+        env:
+          TESTS: 1
         if: matrix.rust == 'stable'
       - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf
         if: matrix.rust == 'stable'

@@ -3,13 +3,13 @@
 /*
 128-bit atomic implementation on AArch64.
 
-There are a few ways to implement 128-bit atomic operations in AArch64.
+This architecture provides the following 128-bit atomic instructions:
 
-- LDXP/STXP loop (DW LL/SC)
-- CASP (DWCAS) added as Armv8.1 FEAT_LSE (optional from Armv8.0, mandatory from Armv8.1)
-- LDP/STP (DW load/store) if Armv8.4 FEAT_LSE2 (optional from Armv8.2, mandatory from Armv8.4) is available
-- LDIAPP/STILP (DW acquire-load/release-store) added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available)
-- LDCLRP/LDSETP/SWPP (DW RMW) added as Armv9.4 FEAT_LSE128 (optional from Armv9.3)
+- LDXP/STXP: LL/SC (Armv8.0 baseline)
+- CASP: CAS (added as Armv8.1 FEAT_LSE (optional from Armv8.0, mandatory from Armv8.1))
+- LDP/STP: load/store (if Armv8.4 FEAT_LSE2 (optional from Armv8.2, mandatory from Armv8.4) is available)
+- LDIAPP/STILP: acquire-load/release-store (added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available))
+- LDCLRP/LDSETP/SWPP: fetch-and-{clear,or},swap (added as Armv9.4 FEAT_LSE128 (optional from Armv9.3))
 
 This module supports all of these instructions and attempts to select the best
 one based on compile-time and run-time information about available CPU features
@@ -101,6 +101,7 @@ include!("macros.rs");
             portable_atomic_outline_atomics,
         ),
     ),
+    target_os = "l4re",
     target_os = "android",
     target_os = "freebsd",
 ))]
@@ -186,6 +187,7 @@ macro_rules! debug_assert_lse {
                         portable_atomic_outline_atomics,
                     ),
                 ),
+                target_os = "l4re",
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
@@ -223,6 +225,7 @@ macro_rules! debug_assert_lse2 {
                         portable_atomic_outline_atomics,
                     ),
                 ),
+                target_os = "l4re",
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
@@ -264,6 +267,7 @@ macro_rules! debug_assert_lse128 {
                         portable_atomic_outline_atomics,
                     ),
                 ),
+                target_os = "l4re",
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
@@ -305,6 +309,7 @@ macro_rules! debug_assert_rcpc3 {
                         portable_atomic_outline_atomics,
                     ),
                 ),
+                target_os = "l4re",
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
@@ -326,8 +331,9 @@ macro_rules! debug_assert_rcpc3 {
 //
 // This is similar to #[target_feature(enable = "lse")], except that there are
 // no compiler guarantees regarding (un)inlining, and the scope is within an asm
-// block rather than a function. We use this directive to support outline-atomics
-// on pre-1.61 rustc (aarch64_target_feature stabilized in Rust 1.61).
+// block rather than a function. We use this directive because #[target_feature(enable = "lse")]
+// is unstable on pre-1.61 rustc and incompatible with rustc_codegen_cranelift:
+// https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
 //
 // The .arch_extension directive is effective until the end of the assembly block and
 // is not propagated to subsequent code, so the end_lse macro is unneeded.
@@ -338,9 +344,6 @@ macro_rules! debug_assert_rcpc3 {
 //
 // The .arch directive has a similar effect, but we don't use it due to the following issue:
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
-//
-// This is also needed for compatibility with rustc_codegen_cranelift:
-// https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
 //
 // Note: If FEAT_LSE is not available at compile-time, we must guarantee that
 // the function that uses it is not inlined into a function where it is not
@@ -518,6 +521,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -547,7 +551,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             atomic_load_no_lse2_seqcst = atomic_load_no_lse2(Ordering::SeqCst);
         }
         // SAFETY: the caller must uphold the safety contract.
-        // and we've checked if FEAT_LSE2 is available.
+        // and we've checked if FEAT_LSE2/FEAT_LRCPC3 is available.
         unsafe {
             match order {
                 Ordering::Relaxed => {
@@ -615,6 +619,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -732,7 +737,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
                 asm!(
-                    // 0: d9411800     	ldiapp	x0, x1, [x0]
+                    // ldiapp x0, x1, [x0]
                     ".inst 0xd9411800",
                     in("x0") ptr_reg!(src),
                     lateout("x1") out_hi,
@@ -761,7 +766,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
                     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
                     "ldar {tmp}, [x0]",
-                    // 0: d9411800     	ldiapp	x0, x1, [x0]
+                    // ldiapp x0, x1, [x0]
                     ".inst 0xd9411800",
                     tmp = out(reg) _,
                     in("x0") ptr_reg!(src),
@@ -941,6 +946,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -972,7 +978,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             atomic_store_no_lse2_seqcst = atomic_store_no_lse2(Ordering::SeqCst);
         }
         // SAFETY: the caller must uphold the safety contract.
-        // and we've checked if FEAT_LSE2 is available.
+        // and we've checked if FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128 is available.
         unsafe {
             match order {
                 Ordering::Relaxed => {
@@ -1046,6 +1052,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -1173,7 +1180,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
                 asm!(
-                    // 0: d9031802     	stilp	x2, x3, [x0]
+                    // stilp x2, x3, [x0]
                     ".inst 0xd9031802",
                     $acquire,
                     in("x0") ptr_reg!(dst),
@@ -1272,6 +1279,7 @@ unsafe fn atomic_compare_exchange(
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -1411,6 +1419,7 @@ unsafe fn atomic_compare_exchange(
                     portable_atomic_outline_atomics,
                 ),
             ),
+            target_os = "l4re",
             target_os = "android",
             target_os = "freebsd",
             target_os = "netbsd",
@@ -1631,7 +1640,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         macro_rules! swap {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 4: 19{2,a,6,e}18002     	swpp{,a,l,al}	x2, x1, [x0]
+                    // swpp{,a,l,al} x2, x1, [x0]
                     concat!(".inst 0x19", $order, "18002"),
                     $fence,
                     in("x0") ptr_reg!(dst),
@@ -2052,7 +2061,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! clear {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 8: 19{2,a,6,e}11008     	ldclrp{,a,l,al}	x8, x1, [x0]
+                    // ldclrp{,a,l,al} x8, x1, [x0]
                     concat!(".inst 0x19", $order, "11008"),
                     $fence,
                     in("x0") ptr_reg!(dst),
@@ -2130,7 +2139,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         macro_rules! or {
             ($order:tt, $fence:tt) => {
                 asm!(
-                    // 4: 19{2,a,6,e}13002     	ldsetp{,a,l,al}	x2, x1, [x0]
+                    // ldsetp{,a,l,al} x2, x1, [x0]
                     concat!(".inst 0x19", $order, "13002"),
                     $fence,
                     in("x0") ptr_reg!(dst),

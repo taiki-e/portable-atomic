@@ -454,6 +454,9 @@ mod tests {
                 mib.pop(); // pop CTL_QUERY
                 Ok(nodes)
             }
+            // TODO
+            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/lib/libc/gen/sysctlbyname.c
+            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/lib/libc/gen/sysctlgetmibinfo.c
             fn name_to_mib(parts: &[&[u8]]) -> Result<Vec<i32>, i32> {
                 let mut mib = vec![];
                 for (part_no, &part) in parts.iter().enumerate() {

@@ -129,6 +129,7 @@ macro_rules! atomic_bit_opts {
         // So, use fetch_* based implementations on LLVM 16+, otherwise use asm based implementations.
         #[cfg(not(portable_atomic_pre_llvm_16))]
         impl_default_bit_opts!($atomic_type, $int_type);
+        // TODO: test with cranelift
         #[cfg(portable_atomic_pre_llvm_16)]
         impl $atomic_type {
             // `<integer>::BITS` requires Rust 1.53

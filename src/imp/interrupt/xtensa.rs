@@ -8,6 +8,8 @@ Refs:
   https://github.com/torvalds/linux/blob/v6.11/arch/xtensa/include/asm/atomic.h
 */
 
+// TODO: use a14? https://github.com/torvalds/linux/blob/v6.11/arch/xtensa/include/asm/atomic.h#L33-L37
+
 use core::arch::asm;
 
 pub(super) use core::sync::atomic;
