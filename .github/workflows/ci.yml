@@ -502,10 +502,9 @@ jobs:
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.1'
-          # TODO: download error: https://cdn.NetBSD.org/pub/pkgsrc/packages/NetBSD/aarch64/10.0/All/rust-1.76.0nb3.tgz truncated
-          # - target: aarch64-unknown-netbsd
-          #   os: netbsd
-          #   version: '10.0'
+          - target: aarch64-unknown-netbsd
+            os: netbsd
+            version: '10.0'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.6'
