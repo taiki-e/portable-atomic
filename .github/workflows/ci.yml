@@ -778,8 +778,7 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
   codegen:
-    needs: tidy
-    runs-on: ubuntu-24.04 # old clang doesn't support AArch64 illumos # TODO: use ubuntu-latest once https://github.com/actions/runner-images/issues/10636 done
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: read
