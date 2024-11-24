@@ -1,4 +1,0 @@
-[target.avr-unknown-gnu-atmega2560]
-runner = "simavr --mcu atmega2560"
-# $ RUSTFLAGS='--cfg qemu' ./tools/no-std.sh avr-unknown-gnu-atmega2560
-# runner = "qemu-system-avr -M mega2560 -display none -serial stdio -bios"

@@ -61,7 +61,7 @@ x_cargo() {
     if [[ -n "${RUSTFLAGS:-}" ]]; then
         printf '%s\n' "+ RUSTFLAGS='${RUSTFLAGS}' \\"
     fi
-    x cargo "$@"
+    x cargo ${pre_args[@]+"${pre_args[@]}"} "${subcmd}" "$@"
     printf '\n'
 }
 retry() {
@@ -106,7 +106,8 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
-target_dir=$(pwd)/target
+workspace_dir=$(pwd)
+target_dir="${workspace_dir}/target"
 nightly=''
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
     nightly=1
@@ -123,18 +124,17 @@ run() {
     target_lower="${target//-/_}"
     target_lower="${target_lower//./_}"
     target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
-    local args=(${pre_args[@]+"${pre_args[@]}"})
     local target_rustflags="${RUSTFLAGS:-}"
     if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
         if [[ ! -f "target-specs/${target}.json" ]]; then
             printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped)"
             return 0
         fi
-        local target_flags=(--target "$(pwd)/target-specs/${target}.json")
+        local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
     else
         local target_flags=(--target "${target}")
     fi
-    local subcmd=run
+    subcmd=run
     if [[ -z "${CI:-}" ]]; then
         case "${target}" in
             armv4t* | thumbv4t*)
@@ -166,7 +166,7 @@ run() {
             fi
             ;;
     esac
-    args+=("${subcmd}" "${target_flags[@]}")
+    local args=("${target_flags[@]}")
     if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
         retry rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     elif [[ -n "${nightly}" ]]; then
@@ -203,11 +203,11 @@ run() {
             ;;
         avr*)
             test_dir=tests/avr
+            export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh simavr ${target}"
             ;;
         msp430*)
             test_dir=tests/msp430
-            runner="$(pwd)/tools/mspdebug-test-runner.sh"
-            export "CARGO_TARGET_${target_upper}_RUNNER"="${runner}"
+            export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh mspdebug ${target}"
             # Refs: https://github.com/rust-embedded/msp430-quickstart/blob/535cd3c810ec6096a1dd0546ea290ed94aa6fd01/.cargo/config
             linker=link.x
             target_rustflags+=" -C link-arg=-T${linker}"
@@ -218,6 +218,7 @@ run() {
             ;;
         xtensa*)
             test_dir=tests/xtensa
+            export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh wokwi-server ${target}"
             linker=linkall.x
             target_rustflags+=" -C link-arg=-Wl,-T${linker} -C link-arg=-nostartfiles"
             ;;
@@ -282,6 +283,17 @@ run() {
                             x_cargo "${args[@]}" --release "$@"
                     fi
                 fi
+                ;;
+            avr*)
+                # Run with qemu-system-avr.
+                subcmd=run
+                export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh qemu-system ${target}"
+                CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+                    RUSTFLAGS="${target_rustflags} --cfg qemu" \
+                    x_cargo "${args[@]}" "$@"
+                CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+                    RUSTFLAGS="${target_rustflags} --cfg qemu" \
+                    x_cargo "${args[@]}" --release "$@"
                 ;;
             msp430*)
                 # Note: We cannot test everything at once due to size.

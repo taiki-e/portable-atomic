@@ -1,3 +1,0 @@
-[target.'cfg(all(target_arch = "msp430", target_os = "none"))']
-# Not in PATH (handled in tools/no-std.sh).
-# runner = "mspdebug-test-runner.sh"

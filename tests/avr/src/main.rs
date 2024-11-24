@@ -98,7 +98,9 @@ fn main() -> ! {
         // test_atomic_float!(f64);
     }
 
-    semihosting::exit(0)
+    println!("Tests finished successfully");
+
+    sim::exit(0)
 }
 
 #[inline(never)]
@@ -108,7 +110,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
 
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let pins = arduino_hal::pins!(dp);
-    let mut serial = semihosting::Usart(arduino_hal::default_serial!(dp, pins, 57600));
+    let mut serial = sim::Usart(arduino_hal::default_serial!(dp, pins, 57600));
 
     macro_rules! println {
         ($($tt:tt)*) => {{
@@ -118,19 +120,17 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     }
 
     println!("{info}");
-    semihosting::exit(1)
+    sim::exit(1)
 }
 
-mod semihosting {
+mod sim {
     use core::fmt;
 
-    pub fn exit(code: u32) -> ! {
-        // It seems there is no way to exit simavr with a non-zero exit code.
+    pub fn exit(_code: u32) -> ! {
+        // Note that there is no way to exit simavr with a non-zero exit code.
         // https://github.com/buserror/simavr/issues/362
-        if code == 0 {
-            avr_device::interrupt::disable();
-            avr_device::asm::sleep();
-        }
+        avr_device::interrupt::disable();
+        avr_device::asm::sleep();
         #[allow(clippy::empty_loop)] // this test crate is #![no_std]
         loop {}
     }
