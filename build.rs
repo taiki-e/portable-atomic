@@ -248,10 +248,10 @@ fn main() {
                 // Script to get builtin targets that support CMPXCHG16B by default:
                 // $ (for target in $(rustc --print target-list | grep -E '^x86_64'); do rustc --print cfg --target "${target}" | grep -Fq '"cmpxchg16b"' && printf '%s\n' "${target}"; done)
                 let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";
-                let has_cmpxchg16b = is_apple;
+                let cmpxchg16b = is_apple;
                 // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/KM3jz616j
                 // However, it is unlikely that rustc will support that name, so we ignore it.
-                target_feature_fallback("cmpxchg16b", has_cmpxchg16b);
+                target_feature_fallback("cmpxchg16b", cmpxchg16b);
             }
         }
         "aarch64" | "arm64ec" => {
@@ -271,13 +271,13 @@ fn main() {
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
                 // $ (for target in $(rustc --print target-list | grep -E '^aarch64|^arm64'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
                 let is_macos = target_os == "macos";
-                let mut has_lse = is_macos;
+                let mut lse = is_macos;
                 target_feature_fallback("lse2", is_macos);
-                has_lse |= target_feature_fallback("lse128", false);
+                lse |= target_feature_fallback("lse128", false);
                 target_feature_fallback("rcpc3", false);
                 // aarch64_target_feature stabilized in Rust 1.61.
                 if needs_target_feature_fallback(&version, Some(61)) {
-                    target_feature_fallback("lse", has_lse);
+                    target_feature_fallback("lse", lse);
                 }
             }
 
@@ -347,7 +347,7 @@ fn main() {
             // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/TargetParser/RISCVISAInfo.cpp#L772-L778
             // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45-L46
             // https://github.com/rust-lang/rust/pull/130877
-            let mut has_zaamo = false;
+            let mut zaamo = false;
             // As of rustc 1.80, target_feature "zacas" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
             if version.llvm == 19 {
@@ -359,17 +359,17 @@ fn main() {
                 // check == 19 instead of >= 19 because "experimental-zacas" feature
                 // may no longer exist when it is marked as non-experimental in LLVM 20.
                 // https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
-                has_zaamo |= target_feature_fallback("experimental-zacas", false);
+                zaamo |= target_feature_fallback("experimental-zacas", false);
             }
             // target_feature "zaamo"/"zabha" is unstable and available on rustc side since nightly-2024-10-02: https://github.com/rust-lang/rust/pull/130877
             if !version.probe(83, 2024, 10, 1) || needs_target_feature_fallback(&version, None) {
                 if version.llvm >= 19 {
                     // amo*.{b,h}
                     // available since LLVM 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
-                    has_zaamo |= target_feature_fallback("zabha", false);
+                    zaamo |= target_feature_fallback("zabha", false);
                 }
                 // amo*.{w,d}
-                target_feature_fallback("zaamo", has_zaamo);
+                target_feature_fallback("zaamo", zaamo);
             }
         }
         "powerpc64" => {
