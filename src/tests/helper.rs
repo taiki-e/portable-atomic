@@ -83,8 +83,10 @@ macro_rules! __test_atomic_int_load_store {
                 VAR.store(10, store_order);
                 let a = <$atomic_type>::new(1);
                 assert_eq!(a.load(load_order), 1);
-                a.store(2, store_order);
-                assert_eq!(a.load(load_order), 2);
+                a.store($int_type::MIN, store_order);
+                assert_eq!(a.load(load_order), $int_type::MIN);
+                a.store($int_type::MAX, store_order);
+                assert_eq!(a.load(load_order), $int_type::MAX);
             }
         }
     };
@@ -276,7 +278,9 @@ macro_rules! __test_atomic_int {
             test_swap_ordering(|order| a.swap(5, order));
             for &order in &helper::SWAP_ORDERINGS {
                 assert_eq!(a.swap(10, order), 5);
-                assert_eq!(a.swap(5, order), 10);
+                assert_eq!(a.swap($int_type::MIN, order), 10);
+                assert_eq!(a.swap($int_type::MAX, order), $int_type::MIN);
+                assert_eq!(a.swap(5, order), $int_type::MAX);
             }
         }
         #[test]
