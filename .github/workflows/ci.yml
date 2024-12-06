@@ -189,7 +189,7 @@ jobs:
             target: armv5te-unknown-linux-gnueabi
           - rust: stable
             target: armv5te-unknown-linux-gnueabi
-          - rust: nightly
+          - rust: nightly-2024-11-27 # TODO: LLVM bug with release build
             target: armv5te-unknown-linux-gnueabi
           - rust: nightly
             target: arm-unknown-linux-gnueabi
