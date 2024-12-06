@@ -301,7 +301,7 @@ mod os {
         sys_const!({
             // FreeBSD
             // Defined in sys/elf_common.h.
-            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/elf_common.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/sys/elf_common.h
             // OpenBSD
             // Defined in sys/auxv.h.
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
@@ -312,7 +312,7 @@ mod os {
             // FreeBSD
             // Defined in dlfcn.h.
             // https://man.freebsd.org/dlsym(3)
-            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/include/dlfcn.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/include/dlfcn.h
             // OpenBSD
             // Defined in dlfcn.h.
             // https://man.openbsd.org/dlsym.3
@@ -333,7 +333,7 @@ mod os {
                 // FreeBSD
                 // Defined in sys/auxv.h.
                 // https://man.freebsd.org/elf_aux_info(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/sys/auxv.h
+                // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/sys/auxv.h
                 // OpenBSD
                 // Defined in sys/auxv.h.
                 // https://man.openbsd.org/elf_aux_info.3
@@ -350,7 +350,7 @@ mod os {
                 // FreeBSD
                 // Defined in dlfcn.h.
                 // https://man.freebsd.org/dlsym(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/include/dlfcn.h
+                // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/include/dlfcn.h
                 // OpenBSD
                 // Defined in dlfcn.h.
                 // https://man.openbsd.org/dlsym.3
@@ -420,7 +420,7 @@ mod arch {
         // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/elf.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/arm64/include/elf.h
         // OpenBSD
         // Defined in machine/elf.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
@@ -507,7 +507,7 @@ mod arch {
         // https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/powerpc/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/cpu.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/powerpc/include/cpu.h
+        // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/powerpc/include/cpu.h
         // OpenBSD
         // Defined in machine/elf.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
@@ -925,7 +925,7 @@ mod tests {
             #[allow(non_camel_case_types)]
             type pid_t = c_int;
 
-            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/lib/libc/aarch64/SYS.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/lib/libc/aarch64/SYS.h
             // https://github.com/golang/go/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/src/syscall/asm_freebsd_arm64.s
             #[cfg(target_arch = "aarch64")]
             #[inline]
@@ -982,7 +982,7 @@ mod tests {
                 }
             }
 
-            // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/lib/libc/powerpc64/SYS.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/lib/libc/powerpc64/SYS.h
             #[cfg(target_arch = "powerpc64")]
             #[inline]
             fn getpid() -> pid_t {
