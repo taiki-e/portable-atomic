@@ -375,13 +375,9 @@ fn main() {
         "powerpc64" => {
             // target_feature "quadword-atomics" is unstable and available on rustc side since nightly-2024-09-28: https://github.com/rust-lang/rust/pull/130873
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
-                let target_endian =
-                    env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-                // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
-                // See also https://github.com/rust-lang/rust/issues/59932
-                let mut pwr8_features = target_endian == "little";
-                if let Some(cpu) = &target_cpu() {
-                    if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
+                let mut pwr8_features = false;
+                if let Some(cpu) = target_cpu() {
+                    if let Some(mut cpu_version) = strip_prefix(&cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
                             pwr8_features = cpu_version >= 8;
@@ -394,6 +390,12 @@ fn main() {
                         // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
                         pwr8_features = cpu == "future" || cpu == "ppc64le";
                     }
+                } else {
+                    // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
+                    // See also https://github.com/rust-lang/rust/issues/59932
+                    pwr8_features = env::var("CARGO_CFG_TARGET_ENDIAN")
+                        .expect("CARGO_CFG_TARGET_ENDIAN not set")
+                        == "little";
                 }
                 // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L409
                 // lqarx and stqcx.
@@ -401,7 +403,6 @@ fn main() {
             }
         }
         "s390x" => {
-            // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
