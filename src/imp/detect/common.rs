@@ -17,7 +17,7 @@ impl CpuInfo {
 
 #[inline]
 fn set(x: u32, bit: u32) -> u32 {
-    x | 1 << bit
+    x | (1 << bit)
 }
 #[inline]
 fn test(x: u32, bit: u32) -> bool {
