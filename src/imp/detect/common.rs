@@ -290,19 +290,41 @@ mod c_types {
     // c_size_t is currently always usize
     // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
     pub(crate) type c_size_t = usize;
-    // c_char is u8 by default on most non-Apple/non-Windows Arm/PowerPC/RISC-V/s390x/Hexagon targets
-    // (Linux/Android/FreeBSD/NetBSD/OpenBSD/VxWorks/Fuchsia/QNX Neutrino/Horizon/AIX/z/OS)
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L83
-    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/lldb/source/Utility/ArchSpec.cpp#L712
-    // RISC-V https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-cc.adoc#cc-type-representations
-    // Hexagon https://lists.llvm.org/pipermail/llvm-dev/attachments/20190916/21516a52/attachment-0001.pdf
-    // AIX https://www.ibm.com/docs/en/xl-c-aix/13.1.3?topic=specifiers-character-types
-    // z/OS https://www.ibm.com/docs/en/zos/3.1.0?topic=specifiers-character-types
-    // (Windows currently doesn't use this module)
-    #[cfg(not(target_vendor = "apple"))]
+    // c_char is u8 by default on non-Apple/non-Windows Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets
+    // See references in https://github.com/rust-lang/rust/issues/129945 for details.
+    #[cfg(all(
+        not(any(target_vendor = "apple", windows)),
+        any(
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "csky",
+            target_arch = "hexagon",
+            target_arch = "msp430",
+            target_arch = "powerpc",
+            target_arch = "powerpc64",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "xtensa",
+        ),
+    ))]
     pub(crate) type c_char = u8;
-    // c_char is i8 on all Apple targets
-    #[cfg(target_vendor = "apple")]
+    #[cfg(not(all(
+        not(any(target_vendor = "apple", windows)),
+        any(
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "csky",
+            target_arch = "hexagon",
+            target_arch = "msp430",
+            target_arch = "powerpc",
+            target_arch = "powerpc64",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "xtensa",
+        ),
+    )))]
     pub(crate) type c_char = i8;
 
     // Static assertions for C type definitions.
@@ -314,10 +336,6 @@ mod c_types {
         let _: c_long = 0 as std::os::raw::c_long;
         let _: c_ulong = 0 as std::os::raw::c_ulong;
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
-        #[cfg(not(any(
-            all(target_arch = "aarch64", target_os = "illumos"), // TODO: https://github.com/rust-lang/rust/issues/129945
-            all(target_arch = "riscv64", target_os = "android"), // TODO: https://github.com/rust-lang/rust/issues/129945
-        )))]
         let _: c_char = 0 as std::os::raw::c_char;
         let _: c_char = 0 as sys::c_char;
     };
