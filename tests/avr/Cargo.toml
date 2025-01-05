@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-avr-device = "0.6"
+avr-device = "0.7"
 paste = "1"
 ufmt = "0.2"
 
