@@ -75,24 +75,7 @@ fn main() -> ! {
 
     println!("starting tests...");
 
-    #[cfg(not(any(
-        feature = "bool",
-        feature = "ptr",
-        feature = "isize",
-        feature = "usize",
-        feature = "i8",
-        feature = "u8",
-        feature = "i16",
-        feature = "u16",
-        feature = "i32",
-        feature = "u32",
-        feature = "i64",
-        feature = "u64",
-        feature = "i128",
-        feature = "u128",
-        feature = "f32",
-        feature = "f64",
-    )))]
+    #[cfg(feature = "default")]
     {
         // misc
         for order in helper::FENCE_ORDERINGS {
