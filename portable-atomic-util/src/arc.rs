@@ -3020,7 +3020,7 @@ fn abort() -> ! {
 }
 
 fn is_dangling<T: ?Sized>(ptr: *const T) -> bool {
-    ptr as *const () as usize == usize::MAX
+    (ptr as *const ()).addr() == usize::MAX
 }
 
 // Based on unstable alloc::alloc::Global.
@@ -3061,8 +3061,18 @@ impl Global {
     }
 }
 
-// TODO: use stabilized core::ptr strict_provenance helpers https://github.com/rust-lang/rust/pull/130350
+#[cfg(portable_atomic_no_strict_provenance)]
+use self::strict::PtrExt;
+
+// strict_provenance polyfill for pre-1.84 rustc.
 mod strict {
+    #[cfg(portable_atomic_no_strict_provenance)]
+    use core::mem;
+    #[cfg(not(portable_atomic_no_strict_provenance))]
+    #[allow(unused_imports)]
+    pub(crate) use core::ptr::without_provenance_mut;
+
+    #[cfg(portable_atomic_no_strict_provenance)]
     #[inline(always)]
     #[must_use]
     pub(super) const fn without_provenance_mut<T>(addr: usize) -> *mut T {
@@ -3073,7 +3083,7 @@ mod strict {
         // pointer).
         #[cfg(miri)]
         unsafe {
-            core::mem::transmute(addr)
+            mem::transmute(addr)
         }
         // const transmute requires Rust 1.56.
         #[cfg(not(miri))]
@@ -3110,5 +3120,27 @@ mod strict {
     pub(super) unsafe fn byte_sub<T: ?Sized>(ptr: *mut T, count: usize) -> *mut T {
         // SAFETY: the caller must uphold the safety contract for `sub`.
         unsafe { with_metadata_of((ptr as *mut u8).sub(count), ptr) }
+    }
+
+    #[cfg(portable_atomic_no_strict_provenance)]
+    pub(crate) trait PtrExt<T: ?Sized>: Copy {
+        #[must_use]
+        fn addr(self) -> usize;
+    }
+    #[cfg(portable_atomic_no_strict_provenance)]
+    impl<T: ?Sized> PtrExt<T> for *const T {
+        #[must_use]
+        #[inline(always)]
+        fn addr(self) -> usize {
+            // A pointer-to-integer transmute currently has exactly the right semantics: it returns the
+            // address without exposing the provenance. Note that this is *not* a stable guarantee about
+            // transmute semantics, it relies on sysroot crates having special status.
+            // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the
+            // provenance).
+            #[allow(clippy::transmutes_expressible_as_ptr_casts)]
+            unsafe {
+                mem::transmute(self as *const ())
+            }
+        }
     }
 }

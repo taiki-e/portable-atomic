@@ -15,6 +15,8 @@ use core::{
 };
 
 use super::fallback::utils::{Backoff, CachePadded};
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt;
 
 struct Spinlock {
     state: AtomicUsize,
@@ -106,7 +108,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     self.v.get().read()
                 }
             }
@@ -118,7 +120,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     self.v.get().write(val)
                 }
             }
@@ -128,7 +130,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(val);
                     prev
@@ -148,7 +150,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     if prev == current {
                         self.v.get().write(new);
@@ -176,7 +178,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev.wrapping_add(val));
                     prev
@@ -188,7 +190,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev.wrapping_sub(val));
                     prev
@@ -200,7 +202,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev & val);
                     prev
@@ -212,7 +214,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(!(prev & val));
                     prev
@@ -224,7 +226,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev | val);
                     prev
@@ -236,7 +238,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev ^ val);
                     prev
@@ -248,7 +250,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(core::cmp::max(prev, val));
                     prev
@@ -260,7 +262,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(core::cmp::min(prev, val));
                     prev
@@ -272,7 +274,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(!prev);
                     prev
@@ -288,7 +290,7 @@ macro_rules! atomic_int {
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let _guard = lock(self.v.get() as usize);
+                    let _guard = lock(self.v.get().addr());
                     let prev = self.v.get().read();
                     self.v.get().write(prev.wrapping_neg());
                     prev

@@ -42,7 +42,7 @@ fn __kuser_helper_version() -> i32 {
     // SAFETY: core assumes that at least __kuser_memory_barrier (__kuser_helper_version >= 3,
     // kernel version 2.6.15+) is available on this platform. __kuser_helper_version
     // is always available on such a platform.
-    v = unsafe { (KUSER_HELPER_VERSION as *const i32).read() };
+    v = unsafe { crate::utils::ptr::with_exposed_provenance::<i32>(KUSER_HELPER_VERSION).read() };
     CACHE.store(v, Ordering::Relaxed);
     v
 }
@@ -61,7 +61,7 @@ unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
-            mem::transmute(KUSER_CMPXCHG64 as *const ());
+            mem::transmute(crate::utils::ptr::with_exposed_provenance::<()>(KUSER_CMPXCHG64));
         f(old_val, new_val, ptr) == 0
     }
 }
@@ -310,7 +310,9 @@ mod tests {
     fn kuser_helper_version() {
         let version = __kuser_helper_version();
         assert!(version >= 5, "{:?}", version);
-        assert_eq!(version, unsafe { (KUSER_HELPER_VERSION as *const i32).read() });
+        assert_eq!(version, unsafe {
+            crate::utils::ptr::with_exposed_provenance::<i32>(KUSER_HELPER_VERSION).read()
+        });
     }
 
     test_atomic_int!(i64);

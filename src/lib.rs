@@ -212,6 +212,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     clippy::float_arithmetic,
 )]
 #![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
+#![cfg_attr(portable_atomic_no_strict_provenance, allow(unstable_name_collisions))]
 #![allow(clippy::inline_always, clippy::used_underscore_items)]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
@@ -525,8 +526,9 @@ pub mod hint {
 use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
 use core::{fmt, ptr};
 
+#[cfg(portable_atomic_no_strict_provenance)]
 #[cfg(miri)]
-use crate::utils::strict;
+use crate::utils::ptr::PtrExt;
 
 cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
@@ -2135,11 +2137,13 @@ impl<T> AtomicPtr<T> {
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(miri)]
         {
-            self.fetch_update_(order, |x| strict::map_addr(x, |x| x.wrapping_add(val)))
+            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_add(val)))
         }
         #[cfg(not(miri))]
         {
-            self.as_atomic_usize().fetch_add(val, order) as *mut T
+            crate::utils::ptr::with_exposed_provenance_mut(
+                self.as_atomic_usize().fetch_add(val, order)
+            )
         }
     }
 
@@ -2179,11 +2183,13 @@ impl<T> AtomicPtr<T> {
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(miri)]
         {
-            self.fetch_update_(order, |x| strict::map_addr(x, |x| x.wrapping_sub(val)))
+            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_sub(val)))
         }
         #[cfg(not(miri))]
         {
-            self.as_atomic_usize().fetch_sub(val, order) as *mut T
+            crate::utils::ptr::with_exposed_provenance_mut(
+                self.as_atomic_usize().fetch_sub(val, order)
+            )
         }
     }
 
@@ -2238,11 +2244,13 @@ impl<T> AtomicPtr<T> {
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(miri)]
         {
-            self.fetch_update_(order, |x| strict::map_addr(x, |x| x | val))
+            self.fetch_update_(order, |x| x.with_addr(x.addr() | val))
         }
         #[cfg(not(miri))]
         {
-            self.as_atomic_usize().fetch_or(val, order) as *mut T
+            crate::utils::ptr::with_exposed_provenance_mut(
+                self.as_atomic_usize().fetch_or(val, order)
+            )
         }
     }
 
@@ -2295,11 +2303,13 @@ impl<T> AtomicPtr<T> {
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(miri)]
         {
-            self.fetch_update_(order, |x| strict::map_addr(x, |x| x & val))
+            self.fetch_update_(order, |x| x.with_addr(x.addr() & val))
         }
         #[cfg(not(miri))]
         {
-            self.as_atomic_usize().fetch_and(val, order) as *mut T
+            crate::utils::ptr::with_exposed_provenance_mut(
+                self.as_atomic_usize().fetch_and(val, order)
+            )
         }
     }
 
@@ -2351,11 +2361,13 @@ impl<T> AtomicPtr<T> {
         // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
         #[cfg(miri)]
         {
-            self.fetch_update_(order, |x| strict::map_addr(x, |x| x ^ val))
+            self.fetch_update_(order, |x| x.with_addr(x.addr() ^ val))
         }
         #[cfg(not(miri))]
         {
-            self.as_atomic_usize().fetch_xor(val, order) as *mut T
+            crate::utils::ptr::with_exposed_provenance_mut(
+                self.as_atomic_usize().fetch_xor(val, order)
+            )
         }
     }
 
@@ -2399,7 +2411,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_or(mask, order) as usize & mask != 0
+            self.fetch_or(mask, order).addr() & mask != 0
         }
         #[cfg(not(miri))]
         {
@@ -2444,7 +2456,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_and(!mask, order) as usize & mask != 0
+            self.fetch_and(!mask, order).addr() & mask != 0
         }
         #[cfg(not(miri))]
         {
@@ -2489,7 +2501,7 @@ impl<T> AtomicPtr<T> {
         #[cfg(miri)]
         {
             let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_xor(mask, order) as usize & mask != 0
+            self.fetch_xor(mask, order).addr() & mask != 0
         }
         #[cfg(not(miri))]
         {

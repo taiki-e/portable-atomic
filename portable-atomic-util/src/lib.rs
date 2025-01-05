@@ -84,6 +84,7 @@ RUSTFLAGS="--cfg portable_atomic_unstable_coerce_unsized" cargo ...
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
 )]
+#![cfg_attr(portable_atomic_no_strict_provenance, allow(unstable_name_collisions))]
 #![allow(clippy::inline_always)]
 // docs.rs only (cfg is enabled by docs.rs, not build script)
 #![cfg_attr(docsrs, feature(doc_cfg))]

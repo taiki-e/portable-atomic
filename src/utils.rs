@@ -413,6 +413,8 @@ type RetInt = u32;
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
+    #[cfg(portable_atomic_no_strict_provenance)]
+    use self::ptr::PtrExt;
     use core::mem;
     // RISC-V, MIPS, SPARC, LoongArch, Xtensa: shift amount of 32-bit shift instructions is 5 bits unsigned (0-31).
     // PowerPC, C-SKY: shift amount of 32-bit shift instructions is 6 bits unsigned (0-63) and shift amount 32-63 means "clear".
@@ -433,12 +435,12 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
         target_arch = "xtensa",
     ));
     let ptr_mask = mem::size_of::<MinWord>() - 1;
-    let aligned_ptr = strict::with_addr(ptr, ptr as usize & !ptr_mask) as *mut MinWord;
+    let aligned_ptr = ptr.with_addr(ptr.addr() & !ptr_mask) as *mut MinWord;
     let ptr_lsb = if SHIFT_MASK {
-        ptr as usize & ptr_mask
+        ptr.addr() & ptr_mask
     } else {
         // We use 32-bit wrapping shift instructions in asm on these platforms.
-        ptr as usize
+        ptr.addr()
     };
     let shift = if cfg!(any(target_endian = "little", target_arch = "s390x")) {
         ptr_lsb.wrapping_mul(8)
@@ -452,24 +454,68 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     (aligned_ptr, shift as RetInt, mask)
 }
 
-// TODO: use stabilized core::ptr strict_provenance helpers https://github.com/rust-lang/rust/pull/130350
-#[cfg(any(miri, target_arch = "riscv32", target_arch = "riscv64"))]
+// strict_provenance polyfill for pre-1.84 rustc.
 #[allow(dead_code)]
-pub(crate) mod strict {
-    #[inline]
+pub(crate) mod ptr {
+    #[cfg(portable_atomic_no_strict_provenance)]
+    use core::mem;
+    #[cfg(not(portable_atomic_no_strict_provenance))]
+    #[allow(unused_imports)]
+    pub(crate) use core::ptr::{with_exposed_provenance, with_exposed_provenance_mut};
+
+    #[cfg(portable_atomic_no_strict_provenance)]
     #[must_use]
-    pub(crate) fn with_addr<T>(ptr: *mut T, addr: usize) -> *mut T {
-        // This should probably be an intrinsic to avoid doing any sort of arithmetic, but
-        // meanwhile, we can implement it with `wrapping_offset`, which preserves the pointer's
-        // provenance.
-        let offset = addr.wrapping_sub(ptr as usize);
-        (ptr as *mut u8).wrapping_add(offset) as *mut T
+    #[inline(always)]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    pub(crate) fn with_exposed_provenance<T>(addr: usize) -> *const T {
+        addr as *const T
+    }
+    #[cfg(portable_atomic_no_strict_provenance)]
+    #[must_use]
+    #[inline(always)]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    pub(crate) fn with_exposed_provenance_mut<T>(addr: usize) -> *mut T {
+        addr as *mut T
     }
 
-    #[cfg(miri)]
-    #[inline]
-    #[must_use]
-    pub(crate) fn map_addr<T>(ptr: *mut T, f: impl FnOnce(usize) -> usize) -> *mut T {
-        with_addr(ptr, f(ptr as usize))
+    #[cfg(portable_atomic_no_strict_provenance)]
+    pub(crate) trait PtrExt<T: ?Sized>: Copy {
+        #[must_use]
+        fn addr(self) -> usize;
+        #[must_use]
+        fn with_addr(self, addr: usize) -> Self
+        where
+            T: Sized;
+    }
+    #[cfg(portable_atomic_no_strict_provenance)]
+    impl<T: ?Sized> PtrExt<T> for *mut T {
+        #[must_use]
+        #[inline(always)]
+        fn addr(self) -> usize {
+            // A pointer-to-integer transmute currently has exactly the right semantics: it returns the
+            // address without exposing the provenance. Note that this is *not* a stable guarantee about
+            // transmute semantics, it relies on sysroot crates having special status.
+            // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the
+            // provenance).
+            #[allow(clippy::transmutes_expressible_as_ptr_casts)]
+            unsafe {
+                mem::transmute(self as *mut ())
+            }
+        }
+        #[allow(clippy::cast_possible_wrap)]
+        #[must_use]
+        #[inline]
+        fn with_addr(self, addr: usize) -> Self
+        where
+            T: Sized,
+        {
+            // This should probably be an intrinsic to avoid doing any sort of arithmetic, but
+            // meanwhile, we can implement it with `wrapping_offset`, which preserves the pointer's
+            // provenance.
+            let self_addr = self.addr() as isize;
+            let dest_addr = addr as isize;
+            let offset = dest_addr.wrapping_sub(self_addr);
+            (self as *mut u8).wrapping_offset(offset) as *mut T
+        }
     }
 }
