@@ -136,7 +136,7 @@ mod detect;
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 #[path = "../detect/aarch64_windows.rs"]
 mod detect;
 
@@ -192,7 +192,7 @@ macro_rules! debug_assert_lse {
                 target_os = "openbsd",
                 all(target_os = "illumos", portable_atomic_outline_atomics),
                 target_os = "fuchsia",
-                target_os = "windows",
+                windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -230,7 +230,7 @@ macro_rules! debug_assert_lse2 {
                 all(target_os = "illumos", portable_atomic_outline_atomics),
                 // These don't support detection of FEAT_LSE2.
                 // target_os = "fuchsia",
-                // target_os = "windows",
+                // windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
@@ -271,7 +271,7 @@ macro_rules! debug_assert_lse128 {
                 all(target_os = "illumos", portable_atomic_outline_atomics),
                 // These don't support detection of FEAT_LSE128.
                 // target_os = "fuchsia",
-                // target_os = "windows",
+                // windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
@@ -312,7 +312,7 @@ macro_rules! debug_assert_rcpc3 {
                 all(target_os = "illumos", portable_atomic_outline_atomics),
                 // These don't support detection of FEAT_LRCPC3.
                 // target_os = "fuchsia",
-                // target_os = "windows",
+                // windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
@@ -525,7 +525,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             all(target_os = "illumos", portable_atomic_outline_atomics),
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // target_os = "windows",
+            // windows,
         ),
     ))]
     {
@@ -622,7 +622,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             all(target_os = "illumos", portable_atomic_outline_atomics),
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // target_os = "windows",
+            // windows,
         ),
     )))]
     // SAFETY: the caller must uphold the safety contract.
@@ -948,7 +948,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             all(target_os = "illumos", portable_atomic_outline_atomics),
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // target_os = "windows",
+            // windows,
         ),
     ))]
     {
@@ -1053,7 +1053,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             all(target_os = "illumos", portable_atomic_outline_atomics),
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // target_os = "windows",
+            // windows,
         ),
     )))]
     // SAFETY: the caller must uphold the safety contract.
@@ -1278,7 +1278,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             all(target_os = "illumos", portable_atomic_outline_atomics),
             target_os = "fuchsia",
-            target_os = "windows",
+            windows,
         ),
     ))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
@@ -1417,7 +1417,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             all(target_os = "illumos", portable_atomic_outline_atomics),
             target_os = "fuchsia",
-            target_os = "windows",
+            windows,
         ),
     )))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
