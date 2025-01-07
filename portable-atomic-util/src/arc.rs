@@ -2640,6 +2640,8 @@ impl<T: ?Sized + error::Error> error::Error for Arc<T> {
 
 #[cfg(feature = "std")]
 mod std_impls {
+    use std::io;
+
     use super::Arc;
 
     // TODO: Other trait implementations that are stable but we currently don't provide:
@@ -2765,39 +2767,34 @@ mod std_impls {
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Read-for-Arc%3CFile%3E
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Seek-for-Arc%3CFile%3E
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-Write-for-Arc%3CFile%3E
-    // Note: From discussions in https://github.com/rust-lang/rust/pull/94748 and relevant,
-    // TcpStream and UnixStream will likely have similar implementations in the future.
-    impl std::io::Read for Arc<std::fs::File> {
-        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+    impl io::Read for Arc<std::fs::File> {
+        fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
             (&**self).read(buf)
         }
         #[cfg(not(portable_atomic_no_io_vec))]
-        fn read_vectored(
-            &mut self,
-            bufs: &mut [std::io::IoSliceMut<'_>],
-        ) -> std::io::Result<usize> {
+        fn read_vectored(&mut self, bufs: &mut [io::IoSliceMut<'_>]) -> io::Result<usize> {
             (&**self).read_vectored(bufs)
         }
-        // fn read_buf(&mut self, cursor: BorrowedCursor<'_>) -> io::Result<()> {
+        // fn read_buf(&mut self, cursor: io::BorrowedCursor<'_>) -> io::Result<()> {
         //     (&**self).read_buf(cursor)
         // }
         // #[inline]
         // fn is_read_vectored(&self) -> bool {
         //     (&**self).is_read_vectored()
         // }
-        fn read_to_end(&mut self, buf: &mut alloc::vec::Vec<u8>) -> std::io::Result<usize> {
+        fn read_to_end(&mut self, buf: &mut alloc::vec::Vec<u8>) -> io::Result<usize> {
             (&**self).read_to_end(buf)
         }
-        fn read_to_string(&mut self, buf: &mut alloc::string::String) -> std::io::Result<usize> {
+        fn read_to_string(&mut self, buf: &mut alloc::string::String) -> io::Result<usize> {
             (&**self).read_to_string(buf)
         }
     }
-    impl std::io::Write for Arc<std::fs::File> {
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+    impl io::Write for Arc<std::fs::File> {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
             (&**self).write(buf)
         }
         #[cfg(not(portable_atomic_no_io_vec))]
-        fn write_vectored(&mut self, bufs: &[std::io::IoSlice<'_>]) -> std::io::Result<usize> {
+        fn write_vectored(&mut self, bufs: &[io::IoSlice<'_>]) -> io::Result<usize> {
             (&**self).write_vectored(bufs)
         }
         // #[inline]
@@ -2805,15 +2802,84 @@ mod std_impls {
         //     (&**self).is_write_vectored()
         // }
         #[inline]
-        fn flush(&mut self) -> std::io::Result<()> {
+        fn flush(&mut self) -> io::Result<()> {
             (&**self).flush()
         }
     }
-    impl std::io::Seek for Arc<std::fs::File> {
-        fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+    impl io::Seek for Arc<std::fs::File> {
+        fn seek(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
             (&**self).seek(pos)
         }
     }
+    // TODO: TcpStream and UnixStream: https://github.com/rust-lang/rust/pull/134190
+    // impl io::Read for Arc<std::net::TcpStream> {
+    //     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+    //         (&**self).read(buf)
+    //     }
+    //     // fn read_buf(&mut self, buf: io::BorrowedCursor<'_>) -> io::Result<()> {
+    //     //     (&**self).read_buf(buf)
+    //     // }
+    //     #[cfg(not(portable_atomic_no_io_vec))]
+    //     fn read_vectored(&mut self, bufs: &mut [io::IoSliceMut<'_>]) -> io::Result<usize> {
+    //         (&**self).read_vectored(bufs)
+    //     }
+    //     // #[inline]
+    //     // fn is_read_vectored(&self) -> bool {
+    //     //     (&**self).is_read_vectored()
+    //     // }
+    // }
+    // impl io::Write for Arc<std::net::TcpStream> {
+    //     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+    //         (&**self).write(buf)
+    //     }
+    //     #[cfg(not(portable_atomic_no_io_vec))]
+    //     fn write_vectored(&mut self, bufs: &[io::IoSlice<'_>]) -> io::Result<usize> {
+    //         (&**self).write_vectored(bufs)
+    //     }
+    //     // #[inline]
+    //     // fn is_write_vectored(&self) -> bool {
+    //     //     (&**self).is_write_vectored()
+    //     // }
+    //     #[inline]
+    //     fn flush(&mut self) -> io::Result<()> {
+    //         (&**self).flush()
+    //     }
+    // }
+    // #[cfg(unix)]
+    // impl io::Read for Arc<std::os::unix::net::UnixStream> {
+    //     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+    //         (&**self).read(buf)
+    //     }
+    //     // fn read_buf(&mut self, buf: io::BorrowedCursor<'_>) -> io::Result<()> {
+    //     //     (&**self).read_buf(buf)
+    //     // }
+    //     #[cfg(not(portable_atomic_no_io_vec))]
+    //     fn read_vectored(&mut self, bufs: &mut [io::IoSliceMut<'_>]) -> io::Result<usize> {
+    //         (&**self).read_vectored(bufs)
+    //     }
+    //     // #[inline]
+    //     // fn is_read_vectored(&self) -> bool {
+    //     //     (&**self).is_read_vectored()
+    //     // }
+    // }
+    // #[cfg(unix)]
+    // impl io::Write for Arc<std::os::unix::net::UnixStream> {
+    //     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+    //         (&**self).write(buf)
+    //     }
+    //     #[cfg(not(portable_atomic_no_io_vec))]
+    //     fn write_vectored(&mut self, bufs: &[io::IoSlice<'_>]) -> io::Result<usize> {
+    //         (&**self).write_vectored(bufs)
+    //     }
+    //     // #[inline]
+    //     // fn is_write_vectored(&self) -> bool {
+    //     //     (&**self).is_write_vectored()
+    //     // }
+    //     #[inline]
+    //     fn flush(&mut self) -> io::Result<()> {
+    //         (&**self).flush()
+    //     }
+    // }
 }
 
 use self::clone::CloneToUninit;
