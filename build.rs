@@ -144,8 +144,7 @@ fn main() {
             // x86 intel syntax requires LLVM 10 (since Rust 1.53, the minimum
             // external LLVM version is 10+: https://github.com/rust-lang/rust/pull/83387).
             // The part of this feature we use has not been changed since nightly-2020-06-21
-            // until it was stabilized in nightly-2021-12-16, so it can be safely enabled in
-            // nightly, which is older than nightly-2021-12-16.
+            // until it was stabilized, so it can safely be enabled in nightly for that period.
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
         }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
@@ -160,12 +159,20 @@ fn main() {
                     {
                         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
                         // The part of this feature we use has not been changed since nightly-2023-05-09
-                        // until it was stabilized in nightly-2024-11-11, so it can be safely enabled in
-                        // nightly, which is older than nightly-2024-11-11.
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
                         println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
                     } else {
                         println!("cargo:rustc-cfg=portable_atomic_no_asm");
                     }
+                }
+            }
+            "powerpc64" => {
+                // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
+                if version.nightly
+                    && version.probe(60, 2022, 2, 12)
+                    && is_allowed_feature("asm_experimental_arch")
+                {
+                    println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
                 }
             }
             _ => {}
@@ -178,9 +185,8 @@ fn main() {
             && version.probe(40, 2019, 10, 13)
             && is_allowed_feature("cfg_target_has_atomic")
         {
-            // This feature has not been changed since the change in Rust 1.40 (nightly-2019-10-14)
-            // until it was stabilized in nightly-2022-02-11, so it can be safely enabled in
-            // nightly, which is older than nightly-2022-02-11.
+            // The part of this feature we use has not been changed since nightly-2019-10-14
+            // until it was stabilized, so it can safely be enabled in nightly for that period.
             println!("cargo:rustc-cfg=portable_atomic_unstable_cfg_target_has_atomic");
         } else {
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
@@ -219,14 +225,6 @@ fn main() {
             // but it seems that ThreadSanitizer is the only one that can cause
             // false positives in our code.
             println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
-        }
-
-        // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
-        if !no_asm
-            && (target_arch == "powerpc64" && version.probe(60, 2022, 2, 12))
-            && is_allowed_feature("asm_experimental_arch")
-        {
-            println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
         }
     }
 
