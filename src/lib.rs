@@ -4811,6 +4811,7 @@ use self::diagnostic_helper::{
     ),
     allow(dead_code, unreachable_pub)
 )]
+#[allow(unknown_lints, unnameable_types)] // Not public API. unnameable_types is available on Rust 1.79+
 mod diagnostic_helper {
     cfg_no_atomic_cas_or_amo8! {
     #[doc(hidden)]

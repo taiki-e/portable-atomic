@@ -2828,6 +2828,7 @@ mod clone {
     // Based on unstable core::clone::CloneToUninit.
     // This trait is private and cannot be implemented for types outside of `portable-atomic-util`.
     #[doc(hidden)] // private API
+    #[allow(unknown_lints, unnameable_types)] // Not public API. unnameable_types is available on Rust 1.79+
     pub unsafe trait CloneToUninit {
         unsafe fn clone_to_uninit(&self, dst: *mut Self);
     }
