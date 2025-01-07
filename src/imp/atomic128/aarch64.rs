@@ -3,13 +3,13 @@
 /*
 128-bit atomic implementation on AArch64.
 
-There are a few ways to implement 128-bit atomic operations in AArch64.
+This architecture provides the following 128-bit atomic instructions:
 
-- LDXP/STXP loop (DW LL/SC)
-- CASP (DWCAS) added as Armv8.1 FEAT_LSE (optional from Armv8.0, mandatory from Armv8.1)
-- LDP/STP (DW load/store) if Armv8.4 FEAT_LSE2 (optional from Armv8.2, mandatory from Armv8.4) is available
-- LDIAPP/STILP (DW acquire-load/release-store) added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available)
-- LDCLRP/LDSETP/SWPP (DW RMW) added as Armv9.4 FEAT_LSE128 (optional from Armv9.3)
+- LDXP/STXP: LL/SC (Armv8.0 baseline)
+- CASP: CAS (added as Armv8.1 FEAT_LSE (optional from Armv8.0, mandatory from Armv8.1))
+- LDP/STP: load/store (if Armv8.4 FEAT_LSE2 (optional from Armv8.2, mandatory from Armv8.4) is available)
+- LDIAPP/STILP: acquire-load/release-store (added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available))
+- LDCLRP/LDSETP/SWPP: fetch-and-{clear,or},swap (added as Armv9.4 FEAT_LSE128 (optional from Armv9.3))
 
 This module supports all of these instructions and attempts to select the best
 one based on compile-time and run-time information about available CPU features

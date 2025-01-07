@@ -13,6 +13,7 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | riscv64 | amocas.q | amocas.q | amocas.q | amocas.q | Experimental because LLVM marking the corresponding target feature as experimental. Requires `experimental-zacas` target feature. Both compile-time and run-time detection are supported (run-time detection is currently disabled by default). <br> Requires rustc 1.59+ |
 | powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Requires `quadword-atomics` target feature (enabled by default on powerpc64le). Both compile-time and run-time detection are supported. <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires rustc 1.84+ |
+| mips64r6 | lldp | lldp/scdp | lldp/scdp | lldp/scdp | Unimplemented (unsupported in LLVM). Requires Release 6 Paired LL/SC family of instructions |
 
 On compiler versions or platforms where these are not supported, the fallback implementation is used.
 

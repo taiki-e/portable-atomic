@@ -14,6 +14,7 @@ bitops
 BOOKE
 callthru
 casp
+casx
 cbnz
 ccmp
 cdsg
@@ -41,7 +42,6 @@ cxchg
 cxchgweak
 dlfcn
 dlsym
-DWCAS
 ecall
 EINVAL
 elems
@@ -87,6 +87,8 @@ libstd
 libtcl
 libtest
 linkall
+lldp
+llwp
 lmul
 locgr
 locgre
@@ -97,6 +99,7 @@ machdep
 MAXNAME
 maxu
 mcpu
+memd
 mfcr
 mfence
 mgba
@@ -135,6 +138,8 @@ rsend
 rsil
 RTLD
 sbcs
+scdp
+scwp
 selgr
 seqlock
 setb
