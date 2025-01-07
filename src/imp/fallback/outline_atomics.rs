@@ -66,7 +66,7 @@ fn_alias! {
     atomic_load_seqcst = atomic_load(Ordering::SeqCst);
 }
 
-#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+#[cfg(not(any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64")))]
 #[cold]
 pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
     debug_assert_outline_atomics!();
@@ -76,12 +76,11 @@ pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
         (*(dst as *const AtomicUdw)).store(val, order);
     }
 }
-#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+#[cfg(not(any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64")))]
 fn_alias! {
     #[cold]
     pub(crate) unsafe fn(dst: *mut Udw, val: Udw);
     // fallback's atomic store has at least release semantics.
-    #[cfg(not(target_arch = "arm"))]
     atomic_store_non_seqcst = atomic_store(Ordering::Release);
     atomic_store_seqcst = atomic_store(Ordering::SeqCst);
 }
