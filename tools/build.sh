@@ -164,7 +164,7 @@ is_no_std() {
         # https://github.com/rust-lang/rust/blob/1.80.0/library/std/build.rs#L57
         # ESP-IDF supports std, but it is often broken.
         # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-        *-none* | *-psp* | *-psx* | *-cuda* | avr-* | *-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
+        *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
     esac
     return 1
 }
@@ -298,7 +298,7 @@ build() {
         if [[ -n "${TARGET_GROUP:-}" ]]; then
             case "${target}" in
                 # builtin xtensa targets are completely broken with builtin LLVM: https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
-                xtensa-*) return 0 ;;
+                xtensa*) return 0 ;;
             esac
             args+=(-Z build-std="core")
         elif is_no_std "${target}"; then
@@ -400,7 +400,7 @@ build() {
     elif [[ -n "${TARGET_GROUP:-}" ]]; then
         case "${target}" in
             # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
-            m68k-unknown-linux-gnu) return 0 ;;
+            m68k*) return 0 ;;
             # TODO: "error: symbol 'f{ma,max}' is already defined" due to https://github.com/rust-lang/compiler-builtins/pull/577
             hexagon-unknown-none-elf) return 0 ;;
         esac
@@ -422,7 +422,7 @@ build() {
                             x_cargo "${args[@]}" --feature-powerset --features portable-atomic/critical-section --manifest-path tests/api-test/Cargo.toml "$@"
                     fi
                     case "${target}" in
-                        avr-* | msp430-*) # always single-core
+                        avr* | msp430*) # always single-core
                             RUSTFLAGS="${target_rustflags}" \
                                 x_cargo "${args[@]}" --feature-powerset --manifest-path tests/api-test/Cargo.toml "$@"
                             ;;
@@ -474,8 +474,8 @@ build() {
             if [[ -z "${has_atomic_cas}" ]]; then
                 if [[ -n "${has_asm}" ]]; then
                     case "${target}" in
-                        avr-* | msp430-*) ;; # always single-core
-                        bpf* | mips*) ;;     # TODO, Arc can't be used here yet
+                        avr* | msp430*) ;; # always single-core
+                        bpf* | mips*) ;;   # TODO, Arc can't be used here yet
                         *)
                             CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
                                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
@@ -519,7 +519,7 @@ build() {
                     printf '%s\n' "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
                 fi
                 case "${target}" in
-                    avr-* | msp430-*) ;; # always single-core
+                    avr* | msp430*) ;; # always single-core
                     *)
                         # portable-atomic-util crate and portable-atomic's require-cas feature require atomic CAS,
                         # so doesn't work on this target without portable_atomic_unsafe_assume_single_core cfg
@@ -542,7 +542,7 @@ build() {
         # powerpc64le- (little-endian) is skipped because it is pwr8 by default
         # RISC-V Linux is skipped because outline-atomics is currently disabled by default on riscv.
         aarch64*-linux-musl* | powerpc64-*-linux-musl*) ;;
-        x86_64* | aarch64* | arm* | powerpc64-*)
+        x86_64* | aarch64* | arm* | thumb* | powerpc64-*)
             CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
                 x_cargo "${args[@]}" "$@"
@@ -572,7 +572,7 @@ build() {
                 # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
                 # powerpc64le- (little-endian) is skipped because it is pwr8 by default
                 # RISC-V Linux is skipped because its implementation does not change depending on whether or not crt-static is enabled.
-                x86_64* | aarch64* | arm* | powerpc64-*)
+                x86_64* | aarch64* | arm* | thumb* | powerpc64-*)
                     CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
                         RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
                         x_cargo "${args[@]}" "$@"
