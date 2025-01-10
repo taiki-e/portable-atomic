@@ -84,8 +84,8 @@ simulator_pid=''
 tail_pid=''
 code=1
 cleanup() {
-    [[ -z "${simulator_pid}" ]] || kill "${simulator_pid}" || :
-    [[ -z "${tail_pid}" ]] || kill "${tail_pid}" || :
+    [[ -z "${simulator_pid}" ]] || kill "${simulator_pid}" || true
+    [[ -z "${tail_pid}" ]] || kill "${tail_pid}" || true
     rm -f -- ./"${stdout}"
     exit "${code}"
 }
