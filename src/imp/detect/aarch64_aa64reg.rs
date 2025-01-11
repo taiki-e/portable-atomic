@@ -9,8 +9,8 @@ Run-time detection on OpenBSD by is_aarch64_feature_detected is supported on Rus
 https://github.com/rust-lang/stdarch/pull/1374
 
 Refs:
-- https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers
-- https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm64/cpu-feature-registers.rst
+- https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers
+- https://github.com/torvalds/linux/blob/v6.12/Documentation/arch/arm64/cpu-feature-registers.rst
 - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
 
 Supported platforms:
@@ -52,7 +52,7 @@ fn _detect(info: &mut CpuInfo) {
     let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
 
     // ID_AA64ISAR0_EL1, AArch64 Instruction Set Attribute Register 0
-    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
+    // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
     let atomic = extract(aa64isar0, 23, 20);
     if atomic >= 0b0010 {
         info.set(CpuInfo::HAS_LSE);
@@ -61,12 +61,12 @@ fn _detect(info: &mut CpuInfo) {
         }
     }
     // ID_AA64ISAR1_EL1, AArch64 Instruction Set Attribute Register 1
-    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
+    // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
     if extract(aa64isar1, 23, 20) >= 0b0011 {
         info.set(CpuInfo::HAS_RCPC3);
     }
     // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
-    // https://developer.arm.com/documentation/ddi0601/2024-06/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
+    // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
     if extract(aa64mmfr2, 35, 32) >= 0b0001 {
         info.set(CpuInfo::HAS_LSE2);
     }

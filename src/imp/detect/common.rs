@@ -72,27 +72,27 @@ macro_rules! flags {
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 flags! {
     // FEAT_LSE, Large System Extensions
-    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-1-architecture-extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-1-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE is OPTIONAL from Armv8.0.
     // > FEAT_LSE is mandatory from Armv8.1.
     HAS_LSE(1, has_lse, "lse", any(target_feature = "lse", portable_atomic_target_feature = "lse")),
     // FEAT_LSE2, Large System Extensions version 2
-    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-4-architecture-extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE2 is OPTIONAL from Armv8.2.
     // > FEAT_LSE2 is mandatory from Armv8.4.
     #[cfg_attr(not(test), allow(dead_code))]
     HAS_LSE2(2, has_lse2, "lse2", any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
     // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
-    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv8-9-architecture-extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-9-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LRCPC3 is OPTIONAL from Armv8.2.
     // > If FEAT_LRCPC3 is implemented, then FEAT_LRCPC2 is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
     HAS_RCPC3(3, has_rcpc3, "rcpc3", any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")),
     // FEAT_LSE128, 128-bit Atomics
-    // https://developer.arm.com/documentation/109697/0100/Feature-descriptions/The-Armv9-4-architecture-extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv9-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE128 is OPTIONAL from Armv9.3.
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.

@@ -4,7 +4,7 @@
 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 Arm Linux/Android.
 
 Refs:
-- https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm/kernel_user_helpers.rst
+- https://github.com/torvalds/linux/blob/v6.12/Documentation/arch/arm/kernel_user_helpers.rst
 - https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
@@ -26,7 +26,7 @@ use core::{mem, sync::atomic::Ordering};
 
 use crate::utils::{Pair, U64};
 
-// https://github.com/torvalds/linux/blob/v6.11/Documentation/arch/arm/kernel_user_helpers.rst
+// https://github.com/torvalds/linux/blob/v6.12/Documentation/arch/arm/kernel_user_helpers.rst
 const KUSER_HELPER_VERSION: usize = 0xFFFF0FFC;
 // __kuser_helper_version >= 5 (kernel version 3.1+)
 const KUSER_CMPXCHG64: usize = 0xFFFF0F60;
@@ -128,7 +128,7 @@ macro_rules! select_atomic {
                         kuser_cmpxchg64_fn
                     } else {
                         // Use SeqCst because __kuser_cmpxchg64 is always SeqCst.
-                        // https://github.com/torvalds/linux/blob/v6.11/arch/arm/kernel/entry-armv.S#L692-L699
+                        // https://github.com/torvalds/linux/blob/v6.12/arch/arm/kernel/entry-armv.S#L692-L699
                         fallback::$seqcst_fallback_fn
                     }
                 })
@@ -187,7 +187,7 @@ unsafe fn atomic_compare_exchange(
                 kuser_cmpxchg64_fn
             } else {
                 // Use SeqCst because __kuser_cmpxchg64 is always SeqCst.
-                // https://github.com/torvalds/linux/blob/v6.11/arch/arm/kernel/entry-armv.S#L692-L699
+                // https://github.com/torvalds/linux/blob/v6.12/arch/arm/kernel/entry-armv.S#L692-L699
                 fallback::atomic_compare_exchange_seqcst
             }
         })
