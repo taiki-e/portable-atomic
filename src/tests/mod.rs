@@ -364,7 +364,6 @@ LLVM version: 15.0.3",
 }
 
 #[cfg(feature = "serde")]
-#[allow(clippy::as_underscore)]
 #[test]
 fn test_serde() {
     use std::fmt;
@@ -400,13 +399,13 @@ fn test_serde() {
     }
 
     macro_rules! t {
-        ($atomic_type:ty, $value_type:ident, $token_type:ident) => {
+        ($atomic_type:ty, $value_type:ident $(as $token_value_type:ident)?, $token_type:ident) => {
             std::eprint!("test_serde {} ... ", stringify!($value_type));
             assert_tokens(&DebugPartialEq(<$atomic_type>::new($value_type::MAX)), &[
-                Token::$token_type($value_type::MAX as _),
+                Token::$token_type($value_type::MAX $(as $token_value_type)?),
             ]);
             assert_tokens(&DebugPartialEq(<$atomic_type>::new($value_type::MIN)), &[
-                Token::$token_type($value_type::MIN as _),
+                Token::$token_type($value_type::MIN $(as $token_value_type)?),
             ]);
             std::eprintln!("ok");
         };
@@ -414,8 +413,8 @@ fn test_serde() {
 
     assert_tokens(&DebugPartialEq(AtomicBool::new(true)), &[Token::Bool(true)]);
     assert_tokens(&DebugPartialEq(AtomicBool::new(false)), &[Token::Bool(false)]);
-    t!(AtomicIsize, isize, I64);
-    t!(AtomicUsize, usize, U64);
+    t!(AtomicIsize, isize as i64, I64);
+    t!(AtomicUsize, usize as u64, U64);
     t!(AtomicI8, i8, I8);
     t!(AtomicU8, u8, U8);
     t!(AtomicI16, i16, I16);
