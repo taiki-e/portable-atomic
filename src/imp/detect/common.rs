@@ -47,15 +47,21 @@ pub(crate) fn detect() -> CpuInfo {
 macro_rules! flags {
     ($(
         $(#[$attr:meta])*
-        $flag:ident ($shift:literal, $func:ident, $name:literal, $cfg:meta),
+        $flag:ident ($func:ident, $name:literal, any($($cfg:ident),*)),
     )*) => {
+        #[allow(dead_code, non_camel_case_types)]
+        #[repr(u32)]
+        enum CpuInfoFlag {
+            Init = 0,
+            $($flag,)*
+        }
         impl CpuInfo {
-            const INIT: u32 = 0;
+            const INIT: u32 = CpuInfoFlag::Init as u32;
             $(
                 $(#[$attr])*
-                const $flag: u32 = $shift;
+                const $flag: u32 = CpuInfoFlag::$flag as u32;
                 $(#[$attr])*
-                #[cfg(any(test, not($cfg)))]
+                #[cfg(any(test, not(any($($cfg = $name),*))))]
                 #[inline]
                 pub(crate) fn $func(self) -> bool {
                     self.test(Self::$flag)
@@ -63,7 +69,7 @@ macro_rules! flags {
             )*
             #[cfg(test)] // for test
             const ALL_FLAGS: &'static [(&'static str, u32, bool)] = &[$(
-                ($name, Self::$flag, cfg!($cfg)),
+                ($name, Self::$flag, cfg!(any($($cfg = $name),*))),
             )*];
         }
     };
@@ -76,49 +82,49 @@ flags! {
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE is OPTIONAL from Armv8.0.
     // > FEAT_LSE is mandatory from Armv8.1.
-    HAS_LSE(1, has_lse, "lse", any(target_feature = "lse", portable_atomic_target_feature = "lse")),
+    HAS_LSE(has_lse, "lse", any(target_feature, portable_atomic_target_feature)),
     // FEAT_LSE2, Large System Extensions version 2
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE2 is OPTIONAL from Armv8.2.
     // > FEAT_LSE2 is mandatory from Armv8.4.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_LSE2(2, has_lse2, "lse2", any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
+    HAS_LSE2(has_lse2, "lse2", any(target_feature, portable_atomic_target_feature)),
     // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-9-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LRCPC3 is OPTIONAL from Armv8.2.
     // > If FEAT_LRCPC3 is implemented, then FEAT_LRCPC2 is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_RCPC3(3, has_rcpc3, "rcpc3", any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")),
+    HAS_RCPC3(has_rcpc3, "rcpc3", any(target_feature, portable_atomic_target_feature)),
     // FEAT_LSE128, 128-bit Atomics
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv9-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE128 is OPTIONAL from Armv9.3.
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_LSE128(4, has_lse128, "lse128", any(target_feature = "lse128", portable_atomic_target_feature = "lse128")),
+    HAS_LSE128(has_lse128, "lse128", any(target_feature, portable_atomic_target_feature)),
 }
 
 #[cfg(target_arch = "powerpc64")]
 flags! {
     // lqarx and stqcx.
-    HAS_QUADWORD_ATOMICS(1, has_quadword_atomics, "quadword-atomics", any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics")),
+    HAS_QUADWORD_ATOMICS(has_quadword_atomics, "quadword-atomics", any(target_feature, portable_atomic_target_feature)),
 }
 
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 flags! {
     // amocas.{w,d,q}
-    HAS_ZACAS(1, has_zacas, "zacas", any(target_feature = "experimental-zacas", portable_atomic_target_feature = "experimental-zacas")),
+    HAS_ZACAS(has_zacas, "experimental-zacas", any(target_feature, portable_atomic_target_feature)),
 }
 
 #[cfg(target_arch = "x86_64")]
 flags! {
     // cmpxchg16b
-    HAS_CMPXCHG16B(1, has_cmpxchg16b, "cmpxchg16b", any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+    HAS_CMPXCHG16B(has_cmpxchg16b, "cmpxchg16b", any(target_feature, portable_atomic_target_feature)),
     // atomic vmovdqa
     #[cfg(target_feature = "sse")]
-    HAS_VMOVDQA_ATOMIC(2, has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
+    HAS_VMOVDQA_ATOMIC(has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
 }
 
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
