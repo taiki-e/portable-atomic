@@ -72,6 +72,9 @@ lcgr
 ldar
 ldaxp
 ldclrp
+ldfadd
+ldfmax
+ldfmin
 ldiapp
 ldrexd
 ldsetp
@@ -188,6 +191,7 @@ versatilepb
 virt
 vmlinux
 vmovdqa
+vreg
 vtable
 vtables
 wokwi
