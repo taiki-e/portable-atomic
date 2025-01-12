@@ -712,7 +712,7 @@ jobs:
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != 'x86_64-unknown-linux-gnu'
-      - run: printf '%s\n' "MIRIFLAGS=-Zmiri-many-seeds=0..8" >>"${GITHUB_ENV}"
+      - run: printf '%s\n' "MIRIFLAGS=-Zmiri-many-seeds=0..16" >>"${GITHUB_ENV}"
         if: github.event_name == 'schedule' && matrix.target == 'x86_64-unknown-linux-gnu'
       - run: tools/test.sh miri ${TARGET:-}
         env:
