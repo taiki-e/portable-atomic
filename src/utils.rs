@@ -265,7 +265,7 @@ macro_rules! items {
 }
 
 #[allow(dead_code)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(any(target_arch = "arm", target_arch = "x86", target_arch = "x86_64"))]
 // Stable version of https://doc.rust-lang.org/nightly/std/hint/fn.assert_unchecked.html.
 // TODO: use real core::hint::assert_unchecked on 1.81+ https://github.com/rust-lang/rust/pull/123588
 #[inline(always)]

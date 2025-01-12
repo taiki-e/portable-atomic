@@ -61,12 +61,12 @@ fn_alias! {
     #[cold]
     pub(crate) unsafe fn(src: *mut Udw) -> Udw;
     // fallback's atomic load has at least acquire semantics.
-    #[cfg(not(any(target_arch = "arm", target_arch = "x86_64")))]
+    #[cfg(not(target_arch = "x86_64"))]
     atomic_load_non_seqcst = atomic_load(Ordering::Acquire);
     atomic_load_seqcst = atomic_load(Ordering::SeqCst);
 }
 
-#[cfg(not(any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64")))]
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
 #[cold]
 pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
     debug_assert_outline_atomics!();
@@ -76,7 +76,7 @@ pub(crate) unsafe fn atomic_store(dst: *mut Udw, val: Udw, order: Ordering) {
         (*(dst as *const AtomicUdw)).store(val, order);
     }
 }
-#[cfg(not(any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64")))]
+#[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
 fn_alias! {
     #[cold]
     pub(crate) unsafe fn(dst: *mut Udw, val: Udw);
@@ -107,7 +107,7 @@ fn_alias! {
     #[cold]
     pub(crate) unsafe fn(dst: *mut Udw, old: Udw, new: Udw) -> (Udw, bool);
     // fallback's atomic CAS has at least AcqRel semantics.
-    #[cfg(not(any(target_arch = "arm", target_arch = "x86_64")))]
+    #[cfg(not(target_arch = "x86_64"))]
     atomic_compare_exchange_non_seqcst
         = atomic_compare_exchange(Ordering::AcqRel, Ordering::Acquire);
     atomic_compare_exchange_seqcst
@@ -137,7 +137,7 @@ macro_rules! atomic_rmw_3 {
             #[cold]
             pub(crate) unsafe fn(dst: *mut Udw, val: Udw) -> Udw;
             // fallback's atomic RMW has at least AcqRel semantics.
-            #[cfg(not(any(target_arch = "arm", target_arch = "x86_64")))]
+            #[cfg(not(target_arch = "x86_64"))]
             $non_seqcst_alias = $name(Ordering::AcqRel);
             $seqcst_alias = $name(Ordering::SeqCst);
         }
@@ -161,7 +161,7 @@ macro_rules! atomic_rmw_2 {
             #[cold]
             pub(crate) unsafe fn(dst: *mut Udw) -> Udw;
             // fallback's atomic RMW has at least AcqRel semantics.
-            #[cfg(not(any(target_arch = "arm", target_arch = "x86_64")))]
+            #[cfg(not(target_arch = "x86_64"))]
             $non_seqcst_alias = $name(Ordering::AcqRel);
             $seqcst_alias = $name(Ordering::SeqCst);
         }

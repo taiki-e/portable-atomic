@@ -21,6 +21,7 @@ cdsg
 cinc
 clgr
 clidr
+clrex
 cmovae
 cmovb
 cmovge
@@ -73,6 +74,7 @@ ldar
 ldaxp
 ldclrp
 ldiapp
+ldrd
 ldrexd
 ldsetp
 ldxp
@@ -92,6 +94,7 @@ llwp
 lmul
 locgr
 locgre
+LPAE
 lqarx
 lrcpc
 lsfe
@@ -109,7 +112,13 @@ minu
 miscompiles
 mmfr
 movlps
+movne
 movq
+movwge
+movwhs
+movwlo
+movwlt
+mpcore
 mpidr
 mspdebug
 mstatus
@@ -122,6 +131,7 @@ newtype
 nngrk
 nostartfiles
 opensbi
+orrs
 osxsave
 phdr
 picolibc
@@ -135,6 +145,7 @@ RAII
 rcpc
 revidr
 rsbegin
+rsbs
 rsend
 rsil
 RTLD
@@ -162,6 +173,7 @@ stilp
 stlxp
 stpq
 stqcx
+strd
 strexd
 stxp
 subarch

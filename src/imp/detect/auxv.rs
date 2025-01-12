@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
 - Linux 6.4+ (through prctl)
@@ -14,6 +14,7 @@ Supported platforms:
   - aarch64 (glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.17/NEWS#L36)
   - powerpc64 (le) (glibc 2.19+ or RHEL/CentOS's patched glibc 2.17+ https://github.com/bminor/glibc/blob/glibc-2.19/NEWS#L108)
   Not always available on:
+  - arm (glibc 2.1+ https://github.com/bminor/glibc/blob/glibc-2.1/NEWS#L97)
   - powerpc64 (be) (glibc 2.3+ https://github.com/bminor/glibc/blob/glibc-2.3/NEWS#L56)
   Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
 - musl 1.1.0+ (through getauxval)
@@ -21,6 +22,8 @@ Supported platforms:
   Always available on:
   - aarch64 (musl 1.1.7+ https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
   - powerpc64 (musl 1.1.15+ https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
+  Not always available on:
+  - arm (musl 0.8.3+ https://github.com/bminor/musl/blob/v0.8.3/WHATSNEW#L354)
   Since Rust 1.31, std requires musl 1.1.20+ https://github.com/rust-lang/rust/pull/54430
   Since Rust 1.37, std requires musl 1.1.22+ https://github.com/rust-lang/rust/pull/61252
   Since Rust 1.46, std requires musl 1.1.24+ https://github.com/rust-lang/rust/pull/73089
@@ -29,6 +32,7 @@ Supported platforms:
   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
   Not always available on:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
+  - arm (uClibc-ng 1.0.0+ https://github.com/wbx-github/uclibc-ng/tree/v1.0.0/libc/sysdeps/linux)
   (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
@@ -37,6 +41,8 @@ Supported platforms:
   https://github.com/aosp-mirror/platform_bionic/commit/655e430b28d7404f763e7ebefe84fba5a387666d
   Always available on:
   - 64-bit architectures (Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
+  Not always available on:
+  - arm
   Since Rust 1.68, std requires API level 19+ https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25.html
   Since Rust 1.82, std requires API level 21+ https://github.com/rust-lang/rust/pull/120593
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
@@ -44,6 +50,7 @@ Supported platforms:
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
   Not always available on:
   - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
+  - arm (FreeBSD 10.1+ https://www.freebsd.org/releases/10.1R/announce/)
   - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
   Since Rust 1.84, std requires FreeBSD 13+ https://github.com/rust-lang/rust/pull/120869
@@ -51,11 +58,13 @@ Supported platforms:
   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
   Not always available on:
   - aarch64 (OpenBSD 6.1+ https://www.openbsd.org/61.html)
+  - arm (OpenBSD 6.0+ https://www.openbsd.org/60.html)
   - powerpc64 (OpenBSD 6.8+ https://www.openbsd.org/68.html)
 
 On platforms that we can assume that getauxval/elf_aux_info is always available, we directly call
 them on except for musl with static linking. (At this time, we also retain compatibility with
-versions that reached EoL or no longer supported by `std`, with the exception of AArch64 FreeBSD described below.)
+versions that reached EoL or no longer supported by `std`, with the exceptions of AArch64 FreeBSD
+described below and very old pre-1.1.0 musl.)
 
 On musl with static linking, it seems that getauxval is not always available, independent of version
 requirements: https://github.com/rust-lang/rust/issues/89626
@@ -122,6 +131,8 @@ mod os {
 
         sys_const!({
             // https://github.com/torvalds/linux/blob/v6.12/include/uapi/linux/auxvec.h
+            #[cfg(any(test, target_arch = "arm"))]
+            pub(crate) const AT_PLATFORM: c_ulong = 15;
             pub(crate) const AT_HWCAP: c_ulong = 16;
             #[cfg(any(
                 test,
@@ -192,6 +203,7 @@ mod os {
                     all(target_os = "android", target_pointer_width = "64"),
                     portable_atomic_outline_atomics,
                 ))]
+                #[cfg(not(target_arch = "arm"))]
                 pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
 
                 // Defined in dlfcn.h.
@@ -232,10 +244,32 @@ mod os {
                 ) -> c_int;
             }
         });
+        #[cfg(any(
+            test,
+            all(
+                target_os = "linux",
+                any(
+                    all(target_env = "gnu", target_arch = "aarch64"),
+                    target_env = "musl",
+                    target_env = "ohos",
+                ),
+            ),
+            all(target_os = "android", target_pointer_width = "64"),
+            portable_atomic_outline_atomics,
+        ))]
+        #[cfg(target_arch = "arm")]
+        extern "C" {
+            // Use pointer instead of c_ulong (same size on unix-like systems except for CHERI): https://github.com/rust-lang/rust/issues/95496
+            pub(crate) fn getauxval(type_: c_ulong) -> *mut c_void;
+        }
     }
 
-    pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
-    pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
+    #[cfg(not(target_arch = "arm"))]
+    pub(super) type GetauxvalRetTy = ffi::c_ulong;
+    #[cfg(target_arch = "arm")]
+    pub(super) type GetauxvalRetTy = *mut ffi::c_void;
+    pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> GetauxvalRetTy;
+    pub(super) fn getauxval(type_: ffi::c_ulong) -> GetauxvalRetTy {
         #[cfg(any(
             all(
                 target_os = "linux",
@@ -278,7 +312,7 @@ mod os {
         let getauxval: GetauxvalTy = unsafe {
             let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
             if ptr.is_null() {
-                return 0;
+                return 0 as GetauxvalRetTy;
             }
             core::mem::transmute::<*mut ffi::c_void, GetauxvalTy>(ptr)
         };
@@ -496,6 +530,61 @@ mod arch {
         }
     }
 }
+#[cfg(target_arch = "arm")]
+mod arch {
+    use super::{ffi, os, CpuInfo};
+
+    sys_const!({
+        // Linux
+        // https://github.com/torvalds/linux/blob/v6.11/arch/arm/include/uapi/asm/hwcap.h
+        // FreeBSD
+        // Defined in machine/elf.h.
+        // https://github.com/freebsd/freebsd-src/blob/release/14.1.0/sys/arm/include/elf.h
+        // OpenBSD
+        // Defined in machine/elf.h.
+        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm/include/elf.h
+        // Linux 2.6.36+
+        // https://github.com/torvalds/linux/commit/f159f4ed55bb0fa5470800641e03a13a7e0eae6e
+        // FreeBSD 12.0+/11.2+
+        // https://github.com/freebsd/freebsd-src/commit/0cbf724ed03571bc90ed22c3b4bf8c6c7b2da564
+        // https://github.com/freebsd/freebsd-src/commit/8a997f45df4e28bcabd074e41eee7d73e0ea9e5b
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+        pub(super) const HWCAP_TLS: ffi::c_ulong = 1 << 15;
+        // Linux 3.11+
+        // https://github.com/torvalds/linux/commit/a469abd0f868c902b75532579bf87553dcf1b360
+        // FreeBSD 12.0+/11.2+
+        // https://github.com/freebsd/freebsd-src/commit/0cbf724ed03571bc90ed22c3b4bf8c6c7b2da564
+        // https://github.com/freebsd/freebsd-src/commit/8a997f45df4e28bcabd074e41eee7d73e0ea9e5b
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+        pub(super) const HWCAP_LPAE: ffi::c_ulong = 1 << 20;
+    });
+
+    #[cold]
+    pub(super) fn _detect(info: &mut CpuInfo) {
+        let hwcap = os::getauxval(ffi::AT_HWCAP) as ffi::c_ulong;
+        if hwcap & HWCAP_LPAE != 0 {
+            // LPAE implies v7, v7 implies v6
+            #[cfg(test)]
+            info.set(CpuInfo::HAS_V6);
+            info.set(CpuInfo::HAS_V7);
+        } else if hwcap & HWCAP_TLS != 0 {
+            // TLS implies v6
+            #[cfg(test)]
+            info.set(CpuInfo::HAS_V6);
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            {
+                // Refs: https://github.com/bminor/musl/blob/v1.2.5/src/thread/arm/__set_thread_area.c
+                let s = os::getauxval(ffi::AT_PLATFORM) as *const u8;
+                if unsafe { *s != b'v' || *s.add(1) != b'6' || (*s.add(2)).wrapping_sub(b'0') < 10 }
+                {
+                    info.set(CpuInfo::HAS_V7);
+                }
+            }
+        }
+    }
+}
 #[cfg(target_arch = "powerpc64")]
 mod arch {
     use super::{ffi, os, CpuInfo};
@@ -598,6 +687,17 @@ mod tests {
                 "arch={:?}",
                 str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
             );
+        }
+    }
+
+    #[allow(clippy::cast_sign_loss)]
+    #[cfg(target_arch = "arm")]
+    #[test]
+    fn test_arm() {
+        unsafe {
+            let s = os::getauxval(ffi::AT_PLATFORM) as *const ffi::c_char;
+            let s = std::ffi::CStr::from_ptr(s);
+            std::eprintln!("AT_PLATFORM={:?}", core::str::from_utf8(s.to_bytes()).unwrap());
         }
     }
 
@@ -721,6 +821,55 @@ mod tests {
                     Ok(r as usize)
                 }
             }
+            #[cfg(target_arch = "arm")]
+            unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
+                let r: i32;
+                #[cfg(not(any(
+                    target_feature = "thumb-mode",
+                    portable_atomic_target_feature = "thumb-mode",
+                )))]
+                unsafe {
+                    asm!(
+                        "svc 0",
+                        in("r7") sys::__NR_prctl as u32,
+                        inout("r0") sys::PR_GET_AUXV as u32 => r,
+                        in("r1") out,
+                        in("r2") len as u32,
+                        // arg4 and arg5 must be zero.
+                        in("r3") 0_u32,
+                        in("r4") 0_u32,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                #[cfg(any(
+                    target_feature = "thumb-mode",
+                    portable_atomic_target_feature = "thumb-mode",
+                ))]
+                unsafe {
+                    // r7 is reserved on thumb
+                    asm!(
+                        "mov {tmp}, r7",
+                        "mov r7, {nr}",
+                        "svc 0",
+                        "mov r7, {tmp}",
+                        nr = in(reg) sys::__NR_prctl as u32,
+                        tmp = out(reg) _,
+                        inout("r0") sys::PR_GET_AUXV as u32 => r,
+                        in("r1") out,
+                        in("r2") len as u32,
+                        // arg4 and arg5 must be zero.
+                        in("r3") 0_u32,
+                        in("r4") 0_u32,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+                if (r as c_int) < 0 {
+                    Err(r as c_int)
+                } else {
+                    Ok(r as usize)
+                }
+            }
             #[cfg(target_arch = "powerpc64")]
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
                 let r: i64;
@@ -829,19 +978,19 @@ mod tests {
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP),
+                    os::getauxval(ffi::AT_HWCAP) as c_ulong,
                     getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap()
                 );
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP2),
+                    os::getauxval(ffi::AT_HWCAP2) as c_ulong,
                     getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap()
                 );
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP),
+                    os::getauxval(ffi::AT_HWCAP) as c_ulong,
                     getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap()
                 );
                 assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP2),
+                    os::getauxval(ffi::AT_HWCAP2) as c_ulong,
                     getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap()
                 );
             }
