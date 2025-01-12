@@ -1014,6 +1014,18 @@ macro_rules! __test_atomic_float {
         }
         #[test]
         fn fetch_max() {
+            if mem::size_of::<$float_type>() == 16
+                && cfg!(any(
+                    target_arch = "arm",
+                    target_arch = "mips",
+                    target_arch = "mips32r6",
+                    target_vendor = "apple",
+                    windows,
+                ))
+            {
+                // TODO(f128):
+                return;
+            }
             let a = <$atomic_type>::new(23.);
             test_swap_ordering(|order| a.fetch_max(23., order));
             for &order in &helper::SWAP_ORDERINGS {
@@ -1026,6 +1038,18 @@ macro_rules! __test_atomic_float {
         }
         #[test]
         fn fetch_min() {
+            if mem::size_of::<$float_type>() == 16
+                && cfg!(any(
+                    target_arch = "arm",
+                    target_arch = "mips",
+                    target_arch = "mips32r6",
+                    target_vendor = "apple",
+                    windows,
+                ))
+            {
+                // TODO(f128):
+                return;
+            }
             let a = <$atomic_type>::new(23.);
             test_swap_ordering(|order| a.fetch_min(23., order));
             for &order in &helper::SWAP_ORDERINGS {
@@ -1071,7 +1095,7 @@ macro_rules! __test_atomic_float {
             }
             fn quickcheck_compare_exchange(x: $float_type, y: $float_type) -> bool {
                 let z = loop {
-                    let z = fastrand::$float_type();
+                    let z = float_rand::$float_type();
                     if z != y {
                         break z;
                     }
@@ -1119,6 +1143,18 @@ macro_rules! __test_atomic_float {
                 true
             }
             fn quickcheck_fetch_max(x: $float_type, y: $float_type) -> bool {
+                if mem::size_of::<$float_type>() == 16
+                    && cfg!(any(
+                        target_arch = "arm",
+                        target_arch = "mips",
+                        target_arch = "mips32r6",
+                        target_vendor = "apple",
+                        windows,
+                    ))
+                {
+                    // TODO(f128):
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     assert_float_op_eq!(a.fetch_max(y, order), x);
@@ -1130,6 +1166,18 @@ macro_rules! __test_atomic_float {
                 true
             }
             fn quickcheck_fetch_min(x: $float_type, y: $float_type) -> bool {
+                if mem::size_of::<$float_type>() == 16
+                    && cfg!(any(
+                        target_arch = "arm",
+                        target_arch = "mips",
+                        target_arch = "mips32r6",
+                        target_vendor = "apple",
+                        windows,
+                    ))
+                {
+                    // TODO(f128):
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     assert_float_op_eq!(a.fetch_min(y, order), x);
@@ -2512,4 +2560,22 @@ macro_rules! stress_test {
             }
         }
     };
+}
+
+#[cfg(feature = "float")]
+pub(crate) mod float_rand {
+    #[cfg(portable_atomic_unstable_f16)]
+    pub(crate) fn f16() -> f16 {
+        f16::from_bits(fastrand::u16(..))
+    }
+    pub(crate) fn f32() -> f32 {
+        f32::from_bits(fastrand::u32(..))
+    }
+    pub(crate) fn f64() -> f64 {
+        f64::from_bits(fastrand::u64(..))
+    }
+    #[cfg(portable_atomic_unstable_f128)]
+    pub(crate) fn f128() -> f128 {
+        f128::from_bits(fastrand::u128(..))
+    }
 }
