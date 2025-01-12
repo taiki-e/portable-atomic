@@ -601,4 +601,140 @@ pub(crate) mod ffi {
         let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
         let _: c_char = 0 as std::os::raw::c_char;
     };
+
+    #[repr(transparent)]
+    pub(crate) struct CStr([c_char]);
+    impl CStr {
+        #[inline]
+        #[must_use]
+        pub(crate) const fn as_ptr(&self) -> *const c_char {
+            self.0.as_ptr()
+        }
+        /// # Safety
+        ///
+        /// The provided slice **must** be nul-terminated and not contain any interior
+        /// nul bytes.
+        #[inline]
+        #[must_use]
+        pub(crate) unsafe fn from_bytes_with_nul_unchecked(bytes: &[u8]) -> &CStr {
+            // SAFETY: Casting to CStr is safe because *our* CStr is #[repr(transparent)]
+            // and its internal representation is a [u8] too. (Note that std's CStr
+            // is not #[repr(transparent)].)
+            // Dereferencing the obtained pointer is safe because it comes from a
+            // reference. Making a reference is then safe because its lifetime
+            // is bound by the lifetime of the given `bytes`.
+            unsafe { &*(bytes as *const [u8] as *const CStr) }
+        }
+        #[cfg(test)]
+        #[inline]
+        #[must_use]
+        pub(crate) fn to_bytes_with_nul(&self) -> &[u8] {
+            // SAFETY: Transmuting a slice of `c_char`s to a slice of `u8`s
+            // is safe on all supported targets.
+            #[allow(clippy::unnecessary_cast)] // triggered for targets that c_char is u8
+            unsafe {
+                &*(&self.0 as *const [c_char] as *const [u8])
+            }
+        }
+    }
+}
+// Provide safe abstraction (c! macro) for creating static C strings without runtime checks.
+// (c"..." requires Rust 1.77)
+#[cfg(any(test, not(any(windows, target_arch = "x86", target_arch = "x86_64"))))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
+#[allow(dead_code, unused_macros)]
+#[macro_use]
+pub(crate) mod c_str {
+    macro_rules! c {
+        ($s:expr) => {{
+            const BYTES: &[u8] = concat!($s, "\0").as_bytes();
+            const _: () = static_assert!(crate::utils::c_str::_const_is_c_str(BYTES));
+            #[allow(unused_unsafe)]
+            // SAFETY: we've checked `BYTES` is a valid C string
+            unsafe {
+                crate::utils::ffi::CStr::from_bytes_with_nul_unchecked(BYTES)
+            }
+        }};
+    }
+
+    #[must_use]
+    pub(crate) const fn _const_is_c_str(bytes: &[u8]) -> bool {
+        #[cfg(portable_atomic_no_track_caller)]
+        {
+            // const_if_match/const_loop was stabilized (nightly-2020-06-30) 2 days before
+            // track_caller was stabilized (nightly-2020-07-02), so we reuse the cfg for
+            // track_caller here instead of emitting a cfg for const_if_match/const_loop.
+            // https://github.com/rust-lang/rust/pull/72437
+            // track_caller was stabilized 11 days after the oldest nightly version
+            // that uses this module, and is included in the same 1.46 stable release.
+            // The check here is insufficient in this case, but this is fine because this function
+            // is internal code that is not used to process input from the user and our CI checks
+            // all builtin targets and some custom targets with some versions of newer compilers.
+            !bytes.is_empty()
+        }
+        #[cfg(not(portable_atomic_no_track_caller))]
+        {
+            // Based on https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/c_str.rs#L434
+            // - bytes must be nul-terminated.
+            // - bytes must not contain any interior nul bytes.
+            if bytes.is_empty() {
+                return false;
+            }
+            let mut i = bytes.len() - 1;
+            if bytes[i] != 0 {
+                return false;
+            }
+            // Ending null byte exists, skip to the rest.
+            while i != 0 {
+                i -= 1;
+                if bytes[i] == 0 {
+                    return false;
+                }
+            }
+            true
+        }
+    }
+
+    #[allow(
+        clippy::alloc_instead_of_core,
+        clippy::std_instead_of_alloc,
+        clippy::std_instead_of_core,
+        clippy::undocumented_unsafe_blocks,
+        clippy::wildcard_imports
+    )]
+    #[cfg(test)]
+    mod tests {
+        #[test]
+        fn test_c_macro() {
+            #[track_caller]
+            fn t(s: &crate::utils::ffi::CStr, raw: &[u8]) {
+                assert_eq!(s.to_bytes_with_nul(), raw);
+            }
+            t(c!(""), b"\0");
+            t(c!("a"), b"a\0");
+            t(c!("abc"), b"abc\0");
+            t(c!(concat!("abc", "d")), b"abcd\0");
+        }
+
+        #[test]
+        fn test_is_c_str() {
+            #[track_caller]
+            fn t(bytes: &[u8]) {
+                assert_eq!(
+                    super::_const_is_c_str(bytes),
+                    std::ffi::CStr::from_bytes_with_nul(bytes).is_ok()
+                );
+            }
+            t(b"\0");
+            t(b"a\0");
+            t(b"abc\0");
+            t(b"");
+            t(b"a");
+            t(b"abc");
+            t(b"\0a");
+            t(b"\0a\0");
+            t(b"ab\0c\0");
+            t(b"\0\0");
+        }
+    }
 }

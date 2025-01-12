@@ -25,7 +25,7 @@ use core::{mem, ptr};
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
 #[allow(non_camel_case_types)]
 mod ffi {
-    pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void};
+    pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
 
     sys_fn!({
         extern "C" {
@@ -42,21 +42,18 @@ mod ffi {
     });
 }
 
-unsafe fn sysctlbyname32(name: &[u8]) -> Option<u32> {
+fn sysctlbyname32(name: &ffi::CStr) -> Option<u32> {
     const OUT_LEN: ffi::c_size_t = mem::size_of::<u32>() as ffi::c_size_t;
-
-    debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
-    debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
 
     let mut out = 0_u32;
     let mut out_len = OUT_LEN;
     // SAFETY:
-    // - the caller must guarantee that `name` a valid C string.
+    // - `name` a valid C string.
     // - `out_len` does not exceed the size of `out`.
     // - `sysctlbyname` is thread-safe.
     let res = unsafe {
         ffi::sysctlbyname(
-            name.as_ptr().cast::<ffi::c_char>(),
+            name.as_ptr(),
             (&mut out as *mut u32).cast::<ffi::c_void>(),
             &mut out_len,
             ptr::null_mut(),
@@ -77,23 +74,18 @@ fn _detect(info: &mut CpuInfo) {
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
     // https://github.com/google/boringssl/commit/91e0b11eba517d83b910b20fe3740eeb39ecb37e
-    // SAFETY: we passed a valid C string.
-    if unsafe {
-        sysctlbyname32(b"hw.optional.arm.FEAT_LSE\0").unwrap_or(0) != 0
-            || sysctlbyname32(b"hw.optional.armv8_1_atomics\0").unwrap_or(0) != 0
-    } {
+    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE")).unwrap_or(0) != 0
+        || sysctlbyname32(c!("hw.optional.armv8_1_atomics")).unwrap_or(0) != 0
+    {
         info.set(CpuInfo::HAS_LSE);
     }
-    // SAFETY: we passed a valid C string.
-    if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE2\0").unwrap_or(0) != 0 } {
+    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE2")).unwrap_or(0) != 0 {
         info.set(CpuInfo::HAS_LSE2);
     }
-    // SAFETY: we passed a valid C string.
-    if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LSE128\0").unwrap_or(0) != 0 } {
+    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")).unwrap_or(0) != 0 {
         info.set(CpuInfo::HAS_LSE128);
     }
-    // SAFETY: we passed a valid C string.
-    if unsafe { sysctlbyname32(b"hw.optional.arm.FEAT_LRCPC3\0").unwrap_or(0) != 0 } {
+    if sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC3")).unwrap_or(0) != 0 {
         info.set(CpuInfo::HAS_RCPC3);
     }
 }
@@ -111,17 +103,15 @@ mod tests {
 
     #[test]
     fn test_macos() {
-        unsafe {
-            assert_eq!(sysctlbyname32(b"hw.optional.armv8_1_atomics\0"), Some(1));
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LSE\0"), Some(1));
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LSE2\0"), Some(1));
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LSE128\0"), None);
-            assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LRCPC\0"), Some(1));
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LRCPC2\0"), Some(1));
-            assert_eq!(sysctlbyname32(b"hw.optional.arm.FEAT_LRCPC3\0"), None);
-            assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
-        }
+        assert_eq!(sysctlbyname32(c!("hw.optional.armv8_1_atomics")), Some(1));
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE")), Some(1));
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE2")), Some(1));
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")), None);
+        assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC")), Some(1));
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC2")), Some(1));
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC3")), None);
+        assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
     }
 
     #[cfg(target_pointer_width = "64")]
@@ -137,7 +127,7 @@ mod tests {
         // (And they actually changed it: https://go-review.googlesource.com/c/go/+/25495)
         //
         // This is currently used only for testing.
-        unsafe fn sysctlbyname32_no_libc(name: &[u8]) -> Result<u32, c_int> {
+        fn sysctlbyname32_no_libc(name: &CStr) -> Result<u32, c_int> {
             // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/bsd/kern/syscalls.master#L298
             #[inline]
             unsafe fn sysctl(
@@ -187,7 +177,7 @@ mod tests {
             }
             // https://github.com/apple-oss-distributions/Libc/blob/af11da5ca9d527ea2f48bb7efbd0f0f2a4ea4812/gen/FreeBSD/sysctlbyname.c
             unsafe fn sysctlbyname(
-                name: &[u8],
+                name: &CStr,
                 old_p: *mut c_void,
                 old_len_p: *mut c_size_t,
                 new_p: *mut c_void,
@@ -207,7 +197,7 @@ mod tests {
                         real_oid.as_mut_ptr().cast::<c_void>(),
                         &mut oid_len,
                         name.as_ptr().cast::<c_void>() as *mut c_void,
-                        name.len() - 1,
+                        name.to_bytes_with_nul().len() - 1,
                     )?
                 };
                 oid_len /= mem::size_of::<c_int>();
@@ -218,9 +208,6 @@ mod tests {
             }
 
             const OUT_LEN: ffi::c_size_t = mem::size_of::<u32>() as ffi::c_size_t;
-
-            debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
-            debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
 
             let mut out = 0_u32;
             let mut out_len = OUT_LEN;
@@ -243,20 +230,18 @@ mod tests {
         }
 
         for name in [
-            &b"hw.optional.armv8_1_atomics\0"[..],
-            b"hw.optional.arm.FEAT_LSE\0",
-            b"hw.optional.arm.FEAT_LSE2\0",
-            b"hw.optional.arm.FEAT_LSE128\0",
-            b"hw.optional.arm.FEAT_LRCPC\0",
-            b"hw.optional.arm.FEAT_LRCPC2\0",
-            b"hw.optional.arm.FEAT_LRCPC3\0",
+            c!("hw.optional.armv8_1_atomics"),
+            c!("hw.optional.arm.FEAT_LSE"),
+            c!("hw.optional.arm.FEAT_LSE2"),
+            c!("hw.optional.arm.FEAT_LSE128"),
+            c!("hw.optional.arm.FEAT_LRCPC"),
+            c!("hw.optional.arm.FEAT_LRCPC2"),
+            c!("hw.optional.arm.FEAT_LRCPC3"),
         ] {
-            unsafe {
-                if let Some(res) = sysctlbyname32(name) {
-                    assert_eq!(res, sysctlbyname32_no_libc(name).unwrap());
-                } else {
-                    assert_eq!(sysctlbyname32_no_libc(name).unwrap_err(), libc::ENOENT);
-                }
+            if let Some(res) = sysctlbyname32(name) {
+                assert_eq!(res, sysctlbyname32_no_libc(name).unwrap());
+            } else {
+                assert_eq!(sysctlbyname32_no_libc(name).unwrap_err(), libc::ENOENT);
             }
         }
     }

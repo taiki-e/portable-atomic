@@ -125,7 +125,7 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void};
+        pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
 
         sys_struct!({
             // Defined in machine/armreg.h.
@@ -173,24 +173,21 @@ mod imp {
         });
     }
 
-    pub(super) unsafe fn sysctl_cpu_id(name: &[u8]) -> Option<AA64Reg> {
+    pub(super) fn sysctl_cpu_id(name: &ffi::CStr) -> Option<AA64Reg> {
         const OUT_LEN: ffi::c_size_t =
             mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
-
-        debug_assert_eq!(name.last(), Some(&0), "{:?}", name);
-        debug_assert_eq!(name.iter().filter(|&&v| v == 0).count(), 1, "{:?}", name);
 
         // SAFETY: all fields of aarch64_sysctl_cpu_id are zero-able and we use
         // the result when machdep.cpuN.cpu_id sysctl was successful.
         let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
         let mut out_len = OUT_LEN;
         // SAFETY:
-        // - the caller must guarantee that `name` is ` machdep.cpuN.cpu_id` in a C string.
+        // - `name` a valid C string.
         // - `out_len` does not exceed the size of the value at `buf`.
         // - `sysctlbyname` is thread-safe.
         let res = unsafe {
             ffi::sysctlbyname(
-                name.as_ptr().cast::<ffi::c_char>(),
+                name.as_ptr(),
                 (&mut buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
                 &mut out_len,
                 ptr::null_mut(),
@@ -211,11 +208,10 @@ mod imp {
         // Get system registers for cpu0.
         // If failed, returns default because machdep.cpuN.cpu_id sysctl is not available.
         // machdep.cpuN.cpu_id sysctl was added in NetBSD 9.0 so it is not available on older versions.
-        // SAFETY: we passed a valid name in a C string.
         // It is ok to check only cpu0, even if there are more CPUs.
         // https://github.com/NetBSD/src/commit/bd9707e06ea7d21b5c24df6dfc14cb37c2819416
         // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
-        match unsafe { sysctl_cpu_id(b"machdep.cpu0.cpu_id\0") } {
+        match sysctl_cpu_id(c!("machdep.cpu0.cpu_id")) {
             Some(cpu_id) => cpu_id,
             None => AA64Reg { aa64isar0: 0, aa64isar1: 0, aa64mmfr2: 0 },
         }
@@ -389,7 +385,7 @@ mod tests {
         // much as Linux does (It may actually be stable enough, though: https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html).
         //
         // This is currently used only for testing.
-        unsafe fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
+        fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
             // https://github.com/golang/go/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/src/syscall/asm_netbsd_arm64.s
             #[inline]
             unsafe fn sysctl(
@@ -504,11 +500,9 @@ mod tests {
             })
         }
 
-        unsafe {
-            assert_eq!(
-                imp::sysctl_cpu_id(b"machdep.cpu0.cpu_id\0").unwrap(),
-                sysctl_cpu_id_no_libc(&[b"machdep", b"cpu0", b"cpu_id"]).unwrap()
-            );
-        }
+        assert_eq!(
+            imp::sysctl_cpu_id(c!("machdep.cpu0.cpu_id")).unwrap(),
+            sysctl_cpu_id_no_libc(&[b"machdep", b"cpu0", b"cpu_id"]).unwrap()
+        );
     }
 }

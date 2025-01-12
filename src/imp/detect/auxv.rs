@@ -276,7 +276,7 @@ mod os {
         // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
         // is a valid pointer to the function if it is non-null.
         let getauxval: GetauxvalTy = unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr().cast::<ffi::c_char>());
+            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
             if ptr.is_null() {
                 return 0;
             }
@@ -385,8 +385,7 @@ mod os {
         // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
         // is a valid pointer to the function if it is non-null.
         let elf_aux_info: ElfAuxInfoTy = unsafe {
-            let ptr =
-                ffi::dlsym(ffi::RTLD_DEFAULT, "elf_aux_info\0".as_ptr().cast::<ffi::c_char>());
+            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
             if ptr.is_null() {
                 return 0;
             }
@@ -464,7 +463,7 @@ mod arch {
             // SAFETY: we've passed a valid C string and a buffer with max length.
             let len = unsafe {
                 ffi::__system_property_get(
-                    b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
+                    c!("ro.arch").as_ptr(),
                     arch.as_mut_ptr().cast::<ffi::c_char>(),
                 )
             };
@@ -589,7 +588,7 @@ mod tests {
         unsafe {
             let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
             let len = ffi::__system_property_get(
-                b"ro.arch\0".as_ptr().cast::<ffi::c_char>(),
+                c!("ro.arch").as_ptr(),
                 arch.as_mut_ptr().cast::<ffi::c_char>(),
             );
             assert!(len >= 0);
@@ -606,7 +605,7 @@ mod tests {
     #[test]
     fn test_dlsym_getauxval() {
         unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, "getauxval\0".as_ptr().cast::<ffi::c_char>());
+            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
             if cfg!(any(
                 all(
                     target_os = "linux",
@@ -636,8 +635,7 @@ mod tests {
     #[test]
     fn test_dlsym_elf_aux_info() {
         unsafe {
-            let ptr =
-                ffi::dlsym(ffi::RTLD_DEFAULT, "elf_aux_info\0".as_ptr().cast::<ffi::c_char>());
+            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
             if cfg!(target_os = "freebsd") || option_env!("CI").is_some() {
                 assert!(!ptr.is_null());
             }
