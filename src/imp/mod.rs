@@ -164,7 +164,6 @@ mod interrupt;
 // Atomic float implementations
 
 #[cfg(feature = "float")]
-#[allow(clippy::float_arithmetic)]
 pub(crate) mod float;
 
 // -----------------------------------------------------------------------------

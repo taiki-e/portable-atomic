@@ -94,6 +94,7 @@ locgr
 locgre
 lqarx
 lrcpc
+lsfe
 lwsync
 machdep
 MAXNAME

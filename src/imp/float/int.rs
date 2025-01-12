@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-AtomicF{32,64} implementation based on AtomicU{32,64}.
+Atomic float implementation based on atomic integer.
 
 This module provides atomic float implementations using atomic integer.
 
 Note that most of `fetch_*` operations of atomic floats are implemented using
 CAS loops, which can be slower than equivalent operations of atomic integers.
 
-GPU targets have atomic instructions for float, so GPU targets will use
-architecture-specific implementations instead of this implementation in the
+AArch64 with FEAT_LSFE and GPU targets have atomic instructions for float.
+Both will use architecture-specific implementations instead of this implementation in the
 future: https://github.com/taiki-e/portable-atomic/issues/34 / https://github.com/taiki-e/portable-atomic/pull/45
 */
 
@@ -180,6 +180,7 @@ macro_rules! atomic_float {
                 self.fetch_update_(order, |x| x.min(val))
             }
             } // cfg_has_atomic_cas!
+
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $float_type {
