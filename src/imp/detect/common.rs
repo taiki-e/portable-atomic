@@ -127,12 +127,11 @@ flags! {
     HAS_VMOVDQA_ATOMIC(has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
 }
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-#[cfg(not(windows))]
-#[allow(dead_code, unused_macros, non_camel_case_types)]
+// Helper macros for defining FFI bindings.
+#[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
+#[allow(unused_macros)]
 #[macro_use]
-mod c_types {
+mod ffi_macros {
     /// Defines constants with #[cfg(test)] static assertions which checks
     /// values are the same as the platform's latest header files' ones.
     // Note: This macro is sys_const!({ }), not sys_const! { }.
@@ -276,74 +275,12 @@ mod c_types {
         };
     }
 
-    pub(crate) type c_void = core::ffi::c_void;
-    // c_{,u}int is {i,u}32 on non-16-bit architectures
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L147
-    // (16-bit architectures currently don't use this module)
-    pub(crate) type c_int = i32;
-    pub(crate) type c_uint = u32;
-    // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise is {i,u}32
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L159
-    // (Windows currently doesn't use this module - this module is cfg(not(windows)))
-    #[cfg(target_pointer_width = "64")]
-    pub(crate) type c_long = i64;
-    #[cfg(target_pointer_width = "64")]
-    pub(crate) type c_ulong = u64;
-    #[cfg(not(target_pointer_width = "64"))]
-    pub(crate) type c_long = i32;
-    #[cfg(not(target_pointer_width = "64"))]
-    pub(crate) type c_ulong = u32;
-    // c_size_t is currently always usize
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
-    pub(crate) type c_size_t = usize;
-    // c_char is u8 by default on non-Apple/non-Windows Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets
-    // See references in https://github.com/rust-lang/rust/issues/129945 for details.
-    #[cfg(all(
-        not(any(target_vendor = "apple", windows)),
-        any(
-            target_arch = "aarch64",
-            target_arch = "arm",
-            target_arch = "csky",
-            target_arch = "hexagon",
-            target_arch = "msp430",
-            target_arch = "powerpc",
-            target_arch = "powerpc64",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "xtensa",
-        ),
-    ))]
-    pub(crate) type c_char = u8;
-    #[cfg(not(all(
-        not(any(target_vendor = "apple", windows)),
-        any(
-            target_arch = "aarch64",
-            target_arch = "arm",
-            target_arch = "csky",
-            target_arch = "hexagon",
-            target_arch = "msp430",
-            target_arch = "powerpc",
-            target_arch = "powerpc64",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "xtensa",
-        ),
-    )))]
-    pub(crate) type c_char = i8;
-
     // Static assertions for C type definitions.
+    // Assertions with core::ffi types are in crate::utils::ffi module.
     #[cfg(test)]
     const _: fn() = || {
         use test_helper::sys;
-        let _: c_int = 0 as std::os::raw::c_int;
-        let _: c_uint = 0 as std::os::raw::c_uint;
-        let _: c_long = 0 as std::os::raw::c_long;
-        let _: c_ulong = 0 as std::os::raw::c_ulong;
-        let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
-        let _: c_char = 0 as std::os::raw::c_char;
-        let _: c_char = 0 as sys::c_char;
+        let _: crate::utils::ffi::c_char = 0 as sys::c_char;
     };
 }
 

@@ -14,7 +14,7 @@ include!("common.rs");
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
 #[allow(non_camel_case_types)]
 mod ffi {
-    pub(crate) use super::c_types::c_uint;
+    pub(crate) use crate::utils::ffi::c_uint;
 
     sys_const!({
         // Defined in sys/auxv_aarch64.h.

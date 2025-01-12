@@ -116,9 +116,9 @@ mod os {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
-        pub(crate) use super::super::c_types::c_ulong;
+        pub(crate) use crate::utils::ffi::c_ulong;
         #[allow(unused_imports)]
-        pub(crate) use super::super::c_types::{c_char, c_int, c_void};
+        pub(crate) use crate::utils::ffi::{c_char, c_int, c_void};
 
         sys_const!({
             // https://github.com/torvalds/linux/blob/v6.12/include/uapi/linux/auxvec.h
@@ -295,8 +295,8 @@ mod os {
     #[cfg_attr(test, allow(dead_code))]
     pub(super) mod ffi {
         #[allow(unused_imports)]
-        pub(crate) use super::super::c_types::c_char;
-        pub(crate) use super::super::c_types::{c_int, c_ulong, c_void};
+        pub(crate) use crate::utils::ffi::c_char;
+        pub(crate) use crate::utils::ffi::{c_int, c_ulong, c_void};
 
         sys_const!({
             // FreeBSD
@@ -684,7 +684,7 @@ mod tests {
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
     #[test]
     fn test_alternative() {
-        use c_types::*;
+        use crate::utils::ffi::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::{str, vec};
@@ -853,7 +853,7 @@ mod tests {
     #[cfg(target_os = "freebsd")]
     #[test]
     fn test_alternative() {
-        use c_types::*;
+        use crate::utils::ffi::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::ptr;

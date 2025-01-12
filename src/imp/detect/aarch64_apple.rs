@@ -25,7 +25,7 @@ use core::{mem, ptr};
 // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
 #[allow(non_camel_case_types)]
 mod ffi {
-    pub(crate) use super::c_types::{c_char, c_int, c_size_t, c_void};
+    pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void};
 
     sys_fn!({
         extern "C" {
@@ -127,7 +127,7 @@ mod tests {
     #[cfg(target_pointer_width = "64")]
     #[test]
     fn test_alternative() {
-        use c_types::*;
+        use crate::utils::ffi::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::mem;

@@ -456,7 +456,7 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     (aligned_ptr, shift as RetInt, mask)
 }
 
-// strict_provenance polyfill for pre-1.84 rustc.
+// core::ptr strict_provenance/exposed_provenance polyfill for pre-1.84 rustc.
 #[allow(dead_code)]
 pub(crate) mod ptr {
     #[cfg(portable_atomic_no_strict_provenance)]
@@ -520,4 +520,85 @@ pub(crate) mod ptr {
             (self as *mut u8).wrapping_offset(offset) as *mut T
         }
     }
+}
+
+// core::ffi polyfill for pre-1.64 rustc compatibility.
+// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
+#[cfg(any(test, not(any(windows, target_arch = "x86", target_arch = "x86_64"))))]
+#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
+#[allow(dead_code, non_camel_case_types)]
+#[macro_use]
+pub(crate) mod ffi {
+    pub(crate) type c_void = core::ffi::c_void;
+    // c_{,u}int is {i,u}16 on 16-bit targets, otherwise {i,u}32.
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L147
+    #[cfg(target_pointer_width = "16")]
+    pub(crate) type c_int = i16;
+    #[cfg(target_pointer_width = "16")]
+    pub(crate) type c_uint = u16;
+    #[cfg(not(target_pointer_width = "16"))]
+    pub(crate) type c_int = i32;
+    #[cfg(not(target_pointer_width = "16"))]
+    pub(crate) type c_uint = u32;
+    // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise {i,u}32.
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L159
+    #[cfg(all(target_pointer_width = "64", not(windows)))]
+    pub(crate) type c_long = i64;
+    #[cfg(all(target_pointer_width = "64", not(windows)))]
+    pub(crate) type c_ulong = u64;
+    #[cfg(not(all(target_pointer_width = "64", not(windows))))]
+    pub(crate) type c_long = i32;
+    #[cfg(not(all(target_pointer_width = "64", not(windows))))]
+    pub(crate) type c_ulong = u32;
+    // c_size_t is currently always usize.
+    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
+    pub(crate) type c_size_t = usize;
+    // c_char is u8 by default on non-Apple/non-Windows Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
+    // See references in https://github.com/rust-lang/rust/issues/129945 for details.
+    #[cfg(all(
+        not(any(target_vendor = "apple", windows)),
+        any(
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "csky",
+            target_arch = "hexagon",
+            target_arch = "msp430",
+            target_arch = "powerpc",
+            target_arch = "powerpc64",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "xtensa",
+        ),
+    ))]
+    pub(crate) type c_char = u8;
+    #[cfg(not(all(
+        not(any(target_vendor = "apple", windows)),
+        any(
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "csky",
+            target_arch = "hexagon",
+            target_arch = "msp430",
+            target_arch = "powerpc",
+            target_arch = "powerpc64",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "s390x",
+            target_arch = "xtensa",
+        ),
+    )))]
+    pub(crate) type c_char = i8;
+
+    // Static assertions for C type definitions.
+    #[cfg(test)]
+    const _: fn() = || {
+        let _: c_int = 0 as std::os::raw::c_int;
+        let _: c_uint = 0 as std::os::raw::c_uint;
+        let _: c_long = 0 as std::os::raw::c_long;
+        let _: c_ulong = 0 as std::os::raw::c_ulong;
+        #[cfg(unix)]
+        let _: c_size_t = 0 as libc::size_t; // std::os::raw::c_size_t is unstable
+        let _: c_char = 0 as std::os::raw::c_char;
+    };
 }

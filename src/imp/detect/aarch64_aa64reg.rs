@@ -125,7 +125,7 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use super::super::c_types::{c_char, c_int, c_size_t, c_void};
+        pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void};
 
         sys_struct!({
             // Defined in machine/armreg.h.
@@ -234,7 +234,7 @@ mod imp {
     // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use super::super::c_types::{c_int, c_size_t, c_uint, c_void};
+        pub(crate) use crate::utils::ffi::{c_int, c_size_t, c_uint, c_void};
 
         sys_const!({
             // Defined in sys/sysctl.h.
@@ -377,7 +377,7 @@ mod tests {
     #[cfg(target_os = "netbsd")]
     #[test]
     fn test_alternative() {
-        use c_types::*;
+        use crate::utils::ffi::*;
         use imp::ffi;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
