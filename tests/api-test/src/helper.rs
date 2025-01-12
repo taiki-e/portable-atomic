@@ -394,6 +394,18 @@ macro_rules! __test_atomic_float {
         }
         __run_test!(fetch_max);
         fn fetch_max() {
+            if core::mem::size_of::<$float_type>() == 16
+                && cfg!(any(
+                    target_arch = "arm",
+                    target_arch = "mips",
+                    target_arch = "mips32r6",
+                    target_vendor = "apple",
+                    windows,
+                ))
+            {
+                // TODO(f128):
+                return;
+            }
             for &order in &helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.);
                 assert_eq!(a.fetch_max(22., order), 23.);
@@ -409,6 +421,18 @@ macro_rules! __test_atomic_float {
         }
         __run_test!(fetch_min);
         fn fetch_min() {
+            if core::mem::size_of::<$float_type>() == 16
+                && cfg!(any(
+                    target_arch = "arm",
+                    target_arch = "mips",
+                    target_arch = "mips32r6",
+                    target_vendor = "apple",
+                    windows,
+                ))
+            {
+                // TODO(f128):
+                return;
+            }
             for &order in &helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(23.);
                 assert_eq!(a.fetch_min(24., order), 23.);

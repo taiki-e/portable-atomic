@@ -199,9 +199,17 @@ macro_rules! atomic_float {
     };
 }
 
+#[cfg(portable_atomic_unstable_f16)]
+cfg_has_atomic_16! {
+    atomic_float!(AtomicF16, f16, AtomicU16, u16, 2);
+}
 cfg_has_atomic_32! {
     atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
 }
 cfg_has_atomic_64! {
     atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
+}
+#[cfg(portable_atomic_unstable_f128)]
+cfg_has_atomic_128! {
+    atomic_float!(AtomicF128, f128, AtomicU128, u128, 16);
 }

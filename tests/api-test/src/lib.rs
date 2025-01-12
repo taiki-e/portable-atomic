@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
+#![cfg_attr(portable_atomic_unstable_f16, feature(f16))]
+#![cfg_attr(portable_atomic_unstable_f128, feature(f128))]
 #![allow(unused_imports)]
 
 #[macro_use]
 mod helper;
 
 use portable_atomic as atomic;
+#[cfg(all(feature = "float", portable_atomic_unstable_f128))]
+use portable_atomic::AtomicF128;
+#[cfg(all(feature = "float", portable_atomic_unstable_f16))]
+use portable_atomic::AtomicF16;
 use portable_atomic::{
     hint, AtomicBool, AtomicI128, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize,
     AtomicPtr, AtomicU128, AtomicU16, AtomicU32, AtomicU64, AtomicU8, AtomicUsize, Ordering,
@@ -74,10 +80,14 @@ pub fn all() {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
+    #[cfg(all(feature = "float", portable_atomic_unstable_f16))]
+    test_atomic_float!(f16);
     #[cfg(feature = "float")]
     test_atomic_float!(f32);
     #[cfg(feature = "float")]
     test_atomic_float!(f64);
+    #[cfg(all(feature = "float", portable_atomic_unstable_f128))]
+    test_atomic_float!(f128);
 }
 
 #[cfg(test)]

@@ -7,7 +7,7 @@ env:
   RUST_BACKTRACE: '1'
   RUST_TEST_THREADS: '1'
   RUSTDOCFLAGS: -D warnings
-  RUSTFLAGS: -D warnings
+  RUSTFLAGS: -D warnings --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16 --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128
   RUSTUP_MAX_RETRIES: '10'
   PORTABLE_ATOMIC_DENY_WARNINGS: '1'
 

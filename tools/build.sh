@@ -349,6 +349,10 @@ build() {
             mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
         esac
     fi
+    if [[ "${base_rustflags}" == *"unqualified_local_imports"* ]]; then
+        [[ "${target_rustflags}" == *"portable_atomic_unstable_f16"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16"
+        [[ "${target_rustflags}" == *"portable_atomic_unstable_f128"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128"
+    fi
 
     if [[ -n "${TESTS:-}" ]]; then
         # We use std in main tests, so we cannot build them on no-std targets.

@@ -17,6 +17,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/build.sh and tools/test.sh.
 features = ["float", "std", "serde", "critical-section"]
+rustdoc-args = ["--cfg", "portable_atomic_unstable_f16", "--cfg", "portable_atomic_unstable_f128"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [package.metadata.cargo_check_external_types]
@@ -132,8 +133,8 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     # Known custom cfgs, excluding those that may be set by build script.
     # Not public API.
     'cfg(portable_atomic_test_outline_atomics_detect_false,qemu,valgrind)',
-    # Public APIs, considered unstable unless documented in readme.
-    'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics)',
+    # Public APIs, considered unstable unless documented as stable in readme.
+    'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Public unstable API(s) - portable-atomic-util
     'cfg(portable_atomic_unstable_coerce_unsized)',
 ] }

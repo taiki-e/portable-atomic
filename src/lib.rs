@@ -7,6 +7,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide all atomic integer types (`Atomic{I,U}{8,16,32,64}`) for all targets that can use atomic CAS. (i.e., all targets that can use `std`, and most no-std targets)
 - Provide `AtomicI128` and `AtomicU128`.
 - Provide `AtomicF32` and `AtomicF64`. ([optional, requires the `float` feature](#optional-features-float))
+- Provide `AtomicF16` and `AtomicF128` for [unstable `f16` and `f128`](https://github.com/rust-lang/rust/issues/116909). ([optional, requires the `float` feature and unstable cfgs](#optional-features-float))
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 Arm, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108).
@@ -64,7 +65,12 @@ See the [`atomic128` module's readme](https://github.com/taiki-e/portable-atomic
 - <a name="optional-features-float"></a>**`float`**<br>
   Provide `AtomicF{32,64}`.
 
-  Note that most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers. ([GPU targets have atomic instructions for float, so we plan to use these instructions for GPU targets in the future.](https://github.com/taiki-e/portable-atomic/issues/34))
+  - When unstable `--cfg portable_atomic_unstable_f16` is also enabled, `AtomicF16` for [unstable `f16`](https://github.com/rust-lang/rust/issues/116909) is also provided.
+  - When unstable `--cfg portable_atomic_unstable_f128` is also enabled, `AtomicF128` for [unstable `f128`](https://github.com/rust-lang/rust/issues/116909) is also provided.
+
+  Note:
+  - Most of `fetch_*` operations of atomic floats are implemented using CAS loops, which can be slower than equivalent operations of atomic integers. (AArch64 with FEAT_LSFE and GPU targets have atomic instructions for float, [so we plan to use these instructions for them in the future.](https://github.com/taiki-e/portable-atomic/issues/34))
+  - Unstable cfgs are outside of the normal semver guarantees and minor or patch versions of portable-atomic may make breaking changes to them at any time.
 
 - **`std`**<br>
   Use `std`.
@@ -230,6 +236,10 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
     ),
     feature(asm_experimental_arch)
 )]
+// f16/f128
+// cfg is unstable and explicitly enabled by the user
+#![cfg_attr(portable_atomic_unstable_f16, feature(f16))]
+#![cfg_attr(portable_atomic_unstable_f128, feature(f128))]
 // Old nightly only
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
@@ -4115,12 +4125,15 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
         } // cfg_no_atomic_cas!
         $(
             #[$cfg_float]
-            atomic_int!(float, $atomic_float_type, $float_type, $atomic_type, $int_type, $align);
+            atomic_int!(float,
+                #[$cfg_float] $atomic_float_type, $float_type, $atomic_type, $int_type, $align
+            );
         )?
     };
 
     // AtomicF* impls
     (float,
+        #[$cfg_float:meta]
         $atomic_type:ident,
         $float_type:ident,
         $atomic_int_type:ident,
@@ -4134,7 +4147,7 @@ This type has the same in-memory representation as the underlying floating point
 [`", stringify!($float_type), "`].
 "
             ),
-            #[cfg_attr(docsrs, doc(cfg(feature = "float")))]
+            #[cfg_attr(docsrs, doc($cfg_float))]
             // We can use #[repr(transparent)] here, but #[repr(C, align(N))]
             // will show clearer docs.
             #[repr(C, align($align))]
@@ -4754,9 +4767,8 @@ cfg_has_atomic_8! {
 }
 cfg_has_atomic_16! {
     atomic_int!(AtomicI16, i16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
-    atomic_int!(AtomicU16, u16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8);
-        // TODO: support once https://github.com/rust-lang/rust/issues/116909 stabilized.
-        // #[cfg(all(feature = "float", not(portable_atomic_no_f16)))] AtomicF16, f16);
+    atomic_int!(AtomicU16, u16, 2, cfg_has_atomic_cas_or_amo8, cfg_no_atomic_cas_or_amo8,
+        #[cfg(all(feature = "float", portable_atomic_unstable_f16))] AtomicF16, f16);
 }
 cfg_has_atomic_32! {
     atomic_int!(AtomicI32, i32, 4, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
@@ -4770,9 +4782,8 @@ cfg_has_atomic_64! {
 }
 cfg_has_atomic_128! {
     atomic_int!(AtomicI128, i128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
-    atomic_int!(AtomicU128, u128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32);
-        // TODO: support once https://github.com/rust-lang/rust/issues/116909 stabilized.
-        // #[cfg(all(feature = "float", not(portable_atomic_no_f128)))] AtomicF128, f128);
+    atomic_int!(AtomicU128, u128, 16, cfg_has_atomic_cas_or_amo32, cfg_no_atomic_cas_or_amo32,
+        #[cfg(all(feature = "float", portable_atomic_unstable_f128))] AtomicF128, f128);
 }
 
 // See https://github.com/taiki-e/portable-atomic/issues/180

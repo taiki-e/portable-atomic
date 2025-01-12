@@ -134,14 +134,15 @@ macro_rules! const_fn {
 /// Implements `core::fmt::Debug` and `serde::{Serialize, Deserialize}` (when serde
 /// feature is enabled) for atomic bool, integer, or float.
 macro_rules! impl_debug_and_serde {
+    // TODO(f16_and_f128): Implement serde traits for f16 & f128 once stabilized.
+    (AtomicF16) => {
+        impl_debug!(AtomicF16);
+    };
+    (AtomicF128) => {
+        impl_debug!(AtomicF128);
+    };
     ($atomic_type:ident) => {
-        impl fmt::Debug for $atomic_type {
-            #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
-                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
-            }
-        }
+        impl_debug!($atomic_type);
         #[cfg(feature = "serde")]
         #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
         impl serde::ser::Serialize for $atomic_type {
@@ -163,6 +164,17 @@ macro_rules! impl_debug_and_serde {
                 D: serde::de::Deserializer<'de>,
             {
                 serde::de::Deserialize::deserialize(deserializer).map(Self::new)
+            }
+        }
+    };
+}
+macro_rules! impl_debug {
+    ($atomic_type:ident) => {
+        impl fmt::Debug for $atomic_type {
+            #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
+                fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
     };
