@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-gba = "0.13"
+gba = "0.14"
 paste = "1"
 
 [workspace]
