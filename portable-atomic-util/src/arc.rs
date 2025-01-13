@@ -33,7 +33,7 @@ use core::{
     hash::{Hash, Hasher},
     isize,
     marker::PhantomData,
-    mem::{self, align_of_val, size_of_val, ManuallyDrop},
+    mem::{self, ManuallyDrop},
     ops::Deref,
     pin::Pin,
     ptr::{self, NonNull},
@@ -1057,7 +1057,7 @@ impl<T: ?Sized> Arc<T> {
 
     fn from_box(src: Box<T>) -> Arc<T> {
         unsafe {
-            let value_size = size_of_val(&*src);
+            let value_size = mem::size_of_val(&*src);
             let ptr = Self::allocate_for_value(&*src);
 
             // Copy value as bytes
@@ -2558,7 +2558,7 @@ unsafe fn data_ptr<T: ?Sized>(arc: *mut ArcInner<T>, data: &T) -> *mut T {
 fn data_offset<T: ?Sized>(ptr: &T) -> usize {
     // Align the unsized value to the end of the ArcInner.
     // Because RcBox is repr(C), it will always be the last field in memory.
-    data_offset_align(align_of_val::<T>(ptr))
+    data_offset_align(mem::align_of_val::<T>(ptr))
 }
 
 #[inline]
