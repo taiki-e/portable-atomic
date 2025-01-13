@@ -3,7 +3,7 @@
 /*
 Atomic load/store implementation on RISC-V.
 
-This is for RISC-V targets without atomic CAS. (rustc doesn't provide atomics
+This is for RISC-V targets without A extension. (pre-1.76 rustc doesn't provide atomics
 at all on such targets. https://github.com/rust-lang/rust/pull/114499)
 
 Also, optionally provides RMW implementation when Zaamo extension or force-amo feature is enabled.

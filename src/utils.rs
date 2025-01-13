@@ -468,7 +468,7 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     (aligned_ptr, shift as RetInt, mask)
 }
 
-// core::ptr strict_provenance/exposed_provenance polyfill for pre-1.84 rustc.
+// This module provides core::ptr strict_provenance/exposed_provenance polyfill for pre-1.84 rustc.
 #[allow(dead_code)]
 pub(crate) mod ptr {
     #[cfg(portable_atomic_no_strict_provenance)]

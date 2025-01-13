@@ -3131,7 +3131,7 @@ impl Global {
 #[cfg(portable_atomic_no_strict_provenance)]
 use self::strict::PtrExt as _;
 
-// strict_provenance polyfill for pre-1.84 rustc.
+// This module provides core::ptr strict_provenance/exposed_provenance polyfill for pre-1.84 rustc.
 mod strict {
     #[cfg(portable_atomic_no_strict_provenance)]
     use core::mem;
