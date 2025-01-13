@@ -4,7 +4,7 @@
 
 #[macro_use]
 #[path = "gen/utils.rs"]
-mod gen;
+mod generated;
 
 use core::sync::atomic::Ordering;
 
