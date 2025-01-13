@@ -332,7 +332,7 @@ mod tests_common {
     fn print_features() {
         use std::{
             fmt::Write as _,
-            io::{self, Write},
+            io::{self, Write as _},
             string::String,
         };
 

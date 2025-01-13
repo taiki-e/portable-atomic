@@ -113,7 +113,7 @@ use self::{
     utils::CachePadded,
 };
 #[cfg(portable_atomic_no_strict_provenance)]
-use crate::utils::ptr::PtrExt;
+use crate::utils::ptr::PtrExt as _;
 
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is fast,

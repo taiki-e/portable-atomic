@@ -16,7 +16,7 @@ use core::{
 
 use super::fallback::utils::{Backoff, CachePadded};
 #[cfg(portable_atomic_no_strict_provenance)]
-use crate::utils::ptr::PtrExt;
+use crate::utils::ptr::PtrExt as _;
 
 struct Spinlock {
     state: AtomicUsize,

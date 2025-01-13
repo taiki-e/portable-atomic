@@ -100,7 +100,7 @@ fn is_panic_abort() -> bool {
 #[allow(clippy::many_single_char_names)]
 mod alloc_tests {
     use std::{
-        convert::TryInto,
+        convert::TryInto as _,
         sync::{mpsc::channel, Mutex},
         thread,
     };

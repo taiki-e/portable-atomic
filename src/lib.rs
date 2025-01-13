@@ -330,7 +330,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             feature = "critical-section",
         )),
     ),
-    allow(unused_imports, unused_macros)
+    allow(unused_imports, unused_macros, clippy::unused_trait_names)
 )]
 
 // There are currently no 128-bit or higher builtin targets.
@@ -538,7 +538,7 @@ use core::{fmt, ptr};
 
 #[cfg(portable_atomic_no_strict_provenance)]
 #[cfg(miri)]
-use crate::utils::ptr::PtrExt;
+use crate::utils::ptr::PtrExt as _;
 
 cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
@@ -2060,7 +2060,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
@@ -2128,7 +2128,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
@@ -2175,7 +2175,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let atom = AtomicPtr::<i64>::new(sptr::invalid_mut(1));
@@ -2230,7 +2230,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;
@@ -2291,7 +2291,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;
@@ -2350,7 +2350,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;
@@ -2396,7 +2396,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;
@@ -2444,7 +2444,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;
@@ -2489,7 +2489,7 @@ impl<T> AtomicPtr<T> {
     ///
     /// ```
     /// # #![allow(unstable_name_collisions)]
-    /// # #[allow(unused_imports)] use sptr::Strict; // strict provenance polyfill for old rustc
+    /// # #[allow(unused_imports)] use sptr::Strict as _; // strict provenance polyfill for old rustc
     /// use portable_atomic::{AtomicPtr, Ordering};
     ///
     /// let pointer = &mut 3i64 as *mut i64;

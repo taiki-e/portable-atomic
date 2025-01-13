@@ -1740,7 +1740,7 @@ macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
         #[allow(unused_imports)]
-        use sptr::Strict; // for old rustc
+        use sptr::Strict as _; // for old rustc
         use std::{boxed::Box, mem};
         #[test]
         fn fetch_update() {
@@ -2295,7 +2295,7 @@ macro_rules! __stress_test_acquire_release {
         use super::*;
         use crossbeam_utils::thread;
         use std::{
-            convert::TryFrom,
+            convert::TryFrom as _,
             sync::atomic::{AtomicUsize, Ordering},
         };
         let mut n: usize = if cfg!(miri) { 10 } else { 50_000 };

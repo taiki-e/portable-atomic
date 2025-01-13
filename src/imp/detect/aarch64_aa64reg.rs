@@ -315,7 +315,7 @@ mod imp {
 mod tests {
     use std::{
         process::Command,
-        string::{String, ToString},
+        string::{String, ToString as _},
     };
 
     use super::*;

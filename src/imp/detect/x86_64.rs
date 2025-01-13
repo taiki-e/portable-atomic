@@ -127,7 +127,7 @@ fn _detect(info: &mut CpuInfo) {
 #[cfg(test)]
 mod tests {
     use std::{
-        io::{self, Write},
+        io::{self, Write as _},
         mem, str,
     };
 
