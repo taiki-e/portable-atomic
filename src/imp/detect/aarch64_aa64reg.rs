@@ -122,7 +122,7 @@ mod imp {
 
     use super::AA64Reg;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
+    // libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
         pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
@@ -227,8 +227,7 @@ mod imp {
 
     use super::AA64Reg;
 
-    // core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
-    #[allow(non_camel_case_types)]
+    // libc requires Rust 1.63
     pub(super) mod ffi {
         pub(crate) use crate::utils::ffi::{c_int, c_size_t, c_uint, c_void};
 

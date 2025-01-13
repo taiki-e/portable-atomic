@@ -13,7 +13,7 @@ include!("common.rs");
 
 use core::ptr;
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
+// libc requires Rust 1.63
 #[allow(non_camel_case_types, non_upper_case_globals)]
 mod ffi {
     pub(crate) use crate::utils::ffi::{c_long, c_size_t, c_uint, c_ulong};

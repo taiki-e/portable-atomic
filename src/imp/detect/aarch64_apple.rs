@@ -22,8 +22,7 @@ include!("common.rs");
 
 use core::{mem, ptr};
 
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
-#[allow(non_camel_case_types)]
+// libc requires Rust 1.63
 mod ffi {
     pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
 
@@ -212,7 +211,6 @@ mod tests {
             let mut out = 0_u32;
             let mut out_len = OUT_LEN;
             // SAFETY:
-            // - the caller must guarantee that `name` a valid C string.
             // - `out_len` does not exceed the size of `out`.
             // - `sysctlbyname` is thread-safe.
             let res = unsafe {

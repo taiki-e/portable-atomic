@@ -534,11 +534,14 @@ pub(crate) mod ptr {
     }
 }
 
-// core::ffi polyfill for pre-1.64 rustc compatibility.
-// core::ffi::c_* (except c_void) requires Rust 1.64, libc requires Rust 1.63
+// This module provides:
+// - core::ffi polyfill (c_* type aliases and CStr) for pre-1.64 rustc compatibility.
+//   (core::ffi::* (except c_void) requires Rust 1.64)
+// - safe abstraction (c! macro) for creating static C strings without runtime checks.
+//   (c"..." requires Rust 1.77)
 #[cfg(any(test, not(any(windows, target_arch = "x86", target_arch = "x86_64"))))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
-#[allow(dead_code, non_camel_case_types)]
+#[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
 pub(crate) mod ffi {
     pub(crate) type c_void = core::ffi::c_void;
@@ -649,18 +652,11 @@ pub(crate) mod ffi {
             }
         }
     }
-}
-// Provide safe abstraction (c! macro) for creating static C strings without runtime checks.
-// (c"..." requires Rust 1.77)
-#[cfg(any(test, not(any(windows, target_arch = "x86", target_arch = "x86_64"))))]
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
-#[allow(dead_code, unused_macros)]
-#[macro_use]
-pub(crate) mod c_str {
+
     macro_rules! c {
         ($s:expr) => {{
             const BYTES: &[u8] = concat!($s, "\0").as_bytes();
-            const _: () = static_assert!(crate::utils::c_str::_const_is_c_str(BYTES));
+            const _: () = static_assert!(crate::utils::ffi::_const_is_c_str(BYTES));
             #[allow(unused_unsafe)]
             // SAFETY: we've checked `BYTES` is a valid C string
             unsafe {
