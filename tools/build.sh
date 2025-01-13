@@ -244,7 +244,7 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
         retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
     fi
     # We only run clippy on the recent nightly to avoid old clippy bugs.
-    if [[ "${rustc_minor_version}" -ge 84 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
+    if [[ "${rustc_minor_version}" -ge 86 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
         subcmd=clippy
         retry rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
         base_args=(hack "${subcmd}")
@@ -362,7 +362,7 @@ build() {
             local build_util_with_critical_section=''
             if [[ -z "${has_atomic_cas}" ]]; then
                 case "${target}" in
-                    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none*)
+                    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
                         target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
                         ;;
                     bpf* | mips*) build_util_with_critical_section=1 ;;
