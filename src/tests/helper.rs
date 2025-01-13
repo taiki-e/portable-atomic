@@ -2270,6 +2270,7 @@ macro_rules! __stress_test_acquire_release {
     (should_pass, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {
         paste::paste! {
             #[test]
+            #[cfg_attr(all(debug_assertions, not(miri)), ignore)] // debug mode is slow.
             #[allow(clippy::cast_possible_truncation)]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 __stress_test_acquire_release!([<Atomic $int_type:camel>],
@@ -2333,7 +2334,7 @@ macro_rules! __stress_test_seqcst {
             // it creates two threads for each iteration.
             // So, ignore on QEMU by default.
             #[test]
-            #[cfg_attr(qemu, ignore)]
+            #[cfg_attr(any(all(debug_assertions, not(miri)), qemu), ignore)] // debug mode is slow.
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 __stress_test_seqcst!([<Atomic $int_type:camel>],
                     $write, $load_order, $store_order);
@@ -2462,8 +2463,6 @@ pub(crate) fn catch_unwind_on_non_seqcst_arch(pat: &str, f: impl Fn()) {
 }
 macro_rules! stress_test_load_store {
     ($int_type:ident) => {
-        // debug mode is slow.
-        #[cfg(any(not(debug_assertions), miri))]
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,
@@ -2507,8 +2506,6 @@ macro_rules! stress_test_load_store {
 macro_rules! stress_test {
     ($int_type:ident) => {
         stress_test_load_store!($int_type);
-        // debug mode is slow.
-        #[cfg(any(not(debug_assertions), miri))]
         paste::paste! {
             #[allow(
                 clippy::alloc_instead_of_core,
