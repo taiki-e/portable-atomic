@@ -9,7 +9,8 @@ Note that most of `fetch_*` operations of atomic floats are implemented using
 CAS loops, which can be slower than equivalent operations of atomic integers.
 
 AArch64 with FEAT_LSFE and GPU targets have atomic instructions for float.
-Both will use architecture-specific implementations instead of this implementation in the
+See aarch64.rs for AArch64 with FEAT_LSFE.
+GPU targets will also use architecture-specific implementations instead of this implementation in the
 future: https://github.com/taiki-e/portable-atomic/issues/34 / https://github.com/taiki-e/portable-atomic/pull/45
 */
 
@@ -138,18 +139,39 @@ macro_rules! atomic_float {
                 }
             }
 
+            #[cfg(not(all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+                target_feature = "neon", // for vreg
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_add(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x + val)
             }
 
+            #[cfg(not(all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+                target_feature = "neon", // for vreg
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_sub(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x - val)
             }
 
+            #[cfg(not(all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+                target_feature = "neon", // for vreg
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> $float_type
@@ -168,12 +190,26 @@ macro_rules! atomic_float {
                 }
             }
 
+            #[cfg(not(all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+                target_feature = "neon", // for vreg
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_max(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.fetch_update_(order, |x| x.max(val))
             }
 
+            #[cfg(not(all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+                target_feature = "neon", // for vreg
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            )))]
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_min(&self, val: $float_type, order: Ordering) -> $float_type {

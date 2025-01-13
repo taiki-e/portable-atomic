@@ -84,6 +84,10 @@ fn _detect(info: &mut CpuInfo) {
     if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")).unwrap_or(0) != 0 {
         info.set(CpuInfo::HAS_LSE128);
     }
+    #[cfg(test)]
+    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSFE")).unwrap_or(0) != 0 {
+        info.set(CpuInfo::HAS_LSFE);
+    }
     if sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC3")).unwrap_or(0) != 0 {
         info.set(CpuInfo::HAS_RCPC3);
     }
@@ -106,6 +110,8 @@ mod tests {
         assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE")), Some(1));
         assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE2")), Some(1));
         assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")), None);
+        assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
+        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSFE")), None);
         assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
         assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC")), Some(1));
         assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC2")), Some(1));
@@ -232,6 +238,7 @@ mod tests {
             c!("hw.optional.arm.FEAT_LSE"),
             c!("hw.optional.arm.FEAT_LSE2"),
             c!("hw.optional.arm.FEAT_LSE128"),
+            c!("hw.optional.arm.FEAT_LSFE"),
             c!("hw.optional.arm.FEAT_LRCPC"),
             c!("hw.optional.arm.FEAT_LRCPC2"),
             c!("hw.optional.arm.FEAT_LRCPC3"),

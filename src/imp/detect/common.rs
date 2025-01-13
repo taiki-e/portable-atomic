@@ -104,6 +104,13 @@ flags! {
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
     HAS_LSE128(has_lse128, "lse128", any(target_feature, portable_atomic_target_feature)),
+    // FEAT_LSFE, Large System Float Extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv9-6-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LSFE is OPTIONAL from Armv9.3.
+    // > If FEAT_LSFE is implemented, then FEAT_FP is implemented.
+    #[cfg(test)]
+    HAS_LSFE(has_lsfe, "lsfe", any(target_feature, portable_atomic_target_feature)),
 }
 
 #[cfg(target_arch = "powerpc64")]
@@ -397,6 +404,11 @@ mod tests_common {
             {
                 assert!(!lse128);
             }
+        }
+        if detect().has_lsfe() {
+            assert!(detect().test(CpuInfo::HAS_LSFE));
+        } else {
+            assert!(!detect().test(CpuInfo::HAS_LSFE));
         }
         if detect().has_rcpc3() {
             assert!(detect().test(CpuInfo::HAS_RCPC3));
