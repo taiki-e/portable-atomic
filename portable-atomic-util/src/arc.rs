@@ -973,7 +973,7 @@ impl<T: ?Sized> Arc<T> {
     unsafe fn drop_slow(&mut self) {
         // Destroy the data at this time, even though we must not free the box
         // allocation itself (there might still be weak pointers lying around).
-        unsafe { ptr::drop_in_place(Self::get_mut_unchecked(self)) };
+        unsafe { ptr::drop_in_place(Self::get_mut_unchecked(self)) }
 
         // Drop the weak ref collectively held by all strong references
         // Take a reference to `self.alloc` instead of cloning because 1. it'll
@@ -3176,7 +3176,7 @@ mod strict {
         // to a simple assignment. In case of a fat pointer, with the current
         // fat pointer layout implementation, the first field of such a
         // pointer is always the data pointer, which is likewise assigned.
-        unsafe { *target = this as *mut u8 };
+        unsafe { *target = this as *mut u8 }
         other
     }
 

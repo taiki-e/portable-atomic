@@ -131,7 +131,7 @@ fn raw_waker<W: Wake + Send + Sync + 'static>(waker: Arc<W>) -> RawWaker {
     #[inline(always)]
     unsafe fn clone_waker<W: Wake + Send + Sync + 'static>(waker: *const ()) -> RawWaker {
         // SAFETY: the caller must uphold the safety contract.
-        unsafe { Arc::increment_strong_count(waker as *const W) };
+        unsafe { Arc::increment_strong_count(waker as *const W) }
         RawWaker::new(
             waker,
             &RawWakerVTable::new(clone_waker::<W>, wake::<W>, wake_by_ref::<W>, drop_waker::<W>),
@@ -155,7 +155,7 @@ fn raw_waker<W: Wake + Send + Sync + 'static>(waker: Arc<W>) -> RawWaker {
     // Decrement the reference count of the Arc on drop
     unsafe fn drop_waker<W: Wake + Send + Sync + 'static>(waker: *const ()) {
         // SAFETY: the caller must uphold the safety contract.
-        unsafe { Arc::decrement_strong_count(waker as *const W) };
+        unsafe { Arc::decrement_strong_count(waker as *const W) }
     }
 
     RawWaker::new(

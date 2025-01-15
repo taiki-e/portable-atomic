@@ -197,8 +197,8 @@ mod tests {
                         &mut oid_len,
                         name.as_ptr().cast::<c_void>() as *mut c_void,
                         name.to_bytes_with_nul().len() - 1,
-                    )?
-                };
+                    )?;
+                }
                 oid_len /= mem::size_of::<c_int>();
                 #[allow(clippy::cast_possible_truncation)]
                 unsafe {
