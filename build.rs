@@ -314,10 +314,10 @@ fn main() {
                     "v7r" | "v8r" | "v9r" => {} // rclass
                     "v6m" | "v7em" | "v7m" | "v8m" => mclass = true,
                     // arm-linux-androideabi is v5te
-                    // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
+                    // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
                     _ if target == "arm-linux-androideabi" => subarch = "v5te",
                     // armeb-unknown-linux-gnueabi is v8 & aclass
-                    // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
+                    // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
                     _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
                     // Legacy Arm architectures (pre-v7 except v6m) don't have *class target feature.
                     "" => subarch = "v6",
@@ -350,8 +350,8 @@ fn main() {
             // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45-L46
             // https://github.com/rust-lang/rust/pull/130877
             let mut zaamo = false;
-            // As of rustc 1.80, target_feature "zacas" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs#L273
+            // As of rustc 1.84, target_feature "zacas" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L425
             if version.llvm == 19 {
                 // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
                 // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
@@ -422,8 +422,8 @@ fn main() {
                     _ => {}
                 }
             }
-            // As of rustc 1.80, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs
+            // As of rustc 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
             // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
             // bcr 14,0
             target_feature_fallback("fast-serialization", arch9_features);

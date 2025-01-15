@@ -96,7 +96,7 @@ fn is_panic_abort() -> bool {
     build_context::PANIC.contains("abort")
 }
 
-// https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync/tests.rs
+// https://github.com/rust-lang/rust/blob/1.84.0/library/alloc/src/sync/tests.rs
 #[allow(clippy::many_single_char_names)]
 mod alloc_tests {
     use std::{
@@ -472,9 +472,8 @@ mod alloc_tests {
     }
 
     // Make sure deriving works with Arc<T>
-    #[allow(dead_code)]
     #[derive(Eq, Ord, PartialEq, PartialOrd, Clone, Debug, Default)]
-    struct Foo {
+    struct _Foo {
         inner: Arc<i32>,
     }
 

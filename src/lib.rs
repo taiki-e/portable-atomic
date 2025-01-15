@@ -818,8 +818,8 @@ impl AtomicBool {
         #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+            // https://godbolt.org/z/ofbGGdx44
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
         #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
@@ -880,8 +880,8 @@ impl AtomicBool {
         #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+            // https://godbolt.org/z/ofbGGdx44
             crate::utils::assert_compare_exchange_ordering(success, failure);
             let order = crate::utils::upgrade_success_ordering(success, failure);
             let old = if current == new {
@@ -954,8 +954,8 @@ impl AtomicBool {
         #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L233
-            // https://godbolt.org/z/Enh87Ph9b
+            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+            // https://godbolt.org/z/ofbGGdx44
             self.compare_exchange(current, new, success, failure)
         }
         #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
@@ -1082,7 +1082,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L956-L970
+        // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L973-L985
         if val {
             // !(x & true) == !x
             // We must invert the bool.
@@ -1582,7 +1582,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -1590,7 +1590,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
         fmt::Pointer::fmt(&self.load(Ordering::Relaxed), f)
     }
 }

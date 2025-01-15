@@ -173,7 +173,7 @@ macro_rules! impl_debug {
         impl fmt::Debug for $atomic_type {
             #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L2166
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
@@ -281,7 +281,7 @@ pub(crate) unsafe fn assert_unchecked(cond: bool) {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3294
+// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3338
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -292,8 +292,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
         _ => unreachable!(),
     }
 }
-
-// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3279
+// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3323
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -304,8 +303,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
         _ => unreachable!(),
     }
 }
-
-// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3360
+// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3404
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
@@ -546,7 +544,7 @@ pub(crate) mod ptr {
 pub(crate) mod ffi {
     pub(crate) type c_void = core::ffi::c_void;
     // c_{,u}int is {i,u}16 on 16-bit targets, otherwise {i,u}32.
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L147
+    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L156
     #[cfg(target_pointer_width = "16")]
     pub(crate) type c_int = i16;
     #[cfg(target_pointer_width = "16")]
@@ -556,7 +554,7 @@ pub(crate) mod ffi {
     #[cfg(not(target_pointer_width = "16"))]
     pub(crate) type c_uint = u32;
     // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise {i,u}32.
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L159
+    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L168
     #[cfg(all(target_pointer_width = "64", not(windows)))]
     pub(crate) type c_long = i64;
     #[cfg(all(target_pointer_width = "64", not(windows)))]
@@ -566,7 +564,7 @@ pub(crate) mod ffi {
     #[cfg(not(all(target_pointer_width = "64", not(windows))))]
     pub(crate) type c_ulong = u32;
     // c_size_t is currently always usize.
-    // https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/mod.rs#L67
+    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L76
     pub(crate) type c_size_t = usize;
     // c_char is u8 by default on non-Apple/non-Windows Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
     // See references in https://github.com/rust-lang/rust/issues/129945 for details.
@@ -682,7 +680,7 @@ pub(crate) mod ffi {
         }
         #[cfg(not(portable_atomic_no_track_caller))]
         {
-            // Based on https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/ffi/c_str.rs#L434
+            // Based on https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/c_str.rs#L417
             // - bytes must be nul-terminated.
             // - bytes must not contain any interior nul bytes.
             if bytes.is_empty() {

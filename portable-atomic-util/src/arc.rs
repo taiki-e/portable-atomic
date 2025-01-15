@@ -4,15 +4,21 @@
 //
 // The code has been adjusted to work with stable Rust (and optionally support some unstable features).
 //
-// Source: https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/library/alloc/src/sync.rs.
+// Source: https://github.com/rust-lang/rust/blob/1.84.0/library/alloc/src/sync.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/a0c2aba29aa9ea50a7c45c3391dd446f856bef7b/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/1.84.0/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/1.84.0/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/1.84.0/LICENSE-MIT
 
 #![allow(clippy::must_use_candidate)] // align to alloc::sync::Arc
 #![allow(clippy::undocumented_unsafe_blocks)] // TODO: most of the unsafe codes were inherited from alloc::sync::Arc
+
+// TODO:
+// - https://github.com/rust-lang/rust/pull/132231
+// - https://github.com/rust-lang/rust/pull/129329
+// - https://github.com/rust-lang/rust/pull/133003
+// - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
 use portable_atomic::{
     self as atomic, hint,
@@ -141,9 +147,10 @@ impl<T: ?Sized> Arc<T> {
     }
 }
 
-#[allow(clippy::too_long_first_doc_paragraph)]
 /// `Weak` is a version of [`Arc`] that holds a non-owning reference to the
-/// managed allocation. The allocation is accessed by calling [`upgrade`] on the `Weak`
+/// managed allocation.
+///
+/// The allocation is accessed by calling [`upgrade`] on the `Weak`
 /// pointer, which returns an <code>[Option]<[Arc]\<T>></code>.
 ///
 /// This is an equivalent to [`std::sync::Weak`], but using [portable-atomic] for synchronization.
@@ -2244,7 +2251,7 @@ impl<T> Default for Arc<[T]> {
     /// This may or may not share an allocation with other Arcs.
     #[inline]
     fn default() -> Self {
-        // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/sync.rs#L3449)
+        // TODO: we cannot use non-allocation optimization (https://github.com/rust-lang/rust/blob/1.84.0/library/alloc/src/sync.rs#L3532)
         // for now since casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized.
         let arr: [T; 0] = [];
         Arc::from(arr)

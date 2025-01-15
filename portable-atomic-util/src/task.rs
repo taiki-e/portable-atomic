@@ -6,12 +6,12 @@
 //
 // The code has been adjusted to work with stable Rust.
 //
-// Source: https://github.com/rust-lang/rust/blob/1.80.0/library/alloc/src/task.rs.
+// Source: https://github.com/rust-lang/rust/blob/1.84.0/library/alloc/src/task.rs.
 //
 // Copyright & License of the original code:
-// - https://github.com/rust-lang/rust/blob/1.80.0/COPYRIGHT
-// - https://github.com/rust-lang/rust/blob/1.80.0/LICENSE-APACHE
-// - https://github.com/rust-lang/rust/blob/1.80.0/LICENSE-MIT
+// - https://github.com/rust-lang/rust/blob/1.84.0/COPYRIGHT
+// - https://github.com/rust-lang/rust/blob/1.84.0/LICENSE-APACHE
+// - https://github.com/rust-lang/rust/blob/1.84.0/LICENSE-MIT
 
 use core::{
     mem::ManuallyDrop,
@@ -93,9 +93,8 @@ pub trait Wake {
         Self::wake(this.clone());
     }
 }
-
 impl<W: Wake + Send + Sync + 'static> From<Arc<W>> for Waker {
-    /// Use a `Wake`-able type as a `Waker`.
+    /// Use a [`Wake`]-able type as a `Waker`.
     ///
     /// No heap allocations or atomic operations are used for this conversion.
     fn from(waker: Arc<W>) -> Self {
@@ -104,7 +103,6 @@ impl<W: Wake + Send + Sync + 'static> From<Arc<W>> for Waker {
         unsafe { Self::from_raw(raw_waker(waker)) }
     }
 }
-
 impl<W: Wake + Send + Sync + 'static> From<Arc<W>> for RawWaker {
     /// Use a `Wake`-able type as a `RawWaker`.
     ///

@@ -3,7 +3,7 @@
 /*
 128-bit atomic implementation without inline assembly.
 
-Adapted from https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs.
+Adapted from https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs.
 
 Note: This module is currently only enabled on Miri and ThreadSanitizer which
 do not support inline assembly.
@@ -40,21 +40,17 @@ mod fallback;
 #[path = "../detect/x86_64.rs"]
 mod detect;
 
-use core::sync::atomic::Ordering;
 #[cfg(not(target_arch = "x86_64"))]
-use core::{
-    intrinsics,
-    sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst},
-};
+use core::intrinsics;
+use core::sync::atomic::Ordering::{self, AcqRel, Acquire, Relaxed, Release, SeqCst};
 
-// https://github.com/rust-lang/rust/blob/1.80.0/library/core/src/sync/atomic.rs#L3267
 #[cfg(target_arch = "x86_64")]
 #[inline]
 fn strongest_failure_ordering(order: Ordering) -> Ordering {
     match order {
-        Ordering::Release | Ordering::Relaxed => Ordering::Relaxed,
-        Ordering::SeqCst => Ordering::SeqCst,
-        Ordering::Acquire | Ordering::AcqRel => Ordering::Acquire,
+        Release | Relaxed => Relaxed,
+        SeqCst => SeqCst,
+        Acquire | AcqRel => Acquire,
         _ => unreachable!(),
     }
 }
