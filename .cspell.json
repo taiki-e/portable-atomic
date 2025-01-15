@@ -47,10 +47,5 @@
       "dictionaries": ["bash", "rust"]
     }
   ],
-  "ignorePaths": [
-    "target-specs/**",
-    "tests/helper/src/gen/**",
-    "tools/codegen/patches/**",
-    "**/*.ld"
-  ]
+  "ignorePaths": ["target-specs/**", "**/*.ld"]
 }

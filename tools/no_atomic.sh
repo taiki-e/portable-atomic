@@ -10,6 +10,8 @@ cd -- "$(dirname -- "$0")"/..
 #
 # USAGE:
 #    ./tools/no_atomic.sh
+#
+# This script is intended to be called by gen.sh, but can be called separately.
 
 retry() {
     for i in {1..10}; do
@@ -26,7 +28,8 @@ bail() {
     exit 1
 }
 
-file=no_atomic.rs
+file=src/gen/build.rs
+mkdir -p -- "$(dirname -- "${file}")"
 
 # We don't refer to NO_ATOMIC_CAS and NO_ATOMIC_64 in nightly-2022-02-11+
 # because feature(cfg_target_has_atomic) stabilized. So, we get the list
@@ -77,19 +80,19 @@ cat >|"${file}" <<EOF
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
 #[rustfmt::skip]
-static NO_ATOMIC_CAS: &[&str] = &[
+pub(crate) static NO_ATOMIC_CAS: &[&str] = &[
 ${no_atomic_cas[*]}
 ];
 
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
 #[rustfmt::skip]
-static NO_ATOMIC_64: &[&str] = &[
+pub(crate) static NO_ATOMIC_64: &[&str] = &[
 ${no_atomic_64[*]}
 ];
 
 #[rustfmt::skip]
-static NO_ATOMIC: &[&str] = &[
+pub(crate) static NO_ATOMIC: &[&str] = &[
 ${no_atomic}
 ];
 EOF

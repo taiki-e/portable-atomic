@@ -8,13 +8,14 @@
 mod version;
 use self::version::{rustc_version, Version};
 
-use std::{env, str};
+#[path = "src/gen/build.rs"]
+mod generated;
 
-include!("no_atomic.rs");
+use std::{env, str};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=no_atomic.rs");
+    println!("cargo:rerun-if-changed=src/gen/build.rs");
     println!("cargo:rerun-if-changed=version.rs");
 
     #[cfg(feature = "unsafe-assume-single-core")]
@@ -191,10 +192,10 @@ fn main() {
         } else {
             println!("cargo:rustc-cfg=portable_atomic_no_cfg_target_has_atomic");
             let target = &*convert_custom_linux_target(target);
-            if NO_ATOMIC_CAS.contains(&target) {
+            if generated::NO_ATOMIC_CAS.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_cas");
             }
-            if NO_ATOMIC_64.contains(&target) {
+            if generated::NO_ATOMIC_64.contains(&target) {
                 println!("cargo:rustc-cfg=portable_atomic_no_atomic_64");
             } else {
                 // Otherwise, assuming `"max-atomic-width" == 64` or `"max-atomic-width" == 128`.
@@ -202,7 +203,7 @@ fn main() {
         }
     }
     // We don't need to use convert_custom_linux_target here because all linux targets have atomics.
-    if NO_ATOMIC.contains(&target) {
+    if generated::NO_ATOMIC.contains(&target) {
         println!("cargo:rustc-cfg=portable_atomic_no_atomic_load_store");
     }
 

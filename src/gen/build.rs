@@ -5,7 +5,7 @@
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
 #[rustfmt::skip]
-static NO_ATOMIC_CAS: &[&str] = &[
+pub(crate) static NO_ATOMIC_CAS: &[&str] = &[
     "avr-unknown-gnu-atmega328",
     "bpfeb-unknown-none",
     "bpfel-unknown-none",
@@ -19,7 +19,7 @@ static NO_ATOMIC_CAS: &[&str] = &[
 // Note: This is the list as of nightly-2022-02-10. We don't refer to this in
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
 #[rustfmt::skip]
-static NO_ATOMIC_64: &[&str] = &[
+pub(crate) static NO_ATOMIC_64: &[&str] = &[
     "arm-linux-androideabi",
     "armebv7r-none-eabi",
     "armebv7r-none-eabihf",
@@ -69,7 +69,7 @@ static NO_ATOMIC_64: &[&str] = &[
 ];
 
 #[rustfmt::skip]
-static NO_ATOMIC: &[&str] = &[
+pub(crate) static NO_ATOMIC: &[&str] = &[
     "bpfeb-unknown-none",
     "bpfel-unknown-none",
     "mipsel-sony-psx",

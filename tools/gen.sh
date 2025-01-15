@@ -12,4 +12,6 @@ cd -- "$(dirname -- "$0")"/..
 
 set -x
 
+./tools/no_atomic.sh
+
 ./tools/target_spec.sh
