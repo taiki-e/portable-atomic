@@ -159,6 +159,7 @@ jobs:
             flags: -Z codegen-backend=cranelift
           - rust: nightly-2024-11-07 # TODO: https://github.com/BurntSushi/memchr/pull/162
             target: aarch64_be-unknown-linux-gnu
+            os: ubuntu-22.04
           - rust: stable
             target: aarch64-unknown-linux-musl
           - rust: stable
@@ -192,6 +193,7 @@ jobs:
             target: armv7-unknown-linux-gnueabihf
           - rust: nightly
             target: armeb-unknown-linux-gnueabi
+            os: ubuntu-22.04
           # TODO: backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
           - rust: nightly-2024-08-30
             target: arm-linux-androideabi
