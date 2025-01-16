@@ -83,13 +83,13 @@ serde = { version = "1.0.60", optional = true, default-features = false }
 critical-section = { version = "1", optional = true }
 
 [dev-dependencies]
-test-helper = { git = "https://github.com/taiki-e/test-helper.git", branch = "main", features = ["std", "sys", "cpuinfo", "critical-section"] }
+test-helper = { features = ["std", "sys", "cpuinfo", "critical-section"], git = "https://github.com/taiki-e/test-helper.git", branch = "main" }
 
 build-context = "0.1"
 crossbeam-utils = "=0.8.16" # The latest crossbeam-utils requires Rust 1.60
 fastrand = "2"
 paste = "1"
-quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + lower MSRV
+quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", branch = "dev" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"

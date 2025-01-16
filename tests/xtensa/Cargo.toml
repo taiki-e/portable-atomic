@@ -10,8 +10,8 @@ portable-atomic = { path = "../..", features = ["float"] }
 paste = "1"
 
 [target.xtensa-esp32s2-none-elf.dependencies]
-esp-println = { version = "0.12", default-features = false, features = ["uart", "esp32s2"] }
-esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", branch = "dev", features = ["esp32s2"] }
+esp-println = { default-features = false, features = ["uart", "esp32s2"], git = "https://github.com/taiki-e/esp-hal.git", branch = "dev" }
+esp-hal = { features = ["esp32s2"], git = "https://github.com/taiki-e/esp-hal.git", branch = "dev" }
 
 [workspace]
 resolver = "2"

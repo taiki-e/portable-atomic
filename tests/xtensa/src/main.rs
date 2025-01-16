@@ -11,7 +11,7 @@ mod helper;
 use esp_println::{print, println};
 use portable_atomic::*;
 
-#[esp_hal::entry]
+#[esp_hal::main]
 fn main() -> ! {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {

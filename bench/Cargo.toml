@@ -11,7 +11,7 @@ fallback = []
 std = []
 
 [dev-dependencies]
-test-helper = { git = "https://github.com/taiki-e/test-helper.git", branch = "main", features = ["std", "sys", "cpuinfo", "critical-section"] }
+test-helper = { features = ["std", "sys", "cpuinfo", "critical-section"], git = "https://github.com/taiki-e/test-helper.git", branch = "main" }
 
 # atomic = "0.6"
 build-context = "0.1"
@@ -19,7 +19,7 @@ criterion = { default-features = false, git = "https://github.com/taiki-e/criter
 crossbeam-utils = "0.8"
 fastrand = "2"
 paste = "1"
-quickcheck = { default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + lower MSRV
+quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", branch = "dev" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 static_assertions = "1"
 
 [target.'cfg(unix)'.dev-dependencies]

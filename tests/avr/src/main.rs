@@ -8,6 +8,7 @@
 #[path = "../../api-test/src/helper.rs"]
 mod helper;
 
+use arduino_hal::avr_device;
 use portable_atomic::*;
 
 #[avr_device::entry]
@@ -125,6 +126,8 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
 
 mod sim {
     use core::fmt;
+
+    use arduino_hal::avr_device;
 
     pub fn exit(_code: u32) -> ! {
         // Note that there is no way to exit simavr with a non-zero exit code.
