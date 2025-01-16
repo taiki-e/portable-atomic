@@ -19,37 +19,37 @@ cd -- "$(dirname -- "$0")"/..
 # TODO: ffx product-bundle has been removed: https://github.com/rust-lang/rust/pull/117799
 
 x() {
-    (
-        set -x
-        "$@"
-    )
+  (
+    set -x
+    "$@"
+  )
 }
 bail() {
-    printf >&2 'error: %s\n' "$*"
-    exit 1
+  printf >&2 'error: %s\n' "$*"
+  exit 1
 }
 
 if [[ -z "${SDK_PATH:-}" ]]; then
-    bail "SDK_PATH must be set"
+  bail "SDK_PATH must be set"
 fi
 tool_dir="${SDK_PATH}/tools/x64"
 
 pre_args=()
 if [[ "${1:-}" == "+"* ]]; then
-    pre_args+=("$1")
-    shift
+  pre_args+=("$1")
+  shift
 fi
 cmd='test'
 case "${1:-}" in
-    emu)
-        cmd="$1"
-        shift
-        ;;
+  emu)
+    cmd="$1"
+    shift
+    ;;
 esac
 case "${1:-}" in
-    aarch64) arch=arm64 ;;
-    x86_64) arch=x64 ;;
-    *) bail "unrecognized arch '${1:-}'" ;;
+  aarch64) arch=arm64 ;;
+  x86_64) arch=x64 ;;
+  *) bail "unrecognized arch '${1:-}'" ;;
 esac
 target="$1-unknown-fuchsia"
 shift
@@ -58,32 +58,32 @@ export PORTABLE_ATOMIC_DENY_WARNINGS=1
 cargo_options=()
 rest_cargo_options=(--test-threads=1)
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --tests | --all-targets | --doc | --target | --target=*) bail "unsupported option '$1'" ;;
-        --)
-            shift
-            rest_cargo_options+=("$@")
-            break
-            ;;
-        *) cargo_options+=("$1") ;;
-    esac
-    shift
+  case "$1" in
+    --tests | --all-targets | --doc | --target | --target=*) bail "unsupported option '$1'" ;;
+    --)
+      shift
+      rest_cargo_options+=("$@")
+      break
+      ;;
+    *) cargo_options+=("$1") ;;
+  esac
+  shift
 done
 
 case "${cmd}" in
-    emu)
-        x "${tool_dir}"/ffx product-bundle get "terminal.qemu-${arch}"
-        if "${tool_dir}"/ffx emu list | grep -Fq fuchsia-emulator; then
-            x "${tool_dir}"/ffx emu stop fuchsia-emulator
-        fi
-        x "${tool_dir}"/ffx emu start "terminal.qemu-${arch}" --headless
-        trap -- 'x "${tool_dir}"/ffx emu stop fuchsia-emulator; exit 0' SIGINT
-        x "${tool_dir}"/ffx log --since now
-        x "${tool_dir}"/ffx emu stop fuchsia-emulator
-        exit 0
-        ;;
-    test) ;;
-    *) bail "unrecognized command '${cmd}'" ;;
+  emu)
+    x "${tool_dir}"/ffx product-bundle get "terminal.qemu-${arch}"
+    if "${tool_dir}"/ffx emu list | grep -Fq fuchsia-emulator; then
+      x "${tool_dir}"/ffx emu stop fuchsia-emulator
+    fi
+    x "${tool_dir}"/ffx emu start "terminal.qemu-${arch}" --headless
+    trap -- 'x "${tool_dir}"/ffx emu stop fuchsia-emulator; exit 0' SIGINT
+    x "${tool_dir}"/ffx log --since now
+    x "${tool_dir}"/ffx emu stop fuchsia-emulator
+    exit 0
+    ;;
+  test) ;;
+  *) bail "unrecognized command '${cmd}'" ;;
 esac
 
 rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
@@ -128,11 +128,11 @@ EOF
 
 args=''
 for arg in ${rest_cargo_options[@]+"${rest_cargo_options[@]}"}; do
-    if [[ -z "${args}" ]]; then
-        args+="\"${arg}\""
-    else
-        args+=", \"${arg}\""
-    fi
+  if [[ -z "${args}" ]]; then
+    args+="\"${arg}\""
+  else
+    args+=", \"${arg}\""
+  fi
 done
 cat >"${cml_path}" <<EOF
 {
@@ -148,31 +148,31 @@ cat >"${cml_path}" <<EOF
 EOF
 
 x "${tool_dir}"/cmc compile \
-    "${cml_path}" \
-    --includepath "${SDK_PATH}"/pkg \
-    -o "${cm_path}"
+  "${cml_path}" \
+  --includepath "${SDK_PATH}"/pkg \
+  -o "${cm_path}"
 
 x "${tool_dir}"/pm \
-    -api-level "${api_level}" \
-    -o "${manifest_path//./_}" \
-    -m "${manifest_path}" \
-    build \
-    -output-package-manifest "${package_dir}/${package_name}_package_manifest"
+  -api-level "${api_level}" \
+  -o "${manifest_path//./_}" \
+  -m "${manifest_path}" \
+  build \
+  -output-package-manifest "${package_dir}/${package_name}_package_manifest"
 
 x "${tool_dir}"/pm newrepo -repo "${repo_dir}"
 
 x "${tool_dir}"/pm publish \
-    -repo "${repo_dir}" \
-    -lp -f <(printf '%s\n' "${package_dir}/${package_name}_package_manifest")
+  -repo "${repo_dir}" \
+  -lp -f <(printf '%s\n' "${package_dir}/${package_name}_package_manifest")
 x "${tool_dir}"/ffx repository add-from-pm \
-    "${repo_dir}" \
-    -r "${package_name}"
+  "${repo_dir}" \
+  -r "${package_name}"
 
 x "${tool_dir}"/ffx repository server start
 x "${tool_dir}"/ffx target repository register \
-    --repository "${package_name}"
+  --repository "${package_name}"
 
 x "${tool_dir}"/ffx component run \
-    --recreate \
-    /core/ffx-laboratory:"${package_name}" \
-    "fuchsia-pkg://${package_name}/${package_name}_manifest#meta/${package_name}.cm"
+  --recreate \
+  /core/ffx-laboratory:"${package_name}" \
+  "fuchsia-pkg://${package_name}/${package_name}_manifest#meta/${package_name}.cm"

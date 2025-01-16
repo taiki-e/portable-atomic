@@ -79,7 +79,6 @@ ldxp
 lgcc
 lghi
 libatomic
-libatomic's
 libcalls
 libelf
 libfdio

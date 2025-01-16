@@ -14,18 +14,18 @@ cd -- "$(dirname -- "$0")"/..
 # This script is intended to be called by gen.sh, but can be called separately.
 
 retry() {
-    for i in {1..10}; do
-        if "$@"; then
-            return 0
-        else
-            sleep "${i}"
-        fi
-    done
-    "$@"
+  for i in {1..10}; do
+    if "$@"; then
+      return 0
+    else
+      sleep "${i}"
+    fi
+  done
+  "$@"
 }
 bail() {
-    printf >&2 'error: %s\n' "$*"
-    exit 1
+  printf >&2 'error: %s\n' "$*"
+  exit 1
 }
 
 file=src/gen/build.rs
@@ -46,24 +46,24 @@ no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. |
 
 # old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do
-    eval "$(rustc +nightly-2022-02-10 -Z unstable-options --print target-spec-json --target "${target}" | jq -r '@sh "ATOMIC_CAS=\(."atomic-cas") MAX_ATOMIC_WIDTH=\(."max-atomic-width")"')"
-    if [[ "${ATOMIC_CAS}" == "false" ]]; then
-        no_atomic_cas+=("${target}")
-    fi
-    case "${MAX_ATOMIC_WIDTH}" in
-        # It is not clear exactly what `"max-atomic-width" == null` means, but they
-        # actually seem to have the same max-atomic-width as the target-pointer-width.
-        # The targets currently included in this group are "mipsel-sony-psp",
-        # "thumbv4t-none-eabi", "thumbv6m-none-eabi", all of which are
-        # `"target-pointer-width" == "32"`, so assuming them `"max-atomic-width" == 32`
-        # for now.
-        32 | null) no_atomic_64+=("${target}") ;;
-        # `"max-atomic-width" == 0` means that atomic is not supported at all.
-        0) no_atomic_64+=("${target}") ;;
-        64 | 128) ;;
-        # As of nightly-2022-02-10, there is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
-        *) bail "${target}" ;;
-    esac
+  eval "$(rustc +nightly-2022-02-10 -Z unstable-options --print target-spec-json --target "${target}" | jq -r '@sh "ATOMIC_CAS=\(."atomic-cas") MAX_ATOMIC_WIDTH=\(."max-atomic-width")"')"
+  if [[ "${ATOMIC_CAS}" == "false" ]]; then
+    no_atomic_cas+=("${target}")
+  fi
+  case "${MAX_ATOMIC_WIDTH}" in
+    # It is not clear exactly what `"max-atomic-width" == null` means, but they
+    # actually seem to have the same max-atomic-width as the target-pointer-width.
+    # The targets currently included in this group are "mipsel-sony-psp",
+    # "thumbv4t-none-eabi", "thumbv6m-none-eabi", all of which are
+    # `"target-pointer-width" == "32"`, so assuming them `"max-atomic-width" == 32`
+    # for now.
+    32 | null) no_atomic_64+=("${target}") ;;
+    # `"max-atomic-width" == 0` means that atomic is not supported at all.
+    0) no_atomic_64+=("${target}") ;;
+    64 | 128) ;;
+    # As of nightly-2022-02-10, there is no `"max-atomic-width" == 16` or `"max-atomic-width" == 8` targets.
+    *) bail "${target}" ;;
+  esac
 done
 
 # sort and dedup
