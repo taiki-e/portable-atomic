@@ -544,7 +544,7 @@ build() {
     # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
     # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking
     # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-    # RISC-V Linux is skipped because outline-atomics is currently disabled by default on riscv.
+    # RISC-V Linux is skipped because outline-atomics is currently disabled by default.
     aarch64*-linux-musl* | powerpc64-*-linux-musl*) ;;
     x86_64* | aarch64* | arm* | thumb* | powerpc64-*)
       CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \

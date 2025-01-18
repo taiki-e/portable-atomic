@@ -380,7 +380,10 @@ mod tests_common {
         } else {
             assert!(!detect().test(CpuInfo::HAS_LSE2));
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
-                assert!(!lse2);
+                // cpuinfo shows features of host, not valgrind
+                if !cfg!(valgrind) {
+                    assert!(!lse2);
+                }
             }
         }
         if detect().has_lse128() {

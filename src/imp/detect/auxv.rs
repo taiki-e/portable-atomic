@@ -826,6 +826,8 @@ mod tests {
                     getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap_err(),
                     -libc::EINVAL
                 );
+            } else if cfg!(valgrind) {
+                // TODO: valgrind bug
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(
