@@ -284,6 +284,10 @@ jobs:
           # armv7-unknown-linux-gnueabihf
           - rust: nightly
             target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-24.04-arm
+          - rust: nightly
+            target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-latest # QEMU on x86_64
           # ------------------------------------------------------------
           # armeb-unknown-linux-gnueabi
           - rust: nightly
@@ -465,6 +469,10 @@ jobs:
           # thumbv7neon-unknown-linux-gnueabihf
           - rust: nightly
             target: thumbv7neon-unknown-linux-gnueabihf
+            os: ubuntu-24.04-arm
+          - rust: nightly
+            target: thumbv7neon-unknown-linux-gnueabihf
+            os: ubuntu-latest # QEMU on x86_64
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
     steps:
