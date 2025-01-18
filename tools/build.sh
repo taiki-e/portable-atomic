@@ -45,7 +45,7 @@ default_targets=(
   aarch64-unknown-none
 
   # x86_64
-  # rustc --print target-list | grep -E '^x86_64'
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "x86_64" then .key else empty end'
   x86_64-unknown-linux-gnu
   # with CMPXCHG16B
   x86_64-apple-darwin
@@ -55,11 +55,14 @@ default_targets=(
   x86_64-fortanix-unknown-sgx
 
   # x86
-  i686-unknown-linux-gnu
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "x86" then .key else empty end'
+  # no SSE
   i586-unknown-linux-gnu
+  # with SSE2
+  i686-unknown-linux-gnu
 
   # aarch64
-  # rustc --print target-list | grep -E '^(aarch64|arm64)' | grep -v arm64ec
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "aarch64" then .key else empty end'
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "aarch64" then .os else empty end' | LC_ALL=C sort -u
   aarch64-linux-android
   aarch64-pc-windows-msvc
@@ -74,19 +77,16 @@ default_targets=(
   # FEAT_LSE & FEAT_LSE2
   aarch64-apple-darwin
   # big endian
-  # TODO: https://github.com/BurntSushi/memchr/pull/162
-  # aarch64_be-unknown-linux-gnu
-  # aarch64_be-unknown-netbsd
+  aarch64_be-unknown-linux-gnu
+  aarch64_be-unknown-netbsd
   # ILP32 ABI
   aarch64-unknown-linux-gnu_ilp32
   arm64_32-apple-watchos
   # ILP32 ABI big endian
-  # TODO: https://github.com/BurntSushi/memchr/pull/162
-  # aarch64_be-unknown-linux-gnu_ilp32
+  aarch64_be-unknown-linux-gnu_ilp32
 
   # arm64ec
-  # rustc --print target-list | grep -E '^arm64ec'
-  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "arm64ec" then .os else empty end' | LC_ALL=C sort -u
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "arm64ec" then .key else empty end'
   arm64ec-pc-windows-msvc
 
   # arm pre-v6 linux-like
@@ -94,23 +94,20 @@ default_targets=(
   armv5te-unknown-linux-gnueabi
   arm-linux-androideabi
 
-  # riscv32
-  # rustc --print target-list | grep -E '^riscv32'
-  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "riscv32" then .os else empty end' | LC_ALL=C sort -u
+  # riscv
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "riscv32" or .value.arch == "riscv64" then .key else empty end'
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "riscv32" or .arch == "riscv64" then .os else empty end' | LC_ALL=C sort -u
   # riscv32 with atomic
   riscv32gc-unknown-linux-gnu
   riscv32imac-unknown-none-elf
   riscv32imc-esp-espidf
-  # riscv64
-  # rustc --print target-list | grep -E '^riscv64'
-  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "riscv64" then .os else empty end' | LC_ALL=C sort -u
   # riscv64 with atomic
   riscv64gc-unknown-linux-gnu
   riscv64gc-unknown-linux-musl
   riscv64-linux-android
 
   # powerpc64
-  # rustc --print target-list | grep -E '^powerpc64'
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "powerpc64" then .key else empty end'
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if .arch == "powerpc64" then .os else empty end' | LC_ALL=C sort -u
   powerpc64-unknown-linux-gnu
   powerpc64le-unknown-linux-gnu
@@ -121,7 +118,7 @@ default_targets=(
   powerpc64-unknown-openbsd
 
   # s390x
-  # rustc --print target-list | grep -E '^s390x'
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
   s390x-unknown-linux-gnu
 )
 # NB: sync with:
@@ -163,8 +160,9 @@ is_no_std() {
     *-linux-none*) ;;
     # https://github.com/rust-lang/rust/blob/1.84.0/library/std/build.rs#L65
     # ESP-IDF supports std, but it is often broken.
+    # TODO(aarch64_be): https://github.com/BurntSushi/memchr/pull/162
     # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
+    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64_be* | aarch64-unknown-linux-uclibc) return 0 ;;
   esac
   return 1
 }
@@ -244,7 +242,7 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
     retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
   fi
   # We only run clippy on the recent nightly to avoid old clippy bugs.
-  if [[ "${rustc_minor_version}" -ge 86 ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
+  if [[ "${rustc_minor_version}" -ge 86 ]] && [[ -z "${RUSTC:-}" ]] && [[ -n "${TESTS:-}" ]] && [[ -z "${TARGET_GROUP:-}" ]]; then
     subcmd=clippy
     retry rustup ${pre_args[@]+"${pre_args[@]}"} component add clippy &>/dev/null
     base_args=(hack "${subcmd}")
@@ -377,7 +375,7 @@ build() {
         RUSTFLAGS="${target_rustflags}" \
           x_cargo "${args[@]}" --features alloc,portable-atomic/critical-section --manifest-path portable-atomic-util/Cargo.toml "$@"
       fi
-      # target-specific test crates are nightly-only.
+      # Most target-specific test crates are nightly-only.
       if [[ -n "${nightly}" ]]; then
         local test_dir=''
         # NB: sync with tools/no-std.sh
@@ -403,7 +401,7 @@ build() {
     )
   elif [[ -n "${TARGET_GROUP:-}" ]]; then
     case "${target}" in
-      # TODO: LLVM bug: https://github.com/rust-lang/rust/issues/89498
+      # TODO(m68k): LLVM bug: https://github.com/rust-lang/rust/issues/89498
       m68k*) return 0 ;;
       # TODO: "error: symbol 'f{ma,max}' is already defined" due to https://github.com/rust-lang/compiler-builtins/pull/577
       hexagon-unknown-none-elf) return 0 ;;
