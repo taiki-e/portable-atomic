@@ -9,6 +9,7 @@ cd -- "$(dirname -- "$0")"/..
 # USAGE:
 #    ./tools/no-std.sh [+toolchain] [target]...
 
+# rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.os then empty else .key end'
 default_targets=(
   # arm
   # v4T
