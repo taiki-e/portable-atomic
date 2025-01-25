@@ -697,7 +697,7 @@ jobs:
             version: '14.2'
           - target: aarch64-unknown-netbsd
             os: netbsd
-            version: '10.0'
+            version: '10.1'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.6'
