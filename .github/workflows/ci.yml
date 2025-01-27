@@ -1025,9 +1025,11 @@ jobs:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@nightly
       - run: tools/gen.sh
-      - id: diff
+      - name: Handle diff
+        id: diff
         run: tools/ci/gen.sh
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main')
+      - run: git add -N . && git diff --exit-code
       - id: create-pull-request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -1043,4 +1045,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.create-pull-request.outputs.pull-request-number }}
         if: github.repository_owner == 'taiki-e' && (github.event_name == 'schedule' || github.event_name == 'push' && github.ref == 'refs/heads/main') && steps.diff.outputs.success == 'false'
-      - run: git add -N . && git diff --exit-code
