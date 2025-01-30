@@ -476,15 +476,15 @@ pub(crate) mod ptr {
     pub(crate) use core::ptr::{with_exposed_provenance, with_exposed_provenance_mut};
 
     #[cfg(portable_atomic_no_strict_provenance)]
-    #[must_use]
     #[inline(always)]
+    #[must_use]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub(crate) fn with_exposed_provenance<T>(addr: usize) -> *const T {
         addr as *const T
     }
     #[cfg(portable_atomic_no_strict_provenance)]
-    #[must_use]
     #[inline(always)]
+    #[must_use]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub(crate) fn with_exposed_provenance_mut<T>(addr: usize) -> *mut T {
         addr as *mut T
@@ -501,8 +501,8 @@ pub(crate) mod ptr {
     }
     #[cfg(portable_atomic_no_strict_provenance)]
     impl<T: ?Sized> PtrExt<T> for *mut T {
-        #[must_use]
         #[inline(always)]
+        #[must_use]
         fn addr(self) -> usize {
             // A pointer-to-integer transmute currently has exactly the right semantics: it returns the
             // address without exposing the provenance. Note that this is *not* a stable guarantee about
@@ -515,8 +515,8 @@ pub(crate) mod ptr {
             }
         }
         #[allow(clippy::cast_possible_wrap)]
-        #[must_use]
         #[inline]
+        #[must_use]
         fn with_addr(self, addr: usize) -> Self
         where
             T: Sized,

@@ -864,8 +864,8 @@ impl AtomicBool {
     /// );
     /// assert_eq!(some_bool.load(Ordering::Relaxed), false);
     /// ```
-    #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -938,8 +938,8 @@ impl AtomicBool {
     ///     }
     /// }
     /// ```
-    #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -1873,8 +1873,8 @@ impl<T> AtomicPtr<T> {
     ///
     /// let value = some_ptr.compare_exchange(ptr, other_ptr, Ordering::SeqCst, Ordering::Relaxed);
     /// ```
-    #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -1924,8 +1924,8 @@ impl<T> AtomicPtr<T> {
     ///     }
     /// }
     /// ```
-    #[inline]
     #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+    #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
         track_caller
@@ -3112,8 +3112,8 @@ assert_eq!(
 );
 assert_eq!(some_var.load(Ordering::Relaxed), 10);
 ```"),
-                #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[inline]
                 #[cfg_attr(
                     any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
@@ -3166,8 +3166,8 @@ loop {
     }
 }
 ```"),
-                #[inline]
                 #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+                #[inline]
                 #[cfg_attr(
                     any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                     track_caller
@@ -4393,8 +4393,8 @@ This is `const fn` on Rust 1.83+.
             /// # Panics
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller
@@ -4428,8 +4428,8 @@ This is `const fn` on Rust 1.83+.
             /// # Panics
             ///
             /// Panics if `failure` is [`Release`], [`AcqRel`].
-            #[inline]
             #[cfg_attr(docsrs, doc(alias = "compare_and_swap"))]
+            #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
                 track_caller

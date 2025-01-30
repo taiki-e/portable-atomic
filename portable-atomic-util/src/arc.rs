@@ -608,8 +608,8 @@ impl<T> Arc<mem::MaybeUninit<T>> {
     ///
     /// assert_eq!(*five, 5)
     /// ```
-    #[must_use = "`self` will be dropped if the result is not used"]
     #[inline]
+    #[must_use = "`self` will be dropped if the result is not used"]
     pub unsafe fn assume_init(self) -> Arc<T> {
         let ptr = Arc::into_inner_non_null(self);
         // SAFETY: MaybeUninit<T> has the same layout as T, and
@@ -649,8 +649,8 @@ impl<T> Arc<[mem::MaybeUninit<T>]> {
     ///
     /// assert_eq!(*values, [1, 2, 3])
     /// ```
-    #[must_use = "`self` will be dropped if the result is not used"]
     #[inline]
+    #[must_use = "`self` will be dropped if the result is not used"]
     pub unsafe fn assume_init(self) -> Arc<[T]> {
         let ptr = Arc::into_inner_non_null(self);
         // SAFETY: [MaybeUninit<T>] has the same layout as [T], and
@@ -3020,8 +3020,8 @@ mod clone {
 }
 
 // Based on unstable Layout::padding_needed_for.
-#[must_use]
 #[inline]
+#[must_use]
 fn padding_needed_for(layout: Layout, align: usize) -> usize {
     let len = layout.size();
 
@@ -3049,8 +3049,8 @@ fn padding_needed_for(layout: Layout, align: usize) -> usize {
 }
 
 // Based on Layout::pad_to_align stabilized in Rust 1.44.
-#[must_use]
 #[inline]
+#[must_use]
 fn pad_to_align(layout: Layout) -> Layout {
     let pad = padding_needed_for(layout, layout.align());
     // This cannot overflow. Quoting from the invariant of Layout:
@@ -3108,8 +3108,8 @@ impl Global {
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
         // Layout::dangling is unstable
-        #[must_use]
         #[inline]
+        #[must_use]
         fn dangling(layout: Layout) -> NonNull<u8> {
             // SAFETY: align is guaranteed to be non-zero
             unsafe { NonNull::new_unchecked(strict::without_provenance_mut::<u8>(layout.align())) }
@@ -3203,8 +3203,8 @@ mod strict {
     }
     #[cfg(portable_atomic_no_strict_provenance)]
     impl<T: ?Sized> PtrExt<T> for *const T {
-        #[must_use]
         #[inline(always)]
+        #[must_use]
         fn addr(self) -> usize {
             // A pointer-to-integer transmute currently has exactly the right semantics: it returns the
             // address without exposing the provenance. Note that this is *not* a stable guarantee about
