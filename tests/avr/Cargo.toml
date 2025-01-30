@@ -11,7 +11,7 @@ paste = "1"
 ufmt = "0.2"
 
 [target.avr-unknown-gnu-atmega2560.dependencies]
-arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", branch = "dev" }
+arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "352567e" }
 
 [workspace]
 resolver = "2"

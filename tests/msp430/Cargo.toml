@@ -28,7 +28,7 @@ f64 = ["portable-atomic/float"]
 portable-atomic = { path = "../.." }
 
 msp430-rt = "0.4"
-msp430f5529 = { features = ["rt"], git = "https://github.com/cr1901/msp430f5529.git", rev = "23946ef9bb0365caabd2c30ad14c2c9ab2d425c7" }
+msp430f5529 = { features = ["rt"], git = "https://github.com/cr1901/msp430f5529.git", rev = "23946ef" }
 paste = "1"
 ufmt = "0.2"
 
