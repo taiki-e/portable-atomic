@@ -43,9 +43,6 @@ cxchgweak
 dlfcn
 dlsym
 ecall
-EINVAL
-elems
-ENOENT
 espup
 exynos
 fild
@@ -57,7 +54,6 @@ gimli
 Halfword
 HWCAP
 hwprobe
-ifunc
 includepath
 insn
 Iotel
@@ -95,7 +91,6 @@ lqarx
 lrcpc
 lsfe
 lwsync
-machdep
 MAXNAME
 maxu
 mcpu
@@ -115,7 +110,6 @@ mstatus
 mstatush
 mvfr
 negs
-neoverse
 newrepo
 newtype
 nngrk
@@ -130,7 +124,6 @@ prefetcher
 PRIMASK
 pstq
 quadword
-RAII
 rcpc
 revidr
 rsbegin
