@@ -278,19 +278,22 @@ run() {
     return # LTO is not supported
   fi
 
-  # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
-  if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
-    # Workaround https://github.com/google/sanitizers/issues/558
-    CARGO_TARGET_DIR="${target_dir}/fat-lto" \
-      CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-      CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-      CARGO_PROFILE_RELEASE_LTO=fat \
-      x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
-  else
-    CARGO_TARGET_DIR="${target_dir}/fat-lto" \
-      CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-      CARGO_PROFILE_RELEASE_LTO=fat \
-      x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
+  # TODO: asan and msan are broken with fat LTO since nightly-2025-02-01.
+  if [[ ! "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]] && [[ ! "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=address ]]; then
+    # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
+    if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
+      # Workaround https://github.com/google/sanitizers/issues/558
+      CARGO_TARGET_DIR="${target_dir}/fat-lto" \
+        CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
+        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+        CARGO_PROFILE_RELEASE_LTO=fat \
+        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
+    else
+      CARGO_TARGET_DIR="${target_dir}/fat-lto" \
+        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+        CARGO_PROFILE_RELEASE_LTO=fat \
+        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
+    fi
   fi
 
   # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
