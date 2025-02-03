@@ -29,8 +29,8 @@ MSP430 as well.
 
 See also README.md of this directory.
 
-[^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1074
-[^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
+[^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0-rc1/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1074
+[^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0-rc1/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
 */
 
 // On some platforms, atomic load/store can be implemented in a more efficient
