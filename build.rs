@@ -414,15 +414,20 @@ fn main() {
                 // LLVM and GCC recognize the same names:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.2.0/gcc/config/s390/s390.opt#L58-L125
-                match &*cpu {
-                    "arch9" | "z196" | "arch10" | "zEC12" | "arch11" | "z13" | "arch12" | "z14" => {
-                        arch9_features = true;
+                if let Some(arch_version) = strip_prefix(&cpu, "arch") {
+                    if let Ok(arch_version) = arch_version.parse::<u32>() {
+                        arch9_features = arch_version >= 9;
+                        arch13_features = arch_version >= 13;
                     }
-                    "arch13" | "z15" | "arch14" | "z16" => {
-                        arch9_features = true;
-                        arch13_features = true;
+                } else {
+                    match &*cpu {
+                        "z196" | "zEC12" | "z13" | "z14" => arch9_features = true,
+                        "z15" | "z16" => {
+                            arch9_features = true;
+                            arch13_features = true;
+                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
             // As of rustc 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
