@@ -3,6 +3,7 @@
 #![no_main]
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
+#![allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -147,25 +148,23 @@ mod simio {
     use core::{convert::Infallible, fmt};
 
     pub struct Console;
-    impl Console {
-        fn write_str(&mut self, s: &str) {
-            // https://github.com/dlbeer/mspdebug/blob/v0.25/simio/simio_console.c#L130
-            let addr = 0x00FF_usize as *mut u8;
-            for &b in s.as_bytes() {
-                unsafe { addr.write_volatile(b) }
-            }
+    fn write_str(s: &str) {
+        // https://github.com/dlbeer/mspdebug/blob/v0.25/simio/simio_console.c#L130
+        let addr = 0x00FF_usize as *mut u8;
+        for &b in s.as_bytes() {
+            unsafe { addr.write_volatile(b) }
         }
     }
     impl ufmt::uWrite for Console {
         type Error = Infallible;
         fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
-            self.write_str(s);
+            write_str(s);
             Ok(())
         }
     }
     impl fmt::Write for Console {
         fn write_str(&mut self, s: &str) -> fmt::Result {
-            self.write_str(s);
+            write_str(s);
             Ok(())
         }
     }

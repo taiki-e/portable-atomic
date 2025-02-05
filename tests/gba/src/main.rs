@@ -3,6 +3,7 @@
 #![no_main]
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
+#![allow(clippy::wildcard_imports)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
@@ -37,7 +38,7 @@ macro_rules! fatal {
 }
 
 #[no_mangle]
-fn main() -> ! {
+extern "C" fn main() -> ! {
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {

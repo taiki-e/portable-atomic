@@ -3,6 +3,7 @@
 #![no_main]
 #![no_std]
 #![warn(unsafe_op_in_unsafe_fn)]
+#![allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 
 #[macro_use]
 #[path = "../../api-test/src/helper.rs"]
