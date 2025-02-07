@@ -521,6 +521,9 @@ jobs:
           printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
           printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
+      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
+        # Exclude x86_64-pc-windows-gnu due to https://github.com/rust-lang/rust/issues/112368
+        if: matrix.rust == 'nightly' && matrix.target != 'x86_64-pc-windows-gnu'
       # TODO: LLVM bug: Undefined temporary symbol error when building std.
       - name: Workaround for LLVM bug about MIPS32
         run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
