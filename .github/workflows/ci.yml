@@ -330,7 +330,7 @@ jobs:
             os: windows-latest
           # ------------------------------------------------------------
           # i686-pc-windows-gnu
-          - rust: nightly-i686-pc-windows-gnu
+          - rust: nightly-2025-02-08-i686-pc-windows-gnu # TODO: https://github.com/rust-lang/rust/issues/136795
             target: i686-pc-windows-gnu
             os: windows-latest
           # ------------------------------------------------------------
