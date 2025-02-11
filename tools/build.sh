@@ -297,6 +297,8 @@ build() {
       case "${target}" in
         # builtin xtensa targets are completely broken with builtin LLVM: https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
         xtensa*) return 0 ;;
+        # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25
+        amdgcn*) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
