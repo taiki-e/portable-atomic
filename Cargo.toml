@@ -123,6 +123,7 @@ rust_2018_idioms = "warn"
 single_use_lifetimes = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_arch,values("xtensa"))', # 1.81+ https://github.com/rust-lang/rust/pull/125141
+    'cfg(target_arch,values("amdgpu"))', # 1.86+ https://github.com/rust-lang/rust/pull/134740
     'cfg(target_os,values("psx"))', # 1.84+ https://github.com/rust-lang/rust/pull/131168
     'cfg(target_env,values("psx"))', # pre-1.84 https://github.com/rust-lang/rust/pull/131168
     'cfg(target_feature,values("lse2","lse128","rcpc3"))', # 1.82+ https://github.com/rust-lang/rust/pull/128192
