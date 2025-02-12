@@ -406,6 +406,8 @@ jobs:
           - target: x86_64-unknown-linux-gnu
           - target: x86_64-unknown-linux-gnu
             flags: -C target-feature=+cmpxchg16b
+          - target: x86_64-unknown-linux-gnu
+            miriflags: -Zmiri-tree-borrows
           - target: aarch64-unknown-linux-gnu
           - target: i686-unknown-linux-gnu
           - target: powerpc64le-unknown-linux-gnu
@@ -423,6 +425,7 @@ jobs:
         if: matrix.target != 'x86_64-unknown-linux-gnu'
       - run: tools/test.sh miri $TARGET
         env:
+          MIRIFLAGS: ${{ matrix.miriflags }}
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} ${{ matrix.flags }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }} ${{ matrix.flags }}
 
