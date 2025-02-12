@@ -47,7 +47,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("experimental-zacas","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("experimental-zacas","prefix-instrs","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -58,7 +58,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","experimental-zacas","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo","zabha"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","experimental-zacas","fast-serialization","load-store-on-cond","lse","lse128","lse2","mclass","miscellaneous-extensions-3","prefix-instrs","quadword-atomics","rcpc3","v6","zaamo","zabha"))"#
         );
     }
 
@@ -373,32 +373,40 @@ fn main() {
             }
         }
         "powerpc64" => {
+            let target_endian =
+                env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
+            // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
+            // See also https://github.com/rust-lang/rust/issues/59932
+            let mut pwr8_features = target_endian == "little";
+            let mut pwr10_features = false;
+            if let Some(cpu) = &target_cpu() {
+                if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
+                    cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
+                    if let Ok(cpu_version) = cpu_version.parse::<u32>() {
+                        pwr8_features = cpu_version >= 8;
+                        pwr10_features = cpu_version >= 10;
+                    }
+                } else {
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L483
+                    // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
+                    // on this target (see CI config for more), "future" is based on pwr10 features.
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
+                    let future = cpu == "future";
+                    pwr8_features = future || cpu == "ppc64le";
+                    pwr10_features = future;
+                }
+            }
             // target_feature "quadword-atomics" is unstable and available on rustc side since nightly-2024-09-28: https://github.com/rust-lang/rust/pull/130873
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
-                let target_endian =
-                    env::var("CARGO_CFG_TARGET_ENDIAN").expect("CARGO_CFG_TARGET_ENDIAN not set");
-                // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
-                // See also https://github.com/rust-lang/rust/issues/59932
-                let mut pwr8_features = target_endian == "little";
-                if let Some(cpu) = &target_cpu() {
-                    if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
-                        cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
-                        if let Ok(cpu_version) = cpu_version.parse::<u32>() {
-                            pwr8_features = cpu_version >= 8;
-                        }
-                    } else {
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L702
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L483
-                        // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
-                        // on this target (see CI config for more), "future" is based on pwr10 features.
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
-                        pwr8_features = cpu == "future" || cpu == "ppc64le";
-                    }
-                }
                 // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L409
                 // lqarx and stqcx.
                 target_feature_fallback("quadword-atomics", pwr8_features);
             }
+            // As of rustc 1.80, target_feature "prefix-instrs" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.80.0/compiler/rustc_target/src/target_features.rs
+            // power10 features: https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/PowerPC/PPC.td#L460
+            target_feature_fallback("prefix-instrs", pwr10_features);
         }
         "s390x" => {
             // https://github.com/llvm/llvm-project/blob/llvmorg-19.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td

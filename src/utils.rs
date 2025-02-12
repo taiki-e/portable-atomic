@@ -365,6 +365,14 @@ pub(crate) union U128 {
     pub(crate) whole: u128,
     pub(crate) pair: Pair<u64>,
 }
+#[cfg(target_arch = "powerpc64")]
+#[allow(dead_code)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub(crate) union U128Be {
+    pub(crate) whole: u128,
+    pub(crate) pair: PairBe<u64>,
+}
 #[allow(dead_code)]
 #[cfg(any(target_arch = "arm", target_arch = "riscv32"))]
 /// A 64-bit value represented as a pair of 32-bit values.
@@ -377,26 +385,36 @@ pub(crate) union U64 {
     pub(crate) whole: u64,
     pub(crate) pair: Pair<u32>,
 }
+#[cfg(not(any(
+    target_endian = "little",
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "arm64ec",
+)))]
+#[allow(unused_imports)]
+pub(crate) use self::PairBe as Pair;
+#[cfg(any(
+    target_endian = "little",
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "arm64ec",
+))]
+#[allow(unused_imports)]
+pub(crate) use self::PairLe as Pair;
+/// Little-endian order pair.
 #[allow(dead_code)]
 #[derive(Clone, Copy)]
 #[repr(C)]
-pub(crate) struct Pair<T: Copy> {
-    // little endian order
-    #[cfg(any(
-        target_endian = "little",
-        target_arch = "aarch64",
-        target_arch = "arm",
-        target_arch = "arm64ec",
-    ))]
+pub(crate) struct PairLe<T: Copy> {
     pub(crate) lo: T,
     pub(crate) hi: T,
-    // big endian order
-    #[cfg(not(any(
-        target_endian = "little",
-        target_arch = "aarch64",
-        target_arch = "arm",
-        target_arch = "arm64ec",
-    )))]
+}
+/// Big-endian order pair.
+#[allow(dead_code)]
+#[derive(Clone, Copy)]
+#[repr(C)]
+pub(crate) struct PairBe<T: Copy> {
+    pub(crate) hi: T,
     pub(crate) lo: T,
 }
 

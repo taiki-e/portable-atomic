@@ -32,6 +32,7 @@ Refs:
 Generated asm:
 - powerpc64 (pwr8) https://godbolt.org/z/TjKsPbWc6
 - powerpc64le https://godbolt.org/z/5WqPGhb3Y
+- powerpc64le (pwr10)
 */
 
 include!("macros.rs");
@@ -162,13 +163,51 @@ fn test_cr0_eq(cr: u64) -> bool {
     cr & 0x20000000 != 0
 }
 
-// If quadword-atomics is available at compile-time, we can always use pwr8_fn.
+// -----------------------------------------------------------------------------
+// load
+
+/*
+
+Instruction selection flow for load:
+- if endian == little && compile_time(quadword-atomics) && compile_time(prefix-instrs) => plq (pwr10)
+- if compile_time(quadword-atomics) => lq (pwr8)
+- if platform_supports_detection_of(quadword-atomics):
+  # TODO: - if endian == little && detect(quadword-atomics) && detect(prefix-instrs) => plq (pwr10)
+  - if detect(quadword-atomics) => lq (pwr8)
+  - else => fallback
+- else => unreachable
+
+Note:
+- We use plq if available to avoid the 64-bit integer swap that is needed when using
+  lq on little-endian, always use lq on big-endian since swap is not needed.
+- If quadword-atomics is available at compile-time, we don't do run-time detection of
+  prefix-instrs at this time, because the cost of 64-bit integer swap is considered
+  cheaper than a function call.
+
+*/
+
+// if endian == little && compile_time(quadword-atomics) && compile_time(prefix-instrs) => plq (pwr10)
+// cfg guarantee that the CPU supports quadword-atomics and prefix-instrs.
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 ))]
+#[cfg(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+))]
+use self::atomic_load_pwr10 as atomic_load;
+// if compile_time(quadword-atomics) => lq (pwr8)
+// cfg guarantee that the CPU supports quadword-atomics.
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[cfg(not(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+)))]
 use self::atomic_load_pwr8 as atomic_load;
-// Otherwise, we need to do run-time detection and can use pwr8_fn only if quadword-atomics is available.
 #[cfg(not(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
@@ -191,8 +230,10 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => lq (pwr8)
                         atomic_load_pwr8_relaxed
                     } else {
+                        // else => fallback
                         fallback::atomic_load_non_seqcst
                     }
                 })
@@ -200,8 +241,10 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Acquire => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => lq (pwr8)
                         atomic_load_pwr8_acquire
                     } else {
+                        // else => fallback
                         fallback::atomic_load_non_seqcst
                     }
                 })
@@ -209,8 +252,10 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             Ordering::SeqCst => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => lq (pwr8)
                         atomic_load_pwr8_seqcst
                     } else {
+                        // else => fallback
                         fallback::atomic_load_seqcst
                     }
                 })
@@ -219,6 +264,76 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         }
     }
 }
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[cfg(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+))]
+#[inline]
+unsafe fn atomic_load_pwr10(src: *mut u128, order: Ordering) -> u128 {
+    use crate::utils::{PairBe as Pair, U128Be as U128};
+
+    debug_assert!(src as usize % 16 == 0);
+
+    // SAFETY: the caller must uphold the safety contract.
+    //
+    // Refs: Section 3.3.4 "Fixed Point Load and Store Quadword Instructions" of Power ISA 3.1C Book I
+    unsafe {
+        let (out_hi, out_lo);
+        macro_rules! atomic_load_acquire {
+            ($release:tt) => {
+                asm!(
+                    $release,
+                    // p{lq,stq} is unsupported in LLVM 19, so use manually align and .long.
+                    // plq %r4, 0(%r3)  // atomic { r4:r5 = *src }
+                    ".balign 64",
+                    ".long 0x04000000", // p
+                    ".long 0xe0830000", // lq %r4, 0(%r3)
+                    "cmpw %r4, %r4",    // if r4 == r4 { cr0.EQ = 1 } else { cr0.EQ = 0 }
+                    "bne- %cr0, 2f",    // if unlikely(cr0.EQ == 0) { jump 'never }
+                    "2:", // 'never:
+                    "isync",            // fence (works in combination with a branch that depends on the loaded value)
+                    in("r3") ptr_reg!(src),
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    out("r4") out_hi,
+                    out("r5") out_lo,
+                    out("cr0") _,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        match order {
+            Ordering::Relaxed => {
+                asm!(
+                    // p{lq,stq} is unsupported in LLVM 19, so use manually align and .long.
+                    // plq %r4, 0(%r3)  // atomic { r4:r5 = *src }
+                    ".balign 64",
+                    ".long 0x04000000", // p
+                    ".long 0xe0830000", // lq %r4, 0(%r3)
+                    in("r3") ptr_reg!(src),
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    out("r4") out_hi,
+                    out("r5") out_lo,
+                    options(nostack, preserves_flags),
+                );
+            }
+            Ordering::Acquire => atomic_load_acquire!(""),
+            Ordering::SeqCst => atomic_load_acquire!("sync"),
+            _ => unreachable!(),
+        }
+        U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
+    }
+}
+#[cfg(not(all(
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+)))]
 #[inline]
 unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     debug_assert!(src as usize % 16 == 0);
@@ -272,11 +387,50 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     }
 }
 
-// If quadword-atomics is available at compile-time, we can always use pwr8_fn.
+// -----------------------------------------------------------------------------
+// store
+
+/*
+
+Instruction selection flow for load:
+- if endian == little && compile_time(quadword-atomics) && compile_time(prefix-instrs) => pstq (pwr10)
+- if compile_time(quadword-atomics) => stq (pwr8)
+- if platform_supports_detection_of(quadword-atomics):
+  # TODO: - if endian == little && detect(quadword-atomics) && detect(prefix-instrs) => pstq (pwr10)
+  - if detect(quadword-atomics) => stq (pwr8)
+  - else => fallback
+- else => unreachable
+
+Note:
+- We use pstq if available to avoid the 64-bit integer swap that is needed when using
+  stq on little-endian, always use stq on big-endian since swap is not needed.
+- If quadword-atomics is available at compile-time, we don't do run-time detection of
+  prefix-instrs at this time, because the cost of 64-bit integer swap is considered
+  cheaper than a function call.
+
+*/
+
+// if endian == little && compile_time(quadword-atomics) && compile_time(prefix-instrs) => pstq (pwr10)
+// cfg guarantee that the CPU supports quadword-atomics and prefix-instrs.
 #[cfg(any(
     target_feature = "quadword-atomics",
     portable_atomic_target_feature = "quadword-atomics",
 ))]
+#[cfg(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+))]
+use self::atomic_store_pwr10 as atomic_store;
+// if compile_time(quadword-atomics) => stq (pwr8)
+// cfg guarantee that the CPU supports quadword-atomics.
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[cfg(not(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+)))]
 use self::atomic_store_pwr8 as atomic_store;
 // Otherwise, we need to do run-time detection and can use pwr8_fn only if quadword-atomics is available.
 #[cfg(not(any(
@@ -301,8 +455,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => stq (pwr8)
                         atomic_store_pwr8_relaxed
                     } else {
+                        // else => fallback
                         fallback::atomic_store_non_seqcst
                     }
                 });
@@ -310,8 +466,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::Release => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => stq (pwr8)
                         atomic_store_pwr8_release
                     } else {
+                        // else => fallback
                         fallback::atomic_store_non_seqcst
                     }
                 });
@@ -319,8 +477,10 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             Ordering::SeqCst => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                     if detect::detect().has_quadword_atomics() {
+                        // if detect(quadword-atomics) => stq (pwr8)
                         atomic_store_pwr8_seqcst
                     } else {
+                        // else => fallback
                         fallback::atomic_store_seqcst
                     }
                 });
@@ -329,6 +489,56 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
 }
+#[cfg(any(
+    target_feature = "quadword-atomics",
+    portable_atomic_target_feature = "quadword-atomics",
+))]
+#[cfg(all(
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+))]
+#[inline]
+unsafe fn atomic_store_pwr10(dst: *mut u128, val: u128, order: Ordering) {
+    use crate::utils::U128Be as U128;
+
+    debug_assert!(dst as usize % 16 == 0);
+    let val = U128 { whole: val };
+
+    // SAFETY: the caller must uphold the safety contract.
+    //
+    // Refs: Section 3.3.4 "Fixed Point Load and Store Quadword Instructions" of Power ISA 3.1C Book I
+    unsafe {
+        macro_rules! atomic_store {
+            ($release:tt) => {
+                asm!(
+                    $release,              // fence
+                    // p{lq,stq} is unsupported in LLVM 19, so use manually align and .long.
+                    // "pstq %r4, 0(%r3)", // atomic { *dst = r4:r5 }
+                    ".balign 64",
+                    ".long 0x04000000",    // p
+                    ".long 0xf0830000",    // stq %r4, 0(%r3)
+                    in("r3") ptr_reg!(dst),
+                    // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    in("r4") val.pair.hi,
+                    in("r5") val.pair.lo,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        match order {
+            Ordering::Relaxed => atomic_store!(""),
+            Ordering::Release => atomic_store!("lwsync"),
+            Ordering::SeqCst => atomic_store!("sync"),
+            _ => unreachable!(),
+        }
+    }
+}
+#[cfg(not(all(
+    any(target_feature = "quadword-atomics", portable_atomic_target_feature = "quadword-atomics"),
+    any(target_feature = "prefix-instrs", portable_atomic_target_feature = "prefix-instrs"),
+    target_endian = "little",
+)))]
 #[inline]
 unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
     debug_assert!(dst as usize % 16 == 0);
@@ -363,6 +573,20 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
         }
     }
 }
+
+// -----------------------------------------------------------------------------
+// RMW
+
+/*
+
+Instruction selection flow for RMWs:
+- if compile_time(quadword-atomics) => lqarx_stqcx (pwr8)
+- if platform_supports_detection_of(quadword-atomics):
+  - if detect(quadword-atomics) => lqarx_stqcx (pwr8)
+  - else => fallback
+- else => unreachable
+
+*/
 
 #[inline]
 unsafe fn atomic_compare_exchange(
