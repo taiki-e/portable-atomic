@@ -254,20 +254,17 @@ jobs:
         if: matrix.flags != ''
       - run: echo "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != '' && !contains(matrix.target, '-darwin')
-      # TODO: LLVM bug: Undefined temporary symbol error when building std.
-      - run: echo "RELEASE=--release" >>"${GITHUB_ENV}"
-        if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
 
-      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv $TARGET $DOCTEST_XCOMPILE $BUILD_STD
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
       # and src/tests have extended copies of doctest, so this will not reduce test coverage.
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
         # outline-atomics is disabled by default on aarch64 musl with static linking
         if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
           # test cases such as has_cmpxchg16b == false, has_lse == false,
@@ -278,12 +275,12 @@ jobs:
         if: (matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')) || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi'
       # outline-atomics is disabled by default on aarch64 musl with static linking and powerpc64
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE --exclude api-test
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD --exclude api-test
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
         if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE --exclude api-test
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD --exclude api-test
         env:
           # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
           # test cases such as has_cmpxchg16b == false, has_lse == false,
@@ -292,14 +289,14 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
         if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
       # x86_64 +cmpxchg16b
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: matrix.target == '' && !contains(matrix.rust, 'i686') || startsWith(matrix.target, 'x86_64')
       # aarch64 +lse
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
@@ -307,7 +304,7 @@ jobs:
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
         if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # aarch64 +lse,+lse2
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
@@ -316,26 +313,26 @@ jobs:
         if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # powerpc64 pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
       # s390x z196 (arch9)
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
         if: startsWith(matrix.target, 's390x')
       # s390x z15 (arch13)
-      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD $RELEASE
+      - run: tools/test.sh -vv --tests $TARGET $BUILD_STD
         env:
           # TODO: disable high-word LLVM target-feature to avoid LLVM codegen bug.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15 -C target-feature=-high-word
@@ -350,8 +347,8 @@ jobs:
         env:
           SKIP_DEFAULT_TARGET: 1
 
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD $RELEASE
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD $RELEASE --direct
+      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD
+      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features $TEST_FEATURES --ignore-unknown-features $TARGET $BUILD_STD --direct
         # Old nightly compilers do not support -Z direct-minimal-versions
         if: matrix.rust == 'nightly'
 

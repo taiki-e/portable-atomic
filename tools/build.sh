@@ -338,12 +338,6 @@ build() {
             target_rustflags+=" -C opt-level=s"
         fi
     fi
-    if ! grep <<<"${rustup_target_list}" -Eq "^${target}$"; then
-        case "${target}" in
-            # TODO: LLVM bug: Undefined temporary symbol error when building std.
-            mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
-        esac
-    fi
 
     if [[ -n "${TESTS:-}" ]]; then
         # We use std in main tests, so we cannot build them on no-std targets.
