@@ -14,6 +14,7 @@ Here is the table of targets that support 128-bit atomics and the instructions u
 | powerpc64 | lq | stq | lqarx/stqcx. | lqarx/stqcx. | Requires `quadword-atomics` target feature (enabled by default on powerpc64le). Both compile-time and run-time detection are supported. <br> Requires nightly |
 | s390x | lpq | stpq | cdsg | cdsg | Requires rustc 1.84+ |
 | mips64r6 | lldp | lldp/scdp | lldp/scdp | lldp/scdp | Unimplemented (unsupported in LLVM). Requires Release 6 Paired LL/SC family of instructions |
+| nvptx64 | ld.b128 | st.b128 | atom.cas.b128 | atom.exch.b128/atom.cas.b128 | Unimplemented. Requires `ptx83` and `sm_90`. |
 
 On compiler versions or platforms where these are not supported, the fallback implementation is used.
 
