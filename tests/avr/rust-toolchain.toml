@@ -2,6 +2,7 @@
 # channel = "nightly-2022-07-10" # LLVM 14
 # channel = "nightly-2023-08-09" # LLVM 17
 # channel = "nightly-2024-04-14" # LLVM 18
-channel = "nightly-2025-01-01" # LLVM 19
+# channel = "nightly-2025-01-01" # LLVM 19
+channel = "nightly-2025-02-18" # LLVM 20
 components = ["rust-src"]
 profile = "minimal"
