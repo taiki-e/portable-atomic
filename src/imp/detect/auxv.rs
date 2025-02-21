@@ -545,7 +545,8 @@ mod arch {
         // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
         // FreeBSD 15.0+
         // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
-        #[cfg(not(target_os = "openbsd"))]
+        // OpenBSD 7.7+
+        // https://github.com/openbsd/src/commit/483a78e15aaa23c010911940770c1c97db5c1287
         pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
     });
 
@@ -564,13 +565,10 @@ mod arch {
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
         // Check both 2_07 and later ISAs (which are superset of 2_07) because
         // OpenBSD currently doesn't set 2_07 even when 3_00 is set.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/powerpc64/cpu.c#L224-L243
+        // https://github.com/openbsd/src/blob/d8ec5edcdf1fb224619831ad90668c95e45c3e36/sys/arch/powerpc64/powerpc64/cpu.c#L222-L238
         // Other OSes should be fine, but check all OSs in the same way just in case.
-        #[cfg(not(target_os = "openbsd"))]
         let isa_2_07_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
-        #[cfg(target_os = "openbsd")]
-        let isa_2_07_or_later = PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00;
         if hwcap2 & isa_2_07_or_later != 0 {
             info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
         }
