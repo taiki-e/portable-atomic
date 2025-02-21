@@ -9,7 +9,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | x86_64      | all (except for sgx) | cpuid           | all      | Enabled by default |
 | aarch64     | linux                | getauxval       | all      | Only enabled by default on `*-linux-gnu*` and `*-linux-{musl,ohos,uclibc}*` with dynamic linking enabled (musl is static linking by default). (dlsym is used by default if needed for compatibility with older versions) |
 | aarch64     | android              | getauxval       | all      | Enabled by default |
-| aarch64     | freebsd              | elf_aux_info    | lse, lse2 | Enabled by default |
+| aarch64     | freebsd              | elf_aux_info    | all      | Enabled by default |
 | aarch64     | netbsd               | sysctlbyname    | all      | Enabled by default |
 | aarch64     | openbsd              | sysctl          | all      | Enabled by default |
 | aarch64     | macos/ios/tvos/watchos/visionos | sysctlbyname | all | Currently only used in tests (see [aarch64_apple.rs](aarch64_apple.rs)). |

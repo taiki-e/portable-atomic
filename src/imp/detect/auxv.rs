@@ -46,7 +46,9 @@ Supported platforms:
   - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
   - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
-  Since Rust 1.84, std requires FreeBSD 13+ https://github.com/rust-lang/rust/pull/120869
+  Dropping support for FreeBSD 12 in std was decided in https://github.com/rust-lang/rust/pull/120869,
+  but the actual update to the FreeBSD 13 toolchain was attempted twice, but both times there were
+  problems, so they were reverted: https://github.com/rust-lang/rust/pull/132228 https://github.com/rust-lang/rust/pull/136582
 - OpenBSD 7.6+ (through elf_aux_info)
   https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
   Not always available on:
@@ -306,7 +308,11 @@ mod os {
             // Defined in sys/auxv.h.
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
             pub(crate) const AT_HWCAP: c_int = 25;
-            #[cfg(any(test, target_arch = "powerpc64"))]
+            #[cfg(any(
+                test,
+                all(target_os = "freebsd", target_arch = "aarch64", target_pointer_width = "64"),
+                target_arch = "powerpc64",
+            ))]
             pub(crate) const AT_HWCAP2: c_int = 26;
 
             // FreeBSD
@@ -441,12 +447,16 @@ mod arch {
         pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        // FreeBSD 15.0+
+        // https://github.com/freebsd/freebsd-src/commit/94686b081fdb0c1bb0fc1dfeda14bd53f26ce7c5
+        #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
         pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        // FreeBSD 15.0+
+        // https://github.com/freebsd/freebsd-src/commit/94686b081fdb0c1bb0fc1dfeda14bd53f26ce7c5
+        #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
         pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
     });
@@ -482,7 +492,7 @@ mod arch {
         if hwcap & HWCAP_USCAT != 0 {
             info.set(CpuInfo::HAS_LSE2);
         }
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(not(target_os = "openbsd"))]
         // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
         #[cfg(target_pointer_width = "64")]
         {
