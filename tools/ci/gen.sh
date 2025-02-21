@@ -20,7 +20,7 @@ git config user.email 'te316e89@gmail.com'
 has_update=''
 for path in src/gen/*; do
   git add -N "${path}"
-  if ! git diff --exit-code -- "${path}"; then
+  if ! git diff --exit-code -- "${path}" &>/dev/null; then
     git add "${path}"
     git commit -m "codegen: Update ${path}"
     has_update=1
