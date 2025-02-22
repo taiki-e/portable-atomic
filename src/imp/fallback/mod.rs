@@ -42,6 +42,11 @@ type and the value type must be the same.
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "openbsd",
+                all(
+                    target_os = "aix",
+                    not(portable_atomic_pre_llvm_20),
+                    portable_atomic_outline_atomics, // TODO(aix): currently disabled by default
+                ),
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),

@@ -361,6 +361,11 @@ items! {
                         target_os = "android",
                         target_os = "freebsd",
                         target_os = "openbsd",
+                        all(
+                            target_os = "aix",
+                            not(portable_atomic_pre_llvm_20),
+                            portable_atomic_outline_atomics, // TODO(aix): currently disabled by default
+                        ),
                     ),
                     not(any(miri, portable_atomic_sanitize_thread)),
                 ),
@@ -471,6 +476,11 @@ pub(crate) use self::atomic128::riscv64::{AtomicI128, AtomicU128};
                 target_os = "android",
                 target_os = "freebsd",
                 target_os = "openbsd",
+                all(
+                    target_os = "aix",
+                    not(portable_atomic_pre_llvm_20),
+                    portable_atomic_outline_atomics, // TODO(aix): currently disabled by default
+                ),
             ),
             not(any(miri, portable_atomic_sanitize_thread)),
         ),
