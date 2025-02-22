@@ -287,7 +287,6 @@ items! {
                 all(
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
-                    portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
                     any(target_os = "linux", target_os = "android"),
                 ),
             ),
@@ -329,7 +328,6 @@ items! {
                 all(
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
-                    portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
                     any(target_os = "linux", target_os = "android"),
                 ),
             ),
@@ -401,7 +399,6 @@ pub(crate) use self::atomic64::arm_linux::{AtomicI64, AtomicU64};
         all(
             feature = "fallback",
             not(portable_atomic_no_outline_atomics),
-            portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
             any(target_os = "linux", target_os = "android"),
         ),
     ),
@@ -442,7 +439,6 @@ pub(crate) use self::atomic128::x86_64::{AtomicI128, AtomicU128};
         all(
             feature = "fallback",
             not(portable_atomic_no_outline_atomics),
-            portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
             any(target_os = "linux", target_os = "android"),
         ),
     ),

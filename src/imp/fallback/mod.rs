@@ -60,7 +60,6 @@ type and the value type must be the same.
                 all(
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
-                    portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
                     any(target_os = "linux", target_os = "android"),
                 ),
             ),
@@ -75,7 +74,6 @@ type and the value type must be the same.
                 all(
                     feature = "fallback",
                     not(portable_atomic_no_outline_atomics),
-                    portable_atomic_outline_atomics, // TODO(riscv): currently disabled by default
                     any(target_os = "linux", target_os = "android"),
                 ),
             ),
