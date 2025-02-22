@@ -29,7 +29,8 @@ default_targets=(
 
   # no atomic CAS (16-bit)
   avr-unknown-gnu-atmega2560 # custom target
-  avr-unknown-gnu-atmega328
+  avr-unknown-gnu-atmega328  # before https://github.com/rust-lang/rust/pull/131651
+  avr-none                   # after https://github.com/rust-lang/rust/pull/131651
   # no atomic CAS (32-bit)
   thumbv4t-none-eabi
   thumbv6m-none-eabi
@@ -346,6 +347,10 @@ build() {
       elif [[ "${llvm_version}" -ge 17 ]]; then
         # https://github.com/rust-lang/rust/issues/88252
         target_rustflags+=" -C opt-level=s"
+      fi
+      if [[ "${target}" == "avr-none" ]]; then
+        # "error: target requires explicitly specifying a cpu with `-C target-cpu`"
+        target_rustflags+=" -C target-cpu=atmega328p"
       fi
       ;;
     amdgcn*)
