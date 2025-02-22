@@ -774,6 +774,18 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_neg(x: $int_type) -> bool {
+                #[cfg(all(
+                    target_arch = "arm",
+                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                ))]
+                {
+                    // TODO: LLVM bug:
+                    // https://github.com/llvm/llvm-project/issues/61880
+                    // https://github.com/taiki-e/portable-atomic/issues/2
+                    if core::mem::size_of::<$int_type>() <= 2 {
+                        return true;
+                    }
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     assert_eq!(a.fetch_neg(order), x);
