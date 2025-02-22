@@ -100,11 +100,8 @@ fn test_is_lock_free() {
             all(
                 target_arch = "riscv32",
                 not(any(miri, portable_atomic_sanitize_thread)),
-                not(portable_atomic_no_asm),
-                any(
-                    target_feature = "experimental-zacas",
-                    portable_atomic_target_feature = "experimental-zacas",
-                ),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
             ),
         )) {
             assert!(AtomicI64::is_always_lock_free());
@@ -170,10 +167,7 @@ fn test_is_lock_free() {
         ),
         all(
             target_arch = "riscv64",
-            any(
-                target_feature = "experimental-zacas",
-                portable_atomic_target_feature = "experimental-zacas",
-            ),
+            any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
         ),
         all(
             target_arch = "powerpc64",

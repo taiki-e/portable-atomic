@@ -25,6 +25,9 @@ Note:
 - On powerpc64, LLVM (as of 17) doesn't support 128-bit atomic min/max:
   https://github.com/llvm/llvm-project/issues/68390
 - On powerpc64le, LLVM (as of 17) generates broken code. (wrong result from fetch_add)
+- On riscv64, LLVM does not automatically use 128-bit atomic instructions even if zacas feature is
+  enabled, because doing it changes the ABI. (If the ability to do that is provided by LLVM in the
+  future, it should probably be controlled by another ABI feature similar to forced-atomics.)
 */
 
 include!("macros.rs");

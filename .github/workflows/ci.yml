@@ -651,11 +651,11 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zabha
           QEMU_CPU: max
         if: startsWith(matrix.target, 'riscv')
-      # riscv +experimental-zacas
+      # riscv +zacas
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+experimental-zacas
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+experimental-zacas
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zacas
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zacas
         if: startsWith(matrix.target, 'riscv')
       # s390x z196 (arch9)
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}

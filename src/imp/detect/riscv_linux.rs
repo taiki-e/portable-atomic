@@ -59,6 +59,8 @@ mod ffi {
         a3: *mut c_ulong,
         a4: c_uint,
     ) -> c_long {
+        #[cfg(not(portable_atomic_no_asm))]
+        use core::arch::asm;
         // arguments must be extended to 64-bit if RV64
         let a4 = a4 as usize;
         let r;
@@ -67,7 +69,7 @@ mod ffi {
         // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv32/syscall_arch.h
         // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv64/syscall_arch.h
         unsafe {
-            core::arch::asm!(
+            asm!(
                 "ecall",
                 in("a7") number,
                 inout("a0") a0 => r,

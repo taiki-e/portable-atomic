@@ -657,7 +657,7 @@ build() {
         riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*) ;;
         *)
           CARGO_TARGET_DIR="${target_dir}/zacas" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+experimental-zacas" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zacas" \
             x_cargo "${args[@]}" "$@"
           ;;
       esac
