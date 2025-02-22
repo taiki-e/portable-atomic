@@ -34,7 +34,6 @@ include!("macros.rs");
 mod fallback;
 
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(test, portable_atomic_outline_atomics))] // TODO(riscv): currently disabled by default
 #[cfg(any(test, not(any(target_feature = "zacas", portable_atomic_target_feature = "zacas"))))]
 #[cfg(any(target_os = "linux", target_os = "android"))]
 #[path = "../detect/riscv_linux.rs"]

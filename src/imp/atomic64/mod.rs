@@ -33,7 +33,6 @@ pub(super) mod arm_linux;
         all(
             feature = "fallback",
             not(portable_atomic_no_outline_atomics),
-            any(test, portable_atomic_outline_atomics), // TODO(riscv): currently disabled by default
             any(target_os = "linux", target_os = "android"),
         ),
     ),
