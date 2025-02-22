@@ -81,9 +81,12 @@ fn run() {
     test_atomic_int!(u64);
     test_atomic_int!(i128);
     test_atomic_int!(u128);
-    // TODO: undefined reference to f{max,min}{,f}
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
-    test_atomic_float!(f32);
-    #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(d))]
-    test_atomic_float!(f64);
+    // TODO: size issue with LLVM 20
+    if cfg!(not(all(any(target_arch = "riscv32", target_arch = "riscv64"), debug_assertions))) {
+        // TODO: undefined reference to f{max,min}{,f} (fixed in Rust 1.79, but we run tests also on 1.64)
+        #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(f))]
+        test_atomic_float!(f32);
+        #[cfg_attr(any(target_arch = "riscv32", target_arch = "riscv64"), cfg(d))]
+        test_atomic_float!(f64);
+    }
 }
