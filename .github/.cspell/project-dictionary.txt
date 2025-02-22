@@ -50,6 +50,7 @@ fistp
 getauxval
 getisax
 getpid
+getsystemcfg
 gimli
 Halfword
 HWCAP
@@ -139,6 +140,7 @@ setb
 sete
 sifive
 signedness
+SIGTRAP
 simavr
 simio
 skiboot

@@ -74,6 +74,19 @@ mod fallback;
 ))]
 #[path = "../detect/auxv.rs"]
 mod detect;
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
+    test,
+    not(any(
+        target_feature = "quadword-atomics",
+        portable_atomic_target_feature = "quadword-atomics",
+    )),
+))]
+#[cfg(target_os = "aix")]
+#[cfg(not(portable_atomic_pre_llvm_20))] // SIGTRAP on LLVM 19
+#[cfg(any(test, portable_atomic_outline_atomics))] // TODO(aix): currently disabled by default
+#[path = "../detect/powerpc64_aix.rs"]
+mod detect;
 
 use core::{arch::asm, sync::atomic::Ordering};
 
