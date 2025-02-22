@@ -115,7 +115,7 @@ flags! {
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 flags! {
     // amocas.{w,d,q}
-    HAS_ZACAS(has_zacas, "experimental-zacas", any(target_feature, portable_atomic_target_feature)),
+    HAS_ZACAS(has_zacas, "zacas", any(target_feature, portable_atomic_target_feature)),
 }
 
 #[cfg(target_arch = "x86_64")]
