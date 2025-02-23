@@ -417,7 +417,7 @@ mod os {
 use self::arch::_detect;
 #[cfg(target_arch = "aarch64")]
 mod arch {
-    use super::{ffi, os, CpuInfo};
+    use super::{CpuInfo, ffi, os};
 
     sys_const!({
         // Linux
@@ -508,7 +508,7 @@ mod arch {
 }
 #[cfg(target_arch = "powerpc64")]
 mod arch {
-    use super::{ffi, os, CpuInfo};
+    use super::{CpuInfo, ffi, os};
 
     sys_const!({
         // Linux
@@ -723,11 +723,7 @@ mod tests {
                     );
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-                if (r as c_int) < 0 {
-                    Err(r as c_int)
-                } else {
-                    Ok(r as usize)
-                }
+                if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
             }
             #[cfg(target_arch = "powerpc64")]
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
@@ -755,11 +751,7 @@ mod tests {
                     );
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-                if (r as c_int) < 0 {
-                    Err(r as c_int)
-                } else {
-                    Ok(r as usize)
-                }
+                if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
             }
 
             let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
@@ -788,11 +780,7 @@ mod tests {
                 #[allow(clippy::cast_possible_wrap)]
                 let r = unsafe { libc::prctl(sys::PR_GET_AUXV as c_int, out, len, 0, 0) };
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-                if (r as c_int) < 0 {
-                    Err(r as c_int)
-                } else {
-                    Ok(r as usize)
-                }
+                if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
             }
 
             let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
@@ -982,11 +970,7 @@ mod tests {
                         in("x5") new_len as u64,
                         options(nostack),
                     );
-                    if r as c_int == -1 {
-                        Err(n as c_int)
-                    } else {
-                        Ok(r as c_int)
-                    }
+                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
             }
 
@@ -1053,11 +1037,7 @@ mod tests {
                         out("cr0") _,
                         options(nostack, preserves_flags),
                     );
-                    if r as c_int == -1 {
-                        Err(n as c_int)
-                    } else {
-                        Ok(r as c_int)
-                    }
+                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
             }
 

@@ -21,8 +21,9 @@
 // - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
 use portable_atomic::{
-    self as atomic, hint,
+    self as atomic,
     Ordering::{Acquire, Relaxed, Release},
+    hint,
 };
 
 use alloc::{alloc::handle_alloc_error, boxed::Box};
@@ -925,11 +926,7 @@ impl<T: ?Sized> Arc<T> {
         let cnt = this.inner().weak.load(Relaxed);
         // If the weak count is currently locked, the value of the
         // count was 0 just before taking the lock.
-        if cnt == usize::MAX {
-            0
-        } else {
-            cnt - 1
-        }
+        if cnt == usize::MAX { 0 } else { cnt - 1 }
     }
 
     /// Gets the number of strong (`Arc`) pointers to this allocation.
@@ -1803,11 +1800,7 @@ impl<T: ?Sized> Weak<T> {
     /// If `self` was created using [`Weak::new`], this will return 0.
     #[must_use]
     pub fn strong_count(&self) -> usize {
-        if let Some(inner) = self.inner() {
-            inner.strong.load(Relaxed)
-        } else {
-            0
-        }
+        if let Some(inner) = self.inner() { inner.strong.load(Relaxed) } else { 0 }
     }
 
     /// Gets an approximation of the number of `Weak` pointers pointing to this
@@ -2508,6 +2501,7 @@ impl<T> core::iter::FromIterator<T> for Arc<[T]> {
     /// this behaves as if we wrote:
     ///
     /// ```
+    /// # #![cfg_attr(rustfmt, rustfmt::skip)] // rustfmt bug that inserts new line before "# ..." when the previous line ends with a comment.
     /// use portable_atomic_util::Arc;
     /// let evens: Arc<[u8]> = (0..10).filter(|&x| x % 2 == 0)
     ///     .collect::<Vec<_>>() // The first set of allocations happens here.
@@ -2524,6 +2518,7 @@ impl<T> core::iter::FromIterator<T> for Arc<[T]> {
     /// a single allocation will be made for the `Arc<[T]>`. For example:
     ///
     /// ```
+    /// # #![cfg_attr(rustfmt, rustfmt::skip)] // rustfmt bug that inserts new line before "# ..." when the previous line ends with a comment.
     /// use portable_atomic_util::Arc;
     /// let evens: Arc<[u8]> = (0..10).collect(); // Just a single allocation happens here.
     /// # assert_eq!(&*evens, &*(0..10).collect::<Vec<_>>());

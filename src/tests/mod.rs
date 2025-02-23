@@ -406,7 +406,7 @@ fn test_serde() {
         de::{Deserialize, Deserializer},
         ser::{Serialize, Serializer},
     };
-    use serde_test::{assert_tokens, Token};
+    use serde_test::{Token, assert_tokens};
 
     #[derive(Debug)]
     struct DebugPartialEq<T>(T);

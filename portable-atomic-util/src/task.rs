@@ -39,7 +39,7 @@ use crate::Arc;
 /// intermediate calls to `thread::unpark` as well as nested invocations.
 ///
 /// ```
-/// use portable_atomic_util::{task::Wake, Arc};
+/// use portable_atomic_util::{Arc, task::Wake};
 /// use std::{
 ///     future::Future,
 ///     task::{Context, Poll},

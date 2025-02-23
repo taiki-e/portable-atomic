@@ -463,11 +463,7 @@ unsafe fn atomic_compare_exchange(
             }
         }
     };
-    if ok {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if ok { Ok(prev) } else { Err(prev) }
 }
 #[inline]
 unsafe fn atomic_compare_exchange_pwr8(
@@ -549,11 +545,7 @@ unsafe fn atomic_compare_exchange_weak(
     // SAFETY: the caller must uphold the safety contract.
     // cfg guarantees that quadword atomics instructions are available at compile-time.
     let (prev, ok) = unsafe { atomic_compare_exchange_weak_pwr8(dst, old, new, success, failure) };
-    if ok {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if ok { Ok(prev) } else { Err(prev) }
 }
 #[cfg(any(
     target_feature = "quadword-atomics",

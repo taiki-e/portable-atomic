@@ -238,11 +238,7 @@ macro_rules! load_store_detect {
                 // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() for more.
                 #[cfg(target_feature = "sse")]
                 {
-                    if cpuid.has_vmovdqa_atomic() {
-                        $vmovdqa
-                    } else {
-                        $cmpxchg16b
-                    }
+                    if cpuid.has_vmovdqa_atomic() { $vmovdqa } else { $cmpxchg16b }
                 }
                 #[cfg(not(target_feature = "sse"))]
                 {
@@ -254,11 +250,7 @@ macro_rules! load_store_detect {
         }
         #[cfg(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"))]
         {
-            if cpuid.has_vmovdqa_atomic() {
-                $vmovdqa
-            } else {
-                $cmpxchg16b
-            }
+            if cpuid.has_vmovdqa_atomic() { $vmovdqa } else { $cmpxchg16b }
         }
     }};
 }
@@ -435,11 +427,7 @@ unsafe fn atomic_compare_exchange(
             }
         })
     };
-    if ok {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if ok { Ok(prev) } else { Err(prev) }
 }
 
 // cmpxchg16b is always strong.

@@ -287,11 +287,7 @@ unsafe fn atomic_compare_exchange(
             }
         }
     };
-    if ok {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if ok { Ok(prev) } else { Err(prev) }
 }
 #[inline]
 unsafe fn atomic_compare_exchange_zacas(

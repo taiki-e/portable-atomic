@@ -24,7 +24,7 @@ use core::{mem, ptr};
 
 // libc requires Rust 1.63
 mod ffi {
-    pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
+    pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_void};
 
     sys_fn!({
         extern "C" {
@@ -167,11 +167,7 @@ mod tests {
                         in("x5") new_len as u64,
                         options(nostack),
                     );
-                    if r as c_int == -1 {
-                        Err(n as c_int)
-                    } else {
-                        Ok(r as c_int)
-                    }
+                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
             }
             // https://github.com/apple-oss-distributions/Libc/blob/af11da5ca9d527ea2f48bb7efbd0f0f2a4ea4812/gen/FreeBSD/sysctlbyname.c

@@ -101,7 +101,7 @@ fn is_panic_abort() -> bool {
 mod alloc_tests {
     use std::{
         convert::TryInto as _,
-        sync::{mpsc::channel, Mutex},
+        sync::{Mutex, mpsc::channel},
         thread,
     };
 

@@ -9,13 +9,13 @@
 mod helper;
 
 use portable_atomic as atomic;
-#[cfg(all(feature = "float", portable_atomic_unstable_f128))]
-use portable_atomic::AtomicF128;
 #[cfg(all(feature = "float", portable_atomic_unstable_f16))]
 use portable_atomic::AtomicF16;
+#[cfg(all(feature = "float", portable_atomic_unstable_f128))]
+use portable_atomic::AtomicF128;
 use portable_atomic::{
-    hint, AtomicBool, AtomicI128, AtomicI16, AtomicI32, AtomicI64, AtomicI8, AtomicIsize,
-    AtomicPtr, AtomicU128, AtomicU16, AtomicU32, AtomicU64, AtomicU8, AtomicUsize, Ordering,
+    AtomicBool, AtomicI8, AtomicI16, AtomicI32, AtomicI64, AtomicI128, AtomicIsize, AtomicPtr,
+    AtomicU8, AtomicU16, AtomicU32, AtomicU64, AtomicU128, AtomicUsize, Ordering, hint,
 };
 #[cfg(feature = "float")]
 use portable_atomic::{AtomicF32, AtomicF64};

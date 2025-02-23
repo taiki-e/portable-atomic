@@ -125,7 +125,7 @@ mod imp {
     // libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use crate::utils::ffi::{c_char, c_int, c_size_t, c_void, CStr};
+        pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_void};
 
         sys_struct!({
             // Defined in machine/armreg.h.
@@ -416,11 +416,7 @@ mod tests {
                         options(nostack),
                     );
                     #[allow(clippy::cast_possible_truncation)]
-                    if r as c_int == -1 {
-                        Err(n as c_int)
-                    } else {
-                        Ok(r as c_int)
-                    }
+                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
             }
 

@@ -201,7 +201,6 @@ macro_rules! debug_assert_lse {
         }
     };
 }
-#[rustfmt::skip]
 #[cfg(any(
     target_feature = "lse2",
     portable_atomic_target_feature = "lse2",
@@ -239,7 +238,6 @@ macro_rules! debug_assert_lse2 {
         }
     };
 }
-#[rustfmt::skip]
 #[cfg(any(
     target_feature = "lse128",
     portable_atomic_target_feature = "lse128",
@@ -280,7 +278,6 @@ macro_rules! debug_assert_lse128 {
         }
     };
 }
-#[rustfmt::skip]
 #[cfg(any(
     target_feature = "rcpc3",
     portable_atomic_target_feature = "rcpc3",
@@ -1077,7 +1074,6 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
     //
     // Refs: https://developer.arm.com/documentation/ddi0602/2024-12/Base-Instructions/STP--Store-pair-of-registers-
     unsafe {
-        #[rustfmt::skip]
         macro_rules! atomic_store {
             ($acquire:tt, $release:tt) => {{
                 let val = U128 { whole: val };
@@ -1421,11 +1417,7 @@ unsafe fn atomic_compare_exchange(
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract.
     let prev = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success, failure) };
-    if prev == old {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if prev == old { Ok(prev) } else { Err(prev) }
 }
 #[cfg(any(
     target_feature = "lse",

@@ -188,11 +188,7 @@ unsafe fn atomic_compare_exchange(
         );
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if extract_cc(r) {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if extract_cc(r) { Ok(prev) } else { Err(prev) }
 }
 
 // cdsg is always strong.

@@ -6,7 +6,7 @@
 
 #[path = "version.rs"]
 mod version;
-use self::version::{rustc_version, Version};
+use self::version::{Version, rustc_version};
 
 #[path = "src/gen/build.rs"]
 mod generated;
@@ -536,18 +536,10 @@ fn convert_custom_linux_target(target: &str) -> String {
 // str::strip_prefix requires Rust 1.45
 #[must_use]
 fn strip_prefix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
-    if s.starts_with(pat) {
-        Some(&s[pat.len()..])
-    } else {
-        None
-    }
+    if s.starts_with(pat) { Some(&s[pat.len()..]) } else { None }
 }
 // str::strip_suffix requires Rust 1.45
 #[must_use]
 fn strip_suffix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
-    if s.ends_with(pat) {
-        Some(&s[..s.len() - pat.len()])
-    } else {
-        None
-    }
+    if s.ends_with(pat) { Some(&s[..s.len() - pat.len()]) } else { None }
 }

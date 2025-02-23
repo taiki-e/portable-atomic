@@ -193,11 +193,7 @@ unsafe fn atomic_compare_exchange(
             }
         })
     };
-    if ok {
-        Ok(prev)
-    } else {
-        Err(prev)
-    }
+    if ok { Ok(prev) } else { Err(prev) }
 }
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 select_atomic! {

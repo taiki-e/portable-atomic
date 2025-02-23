@@ -177,11 +177,7 @@ unsafe fn atomic_compare_exchange(
             _ => unreachable!(),
         }
     };
-    if ok {
-        Ok(val)
-    } else {
-        Err(val)
-    }
+    if ok { Ok(val) } else { Err(val) }
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -217,11 +213,7 @@ unsafe fn atomic_compare_exchange_weak(
             _ => unreachable!(),
         }
     };
-    if ok {
-        Ok(val)
-    } else {
-        Err(val)
-    }
+    if ok { Ok(val) } else { Err(val) }
 }
 
 #[inline(always)]

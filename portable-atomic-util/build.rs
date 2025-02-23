@@ -6,7 +6,7 @@
 #[allow(dead_code)]
 #[path = "version.rs"]
 mod version;
-use self::version::{rustc_version, Version};
+use self::version::{Version, rustc_version};
 
 use std::env;
 
