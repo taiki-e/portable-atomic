@@ -222,6 +222,7 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
+commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
 target_dir=$(pwd)/target
 # Do not use check here because it misses some errors such as invalid inline asm operands and LLVM codegen errors.
@@ -358,13 +359,13 @@ build() {
       # "error: target requires explicitly specifying a cpu with `-C target-cpu`"
       target_rustflags+=" -C target-cpu=gfx600"
       ;;
+    mips-*-linux-* | mipsel-*-linux-*)
+      if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
+        # TODO: LLVM bug: Undefined temporary symbol error when building std.
+        target_rustflags+=" -C opt-level=1"
+      fi
+      ;;
   esac
-  if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-    case "${target}" in
-      # TODO: LLVM bug: Undefined temporary symbol error when building std.
-      mips-*-linux-* | mipsel-*-linux-*) target_rustflags+=" -C opt-level=1" ;;
-    esac
-  fi
   if [[ "${base_rustflags}" == *"unqualified_local_imports"* ]]; then
     [[ "${target_rustflags}" == *"portable_atomic_unstable_f16"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16"
     [[ "${target_rustflags}" == *"portable_atomic_unstable_f128"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128"
@@ -398,7 +399,13 @@ build() {
         local test_dir=''
         # NB: sync with tools/no-std.sh
         case "${target}" in
-          armv4t* | thumbv4t*) test_dir=tests/gba ;;
+          armv4t* | thumbv4t*)
+            case "${commit_date}" in
+              # https://github.com/rust-lang/rust/issues/137512
+              2025-02-23) ;;
+              *) test_dir=tests/gba ;;
+            esac
+            ;;
           arm* | thumb* | riscv*) test_dir=tests/no-std-qemu ;;
           avr-unknown-gnu-atmega2560) test_dir=tests/avr ;; # tests/avr is for atmega2560 not atmega328
           msp430*) test_dir=tests/msp430 ;;

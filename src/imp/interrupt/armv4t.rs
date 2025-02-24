@@ -81,7 +81,7 @@ pub(crate) mod atomic {
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
     macro_rules! atomic {
-        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $suffix:tt) => {
+        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty $(as $cast:ty)?, $suffix:tt) => {
             #[repr(transparent)]
             pub(crate) struct $atomic_type $(<$($generics)*>)? {
                 v: UnsafeCell<$value_type>,
@@ -100,7 +100,7 @@ pub(crate) mod atomic {
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
-                        let out;
+                        let out $(: $cast)?;
                         // inline asm without nomem/readonly implies compiler fence.
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
@@ -110,7 +110,7 @@ pub(crate) mod atomic {
                             out = lateout(reg) out,
                             options(nostack, preserves_flags),
                         );
-                        out
+                        out $(as $cast as $value_type)?
                     }
                 }
 
@@ -126,7 +126,7 @@ pub(crate) mod atomic {
                         asm!(
                             concat!("str", $suffix, " {val}, [{dst}]"),
                             dst = in(reg) dst,
-                            val = in(reg) val,
+                            val = in(reg) val $(as $cast)?,
                             options(nostack, preserves_flags),
                         );
                     }
@@ -143,5 +143,5 @@ pub(crate) mod atomic {
     atomic!(AtomicU32, u32, "");
     atomic!(AtomicIsize, isize, "");
     atomic!(AtomicUsize, usize, "");
-    atomic!([T] AtomicPtr, *mut T, "");
+    atomic!([T] AtomicPtr, *mut T as *mut u8, "");
 }

@@ -107,6 +107,7 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
+commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 workspace_dir=$(pwd)
 target_dir="${workspace_dir}/target"
 nightly=''
@@ -190,6 +191,13 @@ run() {
   # NB: sync with tools/build.sh
   case "${target}" in
     armv4t* | thumbv4t*)
+      case "${commit_date}" in
+        # https://github.com/rust-lang/rust/issues/137512
+        2025-02-23)
+          printf '%s\n' "test for target '${target}' is not supported on this version (skipped)"
+          return 0
+          ;;
+      esac
       test_dir=tests/gba
       linker=link.ld
       target_rustflags+=" -C link-arg=-T${linker}"
