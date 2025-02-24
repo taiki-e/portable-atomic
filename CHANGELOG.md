@@ -12,6 +12,17 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Work around [nightly-2025-02-24 rustc regression causing "cannot use value of type `*mut T` for inline assembly" error](https://github.com/rust-lang/rust/issues/137512) on RISC-V without A extension, MSP430, and pre-v6 no-std Arm targets. ([eeb0235](https://github.com/taiki-e/portable-atomic/commit/eeb0235b9fda4c28a56ee5a9ffe0d7fb884a50ab))
+
+- Support `AtomicF16` and `AtomicF128` for [unstable `f16` and `f128`](https://github.com/rust-lang/rust/issues/116909) under unstable cfgs. ([582a915](https://github.com/taiki-e/portable-atomic/commit/582a9156368d9a4e19be0c724d3635efde4d25a2))
+
+- RISC-V Zacas extension support is no longer experimental. ([#206](https://github.com/taiki-e/portable-atomic/pull/206))
+
+- Improve support of run-time detection and outline-atomics:
+  - riscv: Enable run-time detection of Zacas extension by default on Linux/Android. ([#207](https://github.com/taiki-e/portable-atomic/pull/207))
+  - aarch64: Support run-time detection of FEAT_LRCPC3/FEAT_LSE128 on FreeBSD. ([6a5075d](https://github.com/taiki-e/portable-atomic/commit/6a5075d43543875cf38d6114f2951047e2e64f1a))
+  - powerpc64: Support run-time detection of quadword-atomics on AIX (currently disabled by default because detection support for AIX is experimental). ([#102](https://github.com/taiki-e/portable-atomic/pull/102))
+
 ## [1.10.0] - 2024-11-23
 
 - Update to stabilized [s390x](https://github.com/rust-lang/rust/pull/131258) and [Arm64EC](https://github.com/rust-lang/rust/pull/131781) inline assembly. ([97645c1](https://github.com/taiki-e/portable-atomic/commit/97645c1b2b938249f16eacb0fe696d4c7bb96754), [e1d1a97](https://github.com/taiki-e/portable-atomic/commit/e1d1a97cd1ab4bd04b45962c44ca1e9f0f9e1456))
