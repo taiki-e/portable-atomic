@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.11.0] - 2025-02-24
+
 - Work around [nightly-2025-02-24 rustc regression causing "cannot use value of type `*mut T` for inline assembly" error](https://github.com/rust-lang/rust/issues/137512) on RISC-V without A extension, MSP430, and pre-v6 no-std Arm targets. ([eeb0235](https://github.com/taiki-e/portable-atomic/commit/eeb0235b9fda4c28a56ee5a9ffe0d7fb884a50ab))
 
 - Support `AtomicF16` and `AtomicF128` for [unstable `f16` and `f128`](https://github.com/rust-lang/rust/issues/116909) under unstable cfgs. ([582a915](https://github.com/taiki-e/portable-atomic/commit/582a9156368d9a4e19be0c724d3635efde4d25a2))
@@ -520,7 +522,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/taiki-e/portable-atomic/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/taiki-e/portable-atomic/compare/v1.7.0...v1.8.0
