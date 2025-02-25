@@ -48,7 +48,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("zacas","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -356,12 +356,13 @@ fn main() {
             // https://github.com/gcc-mirror/gcc/blob/08693e29ec186fd7941d0b73d4d466388971fe2f/gcc/config/riscv/arch-canonicalize#L45-L46
             // https://github.com/rust-lang/rust/pull/130877
             let mut zaamo = false;
-            // As of rustc 1.84, target_feature "zacas" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L425
-            // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
-            // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
-            // available non-experimental since LLVM 20 https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
-            zaamo |= target_feature_fallback("zacas", false);
+            // target_feature "zacas" is unstable and available on rustc side since nightly-2025-02-26: https://github.com/rust-lang/rust/pull/137417
+            if !version.probe(87, 2025, 2, 25) || needs_target_feature_fallback(&version, None) {
+                // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
+                // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
+                // available non-experimental since LLVM 20 https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
+                zaamo |= target_feature_fallback("zacas", false);
+            }
             // target_feature "zaamo"/"zabha" is unstable and available on rustc side since nightly-2024-10-02: https://github.com/rust-lang/rust/pull/130877
             if !version.probe(83, 2024, 10, 1) || needs_target_feature_fallback(&version, None) {
                 if version.llvm >= 19 {
