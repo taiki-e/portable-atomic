@@ -193,7 +193,7 @@ run() {
     armv4t* | thumbv4t*)
       case "${commit_date}" in
         # https://github.com/rust-lang/rust/issues/137512
-        2025-02-23)
+        2025-02-2[34])
           printf '%s\n' "test for target '${target}' is not supported on this version (skipped)"
           return 0
           ;;

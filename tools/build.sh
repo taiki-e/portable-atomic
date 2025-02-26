@@ -402,7 +402,7 @@ build() {
           armv4t* | thumbv4t*)
             case "${commit_date}" in
               # https://github.com/rust-lang/rust/issues/137512
-              2025-02-23) ;;
+              2025-02-2[34]) ;;
               *) test_dir=tests/gba ;;
             esac
             ;;
