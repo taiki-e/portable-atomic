@@ -77,7 +77,8 @@ jobs:
         # - LLVM 16 : stable 1.70 - 1.72, nightly-2023-03-26 (1.70) - nightly-2023-08-08 (1.73)
         # - LLVM 17 : stable 1.73 - 1.77, nightly-2023-08-09 (1.73) - nightly-2024-02-13 (1.78)
         # - LLVM 18 : stable 1.78 - 1.81, nightly-2024-02-14 (1.78) - nightly-2024-07-31 (1.82)
-        # - LLVM 19 : stable 1.82 -     , nightly-2024-08-01 (1.82) -
+        # - LLVM 19 : stable 1.82 - 1.86, nightly-2024-08-01 (1.82) - nightly-2025-02-17 (1.87)
+        # - LLVM 20 : stable 1.87 -     , nightly-2025-02-18 (1.87) -
         # (see also https://github.com/rust-lang/rust/commits/master/src/llvm-project)
         # Minimum external LLVM version table:
         # - LLVM 3.9: stable 1.23 - 1.28, since https://github.com/rust-lang/rust/pull/45326
@@ -114,6 +115,8 @@ jobs:
           # - rust: '1.77' # LLVM 17
           #   target: x86_64-unknown-linux-gnu
           # - rust: '1.81' # LLVM 18
+          #   target: x86_64-unknown-linux-gnu
+          # - rust: '1.86' # LLVM 19
           #   target: x86_64-unknown-linux-gnu
           - rust: stable
             target: x86_64-unknown-linux-gnu
@@ -168,6 +171,9 @@ jobs:
           # - rust: '1.81' # LLVM 18
           #   target: aarch64-unknown-linux-gnu
           #   os: ubuntu-24.04-arm
+          # - rust: '1.86' # LLVM 19
+          #   target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-24.04-arm
           - rust: stable
             target: aarch64-unknown-linux-gnu
             os: ubuntu-24.04-arm
@@ -205,6 +211,9 @@ jobs:
           #   target: aarch64-apple-darwin
           #   os: macos-latest
           # - rust: '1.81' # LLVM 18
+          #   target: aarch64-apple-darwin
+          #   os: macos-latest
+          # - rust: '1.86' # LLVM 19
           #   target: aarch64-apple-darwin
           #   os: macos-latest
           - rust: stable
@@ -265,6 +274,8 @@ jobs:
           #   target: armv5te-unknown-linux-gnueabi
           # - rust: '1.81' # LLVM 18
           #   target: armv5te-unknown-linux-gnueabi
+          # - rust: '1.86' # LLVM 19
+          #   target: armv5te-unknown-linux-gnueabi
           - rust: stable
             target: armv5te-unknown-linux-gnueabi
           # - rust: beta
@@ -316,6 +327,8 @@ jobs:
           # - rust: '1.77' # LLVM 17
           #   target: i686-unknown-linux-gnu
           # - rust: '1.81' # LLVM 18
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.86' # LLVM 19
           #   target: i686-unknown-linux-gnu
           - rust: stable
             target: i686-unknown-linux-gnu
@@ -387,6 +400,8 @@ jobs:
           #   target: powerpc64-unknown-linux-gnu
           # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
           #   target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
+          #   target: powerpc64-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
           # ------------------------------------------------------------
@@ -403,6 +418,8 @@ jobs:
           #   target: powerpc64le-unknown-linux-gnu
           # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
           #   target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
+          #   target: powerpc64le-unknown-linux-gnu
           - rust: nightly
             target: powerpc64le-unknown-linux-gnu
           # ------------------------------------------------------------
@@ -416,6 +433,8 @@ jobs:
           # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
           #   target: riscv32gc-unknown-linux-gnu
           # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
+          #   target: riscv32gc-unknown-linux-gnu
+          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
           #   target: riscv32gc-unknown-linux-gnu
           - rust: nightly
             target: riscv32gc-unknown-linux-gnu
@@ -434,6 +453,8 @@ jobs:
           # - rust: '1.77' # LLVM 17
           #   target: riscv64gc-unknown-linux-gnu
           # - rust: '1.81' # LLVM 18
+          #   target: riscv64gc-unknown-linux-gnu
+          # - rust: '1.86' # LLVM 19
           #   target: riscv64gc-unknown-linux-gnu
           - rust: stable
             target: riscv64gc-unknown-linux-gnu
@@ -808,12 +829,14 @@ jobs:
           - '1.72' # LLVM 16
           # - '1.77' # LLVM 17
           # - '1.81' # LLVM 18
+          # - '1.86' # LLVM 19
           - stable
           # - nightly-2022-08-12 # Rust 1.65, LLVM 14
           # - nightly-2023-03-25 # Rust 1.70, LLVM 15
           # - nightly-2023-08-08 # Rust 1.73, LLVM 16
           # - nightly-2024-02-13 # Rust 1.78, LLVM 17
           # - nightly-2024-07-31 # Rust 1.82, LLVM 18
+          # - nightly-2025-02-17 # Rust 1.87, LLVM 19
           - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
