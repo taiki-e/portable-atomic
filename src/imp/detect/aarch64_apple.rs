@@ -68,7 +68,8 @@ fn sysctlbyname32(name: &ffi::CStr) -> Option<u32> {
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    // hw.optional.armv8_1_atomics is available on macOS 11+ (note: AArch64 support was added in macOS 11),
+    // On macOS, AArch64 support was added in macOS 11,
+    // hw.optional.armv8_1_atomics is available on macOS 11+,
     // hw.optional.arm.FEAT_* are only available on macOS 12+.
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
@@ -98,6 +99,8 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
+    use std::{eprintln, format, process::Command, str, string::String};
+
     use super::*;
 
     #[test]
@@ -113,20 +116,22 @@ mod tests {
         assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
     }
 
-    #[cfg(target_pointer_width = "64")]
     #[test]
     fn test_alternative() {
         use crate::utils::ffi::*;
-        #[cfg(not(portable_atomic_no_asm))]
-        use std::arch::asm;
-        use std::mem;
-        use test_helper::sys;
+
         // Call syscall using asm instead of libc.
         // Note that macOS does not guarantee the stability of raw syscall.
         // (And they actually changed it: https://go-review.googlesource.com/c/go/+/25495)
         //
         // This is currently used only for testing.
+        #[cfg(target_pointer_width = "64")]
         fn sysctlbyname32_no_libc(name: &CStr) -> Result<u32, c_int> {
+            #[cfg(not(portable_atomic_no_asm))]
+            use std::arch::asm;
+            use std::mem;
+            use test_helper::sys;
+
             // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/bsd/kern/syscalls.master#L298
             #[inline]
             unsafe fn sysctl(
@@ -223,6 +228,32 @@ mod tests {
             Ok(out)
         }
 
+        // Call sysctl command instead of libc API.
+        //
+        // This is used only for testing.
+        struct SysctlHwOptionalOutput(String);
+        impl SysctlHwOptionalOutput {
+            fn new() -> Self {
+                let output = Command::new("sysctl").arg("hw.optional").output().unwrap();
+                assert!(output.status.success());
+                let stdout = String::from_utf8(output.stdout).unwrap();
+                eprintln!("sysctl hw.optional:\n{}", stdout);
+                Self(stdout)
+            }
+            fn field(&self, name: &CStr) -> Option<u32> {
+                let name = name.to_bytes_with_nul();
+                let name = str::from_utf8(&name[..name.len() - 1]).unwrap();
+                Some(
+                    self.0
+                        .lines()
+                        .find_map(|s| s.strip_prefix(&format!("{}: ", name)))?
+                        .parse()
+                        .unwrap(),
+                )
+            }
+        }
+
+        let sysctl_output = SysctlHwOptionalOutput::new();
         for name in [
             c!("hw.optional.armv8_1_atomics"),
             c!("hw.optional.arm.FEAT_LSE"),
@@ -233,9 +264,13 @@ mod tests {
             c!("hw.optional.arm.FEAT_LRCPC3"),
         ] {
             if let Some(res) = sysctlbyname32(name) {
+                #[cfg(target_pointer_width = "64")]
                 assert_eq!(res, sysctlbyname32_no_libc(name).unwrap());
+                assert_eq!(res, sysctl_output.field(name).unwrap());
             } else {
+                #[cfg(target_pointer_width = "64")]
                 assert_eq!(sysctlbyname32_no_libc(name).unwrap_err(), libc::ENOENT);
+                assert!(sysctl_output.field(name).is_none());
             }
         }
     }
