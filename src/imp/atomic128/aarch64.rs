@@ -327,12 +327,14 @@ macro_rules! debug_assert_rcpc3 {
 // is unstable on pre-1.61 rustc and incompatible with rustc_codegen_cranelift:
 // https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
 //
-// The .arch_extension directive is effective until the end of the assembly block and
+// The .arch_extension directive in asm! is effective until the end of the assembly block and
 // is not propagated to subsequent code, so the end_lse macro is unneeded.
 // https://godbolt.org/z/o6EPndP94
 // https://github.com/torvalds/linux/commit/e0d5896bd356cd577f9710a02d7a474cdf58426b
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 // (It seems GCC effectively ignores this directive and always allow FEAT_LSE instructions: https://godbolt.org/z/W9W6rensG)
+// Note that the .arch_extension directive in global_asm!/naked_asm! which are
+// not used in this crate has different behavior: https://github.com/rust-lang/rust/pull/137720#discussion_r1973608259
 //
 // The .arch directive has a similar effect, but we don't use it due to the following issue:
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
