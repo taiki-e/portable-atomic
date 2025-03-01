@@ -32,7 +32,7 @@ fn __cpuid(leaf: u32) -> CpuidResult {
     let mut ebx;
     let ecx;
     let edx;
-    // SAFETY: Calling `__cpuid`` is safe on all x86_64 CPUs except for SGX,
+    // SAFETY: Calling `__cpuid` is safe on all x86_64 CPUs except for SGX,
     // which doesn't support `cpuid`.
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L109
     unsafe {
@@ -101,7 +101,7 @@ fn _detect(info: &mut CpuInfo) {
         if cpu_xsave {
             let cpu_osxsave = test(proc_info_ecx, 27);
             if cpu_osxsave {
-                // SAFETY: Calling `_xgetbv`` is safe because the CPU has `xsave` support
+                // SAFETY: Calling `_xgetbv` is safe because the CPU has `xsave` support
                 // and OS has set `osxsave`.
                 let xcr0 = unsafe { _xgetbv(0) };
                 let os_avx_support = xcr0 & 6 == 6;

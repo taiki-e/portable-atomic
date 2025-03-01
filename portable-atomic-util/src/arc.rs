@@ -2547,7 +2547,7 @@ impl<T: ?Sized> Unpin for Arc<T> {}
 /// # Safety
 ///
 /// `arc` must uphold the safety requirements for `.byte_add(data_offset)`.
-/// This is automatically satisfied if it is a pointer to a valid `ArcInner``.
+/// This is automatically satisfied if it is a pointer to a valid `ArcInner`.
 unsafe fn data_ptr<T: ?Sized>(arc: *mut ArcInner<T>, data: &T) -> *mut T {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
