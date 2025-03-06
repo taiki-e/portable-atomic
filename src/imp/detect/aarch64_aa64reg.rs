@@ -365,7 +365,7 @@ mod tests {
         //
         // This is currently used only for testing.
         fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
-            // https://github.com/golang/go/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/src/syscall/asm_netbsd_arm64.s
+            // https://github.com/golang/go/blob/go1.24.0/src/syscall/asm_netbsd_arm64.s
             #[inline]
             unsafe fn sysctl(
                 name: *const c_int,
@@ -399,7 +399,7 @@ mod tests {
                 }
             }
 
-            // https://github.com/golang/sys/blob/4badad8d477ffd7a6b762c35bc69aed82faface7/cpu/cpu_netbsd_arm64.go.
+            // https://github.com/golang/sys/blob/v0.31.0/cpu/cpu_netbsd_arm64.go
             fn sysctl_nodes(mib: &mut Vec<i32>) -> Result<Vec<sys::sysctlnode>, i32> {
                 mib.push(sys::CTL_QUERY);
                 let mut q_node = sys::sysctlnode {

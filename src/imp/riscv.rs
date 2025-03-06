@@ -70,8 +70,9 @@ macro_rules! w {
     portable_atomic_target_feature = "zaamo",
 ))]
 macro_rules! atomic_rmw_amo_ext {
+    // Use +a also for zaamo because `option arch +zaamo` requires LLVM 19.
+    // https://github.com/llvm/llvm-project/commit/8be079cdddfd628d356d9ddb5ab397ea95fb1030
     ("w") => {
-        // Use +a also for zaamo because `option arch +zaamo` requires LLVM 19 https://github.com/llvm/llvm-project/commit/8be079cdddfd628d356d9ddb5ab397ea95fb1030
         "+a"
     };
     ("d") => {
