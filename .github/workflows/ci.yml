@@ -582,8 +582,8 @@ jobs:
         env:
           # Note: detect_false cfg is intended to make it easy for developers to test
           # cases where features usually available is not available, and is not a public API.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_detect_false
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_detect_false
         # TODO: arm-linux-androideabi is removed due to an issue between Rust nightly & QEMU in CI testing - needs investigation
         if: startsWith(matrix.target, 'x86_64') || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
@@ -615,8 +615,8 @@ jobs:
         env:
           # Note: detect_false cfg is intended to make it easy for developers to test
           # cases where features usually available is not available, and is not a public API.
-          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
         if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == ''
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:

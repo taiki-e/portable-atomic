@@ -315,7 +315,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_aa64reg() {
         let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
         test_helper::eprintln_nocapture!(

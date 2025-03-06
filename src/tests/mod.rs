@@ -121,7 +121,7 @@ fn test_is_lock_free() {
             not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
             not(portable_atomic_no_outline_atomics),
             not(target_has_atomic = "64"),
-            not(portable_atomic_test_outline_atomics_detect_false),
+            not(portable_atomic_test_detect_false),
         )) {
             assert!(!AtomicI64::is_always_lock_free());
             assert!(!AtomicU64::is_always_lock_free());
@@ -209,7 +209,7 @@ fn test_is_lock_free() {
                 feature = "fallback",
                 not(portable_atomic_no_outline_atomics),
                 not(any(target_env = "sgx", miri)),
-                not(portable_atomic_test_outline_atomics_detect_false),
+                not(portable_atomic_test_detect_false),
             )) && std::is_x86_feature_detected!("cmpxchg16b");
             assert_eq!(AtomicI128::is_lock_free(), has_cmpxchg16b);
             assert_eq!(AtomicU128::is_lock_free(), has_cmpxchg16b);

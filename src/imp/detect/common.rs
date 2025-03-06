@@ -36,7 +36,7 @@ pub(crate) fn detect() -> CpuInfo {
     info.set(CpuInfo::INIT);
     // Note: detect_false cfg is intended to make it easy for developers to test
     // cases where features usually available is not available, and is not a public API.
-    if !cfg!(portable_atomic_test_outline_atomics_detect_false) {
+    if !cfg!(portable_atomic_test_detect_false) {
         _detect(&mut info);
     }
     CACHE.store(info.0, Ordering::Relaxed);
@@ -350,7 +350,7 @@ mod tests_common {
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
         if detect().has_lse() {
@@ -408,7 +408,7 @@ mod tests_common {
     }
     #[cfg(target_arch = "powerpc64")]
     #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
         if detect().has_quadword_atomics() {
@@ -425,7 +425,7 @@ mod tests_common {
     }
     #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
     #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         if detect().has_zacas() {
             assert!(detect().test(CpuInfo::HAS_ZACAS));
@@ -435,7 +435,7 @@ mod tests_common {
     }
     #[cfg(target_arch = "x86_64")]
     #[test]
-    #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         if detect().has_cmpxchg16b() {
             assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));

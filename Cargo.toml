@@ -133,7 +133,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_pointer_width,values("128"))',
     # Known custom cfgs, excluding those that may be set by build script.
     # Not public API.
-    'cfg(portable_atomic_test_outline_atomics_detect_false,qemu,valgrind)',
+    'cfg(portable_atomic_test_detect_false,qemu,valgrind)',
     # Public APIs, considered unstable unless documented as stable in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Public unstable API(s) - portable-atomic-util

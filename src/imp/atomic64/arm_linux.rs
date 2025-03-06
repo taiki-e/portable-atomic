@@ -53,7 +53,7 @@ fn __kuser_helper_version() -> i32 {
 fn has_kuser_cmpxchg64() -> bool {
     // Note: detect_false cfg is intended to make it easy for developers to test
     // cases where features usually available is not available, and is not a public API.
-    if cfg!(portable_atomic_test_outline_atomics_detect_false) {
+    if cfg!(portable_atomic_test_detect_false) {
         return false;
     }
     __kuser_helper_version() >= 5
