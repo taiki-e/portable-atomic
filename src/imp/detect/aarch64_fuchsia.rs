@@ -67,8 +67,11 @@ mod tests {
     #[test]
     fn test_fuchsia() {
         let features = zx_system_get_features(ffi::ZX_FEATURE_KIND_CPU);
+        test_helper::eprintln_nocapture!(
+            "zx_system_get_features(ZX_FEATURE_KIND_CPU): {:b}",
+            features
+        );
         assert_ne!(features, 0);
-        std::eprintln!("features: {:b}", features);
     }
 
     // Static assertions for FFI bindings.

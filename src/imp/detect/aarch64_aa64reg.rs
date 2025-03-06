@@ -318,9 +318,12 @@ mod tests {
     #[cfg_attr(portable_atomic_test_outline_atomics_detect_false, ignore)]
     fn test_aa64reg() {
         let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
-        std::eprintln!("aa64isar0={}", aa64isar0);
-        std::eprintln!("aa64isar1={}", aa64isar1);
-        std::eprintln!("aa64mmfr2={}", aa64mmfr2);
+        test_helper::eprintln_nocapture!(
+            "aa64isar0={},aa64isar1={},aa64mmfr2={}",
+            aa64isar0,
+            aa64isar1,
+            aa64mmfr2,
+        );
         let atomic = extract(aa64isar0, 23, 20);
         if detect().test(CpuInfo::HAS_LSE) {
             if detect().test(CpuInfo::HAS_LSE128) {

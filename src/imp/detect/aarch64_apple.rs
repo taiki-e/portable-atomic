@@ -99,7 +99,7 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
-    use std::{eprintln, format, process::Command, str, string::String};
+    use std::{format, process::Command, str, string::String};
 
     use super::*;
 
@@ -237,7 +237,7 @@ mod tests {
                 let output = Command::new("sysctl").arg("hw.optional").output().unwrap();
                 assert!(output.status.success());
                 let stdout = String::from_utf8(output.stdout).unwrap();
-                eprintln!("sysctl hw.optional:\n{}", stdout);
+                test_helper::eprintln_nocapture!("sysctl hw.optional:\n{}", stdout);
                 Self(stdout)
             }
             fn field(&self, name: &CStr) -> Option<u32> {

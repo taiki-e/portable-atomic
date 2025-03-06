@@ -592,7 +592,7 @@ mod tests {
     #[cfg(all(target_arch = "aarch64", target_os = "android"))]
     #[test]
     fn test_android() {
-        use std::{eprintln, slice, str};
+        use std::{slice, str};
         unsafe {
             let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
             let len = ffi::__system_property_get(
@@ -600,10 +600,9 @@ mod tests {
                 arch.as_mut_ptr().cast::<ffi::c_char>(),
             );
             assert!(len >= 0);
-            eprintln!("len={}", len);
-            eprintln!("arch={:?}", arch);
-            eprintln!(
-                "arch={:?}",
+            test_helper::eprintln_nocapture!("ro.arch=raw={:?},len={}", arch, len);
+            test_helper::eprintln_nocapture!(
+                "ro.arch={:?}",
                 str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
             );
         }

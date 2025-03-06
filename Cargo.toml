@@ -91,7 +91,7 @@ quickcheck = { version = "1", default-features = false, git = "https://github.co
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "f35c385" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "cpuinfo", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "d2272e8" }
+test-helper = { features = ["sys", "cpuinfo", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "f38a7f5" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63

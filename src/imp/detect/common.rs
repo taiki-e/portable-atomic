@@ -329,11 +329,7 @@ mod tests_common {
 
     #[test]
     fn print_features() {
-        use std::{
-            fmt::Write as _,
-            io::{self, Write as _},
-            string::String,
-        };
+        use std::{fmt::Write as _, string::String};
 
         let mut features = String::new();
         features.push_str("\nfeatures:\n");
@@ -349,9 +345,7 @@ mod tests_common {
                 );
             }
         }
-        let stdout = io::stderr();
-        let mut stdout = stdout.lock();
-        let _ = stdout.write_all(features.as_bytes());
+        test_helper::eprintln_nocapture!("{}", features);
     }
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]

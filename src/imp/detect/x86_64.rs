@@ -126,10 +126,7 @@ fn _detect(info: &mut CpuInfo) {
 )]
 #[cfg(test)]
 mod tests {
-    use std::{
-        io::{self, Write as _},
-        mem, str,
-    };
+    use std::{mem, str};
 
     use super::*;
 
@@ -138,19 +135,13 @@ mod tests {
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());
         let vendor_id = _vendor_id();
-        {
-            let stdout = io::stderr();
-            let mut stdout = stdout.lock();
-            let _ = writeln!(
-                stdout,
-                "\n  vendor_id: {} (ebx: {:x}, edx: {:x}, ecx: {:x})",
-                str::from_utf8(&unsafe { mem::transmute::<[u32; 3], [u8; 12]>(vendor_id) })
-                    .unwrap(),
-                vendor_id[0],
-                vendor_id[1],
-                vendor_id[2],
-            );
-        }
+        test_helper::eprintln_nocapture!(
+            "\n  vendor_id: {} (ebx: {:x}, edx: {:x}, ecx: {:x})",
+            str::from_utf8(&unsafe { mem::transmute::<[u32; 3], [u8; 12]>(vendor_id) }).unwrap(),
+            vendor_id[0],
+            vendor_id[1],
+            vendor_id[2],
+        );
         let CpuidResult { eax: proc_info_eax, .. } = __cpuid(1);
         let family = (proc_info_eax >> 8) & 0x0F;
         if _vendor_has_vmovdqa_atomic(vendor_id, family) {
