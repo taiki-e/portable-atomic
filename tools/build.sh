@@ -279,13 +279,13 @@ build() {
       return 0
     fi
     local target_flags=(--target "$(pwd)/target-specs/${target}.json")
-  else
+  elif [[ "${target}" != "${host}" ]]; then
     local target_flags=(--target "${target}")
   fi
-  args+=("${target_flags[@]}")
+  args+=(${target_flags[@]+"${target_flags[@]}"})
   local cfgs
   if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
     retry rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     # core/alloc/std sets feature(strict_provenance_lints), so we cannot use
     # -Z crate-attr=feature(strict_provenance_lints) when -Z build-std is needed.
@@ -296,7 +296,7 @@ build() {
       printf '%s\n' "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
       return 0
     fi
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg "${target_flags[@]}")
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
     if [[ -n "${TARGET_GROUP:-}" ]]; then
       case "${target}" in
         # builtin xtensa targets are completely broken with builtin LLVM: https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
