@@ -34,9 +34,8 @@ pub(crate) fn detect() -> CpuInfo {
         return info;
     }
     info.set(CpuInfo::INIT);
-    // Note: detect_false cfg is intended to make it easy for portable-atomic developers to
-    // test cases such as has_cmpxchg16b == false, has_lse == false,
-    // __kuser_helper_version < 5, etc., and is not a public API.
+    // Note: detect_false cfg is intended to make it easy for developers to test
+    // cases where features usually available is not available, and is not a public API.
     if !cfg!(portable_atomic_test_outline_atomics_detect_false) {
         _detect(&mut info);
     }

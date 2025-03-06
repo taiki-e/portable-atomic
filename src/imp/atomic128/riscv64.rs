@@ -364,7 +364,7 @@ unsafe fn byte_wise_atomic_load(src: *const u128) -> u128 {
     unsafe {
         asm!(
             "ld {out_lo}, ({src})",  // atomic { out_lo = *src }
-            "ld {out_hi}, 8({src})", // atomic { out_hi = *src.add(8) }
+            "ld {out_hi}, 8({src})", // atomic { out_hi = *src.byte_add(8) }
             src = in(reg) ptr_reg!(src),
             out_lo = out(reg) out_lo,
             out_hi = out(reg) out_hi,

@@ -580,9 +580,8 @@ jobs:
       # powerpc64 and RISC-V are skipped because tested below.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
-          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
-          # test cases such as has_cmpxchg16b == false, has_lse == false,
-          # __kuser_helper_version < 5, etc., and is not a public API.
+          # Note: detect_false cfg is intended to make it easy for developers to test
+          # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_outline_atomics_detect_false
         # TODO: arm-linux-androideabi is removed due to an issue between Rust nightly & QEMU in CI testing - needs investigation
@@ -614,9 +613,8 @@ jobs:
       # powerpc64 is skipped because tested below.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
-          # Note: detect_false cfg is intended to make it easy for portable-atomic developers to
-          # test cases such as has_cmpxchg16b == false, has_lse == false,
-          # __kuser_helper_version < 5, etc., and is not a public API.
+          # Note: detect_false cfg is intended to make it easy for developers to test
+          # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_outline_atomics_detect_false
         if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == ''
