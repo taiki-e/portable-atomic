@@ -109,9 +109,14 @@ fn _detect(info: &mut CpuInfo) {
     let mut out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
     if riscv_hwprobe(&mut out) && out.key != -1 {
         let value = out.value;
-        if value & ffi::RISCV_HWPROBE_EXT_ZACAS != 0 {
-            info.set(CpuInfo::HAS_ZACAS);
+        macro_rules! check {
+            ($flag:ident, $hwprobe_bit:ident) => {
+                if value & ffi::$hwprobe_bit != 0 {
+                    info.set(CpuInfoFlag::$flag);
+                }
+            };
         }
+        check!(zacas, RISCV_HWPROBE_EXT_ZACAS);
     }
 }
 

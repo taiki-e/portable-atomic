@@ -49,7 +49,7 @@ macro_rules! debug_assert_zacas {
     () => {
         #[cfg(not(any(target_feature = "zacas", portable_atomic_target_feature = "zacas")))]
         {
-            debug_assert!(detect::detect().has_zacas());
+            debug_assert!(detect::detect().zacas());
         }
     };
 }
@@ -128,7 +128,7 @@ unsafe fn atomic_load(src: *mut u64, order: Ordering) -> u64 {
         match order {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(src: *mut u64) -> u64 {
-                    if detect::detect().has_zacas() {
+                    if detect::detect().zacas() {
                         atomic_load_zacas_relaxed
                     } else {
                         fallback::atomic_load_non_seqcst
@@ -137,7 +137,7 @@ unsafe fn atomic_load(src: *mut u64, order: Ordering) -> u64 {
             }
             Ordering::Acquire => {
                 ifunc!(unsafe fn(src: *mut u64) -> u64 {
-                    if detect::detect().has_zacas() {
+                    if detect::detect().zacas() {
                         atomic_load_zacas_acquire
                     } else {
                         fallback::atomic_load_non_seqcst
@@ -146,7 +146,7 @@ unsafe fn atomic_load(src: *mut u64, order: Ordering) -> u64 {
             }
             Ordering::SeqCst => {
                 ifunc!(unsafe fn(src: *mut u64) -> u64 {
-                    if detect::detect().has_zacas() {
+                    if detect::detect().zacas() {
                         atomic_load_zacas_seqcst
                     } else {
                         fallback::atomic_load_seqcst
@@ -242,7 +242,7 @@ unsafe fn atomic_compare_exchange(
             match order {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-                        if detect::detect().has_zacas() {
+                        if detect::detect().zacas() {
                             zacas_relaxed_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -251,7 +251,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Acquire => {
                     ifunc!(unsafe fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-                        if detect::detect().has_zacas() {
+                        if detect::detect().zacas() {
                             zacas_acquire_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -260,7 +260,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Release => {
                     ifunc!(unsafe fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-                        if detect::detect().has_zacas() {
+                        if detect::detect().zacas() {
                             zacas_release_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -269,7 +269,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::AcqRel => {
                     ifunc!(unsafe fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-                        if detect::detect().has_zacas() {
+                        if detect::detect().zacas() {
                             zacas_acqrel_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -278,7 +278,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-                        if detect::detect().has_zacas() {
+                        if detect::detect().zacas() {
                             zacas_seqcst_fn
                         } else {
                             fallback::atomic_compare_exchange_seqcst
@@ -433,7 +433,7 @@ macro_rules! select_atomic_rmw {
                 match order {
                     Ordering::Relaxed => {
                         ifunc!(unsafe fn(dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                            if detect::detect().has_zacas() {
+                            if detect::detect().zacas() {
                                 zacas_relaxed_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -442,7 +442,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::Acquire => {
                         ifunc!(unsafe fn(dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                            if detect::detect().has_zacas() {
+                            if detect::detect().zacas() {
                                 zacas_acquire_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -451,7 +451,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::Release => {
                         ifunc!(unsafe fn(dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                            if detect::detect().has_zacas() {
+                            if detect::detect().zacas() {
                                 zacas_release_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -460,7 +460,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::AcqRel => {
                         ifunc!(unsafe fn(dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                            if detect::detect().has_zacas() {
+                            if detect::detect().zacas() {
                                 zacas_acqrel_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -469,7 +469,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::SeqCst => {
                         ifunc!(unsafe fn(dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                            if detect::detect().has_zacas() {
+                            if detect::detect().zacas() {
                                 zacas_seqcst_fn
                             } else {
                                 fallback::$seqcst_fallback_fn
@@ -603,7 +603,7 @@ fn is_lock_free() -> bool {
     }
     #[cfg(not(any(target_feature = "zacas", portable_atomic_target_feature = "zacas")))]
     {
-        detect::detect().has_zacas()
+        detect::detect().zacas()
     }
 }
 const IS_ALWAYS_LOCK_FREE: bool =

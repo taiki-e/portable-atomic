@@ -99,7 +99,7 @@ macro_rules! debug_assert_pwr8 {
             portable_atomic_target_feature = "quadword-atomics",
         )))]
         {
-            debug_assert!(detect::detect().has_quadword_atomics());
+            debug_assert!(detect::detect().quadword_atomics());
         }
     };
 }
@@ -203,7 +203,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         match order {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_load_pwr8_relaxed
                     } else {
                         fallback::atomic_load_non_seqcst
@@ -212,7 +212,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             }
             Ordering::Acquire => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_load_pwr8_acquire
                     } else {
                         fallback::atomic_load_non_seqcst
@@ -221,7 +221,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
             }
             Ordering::SeqCst => {
                 ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_load_pwr8_seqcst
                     } else {
                         fallback::atomic_load_seqcst
@@ -313,7 +313,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         match order {
             Ordering::Relaxed => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_store_pwr8_relaxed
                     } else {
                         fallback::atomic_store_non_seqcst
@@ -322,7 +322,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             }
             Ordering::Release => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_store_pwr8_release
                     } else {
                         fallback::atomic_store_non_seqcst
@@ -331,7 +331,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
             }
             Ordering::SeqCst => {
                 ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                    if detect::detect().has_quadword_atomics() {
+                    if detect::detect().quadword_atomics() {
                         atomic_store_pwr8_seqcst
                     } else {
                         fallback::atomic_store_seqcst
@@ -416,7 +416,7 @@ unsafe fn atomic_compare_exchange(
             match success {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-                        if detect::detect().has_quadword_atomics() {
+                        if detect::detect().quadword_atomics() {
                             pwr8_relaxed_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -425,7 +425,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Acquire => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-                        if detect::detect().has_quadword_atomics() {
+                        if detect::detect().quadword_atomics() {
                             pwr8_acquire_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -434,7 +434,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Release => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-                        if detect::detect().has_quadword_atomics() {
+                        if detect::detect().quadword_atomics() {
                             pwr8_release_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -443,7 +443,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::AcqRel => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-                        if detect::detect().has_quadword_atomics() {
+                        if detect::detect().quadword_atomics() {
                             pwr8_acqrel_fn
                         } else {
                             fallback::atomic_compare_exchange_non_seqcst
@@ -452,7 +452,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-                        if detect::detect().has_quadword_atomics() {
+                        if detect::detect().quadword_atomics() {
                             pwr8_seqcst_fn
                         } else {
                             fallback::atomic_compare_exchange_seqcst
@@ -871,7 +871,7 @@ macro_rules! select_atomic_rmw {
                 match order {
                     Ordering::Relaxed => {
                         ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
-                            if detect::detect().has_quadword_atomics() {
+                            if detect::detect().quadword_atomics() {
                                 pwr8_relaxed_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -880,7 +880,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::Acquire => {
                         ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
-                            if detect::detect().has_quadword_atomics() {
+                            if detect::detect().quadword_atomics() {
                                 pwr8_acquire_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -889,7 +889,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::Release => {
                         ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
-                            if detect::detect().has_quadword_atomics() {
+                            if detect::detect().quadword_atomics() {
                                 pwr8_release_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -898,7 +898,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::AcqRel => {
                         ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
-                            if detect::detect().has_quadword_atomics() {
+                            if detect::detect().quadword_atomics() {
                                 pwr8_acqrel_fn
                             } else {
                                 fallback::$non_seqcst_fallback_fn
@@ -907,7 +907,7 @@ macro_rules! select_atomic_rmw {
                     }
                     Ordering::SeqCst => {
                         ifunc!(unsafe fn($($arg)*) $(-> $ret_ty)? {
-                            if detect::detect().has_quadword_atomics() {
+                            if detect::detect().quadword_atomics() {
                                 pwr8_seqcst_fn
                             } else {
                                 fallback::$seqcst_fallback_fn
@@ -1015,7 +1015,7 @@ fn is_lock_free() -> bool {
         portable_atomic_target_feature = "quadword-atomics",
     )))]
     {
-        detect::detect().has_quadword_atomics()
+        detect::detect().quadword_atomics()
     }
 }
 const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(

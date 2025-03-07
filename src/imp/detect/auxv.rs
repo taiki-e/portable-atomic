@@ -417,7 +417,7 @@ mod os {
 use self::arch::_detect;
 #[cfg(target_arch = "aarch64")]
 mod arch {
-    use super::{CpuInfo, ffi, os};
+    use super::{CpuInfo, CpuInfoFlag, ffi, os};
 
     sys_const!({
         // Linux
@@ -436,7 +436,7 @@ mod arch {
         // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-        pub(super) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
+        pub(crate) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
         // Linux 4.17+
         // https://github.com/torvalds/linux/commit/7206dc93a58fb76421c4411eefa3c003337bcb2d
         // FreeBSD 13.0+/12.2+
@@ -444,21 +444,21 @@ mod arch {
         // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
-        pub(super) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
+        pub(crate) const HWCAP_USCAT: ffi::c_ulong = 1 << 25;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/338a835f40a849cd89b993e342bd9fbd5684825c
         // FreeBSD 15.0+
         // https://github.com/freebsd/freebsd-src/commit/94686b081fdb0c1bb0fc1dfeda14bd53f26ce7c5
         #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
-        pub(super) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
+        pub(crate) const HWCAP2_LRCPC3: ffi::c_ulong = 1 << 46;
         // Linux 6.7+
         // https://github.com/torvalds/linux/commit/94d0657f9f0d311489606589133ebf49e28104d8
         // FreeBSD 15.0+
         // https://github.com/freebsd/freebsd-src/commit/94686b081fdb0c1bb0fc1dfeda14bd53f26ce7c5
         #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
-        pub(super) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
+        pub(crate) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
     });
 
     #[cold]
@@ -487,10 +487,10 @@ mod arch {
         let hwcap = os::getauxval(ffi::AT_HWCAP);
 
         if hwcap & HWCAP_ATOMICS != 0 {
-            info.set(CpuInfo::HAS_LSE);
+            info.set(CpuInfoFlag::lse);
         }
         if hwcap & HWCAP_USCAT != 0 {
-            info.set(CpuInfo::HAS_LSE2);
+            info.set(CpuInfoFlag::lse2);
         }
         #[cfg(not(target_os = "openbsd"))]
         // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
@@ -498,17 +498,17 @@ mod arch {
         {
             let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
             if hwcap2 & HWCAP2_LRCPC3 != 0 {
-                info.set(CpuInfo::HAS_RCPC3);
+                info.set(CpuInfoFlag::rcpc3);
             }
             if hwcap2 & HWCAP2_LSE128 != 0 {
-                info.set(CpuInfo::HAS_LSE128);
+                info.set(CpuInfoFlag::lse128);
             }
         }
     }
 }
 #[cfg(target_arch = "powerpc64")]
 mod arch {
-    use super::{CpuInfo, ffi, os};
+    use super::{CpuInfo, CpuInfoFlag, ffi, os};
 
     sys_const!({
         // Linux
@@ -526,28 +526,28 @@ mod arch {
         // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
-        pub(super) const PPC_FEATURE_BOOKE: ffi::c_ulong = 0x00008000;
+        pub(crate) const PPC_FEATURE_BOOKE: ffi::c_ulong = 0x00008000;
         // Linux 3.10+
         // https://github.com/torvalds/linux/commit/cbbc6f1b1433ef553d57826eee87a84ca49645ce
         // FreeBSD 11.0+
         // https://github.com/freebsd/freebsd-src/commit/b0bf7fcd298133457991b27625bbed766e612730
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
-        pub(super) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
+        pub(crate) const PPC_FEATURE2_ARCH_2_07: ffi::c_ulong = 0x80000000;
         // Linux 4.5+
         // https://github.com/torvalds/linux/commit/e708c24cd01ce80b1609d8baccee40ccc3608a01
         // FreeBSD 12.0+
         // https://github.com/freebsd/freebsd-src/commit/18f48e0c72f91bc2d4373078a3f1ab1bcab4d8b3
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/0b0568a19fc4c197871ceafbabc91fabf17ca152
-        pub(super) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
+        pub(crate) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
         // Linux 5.8+
         // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
         // FreeBSD 15.0+
         // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
         // OpenBSD 7.7+
         // https://github.com/openbsd/src/commit/483a78e15aaa23c010911940770c1c97db5c1287
-        pub(super) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
+        pub(crate) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
     });
 
     #[cold]
@@ -570,7 +570,7 @@ mod arch {
         let isa_2_07_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
         if hwcap2 & isa_2_07_or_later != 0 {
-            info.set(CpuInfo::HAS_QUADWORD_ATOMICS);
+            info.set(CpuInfoFlag::quadword_atomics);
         }
     }
 }

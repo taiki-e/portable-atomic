@@ -41,10 +41,13 @@ fn _detect(info: &mut CpuInfo) {
     unsafe {
         ffi::getisax(out.as_mut_ptr(), OUT_LEN);
     }
-    if out[0] & ffi::AV_AARCH64_LSE != 0 {
-        info.set(CpuInfo::HAS_LSE);
+    macro_rules! check {
+        ($flag:ident, $index:tt, $bit:ident) => {
+            if out[$index] & ffi::$bit != 0 {
+                info.set(CpuInfoFlag::$flag);
+            }
+        };
     }
-    if out[1] & ffi::AV_AARCH64_2_LSE2 != 0 {
-        info.set(CpuInfo::HAS_LSE2);
-    }
+    check!(lse, 0, AV_AARCH64_LSE);
+    check!(lse2, 1, AV_AARCH64_2_LSE2);
 }

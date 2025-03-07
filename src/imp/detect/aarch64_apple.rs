@@ -3,12 +3,25 @@
 /*
 Run-time CPU feature detection on AArch64 Apple targets by using sysctlbyname.
 
-On macOS, this module is currently only enabled on tests because AArch64 macOS
-always supports FEAT_LSE and FEAT_LSE2 (see build script for more).
+On macOS, this module is currently only enabled on tests because there are no
+instructions that were not available on the M1 but are now available on the
+latest Apple hardware and this library currently wants to use:
 
-If macOS supporting FEAT_LSE128/FEAT_LRCPC3 becomes popular in the future, this module will
-be used to support outline-atomics for FEAT_LSE128/FEAT_LRCPC3.
-M4 is Armv9.2 and it doesn't support FEAT_LSE128/FEAT_LRCPC3.
+```console
+$ comm -23 <(rustc --print cfg --target aarch64-apple-darwin -C target-cpu=apple-m4 | grep -F target_feature) <(rustc --print cfg --target aarch64-apple-darwin | grep -F target_feature)
+target_feature="bf16"
+target_feature="bti"
+target_feature="ecv"
+target_feature="i8mm"
+target_feature="sme"
+target_feature="sme-f64f64"
+target_feature="sme-i16i64"
+target_feature="sme2"
+target_feature="v8.5a"
+target_feature="v8.6a"
+target_feature="v8.7a"
+target_feature="wfxt"
+```
 
 Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 
@@ -68,26 +81,24 @@ fn sysctlbyname32(name: &ffi::CStr) -> Option<u32> {
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
+    macro_rules! check {
+        ($flag:ident, $($($name:tt)&&+)||+) => {
+            if $($(sysctlbyname32(c!($name)).unwrap_or(0) != 0)&&+)||+ {
+                info.set(CpuInfoFlag::$flag);
+            }
+        };
+    }
+
     // On macOS, AArch64 support was added in macOS 11,
     // hw.optional.armv8_1_atomics is available on macOS 11+,
     // hw.optional.arm.FEAT_* are only available on macOS 12+.
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
     // https://github.com/google/boringssl/commit/91e0b11eba517d83b910b20fe3740eeb39ecb37e
-    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE")).unwrap_or(0) != 0
-        || sysctlbyname32(c!("hw.optional.armv8_1_atomics")).unwrap_or(0) != 0
-    {
-        info.set(CpuInfo::HAS_LSE);
-    }
-    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE2")).unwrap_or(0) != 0 {
-        info.set(CpuInfo::HAS_LSE2);
-    }
-    if sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")).unwrap_or(0) != 0 {
-        info.set(CpuInfo::HAS_LSE128);
-    }
-    if sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC3")).unwrap_or(0) != 0 {
-        info.set(CpuInfo::HAS_RCPC3);
-    }
+    check!(lse, "hw.optional.arm.FEAT_LSE" || "hw.optional.armv8_1_atomics");
+    check!(lse2, "hw.optional.arm.FEAT_LSE2");
+    check!(lse128, "hw.optional.arm.FEAT_LSE128");
+    check!(rcpc3, "hw.optional.arm.FEAT_LRCPC3");
 }
 
 #[allow(
@@ -102,19 +113,6 @@ mod tests {
     use std::{format, process::Command, str, string::String};
 
     use super::*;
-
-    #[test]
-    fn test_macos() {
-        assert_eq!(sysctlbyname32(c!("hw.optional.armv8_1_atomics")), Some(1));
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE")), Some(1));
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE2")), Some(1));
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LSE128")), None);
-        assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC")), Some(1));
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC2")), Some(1));
-        assert_eq!(sysctlbyname32(c!("hw.optional.arm.FEAT_LRCPC3")), None);
-        assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
-    }
 
     #[test]
     fn test_alternative() {
@@ -254,16 +252,23 @@ mod tests {
         }
 
         let sysctl_output = SysctlHwOptionalOutput::new();
-        for name in [
-            c!("hw.optional.armv8_1_atomics"),
-            c!("hw.optional.arm.FEAT_LSE"),
-            c!("hw.optional.arm.FEAT_LSE2"),
-            c!("hw.optional.arm.FEAT_LSE128"),
-            c!("hw.optional.arm.FEAT_LRCPC"),
-            c!("hw.optional.arm.FEAT_LRCPC2"),
-            c!("hw.optional.arm.FEAT_LRCPC3"),
+        for (name, expected_on_macos) in [
+            (c!("hw.optional.arm.FEAT_LSE"), Some(1)),
+            (c!("hw.optional.armv8_1_atomics"), Some(1)),
+            (c!("hw.optional.arm.FEAT_LSE2"), Some(1)),
+            (c!("hw.optional.arm.FEAT_LSE128"), None),
+            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1)),
+            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1)),
+            (c!("hw.optional.arm.FEAT_LRCPC3"), None),
         ] {
-            if let Some(res) = sysctlbyname32(name) {
+            let res = sysctlbyname32(name);
+            if res.is_none() {
+                assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
+            }
+            if cfg!(any(target_os = "macos", target_abi = "macabi")) {
+                assert_eq!(res, expected_on_macos);
+            }
+            if let Some(res) = res {
                 #[cfg(target_pointer_width = "64")]
                 assert_eq!(res, sysctlbyname32_no_libc(name).unwrap());
                 assert_eq!(res, sysctl_output.field(name).unwrap());

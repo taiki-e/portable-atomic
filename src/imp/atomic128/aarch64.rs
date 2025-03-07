@@ -197,7 +197,7 @@ macro_rules! debug_assert_lse {
         ))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         {
-            debug_assert!(detect::detect().has_lse());
+            debug_assert!(detect::detect().lse());
         }
     };
 }
@@ -234,7 +234,7 @@ macro_rules! debug_assert_lse2 {
         ))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         {
-            debug_assert!(detect::detect().has_lse2());
+            debug_assert!(detect::detect().lse2());
         }
     };
 }
@@ -274,7 +274,7 @@ macro_rules! debug_assert_lse128 {
         ))]
         #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
         {
-            debug_assert!(detect::detect().has_lse128());
+            debug_assert!(detect::detect().lse128());
         }
     };
 }
@@ -314,7 +314,7 @@ macro_rules! debug_assert_rcpc3 {
         ))]
         #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
         {
-            debug_assert!(detect::detect().has_rcpc3());
+            debug_assert!(detect::detect().rcpc3());
         }
     };
 }
@@ -550,7 +550,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(src: *mut u128) -> u128 {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
+                        if cpuinfo.lse2() {
                             // if detect(FEAT_LSE2) => lse2 (ldp)
                             atomic_load_lse2_relaxed
                         } else {
@@ -562,8 +562,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 Ordering::Acquire => {
                     ifunc!(unsafe fn(src: *mut u128) -> u128 {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
-                            if cpuinfo.has_rcpc3() {
+                        if cpuinfo.lse2() {
+                            if cpuinfo.rcpc3() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
                                 atomic_load_lse2_rcpc3_acquire
                             } else {
@@ -579,8 +579,8 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
                 Ordering::SeqCst => {
                     ifunc!(unsafe fn(src: *mut u128) -> u128 {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
-                            if cpuinfo.has_rcpc3() {
+                        if cpuinfo.lse2() {
+                            if cpuinfo.rcpc3() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
                                 atomic_load_lse2_rcpc3_seqcst
                             } else {
@@ -975,7 +975,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
+                        if cpuinfo.lse2() {
                             // if detect(FEAT_LSE2) => lse2 (stp)
                             atomic_store_lse2_relaxed
                         } else {
@@ -987,11 +987,11 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 Ordering::Release => {
                     ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
-                            if cpuinfo.has_rcpc3() {
+                        if cpuinfo.lse2() {
+                            if cpuinfo.rcpc3() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
                                 atomic_store_lse2_rcpc3_release
-                            } else if cpuinfo.has_lse128() {
+                            } else if cpuinfo.lse128() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order != relaxed => lse128 (swpp)
                                 atomic_store_lse128_release
                             } else {
@@ -1007,11 +1007,11 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
                 Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                         let cpuinfo = detect::detect();
-                        if cpuinfo.has_lse2() {
-                            if cpuinfo.has_lse128() {
+                        if cpuinfo.lse2() {
+                            if cpuinfo.lse128() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order == seqcst => lse128 (swpp)
                                 atomic_store_lse128_seqcst
-                            } else if cpuinfo.has_rcpc3() {
+                            } else if cpuinfo.rcpc3() {
                                 // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
                                 atomic_store_lse2_rcpc3_seqcst
                             } else {
@@ -1320,7 +1320,7 @@ unsafe fn atomic_compare_exchange(
             match success {
                 Ordering::Relaxed => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_relaxed
                         } else {
@@ -1331,7 +1331,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Acquire => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_acquire
                         } else {
@@ -1342,7 +1342,7 @@ unsafe fn atomic_compare_exchange(
                 }
                 Ordering::Release => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_release
                         } else {
@@ -1355,7 +1355,7 @@ unsafe fn atomic_compare_exchange(
                 #[cfg(not(target_env = "msvc"))]
                 Ordering::AcqRel | Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_acqrel
                         } else {
@@ -1367,7 +1367,7 @@ unsafe fn atomic_compare_exchange(
                 #[cfg(target_env = "msvc")]
                 Ordering::AcqRel => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_acqrel
                         } else {
@@ -1379,7 +1379,7 @@ unsafe fn atomic_compare_exchange(
                 #[cfg(target_env = "msvc")]
                 Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
-                        if detect::detect().has_lse() {
+                        if detect::detect().lse() {
                             // if detect(FEAT_LSE) => casp
                             atomic_compare_exchange_casp_seqcst
                         } else {

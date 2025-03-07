@@ -88,7 +88,7 @@ fn _detect(info: &mut CpuInfo) {
 
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/x86.rs#L111
     if test(proc_info_ecx, 13) {
-        info.set(CpuInfo::HAS_CMPXCHG16B);
+        info.set(CpuInfoFlag::cmpxchg16b);
     }
 
     // We only use VMOVDQA when SSE is enabled. See atomic_load_vmovdqa() in atomic128/x86_64.rs for more.
@@ -109,7 +109,7 @@ fn _detect(info: &mut CpuInfo) {
                     let vendor_id = _vendor_id();
                     let family = (proc_info_eax >> 8) & 0x0F;
                     if _vendor_has_vmovdqa_atomic(vendor_id, family) {
-                        info.set(CpuInfo::HAS_VMOVDQA_ATOMIC);
+                        info.set(CpuInfoFlag::vmovdqa_atomic);
                     }
                 }
             }
@@ -133,7 +133,7 @@ mod tests {
     #[test]
     #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_cpuid() {
-        assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().has_cmpxchg16b());
+        assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().cmpxchg16b());
         let vendor_id = _vendor_id();
         test_helper::eprintln_nocapture!(
             "\n  vendor_id: {} (ebx: {:x}, edx: {:x}, ecx: {:x})",
@@ -145,9 +145,9 @@ mod tests {
         let CpuidResult { eax: proc_info_eax, .. } = __cpuid(1);
         let family = (proc_info_eax >> 8) & 0x0F;
         if _vendor_has_vmovdqa_atomic(vendor_id, family) {
-            assert_eq!(std::is_x86_feature_detected!("avx"), detect().has_vmovdqa_atomic());
+            assert_eq!(std::is_x86_feature_detected!("avx"), detect().vmovdqa_atomic());
         } else {
-            assert!(!detect().has_vmovdqa_atomic());
+            assert!(!detect().vmovdqa_atomic());
         }
         assert_eq!(
             unsafe { mem::transmute::<[u32; 3], [u8; 12]>(_VENDOR_ID_INTEL) },

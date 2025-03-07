@@ -53,22 +53,35 @@ fn _detect(info: &mut CpuInfo) {
 
     // ID_AA64ISAR0_EL1, AArch64 Instruction Set Attribute Register 0
     // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
+    // Atomic, bits [23:20]
+    // > FEAT_LSE implements the functionality identified by the value 0b0010.
+    // > FEAT_LSE128 implements the functionality identified by the value 0b0011.
+    // > From Armv8.1, the value 0b0000 is not permitted.
     let atomic = extract(aa64isar0, 23, 20);
     if atomic >= 0b0010 {
-        info.set(CpuInfo::HAS_LSE);
+        info.set(CpuInfoFlag::lse);
         if atomic >= 0b0011 {
-            info.set(CpuInfo::HAS_LSE128);
+            info.set(CpuInfoFlag::lse128);
         }
     }
     // ID_AA64ISAR1_EL1, AArch64 Instruction Set Attribute Register 1
     // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR1-EL1--AArch64-Instruction-Set-Attribute-Register-1
+    // LRCPC, bits [23:20]
+    // > FEAT_LRCPC implements the functionality identified by the value 0b0001.
+    // > FEAT_LRCPC2 implements the functionality identified by the value 0b0010.
+    // > FEAT_LRCPC3 implements the functionality identified by the value 0b0011.
+    // > From Armv8.3, the value 0b0000 is not permitted.
+    // > From Armv8.4, the value 0b0001 is not permitted.
     if extract(aa64isar1, 23, 20) >= 0b0011 {
-        info.set(CpuInfo::HAS_RCPC3);
+        info.set(CpuInfoFlag::rcpc3);
     }
     // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
     // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
+    // AT, bits [35:32]
+    // > FEAT_LSE2 implements the functionality identified by the value 0b0001.
+    // > From Armv8.4, the value 0b0000 is not permitted.
     if extract(aa64mmfr2, 35, 32) >= 0b0001 {
-        info.set(CpuInfo::HAS_LSE2);
+        info.set(CpuInfoFlag::lse2);
     }
 }
 
@@ -325,8 +338,8 @@ mod tests {
             aa64mmfr2,
         );
         let atomic = extract(aa64isar0, 23, 20);
-        if detect().test(CpuInfo::HAS_LSE) {
-            if detect().test(CpuInfo::HAS_LSE128) {
+        if detect().lse() {
+            if detect().lse128() {
                 assert_eq!(atomic, 0b0011);
             } else {
                 assert_eq!(atomic, 0b0010);
@@ -335,13 +348,13 @@ mod tests {
             assert_eq!(atomic, 0b0000);
         }
         let lrcpc = extract(aa64isar1, 23, 20);
-        if detect().test(CpuInfo::HAS_RCPC3) {
+        if detect().rcpc3() {
             assert_eq!(lrcpc, 0b0011);
         } else {
             assert!(lrcpc < 0b0011, "{}", lrcpc);
         }
         let at = extract(aa64mmfr2, 35, 32);
-        if detect().test(CpuInfo::HAS_LSE2) {
+        if detect().lse2() {
             assert_eq!(at, 0b0001);
         } else {
             assert_eq!(at, 0b0000);

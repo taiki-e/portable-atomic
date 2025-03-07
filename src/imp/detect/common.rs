@@ -6,12 +6,12 @@ pub(crate) struct CpuInfo(u32);
 
 impl CpuInfo {
     #[inline]
-    fn set(&mut self, bit: u32) {
-        self.0 = set(self.0, bit);
+    fn set(&mut self, bit: CpuInfoFlag) {
+        self.0 = set(self.0, bit as u32);
     }
     #[inline]
-    fn test(self, bit: u32) -> bool {
-        test(self.0, bit)
+    fn test(self, bit: CpuInfoFlag) -> bool {
+        test(self.0, bit as u32)
     }
 }
 
@@ -33,7 +33,7 @@ pub(crate) fn detect() -> CpuInfo {
     if info.0 != 0 {
         return info;
     }
-    info.set(CpuInfo::INIT);
+    info.set(CpuInfoFlag::Init);
     // Note: detect_false cfg is intended to make it easy for developers to test
     // cases where features usually available is not available, and is not a public API.
     if !cfg!(portable_atomic_test_detect_false) {
@@ -46,34 +46,50 @@ pub(crate) fn detect() -> CpuInfo {
 macro_rules! flags {
     ($(
         $(#[$attr:meta])*
-        $flag:ident ($func:ident, $name:literal, any($($cfg:ident),*)),
+        $func:ident($name:literal, any($($cfg:ident),*)),
     )*) => {
         #[allow(dead_code, non_camel_case_types)]
+        #[derive(Clone, Copy)]
+        #[cfg_attr(test, derive(PartialEq, Eq, PartialOrd, Ord))]
         #[repr(u32)]
         enum CpuInfoFlag {
             Init = 0,
-            $($flag,)*
+            $($func,)*
         }
         impl CpuInfo {
-            const INIT: u32 = CpuInfoFlag::Init as u32;
             $(
-                $(#[$attr])*
-                const $flag: u32 = CpuInfoFlag::$flag as u32;
                 $(#[$attr])*
                 #[cfg(any(test, not(any($($cfg = $name),*))))]
                 #[inline]
                 pub(crate) fn $func(self) -> bool {
-                    self.test(Self::$flag)
+                    self.test(CpuInfoFlag::$func)
                 }
             )*
             #[cfg(test)] // for test
-            const ALL_FLAGS: &'static [(&'static str, u32, bool)] = &[$(
-                ($name, Self::$flag, cfg!(any($($cfg = $name),*))),
+            const ALL_FLAGS: &'static [(&'static str, CpuInfoFlag, bool)] = &[$(
+                ($name, CpuInfoFlag::$func, cfg!(any($($cfg = $name),*))),
             )*];
         }
+        #[test]
+        #[cfg_attr(portable_atomic_test_detect_false, ignore)]
+        fn test_detect() {$(
+            $(#[$attr])*
+            {
+                const _: u32 = 1_u32 << CpuInfoFlag::$func as u32;
+                assert_eq!($name.replace(|c: char| c == '-' || c == '.', "_"), stringify!($func));
+                if detect().$func() {
+                    assert!(detect().test(CpuInfoFlag::$func));
+                } else {
+                    assert!(!detect().test(CpuInfoFlag::$func));
+                }
+            }
+        )*}
     };
 }
 
+// rustc definitions: https://github.com/rust-lang/rust/blob/e6af292f91f21f12ac1aab6825efb7e1e3381cbb/compiler/rustc_target/src/target_features.rs#L179
+
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/AArch64/AArch64Features.td
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 flags! {
     // FEAT_LSE, Large System Extensions
@@ -81,64 +97,173 @@ flags! {
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE is OPTIONAL from Armv8.0.
     // > FEAT_LSE is mandatory from Armv8.1.
-    HAS_LSE(has_lse, "lse", any(target_feature, portable_atomic_target_feature)),
+    lse("lse", any(target_feature /* 1.61+ */, portable_atomic_target_feature)),
     // FEAT_LSE2, Large System Extensions version 2
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE2 is OPTIONAL from Armv8.2.
     // > FEAT_LSE2 is mandatory from Armv8.4.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_LSE2(has_lse2, "lse2", any(target_feature, portable_atomic_target_feature)),
+    lse2("lse2", any(target_feature /* nightly */, portable_atomic_target_feature)),
     // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv8-9-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LRCPC3 is OPTIONAL from Armv8.2.
     // > If FEAT_LRCPC3 is implemented, then FEAT_LRCPC2 is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_RCPC3(has_rcpc3, "rcpc3", any(target_feature, portable_atomic_target_feature)),
+    rcpc3("rcpc3", any(target_feature /* nightly */, portable_atomic_target_feature)),
     // FEAT_LSE128, 128-bit Atomics
     // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv9-4-architecture-extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE128 is OPTIONAL from Armv9.3.
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
-    HAS_LSE128(has_lse128, "lse128", any(target_feature, portable_atomic_target_feature)),
+    lse128("lse128", any(target_feature /* nightly */, portable_atomic_target_feature)),
 }
 
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/PowerPC/PPC.td
 #[cfg(target_arch = "powerpc64")]
 flags! {
     // lqarx and stqcx.
-    HAS_QUADWORD_ATOMICS(has_quadword_atomics, "quadword-atomics", any(target_feature, portable_atomic_target_feature)),
+    quadword_atomics("quadword-atomics", any(target_feature /* nightly */, portable_atomic_target_feature)),
 }
 
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/RISCV/RISCVFeatures.td
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 flags! {
     // amocas.{w,d,q}
-    HAS_ZACAS(has_zacas, "zacas", any(target_feature, portable_atomic_target_feature)),
+    zacas("zacas", any(target_feature /* nightly */, portable_atomic_target_feature)),
 }
 
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/X86/X86.td
 #[cfg(target_arch = "x86_64")]
 flags! {
     // cmpxchg16b
-    HAS_CMPXCHG16B(has_cmpxchg16b, "cmpxchg16b", any(target_feature, portable_atomic_target_feature)),
+    cmpxchg16b("cmpxchg16b", any(target_feature /* 1.69+ */, portable_atomic_target_feature)),
     // atomic vmovdqa
     #[cfg(target_feature = "sse")]
-    HAS_VMOVDQA_ATOMIC(has_vmovdqa_atomic, "vmovdqa-atomic", any(/* always false */)),
+    vmovdqa_atomic("vmovdqa-atomic", any(/* no corresponding target feature */)),
 }
 
 // Helper macros for defining FFI bindings.
-#[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 #[allow(unused_macros)]
 #[macro_use]
 mod ffi_macros {
+    /// Defines types with #[cfg(test)] static assertions which checks
+    /// types are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_ty!({ }), not sys_ty! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_type {
+        ({$(
+            $(#[$attr:meta])*
+            $vis:vis type $([$($windows_path:ident)::+])? $name:ident = $ty:ty;
+        )*}) => {
+            $(
+                $(#[$attr])*
+                $vis type $name = $ty;
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same types.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(
+                unused_imports,
+                clippy::cast_possible_wrap,
+                clippy::cast_sign_loss,
+                clippy::cast_possible_truncation
+            )]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        let _: $name = 0 as sys::$name;
+                    }
+                )*
+            };
+        };
+    }
+    /// Defines #[repr(C)] structs with #[cfg(test)] static assertions which checks
+    /// fields are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_struct!({ }), not sys_struct! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_struct {
+        ({$(
+            $(#[$attr:meta])*
+            $vis:vis struct $([$($windows_path:ident)::+])? $name:ident {$(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_name:ident: $field_ty:ty,
+            )*}
+        )*}) => {
+            $(
+                $(#[$attr])*
+                #[derive(Copy, Clone)]
+                #[cfg_attr(test, derive(Debug, PartialEq))]
+                #[repr(C)]
+                $vis struct $name {$(
+                    $(#[$field_attr])*
+                    $field_vis $field_name: $field_ty,
+                )*}
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same fields.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(unused_imports, clippy::undocumented_unsafe_blocks)]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        static_assert!(
+                            core::mem::size_of::<$name>()
+                                == core::mem::size_of::<sys::$name>()
+                        );
+                        let s: $name = unsafe { core::mem::zeroed() };
+                        // field names and types
+                        let _ = sys::$name {$(
+                            $(#[$field_attr])*
+                            $field_name: s.$field_name,
+                        )*};
+                        // field offsets
+                        #[cfg(not(portable_atomic_no_offset_of))]
+                        {$(
+                            $(#[$field_attr])*
+                            static_assert!(
+                                core::mem::offset_of!($name, $field_name) ==
+                                    core::mem::offset_of!(sys::$name, $field_name),
+                            );
+                        )*}
+                    }
+                )*
+            };
+        };
+    }
     /// Defines constants with #[cfg(test)] static assertions which checks
     /// values are the same as the platform's latest header files' ones.
     // Note: This macro is sys_const!({ }), not sys_const! { }.
-    // An extra brace is used in input to make contents rustfmt-able:.
+    // An extra brace is used in input to make contents rustfmt-able.
     macro_rules! sys_const {
         ({$(
             $(#[$attr:meta])*
-            $vis:vis const $name:ident: $ty:ty = $val:expr;
+            $vis:vis const $([$($windows_path:ident)::+])? $name:ident: $ty:ty = $val:expr;
         )*}) => {
             $(
                 $(#[$attr])*
@@ -154,14 +279,24 @@ mod ffi_macros {
             #[cfg(test)]
             #[allow(
                 unused_attributes, // for #[allow(..)] in $(#[$attr])*
+                unused_imports,
                 clippy::cast_possible_wrap,
                 clippy::cast_sign_loss,
                 clippy::cast_possible_truncation,
             )]
-            const _: fn() = || {$(
-                $(#[$attr])*
-                sys_const_cmp!($name, $ty);
-            )*};
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        sys_const_cmp!($name, $ty);
+                    }
+                )*
+            };
         };
     }
     #[cfg(test)]
@@ -174,24 +309,26 @@ mod ffi_macros {
                 // provenance here). (Same as <pointer>::addr().)
                 unsafe {
                     core::mem::transmute::<$ty, usize>(RTLD_DEFAULT)
-                        == core::mem::transmute::<$ty, usize>(test_helper::sys::RTLD_DEFAULT)
+                        == core::mem::transmute::<$ty, usize>(sys::RTLD_DEFAULT)
                 }
             );
         };
         ($name:ident, $ty:ty) => {
-            static_assert!($name == test_helper::sys::$name as $ty);
+            static_assert!($name == sys::$name as $ty);
         };
     }
     /// Defines functions with #[cfg(test)] static assertions which checks
     /// signatures are the same as the platform's latest header files' ones.
     // Note: This macro is sys_fn!({ }), not sys_fn! { }.
-    // An extra brace is used in input to make contents rustfmt-able:.
+    // An extra brace is used in input to make contents rustfmt-able.
     macro_rules! sys_fn {
         ({
             $(#[$extern_attr:meta])*
             extern $abi:literal {$(
                 $(#[$fn_attr:meta])*
-                $vis:vis fn $name:ident($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?;
+                $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
+                    $($arg_pat:ident: $arg_ty:ty),* $(,)?
+                ) $(-> $ret_ty:ty)?;
             )*}
         }) => {
             $(#[$extern_attr])*
@@ -207,76 +344,28 @@ mod ffi_macros {
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(test)]
-            const _: fn() = || {$(
-                $(#[$fn_attr])*
-                {
-                    let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
-                    _f = test_helper::sys::$name;
-                }
-            )*};
-        };
-    }
-    /// Defines #[repr(C)] structs with #[cfg(test)] static assertions which checks
-    /// fields are the same as the platform's latest header files' ones.
-    // Note: This macro is sys_struct!({ }), not sys_struct! { }.
-    // An extra brace is used in input to make contents rustfmt-able:.
-    macro_rules! sys_struct {
-        ({$(
-            $(#[$struct_attr:meta])*
-            $struct_vis:vis struct $struct_name:ident {$(
-                $(#[$field_attr:meta])*
-                $field_vis:vis $field_name:ident: $field_ty:ty,
-            )*}
-        )*}) => {
-            $(
-                $(#[$struct_attr])*
-                #[derive(Copy, Clone)]
-                #[cfg_attr(test, derive(Debug, PartialEq))]
-                #[repr(C)]
-                $struct_vis struct $struct_name {$(
-                    $(#[$field_attr])*
-                    $field_vis $field_name: $field_ty,
-                )*}
-            )*
-            // Static assertions for FFI bindings.
-            // This checks that FFI bindings defined in this crate and FFI bindings generated for
-            // the platform's latest header file using bindgen have the same fields.
-            // Since this is static assertion, we can detect problems with
-            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
-            // without actually running tests on these platforms.
-            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
-            #[cfg(test)]
-            #[allow(clippy::undocumented_unsafe_blocks)]
-            const _: fn() = || {$(
-                $(#[$struct_attr])*
-                {
-                    static_assert!(
-                        core::mem::size_of::<$struct_name>()
-                            == core::mem::size_of::<test_helper::sys::$struct_name>()
-                    );
-                    let s: $struct_name = unsafe { core::mem::zeroed() };
-                    // field names and types
-                    let _ = test_helper::sys::$struct_name {$(
-                        $(#[$field_attr])*
-                        $field_name: s.$field_name,
-                    )*};
-                    // field offsets
-                    #[cfg(not(portable_atomic_no_offset_of))]
-                    {$(
-                        $(#[$field_attr])*
-                        static_assert!(
-                            core::mem::offset_of!($struct_name, $field_name) ==
-                            core::mem::offset_of!(test_helper::sys::$struct_name, $field_name),
-                        );
-                    )*}
-                }
-            )*};
+            #[allow(unused_imports)]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$fn_attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
+                        _f = sys::$name;
+                    }
+                )*
+            };
         };
     }
 
     // Static assertions for C type definitions.
     // Assertions with core::ffi types are in crate::utils::ffi module.
     #[cfg(test)]
+    #[cfg(not(windows))]
     const _: fn() = || {
         use test_helper::sys;
         let _: crate::utils::ffi::c_char = 0 as sys::c_char;
@@ -298,7 +387,7 @@ mod tests_common {
 
     #[test]
     fn test_bit_flags() {
-        let mut flags = vec![("init", CpuInfo::INIT)];
+        let mut flags = vec![("init", CpuInfoFlag::Init)];
         flags.extend(CpuInfo::ALL_FLAGS.iter().map(|&(name, flag, _)| (name, flag)));
         let flag_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
         let name_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
@@ -349,29 +438,26 @@ mod tests_common {
     }
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[allow(clippy::collapsible_else_if)]
     #[test]
     #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
-        if detect().has_lse() {
-            assert!(detect().test(CpuInfo::HAS_LSE));
+        if detect().lse() {
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(proc_cpuinfo.lse);
             }
         } else {
-            assert!(!detect().test(CpuInfo::HAS_LSE));
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(!proc_cpuinfo.lse);
             }
         }
-        if detect().has_lse2() {
-            assert!(detect().test(CpuInfo::HAS_LSE));
-            assert!(detect().test(CpuInfo::HAS_LSE2));
+        if detect().lse2() {
+            assert!(detect().lse());
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
                 assert!(lse2);
             }
         } else {
-            assert!(!detect().test(CpuInfo::HAS_LSE2));
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse2: Some(lse2), .. }) = proc_cpuinfo {
                 // cpuinfo shows features of host, not valgrind
                 if !cfg!(valgrind) {
@@ -379,73 +465,43 @@ mod tests_common {
                 }
             }
         }
-        if detect().has_lse128() {
-            assert!(detect().test(CpuInfo::HAS_LSE));
-            assert!(detect().test(CpuInfo::HAS_LSE2));
-            assert!(detect().test(CpuInfo::HAS_LSE128));
+        if detect().lse128() {
+            assert!(detect().lse());
+            assert!(detect().lse2());
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse128: Some(lse128), .. }) = proc_cpuinfo
             {
                 assert!(lse128);
             }
         } else {
-            assert!(!detect().test(CpuInfo::HAS_LSE128));
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { lse128: Some(lse128), .. }) = proc_cpuinfo
             {
                 assert!(!lse128);
             }
         }
-        if detect().has_rcpc3() {
-            assert!(detect().test(CpuInfo::HAS_RCPC3));
+        if detect().rcpc3() {
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
                 assert!(rcpc3);
             }
         } else {
-            assert!(!detect().test(CpuInfo::HAS_RCPC3));
             if let Ok(test_helper::cpuinfo::ProcCpuinfo { rcpc3: Some(rcpc3), .. }) = proc_cpuinfo {
                 assert!(!rcpc3);
             }
         }
     }
     #[cfg(target_arch = "powerpc64")]
+    #[allow(clippy::collapsible_else_if)]
     #[test]
     #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_detect() {
         let proc_cpuinfo = test_helper::cpuinfo::ProcCpuinfo::new();
-        if detect().has_quadword_atomics() {
-            assert!(detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
+        if detect().quadword_atomics() {
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(proc_cpuinfo.power8);
             }
         } else {
-            assert!(!detect().test(CpuInfo::HAS_QUADWORD_ATOMICS));
             if let Ok(proc_cpuinfo) = proc_cpuinfo {
                 assert!(!proc_cpuinfo.power8);
             }
-        }
-    }
-    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-    #[test]
-    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
-    fn test_detect() {
-        if detect().has_zacas() {
-            assert!(detect().test(CpuInfo::HAS_ZACAS));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_ZACAS));
-        }
-    }
-    #[cfg(target_arch = "x86_64")]
-    #[test]
-    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
-    fn test_detect() {
-        if detect().has_cmpxchg16b() {
-            assert!(detect().test(CpuInfo::HAS_CMPXCHG16B));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_CMPXCHG16B));
-        }
-        if detect().has_vmovdqa_atomic() {
-            assert!(detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
-        } else {
-            assert!(!detect().test(CpuInfo::HAS_VMOVDQA_ATOMIC));
         }
     }
 }

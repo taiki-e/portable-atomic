@@ -125,7 +125,7 @@ unsafe fn atomic_compare_exchange(
             debug_assert!(dst as usize % 16 == 0);
             #[cfg(not(target_feature = "cmpxchg16b"))]
             {
-                debug_assert!(detect::detect().has_cmpxchg16b());
+                debug_assert!(detect::detect().cmpxchg16b());
             }
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned (required by CMPXCHG16B), that there are no
@@ -147,7 +147,7 @@ unsafe fn atomic_compare_exchange(
             ifunc!(unsafe fn(
                 dst: *mut u128, old: u128, new: u128, success: Ordering, failure: Ordering
             ) -> (u128, bool) {
-                if detect::detect().has_cmpxchg16b() {
+                if detect::detect().cmpxchg16b() {
                     cmpxchg16b
                 } else {
                     fallback::atomic_compare_exchange
@@ -484,7 +484,7 @@ fn is_lock_free() -> bool {
     }
     #[cfg(not(target_feature = "cmpxchg16b"))]
     {
-        detect::detect().has_cmpxchg16b()
+        detect::detect().cmpxchg16b()
     }
 }
 #[cfg(target_arch = "x86_64")]

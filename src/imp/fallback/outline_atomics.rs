@@ -31,15 +31,15 @@ macro_rules! debug_assert_outline_atomics {
     () => {
         #[cfg(target_arch = "x86_64")]
         {
-            debug_assert!(!super::detect::detect().has_cmpxchg16b());
+            debug_assert!(!super::detect::detect().cmpxchg16b());
         }
         #[cfg(target_arch = "powerpc64")]
         {
-            debug_assert!(!super::detect::detect().has_quadword_atomics());
+            debug_assert!(!super::detect::detect().quadword_atomics());
         }
         #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
         {
-            debug_assert!(!super::detect::detect().has_zacas());
+            debug_assert!(!super::detect::detect().zacas());
         }
         #[cfg(target_arch = "arm")]
         {
