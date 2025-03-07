@@ -537,7 +537,8 @@ pub(crate) mod ptr {
 //   (core::ffi::* (except c_void) requires Rust 1.64)
 // - safe abstraction (c! macro) for creating static C strings without runtime checks.
 //   (c"..." requires Rust 1.77)
-#[cfg(any(test, not(any(windows, target_arch = "x86", target_arch = "x86_64"))))]
+// - helper macros for defining FFI bindings.
+#[cfg(any(test, not(any(target_arch = "x86", target_arch = "x86_64"))))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
@@ -699,6 +700,218 @@ pub(crate) mod ffi {
             }
             true
         }
+    }
+
+    /// Defines types with #[cfg(test)] static assertions which checks
+    /// types are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_ty!({ }), not sys_ty! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_type {
+        ({$(
+            $(#[$attr:meta])*
+            $vis:vis type $([$($windows_path:ident)::+])? $name:ident = $ty:ty;
+        )*}) => {
+            $(
+                $(#[$attr])*
+                $vis type $name = $ty;
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same types.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(
+                unused_imports,
+                clippy::cast_possible_wrap,
+                clippy::cast_sign_loss,
+                clippy::cast_possible_truncation
+            )]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        let _: $name = 0 as sys::$name;
+                    }
+                )*
+            };
+        };
+    }
+    /// Defines #[repr(C)] structs with #[cfg(test)] static assertions which checks
+    /// fields are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_struct!({ }), not sys_struct! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_struct {
+        ({$(
+            $(#[$attr:meta])*
+            $vis:vis struct $([$($windows_path:ident)::+])? $name:ident {$(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_name:ident: $field_ty:ty,
+            )*}
+        )*}) => {
+            $(
+                $(#[$attr])*
+                #[derive(Copy, Clone)]
+                #[cfg_attr(test, derive(Debug, PartialEq))]
+                #[repr(C)]
+                $vis struct $name {$(
+                    $(#[$field_attr])*
+                    $field_vis $field_name: $field_ty,
+                )*}
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same fields.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(unused_imports, clippy::undocumented_unsafe_blocks)]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        static_assert!(
+                            core::mem::size_of::<$name>()
+                                == core::mem::size_of::<sys::$name>()
+                        );
+                        let s: $name = unsafe { core::mem::zeroed() };
+                        // field names and types
+                        let _ = sys::$name {$(
+                            $(#[$field_attr])*
+                            $field_name: s.$field_name,
+                        )*};
+                        // field offsets
+                        #[cfg(not(portable_atomic_no_offset_of))]
+                        {$(
+                            $(#[$field_attr])*
+                            static_assert!(
+                                core::mem::offset_of!($name, $field_name) ==
+                                    core::mem::offset_of!(sys::$name, $field_name),
+                            );
+                        )*}
+                    }
+                )*
+            };
+        };
+    }
+    /// Defines constants with #[cfg(test)] static assertions which checks
+    /// values are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_const!({ }), not sys_const! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_const {
+        ({$(
+            $(#[$attr:meta])*
+            $vis:vis const $([$($windows_path:ident)::+])? $name:ident: $ty:ty = $val:expr;
+        )*}) => {
+            $(
+                $(#[$attr])*
+                $vis const $name: $ty = $val;
+            )*
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same values.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(
+                unused_attributes, // for #[allow(..)] in $(#[$attr])*
+                unused_imports,
+                clippy::cast_possible_wrap,
+                clippy::cast_sign_loss,
+                clippy::cast_possible_truncation,
+            )]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        sys_const_cmp!($name, $ty);
+                    }
+                )*
+            };
+        };
+    }
+    #[cfg(test)]
+    macro_rules! sys_const_cmp {
+        (RTLD_DEFAULT, $ty:ty) => {
+            // ptr comparison and ptr-to-int cast are not stable on const context, so use ptr-to-int
+            // transmute and compare its result.
+            static_assert!(
+                // SAFETY: Pointer-to-integer transmutes are valid (since we are okay with losing the
+                // provenance here). (Same as <pointer>::addr().)
+                unsafe {
+                    core::mem::transmute::<$ty, usize>(RTLD_DEFAULT)
+                        == core::mem::transmute::<$ty, usize>(sys::RTLD_DEFAULT)
+                }
+            );
+        };
+        ($name:ident, $ty:ty) => {
+            static_assert!($name == sys::$name as $ty);
+        };
+    }
+    /// Defines functions with #[cfg(test)] static assertions which checks
+    /// signatures are the same as the platform's latest header files' ones.
+    // Note: This macro is sys_fn!({ }), not sys_fn! { }.
+    // An extra brace is used in input to make contents rustfmt-able.
+    macro_rules! sys_fn {
+        ({
+            $(#[$extern_attr:meta])*
+            extern $abi:literal {$(
+                $(#[$fn_attr:meta])*
+                $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
+                    $($arg_pat:ident: $arg_ty:ty),* $(,)?
+                ) $(-> $ret_ty:ty)?;
+            )*}
+        }) => {
+            $(#[$extern_attr])*
+            extern $abi {$(
+                $(#[$fn_attr])*
+                $vis fn $name($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
+            )*}
+            // Static assertions for FFI bindings.
+            // This checks that FFI bindings defined in this crate and FFI bindings generated for
+            // the platform's latest header file using bindgen have the same signatures.
+            // Since this is static assertion, we can detect problems with
+            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
+            // without actually running tests on these platforms.
+            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
+            #[cfg(test)]
+            #[allow(unused_imports)]
+            const _: fn() = || {
+                #[cfg(not(any(target_os = "aix", windows)))]
+                use test_helper::sys;
+                #[cfg(target_os = "aix")]
+                use libc as sys;
+                $(
+                    $(#[$fn_attr])*
+                    {
+                        $(use windows_sys::$($windows_path)::+ as sys;)?
+                        let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
+                        _f = sys::$name;
+                    }
+                )*
+            };
+        };
     }
 
     #[allow(
