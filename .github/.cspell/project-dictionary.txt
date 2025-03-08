@@ -69,6 +69,9 @@ lcgr
 ldar
 ldaxp
 ldclrp
+ldfadd
+ldfmaxnm
+ldfminnm
 ldiapp
 ldrexd
 ldsetp
@@ -182,6 +185,7 @@ versatilepb
 virt
 vmlinux
 vmovdqa
+vreg
 vtable
 vtables
 wfxt

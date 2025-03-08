@@ -434,10 +434,10 @@ macro_rules! atomic_rmw_inst {
     };
     ($op:ident, $order:ident, write = $write:ident) => {
         match $order {
-            Ordering::Relaxed => $op!("2", ""),
-            Ordering::Acquire => $op!("a", ""),
-            Ordering::Release => $op!("6", ""),
-            Ordering::AcqRel => $op!("e", ""),
+            Ordering::Relaxed => $op!("2", ""), // ""
+            Ordering::Acquire => $op!("a", ""), // "a"
+            Ordering::Release => $op!("6", ""), // "l"
+            Ordering::AcqRel => $op!("e", ""),  // "al"
             // In MSVC environments, SeqCst stores/writes needs fences after writes.
             // https://reviews.llvm.org/D141748
             #[cfg(target_env = "msvc")]

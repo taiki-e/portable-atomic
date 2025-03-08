@@ -649,6 +649,9 @@ build() {
       CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3" \
         RUSTFLAGS="${target_rustflags} -C target-feature=+lse2,+lse128,+rcpc3" \
         x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/lsfe" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lsfe" \
+        x_cargo "${args[@]}" "$@"
       ;;
     powerpc64-*)
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default

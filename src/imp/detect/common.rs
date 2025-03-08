@@ -119,6 +119,13 @@ flags! {
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
     lse128("lse128", any(target_feature /* nightly */, portable_atomic_target_feature)),
+    // FEAT_LSFE, Large System Float Extension
+    // https://developer.arm.com/documentation/109697/2024_12/Feature-descriptions/The-Armv9-6-architecture-extension
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LSFE is OPTIONAL from Armv9.3.
+    // > If FEAT_LSFE is implemented, then FEAT_FP is implemented.
+    #[cfg(test)]
+    lsfe("lsfe", any(target_feature /* N/A */, portable_atomic_target_feature)),
 }
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/PowerPC/PPC.td

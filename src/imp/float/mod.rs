@@ -8,6 +8,15 @@ Atomic float implementations
 
 mod int;
 
+#[cfg(all(
+    any(target_arch = "aarch64", target_arch = "arm64ec"),
+    any(target_feature = "lsfe", portable_atomic_target_feature = "lsfe"),
+    target_feature = "neon", // for vreg
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+))]
+mod aarch64;
+
 #[cfg(portable_atomic_unstable_f16)]
 cfg_has_atomic_16! {
     pub(crate) use self::int::AtomicF16;
