@@ -44,12 +44,20 @@ include!("common.rs");
 struct AA64Reg {
     aa64isar0: u64,
     aa64isar1: u64,
+    #[cfg(test)]
+    aa64isar3: u64,
     aa64mmfr2: u64,
 }
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
+    let AA64Reg {
+        aa64isar0,
+        aa64isar1,
+        #[cfg(test)]
+        aa64isar3,
+        aa64mmfr2,
+    } = imp::aa64reg();
 
     // ID_AA64ISAR0_EL1, AArch64 Instruction Set Attribute Register 0
     // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR0-EL1--AArch64-Instruction-Set-Attribute-Register-0
@@ -74,6 +82,14 @@ fn _detect(info: &mut CpuInfo) {
     // > From Armv8.4, the value 0b0001 is not permitted.
     if extract(aa64isar1, 23, 20) >= 0b0011 {
         info.set(CpuInfoFlag::rcpc3);
+    }
+    // ID_AA64ISAR3_EL1, AArch64 Instruction Set Attribute Register 3
+    // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64ISAR3-EL1--AArch64-Instruction-Set-Attribute-Register-3
+    // LSFE, bits [19:16]
+    // > FEAT_LSFE implements the functionality identified by the value 0b0001
+    #[cfg(test)]
+    if extract(aa64isar3, 19, 16) >= 0b0001 {
+        info.set(CpuInfoFlag::lsfe);
     }
     // ID_AA64MMFR2_EL1, AArch64 Memory Model Feature Register 2
     // https://developer.arm.com/documentation/ddi0601/2024-12/AArch64-Registers/ID-AA64MMFR2-EL1--AArch64-Memory-Model-Feature-Register-2
@@ -115,13 +131,35 @@ mod imp {
                 out(reg) aa64isar1,
                 options(pure, nomem, nostack, preserves_flags),
             );
+            #[cfg(test)]
+            #[cfg(not(portable_atomic_pre_llvm_18))]
+            let aa64isar3: u64;
+            // ID_AA64ISAR3_EL1 is only recognized on LLVM 18+.
+            // https://github.com/llvm/llvm-project/commit/17baba9fa2728b1b1134f9dccb9318debd5a9a1b
+            #[cfg(test)]
+            #[cfg(not(portable_atomic_pre_llvm_18))]
+            asm!(
+                "mrs {0}, ID_AA64ISAR3_EL1",
+                out(reg) aa64isar3,
+                options(pure, nomem, nostack, preserves_flags),
+            );
             let aa64mmfr2: u64;
             asm!(
                 "mrs {0}, ID_AA64MMFR2_EL1",
                 out(reg) aa64mmfr2,
                 options(pure, nomem, nostack, preserves_flags),
             );
-            AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 }
+            AA64Reg {
+                aa64isar0,
+                aa64isar1,
+                #[cfg(test)]
+                #[cfg(not(portable_atomic_pre_llvm_18))]
+                aa64isar3,
+                #[cfg(test)]
+                #[cfg(portable_atomic_pre_llvm_18)]
+                aa64isar3: 0,
+                aa64mmfr2,
+            }
         }
     }
 }
@@ -213,6 +251,8 @@ mod imp {
         Some(AA64Reg {
             aa64isar0: buf.ac_aa64isar0,
             aa64isar1: buf.ac_aa64isar1,
+            #[cfg(test)]
+            aa64isar3: 0,
             aa64mmfr2: buf.ac_aa64mmfr2,
         })
     }
@@ -226,7 +266,13 @@ mod imp {
         // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
         match sysctl_cpu_id(c!("machdep.cpu0.cpu_id")) {
             Some(cpu_id) => cpu_id,
-            None => AA64Reg { aa64isar0: 0, aa64isar1: 0, aa64mmfr2: 0 },
+            None => AA64Reg {
+                aa64isar0: 0,
+                aa64isar1: 0,
+                #[cfg(test)]
+                aa64isar3: 0,
+                aa64mmfr2: 0,
+            },
         }
     }
 }
@@ -285,7 +331,13 @@ mod imp {
         let aa64isar0 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR0]).unwrap_or(0);
         let aa64isar1 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64ISAR1]).unwrap_or(0);
         let aa64mmfr2 = sysctl64(&[ffi::CTL_MACHDEP, ffi::CPU_ID_AA64MMFR2]).unwrap_or(0);
-        AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 }
+        AA64Reg {
+            aa64isar0,
+            aa64isar1,
+            #[cfg(test)]
+            aa64isar3: 0,
+            aa64mmfr2,
+        }
     }
 
     fn sysctl64(mib: &[ffi::c_int]) -> Option<u64> {
@@ -330,11 +382,12 @@ mod tests {
     #[test]
     #[cfg_attr(portable_atomic_test_detect_false, ignore)]
     fn test_aa64reg() {
-        let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
+        let AA64Reg { aa64isar0, aa64isar1, aa64isar3, aa64mmfr2 } = imp::aa64reg();
         test_helper::eprintln_nocapture!(
-            "aa64isar0={},aa64isar1={},aa64mmfr2={}",
+            "aa64isar0={},aa64isar1={},aa64isar3={},aa64mmfr2={}",
             aa64isar0,
             aa64isar1,
+            aa64isar3,
             aa64mmfr2,
         );
         let atomic = extract(aa64isar0, 23, 20);
@@ -352,6 +405,12 @@ mod tests {
             assert_eq!(lrcpc, 0b0011);
         } else {
             assert!(lrcpc < 0b0011, "{}", lrcpc);
+        }
+        let lsfe = extract(aa64isar3, 19, 16);
+        if detect().lsfe() {
+            assert_eq!(lsfe, 0b0001);
+        } else {
+            assert_eq!(lsfe, 0b0000);
         }
         let at = extract(aa64mmfr2, 35, 32);
         if detect().lse2() {
@@ -484,6 +543,7 @@ mod tests {
             Ok(AA64Reg {
                 aa64isar0: buf.ac_aa64isar0,
                 aa64isar1: buf.ac_aa64isar1,
+                aa64isar3: 0,
                 aa64mmfr2: buf.ac_aa64mmfr2,
             })
         }
@@ -520,10 +580,11 @@ mod tests {
             }
         }
 
-        let AA64Reg { aa64isar0, aa64isar1, aa64mmfr2 } = imp::aa64reg();
+        let AA64Reg { aa64isar0, aa64isar1, aa64isar3, aa64mmfr2 } = imp::aa64reg();
         let sysctl_output = SysctlMachdepOutput::new();
         assert_eq!(aa64isar0, sysctl_output.field("machdep.id_aa64isar0").unwrap_or(0));
         assert_eq!(aa64isar1, sysctl_output.field("machdep.id_aa64isar1").unwrap_or(0));
+        assert_eq!(aa64isar3, sysctl_output.field("machdep.id_aa64isar3").unwrap_or(0));
         assert_eq!(aa64mmfr2, sysctl_output.field("machdep.id_aa64mmfr2").unwrap_or(0));
     }
 }

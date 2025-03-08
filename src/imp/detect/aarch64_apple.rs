@@ -98,6 +98,8 @@ fn _detect(info: &mut CpuInfo) {
     check!(lse, "hw.optional.arm.FEAT_LSE" || "hw.optional.armv8_1_atomics");
     check!(lse2, "hw.optional.arm.FEAT_LSE2");
     check!(lse128, "hw.optional.arm.FEAT_LSE128");
+    #[cfg(test)]
+    check!(lsfe, "hw.optional.arm.FEAT_LSFE");
     check!(rcpc3, "hw.optional.arm.FEAT_LRCPC3");
 }
 
@@ -257,6 +259,7 @@ mod tests {
             (c!("hw.optional.armv8_1_atomics"), Some(1)),
             (c!("hw.optional.arm.FEAT_LSE2"), Some(1)),
             (c!("hw.optional.arm.FEAT_LSE128"), None),
+            (c!("hw.optional.arm.FEAT_LSFE"), None),
             (c!("hw.optional.arm.FEAT_LRCPC"), Some(1)),
             (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1)),
             (c!("hw.optional.arm.FEAT_LRCPC3"), None),
