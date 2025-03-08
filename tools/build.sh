@@ -305,6 +305,8 @@ build() {
         amdgcn*) return 0 ;;
         # assembly error in compiler_builtins
         *-cygwin*) return 0 ;;
+        # error: symbol 'fma' is already defined
+        hexagon*) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
