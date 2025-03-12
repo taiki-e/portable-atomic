@@ -31,9 +31,10 @@ For now, this module is only used on NetBSD/OpenBSD.
 
 On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
 - On Linux/Android, this approach requires a higher kernel version than Rust supports,
-  and also does not work with qemu-user (as of 7.2) and Valgrind (as of 3.19).
+  and also does not work with qemu-user (as of 7.2) and Valgrind (as of 3.24).
   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
   to false correctly, but qemu-user is setting it to true.)
+  - qemu-user issue seem to be fixed as of 9.2.
 - On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
   FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
 */
@@ -115,9 +116,17 @@ mod imp {
     use super::AA64Reg;
 
     pub(super) fn aa64reg() -> AA64Reg {
-        // SAFETY: This is safe on FreeBSD 12.0+. FreeBSD 11 was EoL on 2021-09-30.
-        // Note that stdarch has been doing the same thing since before FreeBSD 11 was EoL.
-        // https://github.com/rust-lang/stdarch/pull/611
+        // This module is test-only, so we can refer HWCAP_CPUID from auxv based detect.
+        if !super::super::detect::detect().cpuid() {
+            return AA64Reg {
+                aa64isar0: 0,
+                aa64isar1: 0,
+                #[cfg(test)]
+                aa64isar3: 0,
+                aa64mmfr2: 0,
+            };
+        }
+        // SAFETY: we've checked HWCAP_CPUID above.
         unsafe {
             let aa64isar0: u64;
             asm!(

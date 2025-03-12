@@ -110,8 +110,8 @@ fn _detect(info: &mut CpuInfo) {
     if riscv_hwprobe(&mut out) && out.key != -1 {
         let value = out.value;
         macro_rules! check {
-            ($flag:ident, $hwprobe_bit:ident) => {
-                if value & ffi::$hwprobe_bit != 0 {
+            ($flag:ident, $bit:ident) => {
+                if value & ffi::$bit != 0 {
                     info.set(CpuInfoFlag::$flag);
                 }
             };

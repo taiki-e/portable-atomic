@@ -437,6 +437,15 @@ mod arch {
         // OpenBSD 7.6+
         // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
         pub(crate) const HWCAP_ATOMICS: ffi::c_ulong = 1 << 8;
+        // Linux 4.11+
+        // https://github.com/torvalds/linux/commit/77c97b4ee21290f5f083173d957843b615abbff2
+        // FreeBSD 13.0+/12.2+
+        // https://github.com/freebsd/freebsd-src/blob/release/13.0.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/12.2.0/sys/arm64/include/elf.h
+        // OpenBSD 7.6+
+        // https://github.com/openbsd/src/commit/ef873df06dac50249b2dd380dc6100eee3b0d23d
+        #[cfg(test)]
+        pub(crate) const HWCAP_CPUID: ffi::c_ulong = 1 << 11;
         // Linux 4.17+
         // https://github.com/torvalds/linux/commit/7206dc93a58fb76421c4411eefa3c003337bcb2d
         // FreeBSD 13.0+/12.2+
@@ -484,25 +493,25 @@ mod arch {
             }
         }
 
+        macro_rules! check {
+            ($v:ident, $flag:ident, $bit:ident) => {
+                if $v & $bit != 0 {
+                    info.set(CpuInfoFlag::$flag);
+                }
+            };
+        }
         let hwcap = os::getauxval(ffi::AT_HWCAP);
-
-        if hwcap & HWCAP_ATOMICS != 0 {
-            info.set(CpuInfoFlag::lse);
-        }
-        if hwcap & HWCAP_USCAT != 0 {
-            info.set(CpuInfoFlag::lse2);
-        }
+        check!(hwcap, lse, HWCAP_ATOMICS);
+        check!(hwcap, lse2, HWCAP_USCAT);
+        #[cfg(test)]
+        check!(hwcap, cpuid, HWCAP_CPUID);
         #[cfg(not(target_os = "openbsd"))]
         // HWCAP2 is not yet available on ILP32: https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/tree/arch/arm64/include/uapi/asm/hwcap.h?h=staging/ilp32-5.1
         #[cfg(target_pointer_width = "64")]
         {
             let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
-            if hwcap2 & HWCAP2_LRCPC3 != 0 {
-                info.set(CpuInfoFlag::rcpc3);
-            }
-            if hwcap2 & HWCAP2_LSE128 != 0 {
-                info.set(CpuInfoFlag::lse128);
-            }
+            check!(hwcap2, rcpc3, HWCAP2_LRCPC3);
+            check!(hwcap2, lse128, HWCAP2_LSE128);
         }
     }
 }
@@ -808,7 +817,7 @@ mod tests {
             let mut digits = release.split('.');
             let major = digits.next().unwrap().parse::<u32>().unwrap();
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
-            // TODO: qemu-user bug?
+            // TODO: qemu-user bug (fails even on kernel >= 6.4) (as of 9.2)
             if (major, minor) < (6, 4) || cfg!(qemu) {
                 std::eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 assert_eq!(getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap_err(), -1);
@@ -822,7 +831,7 @@ mod tests {
                     -libc::EINVAL
                 );
             } else if cfg!(valgrind) {
-                // TODO: valgrind bug
+                // TODO: valgrind bug (result value mismatch) (as of 3.24)
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 assert_eq!(

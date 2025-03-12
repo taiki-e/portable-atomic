@@ -42,12 +42,14 @@ fn _detect(info: &mut CpuInfo) {
         ffi::getisax(out.as_mut_ptr(), OUT_LEN);
     }
     macro_rules! check {
-        ($flag:ident, $index:tt, $bit:ident) => {
-            if out[$index] & ffi::$bit != 0 {
+        ($v:ident, $flag:ident, $bit:ident) => {
+            if $v & ffi::$bit != 0 {
                 info.set(CpuInfoFlag::$flag);
             }
         };
     }
-    check!(lse, 0, AV_AARCH64_LSE);
-    check!(lse2, 1, AV_AARCH64_2_LSE2);
+    let v1 = out[0];
+    check!(v1, lse, AV_AARCH64_LSE);
+    let v2 = out[1];
+    check!(v2, lse2, AV_AARCH64_2_LSE2);
 }
