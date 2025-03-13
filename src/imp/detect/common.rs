@@ -87,7 +87,7 @@ macro_rules! flags {
     };
 }
 
-// rustc definitions: https://github.com/rust-lang/rust/blob/e6af292f91f21f12ac1aab6825efb7e1e3381cbb/compiler/rustc_target/src/target_features.rs#L179
+// rustc definitions: https://github.com/rust-lang/rust/blob/e6af292f91f21f12ac1aab6825efb7e1e3381cbb/compiler/rustc_target/src/target_features.rs
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/AArch64/AArch64Features.td
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
@@ -126,6 +126,9 @@ flags! {
     // > If FEAT_LSFE is implemented, then FEAT_FP is implemented.
     #[cfg(test)]
     lsfe("lsfe", any(target_feature /* N/A */, portable_atomic_target_feature)),
+
+    #[cfg(test)] // test-only
+    cpuid("cpuid", any(/* no corresponding target feature */)),
 }
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/PowerPC/PPC.td
@@ -151,15 +154,6 @@ flags! {
     #[cfg(target_feature = "sse")]
     vmovdqa_atomic("vmovdqa-atomic", any(/* no corresponding target feature */)),
 }
-
-// Static assertions for C type definitions.
-// Assertions with core::ffi types are in crate::utils::ffi module.
-#[cfg(test)]
-#[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
-const _: fn() = || {
-    use test_helper::sys;
-    let _: crate::utils::ffi::c_char = 0 as sys::c_char;
-};
 
 #[allow(
     clippy::alloc_instead_of_core,
@@ -225,6 +219,14 @@ mod tests_common {
         }
         test_helper::eprintln_nocapture!("{}", features);
     }
+
+    // Static assertions for C type definitions.
+    // Assertions with core::ffi types are in crate::utils::ffi module.
+    #[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
+    const _: fn() = || {
+        use test_helper::sys;
+        let _: crate::utils::ffi::c_char = 0 as sys::c_char;
+    };
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     #[allow(clippy::collapsible_else_if)]

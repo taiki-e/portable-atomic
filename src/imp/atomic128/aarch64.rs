@@ -142,7 +142,6 @@ mod detect;
 
 // test only
 #[cfg(test)]
-#[cfg(not(qemu))]
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
