@@ -82,6 +82,9 @@ serde = { version = "1.0.60", optional = true, default-features = false }
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-critical-section
 critical-section = { version = "1", optional = true }
 
+# [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
+# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "1101fb3" } #build:static_assert_ffi
+
 [dev-dependencies]
 build-context = "0.1"
 crossbeam-utils = "=0.8.16" # The latest crossbeam-utils requires Rust 1.60
@@ -91,7 +94,7 @@ quickcheck = { version = "1", default-features = false, git = "https://github.co
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "f35c385" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "cpuinfo", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "f38a7f5" }
+test-helper = { features = ["sys", "cpuinfo", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "1101fb3" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
@@ -132,12 +135,12 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_feature,values("zacas"))', # 1.87+ https://github.com/rust-lang/rust/pull/137417
     'cfg(target_pointer_width,values("128"))',
     # Known custom cfgs, excluding those that may be set by build script.
-    # Not public API.
-    'cfg(portable_atomic_test_detect_false,qemu,valgrind)',
     # Public APIs, considered unstable unless documented as stable in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Public unstable API(s) - portable-atomic-util
     'cfg(portable_atomic_unstable_coerce_unsized)',
+    # Not public API.
+    'cfg(portable_atomic_test_detect_false,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind)',
 ] }
 unnameable_types = "warn"
 unreachable_pub = "warn"

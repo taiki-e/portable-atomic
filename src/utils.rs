@@ -538,7 +538,11 @@ pub(crate) mod ptr {
 // - safe abstraction (c! macro) for creating static C strings without runtime checks.
 //   (c"..." requires Rust 1.77)
 // - helper macros for defining FFI bindings.
-#[cfg(any(test, not(any(target_arch = "x86", target_arch = "x86_64"))))]
+#[cfg(any(
+    test,
+    portable_atomic_test_no_std_static_assert_ffi,
+    not(any(target_arch = "x86", target_arch = "x86_64"))
+))]
 #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
@@ -722,7 +726,7 @@ pub(crate) mod ffi {
             // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
-            #[cfg(test)]
+            #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
             #[allow(
                 unused_imports,
                 clippy::cast_possible_wrap,
@@ -759,7 +763,10 @@ pub(crate) mod ffi {
             $(
                 $(#[$attr])*
                 #[derive(Copy, Clone)]
-                #[cfg_attr(test, derive(Debug, PartialEq))]
+                #[cfg_attr(
+                    any(test, portable_atomic_test_no_std_static_assert_ffi),
+                    derive(Debug, PartialEq)
+                )]
                 #[repr(C)]
                 $vis struct $name {$(
                     $(#[$field_attr])*
@@ -773,7 +780,7 @@ pub(crate) mod ffi {
             // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
-            #[cfg(test)]
+            #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
             #[allow(unused_imports, clippy::undocumented_unsafe_blocks)]
             const _: fn() = || {
                 #[cfg(not(any(target_os = "aix", windows)))]
@@ -828,7 +835,7 @@ pub(crate) mod ffi {
             // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
-            #[cfg(test)]
+            #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
             #[allow(
                 unused_attributes, // for #[allow(..)] in $(#[$attr])*
                 unused_imports,
@@ -851,7 +858,7 @@ pub(crate) mod ffi {
             };
         };
     }
-    #[cfg(test)]
+    #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
     macro_rules! sys_const_cmp {
         (RTLD_DEFAULT, $ty:ty) => {
             // ptr comparison and ptr-to-int cast are not stable on const context, so use ptr-to-int
@@ -895,7 +902,7 @@ pub(crate) mod ffi {
             // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
             // without actually running tests on these platforms.
             // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
-            #[cfg(test)]
+            #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
             #[allow(unused_imports)]
             const _: fn() = || {
                 #[cfg(not(any(target_os = "aix", windows)))]

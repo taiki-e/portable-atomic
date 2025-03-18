@@ -160,9 +160,8 @@ is_no_std() {
     *-linux-none*) ;;
     # https://github.com/rust-lang/rust/blob/1.84.0/library/std/build.rs#L65
     # ESP-IDF supports std, but it is often broken.
-    # TODO(aarch64_be): https://github.com/BurntSushi/memchr/pull/162
     # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64_be* | aarch64-unknown-linux-uclibc) return 0 ;;
+    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
   esac
   return 1
 }
@@ -250,6 +249,11 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
     base_rustflags+=' -Z crate-attr=feature(unqualified_local_imports) -W unqualified_local_imports'
     strict_provenance_lints=' -Z crate-attr=feature(strict_provenance_lints) -W fuzzy_provenance_casts'
   fi
+fi
+if { sed --help 2>&1 || true; } | grep -Eq -e '-i extension'; then
+  in_place=(-i '')
+else
+  in_place=(-i)
 fi
 export CARGO_TARGET_DIR="${target_dir}"
 export PORTABLE_ATOMIC_DENY_WARNINGS=1
@@ -388,8 +392,22 @@ build() {
           bpf* | mips*) build_util_with_critical_section=1 ;;
         esac
       fi
-      RUSTFLAGS="${target_rustflags}" \
-        x_cargo "${args[@]}" --features float --manifest-path Cargo.toml "$@"
+      # TODO: handle SIGILL and ERR
+      sed -E "${in_place[@]}" 's/^# (.* #build:static_assert_ffi)/\1/g' Cargo.toml
+      RUSTFLAGS="${target_rustflags} --cfg portable_atomic_test_no_std_static_assert_ffi" \
+        x_cargo "${args[@]}" --no-dev-deps --features float --manifest-path Cargo.toml "$@"
+      case "${target}" in
+        # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux/illumos, powerpc64, and RISC-V Linux.
+        # powerpc64le- (little-endian) is skipped because it is pwr8 by default
+        # RISC-V Linux is skipped because outline-atomics is enabled by default.
+        aarch64*-linux-gnu*) ;;
+        aarch64*-linux-* | aarch64*-illumos* | powerpc64-*)
+          CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
+            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_test_no_std_static_assert_ffi --cfg portable_atomic_outline_atomics" \
+            x_cargo "${args[@]}" --no-dev-deps --features float --manifest-path Cargo.toml "$@"
+          ;;
+      esac
+      sed -E "${in_place[@]}" 's/^(.* #build:static_assert_ffi)/# \1/g' Cargo.toml
       if [[ -z "${build_util_with_critical_section}" ]]; then
         RUSTFLAGS="${target_rustflags}" \
           x_cargo "${args[@]}" --features alloc --manifest-path portable-atomic-util/Cargo.toml "$@"
