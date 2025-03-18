@@ -249,8 +249,9 @@ fn main() {
                 // x86_64 Apple targets always support CMPXCHG16B:
                 // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/x86_64_apple_darwin.rs#L8
                 // https://github.com/rust-lang/rust/blob/1.68.0/compiler/rustc_target/src/spec/apple_base.rs#L69-L70
-                // (Since Rust 1.78, Windows (except Windows 7) targets also enable CMPXCHG16B, but
-                // this branch is only used on pre-1.69 that cmpxchg16b_target_feature is unstable.)
+                // (Windows (except Windows 7, since Rust 1.78) and Fuchsia (since Rust 1.87) targets
+                // also enable CMPXCHG16B, but this branch is only used on pre-1.69 that
+                // cmpxchg16b_target_feature is unstable.)
                 // Script to get builtin targets that support CMPXCHG16B by default:
                 // $ (for target in $(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "x86_64" then .key else empty end'); do rustc --print cfg --target "${target}" | grep -Fq '"cmpxchg16b"' && printf '%s\n' "${target}"; done)
                 let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";

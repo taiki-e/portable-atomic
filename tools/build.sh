@@ -630,7 +630,7 @@ build() {
   esac
   case "${target}" in
     x86_64*)
-      # Apple and Windows (except Windows 7, since Rust 1.78) targets are +cmpxchg16b by default
+      # Apple, Windows (except Windows 7, since Rust 1.78), and Fuchsia (since Rust 1.87) targets are +cmpxchg16b by default
       if ! grep -Eq '^target_feature="cmpxchg16b"' <<<"${cfgs}"; then
         CARGO_TARGET_DIR="${target_dir}/cmpxchg16b" \
           RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b" \
