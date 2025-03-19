@@ -712,7 +712,7 @@ jobs:
         include:
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '13.4'
+            version: '13.5'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.2'
