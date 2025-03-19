@@ -571,10 +571,10 @@ pub(crate) mod ffi {
     // c_size_t is currently always usize.
     // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L76
     pub(crate) type c_size_t = usize;
-    // c_char is u8 by default on non-Apple/non-Windows Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
+    // c_char is u8 by default on non-Apple/non-Windows/non-Vita Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
     // See references in https://github.com/rust-lang/rust/issues/129945 for details.
     #[cfg(all(
-        not(any(target_vendor = "apple", windows)),
+        not(any(target_vendor = "apple", windows, target_os = "vita")),
         any(
             target_arch = "aarch64",
             target_arch = "arm",
@@ -591,7 +591,7 @@ pub(crate) mod ffi {
     ))]
     pub(crate) type c_char = u8;
     #[cfg(not(all(
-        not(any(target_vendor = "apple", windows)),
+        not(any(target_vendor = "apple", windows, target_os = "vita")),
         any(
             target_arch = "aarch64",
             target_arch = "arm",
