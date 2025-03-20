@@ -58,6 +58,7 @@ hwprobe
 includepath
 insn
 Iotel
+ipxe
 isel
 iseleq
 iselgt
@@ -120,6 +121,7 @@ nngrk
 nostartfiles
 opensbi
 osxsave
+outputdir
 phdr
 picolibc
 pointee

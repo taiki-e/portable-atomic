@@ -36,6 +36,9 @@ Supported platforms:
   Not always available on:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
   (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
+  In L4Re which uses uClibc-ng, a dummy API was added first in 2020 that always returns 0 (https://github.com/kernkonzept/l4re-core/commit/e88fa67198074d3e6b4983c5c8af1538e2089ff3),
+  then implemented in 2024 (https://github.com/kernkonzept/l4re-core/commit/3ee2a50dd1b3bc22955e593004990887a0a5b4a3).
+  However, getauxval(AT_HWCAP*) always returns 0 (as of 2025-03-20). (see tests/l4re test)
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
 - Android 4.3+ (API level 18+) (through getauxval)
@@ -187,6 +190,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/misc/sys/auxv.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
+                // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/sys/auxv.h
                 // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
                 #[cfg(any(

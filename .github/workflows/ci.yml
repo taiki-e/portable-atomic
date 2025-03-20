@@ -872,6 +872,7 @@ jobs:
             apt_packages+=(
               avr-libc
               gcc-avr
+              ipxe-qemu
               libelf-dev
               mspdebug
               simavr
@@ -887,11 +888,17 @@ jobs:
           sudo mv -- "opensbi-${opensbi_version}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
           rm -rf -- "opensbi-${opensbi_version}-rv-bin"
           if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
-            mkdir -p -- "${HOME}"/msp430-gcc
+            mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
             retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
               | tar xjf - --strip-components 1 -C "${HOME}"/msp430-gcc
             printf '%s\n' "${HOME}"/msp430-gcc/bin >>"${GITHUB_PATH}"
+            # https://l4re.org/download/snapshots
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-14.tar.xz \
+              | tar xJf - -C "${HOME}"/aarch64-l4re-gcc
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
+            chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
+            printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${{ matrix.rust }}" == "stable" ]]; then
             retry espup install --targets esp32s2
           fi

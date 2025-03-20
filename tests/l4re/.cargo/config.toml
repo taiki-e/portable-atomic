@@ -1,0 +1,2 @@
+[target.aarch64-unknown-l4re-uclibc]
+linker = "aarch64-l4re-gcc"

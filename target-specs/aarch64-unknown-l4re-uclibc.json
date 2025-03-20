@@ -1,0 +1,17 @@
+{
+  "arch": "aarch64",
+  "data-layout": "e-m:e-p270:32:32-p271:32:32-p272:64:64-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128-Fn32",
+  "env": "uclibc",
+  "features": "+v8a",
+  "linker": "l4-bender",
+  "linker-flavor": "unix",
+  "linker-is-gnu": false,
+  "llvm-target": "aarch64-unknown-l4re-uclibc",
+  "max-atomic-width": 128,
+  "os": "l4re",
+  "panic-strategy": "abort",
+  "plt-by-default": false,
+  "relocation-model": "static",
+  "target-family": ["unix"],
+  "target-pointer-width": "64"
+}

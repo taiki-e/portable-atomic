@@ -50,6 +50,9 @@ default_targets=(
 
   # msp430
   msp430-none-elf
+
+  # l4re
+  aarch64-unknown-l4re-uclibc # custom target
 )
 
 x() {
@@ -117,6 +120,11 @@ if [[ "${rustc_version}" =~ nightly|dev ]]; then
     retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rust-src &>/dev/null
   fi
 fi
+if { sed --help 2>&1 || true; } | grep -Eq -e '-i extension'; then
+  in_place=(-i '')
+else
+  in_place=(-i)
+fi
 export QEMU_AUDIO_DRV=none
 export PORTABLE_ATOMIC_DENY_WARNINGS=1
 
@@ -154,6 +162,12 @@ run() {
       msp430*)
         if ! type -P mspdebug >/dev/null; then
           printf '%s\n' "no-std test for ${target} requires mspdebug (switched to build-only)"
+          subcmd=build
+        fi
+        ;;
+      aarch64*-l4re*)
+        if ! type -P l4image >/dev/null; then
+          printf '%s\n' "no-std test for ${target} requires l4image (switched to build-only)"
           subcmd=build
         fi
         ;;
@@ -230,6 +244,31 @@ run() {
       export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh wokwi-server ${target}"
       linker=linkall.x
       target_rustflags+=" -C link-arg=-Wl,-T${linker} -C link-arg=-nostartfiles"
+      ;;
+    aarch64*-l4re*)
+      test_dir=tests/l4re
+      if [[ "${subcmd}" != "build" ]]; then
+        export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh l4image ${target}"
+        L4RE_SYSROOTS="$(dirname -- "$(dirname -- "$(type -P aarch64-l4re-gcc)")")"/sysroots/aarch64-l4re
+        export L4RE_SYSROOTS
+        mkdir -p -- tmp/l4re
+        (
+          cd -- tmp/l4re
+          [[ -e l4re_hello-2_arm_virt.elf ]] || retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused -O https://l4re.org/download/snapshots/pre-built-images/arm64/l4re_hello-2_arm_virt.elf
+          [[ -e workdir-arm ]] || l4image -i l4re_hello-2_arm_virt.elf --outputdir workdir-arm extract
+          [[ -e workdir-arm/hello ]] || rm -- workdir-arm/hello
+          if [[ -e workdir-arm/hello-2.cfg ]]; then
+            rm -- workdir-arm/hello-2.cfg
+            # https://l4re.org/doc/l4re_tutorial.html
+            cat >workdir-arm/l4re-test-2.cfg <<EOF
+local L4 = require("L4");
+L4.default_loader:start({ log = { "test" } }, "rom/l4re-test");
+EOF
+            sed -E "${in_place[@]}" 's/hello/l4re-test/g' workdir-arm/modules.list
+          fi
+        )
+        export L4RE_TMPDIR="${workspace_dir}/tmp/l4re"
+      fi
       ;;
     *) bail "unrecognized target '${target}'" ;;
   esac

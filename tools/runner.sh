@@ -77,6 +77,23 @@ EOF
       *) bail "unrecognized runner '${runner}'" ;;
     esac
     ;;
+  aarch64*-l4re*)
+    case "${runner}" in
+      l4image)
+        cp -f -- "${bin}" "${L4RE_TMPDIR}"/workdir-arm
+        l4image \
+          -i "${L4RE_TMPDIR}"/l4re_hello-2_arm_virt.elf \
+          -o "${L4RE_TMPDIR}"/l4re_test.elf \
+          create \
+          --modules-list-file modules.list \
+          --search-path "${L4RE_SYSROOTS}"/usr/lib:"${L4RE_TMPDIR}"/workdir-arm
+        start_simulator() {
+          l4image -i "${L4RE_TMPDIR}"/l4re_test.elf launch &>>"${stdout}" &
+        }
+        ;;
+      *) bail "unrecognized runner '${runner}'" ;;
+    esac
+    ;;
   *) bail "unrecognized target '${target}'" ;;
 esac
 
@@ -84,8 +101,15 @@ simulator_pid=''
 tail_pid=''
 code=1
 cleanup() {
-  [[ -z "${simulator_pid}" ]] || kill "${simulator_pid}" || true
-  [[ -z "${tail_pid}" ]] || kill "${tail_pid}" || true
+  [[ -z "${simulator_pid}" ]] || kill -- "${simulator_pid}" || true
+  [[ -z "${tail_pid}" ]] || kill -- "${tail_pid}" || true
+  case "${target}" in
+    aarch64*-l4re*)
+      # shellcheck disable=SC2009
+      qemu_pid=$(ps x -o "%p %c " | grep -E 'qemu-system-aar' | sed -E 's/^\s+//g' | cut -d' ' -f1)
+      kill -- "${qemu_pid}" || true
+      ;;
+  esac
   rm -f -- ./"${stdout}"
   exit "${code}"
 }
