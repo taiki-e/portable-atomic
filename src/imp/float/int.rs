@@ -10,8 +10,7 @@ CAS loops, which can be slower than equivalent operations of atomic integers.
 
 AArch64 with FEAT_LSFE and GPU targets have atomic instructions for float.
 See aarch64.rs for AArch64 with FEAT_LSFE.
-GPU targets will also use architecture-specific implementations instead of this implementation in the
-future: https://github.com/taiki-e/portable-atomic/issues/34 / https://github.com/taiki-e/portable-atomic/pull/45
+See nvptx.rs for NVPTX.
 */
 
 // TODO: fetch_{minimum,maximum}* https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3008r2.html / https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p0493r5.pdf
@@ -239,9 +238,21 @@ macro_rules! atomic_float {
 cfg_has_atomic_16! {
     atomic_float!(AtomicF16, f16, AtomicU16, u16, 2);
 }
+#[cfg(not(all(
+    target_arch = "nvptx64",
+    any(target_feature = "sm_70", portable_atomic_target_feature = "sm_70"),
+    not(any(miri, portable_atomic_sanitize_thread)),
+    portable_atomic_unstable_asm_experimental_arch,
+)))]
 cfg_has_atomic_32! {
     atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
 }
+#[cfg(not(all(
+    target_arch = "nvptx64",
+    any(target_feature = "sm_70", portable_atomic_target_feature = "sm_70"),
+    not(any(miri, portable_atomic_sanitize_thread)),
+    portable_atomic_unstable_asm_experimental_arch,
+)))]
 cfg_has_atomic_64! {
     atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
 }

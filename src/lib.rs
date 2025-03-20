@@ -225,7 +225,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 #![allow(clippy::inline_always, clippy::used_underscore_items)]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
-// On tier 2 platforms (powerpc64), we use cfg set by build script to
+// On tier 2 platforms (powerpc64 and nvptx64), we use cfg set by build script to
 // determine whether this feature is available or not.
 #![cfg_attr(
     all(
@@ -235,6 +235,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "msp430",
             all(target_arch = "xtensa", portable_atomic_unsafe_assume_single_core),
             all(target_arch = "powerpc64", portable_atomic_unstable_asm_experimental_arch),
+            all(target_arch = "nvptx64", portable_atomic_unstable_asm_experimental_arch),
         ),
     ),
     feature(asm_experimental_arch)
