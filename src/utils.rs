@@ -886,14 +886,14 @@ pub(crate) mod ffi {
             extern $abi:literal {$(
                 $(#[$fn_attr:meta])*
                 $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
-                    $($arg_pat:ident: $arg_ty:ty),* $(,)?
+                    $($args:tt)*
                 ) $(-> $ret_ty:ty)?;
             )*}
         }) => {
             $(#[$extern_attr])*
             extern $abi {$(
                 $(#[$fn_attr])*
-                $vis fn $name($($arg_pat: $arg_ty),*) $(-> $ret_ty)?;
+                $vis fn $name($($args)*) $(-> $ret_ty)?;
             )*}
             // Static assertions for FFI bindings.
             // This checks that FFI bindings defined in this crate and FFI bindings generated for
@@ -913,11 +913,25 @@ pub(crate) mod ffi {
                     $(#[$fn_attr])*
                     {
                         $(use windows_sys::$($windows_path)::+ as sys;)?
-                        let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
-                        _f = sys::$name;
+                        sys_fn_cmp!($abi fn $name($($args)*) $(-> $ret_ty)?);
                     }
                 )*
             };
+        };
+    }
+    #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
+    macro_rules! sys_fn_cmp {
+        (
+            $abi:literal fn $name:ident($($_arg_pat:ident: $arg_ty:ty),*, ...) $(-> $ret_ty:ty)?
+        ) => {
+            let mut _f: unsafe extern $abi fn($($arg_ty),*, ...) $(-> $ret_ty)? = $name;
+            _f = sys::$name;
+        };
+        (
+            $abi:literal fn $name:ident($($_arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?
+        ) => {
+            let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
+            _f = sys::$name;
         };
     }
 
