@@ -285,6 +285,8 @@ build() {
     local target_flags=(--target "$(pwd)/target-specs/${target}.json")
   elif [[ "${target}" != "${host}" ]]; then
     local target_flags=(--target "${target}")
+  else
+    local no_target_flags='1'
   fi
   args+=(${target_flags[@]+"${target_flags[@]}"})
   local cfgs
@@ -611,21 +613,24 @@ build() {
   esac
   # Check target features
   case "${target}" in
-    mips-*-linux-musl* | mipsel-*-linux-musl*) ;; # -crt-static by default
-    *-linux-musl*)
-      CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
-        RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
-        x_cargo "${args[@]}" "$@"
-      case "${target}" in
-        # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
-        # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-        # RISC-V Linux is skipped because its implementation does not change depending on whether or not crt-static is enabled.
-        x86_64* | aarch64* | arm* | thumb* | powerpc64-*)
+    # Only AArch64 and powerpc64 detections are affected by crt-static.
+    aarch64* | powerpc64-*)
+      # Script to get builtin targets that support crt-static:
+      #   rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value."crt-static-respected" == true then .value.os else empty end' | LC_ALL=C sort -u | tr '\n' '|' | sed -E 's/\|$/\n/g'
+      if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
+        if grep -Eq '^target_feature="crt-static"' <<<"${cfgs}"; then
+          CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
+            RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
+            x_cargo "${args[@]}" "$@"
           CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
             RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
             x_cargo "${args[@]}" "$@"
-          ;;
-      esac
+        else
+          CARGO_TARGET_DIR="${target_dir}/crt-static" \
+            RUSTFLAGS="${target_rustflags} -C target_feature=+crt-static" \
+            x_cargo "${args[@]}" ${no_target_flags+"--target=${target}"} "$@"
+        fi
+      fi
       ;;
   esac
   case "${target}" in

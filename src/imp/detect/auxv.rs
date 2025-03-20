@@ -21,10 +21,16 @@ Supported platforms:
   Always available on:
   - aarch64 (musl 1.1.7+ https://github.com/bminor/musl/blob/v1.1.7/WHATSNEW#L1422)
   - powerpc64 (musl 1.1.15+ https://github.com/bminor/musl/blob/v1.1.15/WHATSNEW#L1702)
+  At least since Rust 1.15, std requires musl 1.1.14+ https://github.com/rust-lang/rust/blob/1.15.0/src/ci/docker/x86_64-musl/build-musl.sh#L15
+  Since Rust 1.18, std requires musl 1.1.16+ https://github.com/rust-lang/rust/pull/41089
+  Since Rust 1.23, std requires musl 1.1.17+ https://github.com/rust-lang/rust/pull/45393
+  Since Rust 1.25, std requires musl 1.1.18+ https://github.com/rust-lang/rust/pull/47283
+  Since Rust 1.29, std requires musl 1.1.19+ https://github.com/rust-lang/rust/pull/52087
   Since Rust 1.31, std requires musl 1.1.20+ https://github.com/rust-lang/rust/pull/54430
   Since Rust 1.37, std requires musl 1.1.22+ https://github.com/rust-lang/rust/pull/61252
   Since Rust 1.46, std requires musl 1.1.24+ https://github.com/rust-lang/rust/pull/73089
   Since Rust 1.71, std requires musl 1.2.3+ https://blog.rust-lang.org/2023/05/09/Updating-musl-targets.html
+  OpenHarmony uses a fork of musl 1.2 https://gitee.com/openharmony/docs/blob/master/en/application-dev/reference/native-lib/musl.md
 - uClibc-ng 1.0.43+ (through getauxval)
   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
   Not always available on:
@@ -64,6 +70,14 @@ requirements: https://github.com/rust-lang/rust/issues/89626
 (That problem may have been fixed in https://github.com/rust-lang/rust/commit/9a04ae4997493e9260352064163285cddc43de3c,
 but even in the version containing that patch, [there is report](https://github.com/rust-lang/rust/issues/89626#issuecomment-1242636038)
 of the same error.)
+This seems to be due to the fact that compiler-builtins is built before libc (which is a dependency
+of std) links musl. And the std and its dependent can use getauxval without this problem at least
+since the rust-lang/rust patch mentioned above:
+https://github.com/rust-lang/rust/blob/1.85.0/library/std/src/sys/pal/unix/stack_overflow.rs#L268
+(According to https://github.com/rust-lang/rust/issues/89626#issuecomment-2420469392, this problem
+may have been fixed in https://github.com/rust-lang/rust/commit/9ed0d11efbec18a1fa4155576a3bcb685676d23c.)
+See also https://github.com/rust-lang/stdarch/pull/1746.
+So as for musl with static linking, we assume that getauxval is always available also when `std` feature enabled.
 
 On platforms that we cannot assume that getauxval/elf_aux_info is always available, so we use dlsym
 instead of directly calling getauxval/elf_aux_info. (You can force getauxval/elf_aux_info to be
@@ -552,8 +566,9 @@ mod arch {
         pub(crate) const PPC_FEATURE2_ARCH_3_00: ffi::c_ulong = 0x00800000;
         // Linux 5.8+
         // https://github.com/torvalds/linux/commit/ee988c11acf6f9464b7b44e9a091bf6afb3b3a49
-        // FreeBSD 15.0+
+        // FreeBSD 15.0+/14.2+
         // https://github.com/freebsd/freebsd-src/commit/1e434da3b065ef96b389e5e0b604ae05a51e794e
+        // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/powerpc/include/cpu.h
         // OpenBSD 7.7+
         // https://github.com/openbsd/src/commit/483a78e15aaa23c010911940770c1c97db5c1287
         pub(crate) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
@@ -622,16 +637,12 @@ mod tests {
     fn test_dlsym_getauxval() {
         unsafe {
             let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
-            if cfg!(any(
+            if cfg!(target_feature = "crt-static") {
+                assert!(ptr.is_null());
+            } else if cfg!(any(
                 all(
                     target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            any(target_env = "musl", target_env = "ohos"),
-                            not(target_feature = "crt-static"),
-                        ),
-                    ),
+                    any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
                 ),
                 target_os = "android",
             )) {
@@ -652,7 +663,9 @@ mod tests {
     fn test_dlsym_elf_aux_info() {
         unsafe {
             let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
-            if cfg!(target_os = "freebsd") || option_env!("CI").is_some() {
+            if cfg!(target_feature = "crt-static") {
+                assert!(ptr.is_null());
+            } else if cfg!(target_os = "freebsd") || option_env!("CI").is_some() {
                 assert!(!ptr.is_null());
             }
             if ptr.is_null() {

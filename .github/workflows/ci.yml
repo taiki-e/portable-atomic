@@ -758,6 +758,12 @@ jobs:
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
             cargo test --features std --tests -- aarch64
+            case "$(uname -s)" in
+              FreeBSD)
+                RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
+                  cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
+                ;;
+            esac
 
   build:
     needs: tidy

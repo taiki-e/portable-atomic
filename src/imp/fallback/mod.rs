@@ -33,14 +33,19 @@ type and the value type must be the same.
                             any(target_endian = "little", not(target_feature = "crt-static")),
                         ),
                         all(
-                            any(target_env = "musl", target_env = "ohos", target_env = "uclibc"),
-                            not(target_feature = "crt-static"),
+                            target_env = "musl",
+                            any(not(target_feature = "crt-static"), feature = "std"),
                         ),
+                        target_env = "ohos",
+                        all(target_env = "uclibc", not(target_feature = "crt-static")),
                         portable_atomic_outline_atomics,
                     ),
                 ),
                 target_os = "android",
-                target_os = "freebsd",
+                all(
+                    target_os = "freebsd",
+                    any(not(target_feature = "crt-static"), portable_atomic_outline_atomics),
+                ),
                 target_os = "openbsd",
                 all(
                     target_os = "aix",

@@ -83,7 +83,7 @@ serde = { version = "1.0.60", optional = true, default-features = false }
 critical-section = { version = "1", optional = true }
 
 # [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
-# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "1101fb3" } #build:static_assert_ffi
+# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "93816e3" } #build:static_assert_ffi
 
 [dev-dependencies]
 build-context = "0.1"
@@ -94,7 +94,7 @@ quickcheck = { version = "1", default-features = false, git = "https://github.co
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "f35c385" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "cpuinfo", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "1101fb3" }
+test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "93816e3" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
