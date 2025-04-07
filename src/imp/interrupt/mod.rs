@@ -68,7 +68,7 @@ use self::arch::atomic;
 #[cfg_attr(target_arch = "xtensa", path = "xtensa.rs")]
 mod arch;
 
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
+use core::{cell::UnsafeCell, ptr, sync::atomic::Ordering};
 
 // Critical section implementations might use locks internally.
 #[cfg(feature = "critical-section")]
@@ -211,7 +211,7 @@ impl<T> AtomicPtr<T> {
         // from a reference.
         with(|| unsafe {
             let prev = self.p.get().read();
-            if prev == current {
+            if ptr::eq(prev, current) {
                 self.p.get().write(new);
                 Ok(prev)
             } else {
