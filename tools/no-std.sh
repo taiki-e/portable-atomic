@@ -279,9 +279,15 @@ EOF
 
   (
     cd -- "${test_dir}"
-    CARGO_TARGET_DIR="${target_dir}/no-std-test" \
-      RUSTFLAGS="${target_rustflags}" \
-      x_cargo "${args[@]}" "$@"
+    case "${target}" in
+      # TODO: relocation R_RISCV_SET32 out of range: 2149673062 is not in [-2147483648, 2147483647]
+      riscv64*) ;;
+      *)
+        CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+          RUSTFLAGS="${target_rustflags}" \
+          x_cargo "${args[@]}" "$@"
+        ;;
+    esac
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" --release "$@"
