@@ -4,7 +4,7 @@
   "data-layout": "e-m:e-p:32:32-i64:64-n32-S128",
   "eh-frame-header": false,
   "emit-debug-gdb-scripts": false,
-  "features": "+m,+a,+f,+d,+c",
+  "features": "+m,+a,+f,+d,+c,+zicsr,+zifencei",
   "linker": "rust-lld",
   "linker-flavor": "ld.lld",
   "llvm-abiname": "ilp32d",
