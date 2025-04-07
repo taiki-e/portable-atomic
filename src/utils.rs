@@ -762,7 +762,7 @@ pub(crate) mod ffi {
         )*}) => {
             $(
                 $(#[$attr])*
-                #[derive(Copy, Clone)]
+                #[derive(Clone, Copy)]
                 #[cfg_attr(
                     any(test, portable_atomic_test_no_std_static_assert_ffi),
                     derive(Debug, PartialEq)

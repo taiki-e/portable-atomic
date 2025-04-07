@@ -82,8 +82,8 @@ fn sysctlbyname32(name: &ffi::CStr) -> Option<u32> {
 #[cold]
 fn _detect(info: &mut CpuInfo) {
     macro_rules! check {
-        ($flag:ident, $($name:tt)||+) => {
-            if $(sysctlbyname32(c!($name)).unwrap_or(0) != 0)||+ {
+        ($flag:ident, $($name:tt) ||+) => {
+            if $(sysctlbyname32(c!($name)).unwrap_or(0) != 0) ||+ {
                 info.set(CpuInfoFlag::$flag);
             }
         };

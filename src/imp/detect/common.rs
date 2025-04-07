@@ -10,16 +10,19 @@ impl CpuInfo {
         self.0 = set(self.0, bit as u32);
     }
     #[inline]
+    #[must_use]
     fn test(self, bit: CpuInfoFlag) -> bool {
         test(self.0, bit as u32)
     }
 }
 
 #[inline]
+#[must_use]
 fn set(x: u32, bit: u32) -> u32 {
     x | (1 << bit)
 }
 #[inline]
+#[must_use]
 fn test(x: u32, bit: u32) -> bool {
     x & (1 << bit) != 0
 }
@@ -61,6 +64,7 @@ macro_rules! flags {
                 $(#[$attr])*
                 #[cfg(any(test, not(any($($cfg = $name),*))))]
                 #[inline]
+                #[must_use]
                 pub(crate) fn $func(self) -> bool {
                     self.test(CpuInfoFlag::$func)
                 }

@@ -122,13 +122,13 @@ mod imp {
         unsafe {
             let aa64isar0: u64;
             asm!(
-                "mrs {0}, ID_AA64ISAR0_EL1",
+                "mrs {}, ID_AA64ISAR0_EL1",
                 out(reg) aa64isar0,
                 options(pure, nomem, nostack, preserves_flags),
             );
             let aa64isar1: u64;
             asm!(
-                "mrs {0}, ID_AA64ISAR1_EL1",
+                "mrs {}, ID_AA64ISAR1_EL1",
                 out(reg) aa64isar1,
                 options(pure, nomem, nostack, preserves_flags),
             );
@@ -140,13 +140,13 @@ mod imp {
             #[cfg(test)]
             #[cfg(not(portable_atomic_pre_llvm_18))]
             asm!(
-                "mrs {0}, ID_AA64ISAR3_EL1",
+                "mrs {}, ID_AA64ISAR3_EL1",
                 out(reg) aa64isar3,
                 options(pure, nomem, nostack, preserves_flags),
             );
             let aa64mmfr2: u64;
             asm!(
-                "mrs {0}, ID_AA64MMFR2_EL1",
+                "mrs {}, ID_AA64MMFR2_EL1",
                 out(reg) aa64mmfr2,
                 options(pure, nomem, nostack, preserves_flags),
             );

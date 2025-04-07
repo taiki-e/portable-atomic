@@ -544,8 +544,8 @@ mod arch {
         }
 
         macro_rules! check {
-            ($v:ident, $flag:ident, $bit:ident) => {
-                if $v & $bit != 0 {
+            ($x:ident, $flag:ident, $bit:ident) => {
+                if $x & $bit != 0 {
                     info.set(CpuInfoFlag::$flag);
                 }
             };
