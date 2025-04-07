@@ -51,9 +51,11 @@ Supported platforms:
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
+  Always available on:
+  - powerpc64 (le) (FreeBSD 12.4+ https://www.freebsd.org/releases/12.4R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
   Not always available on:
-  - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce)
-  - powerpc64 (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce)
+  - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
+  - powerpc64 (be) (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
   Dropping support for FreeBSD 12 in std was decided in https://github.com/rust-lang/rust/pull/120869,
   but the actual update to the FreeBSD 13 toolchain was attempted twice, but both times there were
@@ -344,7 +346,13 @@ mod os {
             #[cfg(any(
                 test,
                 not(any(
-                    all(target_os = "freebsd", target_arch = "aarch64"),
+                    all(
+                        target_os = "freebsd",
+                        any(
+                            target_arch = "aarch64",
+                            all(target_arch = "powerpc64", target_endian = "little"),
+                        ),
+                    ),
                     portable_atomic_outline_atomics,
                 )),
             ))]
@@ -365,7 +373,13 @@ mod os {
                 #[cfg(any(
                     test,
                     any(
-                        all(target_os = "freebsd", target_arch = "aarch64"),
+                        all(
+                            target_os = "freebsd",
+                            any(
+                                target_arch = "aarch64",
+                                all(target_arch = "powerpc64", target_endian = "little"),
+                            ),
+                        ),
                         portable_atomic_outline_atomics,
                     ),
                 ))]
@@ -382,7 +396,13 @@ mod os {
                 #[cfg(any(
                     test,
                     not(any(
-                        all(target_os = "freebsd", target_arch = "aarch64"),
+                        all(
+                            target_os = "freebsd",
+                            any(
+                                target_arch = "aarch64",
+                                all(target_arch = "powerpc64", target_endian = "little"),
+                            ),
+                        ),
                         portable_atomic_outline_atomics,
                     )),
                 ))]
@@ -398,12 +418,24 @@ mod os {
         const OUT_LEN: ffi::c_int = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
 
         #[cfg(any(
-            all(target_os = "freebsd", target_arch = "aarch64"),
+            all(
+                target_os = "freebsd",
+                any(
+                    target_arch = "aarch64",
+                    all(target_arch = "powerpc64", target_endian = "little"),
+                ),
+            ),
             portable_atomic_outline_atomics,
         ))]
         let elf_aux_info: ElfAuxInfoTy = ffi::elf_aux_info;
         #[cfg(not(any(
-            all(target_os = "freebsd", target_arch = "aarch64"),
+            all(
+                target_os = "freebsd",
+                any(
+                    target_arch = "aarch64",
+                    all(target_arch = "powerpc64", target_endian = "little"),
+                ),
+            ),
             portable_atomic_outline_atomics,
         )))]
         // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym

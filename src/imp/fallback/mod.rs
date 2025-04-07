@@ -44,7 +44,11 @@ type and the value type must be the same.
                 target_os = "android",
                 all(
                     target_os = "freebsd",
-                    any(not(target_feature = "crt-static"), portable_atomic_outline_atomics),
+                    any(
+                        target_endian = "little",
+                        not(target_feature = "crt-static"),
+                        portable_atomic_outline_atomics,
+                    ),
                 ),
                 target_os = "openbsd",
                 all(
