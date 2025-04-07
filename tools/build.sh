@@ -309,10 +309,10 @@ build() {
         xtensa*) return 0 ;;
         # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25
         amdgcn*) return 0 ;;
-        # assembly error in compiler_builtins
-        *-cygwin*) return 0 ;;
         # error: symbol 'fma' is already defined
-        hexagon*) return 0 ;;
+        hexagon-unknown-linux-musl) return 0 ;;
+        # TODO(m68k): LLVM bug: https://github.com/rust-lang/rust/issues/89498
+        m68k*) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
@@ -448,12 +448,6 @@ build() {
       --workspace --exclude bench
     )
   elif [[ -n "${TARGET_GROUP:-}" ]]; then
-    case "${target}" in
-      # TODO(m68k): LLVM bug: https://github.com/rust-lang/rust/issues/89498
-      m68k*) return 0 ;;
-      # TODO: "error: symbol 'f{ma,max}' is already defined" due to https://github.com/rust-lang/compiler-builtins/pull/577
-      hexagon-unknown-none-elf) return 0 ;;
-    esac
     RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" --manifest-path Cargo.toml "$@"
     return 0
