@@ -3,6 +3,8 @@
 /*
 Adapted from https://github.com/rust-embedded/cortex-m.
 
+Refs: https://developer.arm.com/documentation/ddi0419/c/System-Level-Architecture/System-Level-Programmers--Model/Registers/The-special-purpose-mask-register--PRIMASK
+
 Generated asm:
 - armv6-m https://godbolt.org/z/1sqKnsY6n
 */
@@ -23,9 +25,9 @@ pub(super) fn disable() -> State {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(
-            "mrs {0}, PRIMASK",
-            "cpsid i",
-            out(reg) primask,
+            "mrs {primask}, PRIMASK", // primask = PRIMASK
+            "cpsid i",                // PRIMASK.PM = 1
+            primask = out(reg) primask,
             options(nostack, preserves_flags),
         );
     }
@@ -38,13 +40,17 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(primask: State) {
-    if primask & 0x1 == 0 {
-        // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
-        // and we've checked that interrupts were enabled before disabling interrupts.
-        unsafe {
-            // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-            asm!("cpsie i", options(nostack, preserves_flags));
-        }
+pub(super) unsafe fn restore(prev_primask: State) {
+    // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
+    // and we've checked that interrupts were enabled before disabling interrupts.
+    unsafe {
+        // This clobbers the entire PRIMASK register. See msp430.rs to safety on this.
+        //
+        // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
+        asm!(
+            "msr PRIMASK, {prev_primask}", // PRIMASK = prev_primask
+            prev_primask = in(reg) prev_primask,
+            options(nostack, preserves_flags),
+        );
     }
 }

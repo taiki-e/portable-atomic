@@ -30,7 +30,6 @@ cmpld
 cmpw
 cmpxchg
 cpsid
-cpsie
 CPSR
 cpuid
 cpus
@@ -57,6 +56,7 @@ HWCAP
 hwprobe
 includepath
 insn
+INTLEVEL
 Iotel
 ipxe
 isel

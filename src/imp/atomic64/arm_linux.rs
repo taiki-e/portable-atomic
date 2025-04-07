@@ -75,8 +75,8 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     unsafe {
         let (out_lo, out_hi);
         asm!(
-            "ldr {out_lo}, [{src}]",
-            "ldr {out_hi}, [{src}, #4]",
+            "ldr {out_lo}, [{src}]",     // atomic { out_lo = *src }
+            "ldr {out_hi}, [{src}, #4]", // atomic { out_hi = *src.byte_add(4) }
             src = in(reg) src,
             out_lo = out(reg) out_lo,
             out_hi = out(reg) out_hi,

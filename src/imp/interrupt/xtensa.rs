@@ -24,7 +24,11 @@ pub(super) fn disable() -> State {
         // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         // Interrupt level 15 to disable all interrupts.
         // SYNC after RSIL is not required.
-        asm!("rsil {0}, 15", out(reg) ps, options(nostack));
+        asm!(
+            "rsil {ps}, 15", // ps = PS; PS.INTLEVEL = 15
+            ps = out(reg) ps,
+            options(nostack),
+        );
     }
     ps
 }
@@ -35,16 +39,17 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(ps: State) {
+pub(super) unsafe fn restore(prev_ps: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     // and we've checked that interrupts were enabled before disabling interrupts.
     unsafe {
         // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         // SYNC after WSR is required to guarantee that subsequent RSIL read the written value.
+        // See also 3.8.10 Processor Control Instructions of Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors.
         asm!(
-            "wsr.ps {0}",
-            "rsync",
-            in(reg) ps,
+            "wsr.ps {prev_ps}", // PS = prev_ps
+            "rsync",            // wait
+            prev_ps = in(reg) prev_ps,
             options(nostack),
         );
     }
