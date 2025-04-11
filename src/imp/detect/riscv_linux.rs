@@ -30,6 +30,8 @@ mod ffi {
         pub(crate) const __NR_riscv_hwprobe: c_long = 258;
 
         // https://github.com/torvalds/linux/blob/v6.13/arch/riscv/include/uapi/asm/hwprobe.h
+        pub(crate) const RISCV_HWPROBE_KEY_BASE_BEHAVIOR: i64 = 3;
+        pub(crate) const RISCV_HWPROBE_BASE_BEHAVIOR_IMA: u64 = 1 << 0;
         pub(crate) const RISCV_HWPROBE_KEY_IMA_EXT_0: i64 = 4;
         // Linux 6.8+
         // https://github.com/torvalds/linux/commit/154a3706122978eeb34d8223d49285ed4f3c61fa
@@ -99,17 +101,25 @@ mod ffi {
 
 // syscall returns an unsupported error if riscv_hwprobe is not supported,
 // so we can safely use this function on older versions of Linux.
-fn riscv_hwprobe(out: &mut ffi::riscv_hwprobe) -> bool {
+fn riscv_hwprobe(out: &mut [ffi::riscv_hwprobe]) -> bool {
+    let len = out.len();
     // SAFETY: We've passed the valid pointer and length,
     // passing null ptr for cpus is safe because cpu_set_size is zero.
-    unsafe { ffi::__riscv_hwprobe(out, 1, 0, ptr::null_mut(), 0) == 0 }
+    unsafe { ffi::__riscv_hwprobe(out.as_mut_ptr(), len, 0, ptr::null_mut(), 0) == 0 }
 }
 
 #[cold]
 fn _detect(info: &mut CpuInfo) {
-    let mut out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
-    if riscv_hwprobe(&mut out) && out.key != -1 {
-        let value = out.value;
+    let mut out = [
+        ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_BASE_BEHAVIOR, value: 0 },
+        ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 },
+    ];
+    if riscv_hwprobe(&mut out)
+        && out[0].key != -1
+        && out[0].value & ffi::RISCV_HWPROBE_BASE_BEHAVIOR_IMA != 0
+        && out[1].key != -1
+    {
+        let value = out[1].value;
         macro_rules! check {
             ($flag:ident, $bit:ident) => {
                 if value & ffi::$bit != 0 {
@@ -148,11 +158,15 @@ mod tests {
                 libc::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
             }
         }
-        fn riscv_hwprobe_libc(out: &mut ffi::riscv_hwprobe) -> bool {
-            unsafe { __riscv_hwprobe_libc(out, 1, 0, ptr::null_mut(), 0) == 0 }
+        fn riscv_hwprobe_libc(out: &mut [ffi::riscv_hwprobe]) -> bool {
+            let len = out.len();
+            unsafe { __riscv_hwprobe_libc(out.as_mut_ptr(), len, 0, ptr::null_mut(), 0) == 0 }
         }
-        let mut out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
-        let mut libc_out = ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 };
+        let mut out = [
+            ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_BASE_BEHAVIOR, value: 0 },
+            ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 },
+        ];
+        let mut libc_out = out;
         assert_eq!(riscv_hwprobe(&mut out), riscv_hwprobe_libc(&mut libc_out));
         assert_eq!(out, libc_out);
     }
