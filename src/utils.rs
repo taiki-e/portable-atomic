@@ -434,6 +434,7 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     // (See also https://devblogs.microsoft.com/oldnewthing/20230904-00/?p=108704 for others)
     const SHIFT_MASK: bool = !cfg!(any(
         target_arch = "bpf",
+        target_arch = "loongarch32",
         target_arch = "loongarch64",
         target_arch = "mips",
         target_arch = "mips32r6",

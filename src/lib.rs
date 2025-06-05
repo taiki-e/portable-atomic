@@ -816,14 +816,24 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        #[cfg(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
-        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        #[cfg(not(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        )))]
         {
             self.as_atomic_u8().swap(val as u8, order) != 0
         }
@@ -878,7 +888,12 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        #[cfg(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
@@ -895,7 +910,12 @@ impl AtomicBool {
             };
             if old == current { Ok(old) } else { Err(old) }
         }
-        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        #[cfg(not(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        )))]
         {
             match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
                 Ok(x) => Ok(x != 0),
@@ -952,14 +972,24 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        #[cfg(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
             self.compare_exchange(current, new, success, failure)
         }
-        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        #[cfg(not(any(
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+        )))]
         {
             match self
                 .as_atomic_u8()
