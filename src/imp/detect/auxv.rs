@@ -959,6 +959,7 @@ mod tests {
             }
 
             for aux in &auxv {
+                #[allow(clippy::cast_sign_loss)]
                 if aux.a_type == type_ as c_long {
                     // SAFETY: aux.a_un is #[repr(C)] union and all fields have
                     // the same size and can be safely transmuted to integers.
@@ -1127,6 +1128,7 @@ mod tests {
             }
 
             for aux in &auxv {
+                #[allow(clippy::cast_sign_loss)]
                 if aux.a_type == type_ as c_long {
                     // SAFETY: aux.a_un is #[repr(C)] union and all fields have
                     // the same size and can be safely transmuted to integers.
