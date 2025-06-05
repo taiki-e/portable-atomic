@@ -48,7 +48,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","sm_70","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -59,7 +59,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","v6","zaamo","zabha","zacas"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","sm_70","v6","zaamo","zabha","zacas"))"#
         );
     }
 
@@ -184,6 +184,11 @@ fn main() {
                     && version.probe(60, 2022, 2, 12)
                     && is_allowed_feature("asm_experimental_arch")
                 {
+                    println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                }
+            }
+            "nvptx64" => {
+                if version.nightly && is_allowed_feature("asm_experimental_arch") {
                     println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
                 }
             }
@@ -448,6 +453,36 @@ fn main() {
             // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L301
             // nand (nnr{,g}k), select (sel{,g}r), etc.
             target_feature_fallback("miscellaneous-extensions-3", arch13_features);
+        }
+        "nvptx64" => {
+            let mut sm_70 = false;
+            if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+                for mut flag in rustflags.to_string_lossy().split('\x1f') {
+                    flag = strip_prefix(flag, "-C").unwrap_or(flag);
+                    if let Some(flag) = strip_prefix(flag, "target-feature=") {
+                        for s in flag.split(',') {
+                            // TODO: Handles cases where a specific target feature
+                            // implicitly enables another target feature.
+                            match (s.as_bytes().first(), s.get(1..)) {
+                                (Some(b'+'), Some(f)) => {
+                                    if let Some(sm) = strip_prefix(f, "sm_") {
+                                        if let Ok(sm) = sm.parse::<u32>() {
+                                            if sm >= 70 {
+                                                sm_70 = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                (Some(b'-'), Some(_f)) => {
+                                    // TODO
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+            }
+            target_feature_fallback("sm_70", sm_70);
         }
         _ => {}
     }
