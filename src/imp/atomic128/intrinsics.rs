@@ -61,6 +61,8 @@ fn strongest_failure_ordering(order: Ordering) -> Ordering {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+    use intrinsics::AtomicOrdering;
+
     #[cfg(target_arch = "x86_64")]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -73,9 +75,9 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
-            Acquire => intrinsics::atomic_load_acquire(src),
-            Relaxed => intrinsics::atomic_load_relaxed(src),
-            SeqCst => intrinsics::atomic_load_seqcst(src),
+            Acquire => intrinsics::atomic_load::<_, { AtomicOrdering::Acquire }>(src),
+            Relaxed => intrinsics::atomic_load::<_, { AtomicOrdering::Relaxed }>(src),
+            SeqCst => intrinsics::atomic_load::<_, { AtomicOrdering::SeqCst }>(src),
             _ => unreachable!(),
         }
     }
