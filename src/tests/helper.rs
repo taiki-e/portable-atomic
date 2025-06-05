@@ -2297,7 +2297,7 @@ macro_rules! __stress_test_acquire_release {
     (should_pass, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {
         paste::paste! {
             #[test]
-            #[cfg_attr(all(debug_assertions, not(miri)), ignore)] // debug mode is slow.
+            #[cfg_attr(all(debug_assertions, not(miri)), ignore = "slow in some environments")] // debug mode is slow.
             #[allow(clippy::cast_possible_truncation)]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 __stress_test_acquire_release!([<Atomic $int_type:camel>],
@@ -2311,7 +2311,7 @@ macro_rules! __stress_test_acquire_release {
             // of iterations are needed, but this test is slow in some environments.
             // So, ignore on non-Miri environments by default. See also catch_unwind_on_weak_memory_arch.
             #[test]
-            #[cfg_attr(not(miri), ignore)]
+            #[cfg_attr(not(miri), ignore = "slow in some environments")]
             #[allow(clippy::cast_possible_truncation)]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 can_panic("a=", || __stress_test_acquire_release!([<Atomic $int_type:camel>],
@@ -2361,7 +2361,7 @@ macro_rules! __stress_test_seqcst {
             // it creates two threads for each iteration.
             // So, ignore on QEMU by default.
             #[test]
-            #[cfg_attr(any(all(debug_assertions, not(miri)), qemu), ignore)] // debug mode is slow.
+            #[cfg_attr(any(all(debug_assertions, not(miri)), qemu), ignore = "slow in some environments")] // debug mode is slow.
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 __stress_test_seqcst!([<Atomic $int_type:camel>],
                     $write, $load_order, $store_order);
@@ -2375,7 +2375,7 @@ macro_rules! __stress_test_seqcst {
             // it creates two threads for each iteration.
             // So, ignore on non-Miri environments by default. See also catch_unwind_on_non_seqcst_arch.
             #[test]
-            #[cfg_attr(not(miri), ignore)]
+            #[cfg_attr(not(miri), ignore = "slow in some environments")]
             fn [<load_ $load_order:lower _ $write _ $store_order:lower>]() {
                 can_panic("c=2", || __stress_test_seqcst!([<Atomic $int_type:camel>],
                     $write, $load_order, $store_order));

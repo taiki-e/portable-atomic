@@ -131,7 +131,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg_attr(portable_atomic_test_detect_false, ignore)]
+    #[cfg_attr(portable_atomic_test_detect_false, ignore = "detection disabled")]
     fn test_cpuid() {
         assert_eq!(std::is_x86_feature_detected!("cmpxchg16b"), detect().cmpxchg16b());
         let vendor_id = _vendor_id();

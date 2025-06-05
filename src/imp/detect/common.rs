@@ -75,7 +75,7 @@ macro_rules! flags {
             )*];
         }
         #[test]
-        #[cfg_attr(portable_atomic_test_detect_false, ignore)]
+        #[cfg_attr(portable_atomic_test_detect_false, ignore = "detection disabled")]
         fn test_detect() {$(
             $(#[$attr])*
             {

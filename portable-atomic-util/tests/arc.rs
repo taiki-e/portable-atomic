@@ -126,7 +126,7 @@ mod alloc_tests {
     }
 
     #[test]
-    #[cfg_attr(target_os = "emscripten", ignore)]
+    #[cfg_attr(target_os = "emscripten", ignore = "thread::spawn doesn't work on emscripten")]
     fn manually_share_arc() {
         let v = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let arc_v = Arc::new(v);
@@ -531,7 +531,7 @@ mod alloc_tests {
     }
 
     #[test]
-    #[cfg_attr(target_os = "emscripten", ignore)]
+    #[cfg_attr(target_os = "emscripten", ignore = "thread::spawn doesn't work on emscripten")]
     fn test_weak_count_locked() {
         let mut a = Arc::new(AtomicBool::new(false));
         let a2 = a.clone();
