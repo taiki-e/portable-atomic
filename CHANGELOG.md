@@ -12,11 +12,19 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix build error when building non-x86 targets for Miri or ThreadSanitizer since nightly-2025-05-31.
+
+- aarch64: Optimize atomic floats when FEAT_LSFE is enabled. ([#201](https://github.com/taiki-e/portable-atomic/pull/201))
+
+- Improve compile-time detection of RISC-V Zacas extension. ([b7634e2](https://github.com/taiki-e/portable-atomic/commit/b7634e2cd808ea118266d12f99fd8877a92e3d31))
+
+- Improve run-time detection on linux-musl. ([7fdad7f](https://github.com/taiki-e/portable-atomic/commit/7fdad7f7dd32e32ece7bd0eaf565db657b3406bb))
+
 ## [1.11.0] - 2025-02-24
 
 - Work around [nightly-2025-02-24 rustc regression causing "cannot use value of type `*mut T` for inline assembly" error](https://github.com/rust-lang/rust/issues/137512) on RISC-V without A extension, MSP430, and pre-v6 no-std Arm targets. ([eeb0235](https://github.com/taiki-e/portable-atomic/commit/eeb0235b9fda4c28a56ee5a9ffe0d7fb884a50ab))
 
-- Support `AtomicF16` and `AtomicF128` for [unstable `f16` and `f128`](https://github.com/rust-lang/rust/issues/116909) under unstable cfgs. ([582a915](https://github.com/taiki-e/portable-atomic/commit/582a9156368d9a4e19be0c724d3635efde4d25a2))
+- Support `AtomicF16` and `AtomicF128` for [unstable `f16` and `f128`](https://github.com/rust-lang/rust/issues/116909) under unstable cfgs. ([#200](https://github.com/taiki-e/portable-atomic/pull/200))
 
 - RISC-V Zacas extension support is no longer experimental. ([#206](https://github.com/taiki-e/portable-atomic/pull/206))
 

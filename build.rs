@@ -134,7 +134,7 @@ fn main() {
 
     // For Miri and ThreadSanitizer. (aarch64, arm64ec, s390x, powerpc64)
     // https://github.com/rust-lang/rust/pull/97423 merged in Rust 1.64 (nightly-2022-06-30).
-    // https://github.com/rust-lang/rust/pull/141507 merged in Rust 1.89 (nightly-2022-05-31).
+    // https://github.com/rust-lang/rust/pull/141507 merged in Rust 1.89 (nightly-2025-05-31).
     if version.nightly
         && version.probe(64, 2022, 6, 29)
         && !version.probe(89, 2025, 5, 30)
