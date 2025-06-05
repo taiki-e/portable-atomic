@@ -355,6 +355,10 @@ EOF
         # integers can be grouped because they are small enough.
         # NB: Sync feature list with tests/msp430/Cargo.toml
         for feature in i16,u16,i32,u32,i64,u64,i128,u128 f32 f64; do
+          case "${feature}" in
+            # TODO: LLVM segfault
+            f32 | f64) continue ;;
+          esac
           # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
           #     RUSTFLAGS="${target_rustflags}" \
           #     x_cargo "${args[@]}" --features "${feature}" "$@"
