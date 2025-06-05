@@ -159,9 +159,9 @@ is_no_std() {
   case "$1" in
     *-linux-none*) ;;
     # https://github.com/rust-lang/rust/blob/1.84.0/library/std/build.rs#L65
-    # ESP-IDF supports std, but it is often broken.
+    # ESP-IDF and AIX supports std, but they are often broken.
     # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | aarch64-unknown-linux-uclibc) return 0 ;;
+    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | *-aix | aarch64-unknown-linux-uclibc) return 0 ;;
   esac
   return 1
 }

@@ -84,6 +84,8 @@ critical-section = { version = "1", optional = true }
 
 # [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
 # test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "93816e3" } #build:static_assert_ffi
+# [target.'cfg(all(portable_atomic_test_no_std_static_assert_ffi, target_os = "aix"))'.dependencies] #build:static_assert_ffi
+# libc = "=0.2.163" #build:static_assert_ffi
 
 [dev-dependencies]
 build-context = "0.1"
