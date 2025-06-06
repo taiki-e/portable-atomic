@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.11.1] - 2025-06-06
+
 - Fix build error when building non-x86 targets for Miri or ThreadSanitizer since nightly-2025-05-31.
 
 - aarch64: Optimize atomic floats when FEAT_LSFE is enabled. ([#201](https://github.com/taiki-e/portable-atomic/pull/201))
@@ -530,7 +532,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/taiki-e/portable-atomic/compare/v1.8.0...v1.9.0
