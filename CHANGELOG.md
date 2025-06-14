@@ -14,7 +14,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [1.11.1] - 2025-06-06
 
-- Fix build error when building non-x86 targets for Miri or ThreadSanitizer since nightly-2025-05-31.
+- Fix build error when building aarch64/arm64ec/powerpc64/s390x targets for Miri or ThreadSanitizer since nightly-2025-05-31.
 
 - aarch64: Optimize atomic floats when FEAT_LSFE is enabled. ([#201](https://github.com/taiki-e/portable-atomic/pull/201))
 
