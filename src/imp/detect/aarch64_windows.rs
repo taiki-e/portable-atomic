@@ -16,7 +16,7 @@ include!("common.rs");
 mod ffi {
     sys_type!({
         pub(crate) type [Win32::System::Threading] PROCESSOR_FEATURE_ID = u32;
-        pub(crate) type [Win32::Foundation] BOOL = i32;
+        pub(crate) type [core] BOOL = i32;
     });
 
     sys_const!({
