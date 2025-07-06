@@ -20,8 +20,9 @@ cd -- "$(dirname -- "$0")"/..
 # Some targets are also checked by calls to this script in CI's "test" or "no-std" job.
 default_targets=(
   # no atomic load/store (16-bit)
-  msp430-none-elf
-  msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
+  # TODO: https://github.com/rust-lang/rust/issues/143072
+  # msp430-none-elf
+  # msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
   # no atomic load/store (32-bit)
   mipsel-sony-psx
   # no atomic load/store (64-bit)
