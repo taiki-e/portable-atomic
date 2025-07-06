@@ -512,7 +512,12 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
       - uses: taiki-e/install-action@cargo-careful
-        if: startsWith(matrix.rust, 'nightly')
+        # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
+        if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024'))
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-careful@0.4.7
+        if: startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
