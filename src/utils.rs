@@ -10,11 +10,8 @@ use core::sync::atomic::Ordering;
 
 macro_rules! static_assert {
     ($cond:expr $(,)?) => {{
-        let [] = [(); true as usize - $crate::utils::_assert_is_bool($cond) as usize];
+        let [()] = [(); (true /* type check */ & $cond) as usize];
     }};
-}
-pub(crate) const fn _assert_is_bool(v: bool) -> bool {
-    v
 }
 
 macro_rules! static_assert_layout {
