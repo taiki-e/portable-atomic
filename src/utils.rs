@@ -720,33 +720,11 @@ pub(crate) mod ffi {
                 $(#[$attr])*
                 $vis type $name = $ty;
             )*
-            // Static assertions for FFI bindings.
-            // This checks that FFI bindings defined in this crate and FFI bindings generated for
-            // the platform's latest header file using bindgen have the same types.
-            // Since this is static assertion, we can detect problems with
-            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
-            // without actually running tests on these platforms.
-            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            #[allow(
-                unused_imports,
-                clippy::cast_possible_wrap,
-                clippy::cast_sign_loss,
-                clippy::cast_possible_truncation
-            )]
-            const _: fn() = || {
-                #[cfg(not(any(target_os = "aix", windows)))]
-                use test_helper::sys;
-                #[cfg(target_os = "aix")]
-                use libc as sys;
-                $(
-                    $(#[$attr])*
-                    {
-                        $(use windows_sys::$($windows_path)::+ as sys;)?
-                        let _: $name = 0 as sys::$name;
-                    }
-                )*
-            };
+            test_helper::static_assert_sys_type!($(
+                $(#[$attr])*
+                type $([$($windows_path)::+])? $name;
+            )*);
         };
     }
     /// Defines #[repr(C)] structs with #[cfg(test)] static assertions which checks
@@ -774,46 +752,14 @@ pub(crate) mod ffi {
                     $field_vis $field_name: $field_ty,
                 )*}
             )*
-            // Static assertions for FFI bindings.
-            // This checks that FFI bindings defined in this crate and FFI bindings generated for
-            // the platform's latest header file using bindgen have the same fields.
-            // Since this is static assertion, we can detect problems with
-            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
-            // without actually running tests on these platforms.
-            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            #[allow(unused_imports, clippy::undocumented_unsafe_blocks)]
-            const _: fn() = || {
-                #[cfg(not(any(target_os = "aix", windows)))]
-                use test_helper::sys;
-                #[cfg(target_os = "aix")]
-                use libc as sys;
-                $(
-                    $(#[$attr])*
-                    {
-                        $(use windows_sys::$($windows_path)::+ as sys;)?
-                        static_assert!(
-                            core::mem::size_of::<$name>()
-                                == core::mem::size_of::<sys::$name>()
-                        );
-                        let s: $name = unsafe { core::mem::zeroed() };
-                        // field names and types
-                        let _ = sys::$name {$(
-                            $(#[$field_attr])*
-                            $field_name: s.$field_name,
-                        )*};
-                        // field offsets
-                        #[cfg(not(portable_atomic_no_offset_of))]
-                        {$(
-                            $(#[$field_attr])*
-                            static_assert!(
-                                core::mem::offset_of!($name, $field_name) ==
-                                    core::mem::offset_of!(sys::$name, $field_name),
-                            );
-                        )*}
-                    }
-                )*
-            };
+            test_helper::static_assert_sys_struct!($(
+                $(#[$attr])*
+                struct $([$($windows_path)::+])? $name {$(
+                    $(#[$field_attr])*
+                    $field_name: $field_ty,
+                )*}
+            )*);
         };
     }
     /// Defines constants with #[cfg(test)] static assertions which checks
@@ -829,52 +775,11 @@ pub(crate) mod ffi {
                 $(#[$attr])*
                 $vis const $name: $ty = $val;
             )*
-            // Static assertions for FFI bindings.
-            // This checks that FFI bindings defined in this crate and FFI bindings generated for
-            // the platform's latest header file using bindgen have the same values.
-            // Since this is static assertion, we can detect problems with
-            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
-            // without actually running tests on these platforms.
-            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            #[allow(
-                unused_attributes, // for #[allow(..)] in $(#[$attr])*
-                unused_imports,
-                clippy::cast_possible_wrap,
-                clippy::cast_sign_loss,
-                clippy::cast_possible_truncation,
-            )]
-            const _: fn() = || {
-                #[cfg(not(any(target_os = "aix", windows)))]
-                use test_helper::sys;
-                #[cfg(target_os = "aix")]
-                use libc as sys;
-                $(
-                    $(#[$attr])*
-                    {
-                        $(use windows_sys::$($windows_path)::+ as sys;)?
-                        sys_const_cmp!($name, $ty);
-                    }
-                )*
-            };
-        };
-    }
-    #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-    macro_rules! sys_const_cmp {
-        (RTLD_DEFAULT, $ty:ty) => {
-            // ptr comparison and ptr-to-int cast are not stable on const context, so use ptr-to-int
-            // transmute and compare its result.
-            static_assert!(
-                // SAFETY: Pointer-to-integer transmutes are valid (since we are okay with losing the
-                // provenance here). (Same as <pointer>::addr().)
-                unsafe {
-                    core::mem::transmute::<$ty, usize>(RTLD_DEFAULT)
-                        == core::mem::transmute::<$ty, usize>(sys::RTLD_DEFAULT)
-                }
-            );
-        };
-        ($name:ident, $ty:ty) => {
-            static_assert!($name == sys::$name as $ty);
+            test_helper::static_assert_sys_const!($(
+                $(#[$attr])*
+                const $([$($windows_path)::+])? $name: $ty;
+            )*);
         };
     }
     /// Defines functions with #[cfg(test)] static assertions which checks
@@ -896,43 +801,14 @@ pub(crate) mod ffi {
                 $(#[$fn_attr])*
                 $vis fn $name($($args)*) $(-> $ret_ty)?;
             )*}
-            // Static assertions for FFI bindings.
-            // This checks that FFI bindings defined in this crate and FFI bindings generated for
-            // the platform's latest header file using bindgen have the same signatures.
-            // Since this is static assertion, we can detect problems with
-            // `cargo check --tests --target <target>` run in CI (via TESTS=1 build.sh)
-            // without actually running tests on these platforms.
-            // See also https://github.com/taiki-e/test-helper/blob/HEAD/tools/codegen/src/ffi.rs.
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            #[allow(unused_imports)]
-            const _: fn() = || {
-                #[cfg(not(any(target_os = "aix", windows)))]
-                use test_helper::sys;
-                #[cfg(target_os = "aix")]
-                use libc as sys;
-                $(
+            test_helper::static_assert_sys_fn!(
+                $(#[$extern_attr])*
+                extern $abi {$(
                     $(#[$fn_attr])*
-                    {
-                        $(use windows_sys::$($windows_path)::+ as sys;)?
-                        sys_fn_cmp!($abi fn $name($($args)*) $(-> $ret_ty)?);
-                    }
-                )*
-            };
-        };
-    }
-    #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-    macro_rules! sys_fn_cmp {
-        (
-            $abi:literal fn $name:ident($($_arg_pat:ident: $arg_ty:ty),*, ...) $(-> $ret_ty:ty)?
-        ) => {
-            let mut _f: unsafe extern $abi fn($($arg_ty),*, ...) $(-> $ret_ty)? = $name;
-            _f = sys::$name;
-        };
-        (
-            $abi:literal fn $name:ident($($_arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?
-        ) => {
-            let mut _f: unsafe extern $abi fn($($arg_ty),*) $(-> $ret_ty)? = $name;
-            _f = sys::$name;
+                    fn $([$($windows_path)::+])? $name($($args)*) $(-> $ret_ty)?;
+                )*}
+            );
         };
     }
 
