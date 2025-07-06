@@ -238,7 +238,7 @@ jobs:
             os: windows-11-arm
           # ------------------------------------------------------------
           # aarch64_be-unknown-linux-gnu
-          - rust: nightly-2024-11-07 # TODO: https://github.com/BurntSushi/memchr/pull/162
+          - rust: nightly
             target: aarch64_be-unknown-linux-gnu
             os: ubuntu-22.04
           # ------------------------------------------------------------
