@@ -48,7 +48,7 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","fast-serialization","load-store-on-cond","distinct-ops","miscellaneous-extensions-3"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","fast-serialization","load-store-on-cond","distinct-ops"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
@@ -418,7 +418,7 @@ fn main() {
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
                 // LLVM and GCC recognize the same names:
-                // https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                // https://github.com/llvm/llvm-project/blob/llvmorg-20.1.6/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.2.0/gcc/config/s390/s390.opt#L58-L125
                 if let Some(arch_version) = strip_prefix(&cpu, "arch") {
                     if let Ok(arch_version) = arch_version.parse::<u32>() {
@@ -428,13 +428,19 @@ fn main() {
                 } else {
                     match &*cpu {
                         "z196" | "zEC12" | "z13" | "z14" => arch9_features = true,
-                        "z15" | "z16" => {
+                        "z15" | "z16" | "z17" => {
                             arch9_features = true;
                             arch13_features = true;
                         }
                         _ => {}
                     }
                 }
+            }
+            // target_feature "miscellaneous-extensions-3" is unstable and available on rustc side since nightly-2025-06-05: https://github.com/rust-lang/rust/pull/141250
+            if !version.probe(89, 2025, 6, 4) || needs_target_feature_fallback(&version, None) {
+                // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L301
+                // nand (nnr{,g}k), select (sel{,g}r), etc.
+                target_feature_fallback("miscellaneous-extensions-3", arch13_features);
             }
             // As of rustc 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
@@ -445,9 +451,6 @@ fn main() {
             target_feature_fallback("load-store-on-cond", arch9_features);
             // {al,sl,n,o,x}{,g}rk
             target_feature_fallback("distinct-ops", arch9_features);
-            // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-20.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L301
-            // nand (nnr{,g}k), select (sel{,g}r), etc.
-            target_feature_fallback("miscellaneous-extensions-3", arch13_features);
         }
         _ => {}
     }

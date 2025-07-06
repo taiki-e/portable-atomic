@@ -21,8 +21,8 @@ Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't
 this module and use intrinsics.rs instead.
 
 Refs:
-- z/Architecture Principles of Operation, Fourteenth Edition (SA22-7832-13)
-  https://publibfp.dhe.ibm.com/epubs/pdf/a227832d.pdf
+- z/Architecture Principles of Operation, Fifteenth Edition (SA22-7832-14)
+  https://www.ibm.com/docs/en/module_1678991624569/pdf/SA22-7832-14.pdf
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
