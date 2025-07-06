@@ -232,10 +232,30 @@ jobs:
             target: aarch64-apple-ios-macabi
             os: macos-latest
           # ------------------------------------------------------------
+          # aarch64-pc-windows-msvc
+          - rust: nightly
+            target: aarch64-pc-windows-msvc
+            os: windows-11-arm
+          # ------------------------------------------------------------
           # aarch64_be-unknown-linux-gnu
           - rust: nightly-2024-11-07 # TODO: https://github.com/BurntSushi/memchr/pull/162
             target: aarch64_be-unknown-linux-gnu
             os: ubuntu-22.04
+          # ------------------------------------------------------------
+          # arm64ec-pc-windows-msvc
+          - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
+            target: arm64ec-pc-windows-msvc
+            os: windows-11-arm
+          # TODO: Fixed in Rust 1.90 https://github.com/rust-lang/rust/pull/143387
+          # - rust: stable
+          #   target: arm64ec-pc-windows-msvc
+          #   os: windows-11-arm
+          # - rust: beta
+          #   target: arm64ec-pc-windows-msvc
+          #   os: windows-11-arm
+          - rust: nightly
+            target: arm64ec-pc-windows-msvc
+            os: windows-11-arm
           # ------------------------------------------------------------
           # aarch64-unknown-linux-musl
           - rust: stable
