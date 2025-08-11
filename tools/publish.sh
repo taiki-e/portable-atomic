@@ -43,7 +43,7 @@ case "${name}" in
 esac
 tag="${tag_prefix}${version}"
 changelog="${dir}/CHANGELOG.md"
-manifest_path="${dir}/Cargo.toml"
+MANIFEST_PATH="${dir}/Cargo.toml"
 if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z\.-]+)?(\+[0-9A-Za-z\.-]+)?$ ]]; then
   bail "invalid version format '${version}'"
 fi
@@ -76,7 +76,7 @@ fi
 release_date=$(date -u '+%Y-%m-%d')
 tags=$(git --no-pager tag | { grep -E "^${tag_prefix}[0-9]+" || true; })
 docs=("${dir}/README.md" "${dir}/src/lib.rs")
-changed_paths=("${changelog}" "${docs[@]}" "${manifest_path}")
+changed_paths=("${changelog}" "${docs[@]}" "${MANIFEST_PATH}")
 if [[ -n "${tags}" ]]; then
   # Make sure the same release does not exist in changelog.
   if grep -Eq "^## \\[${version//./\\.}\\]" "${changelog}"; then
@@ -100,10 +100,10 @@ if [[ -n "${tags}" ]]; then
   fi
   prev_version="${prev_tag#"${tag_prefix}"}"
   # Update version in Cargo.toml.
-  if ! grep -Eq "^version = \"${prev_version}\" #publish:version" "${manifest_path}"; then
-    bail "not found '#publish:version' in version in ${manifest_path}"
+  if ! grep -Eq "^version = \"${prev_version}\" #publish:version" "${MANIFEST_PATH}"; then
+    bail "not found '#publish:version' in version in ${MANIFEST_PATH}"
   fi
-  sed -E "${in_place[@]}" "s/^version = \"${prev_version}\" #publish:version/version = \"${version}\" #publish:version/g" "${manifest_path}"
+  sed -E "${in_place[@]}" "s/^version = \"${prev_version}\" #publish:version/version = \"${version}\" #publish:version/g" "${MANIFEST_PATH}"
   # Update version in readme and lib.rs.
   for path in "${docs[@]}"; do
     # TODO: handle pre-release
