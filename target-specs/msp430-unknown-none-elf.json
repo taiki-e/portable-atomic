@@ -12,7 +12,7 @@
   "max-atomic-width": 0,
   "panic-strategy": "abort",
   "relocation-model": "static",
-  "target-c-int-width": "16",
+  "target-c-int-width": 16,
   "target-pointer-width": "16",
   "trap-unreachable": false
 }
