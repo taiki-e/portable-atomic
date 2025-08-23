@@ -1,4 +1,0 @@
-[toolchain]
-channel = "nightly-2025-06-25" # https://github.com/rust-lang/rust/issues/143072
-components = ["rust-src"]
-profile = "minimal"
