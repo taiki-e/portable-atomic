@@ -105,7 +105,7 @@ libc = "=0.2.163" # newer libc requires Rust 1.63
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.60", features = [
     "Win32_Foundation",
-    "Win32_System_Threading",
+    "Win32_System_Threading", # IsProcessorFeaturePresent
 ] }
 
 [lints]
