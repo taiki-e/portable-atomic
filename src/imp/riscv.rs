@@ -15,11 +15,11 @@ https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#risc
 Refs:
 - RISC-V Instruction Set Manual
   "Zaamo" Extension for Atomic Memory Operations
-  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-56e76be-2025-08-26/src/a-st-ext.adoc#zaamo-extension-for-atomic-memory-operations
   "Zabha" Extension for Byte and Halfword Atomic Memory Operations
-  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/zabha.adoc
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-56e76be-2025-08-26/src/zabha.adoc
 - RISC-V Atomics ABI Specification
-  https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20240829-13bfa9f54634cb60d86b9b333e109f077805b4b3/riscv-atomic.adoc
+  https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20250812-301374e92976e298e676e7129a6212926b2299ce/riscv-atomic.adoc
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
@@ -102,7 +102,7 @@ macro_rules! atomic_rmw_amo {
                 // The caller of this macro must guarantee the validity of the pointer.
                 asm!(
                     ".option push",
-                    // https://github.com/riscv-non-isa/riscv-asm-manual/blob/ad0de8c004e29c9a7ac33cfd054f4d4f9392f2fb/src/asm-manual.adoc#arch
+                    // https://github.com/riscv-non-isa/riscv-asm-manual/blob/v0.0.1/src/asm-manual.adoc#arch
                     // LLVM supports `.option arch` directive on LLVM 17+.
                     // https://github.com/llvm/llvm-project/commit/9e8ed3403c191ab9c4903e8eeb8f732ff8a43cb4
                     // Note that `.insn <value>` directive requires LLVM 19.

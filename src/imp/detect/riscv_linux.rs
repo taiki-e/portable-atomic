@@ -6,7 +6,7 @@ Run-time CPU feature detection on RISC-V Linux/Android by using riscv_hwprobe.
 On RISC-V, detection using auxv only supports single-letter extensions.
 So, we use riscv_hwprobe that supports multi-letter extensions.
 
-Refs: https://github.com/torvalds/linux/blob/v6.13/Documentation/arch/riscv/hwprobe.rst
+Refs: https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/riscv/hwprobe.rst
 */
 
 include!("common.rs");
@@ -19,7 +19,7 @@ mod ffi {
     pub(crate) use crate::utils::ffi::{c_long, c_size_t, c_uint, c_ulong};
 
     sys_struct!({
-        // https://github.com/torvalds/linux/blob/v6.13/arch/riscv/include/uapi/asm/hwprobe.h
+        // https://github.com/torvalds/linux/blob/v6.16/arch/riscv/include/uapi/asm/hwprobe.h
         pub(crate) struct riscv_hwprobe {
             pub(crate) key: i64,
             pub(crate) value: u64,
@@ -29,7 +29,7 @@ mod ffi {
     sys_const!({
         pub(crate) const __NR_riscv_hwprobe: c_long = 258;
 
-        // https://github.com/torvalds/linux/blob/v6.13/arch/riscv/include/uapi/asm/hwprobe.h
+        // https://github.com/torvalds/linux/blob/v6.16/arch/riscv/include/uapi/asm/hwprobe.h
         pub(crate) const RISCV_HWPROBE_KEY_BASE_BEHAVIOR: i64 = 3;
         pub(crate) const RISCV_HWPROBE_BASE_BEHAVIOR_IMA: u64 = 1 << 0;
         pub(crate) const RISCV_HWPROBE_KEY_IMA_EXT_0: i64 = 4;
@@ -86,7 +86,7 @@ mod ffi {
         r
     }
 
-    // https://github.com/torvalds/linux/blob/v6.13/Documentation/arch/riscv/hwprobe.rst
+    // https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/riscv/hwprobe.rst
     pub(crate) unsafe fn __riscv_hwprobe(
         pairs: *mut riscv_hwprobe,
         pair_count: c_size_t,

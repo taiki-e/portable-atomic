@@ -4,7 +4,7 @@
 Run-time CPU feature detection on PowerPC64 AIX by using getsystemcfg.
 
 Refs:
-- https://github.com/golang/go/blob/go1.24.0/src/internal/cpu/cpu_ppc64x_aix.go
+- https://github.com/golang/go/blob/go1.25.0/src/internal/cpu/cpu_ppc64x_aix.go
 
 As of nightly-2024-09-07, is_powerpc_feature_detected doesn't support run-time detection on AIX.
 https://github.com/rust-lang/stdarch/blob/d9466edb4c53cece8686ee6e17b028436ddf4151/crates/std_detect/src/detect/mod.rs
@@ -21,13 +21,12 @@ mod ffi {
 
     sys_const!({
         // https://github.com/rust-lang/libc/blob/0.2.158/src/unix/aix/mod.rs#L2058
-        // https://github.com/golang/go/blob/go1.24.0/src/internal/cpu/cpu_ppc64x_aix.go
+        // https://github.com/golang/go/blob/go1.25.0/src/internal/cpu/cpu_ppc64x_aix.go
         pub(crate) const SC_IMPL: c_int = 2;
         pub(crate) const POWER_8: c_ulong = 0x10000;
         pub(crate) const POWER_9: c_ulong = 0x20000;
     });
     // TODO: use sys_const! once libc crate defined it.
-    // https://github.com/golang/go/blob/go1.24.0/src/internal/cpu/cpu_ppc64x_aix.go
     pub(crate) const POWER_10: c_ulong = 0x40000;
 
     sys_fn!({

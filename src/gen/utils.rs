@@ -11,7 +11,7 @@
 // handle this is to pass it as a pointer and clear the upper bits inside asm,
 // but it is easier to overlook than cast, which can catch overlooks by
 // asm_sub_register lint.
-// See also https://github.com/ARM-software/abi-aa/blob/2024Q3/aapcs64/aapcs64.rst#pointers
+// See also https://github.com/ARM-software/abi-aa/blob/2025Q1/aapcs64/aapcs64.rst#pointers
 //
 // Except for x86_64, which can use 32-bit registers in the destination operand
 // (on x86_64, we use the ptr_modifier macro to handle this), we need to do the

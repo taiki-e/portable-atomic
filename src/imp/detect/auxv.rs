@@ -142,7 +142,7 @@ mod os {
         pub(crate) use crate::utils::ffi::{c_char, c_int, c_void};
 
         sys_const!({
-            // https://github.com/torvalds/linux/blob/v6.13/include/uapi/linux/auxvec.h
+            // https://github.com/torvalds/linux/blob/v6.16/include/uapi/linux/auxvec.h
             pub(crate) const AT_HWCAP: c_ulong = 16;
             #[cfg(any(
                 test,
@@ -155,7 +155,7 @@ mod os {
             // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
             // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-            // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
+            // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/dlfcn.h
             #[cfg(any(
                 test,
                 not(any(
@@ -180,7 +180,7 @@ mod os {
             pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
 
             // Defined in sys/system_properties.h.
-            // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/system_properties.h
+            // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/sys/system_properties.h
             #[cfg(all(target_arch = "aarch64", target_os = "android"))]
             pub(crate) const PROP_VALUE_MAX: c_int = 92;
         });
@@ -193,7 +193,7 @@ mod os {
                 // https://github.com/bminor/musl/blob/v1.2.5/include/sys/auxv.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
                 // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/sys/auxv.h
-                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/auxv.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
                 #[cfg(any(
                     test,
@@ -221,7 +221,7 @@ mod os {
                 // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
                 // https://github.com/bminor/musl/blob/v1.2.5/include/dlfcn.h
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/dlfcn.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/dlfcn.h
                 #[cfg(any(
                     test,
                     not(any(
@@ -246,7 +246,7 @@ mod os {
                 pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
                 // Defined in sys/system_properties.h.
-                // https://github.com/aosp-mirror/platform_bionic/blob/android-15.0.0_r1/libc/include/sys/system_properties.h
+                // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/sys/system_properties.h
                 #[cfg(all(target_arch = "aarch64", target_os = "android"))]
                 pub(crate) fn __system_property_get(
                     name: *const c_char,
@@ -323,7 +323,7 @@ mod os {
         sys_const!({
             // FreeBSD
             // Defined in sys/elf_common.h.
-            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/sys/elf_common.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/sys/sys/elf_common.h
             // OpenBSD
             // Defined in sys/auxv.h.
             // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
@@ -338,7 +338,7 @@ mod os {
             // FreeBSD
             // Defined in dlfcn.h.
             // https://man.freebsd.org/dlsym(3)
-            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/include/dlfcn.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/include/dlfcn.h
             // OpenBSD
             // Defined in dlfcn.h.
             // https://man.openbsd.org/dlsym.3
@@ -365,7 +365,7 @@ mod os {
                 // FreeBSD
                 // Defined in sys/auxv.h.
                 // https://man.freebsd.org/elf_aux_info(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/sys/auxv.h
+                // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/sys/sys/auxv.h
                 // OpenBSD
                 // Defined in sys/auxv.h.
                 // https://man.openbsd.org/elf_aux_info.3
@@ -388,7 +388,7 @@ mod os {
                 // FreeBSD
                 // Defined in dlfcn.h.
                 // https://man.freebsd.org/dlsym(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/include/dlfcn.h
+                // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/include/dlfcn.h
                 // OpenBSD
                 // Defined in dlfcn.h.
                 // https://man.openbsd.org/dlsym.3
@@ -471,11 +471,11 @@ mod arch {
 
     sys_const!({
         // Linux
-        // https://github.com/torvalds/linux/blob/v6.13/arch/arm64/include/uapi/asm/hwcap.h
-        // https://github.com/torvalds/linux/blob/v6.13/Documentation/arch/arm64/elf_hwcaps.rst
+        // https://github.com/torvalds/linux/blob/v6.16/arch/arm64/include/uapi/asm/hwcap.h
+        // https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/arm64/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/elf.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/sys/arm64/include/elf.h
         // OpenBSD
         // Defined in machine/elf.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
@@ -571,11 +571,11 @@ mod arch {
 
     sys_const!({
         // Linux
-        // https://github.com/torvalds/linux/blob/v6.13/arch/powerpc/include/uapi/asm/cputable.h
-        // https://github.com/torvalds/linux/blob/v6.13/Documentation/arch/powerpc/elf_hwcaps.rst
+        // https://github.com/torvalds/linux/blob/v6.16/arch/powerpc/include/uapi/asm/cputable.h
+        // https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/powerpc/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/cpu.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/sys/powerpc/include/cpu.h
+        // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/sys/powerpc/include/cpu.h
         // OpenBSD
         // Defined in machine/elf.h.
         // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
@@ -979,8 +979,8 @@ mod tests {
             #[allow(non_camel_case_types)]
             type pid_t = c_int;
 
-            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/lib/libc/aarch64/SYS.h
-            // https://github.com/golang/go/blob/go1.24.0/src/syscall/asm_freebsd_arm64.s
+            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/lib/libc/aarch64/SYS.h
+            // https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_freebsd_arm64.s
             #[cfg(target_arch = "aarch64")]
             #[inline]
             fn getpid() -> pid_t {
@@ -1032,7 +1032,7 @@ mod tests {
                 }
             }
 
-            // https://github.com/freebsd/freebsd-src/blob/release/14.2.0/lib/libc/powerpc64/SYS.h
+            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/lib/libc/powerpc64/SYS.h
             #[cfg(target_arch = "powerpc64")]
             #[inline]
             fn getpid() -> pid_t {

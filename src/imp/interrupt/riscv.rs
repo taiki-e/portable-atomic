@@ -4,9 +4,9 @@
 Refs:
 - RISC-V Instruction Set Manual
   Machine Status (mstatus and mstatush) Registers
-  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-56e76be-2025-08-26/src/machine.adoc#machine-status-mstatus-and-mstatush-registers
   Supervisor Status (sstatus) Register
-  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-8b9dc50-2024-08-30/src/supervisor.adoc#supervisor-status-sstatus-register
+  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-56e76be-2025-08-26/src/supervisor.adoc#supervisor-status-sstatus-register
 
 See also src/imp/riscv.rs.
 

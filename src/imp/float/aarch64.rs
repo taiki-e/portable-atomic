@@ -20,9 +20,9 @@ use super::int::AtomicF128;
 use super::int::{AtomicF32, AtomicF64};
 
 // TODO: optimize no return cases:
-// https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/STFADD--STFADDL--Floating-point-atomic-add-in-memory--without-return-
-// https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/STFMAXNM--STFMAXNML--Floating-point-atomic-maximum-number-in-memory--without-return-
-// https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/STFMINNM--STFMINNML--Floating-point-atomic-minimum-number-in-memory--without-return-
+// https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/STFADD--STFADDL--Floating-point-atomic-add-in-memory--without-return-
+// https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/STFMAXNM--STFMAXNML--Floating-point-atomic-maximum-number-in-memory--without-return-
+// https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/STFMINNM--STFMINNML--Floating-point-atomic-minimum-number-in-memory--without-return-
 
 #[cfg(not(portable_atomic_pre_llvm_20))]
 macro_rules! start_lsfe {
@@ -84,7 +84,7 @@ macro_rules! atomic_float {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 //
-                // Refs: https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/LDFADD--LDFADDA--LDFADDAL--LDFADDL--Floating-point-atomic-add-in-memory-
+                // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/LDFADD--LDFADDA--LDFADDAL--LDFADDL--Floating-point-atomic-add-in-memory-
                 unsafe {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! add {
@@ -135,7 +135,7 @@ macro_rules! atomic_float {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 //
-                // Refs: https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/LDFMAXNM--LDFMAXNMA--LDFMAXNMAL--LDFMAXNML--Floating-point-atomic-maximum-number-in-memory-
+                // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/LDFMAXNM--LDFMAXNMA--LDFMAXNMAL--LDFMAXNML--Floating-point-atomic-maximum-number-in-memory-
                 unsafe {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! max {
@@ -181,7 +181,7 @@ macro_rules! atomic_float {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 //
-                // Refs: https://developer.arm.com/documentation/ddi0602/2024-12/SIMD-FP-Instructions/LDFMINNM--LDFMINNMA--LDFMINNMAL--LDFMINNML--Floating-point-atomic-minimum-number-in-memory-
+                // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/SIMD-FP-Instructions/LDFMINNM--LDFMINNMA--LDFMINNMAL--LDFMINNML--Floating-point-atomic-minimum-number-in-memory-
                 unsafe {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! min {
