@@ -1203,7 +1203,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
         }
         match order {
             Ordering::Release => atomic_store!(""),
-            // LLVM uses store-release (dmb ish; stp); dmb ish, GCC (libatomic)
+            // LLVM uses store-release (dmb ish; stp); dmb ish, GCC (libatomic) and Atomics ABI Standard
             // uses store-release (stilp) without fence for SeqCst store
             // (https://github.com/gcc-mirror/gcc/commit/7107574958e2bed11d916a1480ef1319f15e5ffe).
             // Considering https://reviews.llvm.org/D141748, LLVM's lowing seems
