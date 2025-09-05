@@ -25,7 +25,7 @@ test-helper = { features = ["sys", "critical-section-std"], git = "https://githu
 libc = "0.2"
 
 [target.'cfg(windows)'.dev-dependencies]
-windows-sys = { version = "0.60", features = [
+windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_System_Threading",
 ] }
