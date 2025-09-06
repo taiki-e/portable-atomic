@@ -3206,10 +3206,7 @@ mod strict {
             // transmute semantics, it relies on sysroot crates having special status.
             // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the
             // provenance).
-            #[allow(clippy::transmutes_expressible_as_ptr_casts)]
-            unsafe {
-                mem::transmute(self as *const ())
-            }
+            unsafe { mem::transmute(self as *const ()) }
         }
     }
 }
