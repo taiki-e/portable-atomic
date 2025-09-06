@@ -237,7 +237,6 @@ jobs:
           # aarch64_be-unknown-linux-gnu
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
-            os: ubuntu-22.04
           # ------------------------------------------------------------
           # arm64ec-pc-windows-msvc
           - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
