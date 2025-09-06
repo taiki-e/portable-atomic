@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "352567e" }
+arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "3e35ecf" }
 paste = "1"
 ufmt = "0.2"
 
