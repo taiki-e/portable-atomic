@@ -1043,6 +1043,8 @@ macro_rules! __test_atomic_float {
                     target_arch = "arm",
                     target_arch = "mips",
                     target_arch = "mips32r6",
+                    target_arch = "mips64",
+                    target_arch = "mips64r6",
                     target_vendor = "apple",
                     windows,
                 ))
@@ -1067,6 +1069,8 @@ macro_rules! __test_atomic_float {
                     target_arch = "arm",
                     target_arch = "mips",
                     target_arch = "mips32r6",
+                    target_arch = "mips64",
+                    target_arch = "mips64r6",
                     target_vendor = "apple",
                     windows,
                 ))
@@ -1173,6 +1177,8 @@ macro_rules! __test_atomic_float {
                         target_arch = "arm",
                         target_arch = "mips",
                         target_arch = "mips32r6",
+                        target_arch = "mips64",
+                        target_arch = "mips64r6",
                         target_vendor = "apple",
                         windows,
                     ))
@@ -1196,6 +1202,8 @@ macro_rules! __test_atomic_float {
                         target_arch = "arm",
                         target_arch = "mips",
                         target_arch = "mips32r6",
+                        target_arch = "mips64",
+                        target_arch = "mips64r6",
                         target_vendor = "apple",
                         windows,
                     ))

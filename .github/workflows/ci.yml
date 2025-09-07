@@ -573,12 +573,20 @@ jobs:
         run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
       # for f16 and f128
-      # https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.142/configure.rs#L60
-      # https://github.com/rust-lang/rustc_codegen_cranelift/issues/1461
-      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16" >>"${GITHUB_ENV}"
-        if: matrix.rust == 'nightly' && !(startsWith(matrix.target, 'arm64ec') || startsWith(matrix.target, 'csky') || startsWith(matrix.target, 'hexagon') || startsWith(matrix.target, 'i586') || startsWith(matrix.target, 'i686') || startsWith(matrix.target, 'mips') || startsWith(matrix.target, 'powerpc') || startsWith(matrix.target, 's390x') || startsWith(matrix.target, 'sparc') || startsWith(matrix.target, 'wasm') || contains(matrix.flags, 'codegen-backend=cranelift'))
-      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128" >>"${GITHUB_ENV}"
-        if: matrix.rust == 'nightly' && !(startsWith(matrix.target, 'arm64ec') || startsWith(matrix.target, 'i586') || startsWith(matrix.target, 'i686') || startsWith(matrix.target, 'mips64') || startsWith(matrix.target, 'mipsisa64') || startsWith(matrix.target, 'powerpc-') || startsWith(matrix.target, 'powerpc64-') || startsWith(matrix.target, 'sparc') || contains(matrix.flags, 'codegen-backend=cranelift'))
+      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
+      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
+      - run: |
+          rustflags="${RUSTFLAGS:-}"
+          if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f16; then
+            rustflags+=' --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16'
+          fi
+          if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f128; then
+            rustflags+=' --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128'
+          fi
+          if [[ "${rustflags}" != "${RUSTFLAGS:-}" ]]; then
+            printf '%s\n' "RUSTFLAGS=${rustflags}" >>"${GITHUB_ENV}"
+          fi
+        if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift')
       # for serde on old nightly
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
         if: matrix.rust == 'nightly-2024-02-13'
