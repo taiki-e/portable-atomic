@@ -141,6 +141,11 @@ run() {
       printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped)"
       return 0
     fi
+    if [[ "${rustc_minor_version}" -lt 91 ]] && [[ "${target}" != "avr"* ]]; then
+      # Skip pre-1.91 because target-pointer-width change
+      printf '%s\n' "target '${target}' requires 1.91-nightly or later (skipped)"
+      return 0
+    fi
     local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
   else
     local target_flags=(--target "${target}")

@@ -140,7 +140,8 @@ rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' 
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
-target_dir=$(pwd)/target
+workspace_dir=$(pwd)
+target_dir="${workspace_dir}/target"
 nightly=''
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
   nightly=1
@@ -167,7 +168,7 @@ if [[ -n "${target}" ]]; then
     if [[ ! -f "target-specs/${target}.json" ]]; then
       bail "target '${target}' not available on ${rustc_version}"
     fi
-    target_flags=(--target "$(pwd)/target-specs/${target}.json")
+    target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
   else
     target_flags=(--target "${target}")
   fi

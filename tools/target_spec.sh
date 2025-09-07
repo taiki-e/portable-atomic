@@ -16,7 +16,7 @@ cd -- "$(dirname -- "$0")"/..
 file=src/gen/utils.rs
 mkdir -p -- "$(dirname -- "${file}")"
 
-known_64_bit_arch=($(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if ."target-pointer-width" == "64" then .arch else empty end' | LC_ALL=C sort -u))
+known_64_bit_arch=($(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[].value | if ."target-pointer-width" == 64 then .arch else empty end' | LC_ALL=C sort -u))
 
 cat >|"${file}" <<EOF
 // SPDX-License-Identifier: Apache-2.0 OR MIT

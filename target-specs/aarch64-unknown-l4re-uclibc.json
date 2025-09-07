@@ -13,5 +13,5 @@
   "plt-by-default": false,
   "relocation-model": "static",
   "target-family": ["unix"],
-  "target-pointer-width": "64"
+  "target-pointer-width": 64
 }
