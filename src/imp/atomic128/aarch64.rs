@@ -349,6 +349,8 @@ macro_rules! debug_assert_rcpc3 {
 // (It seems GCC effectively ignores this directive and always allow FEAT_LSE instructions: https://godbolt.org/z/W9W6rensG)
 // Note that the .arch_extension directive in global_asm!/naked_asm! which are
 // not used in this crate has different behavior: https://github.com/rust-lang/rust/pull/137720#discussion_r1973608259
+// Note that this directive currently cannot be used correctly with global_asm!/naked_asm!
+// due to LLVM bug: https://github.com/rust-lang/rust/pull/137720#discussion_r2014505753
 //
 // The .arch directive has a similar effect, but we don't use it due to the following issue:
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69

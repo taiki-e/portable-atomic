@@ -2260,7 +2260,7 @@ fn skip_should_panic_test() -> bool {
 
 // For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
 fn is_panic_abort() -> bool {
-    build_context::PANIC.contains("abort")
+    build_context::PANIC.contains("abort") // cfg(panic) requires Rust 1.60
 }
 
 pub(crate) const LOAD_ORDERINGS: [Ordering; 3] =

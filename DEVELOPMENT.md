@@ -9,7 +9,7 @@
 ```text
 portable-atomic/
 ├── bench/                        -- simple benchmarks
-├── build.rs                      -- build script
+├── build.rs                      -- build script mainly used for improve compatibility with old compilers
 ├── version.rs                    -- rustc version detection code used by build script
 ├── portable-atomic-util/         -- crate that defines synchronization primitives built with portable-atomic
 ├── src/
