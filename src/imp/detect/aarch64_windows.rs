@@ -11,7 +11,7 @@ Refs: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-p
 
 include!("common.rs");
 
-// windows-sys requires Rust 1.60
+// windows-sys requires Rust 1.71
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 mod ffi {
     sys_type!({
