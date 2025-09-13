@@ -172,6 +172,7 @@ swpp
 syscall
 sysctlbyname
 sysctlnode
+systeminfo
 systemsim
 tagme
 uart

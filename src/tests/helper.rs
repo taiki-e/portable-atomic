@@ -8,6 +8,7 @@ use crate::tests::helper;
 
 macro_rules! __test_atomic_common {
     ($atomic_type:ty, $value_type:ty) => {
+        use std::mem;
         #[test]
         fn assert_auto_traits() {
             fn _assert<T: Send + Sync + Unpin + std::panic::UnwindSafe>() {}
@@ -16,8 +17,8 @@ macro_rules! __test_atomic_common {
         #[test]
         fn alignment() {
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/tests/atomic.rs#L252
-            assert_eq!(core::mem::align_of::<$atomic_type>(), core::mem::size_of::<$atomic_type>());
-            assert_eq!(core::mem::size_of::<$atomic_type>(), core::mem::size_of::<$value_type>());
+            assert_eq!(mem::align_of::<$atomic_type>(), mem::size_of::<$atomic_type>());
+            assert_eq!(mem::size_of::<$atomic_type>(), mem::size_of::<$value_type>());
         }
         #[test]
         fn is_lock_free() {
@@ -590,7 +591,7 @@ macro_rules! __test_atomic_int {
                     // TODO: LLVM bug:
                     // https://github.com/llvm/llvm-project/issues/61880
                     // https://github.com/taiki-e/portable-atomic/issues/2
-                    if core::mem::size_of::<$int_type>() <= 2 {
+                    if mem::size_of::<$int_type>() <= 2 {
                         return true;
                     }
                 }
@@ -782,7 +783,7 @@ macro_rules! __test_atomic_int {
                     // TODO: LLVM bug:
                     // https://github.com/llvm/llvm-project/issues/61880
                     // https://github.com/taiki-e/portable-atomic/issues/2
-                    if core::mem::size_of::<$int_type>() <= 2 {
+                    if mem::size_of::<$int_type>() <= 2 {
                         return true;
                     }
                 }
@@ -1122,6 +1123,18 @@ macro_rules! __test_atomic_float {
                 true
             }
             fn quickcheck_compare_exchange(x: $float_type, y: $float_type) -> bool {
+                #[cfg(all(
+                    target_arch = "arm",
+                    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+                ))]
+                {
+                    // TODO: LLVM bug:
+                    // https://github.com/llvm/llvm-project/issues/61880
+                    // https://github.com/taiki-e/portable-atomic/issues/2
+                    if mem::size_of::<$float_type>() <= 2 {
+                        return true;
+                    }
+                }
                 let mut rng = fastrand::Rng::new();
                 let z = loop {
                     let z = float_rand::$float_type(&mut rng);
@@ -1522,7 +1535,7 @@ macro_rules! __test_atomic_ptr {
 macro_rules! __test_atomic_int_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
-        use std::{boxed::Box, mem};
+        use std::boxed::Box;
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7);
@@ -1612,7 +1625,7 @@ macro_rules! __test_atomic_int_pub {
 macro_rules! __test_atomic_float_pub {
     ($atomic_type:ty, $float_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $float_type);
-        use std::{boxed::Box, mem};
+        use std::boxed::Box;
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7.);
@@ -1670,7 +1683,7 @@ macro_rules! __test_atomic_float_pub {
 macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
-        use std::{boxed::Box, mem};
+        use std::boxed::Box;
         #[test]
         fn fetch_nand() {
             let a = <$atomic_type>::new(true);
@@ -1776,7 +1789,7 @@ macro_rules! __test_atomic_ptr_pub {
         __test_atomic_pub_common!($atomic_type, *mut u8);
         #[allow(unused_imports)]
         use sptr::Strict as _; // for old rustc
-        use std::{boxed::Box, mem};
+        use std::boxed::Box;
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(ptr::null_mut());
@@ -2268,7 +2281,7 @@ fn skip_should_panic_test() -> bool {
 
 // For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
 fn is_panic_abort() -> bool {
-    build_context::PANIC.contains("abort") // cfg(panic) requires Rust 1.60
+    !matches!(build_context::PANIC, "unwind" | "") // cfg(panic) requires Rust 1.60
 }
 
 pub(crate) const LOAD_ORDERINGS: [Ordering; 3] =
