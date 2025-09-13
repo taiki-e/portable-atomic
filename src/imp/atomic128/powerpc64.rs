@@ -1032,6 +1032,7 @@ const IS_ALWAYS_LOCK_FREE: bool = cfg!(any(
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
+#[cfg(not(all(valgrind, target_arch = "powerpc64")))] // TODO: Hang (as of Valgrind 3.25)
 #[cfg(test)]
 mod tests {
     use super::*;

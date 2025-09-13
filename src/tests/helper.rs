@@ -281,6 +281,11 @@ macro_rules! __test_atomic_int {
     ($atomic_type:ty, $int_type:ident, single_thread) => {
         #[test]
         fn swap() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(5);
             test_swap_ordering(|order| a.swap(5, order));
             for &order in &helper::SWAP_ORDERINGS {
@@ -292,20 +297,17 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn compare_exchange() {
-            let a = <$atomic_type>::new(5);
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                mark_aligned_defined(&a);
+                return;
             }
+            let a = <$atomic_type>::new(5);
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange(5, 5, success, failure)
             });
             for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
                 let a = <$atomic_type>::new(5);
-                #[cfg(valgrind)]
-                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                    mark_aligned_defined(&a);
-                }
                 assert_eq!(a.compare_exchange(5, 10, success, failure), Ok(5));
                 assert_eq!(a.load(Ordering::Relaxed), 10);
                 assert_eq!(a.compare_exchange(6, 12, success, failure), Err(10));
@@ -314,6 +316,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn compare_exchange_weak() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(4);
             test_compare_exchange_ordering(|success, failure| {
                 a.compare_exchange_weak(4, 4, success, failure)
@@ -334,6 +341,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_add() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(0);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -359,6 +371,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn add() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(0);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -384,6 +401,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_sub() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(20);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -409,6 +431,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn sub() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(20);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -454,6 +481,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_nand() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(0x13);
             test_swap_ordering(|order| a.fetch_nand(0x31, order));
             for &order in &helper::SWAP_ORDERINGS {
@@ -504,6 +536,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_max() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(23);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -540,6 +577,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_min() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(23);
             #[cfg(valgrind)]
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
@@ -596,27 +638,20 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_neg() {
-            let a = <$atomic_type>::new(5);
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                mark_aligned_defined(&a);
+                return;
             }
+            let a = <$atomic_type>::new(5);
             test_swap_ordering(|order| a.fetch_neg(order));
             for &order in &helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
-                #[cfg(valgrind)]
-                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                    mark_aligned_defined(&a);
-                }
                 assert_eq!(a.fetch_neg(order), 5);
                 assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
                 assert_eq!(a.fetch_neg(order), <$int_type>::wrapping_neg(5));
                 assert_eq!(a.load(Ordering::Relaxed), 5);
                 let a = <$atomic_type>::new(<$int_type>::MIN);
-                #[cfg(valgrind)]
-                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                    mark_aligned_defined(&a);
-                }
                 assert_eq!(a.fetch_neg(order), <$int_type>::MIN);
                 assert_eq!(a.load(Ordering::Relaxed), <$int_type>::MIN.wrapping_neg());
                 assert_eq!(a.fetch_neg(order), <$int_type>::MIN.wrapping_neg());
@@ -625,27 +660,20 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn neg() {
-            let a = <$atomic_type>::new(5);
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                mark_aligned_defined(&a);
+                return;
             }
+            let a = <$atomic_type>::new(5);
             test_swap_ordering(|order| a.neg(order));
             for &order in &helper::SWAP_ORDERINGS {
                 let a = <$atomic_type>::new(5);
-                #[cfg(valgrind)]
-                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                    mark_aligned_defined(&a);
-                }
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), <$int_type>::wrapping_neg(5));
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), 5);
                 let a = <$atomic_type>::new(<$int_type>::MIN);
-                #[cfg(valgrind)]
-                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                    mark_aligned_defined(&a);
-                }
                 a.neg(order);
                 assert_eq!(a.load(Ordering::Relaxed), <$int_type>::MIN.wrapping_neg());
                 a.neg(order);
@@ -690,18 +718,24 @@ macro_rules! __test_atomic_int {
         }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(a.swap(y, order), x);
                     assert_eq!(a.swap(x, order), y);
                 }
                 true
             }
             fn quickcheck_compare_exchange(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 #[cfg(all(
                     target_arch = "arm",
                     not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
@@ -723,10 +757,6 @@ macro_rules! __test_atomic_int {
                 };
                 for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(a.compare_exchange(x, y, success, failure).unwrap(), x);
                     assert_eq!(a.load(Ordering::Relaxed), y);
                     assert_eq!(a.compare_exchange(z, x, success, failure).unwrap_err(), y);
@@ -735,6 +765,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_add(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -754,6 +789,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_add(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -773,6 +813,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_sub(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -792,6 +837,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_sub(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -833,19 +883,16 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_nand(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(a.fetch_nand(y, order), x);
                     assert_eq!(a.load(Ordering::Relaxed), !(x & y));
                     let a = <$atomic_type>::new(y);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(a.fetch_nand(x, order), y);
                     assert_eq!(a.load(Ordering::Relaxed), !(y & x));
                 }
@@ -896,6 +943,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_max(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -915,6 +967,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_min(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
                     #[cfg(valgrind)]
@@ -954,6 +1011,11 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_neg(x: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 #[cfg(all(
                     target_arch = "arm",
                     not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
@@ -968,10 +1030,6 @@ macro_rules! __test_atomic_int {
                 }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(a.fetch_neg(order), x);
                     assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
                     assert_eq!(a.fetch_neg(order), x.wrapping_neg());
@@ -980,12 +1038,13 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_neg(x: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 for &order in &helper::SWAP_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     a.neg(order);
                     assert_eq!(a.load(Ordering::Relaxed), x.wrapping_neg());
                     a.neg(order);
@@ -1030,6 +1089,11 @@ macro_rules! __test_atomic_int {
 
         #[test]
         fn stress_swap() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let mut rng = fastrand::Rng::new();
             let (iterations, threads) = stress_test_config(&mut rng);
             let data1 = &(0..threads)
@@ -1088,6 +1152,11 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn stress_compare_exchange() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let mut rng = fastrand::Rng::new();
             let (iterations, threads) = stress_test_config(&mut rng);
             let data1 = &(0..threads)
@@ -1729,10 +1798,23 @@ macro_rules! __test_atomic_int_pub {
         use std::boxed::Box;
         #[test]
         fn fetch_update() {
+            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            #[cfg(valgrind)]
+            if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                return;
+            }
             let a = <$atomic_type>::new(7);
+            #[cfg(valgrind)]
+            if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
+                mark_aligned_defined(&a);
+            }
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
             for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
                 let a = <$atomic_type>::new(7);
+                #[cfg(valgrind)]
+                if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
+                    mark_aligned_defined(&a);
+                }
                 assert_eq!(a.fetch_update(success, failure, |_| None), Err(7));
                 assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(7));
                 assert_eq!(a.fetch_update(success, failure, |x| Some(x + 1)), Ok(8));
@@ -1781,6 +1863,11 @@ macro_rules! __test_atomic_int_pub {
         }
         ::quickcheck::quickcheck! {
             fn quickcheck_fetch_update(x: $int_type, y: $int_type) -> bool {
+                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                #[cfg(valgrind)]
+                if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
+                    return true;
+                }
                 let mut rng = fastrand::Rng::new();
                 let z = loop {
                     let z = rng.$int_type(..);
@@ -1790,10 +1877,6 @@ macro_rules! __test_atomic_int_pub {
                 };
                 for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
                     let a = <$atomic_type>::new(x);
-                    #[cfg(valgrind)]
-                    if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
-                        mark_aligned_defined(&a);
-                    }
                     assert_eq!(
                         a.fetch_update(success, failure, |_| Some(y))
                         .unwrap(),
@@ -2468,29 +2551,28 @@ pub(crate) fn stress_test_config(rng: &mut fastrand::Rng) -> (usize, usize) {
 
 // true if the current implementation implements sub-word atomics using word-size CAS.
 #[cfg(valgrind)]
-pub(crate) const IMP_EMU_SUB_WORD_CAS: bool =
-    cfg!(target_arch = "riscv64") || cfg!(target_arch = "s390x");
+pub(crate) const IMP_EMU_SUB_WORD_CAS: bool = cfg!(target_arch = "s390x");
 
-#[cfg(valgrind)]
-#[inline(always)]
-pub(crate) fn mark_no_access<T: ?Sized>(a: &T) {
-    memcheck::mark_mem(
-        a as *const T as *mut core::ffi::c_void,
-        size_of_val(a),
-        memcheck::MemState::NoAccess,
-    )
-    .unwrap();
-}
-#[cfg(valgrind)]
-#[inline(always)]
-pub(crate) fn mark_defined<T: ?Sized>(a: &T) {
-    memcheck::mark_mem(
-        a as *const T as *mut core::ffi::c_void,
-        size_of_val(a),
-        memcheck::MemState::Defined,
-    )
-    .unwrap();
-}
+// #[cfg(valgrind)]
+// #[inline(always)]
+// pub(crate) fn mark_no_access<T: ?Sized>(a: &T) {
+//     memcheck::mark_mem(
+//         a as *const T as *mut core::ffi::c_void,
+//         size_of_val(a),
+//         memcheck::MemState::NoAccess,
+//     )
+//     .unwrap();
+// }
+// #[cfg(valgrind)]
+// #[inline(always)]
+// pub(crate) fn mark_defined<T: ?Sized>(a: &T) {
+//     memcheck::mark_mem(
+//         a as *const T as *mut core::ffi::c_void,
+//         size_of_val(a),
+//         memcheck::MemState::Defined,
+//     )
+//     .unwrap();
+// }
 #[cfg(valgrind)]
 #[inline(always)]
 pub(crate) fn mark_aligned_defined<T: ?Sized>(a: &T) {
@@ -2502,17 +2584,17 @@ pub(crate) fn mark_aligned_defined<T: ?Sized>(a: &T) {
     )
     .unwrap();
 }
-#[cfg(valgrind)]
-#[inline(always)]
-pub(crate) fn mark_aligned_undefined<T: ?Sized>(a: &T) {
-    assert!(size_of_val(a) <= 2);
-    memcheck::mark_mem(
-        (a as *const T as *mut core::ffi::c_void).map_addr(|a| a & !3),
-        4,
-        memcheck::MemState::Undefined,
-    )
-    .unwrap();
-}
+// #[cfg(valgrind)]
+// #[inline(always)]
+// pub(crate) fn mark_aligned_undefined<T: ?Sized>(a: &T) {
+//     assert!(size_of_val(a) <= 2);
+//     memcheck::mark_mem(
+//         (a as *const T as *mut core::ffi::c_void).map_addr(|a| a & !3),
+//         4,
+//         memcheck::MemState::Undefined,
+//     )
+//     .unwrap();
+// }
 
 fn skip_should_panic_test() -> bool {
     // Miri's panic handling is slow
