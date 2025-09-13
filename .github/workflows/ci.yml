@@ -1115,9 +1115,9 @@ jobs:
       matrix:
         include:
           # TODO: Hang on 128-bit atomics (as of Valgrind 3.25)
-          - target: powerpc64le-unknown-linux-gnu
-            dpkg-arch: ppc64el
-            arch: ppc64le
+          # - target: powerpc64le-unknown-linux-gnu
+          #   dpkg-arch: ppc64el
+          #   arch: ppc64le
           - target: riscv64gc-unknown-linux-gnu
             dpkg-arch: riscv64
             arch: riscv64

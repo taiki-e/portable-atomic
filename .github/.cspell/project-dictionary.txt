@@ -100,6 +100,7 @@ lwsync
 MAXNAME
 maxu
 mcpu
+memcheck
 memd
 mfcr
 mfence
