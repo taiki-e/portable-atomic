@@ -25,6 +25,9 @@ mod ffi {
         // Defined in winnt.h of Windows SDK.
         pub(crate) const [Win32::System::Threading]
             PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 34;
+        #[cfg(test)]
+        pub(crate) const [Win32::System::Threading]
+            PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 45;
     });
 
     sys_fn!({
@@ -49,4 +52,6 @@ fn _detect(info: &mut CpuInfo) {
         };
     }
     check!(lse, PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE);
+    #[cfg(test)]
+    check!(rcpc, PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE);
 }

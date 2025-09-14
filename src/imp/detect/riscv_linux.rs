@@ -30,12 +30,18 @@ mod ffi {
         pub(crate) const __NR_riscv_hwprobe: c_long = 258;
 
         // https://github.com/torvalds/linux/blob/v6.16/arch/riscv/include/uapi/asm/hwprobe.h
+        // Linux 6.4+
+        // https://github.com/torvalds/linux/commit/00e76e2c6a2bd3976d44d4a1fdd0b7a3c2566607
         pub(crate) const RISCV_HWPROBE_KEY_BASE_BEHAVIOR: i64 = 3;
         pub(crate) const RISCV_HWPROBE_BASE_BEHAVIOR_IMA: u64 = 1 << 0;
         pub(crate) const RISCV_HWPROBE_KEY_IMA_EXT_0: i64 = 4;
         // Linux 6.8+
         // https://github.com/torvalds/linux/commit/154a3706122978eeb34d8223d49285ed4f3c61fa
         pub(crate) const RISCV_HWPROBE_EXT_ZACAS: u64 = 1 << 34;
+        // Linux 6.16+
+        // https://github.com/torvalds/linux/commit/415a8c81da3dab0a585bd4f8d505a11ad5a171a7
+        #[cfg(test)]
+        pub(crate) const RISCV_HWPROBE_EXT_ZABHA: u64 = 1 << 58;
     });
 
     #[cfg(not(all(
@@ -128,6 +134,8 @@ fn _detect(info: &mut CpuInfo) {
             };
         }
         check!(zacas, RISCV_HWPROBE_EXT_ZACAS);
+        #[cfg(test)]
+        check!(zabha, RISCV_HWPROBE_EXT_ZABHA);
     }
 }
 

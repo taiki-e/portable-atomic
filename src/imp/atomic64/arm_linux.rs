@@ -16,12 +16,31 @@ this module and use fallback implementation instead.
 
 // TODO: Since Rust 1.64, the Linux kernel requirement for Rust when using std is 3.2+, so it should
 // be possible to omit the dynamic kernel version check if the std feature is enabled on Rust 1.64+.
-// https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
+// https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements
 
 include!("macros.rs");
 
 #[path = "../fallback/outline_atomics.rs"]
 mod fallback;
+
+#[cfg(test)] // test-only (unused)
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
+    all(
+        target_os = "linux",
+        any(
+            target_env = "gnu",
+            target_env = "musl",
+            target_env = "ohos",
+            all(target_env = "uclibc", not(target_feature = "crt-static")),
+        ),
+    ),
+    target_os = "android",
+    target_os = "freebsd",
+    target_os = "openbsd",
+))]
+#[path = "../detect/auxv.rs"]
+mod test_detect_auxv;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

@@ -20,6 +20,10 @@ mod ffi {
         // Defined in sys/auxv_aarch64.h.
         // https://github.com/richlowe/illumos-gate/blob/arm64-gate/usr/src/uts/common/sys/auxv_aarch64.h
         pub(crate) const AV_AARCH64_LSE: u32 = 1 << 15;
+        #[cfg(test)]
+        pub(crate) const AV_AARCH64_LRCPC: u32 = 1 << 28;
+        #[cfg(test)]
+        pub(crate) const AV_AARCH64_2_ILRCPC: u32 = 1 << 1;
         pub(crate) const AV_AARCH64_2_LSE2: u32 = 1 << 2;
     });
 
@@ -50,6 +54,10 @@ fn _detect(info: &mut CpuInfo) {
     }
     let v1 = out[0];
     check!(v1, lse, AV_AARCH64_LSE);
+    #[cfg(test)]
+    check!(v1, rcpc, AV_AARCH64_LRCPC);
     let v2 = out[1];
+    #[cfg(test)]
+    check!(v2, rcpc2, AV_AARCH64_2_ILRCPC);
     check!(v2, lse2, AV_AARCH64_2_LSE2);
 }

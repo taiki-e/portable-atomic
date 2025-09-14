@@ -55,6 +55,7 @@ gimli
 Halfword
 HWCAP
 hwprobe
+ILRCPC
 includepath
 insn
 INTLEVEL
@@ -93,6 +94,7 @@ llwp
 lmul
 locgr
 locgre
+lpae
 lqarx
 lrcpc
 lsfe

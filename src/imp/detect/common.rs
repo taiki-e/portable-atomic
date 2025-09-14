@@ -91,48 +91,80 @@ macro_rules! flags {
     };
 }
 
-// rustc definitions: https://github.com/rust-lang/rust/blob/e6af292f91f21f12ac1aab6825efb7e1e3381cbb/compiler/rustc_target/src/target_features.rs
+// rustc definitions: https://github.com/rust-lang/rust/blob/ddaf12390d3ffb7d5ba74491a48f3cd528e5d777/compiler/rustc_target/src/target_features.rs
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AArch64/AArch64Features.td
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 flags! {
-    // FEAT_LSE, Large System Extensions
+    // The Armv8.1 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv8-1-architecture-extension
+    // FEAT_LSE, Large System Extensions
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE is OPTIONAL from Armv8.0.
     // > FEAT_LSE is mandatory from Armv8.1.
     lse("lse", any(target_feature /* 1.61+ */, portable_atomic_target_feature)),
-    // FEAT_LSE2, Large System Extensions version 2
+
+    // The Armv8.3 architecture extension
+    // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv8-3-architecture-extension
+    // FEAT_LRCPC, Load-Acquire RCpc instructions
+    // > These instructions are added to the A64 instruction set only.
+    // > FEAT_LRCPC is OPTIONAL from Armv8.2.
+    // > FEAT_LRCPC is mandatory from Armv8.3.
+    #[cfg(test)] // test-only
+    rcpc("rcpc", any(target_feature /* 1.61+ */)),
+
+    // The Armv8.4 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv8-4-architecture-extension
+    // FEAT_LSE2, Large System Extensions version 2
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE2 is OPTIONAL from Armv8.2.
     // > FEAT_LSE2 is mandatory from Armv8.4.
     #[cfg_attr(not(test), allow(dead_code))]
     lse2("lse2", any(target_feature /* nightly */, portable_atomic_target_feature)),
-    // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
+    // FEAT_LRCPC2, Load-Acquire RCpc instructions version 2
+    // > These instructions are added to the A64 instruction set only.
+    // > FEAT_LRCPC2 is OPTIONAL from Armv8.2.
+    // > FEAT_LRCPC2 is mandatory from Armv8.4.
+    // > If FEAT_LRCPC2 is implemented, then FEAT_LRCPC is implemented.
+    #[cfg(test)] // test-only
+    rcpc2("rcpc2", any(target_feature /* 1.61+ */)),
+
+    // The Armv8.9 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv8-9-architecture-extension
+    // FEAT_LRCPC3, Load-Acquire RCpc instructions version 3
     // > This feature is supported in AArch64 state only.
     // > FEAT_LRCPC3 is OPTIONAL from Armv8.2.
     // > If FEAT_LRCPC3 is implemented, then FEAT_LRCPC2 is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
     rcpc3("rcpc3", any(target_feature /* nightly */, portable_atomic_target_feature)),
-    // FEAT_LSE128, 128-bit Atomics
+
+    // The Armv9.4 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv9-4-architecture-extension
+    // FEAT_LSE128, 128-bit Atomics
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSE128 is OPTIONAL from Armv9.3.
     // > If FEAT_LSE128 is implemented, then FEAT_LSE is implemented.
     #[cfg_attr(not(test), allow(dead_code))]
     lse128("lse128", any(target_feature /* nightly */, portable_atomic_target_feature)),
-    // FEAT_LSFE, Large System Float Extension
+
+    // The Armv9.6 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv9-6-architecture-extension
+    // FEAT_LSFE, Large System Float Extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSFE is OPTIONAL from Armv9.3.
     // > If FEAT_LSFE is implemented, then FEAT_FP is implemented.
-    #[cfg(test)]
+    #[cfg(test)] // test-only
     lsfe("lsfe", any(target_feature /* N/A */, portable_atomic_target_feature)),
 
     #[cfg(test)] // test-only
     cpuid("cpuid", any(/* no corresponding target feature */)),
+}
+
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/ARM/ARMFeatures.td
+#[cfg(target_arch = "arm")]
+flags! {
+    #[cfg(test)] // test-only
+    lpae("lpae", any(/* no corresponding target feature */)),
 }
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td
@@ -147,6 +179,8 @@ flags! {
 flags! {
     // amocas.{w,d,q}
     zacas("zacas", any(target_feature /* nightly */, portable_atomic_target_feature)),
+    #[cfg(test)] // test-only
+    zabha("zabha", any(target_feature /* nightly */, portable_atomic_target_feature)),
 }
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/X86/X86.td

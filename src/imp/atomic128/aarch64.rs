@@ -143,23 +143,22 @@ mod detect;
 #[path = "../detect/aarch64_windows.rs"]
 mod detect;
 
-// test only
-#[cfg(test)]
+#[cfg(test)] // test-only (we use auxv.rs)
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
 #[path = "../detect/aarch64_aa64reg.rs"]
-mod detect_aa64reg;
-#[cfg(test)]
+mod test_detect_aa64reg;
+#[cfg(test)] // test-only (unused)
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_vendor = "apple")]
 #[path = "../detect/aarch64_apple.rs"]
-mod detect_apple;
-#[cfg(test)]
+mod test_detect_apple;
+#[cfg(test)] // test-only (we use aarch64_aa64reg.rs)
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_os = "openbsd")]
 #[path = "../detect/auxv.rs"]
-mod detect_auxv;
+mod test_detect_auxv;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;

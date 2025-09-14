@@ -81,8 +81,16 @@ fn _detect(info: &mut CpuInfo) {
     // > FEAT_LRCPC3 implements the functionality identified by the value 0b0011.
     // > From Armv8.3, the value 0b0000 is not permitted.
     // > From Armv8.4, the value 0b0001 is not permitted.
-    if extract(aa64isar1, 23, 20) >= 0b0011 {
+    let lrcpc = extract(aa64isar1, 23, 20);
+    if lrcpc >= 0b0011 {
         info.set(CpuInfoFlag::rcpc3);
+    }
+    #[cfg(test)]
+    if lrcpc >= 0b0001 {
+        info.set(CpuInfoFlag::rcpc);
+        if lrcpc >= 0b0010 {
+            info.set(CpuInfoFlag::rcpc2);
+        }
     }
     // ID_AA64ISAR3_EL1, AArch64 Instruction Set Attribute Register 3
     // https://developer.arm.com/documentation/ddi0601/2025-06/AArch64-Registers/ID-AA64ISAR3-EL1--AArch64-Instruction-Set-Attribute-Register-3
@@ -402,10 +410,18 @@ mod tests {
             assert_eq!(atomic, 0b0000);
         }
         let lrcpc = extract(aa64isar1, 23, 20);
-        if detect().rcpc3() {
-            assert_eq!(lrcpc, 0b0011);
+        if detect().rcpc() {
+            if detect().rcpc2() {
+                if detect().rcpc3() {
+                    assert_eq!(lrcpc, 0b0011);
+                } else {
+                    assert_eq!(lrcpc, 0b0010);
+                }
+            } else {
+                assert_eq!(lrcpc, 0b0001);
+            }
         } else {
-            assert!(lrcpc < 0b0011, "{}", lrcpc);
+            assert_eq!(lrcpc, 0b0000);
         }
         let lsfe = extract(aa64isar3, 19, 16);
         if detect().lsfe() {
@@ -465,6 +481,7 @@ mod tests {
                         in("x3") ptr_reg!(old_len_p),
                         in("x4") ptr_reg!(new_p),
                         in("x5") new_len as u64,
+                        // Do not use `preserves_flags` because AArch64 NetBSD syscall modifies the condition flags.
                         options(nostack),
                     );
                     #[allow(clippy::cast_possible_truncation)]
