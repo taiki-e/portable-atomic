@@ -147,6 +147,45 @@ jobs:
           - rust: nightly-x86_64-pc-windows-gnu
             target: x86_64-pc-windows-gnu
             os: windows-latest
+
+          # ------------------------------------------------------------
+          # i586-unknown-linux-gnu
+          - rust: nightly
+            target: i586-unknown-linux-gnu
+          # ------------------------------------------------------------
+          # i686-unknown-linux-gnu
+          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+            target: i686-unknown-linux-gnu
+          - rust: '1.59' # LLVM 13
+            target: i686-unknown-linux-gnu
+          # - rust: '1.64' # LLVM 14
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.69' # LLVM 15
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.72' # LLVM 16
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.77' # LLVM 17
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.81' # LLVM 18
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.86' # LLVM 19
+          #   target: i686-unknown-linux-gnu
+          - rust: stable
+            target: i686-unknown-linux-gnu
+          # - rust: beta
+          #   target: i686-unknown-linux-gnu
+          - rust: nightly
+            target: i686-unknown-linux-gnu
+          # ------------------------------------------------------------
+          # i686-pc-windows-msvc
+          - rust: nightly-i686-pc-windows-msvc
+            target: i686-pc-windows-msvc
+            os: windows-latest
+          # ------------------------------------------------------------
+          # i686-pc-windows-gnu
+          - rust: nightly-i686-pc-windows-gnu
+            target: i686-pc-windows-gnu
+            os: windows-latest
           # ------------------------------------------------------------
           # aarch64-unknown-linux-gnu
           - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
@@ -298,7 +337,7 @@ jobs:
             target: armv5te-unknown-linux-gnueabi
           # - rust: beta
           #   target: armv5te-unknown-linux-gnueabi
-          - rust: nightly-2024-11-27 # TODO: LLVM bug with release build
+          - rust: nightly
             target: armv5te-unknown-linux-gnueabi
           # ------------------------------------------------------------
           # arm-unknown-linux-gnueabi
@@ -327,43 +366,13 @@ jobs:
           - rust: nightly-2024-08-30
             target: arm-linux-androideabi
           # ------------------------------------------------------------
-          # i586-unknown-linux-gnu
+          # thumbv7neon-unknown-linux-gnueabihf
           - rust: nightly
-            target: i586-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # i686-unknown-linux-gnu
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: i686-unknown-linux-gnu
-          - rust: '1.59' # LLVM 13
-            target: i686-unknown-linux-gnu
-          # - rust: '1.64' # LLVM 14
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.69' # LLVM 15
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.72' # LLVM 16
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.77' # LLVM 17
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.81' # LLVM 18
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.86' # LLVM 19
-          #   target: i686-unknown-linux-gnu
-          - rust: stable
-            target: i686-unknown-linux-gnu
-          # - rust: beta
-          #   target: i686-unknown-linux-gnu
+            target: thumbv7neon-unknown-linux-gnueabihf
+            os: ubuntu-24.04-arm
           - rust: nightly
-            target: i686-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # i686-pc-windows-msvc
-          - rust: nightly-i686-pc-windows-msvc
-            target: i686-pc-windows-msvc
-            os: windows-latest
-          # ------------------------------------------------------------
-          # i686-pc-windows-gnu
-          - rust: nightly-2025-02-08-i686-pc-windows-gnu # TODO: https://github.com/rust-lang/rust/issues/136795
-            target: i686-pc-windows-gnu
-            os: windows-latest
+            target: thumbv7neon-unknown-linux-gnueabihf
+            os: ubuntu-latest # QEMU on x86_64
           # ------------------------------------------------------------
           # loongarch64-unknown-linux-gnu
           - rust: nightly
@@ -402,7 +411,7 @@ jobs:
             target: mipsisa64r6el-unknown-linux-gnuabi64
           # ------------------------------------------------------------
           # powerpc-unknown-linux-gnu
-          - rust: nightly-2025-02-17 # TODO: SIGILL with LLVM 20
+          - rust: nightly
             target: powerpc-unknown-linux-gnu
           # ------------------------------------------------------------
           # powerpc64-unknown-linux-gnu
@@ -503,14 +512,6 @@ jobs:
           # sparc64-unknown-linux-gnu
           - rust: nightly
             target: sparc64-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # thumbv7neon-unknown-linux-gnueabihf
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-            os: ubuntu-24.04-arm
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-            os: ubuntu-latest # QEMU on x86_64
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
     steps:
@@ -523,9 +524,10 @@ jobs:
           sysctl hw.optional machdep.cpu
           # brew install moreutils
         if: startsWith(matrix.os, 'macos')
-      # - run: |
-      #     C:/msys64/usr/bin/pacman -S --noconfirm moreutils
-      #   if: startsWith(matrix.os, 'windows')
+      - run: |
+          systeminfo
+          # C:/msys64/usr/bin/pacman -S --noconfirm moreutils
+        if: startsWith(matrix.os, 'windows')
       - uses: taiki-e/install-action@cargo-hack
       - uses: taiki-e/install-action@cargo-minimal-versions
       - uses: taiki-e/install-action@cargo-careful
@@ -615,7 +617,7 @@ jobs:
           # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_detect_false
-        # TODO: arm-linux-androideabi is removed due to an issue between Rust nightly & QEMU in CI testing - needs investigation
+        # TODO(arm-linux-androideabi): hang
         if: startsWith(matrix.target, 'x86_64') || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:

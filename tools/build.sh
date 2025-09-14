@@ -115,7 +115,8 @@ default_targets=(
   powerpc64-unknown-freebsd
   powerpc64le-unknown-freebsd
   powerpc64-unknown-openbsd
-  powerpc64-ibm-aix
+  # TODO: thread 'rustc' (227565) panicked at compiler/rustc_lint/src/types/improper_ctypes.rs:231:40:
+  # powerpc64-ibm-aix
 
   # s390x
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
@@ -311,14 +312,16 @@ build() {
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
     if [[ -n "${TARGET_GROUP:-}" ]]; then
       case "${target}" in
-        # builtin xtensa targets are completely broken with builtin LLVM: https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
+        # builtin xtensa targets are completely broken with builtin LLVM (last checked: nightly-2025-09-11): https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
         xtensa*) return 0 ;;
-        # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25
+        # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25 (last checked: nightly-2025-09-11)
         amdgcn*) return 0 ;;
-        # error: symbol 'fma' is already defined
-        hexagon-unknown-linux-musl) return 0 ;;
-        # TODO(m68k): LLVM bug: https://github.com/rust-lang/rust/issues/89498
-        m68k*) return 0 ;;
+        # error: symbol 'fma' is already defined (last checked: nightly-2025-09-13)
+        hexagon*) return 0 ;;
+        # compiler SIGSEGV (last checked: nightly-2025-09-11)
+        m68k-unknown-none-elf) return 0 ;;
+        # TODO: thread 'rustc' (227565) panicked at compiler/rustc_lint/src/types/improper_ctypes.rs:231:40: (last checked: nightly-2025-09-11)
+        powerpc64-ibm-aix) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
@@ -373,6 +376,14 @@ build() {
     amdgcn*)
       # "error: target requires explicitly specifying a cpu with `-C target-cpu`"
       target_rustflags+=" -C target-cpu=gfx600"
+      ;;
+    m68k*)
+      if [[ "${llvm_version}" -lt 20 ]]; then
+        printf '%s\n' "target '${target}' requires LLVM 20+ (skipped all checks)"
+        return 0
+      fi
+      # Workaround for compiler SIGSEGV.
+      target_rustflags+=" -C opt-level=s"
       ;;
     mips-*-linux-* | mipsel-*-linux-*)
       if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then

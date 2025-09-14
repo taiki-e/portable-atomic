@@ -93,7 +93,7 @@ fn weak_dangling() {
 
 // For -C panic=abort -Z panic_abort_tests: https://github.com/rust-lang/rust/issues/67650
 fn is_panic_abort() -> bool {
-    build_context::PANIC.contains("abort") // cfg(panic) requires Rust 1.60
+    !matches!(build_context::PANIC, "unwind" | "") // cfg(panic) requires Rust 1.60
 }
 
 // https://github.com/rust-lang/rust/blob/1.84.0/library/alloc/src/sync/tests.rs
