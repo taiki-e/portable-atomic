@@ -1201,11 +1201,11 @@ jobs:
             export PORTABLE_ATOMIC_DENY_WARNINGS=1
             # NB: Sync with arguments in tools/test.sh.
             args=(-v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all)
-            case "${{ matrix.target }}" in
-              powerpc64*) args+=(--suppressions=$(pwd)/tools/valgrind/powerpc64.supp) ;;
-              riscv64*) args+=(--suppressions=$(pwd)/tools/valgrind/riscv64.supp) ;;
-              s390x*) args+=(--suppressions=$(pwd)/tools/valgrind/s390x.supp) ;;
-            esac
+            target="${{ matrix.target }}"
+            supp="$(pwd)/tools/valgrind/${target%%-*}.supp"
+            if [[ -f "${supp}" ]]; then
+              args+=(--suppressions="${supp}")
+            fi
             for bin in ./release*; do
               valgrind "${args[@]}" "${bin}"
             done

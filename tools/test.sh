@@ -255,15 +255,10 @@ case "${cmd}" in
     # See also https://wiki.wxwidgets.org/Valgrind_Suppression_File_Howto for suppression file.
     # NB: Sync with arguments in valgrind-other job in .github/workflows/ci.yml.
     valgrind="valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all"
-    case "${target}" in
-      aarch64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/aarch64.supp" ;;
-      arm*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/arm.supp" ;;
-      i686*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/i686.supp" ;;
-      powerpc64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/powerpc64.supp" ;;
-      riscv64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/riscv64.supp" ;;
-      s390x*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/s390x.supp" ;;
-      x86_64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/x86_64.supp" ;;
-    esac
+    supp="${workspace_dir}/tools/valgrind/${target%%-*}.supp"
+    if [[ -f "${supp}" ]]; then
+      valgrind+=" --suppressions=${supp}"
+    fi
     export "CARGO_TARGET_${target_upper}_RUNNER"="${valgrind}"
     # doctest on Valgrind is very slow
     if [[ ${#tests[@]} -eq 0 ]]; then
