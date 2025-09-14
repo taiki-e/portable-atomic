@@ -1040,44 +1040,172 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
+            dpkg-arch: amd64
+          - target: i686-unknown-linux-gnu
+            dpkg-arch: i386
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-24.04-arm
+            dpkg-arch: arm64
+          - target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-24.04-arm
+            dpkg-arch: armhf
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
+    container:
+      image: ghcr.io/taiki-e/valgrind:ubuntu-devel-${{ matrix.dpkg-arch }}
+      options: --privileged
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@nightly
-      - run: |
+      - uses: taiki-e/install-action@cargo-hack
+      - id: prepare
+        run: |
           if [[ "${{ matrix.target }}" == '' ]]; then
             printf 'matrix.target must be set\n'
             exit 1
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
           if [[ "${host}" != "${{ matrix.target }}" ]]; then
-            printf 'matrix.target must be the same as host\n'
-            exit 1
+            printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+            printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
           fi
-      - uses: taiki-e/install-action@cargo-hack
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - uses: taiki-e/install-action@valgrind
-      - run: tools/test.sh valgrind -vv
+      # - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+          runner: none
+        if: steps.prepare.outputs.target-not-host == 'true'
+      - run: tools/test.sh valgrind -vv ${TARGET:-}
       # x86_64 +cmpxchg16b
-      - run: tools/test.sh valgrind -vv
+      - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
           # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: startsWith(matrix.target, 'x86_64')
       # On AArch64 linux-gnu, outline-atomics is enabled by default.
-      - run: tools/test.sh valgrind -vv
+      - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
         if: startsWith(matrix.target, 'aarch64')
       # aarch64 +lse
       # As of Valgrind 3.19, Valgrind supports atomic instructions of Armv8.0 and Armv8.1 (FEAT_LSE).
-      - run: tools/test.sh valgrind -vv
+      - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: startsWith(matrix.target, 'aarch64')
+
+  valgrind-cross:
+    needs: tidy
+    name: valgrind (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: powerpc64le-unknown-linux-gnu
+            dpkg-arch: ppc64el
+            docker-arch: ppc64le
+          - target: riscv64gc-unknown-linux-gnu
+            dpkg-arch: riscv64
+            distro: ubuntu-rolling # TODO: "unhandled instruction 0x0C0777D7" error on ubuntu devel (25.10)
+          - target: s390x-unknown-linux-gnu
+            dpkg-arch: s390x
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: taiki-e/checkout-action@v1
+      - uses: taiki-e/github-actions/install-rust@nightly
+      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+          runner: none
+      - run: |
+          dpkg_arch="${{ matrix.dpkg-arch }}"
+          codename=$(grep -E '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2)
+          sudo dpkg --add-architecture "${dpkg_arch}"
+          sudo tee -- /etc/apt/sources.list.d/"${{ matrix.dpkg-arch }}"-ports.list <<EOF
+          deb [arch=${{ matrix.dpkg-arch }}] http://ports.ubuntu.com/ubuntu-ports/ ${codename} main universe
+          deb [arch=${{ matrix.dpkg-arch }}] http://ports.ubuntu.com/ubuntu-ports/ ${codename}-updates main universe
+          deb [arch=${{ matrix.dpkg-arch }}] http://ports.ubuntu.com/ubuntu-ports/ ${codename}-security main universe
+          deb [arch=${{ matrix.dpkg-arch }}] http://ports.ubuntu.com/ubuntu-ports/ ${codename}-backports main universe
+          EOF
+          # Ignore "Failed to fetch https://security.ubuntu.com/ubuntu/dists/*/main/binary-*/Packages" error
+          sudo apt-get -o Acquire::Retries=10 -qq update || true
+          if [[ "${{ matrix.target }}" == "riscv64"* ]]; then
+            sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+              libc6-dbg:"${dpkg_arch}"
+            # https://bugs.launchpad.net/ubuntu/+source/valgrind/+bug/2120873
+            curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors -o valgrind-riscv64.deb https://launchpad.net/~jchittum/+archive/ubuntu/valgrind-riscv-2120873/+build/31091443/+files/valgrind_3.25.1-0ubuntu2~ppa1_riscv64.deb
+            sudo dpkg -i valgrind-riscv64.deb
+            rm -- valgrind-riscv64.deb
+          else
+            sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+              valgrind:"${dpkg_arch}"
+          fi
+      - run: |
+          printf '%s\n' "debug-assertions = true" >>./Cargo.toml
+          # Skip debug mode because it's slow.
+          binary_path=$(
+            ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+          )
+          mv -- "${binary_path}" ./release
+          binary_path=$(
+            CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+              CARGO_PROFILE_RELEASE_LTO=fat \
+              ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+          )
+          mv -- "${binary_path}" ./release-fat-lto
+          case "${{ matrix.target }}" in
+            s390x*)
+              # s390x z196 (arch9)
+              binary_path=$(
+                RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z196" \
+                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+              )
+              mv -- "${binary_path}" ./release-z196
+              binary_path=$(
+                RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z196" \
+                  CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+                  CARGO_PROFILE_RELEASE_LTO=fat \
+                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+              )
+              mv -- "${binary_path}" ./release-z196-fat-lto
+              # s390x z15 (arch13)
+              binary_path=$(
+                RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z15" \
+                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+              )
+              mv -- "${binary_path}" ./release-z15
+              binary_path=$(
+                RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z15" \
+                  CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+                  CARGO_PROFILE_RELEASE_LTO=fat \
+                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+              )
+              mv -- "${binary_path}" ./release-z15-fat-lto
+              ;;
+          esac
+      - uses: uraimo/run-on-arch-action@v3
+        with:
+          arch: none
+          distro: none
+          base_image: --platform=linux/${{ matrix.docker-arch || matrix.dpkg-arch }} ghcr.io/taiki-e/valgrind:${{ matrix.distro || 'ubuntu-devel' }}-${{ matrix.dpkg-arch }}-cross
+          shell: /bin/bash
+          run: |
+            set -CeEuxo pipefail
+            export RUST_BACKTRACE=1
+            export RUST_TEST_THREADS=1
+            export PORTABLE_ATOMIC_DENY_WARNINGS=1
+            # NB: Sync with arguments in tools/test.sh.
+            args=(-v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all)
+            case "${{ matrix.target }}" in
+              powerpc64*) args+=(--suppressions=$(pwd)/tools/valgrind/powerpc64.supp) ;;
+              riscv64*) args+=(--suppressions=$(pwd)/tools/valgrind/riscv64.supp) ;;
+              s390x*) args+=(--suppressions=$(pwd)/tools/valgrind/s390x.supp) ;;
+            esac
+            for bin in ./release*; do
+              valgrind "${args[@]}" "${bin}"
+            done

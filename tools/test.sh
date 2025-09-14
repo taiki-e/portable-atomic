@@ -8,7 +8,7 @@ cd -- "$(dirname -- "$0")"/..
 
 # USAGE:
 #    ./tools/test.sh [+toolchain] [cargo_options]...
-#    ./tools/test.sh [+toolchain] build|miri|valgrind [cargo_options]...
+#    ./tools/test.sh [+toolchain] build|build-valgrind|miri|valgrind [cargo_options]...
 
 # NB: sync with:
 # - docs.rs metadata in Cargo.toml
@@ -75,7 +75,7 @@ if [[ "${1:-}" == "+"* ]]; then
 fi
 cmd='test'
 case "${1:-}" in
-  build | miri | valgrind)
+  build | build-valgrind | miri | valgrind)
     cmd="$1"
     shift
     ;;
@@ -185,7 +185,9 @@ if [[ -n "${target}" ]]; then
     fi
   fi
 fi
-if type -P cargo-hack >/dev/null; then
+if [[ "${cmd}" == "build"* ]]; then
+  args+=(--features "${test_features}")
+elif type -P cargo-hack >/dev/null; then
   args+=(--features "${test_features}" --ignore-unknown-features)
 elif [[ -n "${CI:-}" ]]; then
   bail "cargo-hack is required"
@@ -194,7 +196,7 @@ else
   args+=(--features "${test_features}")
 fi
 case "${cmd}" in
-  build) ;;
+  build*) ;;
   *) args+=(--workspace --exclude bench) ;;
 esac
 target="${target:-"${host}"}"
@@ -220,7 +222,14 @@ if [[ -n "${cranelift}" ]]; then
 fi
 
 case "${cmd}" in
-  build)
+  *valgrind)
+    # TODO: always pass randomize-layout
+    export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
+    export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
+    ;;
+esac
+case "${cmd}" in
+  build*)
     TS=''
     args+=(--no-run ${release[@]+"${release[@]}"})
     x_cargo test ${build_std[@]+"${build_std[@]}"} ${cargo_options[@]+"${cargo_options[@]}"} "${args[@]}" >&2
@@ -242,11 +251,20 @@ case "${cmd}" in
     exit 0
     ;;
   valgrind)
-    # TODO: use --errors-for-leak-kinds=definite,indirect due to upstream bug (https://github.com/rust-lang/rust/issues/135608)
-    export "CARGO_TARGET_${target_upper}_RUNNER"="valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=definite,indirect --track-origins=yes --fair-sched=yes"
-    # TODO: always pass randomize-layout
-    export RUSTFLAGS="${RUSTFLAGS:-} --cfg valgrind"
-    export RUSTDOCFLAGS="${RUSTDOCFLAGS:-} --cfg valgrind"
+    # Refs: https://valgrind.org/docs/manual/mc-manual.html
+    # See also https://wiki.wxwidgets.org/Valgrind_Suppression_File_Howto for suppression file.
+    # NB: Sync with arguments in valgrind-other job in .github/workflows/ci.yml.
+    valgrind="valgrind -v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all"
+    case "${target}" in
+      aarch64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/aarch64.supp" ;;
+      arm*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/arm.supp" ;;
+      i686*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/i686.supp" ;;
+      powerpc64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/powerpc64.supp" ;;
+      riscv64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/riscv64.supp" ;;
+      s390x*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/s390x.supp" ;;
+      x86_64*) valgrind+=" --suppressions=${workspace_dir}/tools/valgrind/x86_64.supp" ;;
+    esac
+    export "CARGO_TARGET_${target_upper}_RUNNER"="${valgrind}"
     # doctest on Valgrind is very slow
     if [[ ${#tests[@]} -eq 0 ]]; then
       tests=(--tests)

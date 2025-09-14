@@ -39,6 +39,7 @@ csrrci
 csrsi
 cxchg
 cxchgweak
+distro
 dlfcn
 dlsym
 ecall
@@ -99,6 +100,7 @@ lwsync
 MAXNAME
 maxu
 mcpu
+memcheck
 memd
 mfcr
 mfence

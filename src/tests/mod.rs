@@ -32,7 +32,9 @@ test_atomic_int_pub!(i32);
 test_atomic_int_pub!(u32);
 test_atomic_int_pub!(i64);
 test_atomic_int_pub!(u64);
+#[cfg(not(all(valgrind, target_arch = "powerpc64")))] // TODO: Hang (as of Valgrind 3.25)
 test_atomic_int_pub!(i128);
+#[cfg(not(all(valgrind, target_arch = "powerpc64")))] // TODO: Hang (as of Valgrind 3.25)
 test_atomic_int_pub!(u128);
 
 #[cfg(all(feature = "float", portable_atomic_unstable_f16))]
@@ -483,7 +485,9 @@ fn test_serde() {
     t!(AtomicU32, u32, U32);
     t!(AtomicI64, i64, I64);
     t!(AtomicU64, u64, U64);
+    #[cfg(not(all(valgrind, target_arch = "powerpc64")))] // TODO: Hang (as of Valgrind 3.25)
     t!(AtomicI128, i128, I128);
+    #[cfg(not(all(valgrind, target_arch = "powerpc64")))] // TODO: Hang (as of Valgrind 3.25)
     t!(AtomicU128, u128, U128);
     // TODO(f16_and_f128): Test f16 & f128 once stabilized.
     #[cfg(feature = "float")]

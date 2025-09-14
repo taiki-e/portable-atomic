@@ -539,7 +539,7 @@ use core::{fmt, ptr};
 
 #[cfg(portable_atomic_no_strict_provenance)]
 #[cfg(miri)]
-use crate::utils::ptr::PtrExt as _;
+use self::utils::ptr::PtrExt as _;
 
 cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
@@ -2911,6 +2911,7 @@ const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock
                 }
             }
             #[cfg(test)]
+            #[cfg_attr(all(valgrind, target_arch = "powerpc64"), allow(dead_code))] // TODO: Hang (as of Valgrind 3.25)
             const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
             #[cfg(not(portable_atomic_no_const_mut_refs))]
