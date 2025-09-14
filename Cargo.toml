@@ -23,7 +23,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 [package.metadata.cargo_check_external_types]
 # The following are external types that are allowed to be exposed in our public API.
 allowed_external_types = [
-    "serde::*",
+    "serde_core::*",
 ]
 
 [lib]
@@ -75,6 +75,7 @@ disable-fiq = []
 # Implements serde::{Serialize,Deserialize} for atomic types.
 #
 # See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-serde
+# TODO: switch to serde_core
 serde = { version = "1.0.60", optional = true, default-features = false }
 
 # Use `critical-section`.
@@ -94,7 +95,7 @@ fastrand = "2"
 paste = "1"
 quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", rev = "83b1d59" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 rustversion = "1"
-serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "f35c385" } # support {i,u}128
+serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "df513c5" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
 test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "9b4be43" }

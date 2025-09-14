@@ -18,7 +18,8 @@ build.include-archives = true
 build.allow-build-scripts = [
     { name = "portable-atomic" },
     { name = "portable-atomic-util" },
-    { name = "serde" },
+    { name = "serde_core" },
+    { name = "serde" }, # https://github.com/serde-rs/serde/issues/2972
 ]
 build.bypass = [
 ]
