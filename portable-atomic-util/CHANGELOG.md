@@ -14,6 +14,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717))
 
+- Implement `From<&mut {[T],str}>` for `Arc<{[T],str}>` at Rust 1.44+. (align to the [std `Arc` change in Rust 1.84](https://github.com/rust-lang/rust/pull/129329))
+
 - Implement `{AsFd, AsRawFd}` for `Arc<T>` on Trusty.
 
 - Implement `AsRawFd` for `Arc<T>` on Unix in all Rust versions. Previously, it was only for Rust 1.63+.

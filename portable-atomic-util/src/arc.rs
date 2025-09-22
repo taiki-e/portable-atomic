@@ -16,7 +16,6 @@
 
 // TODO:
 // - https://github.com/rust-lang/rust/pull/132231
-// - https://github.com/rust-lang/rust/pull/129329
 // - https://github.com/rust-lang/rust/pull/133003
 // - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
@@ -2343,6 +2342,25 @@ impl<T: Clone> From<&[T]> for Arc<[T]> {
 }
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
+impl<T: Clone> From<&mut [T]> for Arc<[T]> {
+    /// Allocates a reference-counted slice and fills it by cloning `v`'s items.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    /// let mut original = [1, 2, 3];
+    /// let original: &mut [i32] = &mut original;
+    /// let shared: Arc<[i32]> = Arc::from(original);
+    /// assert_eq!(&[1, 2, 3], &shared[..]);
+    /// ```
+    #[inline]
+    fn from(v: &mut [T]) -> Self {
+        Self::from(&*v)
+    }
+}
+
+#[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl From<&str> for Arc<str> {
     /// Allocates a reference-counted `str` and copies `v` into it.
     ///
@@ -2359,6 +2377,25 @@ impl From<&str> for Arc<str> {
         // SAFETY: `str` has the same layout as `[u8]`.
         // https://doc.rust-lang.org/nightly/reference/type-layout.html#str-layout
         unsafe { Self::from_raw(Arc::into_raw(arc) as *const str) }
+    }
+}
+
+#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+impl From<&mut str> for Arc<str> {
+    /// Allocates a reference-counted `str` and copies `v` into it.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    /// let mut original = String::from("eggplant");
+    /// let original: &mut str = &mut original;
+    /// let shared: Arc<str> = Arc::from(original);
+    /// assert_eq!("eggplant", &shared[..]);
+    /// ```
+    #[inline]
+    fn from(v: &mut str) -> Self {
+        Self::from(&*v)
     }
 }
 
@@ -2660,15 +2697,18 @@ mod std_impls {
     // TODO: Other trait implementations that are stable but we currently don't provide:
     // - alloc::ffi
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
+    //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26mut+CStr%3E-for-Arc%3CCStr%3E
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-Default-for-Arc%3CCStr%3E
     //   - Currently, we cannot implement these since CStr layout is not stable.
     // - std::ffi
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26mut+OsStr%3E-for-Arc%3COsStr%3E
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3COsString%3E-for-Arc%3COsStr%3E
     //   - Currently, we cannot implement these since OsStr layout is not stable.
     // - std::path
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26Path%3E-for-Arc%3CPath%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26mut+Path%3E-for-Arc%3CPath%3E
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
     //   - Currently, we cannot implement these since Path layout is not stable.
 
