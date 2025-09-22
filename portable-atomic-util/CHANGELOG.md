@@ -14,6 +14,12 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717))
 
+- Implement `{AsFd, AsRawFd}` for `Arc<T>` on Trusty.
+
+- Implement `AsRawFd` for `Arc<T>` on Unix in all Rust versions. Previously, it was only for Rust 1.63+.
+
+- Fix build error when building for HermitOS with `std` feature in Rust 1.63-1.68.
+
 ## [0.2.4] - 2024-11-23
 
 - Add unstable `portable_atomic_unstable_coerce_unsized` cfg (requires Rust nightly). ([#195](https://github.com/taiki-e/portable-atomic/pull/195), thanks @brodycj)
