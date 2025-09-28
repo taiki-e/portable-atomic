@@ -569,10 +569,6 @@ jobs:
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
         # Exclude x86_64-pc-windows-gnu due to https://github.com/rust-lang/rust/issues/112368
         if: matrix.rust == 'nightly' && matrix.target != 'x86_64-pc-windows-gnu'
-      # TODO: LLVM bug: Undefined temporary symbol error when building std.
-      - name: Workaround for LLVM bug about MIPS32
-        run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
-        if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
