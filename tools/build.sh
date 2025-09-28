@@ -385,12 +385,6 @@ build() {
       # Workaround for compiler SIGSEGV.
       target_rustflags+=" -C opt-level=s"
       ;;
-    mips-*-linux-* | mipsel-*-linux-*)
-      if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-        # TODO: LLVM bug: Undefined temporary symbol error when building std.
-        target_rustflags+=" -C opt-level=1"
-      fi
-      ;;
   esac
   if [[ "${base_rustflags}" == *"unqualified_local_imports"* ]]; then
     [[ "${target_rustflags}" == *"portable_atomic_unstable_f16"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16"
