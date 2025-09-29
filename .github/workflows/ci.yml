@@ -282,10 +282,9 @@ jobs:
           - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
             target: arm64ec-pc-windows-msvc
             os: windows-11-arm
-          # TODO: Fixed in Rust 1.90 https://github.com/rust-lang/rust/pull/143387
-          # - rust: stable
-          #   target: arm64ec-pc-windows-msvc
-          #   os: windows-11-arm
+          - rust: stable
+            target: arm64ec-pc-windows-msvc
+            os: windows-11-arm
           # - rust: beta
           #   target: arm64ec-pc-windows-msvc
           #   os: windows-11-arm
