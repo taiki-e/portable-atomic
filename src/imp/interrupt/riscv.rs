@@ -64,10 +64,10 @@ pub(super) fn disable() -> State {
     // SAFETY: reading mstatus/sstatus and disabling interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
         asm!(
             concat!("csrrci {status}, ", status!(), ", ", mask!()), // atomic { status = status!(); status!() &= !mask!() }
             status = out(reg) status,
+            // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
             options(nostack, preserves_flags),
         );
     }
@@ -85,9 +85,9 @@ pub(super) unsafe fn restore(status: State) {
         // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
         // and we've checked that interrupts were enabled before disabling interrupts.
         unsafe {
-            // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
             asm!(
                 concat!("csrsi ", status!(), ", ", mask!()), // atomic { status!() |= mask!() }
+                // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
                 options(nostack, preserves_flags),
             );
         }
