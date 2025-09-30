@@ -374,6 +374,37 @@ impl<T> Arc<T> {
         }
     }
 
+    /// Constructs a new `Arc` with uninitialized contents, with the memory
+    /// being filled with `0` bytes.
+    ///
+    /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and incorrect usage
+    /// of this method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let zero = Arc::<u32>::new_zeroed();
+    /// let zero = unsafe { zero.assume_init() };
+    ///
+    /// assert_eq!(*zero, 0)
+    /// ```
+    ///
+    /// [zeroed]: mem::MaybeUninit::zeroed
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    #[must_use]
+    pub fn new_zeroed() -> Arc<mem::MaybeUninit<T>> {
+        unsafe {
+            Arc::from_ptr(Arc::allocate_for_layout(
+                Layout::new::<T>(),
+                |layout| Global.allocate_zeroed(layout),
+                |ptr| ptr as *mut _,
+            ))
+        }
+    }
+
     /// Constructs a new `Pin<Arc<T>>`. If `T` does not implement `Unpin`, then
     /// `data` will be pinned in memory and unable to be moved.
     #[must_use]
@@ -577,6 +608,40 @@ impl<T> Arc<[T]> {
     #[must_use]
     pub fn new_uninit_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
         unsafe { Arc::from_ptr(Arc::allocate_for_slice(len)) }
+    }
+
+    /// Constructs a new atomically reference-counted slice with uninitialized contents, with the memory being
+    /// filled with `0` bytes.
+    ///
+    /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and
+    /// incorrect usage of this method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let values = Arc::<[u32]>::new_zeroed_slice(3);
+    /// let values = unsafe { values.assume_init() };
+    ///
+    /// assert_eq!(*values, [0, 0, 0])
+    /// ```
+    ///
+    /// [zeroed]: mem::MaybeUninit::zeroed
+    #[inline]
+    #[must_use]
+    #[allow(clippy::missing_panics_doc)]
+    pub fn new_zeroed_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
+        unsafe {
+            Arc::from_ptr(Arc::allocate_for_layout(
+                Layout::array::<T>(len).unwrap(),
+                |layout| Global.allocate_zeroed(layout),
+                |mem| {
+                    ptr::slice_from_raw_parts_mut(mem.cast::<T>(), len)
+                        as *mut ArcInner<[mem::MaybeUninit<T>]>
+                },
+            ))
+        }
     }
 }
 
@@ -3159,7 +3224,7 @@ struct Global;
 impl Global {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
+    fn alloc_impl(&self, layout: Layout, zeroed: bool) -> Option<NonNull<u8>> {
         // Layout::dangling is unstable
         #[inline]
         #[must_use]
@@ -3172,17 +3237,38 @@ impl Global {
             0 => Some(dangling(layout)),
             // SAFETY: `layout` is non-zero in size,
             _size => unsafe {
-                let raw_ptr = alloc::alloc::alloc(layout);
+                let raw_ptr = if zeroed {
+                    alloc::alloc::alloc_zeroed(layout)
+                } else {
+                    alloc::alloc::alloc(layout)
+                };
                 NonNull::new(raw_ptr)
             },
         }
     }
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
+        self.alloc_impl(layout, false)
+    }
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn allocate_zeroed(self, layout: Layout) -> Option<NonNull<u8>> {
+        self.alloc_impl(layout, true)
+    }
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     unsafe fn deallocate(self, ptr: NonNull<u8>, layout: Layout) {
         if layout.size() != 0 {
-            // SAFETY: `layout` is non-zero in size,
-            // other conditions must be upheld by the caller
+            // SAFETY:
+            // * We have checked that `layout` is non-zero in size.
+            // * The caller is obligated to provide a layout that "fits", and in this case,
+            //   "fit" always means a layout that is equal to the original, because our
+            //   `allocate()`, `grow()`, and `shrink()` implementations never returns a larger
+            //   allocation than requested.
+            // * Other conditions must be upheld by the caller, as per `Allocator::deallocate()`'s
+            //   safety documentation.
             unsafe { alloc::alloc::dealloc(ptr.as_ptr(), layout) }
         }
     }
