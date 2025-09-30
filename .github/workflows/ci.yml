@@ -95,8 +95,9 @@ jobs:
         # - LLVM 15 : stable 1.73 - 1.75, since https://github.com/rust-lang/rust/pull/114148
         # - LLVM 16 : stable 1.76 - 1.78, since https://github.com/rust-lang/rust/pull/117947
         # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
-        # - LLVM 18 : stable 1.83 - 1.88, since https://github.com/rust-lang/rust/pull/130487
-        # - LLVM 19 : stable 1.88       , since https://github.com/rust-lang/rust/pull/139275
+        # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
+        # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
+        # - LLVM 20 : stable 1.92       , since https://github.com/rust-lang/rust/pull/145071
         # Note that some commented-out LLVM version entries are kept here, which may be temporarily uncommented if
         # needed to investigate possible issues that may arise between LLVM and code generated for certain targets.
         include:

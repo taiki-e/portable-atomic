@@ -3,6 +3,10 @@
 /*
 64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 Arm Linux/Android.
 
+See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
+detailed description of the atomic and synchronize instructions in this architecture:
+https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#arm
+
 Refs:
 - https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/arm/kernel_user_helpers.rst
 - https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs

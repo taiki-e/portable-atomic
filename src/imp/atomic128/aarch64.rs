@@ -11,6 +11,10 @@ This architecture provides the following 128-bit atomic instructions:
 - LDIAPP/STILP: acquire-load/release-store (added as Armv8.9 FEAT_LRCPC3 (optional from Armv8.2) (if FEAT_LSE2 is also available))
 - LDCLRP/LDSETP/SWPP: fetch-and-{clear,or},swap (added as Armv9.4 FEAT_LSE128 (optional from Armv9.3))
 
+See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
+detailed description of the atomic and synchronize instructions in this architecture:
+https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#aarch64
+
 This module supports all of these instructions and attempts to select the best
 one based on compile-time and run-time information about available CPU features
 and platforms. For example:
