@@ -1105,7 +1105,7 @@ jobs:
             docker-arch: ppc64le
           - target: riscv64gc-unknown-linux-gnu
             dpkg-arch: riscv64
-            distro: ubuntu-rolling # TODO: "unhandled instruction 0x0C0777D7" error on ubuntu devel (25.10)
+            distro: ubuntu-25.04 # TODO: "unhandled instruction 0x0C0777D7" error on Ubuntu 25.10 (likely due to RVA23U64 extensions are now enabled)
           - target: s390x-unknown-linux-gnu
             dpkg-arch: s390x
     runs-on: ubuntu-latest
