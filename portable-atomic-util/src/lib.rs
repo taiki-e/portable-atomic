@@ -91,6 +91,7 @@ RUSTFLAGS="--cfg portable_atomic_unstable_coerce_unsized" cargo ...
 #![allow(clippy::inline_always)]
 // docs.rs only (cfg is enabled by docs.rs, not build script)
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, doc(auto_cfg = false))]
 // Enable custom unsized coercions if the user explicitly opts-in to unstable cfg
 #![cfg_attr(portable_atomic_unstable_coerce_unsized, feature(coerce_unsized, unsize))]
 

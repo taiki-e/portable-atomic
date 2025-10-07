@@ -319,6 +319,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
 )]
 // docs.rs only (cfg is enabled by docs.rs, not build script)
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, doc(auto_cfg = false))]
 #![cfg_attr(
     all(
         portable_atomic_no_atomic_load_store,
