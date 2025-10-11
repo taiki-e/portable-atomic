@@ -137,6 +137,9 @@ jobs:
           # x86_64-apple-darwin
           - rust: nightly
             target: x86_64-apple-darwin
+            os: macos-15-intel
+          - rust: nightly
+            target: x86_64-apple-darwin
             os: macos-latest # Rosetta on AArch64
           # ------------------------------------------------------------
           # x86_64-pc-windows-msvc
