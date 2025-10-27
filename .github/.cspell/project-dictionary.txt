@@ -39,7 +39,6 @@ csrrci
 csrsi
 cxchg
 cxchgweak
-distro
 dlfcn
 dlsym
 ecall
