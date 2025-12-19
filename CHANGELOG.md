@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Fix build error on no-std pre-v6 Arm targets due to the [recent upstream change](https://github.com/rust-lang/rust/pull/149241).
+
 ## [1.11.1] - 2025-06-06
 
 - Fix build error when building aarch64/arm64ec/powerpc64/s390x targets for Miri or ThreadSanitizer since nightly-2025-05-31.

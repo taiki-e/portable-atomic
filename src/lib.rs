@@ -329,6 +329,7 @@ RUSTFLAGS="--cfg portable_atomic_no_outline_atomics" cargo ...
             target_arch = "riscv32",
             target_arch = "riscv64",
             feature = "critical-section",
+            portable_atomic_unsafe_assume_single_core,
         )),
     ),
     allow(unused_imports, unused_macros, clippy::unused_trait_names)
@@ -4848,6 +4849,7 @@ use self::diagnostic_helper::{
                 target_arch = "riscv32",
                 target_arch = "riscv64",
                 feature = "critical-section",
+                portable_atomic_unsafe_assume_single_core,
             )),
         ),
         not(feature = "float"),
