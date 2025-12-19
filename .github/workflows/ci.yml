@@ -950,6 +950,13 @@ jobs:
         if: startsWith(matrix.rust, 'nightly')
       - run: rm -- tests/avr/rust-toolchain.toml
         if: startsWith(matrix.rust, 'nightly-')
+      # syn 2.0.107 & quote 1.0.42 requires Rust 1.68.
+      - run: |
+          cargo generate-lockfile
+          cargo update -p syn --precise 2.0.106
+          cargo update -p quote --precise 1.0.41
+        working-directory: tests/no-std-qemu
+        if: matrix.rust == '1.64'
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32s2-none-elf
         if: matrix.rust == 'stable'
