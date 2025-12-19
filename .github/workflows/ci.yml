@@ -745,6 +745,9 @@ jobs:
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.3'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '15.0'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
