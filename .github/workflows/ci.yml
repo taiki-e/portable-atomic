@@ -568,8 +568,8 @@ jobs:
           printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
-        # Exclude x86_64-pc-windows-gnu due to https://github.com/rust-lang/rust/issues/112368
-        if: matrix.rust == 'nightly' && matrix.target != 'x86_64-pc-windows-gnu'
+        # Exclude aarch64-pc-windows-msvc due to "error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run" error
+        if: matrix.rust == 'nightly' && matrix.target != 'aarch64-pc-windows-msvc'
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
