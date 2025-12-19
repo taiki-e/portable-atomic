@@ -159,6 +159,14 @@ mod os {
                 target_arch = "powerpc64",
             ))]
             pub(crate) const AT_HWCAP2: c_ulong = 26;
+            // Linux 6.9+
+            // https://github.com/torvalds/linux/commit/3281366a8e79a512956382885091565db1036b64
+            #[cfg(test)]
+            #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
+            pub(crate) const AT_HWCAP3: c_ulong = 29;
+            #[cfg(test)]
+            #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
+            pub(crate) const AT_HWCAP4: c_ulong = 30;
 
             // Defined in dlfcn.h.
             // https://github.com/bminor/glibc/blob/glibc-2.40/dlfcn/dlfcn.h
@@ -348,6 +356,14 @@ mod os {
                 target_arch = "powerpc64",
             ))]
             pub(crate) const AT_HWCAP2: c_int = 26;
+            // FreeBSD 15.0+
+            // https://github.com/freebsd/freebsd-src/commit/85007872d1227006adf2ce119fe30de856cbe12d
+            #[cfg(test)]
+            #[cfg(not(target_os = "openbsd"))]
+            pub(crate) const AT_HWCAP3: c_int = 38;
+            #[cfg(test)]
+            #[cfg(not(target_os = "openbsd"))]
+            pub(crate) const AT_HWCAP4: c_int = 39;
 
             // FreeBSD
             // Defined in dlfcn.h.
@@ -543,6 +559,12 @@ mod arch {
         #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
         pub(crate) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
+        // Linux 6.18+
+        // https://github.com/torvalds/linux/commit/220928e52cb03d223b3acad3888baf0687486d21
+        #[cfg(test)]
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "64")]
+        pub(crate) const HWCAP3_LSFE: ffi::c_ulong = 1 << 2;
     });
 
     #[cold]
@@ -591,6 +613,12 @@ mod arch {
             let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
             check!(hwcap2, rcpc3, HWCAP2_LRCPC3);
             check!(hwcap2, lse128, HWCAP2_LSE128);
+            #[cfg(test)]
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            {
+                let hwcap3 = os::getauxval(ffi::AT_HWCAP3);
+                check!(hwcap3, lsfe, HWCAP3_LSFE);
+            }
         }
     }
 }
@@ -762,8 +790,13 @@ mod tests {
                 return;
             }
             let dlsym_getauxval = mem::transmute::<*mut ffi::c_void, os::GetauxvalTy>(ptr);
-            assert_eq!(dlsym_getauxval(ffi::AT_HWCAP), ffi::getauxval(ffi::AT_HWCAP));
-            assert_eq!(dlsym_getauxval(ffi::AT_HWCAP2), ffi::getauxval(ffi::AT_HWCAP2));
+            for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
+                assert_eq!(dlsym_getauxval(at), ffi::getauxval(at));
+            }
+            #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
+            for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                assert_eq!(dlsym_getauxval(at), ffi::getauxval(at));
+            }
         }
     }
     #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
@@ -780,38 +813,43 @@ mod tests {
                 return;
             }
             let dlsym_elf_aux_info = mem::transmute::<*mut ffi::c_void, os::ElfAuxInfoTy>(ptr);
-            let mut out: ffi::c_ulong = 0;
-            let mut dlsym_out: ffi::c_ulong = 0;
             #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
             let out_len = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
-            assert_eq!(
-                ffi::elf_aux_info(
-                    ffi::AT_HWCAP,
-                    (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                    out_len,
-                ),
-                dlsym_elf_aux_info(
-                    ffi::AT_HWCAP,
-                    (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                    out_len,
-                ),
-            );
-            assert_eq!(out, dlsym_out);
-            out = 0;
-            dlsym_out = 0;
-            assert_eq!(
-                ffi::elf_aux_info(
-                    ffi::AT_HWCAP2,
-                    (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                    out_len,
-                ),
-                dlsym_elf_aux_info(
-                    ffi::AT_HWCAP2,
-                    (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                    out_len,
-                ),
-            );
-            assert_eq!(out, dlsym_out);
+            for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
+                let mut out: ffi::c_ulong = 0;
+                let mut dlsym_out: ffi::c_ulong = 0;
+                assert_eq!(
+                    ffi::elf_aux_info(
+                        at,
+                        (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                        out_len,
+                    ),
+                    dlsym_elf_aux_info(
+                        at,
+                        (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                        out_len,
+                    ),
+                );
+                assert_eq!(out, dlsym_out);
+            }
+            #[cfg(not(target_os = "openbsd"))]
+            for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                let mut out: ffi::c_ulong = 0;
+                let mut dlsym_out: ffi::c_ulong = 0;
+                assert_eq!(
+                    ffi::elf_aux_info(
+                        at,
+                        (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                        out_len,
+                    ),
+                    dlsym_elf_aux_info(
+                        at,
+                        (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                        out_len,
+                    ),
+                );
+                assert_eq!(out, dlsym_out);
+            }
         }
     }
 
@@ -984,36 +1022,28 @@ mod tests {
             // TODO: qemu-user bug (fails even on kernel >= 6.4) (as of 9.2)
             if (major, minor) < (6, 4) || cfg!(qemu) {
                 std::eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
-                assert_eq!(getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap_err(), -1);
-                assert_eq!(getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap_err(), -1);
-                assert_eq!(
-                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap_err(),
-                    -libc::EINVAL
-                );
-                assert_eq!(
-                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap_err(),
-                    -libc::EINVAL
-                );
+                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                    assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
+                    assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
+                }
             } else if cfg!(valgrind) {
                 // TODO: valgrind bug (result value mismatch) (as of 3.24)
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
-                assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP),
-                    getauxval_pr_get_auxv_libc(ffi::AT_HWCAP).unwrap()
-                );
-                assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP2),
-                    getauxval_pr_get_auxv_libc(ffi::AT_HWCAP2).unwrap()
-                );
-                assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP),
-                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP).unwrap()
-                );
-                assert_eq!(
-                    os::getauxval(ffi::AT_HWCAP2),
-                    getauxval_pr_get_auxv_no_libc(ffi::AT_HWCAP2).unwrap()
-                );
+                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
+                    assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
+                    assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                }
+                for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                    assert_eq!(
+                        os::getauxval(at),
+                        getauxval_pr_get_auxv_libc(at).unwrap_or_default()
+                    );
+                    assert_eq!(
+                        os::getauxval(at),
+                        getauxval_pr_get_auxv_no_libc(at).unwrap_or_default()
+                    );
+                }
             }
         }
     }
@@ -1261,15 +1291,15 @@ mod tests {
 
         // AT_HWCAP2 is only available on FreeBSD 13+ on AArch64.
         let hwcap2_else = |e| if cfg!(target_arch = "aarch64") { 0 } else { panic!("{:?}", e) };
-        assert_eq!(os::getauxval(ffi::AT_HWCAP), getauxval_sysctl_libc(ffi::AT_HWCAP).unwrap());
-        assert_eq!(
-            os::getauxval(ffi::AT_HWCAP2),
-            getauxval_sysctl_libc(ffi::AT_HWCAP2).unwrap_or_else(hwcap2_else)
-        );
-        assert_eq!(os::getauxval(ffi::AT_HWCAP), getauxval_sysctl_no_libc(ffi::AT_HWCAP).unwrap());
-        assert_eq!(
-            os::getauxval(ffi::AT_HWCAP2),
-            getauxval_sysctl_no_libc(ffi::AT_HWCAP2).unwrap_or_else(hwcap2_else)
-        );
+        let at = ffi::AT_HWCAP;
+        assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap());
+        assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap());
+        let at = ffi::AT_HWCAP2;
+        assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_else(hwcap2_else));
+        assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap_or_else(hwcap2_else));
+        for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+            assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_default());
+            assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap_or_default());
+        }
     }
 }
