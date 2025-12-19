@@ -39,7 +39,6 @@ csrrci
 csrsi
 cxchg
 cxchgweak
-distro
 dlfcn
 dlsym
 ecall
@@ -206,5 +205,6 @@ xsub
 zaamo
 zabha
 zacas
+zalasr
 zalrsc
 Zhaoxin

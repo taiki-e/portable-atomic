@@ -181,6 +181,8 @@ flags! {
     zacas("zacas", any(target_feature /* nightly */, portable_atomic_target_feature)),
     #[cfg(test)] // test-only
     zabha("zabha", any(target_feature /* nightly */, portable_atomic_target_feature)),
+    #[cfg(test)] // test-only
+    zalasr("zalasr", any(/* no corresponding target feature */)),
 }
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/X86/X86.td
