@@ -671,9 +671,9 @@ pub(crate) mod ffi {
         #[inline]
         #[must_use]
         pub(crate) fn to_bytes_with_nul(&self) -> &[u8] {
+            #[allow(clippy::unnecessary_cast)] // triggered for targets that c_char is u8
             // SAFETY: Transmuting a slice of `c_char`s to a slice of `u8`s
             // is safe on all supported targets.
-            #[allow(clippy::unnecessary_cast)] // triggered for targets that c_char is u8
             unsafe {
                 &*(&self.0 as *const [c_char] as *const [u8])
             }
