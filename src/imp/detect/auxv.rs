@@ -818,6 +818,7 @@ mod tests {
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
     #[cfg_attr(target_arch = "arm", rustversion::nightly)] // cfg(target_feature = "thumb-mode") is nightly-only
+    #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
     #[test]
     fn test_alternative() {
         use crate::utils::ffi::*;
@@ -916,6 +917,7 @@ mod tests {
                         out("r11") _,
                         out("r12") _,
                         out("cr0") _,
+                        out("ctr") _,
                         out("xer") _,
                         options(nostack, preserves_flags),
                     );
@@ -1170,6 +1172,7 @@ mod tests {
                         out("r11") _,
                         out("r12") _,
                         out("cr0") _,
+                        out("ctr") _,
                         out("xer") _,
                         options(nostack, preserves_flags, readonly),
                     );
@@ -1209,6 +1212,7 @@ mod tests {
                         out("r11") _,
                         out("r12") _,
                         out("cr0") _,
+                        out("ctr") _,
                         out("xer") _,
                         options(nostack, preserves_flags),
                     );
