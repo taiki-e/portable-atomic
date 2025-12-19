@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.12.0] - 2025-12-19
+
 - Fix build error on no-std pre-v6 Arm targets due to the [recent upstream change](https://github.com/rust-lang/rust/pull/149241). ([83f6f3e](https://github.com/taiki-e/portable-atomic/commit/83f6f3e4957833af6dd1bae054da1e8d51501a76))
 
 - Support `unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg for targets with CAS. ([38e9572](https://github.com/taiki-e/portable-atomic/commit/38e95722dde98e7a9b59d2acbff968450a0b09ea))
@@ -540,7 +542,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/taiki-e/portable-atomic/compare/v1.9.0...v1.10.0
