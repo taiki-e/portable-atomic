@@ -70,7 +70,11 @@ pub(crate) static NO_ATOMIC_64: &[&str] = &[
 
 #[rustfmt::skip]
 pub(crate) static NO_ATOMIC: &[&str] = &[
+    "armv4t-none-eabi",
+    "armv5te-none-eabi",
     "bpfeb-unknown-none",
     "bpfel-unknown-none",
     "mipsel-sony-psx",
+    "thumbv4t-none-eabi",
+    "thumbv5te-none-eabi",
 ];
