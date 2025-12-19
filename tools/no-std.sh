@@ -42,6 +42,7 @@ default_targets=(
   riscv32emc-unknown-none-elf
   # riscv64
   riscv64i-unknown-none-elf # custom target
+  riscv64im-unknown-none-elf
   riscv64imac-unknown-none-elf
   riscv64gc-unknown-none-elf
 

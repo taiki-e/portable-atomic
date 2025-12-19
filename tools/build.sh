@@ -24,17 +24,18 @@ default_targets=(
   msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
   # no atomic load/store (32-bit)
   mipsel-sony-psx
+  thumbv4t-none-eabi
   # no atomic load/store (64-bit)
   riscv64i-unknown-none-elf # custom target
+  bpfel-unknown-none
 
   # no atomic CAS (16-bit)
   avr-none
   # no atomic CAS (32-bit)
-  thumbv4t-none-eabi
   thumbv6m-none-eabi
   riscv32i-unknown-none-elf
   # no atomic CAS (64-bit)
-  bpfel-unknown-none
+  riscv64im-unknown-none-elf
 
   # no-std 32-bit with 32-bit atomic
   thumbv7m-none-eabi
