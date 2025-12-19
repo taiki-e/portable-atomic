@@ -8,7 +8,7 @@ instructions that were not available on the M1 but are now available on the
 latest Apple hardware and this library currently wants to use:
 
 ```console
-$ comm -23 <(rustc --print cfg --target aarch64-apple-darwin -C target-cpu=apple-m4 | grep -F target_feature) <(rustc --print cfg --target aarch64-apple-darwin | grep -F target_feature)
+$ LC_ALL=C comm -23 <(rustc --print cfg --target aarch64-apple-darwin -C target-cpu=apple-m4 | grep -F target_feature) <(rustc --print cfg --target aarch64-apple-darwin | grep -F target_feature)
 target_feature="bf16"
 target_feature="bti"
 target_feature="ecv"

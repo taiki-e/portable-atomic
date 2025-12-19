@@ -402,6 +402,7 @@ compile_error!(
      please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>"
 );
 // Reject targets where privileged instructions are obviously unavailable.
+// TODO: Some embedded OSes should probably be accepted here.
 #[cfg(portable_atomic_unsafe_assume_single_core)]
 #[cfg(any(
     target_arch = "arm",

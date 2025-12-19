@@ -200,7 +200,7 @@ unsafe fn atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
                     // Equivalent to `mfence`, but is up to 3.1x faster on Coffee Lake and up to 2.4x faster on Raptor Lake-H at least in simple cases.
                     // - https://github.com/taiki-e/portable-atomic/pull/156
-                    // - LLVM uses `lock or` for x86_32 64-bit atomic SeqCst store using SSE https://godbolt.org/z/9sKEr8YWc
+                    // - LLVM uses `lock or` https://godbolt.org/z/vv6rjzfYd
                     // - Windows uses `xchg` for x86_32 for MemoryBarrier https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-memorybarrier
                     // - MSVC STL uses `lock inc` https://github.com/microsoft/STL/pull/740
                     // - boost uses `lock or` https://github.com/boostorg/atomic/commit/559eba81af71386cedd99f170dc6101c6ad7bf22
