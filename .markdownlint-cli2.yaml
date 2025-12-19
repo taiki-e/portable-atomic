@@ -5,6 +5,7 @@ config:
   no-blanks-blockquote: false # MD028 (this warns valid GFM alerts usage)
   no-inline-html: false # MD033
   no-emphasis-as-heading: false # MD036
+  blanks-around-lists: false # MD032 (GitHub doesn't handle indented GFM alerts)
 
 # https://github.com/DavidAnson/markdownlint-cli2#markdownlint-cli2jsonc
 noBanner: true

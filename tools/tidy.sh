@@ -381,10 +381,11 @@ if [[ -n "$(ls_files '*.rs')" ]]; then
     fi
     new='<!-- tidy:sync-markdown-to-rustdoc:start -->'$'\a'
     empty_line_re='^ *$'
-    gfm_alert_re='^> {0,4}\[!.*\] *$'
+    gfm_alert_re='^ *> {0,4}\[!.*\] *$'
     rust_code_block_re='^ *```(rust|rs) *$'
     code_block_attr=''
     in_alert=''
+    leading_spaces=''
     first_line=1
     ignore=''
     while IFS='' read -rd$'\a' line; do
@@ -401,7 +402,7 @@ if [[ -n "$(ls_files '*.rs')" ]]; then
       elif [[ -n "${in_alert}" ]]; then
         if [[ "${line}" =~ ${empty_line_re} ]]; then
           in_alert=''
-          new+=$'\a'"</div>"$'\a'
+          new+=$'\a'"${leading_spaces}</div>"$'\a'
         fi
       elif [[ "${line}" =~ ${gfm_alert_re} ]]; then
         alert="${line#*[\!}"
@@ -418,8 +419,13 @@ if [[ -n "$(ls_files '*.rs')" ]]; then
             ;;
         esac
         in_alert=1
-        new+="<div class=\"rustdoc-alert rustdoc-alert-${alert_lower}\">"$'\a\a'
-        new+="> **${alert_sign} ${alert:0:1}${alert_lower:1}**"$'\a>\a'
+        leading_spaces="${line%%[^ ]*}"
+        # GitHub doesn't handle indented GFM alerts...
+        if [[ -n "${leading_spaces}" ]]; then
+          error "GitHub doesn't handle indented GFM alerts"
+        fi
+        new+="${leading_spaces}<div class=\"rustdoc-alert rustdoc-alert-${alert_lower}\">"$'\a\a'
+        new+="${leading_spaces}> **${alert_sign} ${alert:0:1}${alert_lower:1}**"$'\a'"${leading_spaces}>"$'\a'
         continue
       fi
       if [[ "${line}" =~ ${rust_code_block_re} ]]; then
