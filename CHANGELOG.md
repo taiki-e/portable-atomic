@@ -12,7 +12,13 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Fix build error on no-std pre-v6 Arm targets due to the [recent upstream change](https://github.com/rust-lang/rust/pull/149241).
+- Fix build error on no-std pre-v6 Arm targets due to the [recent upstream change](https://github.com/rust-lang/rust/pull/149241). ([83f6f3e](https://github.com/taiki-e/portable-atomic/commit/83f6f3e4957833af6dd1bae054da1e8d51501a76))
+
+- Support `unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg for targets with CAS. ([38e9572](https://github.com/taiki-e/portable-atomic/commit/38e95722dde98e7a9b59d2acbff968450a0b09ea))
+
+- Improve compile-time detection of s390x target feature. ([5ae0ef5](https://github.com/taiki-e/portable-atomic/commit/5ae0ef5ed7f9a0c9efe9e628ba2fbc5876487219))
+
+- Documentation improvements. ([c84f720](https://github.com/taiki-e/portable-atomic/commit/c84f7203ae6e39a5c9966748123b95b90e8a127a))
 
 ## [1.11.1] - 2025-06-06
 
