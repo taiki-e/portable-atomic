@@ -351,17 +351,8 @@ compile_error!(
      please submit an issue at <https://github.com/taiki-e/portable-atomic>"
 );
 
+// Reject unsupported architectures.
 #[cfg(portable_atomic_unsafe_assume_single_core)]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
-#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-compile_error!(
-    "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
-     is not compatible with target that supports atomic CAS;\n\
-     see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
-);
-#[cfg(portable_atomic_unsafe_assume_single_core)]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
-#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
 #[cfg(not(any(
     target_arch = "arm",
     target_arch = "avr",
@@ -372,9 +363,34 @@ compile_error!(
 )))]
 compile_error!(
     "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
-     is not supported yet on this target;\n\
+     is not supported yet on this architecture;\n\
      if you need unsafe-assume-single-core support for this target,\n\
-     please submit an issue at <https://github.com/taiki-e/portable-atomic>"
+     please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>"
+);
+// Reject targets where privileged instructions are obviously unavailable.
+#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg(any(
+    target_arch = "arm",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "xtensa",
+))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(all(not(portable_atomic_no_atomic_cas), not(target_os = "none")))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(all(target_has_atomic = "ptr", not(target_os = "none")))
+)]
+compile_error!(
+    "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
+     is not compatible targets where privileged instructions are obviously unavailable;\n\
+     if you need unsafe-assume-single-core support for this target,\n\
+     please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>\n\
+     see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
 );
 
 #[cfg(portable_atomic_no_outline_atomics)]

@@ -200,12 +200,19 @@ run() {
   fi
 
   # NB: sync with tools/build.sh
+  local assume_single_core_target_rustflags=''
   case "${target}" in
-    thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
+    armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
+      ;;
+    arm* | thumb* | xtensa*)
+      assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
     riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
+      ;;
+    riscv*)
+      assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
       ;;
   esac
   local test_dir
@@ -293,11 +300,21 @@ EOF
         CARGO_TARGET_DIR="${target_dir}/no-std-test" \
           RUSTFLAGS="${target_rustflags}" \
           x_cargo "${args[@]}" "$@"
+        if [[ -n "${assume_single_core_target_rustflags}" ]]; then
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
+            RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
+            x_cargo "${args[@]}" "$@"
+        fi
         ;;
     esac
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" --release "$@"
+    if [[ -n "${assume_single_core_target_rustflags}" ]]; then
+      CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
+        RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
+        x_cargo "${args[@]}" --release "$@"
+    fi
     case "${target}" in
       thumbv[4-5]t* | armv[4-5]t*)
         CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
@@ -307,42 +324,58 @@ EOF
           RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
           x_cargo "${args[@]}" --release "$@"
         ;;
-      riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
-        # .option arch requires 1.72
-        if [[ "${rustc_minor_version}" -ge 72 ]]; then
-          CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
-            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+      riscv*)
+        case "${target}" in
+          riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
+            # .option arch requires 1.72
+            if [[ "${rustc_minor_version}" -ge 72 ]]; then
+              CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+                x_cargo "${args[@]}" "$@"
+              CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
+                RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+                x_cargo "${args[@]}" --release "$@"
+              CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+                x_cargo "${args[@]}" "$@"
+              CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
+                RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+                x_cargo "${args[@]}" --release "$@"
+            fi
+            ;;
+        esac
+        local arch
+        case "${target}" in
+          riscv32*) arch=riscv32 ;;
+          riscv64*) arch=riscv64 ;;
+          *) bail "${target}" ;;
+        esac
+        # Support for Zabha extension requires LLVM 19+ and QEMU 9.1+.
+        # https://github.com/qemu/qemu/commit/be4a8db7f304347395b081ae5848bad2f507d0c4
+        qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version [^ ]+ \(v([^ )]+)\)/\1/p')
+        if [[ -z "${qemu_version}" ]]; then
+          qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version ([^ )]+)/\1/p')
+        fi
+        if [[ "${llvm_version}" -ge 19 ]] && [[ "${qemu_version}" =~ ^(9\.[^0]|[1-9][0-9]+\.) ]]; then
+          export "CARGO_TARGET_${target_upper}_RUNNER"="qemu-system-${arch} -M virt -cpu max -display none -semihosting -kernel"
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
             x_cargo "${args[@]}" "$@"
-          CARGO_TARGET_DIR="${target_dir}/no-std-test-force-amo" \
-            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_force_amo" \
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
             x_cargo "${args[@]}" --release "$@"
-          CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zacas" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zacas" \
             x_cargo "${args[@]}" "$@"
-          CARGO_TARGET_DIR="${target_dir}/no-std-test-zaamo" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zacas" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zacas" \
             x_cargo "${args[@]}" --release "$@"
-          local arch
-          case "${target}" in
-            riscv32*) arch=riscv32 ;;
-            riscv64*) arch=riscv64 ;;
-            *) bail "${target}" ;;
-          esac
-          # Support for Zabha extension requires LLVM 19+ and QEMU 9.1+.
-          # https://github.com/qemu/qemu/commit/be4a8db7f304347395b081ae5848bad2f507d0c4
-          qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version [^ ]+ \(v([^ )]+)\)/\1/p')
-          if [[ -z "${qemu_version}" ]]; then
-            qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version ([^ )]+)/\1/p')
-          fi
-          if [[ "${llvm_version}" -ge 19 ]] && [[ "${qemu_version}" =~ ^(9\.[^0]|[1-9][0-9]+\.) ]]; then
-            export "CARGO_TARGET_${target_upper}_RUNNER"="qemu-system-${arch} -M virt -cpu max -display none -semihosting -kernel"
-            CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
-              RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
-              x_cargo "${args[@]}" "$@"
-            CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
-              RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
-              x_cargo "${args[@]}" --release "$@"
-          fi
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha-zacas" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha,+zacas" \
+            x_cargo "${args[@]}" "$@"
+          CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha-zacas" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha,+zacas" \
+            x_cargo "${args[@]}" --release "$@"
         fi
         ;;
       avr*)

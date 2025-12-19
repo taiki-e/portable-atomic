@@ -79,6 +79,11 @@ pub(super) unsafe fn restore(prev_cpsr: State) {
 //
 // Generated asm:
 // - armv5te https://godbolt.org/z/deqTqPzqz
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(test, not(target_has_atomic = "ptr")))
+)]
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;

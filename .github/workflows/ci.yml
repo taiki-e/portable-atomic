@@ -878,7 +878,7 @@ jobs:
           # - nightly-2025-02-17 # Rust 1.87, LLVM 19
           - nightly
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120 # TODO: reduce
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@main

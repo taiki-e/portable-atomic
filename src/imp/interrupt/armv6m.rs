@@ -12,6 +12,14 @@ Generated asm:
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(test, portable_atomic_no_atomic_cas))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(test, not(target_has_atomic = "ptr")))
+)]
 pub(super) use core::sync::atomic;
 
 pub(super) type State = u32;

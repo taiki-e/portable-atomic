@@ -400,7 +400,7 @@ build() {
       local build_util_with_critical_section=''
       if [[ -z "${has_atomic_cas}" ]]; then
         case "${target}" in
-          thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
+          armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
           bpf* | mips*) build_util_with_critical_section=1 ;;
@@ -639,6 +639,19 @@ build() {
       fi
       ;;
   esac
+  if [[ -n "${has_atomic_cas}" ]]; then
+    case "${target}" in
+      armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
+        case "${target}" in
+          *-none*)
+            CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+              x_cargo "${args[@]}" "$@"
+            ;;
+        esac
+        ;;
+    esac
+  fi
   case "${target}" in
     x86_64*)
       # Apple, Windows (except Windows 7, since Rust 1.78), and Fuchsia (since Rust 1.87) targets are +cmpxchg16b by default
