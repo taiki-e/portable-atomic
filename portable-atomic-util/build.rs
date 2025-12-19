@@ -78,7 +78,11 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_core_unwind_safe");
     }
     // io_safety stabilized in Rust 1.63 (nightly-2022-06-16): https://github.com/rust-lang/rust/pull/95118
-    if !version.probe(63, 2022, 6, 15) {
+    // std::os::hermit::io::AsFd requires Rust 1.69 (https://github.com/rust-lang/rust/commit/b5fb4f3d9b1b308d59cab24ef2f9bf23dad948aa)
+    if !version.probe(63, 2022, 6, 15)
+        || version.minor < 69
+            && env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set") == "hermit"
+    {
         println!("cargo:rustc-cfg=portable_atomic_no_io_safety");
     }
     // error_in_core stabilized in Rust 1.81 (nightly-2024-06-09): https://github.com/rust-lang/rust/pull/125951
