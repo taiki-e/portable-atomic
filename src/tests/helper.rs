@@ -97,7 +97,7 @@ macro_rules! __test_atomic_int_load_store {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
         use crossbeam_utils::thread;
-        use std::{collections::BTreeSet, vec, vec::Vec};
+        use std::{collections::BTreeSet, time::Instant, vec, vec::Vec};
         #[test]
         fn stress_load_store() {
             let mut rng = fastrand::Rng::new();
@@ -105,7 +105,7 @@ macro_rules! __test_atomic_int_load_store {
             let data1 = (0..iterations).map(|_| rng.$int_type(..)).collect::<Vec<_>>();
             let set = data1.iter().copied().collect::<BTreeSet<_>>();
             let a = <$atomic_type>::new(data1[rng.usize(0..iterations)]);
-            let now = &std::time::Instant::now();
+            let now = &Instant::now();
             thread::scope(|s| {
                 for _ in 0..threads {
                     s.spawn(|_| {
@@ -1108,7 +1108,7 @@ macro_rules! __test_atomic_int {
                 .chain(data2.iter().flat_map(|v| v.iter().copied()))
                 .collect::<BTreeSet<_>>();
             let a = &<$atomic_type>::new(data2[0][rng.usize(0..iterations)]);
-            let now = &std::time::Instant::now();
+            let now = &Instant::now();
             thread::scope(|s| {
                 for thread in 0..threads {
                     if thread % 2 == 0 {
@@ -1175,7 +1175,7 @@ macro_rules! __test_atomic_int {
             if IMP_EMU_SUB_WORD_CAS && mem::size_of::<$int_type>() <= 2 {
                 mark_aligned_defined(a);
             }
-            let now = &std::time::Instant::now();
+            let now = &Instant::now();
             thread::scope(|s| {
                 for thread in 0..threads {
                     s.spawn(move |_| {
@@ -2612,7 +2612,6 @@ pub(crate) struct Align16<T>(pub(crate) T);
 
 // Test the cases that should not fail if the memory ordering is implemented correctly.
 // This is still not exhaustive and only tests a few cases.
-// This currently only supports 32-bit or more integers.
 macro_rules! __stress_test_acquire_release {
     (should_pass, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {
         paste::paste! {
@@ -2650,7 +2649,7 @@ macro_rules! __stress_test_acquire_release {
         // This test is relatively fast because it spawns only one thread, but
         // the iterations are limited to a maximum value of integers.
         if $int_type::try_from(n).is_err() {
-            n = $int_type::MAX as usize;
+            n = ($int_type::MAX as usize).checked_add(1).unwrap();
         }
         let a = &$atomic_type::new(0);
         let b = &AtomicUsize::new(0);
