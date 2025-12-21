@@ -36,7 +36,7 @@ cpus
 csel
 cset
 csrrci
-csrsi
+csrw
 cxchg
 cxchgweak
 dlfcn

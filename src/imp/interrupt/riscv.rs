@@ -43,16 +43,12 @@ macro_rules! status {
 
 // MIE (Machine Interrupt Enable) bit (1 << 3)
 #[cfg(not(portable_atomic_s_mode))]
-const MASK: State = 0x8;
-#[cfg(not(portable_atomic_s_mode))]
 macro_rules! mask {
     () => {
         "0x8"
     };
 }
 // SIE (Supervisor Interrupt Enable) bit (1 << 1)
-#[cfg(portable_atomic_s_mode)]
-const MASK: State = 0x2;
 #[cfg(portable_atomic_s_mode)]
 macro_rules! mask {
     () => {
@@ -88,16 +84,16 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(status: State) {
-    if status & MASK != 0 {
-        // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
-        // and we've checked that interrupts were enabled before disabling interrupts.
-        unsafe {
-            asm!(
-                concat!("csrsi ", status!(), ", ", mask!()), // atomic { status!() |= mask!() }
-                // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
-                options(nostack, preserves_flags),
-            );
-        }
+pub(super) unsafe fn restore(prev_status: State) {
+    // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
+    //
+    // This clobbers the entire mstatus/sstatus register. See msp430.rs to safety on this.
+    unsafe {
+        asm!(
+            concat!("csrw ", status!(), ", {prev_status}"), // atomic { status!() = prev_status }
+            prev_status = in(reg) prev_status,
+            // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
+            options(nostack, preserves_flags),
+        );
     }
 }
