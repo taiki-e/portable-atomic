@@ -26,12 +26,12 @@ macro_rules! mask {
     };
 }
 
-pub(super) type State = u32;
+pub(crate) type State = u32;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
 #[instruction_set(arm::a32)]
-pub(super) fn disable() -> State {
+pub(crate) fn disable() -> State {
     let cpsr: State;
     // SAFETY: reading CPSR and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
@@ -56,7 +56,7 @@ pub(super) fn disable() -> State {
 /// The state must be the one retrieved by the previous `disable`.
 #[inline]
 #[instruction_set(arm::a32)]
-pub(super) unsafe fn restore(prev_cpsr: State) {
+pub(crate) unsafe fn restore(prev_cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //
     // This clobbers the control field mask byte of CPSR. See msp430.rs for safety on this.

@@ -167,14 +167,25 @@ mod fallback;
     target_arch = "msp430",
     feature = "critical-section",
     portable_atomic_unsafe_assume_single_core,
+    portable_atomic_unsafe_assume_privileged,
 ))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(test, portable_atomic_no_atomic_cas, portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        test,
+        portable_atomic_no_atomic_cas,
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_unsafe_assume_privileged,
+    ))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "ptr"), portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        test,
+        not(target_has_atomic = "ptr"),
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_unsafe_assume_privileged,
+    ))
 )]
 #[cfg(any(
     target_arch = "arm",

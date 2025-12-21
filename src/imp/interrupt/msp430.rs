@@ -26,11 +26,11 @@ use core::arch::asm;
 )]
 pub(super) use super::super::msp430 as atomic;
 
-pub(super) type State = u16;
+pub(crate) type State = u16;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
-pub(super) fn disable() -> State {
+pub(crate) fn disable() -> State {
     let sr: State;
     // SAFETY: reading the status register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
@@ -61,7 +61,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(prev_sr: State) {
+pub(crate) unsafe fn restore(prev_sr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //
     // This clobbers the entire status register, but we never explicitly modify

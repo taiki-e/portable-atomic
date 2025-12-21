@@ -90,8 +90,11 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 
   This enables atomic types with larger than the width supported by atomic instructions available on the current target. If the current target supports 128-bit atomics, this is no-op.
 
-  This uses lock-based fallback implementations by default. The following features/cfgs change this behavior:
-  - `unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg: Use fallback implementations that disabling interrupts instead of using locks.
+  This uses fallback implementation that using global locks by default. The following features/cfgs change this behavior:
+  - [`unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg](#optional-features-unsafe-assume-single-core): Use fallback implementations that disabling interrupts instead of using global locks.
+    - If your target is single-core and calling interrupt disable instructions is safe, this is a safer and more efficient option.
+  - [`unsafe-assume-privileged` feature / `portable_atomic_unsafe_assume_privileged` cfg](#optional-features-unsafe-assume-privileged): Use fallback implementations that using global locks with disabling interrupts.
+    - If your target is multi-core and calling interrupt disable instructions is safe, this is a safer option.
 
 - <a name="optional-features-float"></a>**`float` feature**<br>
   Provide `AtomicF{32,64}`.
@@ -150,6 +153,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 >   ```
 >
 > - Enabling both this feature and `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg) will result in a compile error.
+> - Enabling both this feature and `unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg) will result in a compile error.
 > - The MSRV when this feature is enabled depends on the MSRV of [critical-section].
 
 </div>
@@ -166,6 +170,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 >
 > This feature/cfg is `unsafe`, and note the following safety requirements:
 > - Enabling this feature/cfg for multi-core systems is always **unsound**.
+>
 > - This uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
 >
 >   Enabling this feature/cfg in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
@@ -173,12 +178,14 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 >   The following are known cases:
 >   - On pre-v6 Arm, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature (or `portable_atomic_disable_fiq` cfg) together.
 >   - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you enable the `s-mode` feature (or `portable_atomic_s_mode` cfg) together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
->
->   Consider using the [`critical-section` feature](#optional-features-critical-section) for systems that cannot use this feature/cfg.
->
->   See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
 
 </div>
+
+Consider using the [`unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg)](#optional-features-unsafe-assume-privileged) for multi-core systems with atomic CAS.
+
+Consider using the [`critical-section` feature](#optional-features-critical-section) for systems that cannot use this feature/cfg.
+
+See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md).
 
 <div class="rustdoc-alert rustdoc-alert-note">
 
@@ -193,6 +200,38 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 > - Enabling this feature/cfg for targets where privileged instructions are obviously unavailable (e.g., Linux) will result in a compile error.
 >   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target supports privileged instructions but the build rejected.
 > - Enabling both this feature/cfg and `critical-section` feature will result in a compile error.
+> - When both this feature/cfg and `unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg) are enabled, this feature/cfg is preferred.
+
+</div>
+
+- <a name="optional-features-unsafe-assume-privileged"></a><a name="optional-cfg-unsafe-assume-privileged"></a>**`unsafe-assume-privileged` feature / `portable_atomic_unsafe_assume_privileged` cfg**<br>
+  Similar to `unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg, but only assumes about availability of privileged instructions required to disable interrupts.
+
+  - When both this feature/cfg and enabled-by-default `fallback` feature is enabled, this crate provides atomic types with larger than the width supported by native instructions by using global locks with disabling interrupts.
+
+<div class="rustdoc-alert rustdoc-alert-warning">
+
+> **⚠ Warning**
+>
+> This feature/cfg is `unsafe`, and except for being sound in multi-core systems, this has the same safety requirements as [`unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg](#optional-features-unsafe-assume-single-core).
+
+</div>
+
+<div class="rustdoc-alert rustdoc-alert-note">
+
+> **ⓘ Note**
+>
+> - It is **very strongly discouraged** to enable this feature/cfg in libraries that depend on `portable-atomic`.
+>
+>   The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature/cfg. (However, it may make sense to enable this feature/cfg by default for libraries specific to a platform where it is guaranteed to always be sound, for example in a hardware abstraction layer.)
+> - Enabling this feature/cfg for unsupported targets will result in a compile error.
+>   - This requires atomic CAS (`cfg(target_has_atomic = "ptr")` or `cfg_no_atomic_cas!`).
+>   - Arm, RISC-V, and Xtensa are currently supported.
+>   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target is not supported yet.
+> - Enabling this feature/cfg for targets where privileged instructions are obviously unavailable (e.g., Linux) will result in a compile error.
+>   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target supports privileged instructions but the build rejected.
+> - Enabling both this feature/cfg and `critical-section` feature will result in a compile error.
+> - When both this feature/cfg and `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg) are enabled, `unsafe-assume-single-core` is preferred.
 
 </div>
 
@@ -267,7 +306,13 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
         any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(target_arch = "xtensa", portable_atomic_unsafe_assume_single_core),
+            all(
+                target_arch = "xtensa",
+                any(
+                    portable_atomic_unsafe_assume_single_core,
+                    portable_atomic_unsafe_assume_privileged,
+                ),
+            ),
             all(target_arch = "powerpc64", portable_atomic_unstable_asm_experimental_arch),
         ),
     ),
@@ -316,7 +361,11 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
     all(
         target_arch = "arm",
         portable_atomic_unstable_isa_attribute,
-        any(test, portable_atomic_unsafe_assume_single_core),
+        any(
+            test,
+            portable_atomic_unsafe_assume_single_core,
+            portable_atomic_unsafe_assume_privileged,
+        ),
         not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
         not(target_has_atomic = "ptr"),
     ),
@@ -370,6 +419,20 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
     allow(unused_imports, unused_macros, clippy::unused_trait_names)
 )]
 
+#[cfg(any(test, feature = "std"))]
+extern crate std;
+
+#[macro_use]
+mod cfgs;
+#[cfg(target_pointer_width = "16")]
+pub use self::{cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
+#[cfg(target_pointer_width = "32")]
+pub use self::{cfg_has_atomic_32 as cfg_has_atomic_ptr, cfg_no_atomic_32 as cfg_no_atomic_ptr};
+#[cfg(target_pointer_width = "64")]
+pub use self::{cfg_has_atomic_64 as cfg_has_atomic_ptr, cfg_no_atomic_64 as cfg_no_atomic_ptr};
+#[cfg(target_pointer_width = "128")]
+pub use self::{cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no_atomic_ptr};
+
 // There are currently no 128-bit or higher builtin targets.
 // (Although some of our generic code is written with the future
 // addition of 128-bit targets in mind.)
@@ -398,12 +461,36 @@ compile_error!(
 compile_error!(
     "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
      is not supported yet on this architecture;\n\
-     if you need unsafe-assume-single-core support for this target,\n\
+     if you need unsafe-assume-{single-core,privileged} support for this target,\n\
      please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>"
 );
+// unsafe-assume-single-core is accepted on AVR/MSP430, but
+// unsafe-assume-privileged on them is really useless on them since they are
+// always single-core, so rejected here.
+#[cfg(portable_atomic_unsafe_assume_privileged)]
+#[cfg(not(any(
+    target_arch = "arm",
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "xtensa",
+)))]
+compile_error!(
+    "`portable_atomic_unsafe_assume_privileged` cfg (`unsafe-assume-privileged` feature) \
+     is not supported yet on this architecture;\n\
+     if you need unsafe-assume-{single-core,privileged} support for this target,\n\
+     please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>"
+);
+// unsafe-assume-privileged requires CAS.
+#[cfg(portable_atomic_unsafe_assume_privileged)]
+cfg_no_atomic_cas! {
+    compile_error!(
+        "`portable_atomic_unsafe_assume_privileged` cfg (`unsafe-assume-privileged` feature) \
+        requires atomic CAS"
+    );
+}
 // Reject targets where privileged instructions are obviously unavailable.
 // TODO: Some embedded OSes should probably be accepted here.
-#[cfg(portable_atomic_unsafe_assume_single_core)]
+#[cfg(any(portable_atomic_unsafe_assume_single_core, portable_atomic_unsafe_assume_privileged))]
 #[cfg(any(
     target_arch = "arm",
     target_arch = "avr",
@@ -421,9 +508,9 @@ compile_error!(
     cfg(all(target_has_atomic = "ptr", not(target_os = "none")))
 )]
 compile_error!(
-    "`portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) \
-     is not compatible targets where privileged instructions are obviously unavailable;\n\
-     if you need unsafe-assume-single-core support for this target,\n\
+    "`portable_atomic_unsafe_assume_{single_core,privileged}` cfg (`unsafe-assume-{single-core,privileged}` feature) \
+     is not compatible with target where privileged instructions are obviously unavailable;\n\
+     if you need unsafe-assume-{single-core,privileged} support for this target,\n\
      please submit an issue at <https://github.com/taiki-e/portable-atomic/issues/new>\n\
      see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
 );
@@ -464,24 +551,38 @@ compile_error!("`portable_atomic_s_mode` cfg (`s-mode` feature) is only availabl
 compile_error!("`portable_atomic_force_amo` cfg (`force-amo` feature) is only available on RISC-V");
 
 #[cfg(portable_atomic_disable_fiq)]
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+#[cfg(not(any(
+    portable_atomic_unsafe_assume_single_core,
+    portable_atomic_unsafe_assume_privileged,
+)))]
 compile_error!(
-    "`portable_atomic_disable_fiq` cfg (`disable-fiq` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
+    "`portable_atomic_disable_fiq` cfg (`disable-fiq` feature) may only be used together with `portable_atomic_unsafe_assume_{single_core,privileged}` cfg (`unsafe-assume-{single-core,privileged}` feature)"
 );
 #[cfg(portable_atomic_s_mode)]
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+#[cfg(not(any(
+    portable_atomic_unsafe_assume_single_core,
+    portable_atomic_unsafe_assume_privileged,
+)))]
 compile_error!(
-    "`portable_atomic_s_mode` cfg (`s-mode` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
+    "`portable_atomic_s_mode` cfg (`s-mode` feature) may only be used together with `portable_atomic_unsafe_assume_{single_core,privileged}` cfg (`unsafe-assume-{single-core,privileged}` feature)"
 );
 #[cfg(portable_atomic_force_amo)]
 #[cfg(not(portable_atomic_unsafe_assume_single_core))]
 compile_error!(
     "`portable_atomic_force_amo` cfg (`force-amo` feature) may only be used together with `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature)"
 );
-
-#[cfg(all(portable_atomic_unsafe_assume_single_core, feature = "critical-section"))]
+#[cfg(portable_atomic_unsafe_assume_privileged)]
+#[cfg(not(feature = "fallback"))]
 compile_error!(
-    "you may not enable `critical-section` feature and `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) at the same time"
+    "`portable_atomic_unsafe_assume_privileged` cfg (`unsafe-assume-privileged` feature) may only be used together with `fallback` feature"
+);
+
+#[cfg(all(
+    any(portable_atomic_unsafe_assume_single_core, portable_atomic_unsafe_assume_privileged),
+    feature = "critical-section"
+))]
+compile_error!(
+    "you may not enable `critical-section` feature and `portable_atomic_unsafe_assume_{single_core,privileged}` cfg (`unsafe-assume-{single-core,privileged}` feature) at the same time"
 );
 
 #[cfg(feature = "require-cas")]
@@ -510,20 +611,6 @@ compile_error!(
     consider enabling one of the `critical-section` feature or `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).\n\
     see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
 );
-
-#[cfg(any(test, feature = "std"))]
-extern crate std;
-
-#[macro_use]
-mod cfgs;
-#[cfg(target_pointer_width = "16")]
-pub use self::{cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
-#[cfg(target_pointer_width = "32")]
-pub use self::{cfg_has_atomic_32 as cfg_has_atomic_ptr, cfg_no_atomic_32 as cfg_no_atomic_ptr};
-#[cfg(target_pointer_width = "64")]
-pub use self::{cfg_has_atomic_64 as cfg_has_atomic_ptr, cfg_no_atomic_64 as cfg_no_atomic_ptr};
-#[cfg(target_pointer_width = "128")]
-pub use self::{cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no_atomic_ptr};
 
 #[macro_use]
 mod utils;

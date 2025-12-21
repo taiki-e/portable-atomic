@@ -20,11 +20,11 @@ use core::arch::asm;
 )]
 pub(super) use core::sync::atomic;
 
-pub(super) type State = u32;
+pub(crate) type State = u32;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
-pub(super) fn disable() -> State {
+pub(crate) fn disable() -> State {
     let ps: State;
     // SAFETY: reading the PS special register and disabling all interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
@@ -48,7 +48,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(prev_ps: State) {
+pub(crate) unsafe fn restore(prev_ps: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     // and we've checked that interrupts were enabled before disabling interrupts.
     //
