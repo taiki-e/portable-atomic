@@ -24,17 +24,18 @@ default_targets=(
   msp430-unknown-none-elf # same as msp430-none-elf, but for checking custom target
   # no atomic load/store (32-bit)
   mipsel-sony-psx
+  thumbv4t-none-eabi
   # no atomic load/store (64-bit)
   riscv64i-unknown-none-elf # custom target
+  bpfel-unknown-none
 
   # no atomic CAS (16-bit)
   avr-none
   # no atomic CAS (32-bit)
-  thumbv4t-none-eabi
   thumbv6m-none-eabi
   riscv32i-unknown-none-elf
   # no atomic CAS (64-bit)
-  bpfel-unknown-none
+  riscv64im-unknown-none-elf
 
   # no-std 32-bit with 32-bit atomic
   thumbv7m-none-eabi
@@ -385,12 +386,6 @@ build() {
       # Workaround for compiler SIGSEGV.
       target_rustflags+=" -C opt-level=s"
       ;;
-    mips-*-linux-* | mipsel-*-linux-*)
-      if ! grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-        # TODO: LLVM bug: Undefined temporary symbol error when building std.
-        target_rustflags+=" -C opt-level=1"
-      fi
-      ;;
   esac
   if [[ "${base_rustflags}" == *"unqualified_local_imports"* ]]; then
     [[ "${target_rustflags}" == *"portable_atomic_unstable_f16"* ]] || target_rustflags+=" --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16"
@@ -405,7 +400,7 @@ build() {
       local build_util_with_critical_section=''
       if [[ -z "${has_atomic_cas}" ]]; then
         case "${target}" in
-          thumbv[4-5]t* | armv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
+          armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
           bpf* | mips*) build_util_with_critical_section=1 ;;
@@ -644,6 +639,19 @@ build() {
       fi
       ;;
   esac
+  if [[ -n "${has_atomic_cas}" ]]; then
+    case "${target}" in
+      armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
+        case "${target}" in
+          *-none*)
+            CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+              x_cargo "${args[@]}" "$@"
+            ;;
+        esac
+        ;;
+    esac
+  fi
   case "${target}" in
     x86_64*)
       # Apple, Windows (except Windows 7, since Rust 1.78), and Fuchsia (since Rust 1.87) targets are +cmpxchg16b by default

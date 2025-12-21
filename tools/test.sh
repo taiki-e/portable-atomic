@@ -322,8 +322,8 @@ run() {
       *-linux-musl*) flags+=" -C target-feature=-crt-static" ;;
     esac
     case "${target}" in
-      # cannot find rsbegin.o/rsend.o when building std
-      *-windows-gnu*) ;;
+      # cannot find crt2.o/rsbegin.o/rsend.o when building std
+      i686-pc-windows-gnu) ;;
       *)
         if [[ ${#build_std[@]} -gt 0 ]]; then
           CARGO_TARGET_DIR="${target_dir}/careful" \

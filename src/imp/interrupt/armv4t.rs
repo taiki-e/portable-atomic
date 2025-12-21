@@ -64,10 +64,10 @@ pub(super) unsafe fn restore(prev_cpsr: State) {
     //
     // Refs: https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/msr--general-purpose-register-to-psr-
     unsafe {
-        // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
         asm!(
             "msr cpsr_c, {prev_cpsr}", // CPSR.{I,F,T,M} = prev_cpsr.{I,F,T,M}
             prev_cpsr = in(reg) prev_cpsr,
+            // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
             options(nostack, preserves_flags),
         );
     }
@@ -79,6 +79,11 @@ pub(super) unsafe fn restore(prev_cpsr: State) {
 //
 // Generated asm:
 // - armv5te https://godbolt.org/z/deqTqPzqz
+#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(test, not(target_has_atomic = "ptr")))
+)]
 pub(crate) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;

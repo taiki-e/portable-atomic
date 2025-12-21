@@ -94,6 +94,7 @@ mod atomic128;
 // Lock-based fallback implementations
 
 #[cfg(feature = "fallback")]
+#[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 #[cfg(any(
@@ -164,10 +165,13 @@ mod fallback;
     target_arch = "avr",
     target_arch = "msp430",
 ))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(test, portable_atomic_no_atomic_cas, portable_atomic_unsafe_assume_single_core))
+)]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "ptr")))
+    cfg(any(test, not(target_has_atomic = "ptr"), portable_atomic_unsafe_assume_single_core))
 )]
 #[cfg(any(
     target_arch = "arm",
@@ -268,25 +272,83 @@ items! {
     target_arch = "avr",
     target_arch = "msp430",
 ))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
-#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
+#[cfg_attr(
+    portable_atomic_no_cfg_target_has_atomic,
+    cfg(any(portable_atomic_no_atomic_cas, portable_atomic_unsafe_assume_single_core))
+)]
+#[cfg_attr(
+    not(portable_atomic_no_cfg_target_has_atomic),
+    cfg(any(not(target_has_atomic = "ptr"), portable_atomic_unsafe_assume_single_core))
+)]
 items! {
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
     pub(crate) use self::interrupt::{
         AtomicI16, AtomicI8, AtomicIsize, AtomicPtr, AtomicU16, AtomicU8, AtomicUsize,
     };
     #[cfg(any(not(target_pointer_width = "16"), feature = "fallback"))]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(target_pointer_width = "16", portable_atomic_no_atomic_cas))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_pointer_width = "16", not(target_has_atomic = "ptr")))
+    )]
     pub(crate) use self::interrupt::{AtomicI32, AtomicU32};
     #[cfg(any(
         not(any(target_pointer_width = "16", target_pointer_width = "32")),
-        feature = "fallback",
+        all(
+            feature = "fallback",
+            not(all(
+                target_arch = "riscv32",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                not(portable_atomic_unsafe_assume_single_core),
+                any(
+                    target_feature = "zacas",
+                    portable_atomic_target_feature = "zacas",
+                    all(
+                        feature = "fallback",
+                        not(portable_atomic_no_outline_atomics),
+                        any(target_os = "linux", target_os = "android"),
+                    ),
+                ),
+            )),
+        ),
     ))]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(target_pointer_width = "16", target_pointer_width = "32", portable_atomic_no_atomic_cas))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(target_pointer_width = "16", target_pointer_width = "32", not(target_has_atomic = "ptr")))
+    )]
     pub(crate) use self::interrupt::{AtomicI64, AtomicU64};
-    #[cfg(feature = "fallback")]
+    #[cfg(all(
+        feature = "fallback",
+        not(all(
+            target_arch = "riscv64",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(
+                target_feature = "zacas",
+                portable_atomic_target_feature = "zacas",
+                all(
+                    feature = "fallback",
+                    not(portable_atomic_no_outline_atomics),
+                    any(target_os = "linux", target_os = "android"),
+                ),
+            ),
+        )),
+    ))]
     pub(crate) use self::interrupt::{AtomicI128, AtomicU128};
 }
 
 // no core (64-bit | 128-bit) atomic & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
+#[cfg(not(portable_atomic_unsafe_assume_single_core))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 items! {

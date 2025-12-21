@@ -12,6 +12,18 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Add `Arc::new_zeroed` at Rust 1.36+ and `Arc::new_zeroed_slice` at Rust 1.44+. (align to the [std `Arc` change in Rust 1.92](https://github.com/rust-lang/rust/pull/144091))
+
+- Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717))
+
+- Implement `From<&mut {[T],str}>` for `Arc<{[T],str}>` at Rust 1.44+. (align to the [std `Arc` change in Rust 1.84](https://github.com/rust-lang/rust/pull/129329))
+
+- Implement `{AsFd, AsRawFd}` for `Arc<T>` on Trusty.
+
+- Implement `AsRawFd` for `Arc<T>` on Unix in all Rust versions. Previously, it was only for Rust 1.63+.
+
+- Fix build error when building for HermitOS with `std` feature in Rust 1.63-1.68.
+
 ## [0.2.4] - 2024-11-23
 
 - Add unstable `portable_atomic_unstable_coerce_unsized` cfg (requires Rust nightly). ([#195](https://github.com/taiki-e/portable-atomic/pull/195), thanks @brodycj)
@@ -20,7 +32,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [0.2.3] - 2024-10-17
 
-- Add `new_uninit`/`new_uninit_slice`/`assume_init` to `Arc` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.82](https://github.com/rust-lang/rust/pull/129401)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
+- Add `Arc::{new_uninit,assume_init}` at Rust 1.36+ and `Arc::new_uninit_slice` at Rust 1.44+. (align to the [std `Arc` change in Rust 1.82](https://github.com/rust-lang/rust/pull/129401)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
 
 - Support `make_mut` on `Arc<[T]>` and `Arc<str>` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.81](https://github.com/rust-lang/rust/pull/116113)) ([362dc9a](https://github.com/taiki-e/portable-atomic/commit/362dc9af2779c81aa346e89c4d3f3eef71cf29ed))
 

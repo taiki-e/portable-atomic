@@ -95,8 +95,9 @@ jobs:
         # - LLVM 15 : stable 1.73 - 1.75, since https://github.com/rust-lang/rust/pull/114148
         # - LLVM 16 : stable 1.76 - 1.78, since https://github.com/rust-lang/rust/pull/117947
         # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
-        # - LLVM 18 : stable 1.83 - 1.88, since https://github.com/rust-lang/rust/pull/130487
-        # - LLVM 19 : stable 1.88       , since https://github.com/rust-lang/rust/pull/139275
+        # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
+        # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
+        # - LLVM 20 : stable 1.92       , since https://github.com/rust-lang/rust/pull/145071
         # Note that some commented-out LLVM version entries are kept here, which may be temporarily uncommented if
         # needed to investigate possible issues that may arise between LLVM and code generated for certain targets.
         include:
@@ -134,6 +135,9 @@ jobs:
             flags: -Z codegen-backend=cranelift
           # ------------------------------------------------------------
           # x86_64-apple-darwin
+          - rust: nightly
+            target: x86_64-apple-darwin
+            os: macos-15-intel
           - rust: nightly
             target: x86_64-apple-darwin
             os: macos-latest # Rosetta on AArch64
@@ -282,10 +286,9 @@ jobs:
           - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
             target: arm64ec-pc-windows-msvc
             os: windows-11-arm
-          # TODO: Fixed in Rust 1.90 https://github.com/rust-lang/rust/pull/143387
-          # - rust: stable
-          #   target: arm64ec-pc-windows-msvc
-          #   os: windows-11-arm
+          - rust: stable
+            target: arm64ec-pc-windows-msvc
+            os: windows-11-arm
           # - rust: beta
           #   target: arm64ec-pc-windows-msvc
           #   os: windows-11-arm
@@ -568,12 +571,8 @@ jobs:
           printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
-        # Exclude x86_64-pc-windows-gnu due to https://github.com/rust-lang/rust/issues/112368
-        if: matrix.rust == 'nightly' && matrix.target != 'x86_64-pc-windows-gnu'
-      # TODO: LLVM bug: Undefined temporary symbol error when building std.
-      - name: Workaround for LLVM bug about MIPS32
-        run: printf 'RELEASE=--release\n' >>"${GITHUB_ENV}"
-        if: startsWith(matrix.target, 'mips-') || startsWith(matrix.target, 'mipsel-')
+        # Exclude aarch64-pc-windows-msvc due to "error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run" error
+        if: matrix.rust == 'nightly' && matrix.target != 'aarch64-pc-windows-msvc'
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
@@ -749,6 +748,9 @@ jobs:
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.3'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '15.0'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
@@ -876,7 +878,7 @@ jobs:
           # - nightly-2025-02-17 # Rust 1.87, LLVM 19
           - nightly
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120 # TODO: reduce
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@main
@@ -951,6 +953,13 @@ jobs:
         if: startsWith(matrix.rust, 'nightly')
       - run: rm -- tests/avr/rust-toolchain.toml
         if: startsWith(matrix.rust, 'nightly-')
+      # syn 2.0.107 & quote 1.0.42 requires Rust 1.68.
+      - run: |
+          cargo generate-lockfile
+          cargo update -p syn --precise 2.0.106
+          cargo update -p quote --precise 1.0.41
+        working-directory: tests/no-std-qemu
+        if: matrix.rust == '1.64'
       - run: tools/no-std.sh
       - run: tools/build.sh +esp xtensa-esp32s2-none-elf
         if: matrix.rust == 'stable'
@@ -1109,7 +1118,7 @@ jobs:
             docker-arch: ppc64le
           - target: riscv64gc-unknown-linux-gnu
             dpkg-arch: riscv64
-            distro: ubuntu-rolling # TODO: "unhandled instruction 0x0C0777D7" error on ubuntu devel (25.10)
+            distro: ubuntu-25.04 # TODO: "unhandled instruction 0x0C0777D7" error on Ubuntu 25.10 (likely due to RVA23U64 extensions are now enabled)
           - target: s390x-unknown-linux-gnu
             dpkg-arch: s390x
     runs-on: ubuntu-latest

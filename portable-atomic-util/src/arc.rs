@@ -16,7 +16,6 @@
 
 // TODO:
 // - https://github.com/rust-lang/rust/pull/132231
-// - https://github.com/rust-lang/rust/pull/129329
 // - https://github.com/rust-lang/rust/pull/133003
 // - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
@@ -375,6 +374,37 @@ impl<T> Arc<T> {
         }
     }
 
+    /// Constructs a new `Arc` with uninitialized contents, with the memory
+    /// being filled with `0` bytes.
+    ///
+    /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and incorrect usage
+    /// of this method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let zero = Arc::<u32>::new_zeroed();
+    /// let zero = unsafe { zero.assume_init() };
+    ///
+    /// assert_eq!(*zero, 0)
+    /// ```
+    ///
+    /// [zeroed]: mem::MaybeUninit::zeroed
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    #[must_use]
+    pub fn new_zeroed() -> Arc<mem::MaybeUninit<T>> {
+        unsafe {
+            Arc::from_ptr(Arc::allocate_for_layout(
+                Layout::new::<T>(),
+                |layout| Global.allocate_zeroed(layout),
+                |ptr| ptr as *mut _,
+            ))
+        }
+    }
+
     /// Constructs a new `Pin<Arc<T>>`. If `T` does not implement `Unpin`, then
     /// `data` will be pinned in memory and unable to be moved.
     #[must_use]
@@ -578,6 +608,40 @@ impl<T> Arc<[T]> {
     #[must_use]
     pub fn new_uninit_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
         unsafe { Arc::from_ptr(Arc::allocate_for_slice(len)) }
+    }
+
+    /// Constructs a new atomically reference-counted slice with uninitialized contents, with the memory being
+    /// filled with `0` bytes.
+    ///
+    /// See [`MaybeUninit::zeroed`][zeroed] for examples of correct and
+    /// incorrect usage of this method.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    ///
+    /// let values = Arc::<[u32]>::new_zeroed_slice(3);
+    /// let values = unsafe { values.assume_init() };
+    ///
+    /// assert_eq!(*values, [0, 0, 0])
+    /// ```
+    ///
+    /// [zeroed]: mem::MaybeUninit::zeroed
+    #[inline]
+    #[must_use]
+    #[allow(clippy::missing_panics_doc)]
+    pub fn new_zeroed_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
+        unsafe {
+            Arc::from_ptr(Arc::allocate_for_layout(
+                Layout::array::<T>(len).unwrap(),
+                |layout| Global.allocate_zeroed(layout),
+                |mem| {
+                    ptr::slice_from_raw_parts_mut(mem.cast::<T>(), len)
+                        as *mut ArcInner<[mem::MaybeUninit<T>]>
+                },
+            ))
+        }
     }
 }
 
@@ -2251,6 +2315,17 @@ impl<T> Default for Arc<[T]> {
     }
 }
 
+impl<T> Default for Pin<Arc<T>>
+where
+    T: ?Sized,
+    Arc<T>: Default,
+{
+    #[inline]
+    fn default() -> Self {
+        unsafe { Pin::new_unchecked(Arc::<T>::default()) }
+    }
+}
+
 impl<T: ?Sized + Hash> Hash for Arc<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         (**self).hash(state);
@@ -2332,6 +2407,25 @@ impl<T: Clone> From<&[T]> for Arc<[T]> {
 }
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
+impl<T: Clone> From<&mut [T]> for Arc<[T]> {
+    /// Allocates a reference-counted slice and fills it by cloning `v`'s items.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    /// let mut original = [1, 2, 3];
+    /// let original: &mut [i32] = &mut original;
+    /// let shared: Arc<[i32]> = Arc::from(original);
+    /// assert_eq!(&[1, 2, 3], &shared[..]);
+    /// ```
+    #[inline]
+    fn from(v: &mut [T]) -> Self {
+        Self::from(&*v)
+    }
+}
+
+#[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl From<&str> for Arc<str> {
     /// Allocates a reference-counted `str` and copies `v` into it.
     ///
@@ -2348,6 +2442,25 @@ impl From<&str> for Arc<str> {
         // SAFETY: `str` has the same layout as `[u8]`.
         // https://doc.rust-lang.org/nightly/reference/type-layout.html#str-layout
         unsafe { Self::from_raw(Arc::into_raw(arc) as *const str) }
+    }
+}
+
+#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+impl From<&mut str> for Arc<str> {
+    /// Allocates a reference-counted `str` and copies `v` into it.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use portable_atomic_util::Arc;
+    /// let mut original = String::from("eggplant");
+    /// let original: &mut str = &mut original;
+    /// let shared: Arc<str> = Arc::from(original);
+    /// assert_eq!("eggplant", &shared[..]);
+    /// ```
+    #[inline]
+    fn from(v: &mut str) -> Self {
+        Self::from(&*v)
     }
 }
 
@@ -2649,15 +2762,18 @@ mod std_impls {
     // TODO: Other trait implementations that are stable but we currently don't provide:
     // - alloc::ffi
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
+    //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26mut+CStr%3E-for-Arc%3CCStr%3E
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3CCString%3E-for-Arc%3CCStr%3E
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-Default-for-Arc%3CCStr%3E
     //   - Currently, we cannot implement these since CStr layout is not stable.
     // - std::ffi
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26OsStr%3E-for-Arc%3COsStr%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26mut+OsStr%3E-for-Arc%3COsStr%3E
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3COsString%3E-for-Arc%3COsStr%3E
     //   - Currently, we cannot implement these since OsStr layout is not stable.
     // - std::path
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26Path%3E-for-Arc%3CPath%3E
+    //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3C%26mut+Path%3E-for-Arc%3CPath%3E
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
     //   - Currently, we cannot implement these since Path layout is not stable.
 
@@ -2667,8 +2783,7 @@ mod std_impls {
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsSocket-for-Arc%3CT%3E
     // Note:
     // - T: ?Sized is currently only allowed on AsFd/AsHandle: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
-    // - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.77.
-    #[cfg(not(portable_atomic_no_io_safety))]
+    // - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.90.
     #[cfg(unix)]
     use std::os::unix::io as fd;
     // - std::os::unix::io::AsRawFd and std::os::windows::io::{AsRawHandle, AsRawSocket} are available in all versions
@@ -2678,8 +2793,12 @@ mod std_impls {
     // - std::os::fd requires Rust 1.66 (https://github.com/rust-lang/rust/pull/98368)
     // - std::os::hermit::io::AsFd requires Rust 1.69 (https://github.com/rust-lang/rust/commit/b5fb4f3d9b1b308d59cab24ef2f9bf23dad948aa)
     // - std::os::fd for HermitOS requires Rust 1.81 (https://github.com/rust-lang/rust/pull/126346)
+    // - std::os::fd for Trusty requires Rust 1.87 (no std support before it, https://github.com/rust-lang/rust/commit/7f6ee12526700e037ef34912b2b0c628028d382c)
     // - std::os::solid::io::AsFd is unstable (solid_ext, https://github.com/rust-lang/rust/pull/115159)
     // Note: we don't implement unstable ones.
+    #[cfg(not(portable_atomic_no_io_safety))]
+    #[cfg(target_os = "trusty")]
+    use std::os::fd;
     #[cfg(not(portable_atomic_no_io_safety))]
     #[cfg(target_os = "hermit")]
     use std::os::hermit::io as fd;
@@ -2700,9 +2819,13 @@ mod std_impls {
     /// trait MyTrait: AsRawFd {}
     /// impl MyTrait for Arc<UdpSocket> {}
     /// ```
-    // AsRawFd has been stable before io_safety, but this impl was added after io_safety: https://github.com/rust-lang/rust/pull/97437
-    #[cfg(not(portable_atomic_no_io_safety))]
-    #[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
+    #[cfg(any(
+        unix,
+        all(
+            not(portable_atomic_no_io_safety),
+            any(target_os = "hermit", target_os = "trusty", target_os = "wasi"),
+        ),
+    ))]
     impl<T: fd::AsRawFd> fd::AsRawFd for Arc<T> {
         #[inline]
         fn as_raw_fd(&self) -> fd::RawFd {
@@ -2724,7 +2847,7 @@ mod std_impls {
     /// impl MyTrait for Arc<UdpSocket> {}
     /// ```
     #[cfg(not(portable_atomic_no_io_safety))]
-    #[cfg(any(unix, target_os = "hermit", target_os = "wasi"))]
+    #[cfg(any(unix, target_os = "hermit", target_os = "trusty", target_os = "wasi"))]
     impl<T: ?Sized + fd::AsFd> fd::AsFd for Arc<T> {
         #[inline]
         fn as_fd(&self) -> fd::BorrowedFd<'_> {
@@ -3101,7 +3224,7 @@ struct Global;
 impl Global {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
+    fn alloc_impl(&self, layout: Layout, zeroed: bool) -> Option<NonNull<u8>> {
         // Layout::dangling is unstable
         #[inline]
         #[must_use]
@@ -3114,17 +3237,38 @@ impl Global {
             0 => Some(dangling(layout)),
             // SAFETY: `layout` is non-zero in size,
             _size => unsafe {
-                let raw_ptr = alloc::alloc::alloc(layout);
+                let raw_ptr = if zeroed {
+                    alloc::alloc::alloc_zeroed(layout)
+                } else {
+                    alloc::alloc::alloc(layout)
+                };
                 NonNull::new(raw_ptr)
             },
         }
     }
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn allocate(self, layout: Layout) -> Option<NonNull<u8>> {
+        self.alloc_impl(layout, false)
+    }
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn allocate_zeroed(self, layout: Layout) -> Option<NonNull<u8>> {
+        self.alloc_impl(layout, true)
+    }
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     unsafe fn deallocate(self, ptr: NonNull<u8>, layout: Layout) {
         if layout.size() != 0 {
-            // SAFETY: `layout` is non-zero in size,
-            // other conditions must be upheld by the caller
+            // SAFETY:
+            // * We have checked that `layout` is non-zero in size.
+            // * The caller is obligated to provide a layout that "fits", and in this case,
+            //   "fit" always means a layout that is equal to the original, because our
+            //   `allocate()`, `grow()`, and `shrink()` implementations never returns a larger
+            //   allocation than requested.
+            // * Other conditions must be upheld by the caller, as per `Allocator::deallocate()`'s
+            //   safety documentation.
             unsafe { alloc::alloc::dealloc(ptr.as_ptr(), layout) }
         }
     }

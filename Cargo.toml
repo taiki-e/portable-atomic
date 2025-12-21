@@ -1,6 +1,6 @@
 [package]
 name = "portable-atomic"
-version = "1.11.1" #publish:version
+version = "1.12.0" #publish:version
 edition = "2018"
 rust-version = "1.34" # For Atomic{I,U}{8,16,32,64}
 license = "Apache-2.0 OR MIT"
@@ -17,7 +17,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/build.sh and tools/test.sh.
 features = ["float", "std", "serde", "critical-section"]
-rustdoc-args = ["--cfg", "portable_atomic_unstable_f16", "--cfg", "portable_atomic_unstable_f128"]
+rustdoc-args = ["--extend-css", "src/rustdoc.css", "--cfg", "portable_atomic_unstable_f16", "--cfg", "portable_atomic_unstable_f128"]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [package.metadata.cargo_check_external_types]
@@ -29,62 +29,28 @@ allowed_external_types = [
 [lib]
 doc-scrape-examples = false
 
+# Please read the documentation before using optional features:
+# https://github.com/taiki-e/portable-atomic#optional-features
 [features]
 default = ["fallback"]
-
-# (enabled by default) Enable fallback implementations.
-#
-# Disabling this allows only atomic types for which the platform natively supports atomic operations.
 fallback = []
-
-# Provide `AtomicF{32,64}`.
-#
-# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-float
 float = []
-
-# Use `std`.
 std = []
-
-# Emit compile error if atomic CAS is not available.
-#
-# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-require-cas
 require-cas = []
-
-# Assume the target is single core, to enable implementations based on disabling interrupts.
-# IMPORTANT: This feature is unsafe. See the documentation for the safety contract:
-# https://github.com/taiki-e/portable-atomic#optional-features-unsafe-assume-single-core
 unsafe-assume-single-core = []
-
-# The following are sub-features of the unsafe-assume-single-core feature and if enabled without
-# the unsafe-assume-single-core feature will result in a compile error.
-# There is no explicit "unsafe-" prefix because the user has already opted in to "unsafe" by
-# enabling the unsafe-assume-single-core feature, but misuse of these features is also usually
-# considered unsound.
-# See the interrupt module's readme for more: https://github.com/taiki-e/portable-atomic/blob/HEAD/src/imp/interrupt/README.md
-
-# For RISC-V targets, generate code for S mode to disable interrupts.
 s-mode = []
-# For RISC-V targets, use AMO instructions even if A-extension is disabled.
-# This feature requires Rust 1.72+.
 force-amo = []
-# For Arm targets, also disable FIQs when disabling interrupts.
 disable-fiq = []
 
 # Note: serde and critical-section are public dependencies.
 [dependencies]
-# Implements serde::{Serialize,Deserialize} for atomic types.
-#
-# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-serde
-# TODO: switch to serde_core
+# Please read the documentation before using optional features:
+# https://github.com/taiki-e/portable-atomic#optional-features
 serde = { version = "1.0.60", optional = true, default-features = false }
-
-# Use `critical-section`.
-#
-# See documentation for more: https://github.com/taiki-e/portable-atomic#optional-features-critical-section
 critical-section = { version = "1", optional = true }
 
 # [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
-# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "9b4be43" } #build:static_assert_ffi
+# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "cc3f06f" } #build:static_assert_ffi
 # [target.'cfg(all(portable_atomic_test_no_std_static_assert_ffi, target_os = "aix"))'.dependencies] #build:static_assert_ffi
 # libc = "=0.2.163" #build:static_assert_ffi
 
@@ -98,7 +64,7 @@ rustversion = "1"
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "df513c5" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "9b4be43" }
+test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "cc3f06f" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
@@ -135,6 +101,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_arch,values("xtensa"))', # 1.81+ https://github.com/rust-lang/rust/pull/125141
     'cfg(target_arch,values("amdgpu"))', # 1.86+ https://github.com/rust-lang/rust/pull/134740
     'cfg(target_arch,values("loongarch32"))', # 1.89+ https://github.com/rust-lang/rust/pull/142053
+    'cfg(target_os,values("trusty"))', # 1.82+ https://github.com/rust-lang/rust/pull/129490
     'cfg(target_os,values("psx"))', # 1.84+ https://github.com/rust-lang/rust/pull/131168
     'cfg(target_env,values("psx"))', # pre-1.84 https://github.com/rust-lang/rust/pull/131168
     'cfg(target_feature,values("lse2","lse128","rcpc3"))', # 1.82+ https://github.com/rust-lang/rust/pull/128192

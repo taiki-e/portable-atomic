@@ -10,6 +10,7 @@
         target_arch = "riscv32",
         target_arch = "riscv64",
         feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )),
 )))]
 #[macro_use]
@@ -43,6 +44,7 @@ mod atomic_8_16_macros {
         target_arch = "riscv32",
         target_arch = "riscv64",
         feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )),
 ))]
 #[macro_use]
@@ -79,6 +81,7 @@ mod atomic_8_16_macros {
             target_arch = "riscv32",
             target_arch = "riscv64",
             feature = "critical-section",
+            portable_atomic_unsafe_assume_single_core,
         )),
     )),
 ))]
@@ -105,6 +108,7 @@ mod atomic_32_macros {
             target_arch = "riscv32",
             target_arch = "riscv64",
             feature = "critical-section",
+            portable_atomic_unsafe_assume_single_core,
         )),
     )),
 )))]

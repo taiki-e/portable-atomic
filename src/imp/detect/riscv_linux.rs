@@ -42,6 +42,10 @@ mod ffi {
         // https://github.com/torvalds/linux/commit/415a8c81da3dab0a585bd4f8d505a11ad5a171a7
         #[cfg(test)]
         pub(crate) const RISCV_HWPROBE_EXT_ZABHA: u64 = 1 << 58;
+        // Linux 6.19+
+        // https://github.com/torvalds/linux/commit/f4922b69165735e81752ee47d174f873e989a449
+        #[cfg(test)]
+        pub(crate) const RISCV_HWPROBE_EXT_ZALASR: u64 = 1 << 59;
     });
 
     #[cfg(not(all(
@@ -136,6 +140,8 @@ fn _detect(info: &mut CpuInfo) {
         check!(zacas, RISCV_HWPROBE_EXT_ZACAS);
         #[cfg(test)]
         check!(zabha, RISCV_HWPROBE_EXT_ZABHA);
+        #[cfg(test)]
+        check!(zalasr, RISCV_HWPROBE_EXT_ZALASR);
     }
 }
 

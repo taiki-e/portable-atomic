@@ -261,19 +261,19 @@ macro_rules! items {
     };
 }
 
-#[allow(dead_code)]
+// Equivalent to core::hint::assert_unchecked, but compatible with pre-1.81 rustc.
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-// Stable version of https://doc.rust-lang.org/nightly/std/hint/fn.assert_unchecked.html.
-// TODO: use real core::hint::assert_unchecked on 1.81+ https://github.com/rust-lang/rust/pull/123588
+#[allow(dead_code)]
 #[inline(always)]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) unsafe fn assert_unchecked(cond: bool) {
     if !cond {
-        if cfg!(debug_assertions) {
-            unreachable!()
-        } else {
-            // SAFETY: the caller promised `cond` is true.
-            unsafe { core::hint::unreachable_unchecked() }
+        #[cfg(debug_assertions)]
+        unreachable!();
+        #[cfg(not(debug_assertions))]
+        // SAFETY: the caller promised `cond` is true.
+        unsafe {
+            core::hint::unreachable_unchecked()
         }
     }
 }
@@ -671,9 +671,9 @@ pub(crate) mod ffi {
         #[inline]
         #[must_use]
         pub(crate) fn to_bytes_with_nul(&self) -> &[u8] {
+            #[allow(clippy::unnecessary_cast)] // triggered for targets that c_char is u8
             // SAFETY: Transmuting a slice of `c_char`s to a slice of `u8`s
             // is safe on all supported targets.
-            #[allow(clippy::unnecessary_cast)] // triggered for targets that c_char is u8
             unsafe {
                 &*(&self.0 as *const [c_char] as *const [u8])
             }
