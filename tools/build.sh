@@ -128,7 +128,7 @@ default_targets=(
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/test.sh.
 test_features="float,std,serde,critical-section"
-exclude_features="unsafe-assume-single-core,s-mode,force-amo,disable-fiq"
+exclude_features="unsafe-assume-single-core,unsafe-assume-privileged,s-mode,force-amo,disable-fiq"
 
 x() {
   (
@@ -639,6 +639,9 @@ build() {
           *-none*)
             CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
               RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/assume-single-privileged" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_privileged" \
               x_cargo "${args[@]}" "$@"
             ;;
         esac

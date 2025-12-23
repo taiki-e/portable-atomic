@@ -57,13 +57,13 @@ macro_rules! mask {
 }
 
 #[cfg(target_arch = "riscv32")]
-pub(super) type State = u32;
+pub(crate) type State = u32;
 #[cfg(target_arch = "riscv64")]
-pub(super) type State = u64;
+pub(crate) type State = u64;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline(always)]
-pub(super) fn disable() -> State {
+pub(crate) fn disable() -> State {
     let status: State;
     // SAFETY: reading mstatus/sstatus and disabling interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
@@ -84,7 +84,7 @@ pub(super) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
-pub(super) unsafe fn restore(prev_status: State) {
+pub(crate) unsafe fn restore(prev_status: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //
     // This clobbers the entire mstatus/sstatus register. See msp430.rs to safety on this.

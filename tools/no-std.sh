@@ -200,18 +200,21 @@ run() {
 
   # NB: sync with tools/build.sh
   local assume_single_core_target_rustflags=''
+  local assume_privileged_target_rustflags=''
   case "${target}" in
     armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
     arm* | thumb* | xtensa*)
       assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
+      assume_privileged_target_rustflags+=" --cfg portable_atomic_unsafe_assume_privileged"
       ;;
     riscv??[ie]-* | riscv??[ie]m-* | riscv??[ie]mc-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
       ;;
     riscv*)
       assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_s_mode"
+      assume_privileged_target_rustflags+=" --cfg portable_atomic_unsafe_assume_privileged --cfg portable_atomic_s_mode"
       ;;
   esac
   local test_dir
@@ -292,6 +295,9 @@ EOF
       CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
         RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
         x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
+        RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
+        x_cargo "${args[@]}" "$@"
     fi
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
@@ -299,6 +305,9 @@ EOF
     if [[ -n "${assume_single_core_target_rustflags}" ]]; then
       CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
         RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
+        x_cargo "${args[@]}" --release "$@"
+      CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
+        RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
         x_cargo "${args[@]}" --release "$@"
     fi
     case "${target}" in

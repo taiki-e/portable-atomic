@@ -8,6 +8,8 @@ use core::{
 };
 
 use super::utils::Backoff;
+#[cfg(portable_atomic_unsafe_assume_privileged)]
+use crate::imp::interrupt::arch as interrupt;
 
 // See mod.rs for details.
 pub(super) type AtomicChunk = AtomicU32;
@@ -85,6 +87,11 @@ impl SeqLock {
     /// Grabs the lock for writing.
     #[inline]
     pub(super) fn write(&self) -> SeqLockWriteGuard<'_> {
+        // Get current interrupt state and disable interrupts when the user
+        // explicitly declares that privileged instructions are available.
+        #[cfg(portable_atomic_unsafe_assume_privileged)]
+        let interrupt_state = interrupt::disable();
+
         let mut backoff = Backoff::new();
         loop {
             let previous = self.state_lo.swap(LOCKED, Ordering::Acquire);
@@ -94,7 +101,12 @@ impl SeqLock {
                 // the data at the critical section of `(state_hi, previous)`.
                 atomic::fence(Ordering::Release);
 
-                return SeqLockWriteGuard { lock: self, state_lo: previous };
+                return SeqLockWriteGuard {
+                    lock: self,
+                    state_lo: previous,
+                    #[cfg(portable_atomic_unsafe_assume_privileged)]
+                    interrupt_state,
+                };
             }
 
             while self.state_lo.load(Ordering::Relaxed) == LOCKED {
@@ -112,6 +124,10 @@ pub(super) struct SeqLockWriteGuard<'a> {
 
     /// The stamp before locking.
     state_lo: State,
+
+    /// The interrupt state before disabling.
+    #[cfg(portable_atomic_unsafe_assume_privileged)]
+    interrupt_state: interrupt::State,
 }
 
 impl SeqLockWriteGuard<'_> {
@@ -126,6 +142,13 @@ impl SeqLockWriteGuard<'_> {
         //
         // Release ordering for synchronizing with `optimistic_read`.
         this.lock.state_lo.store(this.state_lo, Ordering::Release);
+
+        // Restore interrupt state.
+        // SAFETY: the state was retrieved by the previous `disable`.
+        #[cfg(portable_atomic_unsafe_assume_privileged)]
+        unsafe {
+            interrupt::restore(this.interrupt_state);
+        }
     }
 }
 
@@ -146,6 +169,13 @@ impl Drop for SeqLockWriteGuard<'_> {
         //
         // Release ordering for synchronizing with `optimistic_read`.
         self.lock.state_lo.store(state_lo, Ordering::Release);
+
+        // Restore interrupt state.
+        // SAFETY: the state was retrieved by the previous `disable`.
+        #[cfg(portable_atomic_unsafe_assume_privileged)]
+        unsafe {
+            interrupt::restore(self.interrupt_state);
+        }
     }
 }
 
