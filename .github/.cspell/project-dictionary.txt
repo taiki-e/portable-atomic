@@ -7,6 +7,7 @@ amocas
 aqrl
 armasm
 armreg
+atxmega
 Auxinfo
 auxv
 auxvec
@@ -199,6 +200,7 @@ wokwi
 xadd
 xchg
 xgetbv
+xmegau
 xmmword
 xsave
 xsub

@@ -345,24 +345,41 @@ macro_rules! atomic_int {
             }
         }
 
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+        #[cfg(not(any(
+            all(
+                target_arch = "avr",
+                not(portable_atomic_no_asm),
+                not(feature = "critical-section"),
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw")
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(feature = "critical-section"),
+                any(
+                    portable_atomic_force_amo,
+                    target_feature = "zaamo",
+                    portable_atomic_target_feature = "zaamo",
+                ),
             ),
         )))]
         atomic_int!(cas[emulate], $atomic_type, $int_type);
+        // AVR 8-bit RMW with RMW instructions
         // RISC-V RMW with Zaamo extension
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
+        #[cfg(any(
+            all(
+                target_arch = "avr",
+                not(portable_atomic_no_asm),
+                not(feature = "critical-section"),
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw")
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(feature = "critical-section"),
+                any(
+                    portable_atomic_force_amo,
+                    target_feature = "zaamo",
+                    portable_atomic_target_feature = "zaamo",
+                ),
             ),
         ))]
         atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
@@ -605,15 +622,32 @@ macro_rules! atomic_int {
             }
         }
     };
+    // AVR 8-bit RMW with RMW instructions
     // RISC-V 8-bit/16-bit RMW with Zaamo extension
     (cas[sub_word], $atomic_type:ident, $int_type:ty) => {
+        // AVR 8-bit RMW with RMW instructions
+        #[cfg(target_arch = "avr")]
+        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
+        #[cfg(target_arch = "avr")]
+        atomic_int!(emulate_bit, $atomic_type, $int_type);
+        #[cfg(target_arch = "avr")]
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                self.as_native().swap(val, order)
+            }
+        }
+
         // RISC-V 8-bit/16-bit RMW with Zaamo+Zabha extension
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
         #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
         atomic_int!(cas, $atomic_type, $int_type);
 
         // RISC-V 8-bit/16-bit RMW with Zaamo extension
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         atomic_int!(emulate_swap, $atomic_type, $int_type);
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
         atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
     };
