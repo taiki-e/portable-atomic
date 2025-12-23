@@ -68,9 +68,7 @@ pub fn compiler_fence(order: Ordering) {
 }
 
 macro_rules! atomic {
-    (load_store,
-        $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty $(as $cast:ty)?, $size:tt
-    ) => {
+    (load_store, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
         #[cfg(not(feature = "critical-section"))]
         #[repr(transparent)]
         pub(crate) struct $atomic_type $(<$($generics)*>)? {
@@ -95,7 +93,7 @@ macro_rules! atomic {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let out $(: $cast)?;
+                    let out;
                     #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         concat!("mov.", $size, " @{src}, {out}"), // atomic { out = *src }
@@ -108,7 +106,7 @@ macro_rules! atomic {
                         concat!("mov.", $size, " $1, $0")
                         : "=r"(out) : "*m"(src) : "memory" : "volatile"
                     );
-                    out $(as $cast as $value_type)?
+                    out
                 }
             }
 
@@ -124,7 +122,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("mov.", $size, " {val}, 0({dst})"), // atomic { *dst = val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
@@ -136,8 +134,8 @@ macro_rules! atomic {
             }
         }
     };
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty $(as $cast:ty)?, $size:tt) => {
-        atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type $(as $cast)?, $size);
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+        atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $size);
         #[cfg(not(feature = "critical-section"))]
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
             #[inline]
@@ -150,7 +148,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("add.", $size, " {val}, 0({dst})"), // atomic { *dst += val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         // Do not use `preserves_flags` because ADD modifies the V, N, Z, and C bits of the status register.
                         options(nostack),
                     );
@@ -172,7 +170,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("sub.", $size, " {val}, 0({dst})"), // atomic { *dst -= val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         // Do not use `preserves_flags` because SUB modifies the V, N, Z, and C bits of the status register.
                         options(nostack),
                     );
@@ -194,7 +192,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("and.", $size, " {val}, 0({dst})"), // atomic { *dst &= val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         // Do not use `preserves_flags` because AND modifies the V, N, Z, and C bits of the status register.
                         options(nostack),
                     );
@@ -216,7 +214,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("bis.", $size, " {val}, 0({dst})"), // atomic { *dst |= val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         options(nostack, preserves_flags),
                     );
                     #[cfg(portable_atomic_no_asm)]
@@ -237,7 +235,7 @@ macro_rules! atomic {
                     asm!(
                         concat!("xor.", $size, " {val}, 0({dst})"), // atomic { *dst ^= val }
                         dst = in(reg) dst,
-                        val = in(reg) val $(as $cast)?,
+                        val = in(reg) val,
                         // Do not use `preserves_flags` because XOR modifies the V, N, Z, and C bits of the status register.
                         options(nostack),
                     );
@@ -279,4 +277,4 @@ atomic!(AtomicI16, i16, "w");
 atomic!(AtomicU16, u16, "w");
 atomic!(AtomicIsize, isize, "w");
 atomic!(AtomicUsize, usize, "w");
-atomic!(load_store, [T] AtomicPtr, *mut T as *mut u8, "w");
+atomic!(load_store, [T] AtomicPtr, *mut T, "w");

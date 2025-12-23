@@ -92,8 +92,8 @@ macro_rules! atomic_rmw_amo_ext {
     portable_atomic_target_feature = "zaamo",
 ))]
 macro_rules! atomic_rmw_amo {
-    ($op:ident, $dst:ident, $val:ident $(as $cast:ty)?, $order:ident, $size:tt) => {{
-        let out $(: $cast)?;
+    ($op:ident, $dst:ident, $val:ident, $order:ident, $size:tt) => {{
+        let out;
         macro_rules! op {
             ($asm_order:tt) => {
                 // SAFETY: The user guaranteed that the AMO instruction is available in this
@@ -111,7 +111,7 @@ macro_rules! atomic_rmw_amo {
                     concat!("amo", stringify!($op), ".", $size, $asm_order, " {out}, {val}, 0({dst})"), // atomic { _x = *dst; *dst = op(_x, val); out = _x }
                     ".option pop",
                     dst = in(reg) ptr_reg!($dst),
-                    val = in(reg) $val $(as $cast)?,
+                    val = in(reg) $val,
                     out = lateout(reg) out,
                     options(nostack, preserves_flags),
                 )
@@ -179,7 +179,7 @@ macro_rules! srlw {
 }
 
 macro_rules! atomic_load_store {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty $(as $cast:ty)?, $size:tt) => {
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type $(<$($generics)*>)? {
             v: UnsafeCell<$value_type>,
@@ -218,7 +218,7 @@ macro_rules! atomic_load_store {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
-                    let out $(: $cast)?;
+                    let out;
                     macro_rules! atomic_load {
                         ($acquire:tt, $release:tt) => {
                             asm!(
@@ -237,7 +237,7 @@ macro_rules! atomic_load_store {
                         Ordering::SeqCst => atomic_load!("fence r, rw", "fence rw, rw"),
                         _ => unreachable!(),
                     }
-                    out $(as $cast as $value_type)?
+                    out
                 }
             }
 
@@ -256,7 +256,7 @@ macro_rules! atomic_load_store {
                                 concat!("s", $size, " {val}, 0({dst})"), // atomic { *dst = val }
                                 $acquire,                                // fence
                                 dst = in(reg) ptr_reg!(dst),
-                                val = in(reg) val $(as $cast)?,
+                                val = in(reg) val,
                                 options(nostack, preserves_flags),
                             )
                         };
@@ -275,8 +275,8 @@ macro_rules! atomic_load_store {
 }
 
 macro_rules! atomic_ptr {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty $(as $cast:ty)?, $size:tt) => {
-        atomic_load_store!($([$($generics)*])? $atomic_type, $value_type $(as $cast)?, $size);
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+        atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $size);
         #[cfg(any(
             test,
             portable_atomic_force_amo,
@@ -289,10 +289,7 @@ macro_rules! atomic_ptr {
                 let dst = self.v.get();
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
-                unsafe {
-                    atomic_rmw_amo!(swap, dst, val $(as $cast)?, order, $size)
-                        $(as $cast as $value_type)?
-                }
+                unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
             }
         }
     };
@@ -567,13 +564,13 @@ atomic!(AtomicIsize, isize, "w", max, min);
 #[cfg(target_pointer_width = "32")]
 atomic!(AtomicUsize, usize, "w", maxu, minu);
 #[cfg(target_pointer_width = "32")]
-atomic_ptr!([T] AtomicPtr, *mut T as *mut u8, "w");
+atomic_ptr!([T] AtomicPtr, *mut T, "w");
 #[cfg(target_pointer_width = "64")]
 atomic!(AtomicIsize, isize, "d", max, min);
 #[cfg(target_pointer_width = "64")]
 atomic!(AtomicUsize, usize, "d", maxu, minu);
 #[cfg(target_pointer_width = "64")]
-atomic_ptr!([T] AtomicPtr, *mut T as *mut u8, "d");
+atomic_ptr!([T] AtomicPtr, *mut T, "d");
 
 #[cfg(test)]
 mod tests {

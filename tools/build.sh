@@ -221,7 +221,6 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
-commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
 workspace_dir=$(pwd)
 target_dir="${workspace_dir}/target"
@@ -434,13 +433,7 @@ build() {
         local test_dir=''
         # NB: sync with tools/no-std.sh
         case "${target}" in
-          armv4t* | thumbv4t*)
-            case "${commit_date}" in
-              # https://github.com/rust-lang/rust/issues/137512
-              2025-02-2[34]) ;;
-              *) test_dir=tests/gba ;;
-            esac
-            ;;
+          armv4t* | thumbv4t*) test_dir=tests/gba ;;
           arm* | thumb* | riscv*) test_dir=tests/no-std-qemu ;;
           avr*) test_dir=tests/avr ;;
           msp430*) test_dir=tests/msp430 ;;
