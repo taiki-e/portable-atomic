@@ -433,8 +433,10 @@ fn main() {
                     }
                 }
             }
-            // target_feature "miscellaneous-extensions-3" is unstable and available on rustc side since nightly-2025-06-05: https://github.com/rust-lang/rust/pull/141250
-            if !version.probe(89, 2025, 6, 4) || needs_target_feature_fallback(&version, None) {
+            // target_feature "miscellaneous-extensions-3" is available as unstable on rustc side
+            // since nightly-2025-06-05 (https://github.com/rust-lang/rust/pull/141250),
+            // and stabilized in Rust 1.93 (https://github.com/rust-lang/rust/pull/145656).
+            if !version.probe(89, 2025, 6, 4) || needs_target_feature_fallback(&version, Some(93)) {
                 // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
                 target_feature_fallback("miscellaneous-extensions-3", arch13_features);
