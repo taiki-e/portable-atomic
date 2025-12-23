@@ -51,15 +51,15 @@ macro_rules! doc_comment {
     all(target_arch = "x86_64", not(any(target_env = "sgx", miri))),
 ))]
 macro_rules! ifunc {
-    (unsafe fn($($arg_pat:ident: $arg_ty:ty),*) $(-> $ret_ty:ty)? { $($detect_body:tt)* }) => {{
+    (unsafe fn($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)? { $($init_body:tt)* }) => {{
         type FnTy = unsafe fn($($arg_ty),*) $(-> $ret_ty)?;
         static FUNC: core::sync::atomic::AtomicPtr<()>
-            = core::sync::atomic::AtomicPtr::new(detect as *mut ());
+            = core::sync::atomic::AtomicPtr::new(init as *mut ());
         #[cold]
-        unsafe fn detect($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
-            let func: FnTy = { $($detect_body)* };
+        unsafe fn init($($arg_pat: $arg_ty),*) $(-> $ret_ty)? {
+            let func: FnTy = { $($init_body)* };
             FUNC.store(func as *mut (), core::sync::atomic::Ordering::Relaxed);
-            // SAFETY: the caller must uphold the safety contract for the function returned by $detect_body.
+            // SAFETY: the caller must uphold the safety contract for the function returned by $init_body.
             unsafe { func($($arg_pat),*) }
         }
         // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`.
@@ -68,7 +68,7 @@ macro_rules! ifunc {
         let func = {
             core::mem::transmute::<*mut (), FnTy>(FUNC.load(core::sync::atomic::Ordering::Relaxed))
         };
-        // SAFETY: the caller must uphold the safety contract for the function returned by $detect_body.
+        // SAFETY: the caller must uphold the safety contract for the function returned by $init_body.
         // (To force the caller to use unsafe block for this macro, do not use
         // unsafe block here.)
         func($($arg_pat),*)
