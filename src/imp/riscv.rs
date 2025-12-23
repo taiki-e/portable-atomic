@@ -274,9 +274,21 @@ macro_rules! atomic_load_store {
     };
 }
 
-macro_rules! atomic_ptr {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
+macro_rules! atomic_base {
+    (
+        $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt,
+        $fetch_add:ident, $fetch_sub:ident
+    ) => {
         atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $size);
+        #[cfg(any(
+            test,
+            portable_atomic_force_amo,
+            target_feature = "zaamo",
+            portable_atomic_target_feature = "zaamo",
+        ))]
+        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+        impl_default_bit_opts!($atomic_type, $int_type);
+        // There is no amo{sub,nand,neg}.
         #[cfg(any(
             test,
             portable_atomic_force_amo,
@@ -291,13 +303,56 @@ macro_rules! atomic_ptr {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
             }
+
+            #[inline]
+            pub(crate) fn $fetch_add(&self, val: $int_type, order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_rmw_amo!(add, dst, val, order, $size) }
+            }
+
+            #[inline]
+            pub(crate) fn $fetch_sub(&self, val: $int_type, order: Ordering) -> $value_type {
+                self.$fetch_add(val.wrapping_neg(), order)
+            }
+
+            #[inline]
+            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_rmw_amo!(and, dst, val, order, $size) }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_rmw_amo!(or, dst, val, order, $size) }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
+            }
         }
+    };
+}
+
+macro_rules! atomic_ptr {
+    ($size:tt) => {
+        atomic_base!([T] AtomicPtr, *mut T, usize, $size, fetch_byte_add, fetch_byte_sub);
     };
 }
 
 macro_rules! atomic {
     ($atomic_type:ident, $value_type:ty, $size:tt, $max:tt, $min:tt) => {
-        atomic_load_store!($atomic_type, $value_type, $size);
+        atomic_base!($atomic_type, $value_type, $value_type, $size, fetch_add, fetch_sub);
         #[cfg(any(
             test,
             portable_atomic_force_amo,
@@ -306,14 +361,6 @@ macro_rules! atomic {
         ))]
         #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
         impl_default_no_fetch_ops!($atomic_type, $value_type);
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
-        impl_default_bit_opts!($atomic_type, $value_type);
         // There is no amo{sub,nand,neg}.
         #[cfg(any(
             test,
@@ -322,51 +369,6 @@ macro_rules! atomic {
             portable_atomic_target_feature = "zaamo",
         ))]
         impl $atomic_type {
-            #[inline]
-            pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(add, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $value_type, order: Ordering) -> $value_type {
-                self.fetch_add(val.wrapping_neg(), order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(and, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(or, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
-            }
-
             #[inline]
             pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
                 let dst = self.v.get();
@@ -564,13 +566,13 @@ atomic!(AtomicIsize, isize, "w", max, min);
 #[cfg(target_pointer_width = "32")]
 atomic!(AtomicUsize, usize, "w", maxu, minu);
 #[cfg(target_pointer_width = "32")]
-atomic_ptr!([T] AtomicPtr, *mut T, "w");
+atomic_ptr!("w");
 #[cfg(target_pointer_width = "64")]
 atomic!(AtomicIsize, isize, "d", max, min);
 #[cfg(target_pointer_width = "64")]
 atomic!(AtomicUsize, usize, "d", maxu, minu);
 #[cfg(target_pointer_width = "64")]
-atomic_ptr!([T] AtomicPtr, *mut T, "d");
+atomic_ptr!("d");
 
 #[cfg(test)]
 mod tests {
@@ -613,6 +615,79 @@ mod tests {
                         let a = <$atomic_type>::new(x);
                         assert_eq!(a.swap(y, order), x);
                         assert_eq!(a.swap(x, order), y);
+                    }
+                    true
+                }
+                fn quickcheck_fetch_byte_add(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut::<u8>(y);
+                    for &order in &helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_byte_add(y.addr(), order), x);
+                        assert_eq!(
+                            a.load(Ordering::Relaxed).addr(), x.addr().wrapping_add(y.addr())
+                        );
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_byte_add(x.addr(), order), y);
+                        assert_eq!(
+                            a.load(Ordering::Relaxed).addr(), y.addr().wrapping_add(x.addr())
+                        );
+                    }
+                    true
+                }
+                fn quickcheck_fetch_byte_sub(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut::<u8>(y);
+                    for &order in &helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_byte_sub(y.addr(), order), x);
+                        assert_eq!(
+                            a.load(Ordering::Relaxed).addr(), x.addr().wrapping_sub(y.addr())
+                        );
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_byte_sub(x.addr(), order), y);
+                        assert_eq!(
+                            a.load(Ordering::Relaxed).addr(), y.addr().wrapping_sub(x.addr())
+                        );
+                    }
+                    true
+                }
+                fn quickcheck_fetch_and(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut::<u8>(y);
+                    for &order in &helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_and(y.addr(), order), x);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() & y.addr());
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_and(x.addr(), order), y);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() & x.addr());
+                    }
+                    true
+                }
+                fn quickcheck_fetch_or(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut::<u8>(y);
+                    for &order in &helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_or(y.addr(), order), x);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() | y.addr());
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_or(x.addr(), order), y);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() | x.addr());
+                    }
+                    true
+                }
+                fn quickcheck_fetch_xor(x: usize, y: usize) -> bool {
+                    let x = sptr::invalid_mut(x);
+                    let y = sptr::invalid_mut::<u8>(y);
+                    for &order in &helper::SWAP_ORDERINGS {
+                        let a = <$atomic_type>::new(x);
+                        assert_eq!(a.fetch_xor(y.addr(), order), x);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() ^ y.addr());
+                        let a = <$atomic_type>::new(y);
+                        assert_eq!(a.fetch_xor(x.addr(), order), y);
+                        assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() ^ x.addr());
                     }
                     true
                 }

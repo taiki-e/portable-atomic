@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 Arm, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Provide stable equivalents of the standard library's atomic types' unstable APIs, such as [`AtomicPtr::fetch_*`](https://github.com/rust-lang/rust/issues/99108).
-- Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), [`from_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.from_ptr), [`AtomicBool::fetch_not`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.fetch_not) and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
+- Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), [`from_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.from_ptr), [`AtomicBool::fetch_not`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.fetch_not), [`AtomicPtr::fetch_*`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_and), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
 - Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
 
 <!-- TODO:
@@ -676,10 +676,6 @@ pub mod hint {
 #[cfg(doc)]
 use core::sync::atomic::Ordering::{AcqRel, Acquire, Relaxed, Release, SeqCst};
 use core::{fmt, ptr};
-
-#[cfg(portable_atomic_no_strict_provenance)]
-#[cfg(miri)]
-use self::utils::ptr::PtrExt as _;
 
 cfg_has_atomic_8! {
 /// A boolean type which can be safely shared between threads.
@@ -2187,25 +2183,6 @@ impl<T> AtomicPtr<T> {
         }
         Err(prev)
     }
-
-    #[cfg(miri)]
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> *mut T
-    where
-        F: FnMut(*mut T) -> *mut T,
-    {
-        // This is a private function and all instances of `f` only operate on the value
-        // loaded, so there is no need to synchronize the first load/failed CAS.
-        let mut prev = self.load(Ordering::Relaxed);
-        loop {
-            let next = f(prev);
-            match self.compare_exchange_weak(prev, next, order, Ordering::Relaxed) {
-                Ok(x) => return x,
-                Err(next_prev) => prev = next_prev,
-            }
-        }
-    }
     } // cfg_has_atomic_cas!
 
     /// Offsets the pointer's address by adding `val` (in units of `T`),
@@ -2310,22 +2287,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_add(val)))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_add(val, order)
-            )
-        }
+        self.inner.fetch_byte_add(val, order)
     }
 
     /// Offsets the pointer's address by subtracting `val` *bytes*, returning the
@@ -2356,22 +2318,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_sub(val)))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_sub(val, order)
-            )
-        }
+        self.inner.fetch_byte_sub(val, order)
     }
 
     /// Performs a bitwise "or" operation on the address of the current pointer,
@@ -2417,22 +2364,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            self.fetch_update_(order, |x| x.with_addr(x.addr() | val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_or(val, order)
-            )
-        }
+        self.inner.fetch_or(val, order)
     }
 
     /// Performs a bitwise "and" operation on the address of the current
@@ -2476,22 +2408,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            self.fetch_update_(order, |x| x.with_addr(x.addr() & val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_and(val, order)
-            )
-        }
+        self.inner.fetch_and(val, order)
     }
 
     /// Performs a bitwise "xor" operation on the address of the current
@@ -2534,22 +2451,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            self.fetch_update_(order, |x| x.with_addr(x.addr() ^ val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_xor(val, order)
-            )
-        }
+        self.inner.fetch_xor(val, order)
     }
 
     /// Sets the bit at the specified bit-position to 1.
@@ -2583,21 +2485,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_set(&self, bit: u32, order: Ordering) -> bool {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_or(mask, order).addr() & mask != 0
-        }
-        #[cfg(not(miri))]
-        {
-            self.as_atomic_usize().bit_set(bit, order)
-        }
+        self.inner.bit_set(bit, order)
     }
 
     /// Clears the bit at the specified bit-position to 1.
@@ -2628,21 +2516,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_and(!mask, order).addr() & mask != 0
-        }
-        #[cfg(not(miri))]
-        {
-            self.as_atomic_usize().bit_clear(bit, order)
-        }
+        self.inner.bit_clear(bit, order)
     }
 
     /// Toggles the bit at the specified bit-position.
@@ -2673,35 +2547,7 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
-        // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-        // compatible, but it is unstable. So, for now emulate it only on cfg(miri).
-        // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-        // compatible and is sound.
-        // TODO: Once `#![feature(strict_provenance_atomic_ptr)]` is stabilized,
-        // use AtomicPtr::fetch_* in all cases from the version in which it is stabilized.
-        #[cfg(miri)]
-        {
-            let mask = 1_usize.wrapping_shl(bit);
-            self.fetch_xor(mask, order).addr() & mask != 0
-        }
-        #[cfg(not(miri))]
-        {
-            self.as_atomic_usize().bit_toggle(bit, order)
-        }
-    }
-
-    #[cfg(not(miri))]
-    #[inline(always)]
-    fn as_atomic_usize(&self) -> &AtomicUsize {
-        static_assert!(
-            core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()
-        );
-        static_assert!(
-            core::mem::align_of::<AtomicPtr<()>>() == core::mem::align_of::<AtomicUsize>()
-        );
-        // SAFETY: AtomicPtr and AtomicUsize have the same layout,
-        // and both access data in the same way.
-        unsafe { &*(self as *const Self as *const AtomicUsize) }
+        self.inner.bit_toggle(bit, order)
     }
     } // cfg_has_atomic_cas_or_amo32!
 

@@ -1706,6 +1706,8 @@ macro_rules! __test_atomic_bool {
 }
 macro_rules! __test_atomic_ptr {
     ($atomic_type:ty, single_thread) => {
+        #[allow(unused_imports)]
+        use sptr::Strict as _; // for old rustc
         #[test]
         fn swap() {
             let a = <$atomic_type>::new(ptr::null_mut());
@@ -1757,6 +1759,128 @@ macro_rules! __test_atomic_ptr {
                 assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
+        // https://github.com/rust-lang/rust/blob/1.84.0/library/core/tests/atomic.rs#L130-L213
+        #[test]
+        fn ptr_add_null() {
+            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst).addr(), 0);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 8);
+
+            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst).addr(), 8);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 9);
+
+            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst).addr(), 9);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 1);
+
+            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst).addr(), 1);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0);
+        }
+        #[test]
+        fn ptr_add_data() {
+            let num = 0i64;
+            let n = &num as *const i64 as *mut _;
+            let atom = AtomicPtr::<i64>::new(n);
+            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst), n);
+            assert_eq!(atom.load(Ordering::SeqCst), n.wrapping_add(1));
+
+            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst), n.wrapping_add(1));
+            assert_eq!(atom.load(Ordering::SeqCst), n);
+            #[allow(clippy::cast_ptr_alignment)]
+            let bytes_from_n = |b| n.cast::<u8>().wrapping_add(b).cast::<i64>();
+
+            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst), n);
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(1));
+
+            assert_eq!(atom.fetch_byte_add(5, Ordering::SeqCst), bytes_from_n(1));
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(6));
+
+            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst), bytes_from_n(6));
+            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(5));
+
+            assert_eq!(atom.fetch_byte_sub(5, Ordering::SeqCst), bytes_from_n(5));
+            assert_eq!(atom.load(Ordering::SeqCst), n);
+        }
+        #[test]
+        fn ptr_bitops() {
+            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
+            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst).addr(), 0);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0111);
+
+            assert_eq!(atom.fetch_and(0b1101, Ordering::SeqCst).addr(), 0b0111);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0101);
+
+            assert_eq!(atom.fetch_xor(0b1111, Ordering::SeqCst).addr(), 0b0101);
+            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b1010);
+        }
+        #[test]
+        fn ptr_bitops_tagging() {
+            const MASK_TAG: usize = 0b1111;
+            const MASK_PTR: usize = !MASK_TAG;
+
+            #[repr(align(16))]
+            struct Tagme(#[allow(dead_code)] u128);
+
+            let tagme = Tagme(1000);
+            let ptr = &tagme as *const Tagme as *mut Tagme;
+            let atom: AtomicPtr<Tagme> = AtomicPtr::new(ptr);
+
+            assert_eq!(ptr.addr() & MASK_TAG, 0);
+
+            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst), ptr);
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b111));
+
+            assert_eq!(
+                atom.fetch_and(MASK_PTR | 0b0010, Ordering::SeqCst),
+                ptr.map_addr(|a| a | 0b111)
+            );
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
+
+            assert_eq!(atom.fetch_xor(0b1011, Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
+            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
+
+            assert_eq!(atom.fetch_and(MASK_PTR, Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
+            assert_eq!(atom.load(Ordering::SeqCst), ptr);
+        }
+        #[test]
+        fn bit_set() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>().map_addr(|a| a | 1));
+            test_swap_ordering(|order| assert!(a.bit_set(0, order)));
+            for &order in &helper::SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                let atom = <$atomic_type>::new(pointer);
+                // Tag the bottom bit of the pointer.
+                assert!(!atom.bit_set(0, order));
+                // Extract and untag.
+                let tagged = atom.load(Ordering::Relaxed);
+                assert_eq!(tagged.addr() & 1, 1);
+                assert_eq!(tagged.map_addr(|p| p & !1), pointer);
+            }
+        }
+        #[test]
+        fn bit_clear() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
+            test_swap_ordering(|order| assert!(!a.bit_clear(0, order)));
+            for &order in &helper::SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                // A tagged pointer
+                let atom = <$atomic_type>::new(pointer.map_addr(|a| a | 1));
+                assert!(atom.bit_set(0, order));
+                // Untag
+                assert!(atom.bit_clear(0, order));
+            }
+        }
+        #[test]
+        fn bit_toggle() {
+            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
+            test_swap_ordering(|order| a.bit_toggle(0, order));
+            for &order in &helper::SWAP_ORDERINGS {
+                let pointer = &mut 1u64 as *mut u64 as *mut u8;
+                let atom = <$atomic_type>::new(pointer);
+                // Toggle a tag bit on the pointer.
+                atom.bit_toggle(0, order);
+                assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
+            }
+        }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: usize, y: usize) -> bool {
                 let x = sptr::invalid_mut(x);
@@ -1785,6 +1909,104 @@ macro_rules! __test_atomic_ptr {
                     assert_eq!(a.load(Ordering::Relaxed), y);
                     assert_eq!(a.compare_exchange(z, x, success, failure).unwrap_err(), y);
                     assert_eq!(a.load(Ordering::Relaxed), y);
+                }
+                true
+            }
+            fn quickcheck_fetch_byte_add(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut::<u8>(y);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_byte_add(y.addr(), order), x);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr().wrapping_add(y.addr()));
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_byte_add(x.addr(), order), y);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr().wrapping_add(x.addr()));
+                }
+                true
+            }
+            fn quickcheck_fetch_byte_sub(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut::<u8>(y);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_byte_sub(y.addr(), order), x);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr().wrapping_sub(y.addr()));
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_byte_sub(x.addr(), order), y);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr().wrapping_sub(x.addr()));
+                }
+                true
+            }
+            fn quickcheck_fetch_and(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut::<u8>(y);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_and(y.addr(), order), x);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() & y.addr());
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_and(x.addr(), order), y);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() & x.addr());
+                }
+                true
+            }
+            fn quickcheck_fetch_or(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut::<u8>(y);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_or(y.addr(), order), x);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() | y.addr());
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_or(x.addr(), order), y);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() | x.addr());
+                }
+                true
+            }
+            fn quickcheck_fetch_xor(x: usize, y: usize) -> bool {
+                let x = sptr::invalid_mut(x);
+                let y = sptr::invalid_mut::<u8>(y);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    assert_eq!(a.fetch_xor(y.addr(), order), x);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() ^ y.addr());
+                    let a = <$atomic_type>::new(y);
+                    assert_eq!(a.fetch_xor(x.addr(), order), y);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), y.addr() ^ x.addr());
+                }
+                true
+            }
+            fn quickcheck_bit_set(x: usize, bit: u32) -> bool {
+                let x = sptr::invalid_mut(x);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_set(bit, order);
+                    let mask = <usize>::wrapping_shl(1, bit);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() | mask);
+                    assert_eq!(b, x.addr() & mask != 0);
+                }
+                true
+            }
+            fn quickcheck_bit_clear(x: usize, bit: u32) -> bool {
+                let x = sptr::invalid_mut(x);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_clear(bit, order);
+                    let mask = <usize>::wrapping_shl(1, bit);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() & !mask);
+                    assert_eq!(b, x.addr() & mask != 0);
+                }
+                true
+            }
+            fn quickcheck_bit_toggle(x: usize, bit: u32) -> bool {
+                let x = sptr::invalid_mut(x);
+                for &order in &helper::SWAP_ORDERINGS {
+                    let a = <$atomic_type>::new(x);
+                    let b = a.bit_toggle(bit, order);
+                    let mask = <usize>::wrapping_shl(1, bit);
+                    assert_eq!(a.load(Ordering::Relaxed).addr(), x.addr() ^ mask);
+                    assert_eq!(b, x.addr() & mask != 0);
                 }
                 true
             }
@@ -2069,8 +2291,6 @@ macro_rules! __test_atomic_bool_pub {
 macro_rules! __test_atomic_ptr_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, *mut u8);
-        #[allow(unused_imports)]
-        use sptr::Strict as _; // for old rustc
         use std::boxed::Box;
         #[test]
         fn fetch_update() {
@@ -2125,128 +2345,6 @@ macro_rules! __test_atomic_ptr_pub {
                 }
                 assert_eq!((*ptr).0, ptr::null_mut::<u8>().wrapping_add(1));
                 drop(Box::from_raw(ptr));
-            }
-        }
-        // https://github.com/rust-lang/rust/blob/1.84.0/library/core/tests/atomic.rs#L130-L213
-        #[test]
-        fn ptr_add_null() {
-            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
-            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst).addr(), 0);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 8);
-
-            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst).addr(), 8);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 9);
-
-            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst).addr(), 9);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 1);
-
-            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst).addr(), 1);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0);
-        }
-        #[test]
-        fn ptr_add_data() {
-            let num = 0i64;
-            let n = &num as *const i64 as *mut _;
-            let atom = AtomicPtr::<i64>::new(n);
-            assert_eq!(atom.fetch_ptr_add(1, Ordering::SeqCst), n);
-            assert_eq!(atom.load(Ordering::SeqCst), n.wrapping_add(1));
-
-            assert_eq!(atom.fetch_ptr_sub(1, Ordering::SeqCst), n.wrapping_add(1));
-            assert_eq!(atom.load(Ordering::SeqCst), n);
-            #[allow(clippy::cast_ptr_alignment)]
-            let bytes_from_n = |b| n.cast::<u8>().wrapping_add(b).cast::<i64>();
-
-            assert_eq!(atom.fetch_byte_add(1, Ordering::SeqCst), n);
-            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(1));
-
-            assert_eq!(atom.fetch_byte_add(5, Ordering::SeqCst), bytes_from_n(1));
-            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(6));
-
-            assert_eq!(atom.fetch_byte_sub(1, Ordering::SeqCst), bytes_from_n(6));
-            assert_eq!(atom.load(Ordering::SeqCst), bytes_from_n(5));
-
-            assert_eq!(atom.fetch_byte_sub(5, Ordering::SeqCst), bytes_from_n(5));
-            assert_eq!(atom.load(Ordering::SeqCst), n);
-        }
-        #[test]
-        fn ptr_bitops() {
-            let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());
-            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst).addr(), 0);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0111);
-
-            assert_eq!(atom.fetch_and(0b1101, Ordering::SeqCst).addr(), 0b0111);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b0101);
-
-            assert_eq!(atom.fetch_xor(0b1111, Ordering::SeqCst).addr(), 0b0101);
-            assert_eq!(atom.load(Ordering::SeqCst).addr(), 0b1010);
-        }
-        #[test]
-        fn ptr_bitops_tagging() {
-            const MASK_TAG: usize = 0b1111;
-            const MASK_PTR: usize = !MASK_TAG;
-
-            #[repr(align(16))]
-            struct Tagme(#[allow(dead_code)] u128);
-
-            let tagme = Tagme(1000);
-            let ptr = &tagme as *const Tagme as *mut Tagme;
-            let atom: AtomicPtr<Tagme> = AtomicPtr::new(ptr);
-
-            assert_eq!(ptr.addr() & MASK_TAG, 0);
-
-            assert_eq!(atom.fetch_or(0b0111, Ordering::SeqCst), ptr);
-            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b111));
-
-            assert_eq!(
-                atom.fetch_and(MASK_PTR | 0b0010, Ordering::SeqCst),
-                ptr.map_addr(|a| a | 0b111)
-            );
-            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
-
-            assert_eq!(atom.fetch_xor(0b1011, Ordering::SeqCst), ptr.map_addr(|a| a | 0b0010));
-            assert_eq!(atom.load(Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
-
-            assert_eq!(atom.fetch_and(MASK_PTR, Ordering::SeqCst), ptr.map_addr(|a| a | 0b1001));
-            assert_eq!(atom.load(Ordering::SeqCst), ptr);
-        }
-        #[test]
-        fn bit_set() {
-            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>().map_addr(|a| a | 1));
-            test_swap_ordering(|order| assert!(a.bit_set(0, order)));
-            for &order in &helper::SWAP_ORDERINGS {
-                let pointer = &mut 1u64 as *mut u64 as *mut u8;
-                let atom = <$atomic_type>::new(pointer);
-                // Tag the bottom bit of the pointer.
-                assert!(!atom.bit_set(0, order));
-                // Extract and untag.
-                let tagged = atom.load(Ordering::Relaxed);
-                assert_eq!(tagged.addr() & 1, 1);
-                assert_eq!(tagged.map_addr(|p| p & !1), pointer);
-            }
-        }
-        #[test]
-        fn bit_clear() {
-            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
-            test_swap_ordering(|order| assert!(!a.bit_clear(0, order)));
-            for &order in &helper::SWAP_ORDERINGS {
-                let pointer = &mut 1u64 as *mut u64 as *mut u8;
-                // A tagged pointer
-                let atom = <$atomic_type>::new(pointer.map_addr(|a| a | 1));
-                assert!(atom.bit_set(0, order));
-                // Untag
-                assert!(atom.bit_clear(0, order));
-            }
-        }
-        #[test]
-        fn bit_toggle() {
-            let a = <$atomic_type>::new(ptr::null_mut::<u64>().cast::<u8>());
-            test_swap_ordering(|order| a.bit_toggle(0, order));
-            for &order in &helper::SWAP_ORDERINGS {
-                let pointer = &mut 1u64 as *mut u64 as *mut u8;
-                let atom = <$atomic_type>::new(pointer);
-                // Toggle a tag bit on the pointer.
-                atom.bit_toggle(0, order);
-                assert_eq!(atom.load(Ordering::Relaxed).addr() & 1, 1);
             }
         }
     };
