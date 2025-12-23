@@ -63,33 +63,45 @@ const IS_ALWAYS_LOCK_FREE: bool = false;
 #[cfg(not(feature = "critical-section"))]
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
-// Note: The caller must NOT explicitly modify registers containing fields modified by disable/restore.
-//       (Fields modified as side effects of other operations are covered by the absence of preserves_flags,
-//        so they are fine -- see msp430.rs for more.)
-#[cfg(feature = "critical-section")]
-#[inline]
-fn with<F, R>(f: F) -> R
-where
-    F: FnOnce() -> R,
-{
-    critical_section::with(|_| f())
-}
-#[cfg(not(feature = "critical-section"))]
-#[inline(always)]
-fn with<F, R>(f: F) -> R
-where
-    F: FnOnce() -> R,
-{
-    // Get current interrupt state and disable interrupts.
-    let state = arch::disable();
-
-    let r = f();
-
-    // Restore interrupt state.
-    // SAFETY: the state was retrieved by the previous `disable`.
-    unsafe { arch::restore(state) }
-
-    r
+// Put this in its own module to prevent guard creation.
+use self::guard::disable;
+mod guard {
+    // Note: The caller must NOT explicitly modify registers containing fields modified by disable/restore.
+    //       (Fields modified as side effects of other operations are covered by the absence of preserves_flags,
+    //        so they are fine -- see msp430.rs for more.)
+    #[inline(always)]
+    pub(super) fn disable() -> Guard {
+        Guard {
+            #[cfg(feature = "critical-section")]
+            // SAFETY: the state will be restored in the subsequent `release`.
+            state: unsafe { critical_section::acquire() },
+            #[cfg(not(feature = "critical-section"))]
+            // Get current interrupt state and disable interrupts.
+            state: super::arch::disable(),
+        }
+    }
+    pub(super) struct Guard {
+        #[cfg(feature = "critical-section")]
+        state: critical_section::RestoreState,
+        #[cfg(not(feature = "critical-section"))]
+        state: super::arch::State,
+    }
+    impl Drop for Guard {
+        #[inline(always)]
+        fn drop(&mut self) {
+            #[cfg(feature = "critical-section")]
+            // SAFETY: the state was retrieved by the previous `acquire`.
+            unsafe {
+                critical_section::release(self.state);
+            }
+            #[cfg(not(feature = "critical-section"))]
+            // Restore interrupt state.
+            // SAFETY: the state was retrieved by the previous `disable`.
+            unsafe {
+                super::arch::restore(self.state);
+            }
+        }
+    }
 }
 
 macro_rules! atomic_base {
@@ -100,11 +112,11 @@ macro_rules! atomic_base {
         }
 
         // Send is implicitly implemented for atomic integers, but not for atomic pointers.
-        // SAFETY: any data races are prevented by disabling interrupts or
-        // atomic intrinsics (see module-level comments).
+        // SAFETY: any data races are prevented by disabling interrupts (or
+        // atomic intrinsics) or critical-section (see module-level comments).
         unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
-        // SAFETY: any data races are prevented by disabling interrupts or
-        // atomic intrinsics (see module-level comments).
+        // SAFETY: any data races are prevented by disabling interrupts (or
+        // atomic intrinsics) or critical-section (see module-level comments).
         unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
 
         impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
@@ -120,6 +132,21 @@ macro_rules! atomic_base {
             pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
 
             #[inline]
+            fn read(&self, _guard: &guard::Guard) -> $value_type {
+                // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                unsafe { self.v.get().read() }
+            }
+            #[inline]
+            fn write(&self, val: $value_type, _guard: &guard::Guard) {
+                // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                unsafe { self.v.get().write(val) }
+            }
+
+            #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn compare_exchange(
                 &self,
@@ -129,18 +156,14 @@ macro_rules! atomic_base {
                 failure: Ordering,
             ) -> Result<$value_type, $value_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    if prev == current {
-                        self.v.get().write(new);
-                        Ok(prev)
-                    } else {
-                        Err(prev)
-                    }
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                if prev == current {
+                    self.write(new, &guard);
+                    Ok(prev)
+                } else {
+                    Err(prev)
+                }
             }
 
             #[inline]
@@ -191,10 +214,10 @@ impl<T> AtomicPtr<T> {
             self.as_native().load(order)
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe { self.v.get().read() })
+        {
+            let guard = disable();
+            self.read(&guard)
+        }
     }
 
     #[inline]
@@ -206,10 +229,10 @@ impl<T> AtomicPtr<T> {
             self.as_native().store(ptr, order);
         }
         #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe { self.v.get().write(ptr) });
+        {
+            let guard = disable();
+            self.write(ptr, &guard);
+        }
     }
 
     #[inline]
@@ -236,14 +259,12 @@ impl<T> AtomicPtr<T> {
                 portable_atomic_target_feature = "zaamo",
             ),
         )))]
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let prev = self.v.get().read();
-            self.v.get().write(ptr);
+        {
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(ptr, &guard);
             prev
-        })
+        }
     }
 
     #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
@@ -262,25 +283,17 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(!(prev & val));
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(!(prev & val), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_neg());
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_neg(), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn neg(&self, order: Ordering) {
@@ -290,53 +303,29 @@ macro_rules! atomic_int {
     };
     (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ty, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
+
+        #[cfg(any(
+            all(target_arch = "avr", portable_atomic_no_asm),
+            feature = "critical-section",
+        ))]
+        atomic_int!(emulate_load_store, $atomic_type, $int_type);
+        #[cfg(not(any(
+            all(target_arch = "avr", portable_atomic_no_asm),
+            feature = "critical-section",
+        )))]
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                #[cfg(not(any(
-                    all(target_arch = "avr", portable_atomic_no_asm),
-                    feature = "critical-section",
-                )))]
-                {
-                    self.as_native().load(order)
-                }
-                #[cfg(any(
-                    all(target_arch = "avr", portable_atomic_no_asm),
-                    feature = "critical-section",
-                ))]
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe { self.v.get().read() })
+                self.as_native().load(order)
             }
-
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                #[cfg(not(any(
-                    all(target_arch = "avr", portable_atomic_no_asm),
-                    feature = "critical-section",
-                )))]
-                {
-                    self.as_native().store(val, order);
-                }
-                #[cfg(any(
-                    all(target_arch = "avr", portable_atomic_no_asm),
-                    feature = "critical-section",
-                ))]
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe { self.v.get().write(val) });
+                self.as_native().store(val, order);
             }
-
-            #[cfg(not(any(
-                all(target_arch = "avr", portable_atomic_no_asm),
-                feature = "critical-section",
-            )))]
             #[inline(always)]
             fn as_native(&self) -> &atomic::$atomic_type {
                 // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
@@ -452,31 +441,32 @@ macro_rules! atomic_int {
     };
     (all_critical_session, $atomic_type:ident, $int_type:ty, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
+        atomic_int!(emulate_load_store, $atomic_type, $int_type);
         atomic_int!(cas[emulate], $atomic_type, $int_type);
         impl_default_no_fetch_ops!($atomic_type, $int_type);
         impl_default_bit_opts!($atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
+            pub(crate) fn not(&self, order: Ordering) {
+                self.fetch_not(order);
+            }
+        }
+    };
+    (emulate_load_store, $atomic_type:ident, $int_type:ty) => {
+        impl $atomic_type {
+            #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe { self.v.get().read() })
+                let guard = disable();
+                self.read(&guard)
             }
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe { self.v.get().write(val) });
-            }
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.fetch_not(order);
+                let guard = disable();
+                self.write(val, &guard);
             }
         }
     };
@@ -484,14 +474,10 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(val);
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(val, &guard);
+                prev
             }
         }
     };
@@ -499,47 +485,31 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_add(val));
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_add(val), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_sub(val));
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev.wrapping_sub(val), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::max(prev, val));
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(core::cmp::max(prev, val), &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::min(prev, val));
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(core::cmp::min(prev, val), &guard);
+                prev
             }
         }
     };
@@ -547,47 +517,31 @@ macro_rules! atomic_int {
         impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev & val);
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev & val, &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev | val);
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev | val, &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev ^ val);
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(prev ^ val, &guard);
+                prev
             }
             #[inline]
             pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(!prev);
-                    prev
-                })
+                let guard = disable();
+                let prev = self.read(&guard);
+                self.write(!prev, &guard);
+                prev
             }
         }
     };
