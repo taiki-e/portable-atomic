@@ -92,6 +92,77 @@ where
     r
 }
 
+macro_rules! atomic_base {
+    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $align:literal) => {
+        #[repr(C, align($align))]
+        pub(crate) struct $atomic_type $(<$($generics)*>)? {
+            v: UnsafeCell<$value_type>,
+        }
+
+        // Send is implicitly implemented for atomic integers, but not for atomic pointers.
+        // SAFETY: any data races are prevented by disabling interrupts or
+        // atomic intrinsics (see module-level comments).
+        unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
+        // SAFETY: any data races are prevented by disabling interrupts or
+        // atomic intrinsics (see module-level comments).
+        unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
+
+        impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+            #[inline]
+            pub(crate) const fn new(v: $value_type) -> Self {
+                Self { v: UnsafeCell::new(v) }
+            }
+
+            #[inline]
+            pub(crate) fn is_lock_free() -> bool {
+                Self::IS_ALWAYS_LOCK_FREE
+            }
+            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn compare_exchange(
+                &self,
+                current: $value_type,
+                new: $value_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$value_type, $value_type> {
+                crate::utils::assert_compare_exchange_ordering(success, failure);
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    if prev == current {
+                        self.v.get().write(new);
+                        Ok(prev)
+                    } else {
+                        Err(prev)
+                    }
+                })
+            }
+
+            #[inline]
+            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+            pub(crate) fn compare_exchange_weak(
+                &self,
+                current: $value_type,
+                new: $value_type,
+                success: Ordering,
+                failure: Ordering,
+            ) -> Result<$value_type, $value_type> {
+                self.compare_exchange(current, new, success, failure)
+            }
+
+            #[inline]
+            pub(crate) const fn as_ptr(&self) -> *mut $value_type {
+                self.v.get()
+            }
+        }
+    };
+}
+
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, target_arch = "avr", target_arch = "msp430", portable_atomic_no_atomic_cas))
@@ -101,35 +172,16 @@ where
     cfg(any(test, target_arch = "avr", target_arch = "msp430", not(target_has_atomic = "ptr")))
 )]
 items! {
-use core::ptr;
-
-#[cfg_attr(target_pointer_width = "16", repr(C, align(2)))]
-#[cfg_attr(target_pointer_width = "32", repr(C, align(4)))]
-#[cfg_attr(target_pointer_width = "64", repr(C, align(8)))]
-#[cfg_attr(target_pointer_width = "128", repr(C, align(16)))]
-pub(crate) struct AtomicPtr<T> {
-    p: UnsafeCell<*mut T>,
-}
-
-// SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments).
-unsafe impl<T> Send for AtomicPtr<T> {}
-// SAFETY: any data races are prevented by disabling interrupts or
-// atomic intrinsics (see module-level comments).
-unsafe impl<T> Sync for AtomicPtr<T> {}
+#[cfg(target_pointer_width = "16")]
+atomic_base!([T] AtomicPtr, *mut T, 2);
+#[cfg(target_pointer_width = "32")]
+atomic_base!([T] AtomicPtr, *mut T, 4);
+#[cfg(target_pointer_width = "64")]
+atomic_base!([T] AtomicPtr, *mut T, 8);
+#[cfg(target_pointer_width = "128")]
+atomic_base!([T] AtomicPtr, *mut T, 16);
 
 impl<T> AtomicPtr<T> {
-    #[inline]
-    pub(crate) const fn new(p: *mut T) -> Self {
-        Self { p: UnsafeCell::new(p) }
-    }
-
-    #[inline]
-    pub(crate) fn is_lock_free() -> bool {
-        Self::IS_ALWAYS_LOCK_FREE
-    }
-    pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
@@ -142,7 +194,7 @@ impl<T> AtomicPtr<T> {
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
-        with(|| unsafe { self.p.get().read() })
+        with(|| unsafe { self.v.get().read() })
     }
 
     #[inline]
@@ -157,7 +209,7 @@ impl<T> AtomicPtr<T> {
         // SAFETY: any data races are prevented by disabling interrupts (see
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
-        with(|| unsafe { self.p.get().write(ptr) });
+        with(|| unsafe { self.v.get().write(ptr) });
     }
 
     #[inline]
@@ -188,51 +240,10 @@ impl<T> AtomicPtr<T> {
         // module-level comments) and the raw pointer is valid because we got it
         // from a reference.
         with(|| unsafe {
-            let prev = self.p.get().read();
-            self.p.get().write(ptr);
+            let prev = self.v.get().read();
+            self.v.get().write(ptr);
             prev
         })
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn compare_exchange(
-        &self,
-        current: *mut T,
-        new: *mut T,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<*mut T, *mut T> {
-        crate::utils::assert_compare_exchange_ordering(success, failure);
-        // SAFETY: any data races are prevented by disabling interrupts (see
-        // module-level comments) and the raw pointer is valid because we got it
-        // from a reference.
-        with(|| unsafe {
-            let prev = self.p.get().read();
-            if ptr::eq(prev, current) {
-                self.p.get().write(new);
-                Ok(prev)
-            } else {
-                Err(prev)
-            }
-        })
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn compare_exchange_weak(
-        &self,
-        current: *mut T,
-        new: *mut T,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<*mut T, *mut T> {
-        self.compare_exchange(current, new, success, failure)
-    }
-
-    #[inline]
-    pub(crate) const fn as_ptr(&self) -> *mut *mut T {
-        self.p.get()
     }
 
     #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
@@ -246,57 +257,39 @@ impl<T> AtomicPtr<T> {
 } // items!
 
 macro_rules! atomic_int {
-    (base, $atomic_type:ident, $int_type:ident, $align:literal) => {
-        #[repr(C, align($align))]
-        pub(crate) struct $atomic_type {
-            v: UnsafeCell<$int_type>,
-        }
-
-        // Send is implicitly implemented.
-        // SAFETY: any data races are prevented by disabling interrupts or
-        // atomic intrinsics (see module-level comments).
-        unsafe impl Sync for $atomic_type {}
-
+    (base, $atomic_type:ident, $int_type:ty, $align:literal) => {
+        atomic_base!($atomic_type, $int_type, $align);
         impl $atomic_type {
             #[inline]
-            pub(crate) const fn new(v: $int_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
+            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(!(prev & val));
+                    prev
+                })
             }
-
             #[inline]
-            pub(crate) fn is_lock_free() -> bool {
-                Self::IS_ALWAYS_LOCK_FREE
+            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(prev.wrapping_neg());
+                    prev
+                })
             }
-            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
-
             #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                self.v.get()
+            pub(crate) fn neg(&self, order: Ordering) {
+                self.fetch_neg(order);
             }
         }
     };
-    (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ty, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        atomic_int!(cas[emulate], $atomic_type, $int_type);
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -352,6 +345,55 @@ macro_rules! atomic_int {
             }
         }
 
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        atomic_int!(cas[emulate], $atomic_type, $int_type);
+        // RISC-V RMW with Zaamo extension
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        impl $atomic_type {
+            #[inline]
+            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
+                self.as_native().fetch_and(val, order)
+            }
+            #[inline]
+            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
+                self.as_native().fetch_or(val, order)
+            }
+            #[inline]
+            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
+                self.as_native().fetch_xor(val, order)
+            }
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                self.as_native().fetch_not(order)
+            }
+        }
+
         #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         impl_default_no_fetch_ops!($atomic_type, $int_type);
         impl_default_bit_opts!($atomic_type, $int_type);
@@ -362,6 +404,7 @@ macro_rules! atomic_int {
                 self.fetch_not(order);
             }
         }
+        // MSP430
         #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
         impl $atomic_type {
             #[inline]
@@ -390,7 +433,7 @@ macro_rules! atomic_int {
             }
         }
     };
-    (all_critical_session, $atomic_type:ident, $int_type:ident, $align:literal) => {
+    (all_critical_session, $atomic_type:ident, $int_type:ty, $align:literal) => {
         atomic_int!(base, $atomic_type, $int_type, $align);
         atomic_int!(cas[emulate], $atomic_type, $int_type);
         impl_default_no_fetch_ops!($atomic_type, $int_type);
@@ -405,7 +448,6 @@ macro_rules! atomic_int {
                 // from a reference.
                 with(|| unsafe { self.v.get().read() })
             }
-
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
@@ -415,14 +457,13 @@ macro_rules! atomic_int {
                 // from a reference.
                 with(|| unsafe { self.v.get().write(val) });
             }
-
             #[inline]
             pub(crate) fn not(&self, order: Ordering) {
                 self.fetch_not(order);
             }
         }
     };
-    (cas[emulate], $atomic_type:ident, $int_type:ident) => {
+    (emulate_swap, $atomic_type:ident, $int_type:ty) => {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
@@ -435,43 +476,10 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                crate::utils::assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    if prev == current {
-                        self.v.get().write(new);
-                        Ok(prev)
-                    } else {
-                        Err(prev)
-                    }
-                })
-            }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                self.compare_exchange(current, new, success, failure)
-            }
-
+        }
+    };
+    (emulate_arithmetic, $atomic_type:ident, $int_type:ty) => {
+        impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -483,7 +491,6 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
             #[inline]
             pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -495,7 +502,32 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
+            #[inline]
+            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(core::cmp::max(prev, val));
+                    prev
+                })
+            }
+            #[inline]
+            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
+                // SAFETY: any data races are prevented by disabling interrupts (see
+                // module-level comments) and the raw pointer is valid because we got it
+                // from a reference.
+                with(|| unsafe {
+                    let prev = self.v.get().read();
+                    self.v.get().write(core::cmp::min(prev, val));
+                    prev
+                })
+            }
+        }
+    };
+    (emulate_bit, $atomic_type:ident, $int_type:ty) => {
+        impl $atomic_type {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -507,19 +539,6 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(!(prev & val));
-                    prev
-                })
-            }
-
             #[inline]
             pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -531,7 +550,6 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
             #[inline]
             pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -543,31 +561,6 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::max(prev, val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::min(prev, val));
-                    prev
-                })
-            }
-
             #[inline]
             pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
                 // SAFETY: any data races are prevented by disabling interrupts (see
@@ -579,69 +572,21 @@ macro_rules! atomic_int {
                     prev
                 })
             }
-
-            #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_neg());
-                    prev
-                })
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
-            }
         }
+    };
+    (cas[emulate], $atomic_type:ident, $int_type:ty) => {
+        atomic_int!(emulate_swap, $atomic_type, $int_type);
+        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
+        atomic_int!(emulate_bit, $atomic_type, $int_type);
     };
     // RISC-V 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
     // RISC-V 8-bit/16-bit RMW with Zabha extension
-    (cas, $atomic_type:ident, $int_type:ident) => {
+    (cas, $atomic_type:ident, $int_type:ty) => {
         impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                 self.as_native().swap(val, order)
             }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                crate::utils::assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    if prev == current {
-                        self.v.get().write(new);
-                        Ok(prev)
-                    } else {
-                        Err(prev)
-                    }
-                })
-            }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                self.compare_exchange(current, new, success, failure)
-            }
-
             #[inline]
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                 self.as_native().fetch_add(val, order)
@@ -651,31 +596,6 @@ macro_rules! atomic_int {
                 self.as_native().fetch_sub(val, order)
             }
             #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_and(val, order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(!(prev & val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_or(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_xor(val, order)
-            }
-            #[inline]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 self.as_native().fetch_max(val, order)
             }
@@ -683,177 +603,19 @@ macro_rules! atomic_int {
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 self.as_native().fetch_min(val, order)
             }
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.as_native().fetch_not(order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_neg());
-                    prev
-                })
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
-            }
         }
     };
     // RISC-V 8-bit/16-bit RMW with Zaamo extension
-    (cas[sub_word], $atomic_type:ident, $int_type:ident) => {
+    (cas[sub_word], $atomic_type:ident, $int_type:ty) => {
+        // RISC-V 8-bit/16-bit RMW with Zaamo+Zabha extension
         #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
         atomic_int!(cas, $atomic_type, $int_type);
+
+        // RISC-V 8-bit/16-bit RMW with Zaamo extension
         #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(val);
-                    prev
-                })
-            }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                crate::utils::assert_compare_exchange_ordering(success, failure);
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    if prev == current {
-                        self.v.get().write(new);
-                        Ok(prev)
-                    } else {
-                        Err(prev)
-                    }
-                })
-            }
-
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $int_type,
-                new: $int_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$int_type, $int_type> {
-                self.compare_exchange(current, new, success, failure)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_add(val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_sub(val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_and(val, order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(!(prev & val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_or(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_xor(val, order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::max(prev, val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(core::cmp::min(prev, val));
-                    prev
-                })
-            }
-
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.as_native().fetch_not(order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
-                // SAFETY: any data races are prevented by disabling interrupts (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                with(|| unsafe {
-                    let prev = self.v.get().read();
-                    self.v.get().write(prev.wrapping_neg());
-                    prev
-                })
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
-            }
-        }
+        atomic_int!(emulate_swap, $atomic_type, $int_type);
+        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
+        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
     };
 }
 
