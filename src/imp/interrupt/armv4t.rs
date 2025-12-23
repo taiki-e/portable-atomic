@@ -59,7 +59,7 @@ pub(super) fn disable() -> State {
 pub(super) unsafe fn restore(prev_cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //
-    // This clobbers the control field mask byte of CPSR. See msp430.rs to safety on this.
+    // This clobbers the control field mask byte of CPSR. See msp430.rs for safety on this.
     // (preserves_flags is fine because we can clobber only the I, F, T, and M bits of CPSR.)
     //
     // Refs: https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/msr--general-purpose-register-to-psr-
@@ -84,7 +84,7 @@ pub(super) unsafe fn restore(prev_cpsr: State) {
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "ptr")))
 )]
-pub(crate) mod atomic {
+pub(super) mod atomic {
     #[cfg(not(portable_atomic_no_asm))]
     use core::arch::asm;
     use core::{cell::UnsafeCell, sync::atomic::Ordering};

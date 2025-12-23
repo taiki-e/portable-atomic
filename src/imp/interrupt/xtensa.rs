@@ -28,9 +28,10 @@ pub(super) fn disable() -> State {
     let ps: State;
     // SAFETY: reading the PS special register and disabling all interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
+    //
+    // Interrupt level 15 to disable all interrupts.
+    // SYNC after RSIL is not required.
     unsafe {
-        // Interrupt level 15 to disable all interrupts.
-        // SYNC after RSIL is not required.
         asm!(
             "rsil {ps}, 15", // ps = PS; PS.INTLEVEL = 15
             ps = out(reg) ps,
@@ -50,9 +51,10 @@ pub(super) fn disable() -> State {
 pub(super) unsafe fn restore(prev_ps: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     // and we've checked that interrupts were enabled before disabling interrupts.
+    //
+    // SYNC after WSR is required to guarantee that subsequent RSIL read the written value.
+    // See also 3.8.10 Processor Control Instructions of Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors.
     unsafe {
-        // SYNC after WSR is required to guarantee that subsequent RSIL read the written value.
-        // See also 3.8.10 Processor Control Instructions of Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors.
         asm!(
             "wsr.ps {prev_ps}", // PS = prev_ps
             "rsync",            // wait

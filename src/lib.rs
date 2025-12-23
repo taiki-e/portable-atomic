@@ -489,20 +489,20 @@ compile_error!(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(not(any(
         not(portable_atomic_no_atomic_cas),
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(any(
         target_has_atomic = "ptr",
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 compile_error!(

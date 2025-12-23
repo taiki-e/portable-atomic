@@ -34,8 +34,9 @@ pub(super) fn disable() -> State {
     let sr: State;
     // SAFETY: reading the status register and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
+    //
+    // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
     unsafe {
-        // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
             "mov r2, {sr}", // sr = SR
@@ -62,15 +63,16 @@ pub(super) fn disable() -> State {
 #[inline(always)]
 pub(super) unsafe fn restore(prev_sr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
+    //
+    // This clobbers the entire status register, but we never explicitly modify
+    // flags within a critical session, and the only flags that may be changed
+    // within a critical session are the arithmetic flags that are changed as
+    // a side effect of arithmetic operations, etc., which LLVM recognizes,
+    // so it is safe to clobber them here.
+    // See also the discussion at https://github.com/taiki-e/portable-atomic/pull/40.
+    //
+    // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
     unsafe {
-        // This clobbers the entire status register, but we never explicitly modify
-        // flags within a critical session, and the only flags that may be changed
-        // within a critical session are the arithmetic flags that are changed as
-        // a side effect of arithmetic operations, etc., which LLVM recognizes,
-        // so it is safe to clobber them here.
-        // See also the discussion at https://github.com/taiki-e/portable-atomic/pull/40.
-        //
-        // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
             "nop {{ mov {prev_sr}, r2 {{ nop", // SR = prev_sr

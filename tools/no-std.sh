@@ -338,11 +338,15 @@ EOF
         esac
         # Support for Zabha extension requires LLVM 19+ and QEMU 9.1+.
         # https://github.com/qemu/qemu/commit/be4a8db7f304347395b081ae5848bad2f507d0c4
+        # Old QEMU's Zacas support is also buggy.
         qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version [^ ]+ \(v([^ )]+)\)/\1/p')
         if [[ -z "${qemu_version}" ]]; then
           qemu_version=$(qemu-system-"${arch}" --version | sed -En '1 s/QEMU emulator version ([^ )]+)/\1/p')
         fi
-        if [[ "${llvm_version}" -ge 19 ]] && [[ "${qemu_version}" =~ ^(9\.[^0]|[1-9][0-9]+\.) ]]; then
+        if [[ ! "${qemu_version}" =~ ^(9\.[^0]|[1-9][0-9]+\.) ]]; then
+          subcmd=build
+        fi
+        if [[ "${llvm_version}" -ge 19 ]]; then
           export "CARGO_TARGET_${target_upper}_RUNNER"="qemu-system-${arch} -M virt -cpu max -display none -semihosting -kernel"
           CARGO_TARGET_DIR="${target_dir}/no-std-test-zabha" \
             RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \

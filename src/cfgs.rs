@@ -133,10 +133,10 @@ mod atomic_32_macros {
             feature = "fallback",
             any(
                 not(portable_atomic_no_atomic_cas),
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                feature = "critical-section",
+                portable_atomic_unsafe_assume_single_core,
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -156,10 +156,10 @@ mod atomic_32_macros {
             feature = "fallback",
             any(
                 target_has_atomic = "ptr",
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                feature = "critical-section",
+                portable_atomic_unsafe_assume_single_core,
             ),
         ),
         target_has_atomic = "64",
@@ -192,10 +192,10 @@ mod atomic_64_macros {
             feature = "fallback",
             any(
                 not(portable_atomic_no_atomic_cas),
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                feature = "critical-section",
+                portable_atomic_unsafe_assume_single_core,
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -215,10 +215,10 @@ mod atomic_64_macros {
             feature = "fallback",
             any(
                 target_has_atomic = "ptr",
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
                 target_arch = "avr",
                 target_arch = "msp430",
+                feature = "critical-section",
+                portable_atomic_unsafe_assume_single_core,
             ),
         ),
         target_has_atomic = "64",
@@ -305,20 +305,20 @@ mod atomic_64_macros {
     all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         not(portable_atomic_no_atomic_cas),
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     ))
 )]
 #[cfg_attr(
     all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
     cfg(any(
         target_has_atomic = "ptr",
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     ))
 )]
 #[macro_use]
@@ -394,20 +394,20 @@ mod atomic_128_macros {
     all(feature = "fallback", portable_atomic_no_cfg_target_has_atomic),
     cfg(not(any(
         not(portable_atomic_no_atomic_cas),
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 #[cfg_attr(
     all(feature = "fallback", not(portable_atomic_no_cfg_target_has_atomic)),
     cfg(not(any(
         target_has_atomic = "ptr",
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 #[macro_use]
@@ -428,20 +428,20 @@ mod atomic_128_macros {
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
         not(portable_atomic_no_atomic_cas),
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     ))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
         target_has_atomic = "ptr",
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     ))
 )]
 #[macro_use]
@@ -472,20 +472,20 @@ mod atomic_cas_macros {
     portable_atomic_no_cfg_target_has_atomic,
     cfg(not(any(
         not(portable_atomic_no_atomic_cas),
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(not(any(
         target_has_atomic = "ptr",
-        portable_atomic_unsafe_assume_single_core,
-        feature = "critical-section",
         target_arch = "avr",
         target_arch = "msp430",
+        feature = "critical-section",
+        portable_atomic_unsafe_assume_single_core,
     )))
 )]
 #[macro_use]

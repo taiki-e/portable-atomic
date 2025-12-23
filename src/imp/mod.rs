@@ -4,12 +4,12 @@
 // Lock-free implementations
 
 #[cfg(not(any(
+    target_arch = "avr",
+    target_arch = "msp430",
     all(
         portable_atomic_no_atomic_load_store,
         not(all(target_arch = "bpf", not(feature = "critical-section"))),
     ),
-    target_arch = "avr",
-    target_arch = "msp430",
 )))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -156,18 +156,17 @@ mod atomic128;
 mod fallback;
 
 // -----------------------------------------------------------------------------
-// Critical section based fallback implementations
+// Fallback implementation based on disabling interrupts or critical-section
 
 // On AVR, we always use critical section based fallback implementation.
 // AVR can be safely assumed to be single-core, so this is sound.
 // MSP430 as well.
 // See the module-level comments of interrupt module for more.
 #[cfg(any(
-    all(test, target_os = "none"),
-    portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
     target_arch = "avr",
     target_arch = "msp430",
+    feature = "critical-section",
+    portable_atomic_unsafe_assume_single_core,
 ))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -198,9 +197,9 @@ pub(crate) mod float;
 
 // has CAS | (has core atomic & !(avr | msp430 | critical section)) => core atomic
 #[cfg(not(any(
-    portable_atomic_no_atomic_load_store,
     target_arch = "avr",
     target_arch = "msp430",
+    portable_atomic_no_atomic_load_store,
 )))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -271,10 +270,10 @@ items! {
 
 // no core atomic CAS & (assume single core | critical section) => critical section based fallback
 #[cfg(any(
-    portable_atomic_unsafe_assume_single_core,
-    feature = "critical-section",
     target_arch = "avr",
     target_arch = "msp430",
+    feature = "critical-section",
+    portable_atomic_unsafe_assume_single_core,
 ))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
@@ -308,7 +307,6 @@ items! {
                 target_arch = "riscv32",
                 not(any(miri, portable_atomic_sanitize_thread)),
                 any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                not(portable_atomic_unsafe_assume_single_core),
                 any(
                     target_feature = "zacas",
                     portable_atomic_target_feature = "zacas",

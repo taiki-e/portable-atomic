@@ -51,8 +51,9 @@ pub(super) fn disable() -> State {
 pub(super) unsafe fn restore(prev_primask: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     // and we've checked that interrupts were enabled before disabling interrupts.
+    //
+    // This clobbers the entire PRIMASK register. See msp430.rs for safety on this.
     unsafe {
-        // This clobbers the entire PRIMASK register. See msp430.rs to safety on this.
         asm!(
             "msr PRIMASK, {prev_primask}", // PRIMASK = prev_primask
             prev_primask = in(reg) prev_primask,

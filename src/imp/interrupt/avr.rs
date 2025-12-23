@@ -62,9 +62,10 @@ pub(super) fn disable() -> State {
 /// The state must be the one retrieved by the previous `disable`.
 #[inline(always)]
 pub(super) unsafe fn restore(prev_sreg: State) {
-    // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
+    // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`.
+    //
+    // This clobbers the entire status register. See msp430.rs for safety on this.
     unsafe {
-        // This clobbers the entire status register. See msp430.rs to safety on this.
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
             "out 0x3F, {prev_sreg}", // SREG = prev_sreg

@@ -1,9 +1,12 @@
-# Implementation of disabling interrupts
+# Fallback implementation based on disabling interrupts or critical-section
 
-This module is used to provide atomic CAS for targets where atomic CAS is not available in the standard library.
+This module supports two different critical section implementations:
 
-- On MSP430 and AVR, they are always single-core and has no unprivileged mode, so this module is always used.
-- On Armv6-M (thumbv6m), pre-v6 Arm (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa, they could be multi-core, so this module is used when the `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg) is enabled.
+- Built-in "disable all interrupts".
+  - On MSP430 and AVR, they are always single-core and has no unprivileged mode, so this is enabled by default.
+  - On Armv6-M (thumbv6m), pre-v6 Arm (e.g., thumbv4t, thumbv5te), RISC-V without A-extension, and Xtensa, they could be multi-core or unprivileged mode, so this is enabled when the user explicitly declares that the system is single-core and that privileged instructions are available using `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).
+- Call into the `critical-section` crate (which allows the user to plug any implementation).
+  - This is enabled when the user asks for it with the [`critical-section` feature](../../../README.md#optional-features-critical-section).
 
 The `unsafe-assume-single-core` implementation uses privileged instructions to disable interrupts, so it usually doesn't work on unprivileged mode.
 Enabling this feature in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.

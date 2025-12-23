@@ -15,7 +15,7 @@ pub(crate) mod helper;
 #[path = "../../version.rs"]
 mod version;
 
-use test_helper as _;
+use test_helper as _; // For critical-section test
 
 use super::*;
 

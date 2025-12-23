@@ -1,36 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Critical section based fallback implementations
+Fallback implementation based on disabling interrupts or critical-section
 
-This module supports two different critical section implementations:
-- Built-in "disable all interrupts".
-- Call into the `critical-section` crate (which allows the user to plug any implementation).
+- mod.rs contains critical section based fallback implementations.
+- Each architecture modules contain implementations of disabling interrupts.
 
-The `critical-section`-based fallback is enabled when the user asks for it with the `critical-section`
-Cargo feature.
-
-The "disable interrupts" fallback is not sound on multi-core systems.
-Also, this uses privileged instructions to disable interrupts, so it usually
-doesn't work on unprivileged mode. Using this fallback in an environment where privileged
-instructions are not available is also usually considered **unsound**,
-although the details are system-dependent.
-
-Therefore, this implementation will only be enabled in one of the following cases:
-
-- When the user explicitly declares that the system is single-core and that
-  privileged instructions are available using an unsafe cfg.
-- When we can safely assume that the system is single-core and that
-  privileged instructions are available on the system.
-
-AVR, which is single core[^avr1] and LLVM also generates code that disables
-interrupts [^avr2] in atomic ops by default, is considered the latter.
-MSP430 as well.
-
-See also README.md of this directory.
-
-[^avr1]: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AVR/AVRExpandPseudoInsts.cpp#L1072
-[^avr2]: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/test/CodeGen/AVR/atomics/load16.ll#L5
+See README.md of this directory for details.
 */
 
 // On some platforms, atomic load/store can be implemented in a more efficient
@@ -78,7 +54,7 @@ mod arch;
 
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-// Critical section implementations might use locks internally.
+// critical-section implementations might use locks internally.
 #[cfg(feature = "critical-section")]
 const IS_ALWAYS_LOCK_FREE: bool = false;
 // Consider atomic operations based on disabling interrupts on single-core
@@ -87,6 +63,9 @@ const IS_ALWAYS_LOCK_FREE: bool = false;
 #[cfg(not(feature = "critical-section"))]
 const IS_ALWAYS_LOCK_FREE: bool = true;
 
+// Note: The caller must NOT explicitly modify registers containing fields modified by disable/restore.
+//       (Fields modified as side effects of other operations are covered by the absence of preserves_flags,
+//        so they are fine -- see msp430.rs for more.)
 #[cfg(feature = "critical-section")]
 #[inline]
 fn with<F, R>(f: F) -> R
@@ -101,12 +80,12 @@ fn with<F, R>(f: F) -> R
 where
     F: FnOnce() -> R,
 {
-    // Get current interrupt state and disable interrupts
+    // Get current interrupt state and disable interrupts.
     let state = arch::disable();
 
     let r = f();
 
-    // Restore interrupt state
+    // Restore interrupt state.
     // SAFETY: the state was retrieved by the previous `disable`.
     unsafe { arch::restore(state) }
 
@@ -264,7 +243,7 @@ impl<T> AtomicPtr<T> {
         unsafe { &*(self as *const Self as *const atomic::AtomicPtr<T>) }
     }
 }
-}
+} // items!
 
 macro_rules! atomic_int {
     (base, $atomic_type:ident, $int_type:ident, $align:literal) => {
@@ -941,19 +920,58 @@ items! {
 // Double or more width atomics (require fallback feature for consistency with other situations).
 #[cfg(target_pointer_width = "16")]
 #[cfg(any(test, feature = "fallback"))]
-atomic_int!(all_critical_session, AtomicI32, i32, 4);
-#[cfg(target_pointer_width = "16")]
-#[cfg(any(test, feature = "fallback"))]
-atomic_int!(all_critical_session, AtomicU32, u32, 4);
-#[cfg(any(test, feature = "fallback"))]
+items! {
+    atomic_int!(all_critical_session, AtomicI32, i32, 4);
+    atomic_int!(all_critical_session, AtomicU32, u32, 4);
+}
+#[cfg(any(
+    test,
+    all(
+        feature = "fallback",
+        not(all(
+            target_arch = "riscv32",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(
+                target_feature = "zacas",
+                portable_atomic_target_feature = "zacas",
+                all(
+                    feature = "fallback",
+                    not(portable_atomic_no_outline_atomics),
+                    any(target_os = "linux", target_os = "android"),
+                ),
+            ),
+        )),
+    ),
+))]
 cfg_no_fast_atomic_64! {
     atomic_int!(all_critical_session, AtomicI64, i64, 8);
     atomic_int!(all_critical_session, AtomicU64, u64, 8);
 }
-#[cfg(any(test, feature = "fallback"))]
-atomic_int!(all_critical_session, AtomicI128, i128, 16);
-#[cfg(any(test, feature = "fallback"))]
-atomic_int!(all_critical_session, AtomicU128, u128, 16);
+#[cfg(any(
+    test,
+    all(
+        feature = "fallback",
+        not(all(
+            target_arch = "riscv64",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            any(
+                target_feature = "zacas",
+                portable_atomic_target_feature = "zacas",
+                all(
+                    feature = "fallback",
+                    not(portable_atomic_no_outline_atomics),
+                    any(target_os = "linux", target_os = "android"),
+                ),
+            ),
+        )),
+    ),
+))]
+items! {
+    atomic_int!(all_critical_session, AtomicI128, i128, 16);
+    atomic_int!(all_critical_session, AtomicU128, u128, 16);
+}
 
 #[cfg(test)]
 mod tests {
