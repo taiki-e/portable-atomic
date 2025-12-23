@@ -49,8 +49,8 @@ macro_rules! atomic8 {
                     let out;
                     asm!(
                         "ld {out}, Z", // atomic { out = *Z }
-                        in("Z") src,
                         out = out(reg) out,
+                        in("Z") src,
                         options(nostack, preserves_flags),
                     );
                     out
@@ -67,11 +67,30 @@ macro_rules! atomic8 {
                 unsafe {
                     asm!(
                         "st Z, {val}", // atomic { *Z = val }
-                        in("Z") dst,
                         val = in(reg) val,
+                        in("Z") dst,
                         options(nostack, preserves_flags),
                     );
                 }
+            }
+
+            #[cfg(any(target_feature = "rmw", portable_atomic_target_feature = "rmw"))]
+            #[inline]
+            pub(crate) fn swap(&self, val: $value_type, _order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                let out;
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                // cfg guarantee that the CPU supports RMW instructions.
+                unsafe {
+                    asm!(
+                        "xch Z, {val}", // atomic { _x = *Z; *Z = val; val = _x }
+                        val = inout(reg) val => out,
+                        in("Z") dst,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                out
             }
         }
     };
