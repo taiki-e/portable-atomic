@@ -97,15 +97,24 @@ type and the value type must be the same.
     allow(dead_code)
 )]
 
+// This module requires CAS and this crate only provides atomics up to 128-bit.
+// I don't believe there are any 16-bit multi-core systems with CAS, and
+// at least no such architecture is currently supported in Rust.
+// 128-bit targets that lack atomic usize CAS also do not reach this module.
+#[cfg(target_pointer_width = "16")]
+compile_error!(
+    "internal error: unreachable since atomics for 16-bit targets can always be provided by disable interrupts"
+);
+#[cfg(target_pointer_width = "128")]
+compile_error!(
+    "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
+);
+
 #[macro_use]
 pub(crate) mod utils;
 
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
 // around.
-//
-// In narrow architectures (pointer width <= 16), the counter is still <= 32-bit and may be
-// vulnerable to wrap around. But it's mostly okay, since in such a primitive hardware, the
-// counter will not be increased that fast.
 //
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,

@@ -4,41 +4,45 @@
 
 use core::{
     mem::ManuallyDrop,
-    sync::atomic::{self, AtomicUsize, Ordering},
+    sync::atomic::{self, AtomicU32, Ordering},
 };
 
 use super::utils::Backoff;
 
 // See mod.rs for details.
-pub(super) type AtomicChunk = AtomicUsize;
-pub(super) type Chunk = usize;
+pub(super) type AtomicChunk = AtomicU32;
+pub(super) type Chunk = u32;
+
+pub(super) type State = u32;
+
+const LOCKED: State = 1;
 
 /// A simple stamped lock.
 ///
-/// The state is represented as two `AtomicUsize`: `state_hi` for high bits and `state_lo` for low
+/// The state is represented as two `AtomicU32`: `state_hi` for high bits and `state_lo` for low
 /// bits.
 pub(super) struct SeqLock {
     /// The high bits of the current state of the lock.
-    state_hi: AtomicUsize,
+    state_hi: AtomicU32,
 
     /// The low bits of the current state of the lock.
     ///
     /// All bits except the least significant one hold the current stamp. When locked, the state_lo
     /// equals 1 and doesn't contain a valid stamp.
-    state_lo: AtomicUsize,
+    state_lo: AtomicU32,
 }
 
 impl SeqLock {
     #[inline]
     pub(super) const fn new() -> Self {
-        Self { state_hi: AtomicUsize::new(0), state_lo: AtomicUsize::new(0) }
+        Self { state_hi: AtomicU32::new(0), state_lo: AtomicU32::new(0) }
     }
 
     /// If not locked, returns the current stamp.
     ///
     /// This method should be called before optimistic reads.
     #[inline]
-    pub(super) fn optimistic_read(&self) -> Option<(usize, usize)> {
+    pub(super) fn optimistic_read(&self) -> Option<(State, State)> {
         // The acquire loads from `state_hi` and `state_lo` synchronize with the release stores in
         // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
         //
@@ -47,7 +51,7 @@ impl SeqLock {
         // critical section of (`state_hi`, `state_lo`) happens before now.
         let state_hi = self.state_hi.load(Ordering::Acquire);
         let state_lo = self.state_lo.load(Ordering::Acquire);
-        if state_lo == 1 { None } else { Some((state_hi, state_lo)) }
+        if state_lo == LOCKED { None } else { Some((state_hi, state_lo)) }
     }
 
     /// Returns `true` if the current stamp is equal to `stamp`.
@@ -55,7 +59,7 @@ impl SeqLock {
     /// This method should be called after optimistic reads to check whether they are valid. The
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[inline]
-    pub(super) fn validate_read(&self, stamp: (usize, usize)) -> bool {
+    pub(super) fn validate_read(&self, stamp: (State, State)) -> bool {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
         // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
         // visible.
@@ -83,9 +87,9 @@ impl SeqLock {
     pub(super) fn write(&self) -> SeqLockWriteGuard<'_> {
         let mut backoff = Backoff::new();
         loop {
-            let previous = self.state_lo.swap(1, Ordering::Acquire);
+            let previous = self.state_lo.swap(LOCKED, Ordering::Acquire);
 
-            if previous != 1 {
+            if previous != LOCKED {
                 // To synchronize with the acquire fence in `validate_read` via any modification to
                 // the data at the critical section of `(state_hi, previous)`.
                 atomic::fence(Ordering::Release);
@@ -93,7 +97,7 @@ impl SeqLock {
                 return SeqLockWriteGuard { lock: self, state_lo: previous };
             }
 
-            while self.state_lo.load(Ordering::Relaxed) == 1 {
+            while self.state_lo.load(Ordering::Relaxed) == LOCKED {
                 backoff.snooze();
             }
         }
@@ -107,7 +111,7 @@ pub(super) struct SeqLockWriteGuard<'a> {
     lock: &'a SeqLock,
 
     /// The stamp before locking.
-    state_lo: usize,
+    state_lo: State,
 }
 
 impl SeqLockWriteGuard<'_> {

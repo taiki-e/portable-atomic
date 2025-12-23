@@ -94,7 +94,11 @@ mod atomic128;
 // Lock-based fallback implementations
 
 #[cfg(feature = "fallback")]
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+#[cfg(not(any(
+    target_arch = "avr",
+    target_arch = "msp430",
+    portable_atomic_unsafe_assume_single_core,
+)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 #[cfg(any(
@@ -348,7 +352,11 @@ items! {
 
 // no core (64-bit | 128-bit) atomic & has CAS => use lock-base fallback
 #[cfg(feature = "fallback")]
-#[cfg(not(portable_atomic_unsafe_assume_single_core))]
+#[cfg(not(any(
+    target_arch = "avr",
+    target_arch = "msp430",
+    portable_atomic_unsafe_assume_single_core,
+)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 items! {
