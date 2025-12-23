@@ -610,7 +610,6 @@ const IS_ALWAYS_LOCK_FREE: bool =
 atomic128!(AtomicI128, i128, atomic_max, atomic_min);
 atomic128!(AtomicU128, u128, atomic_umax, atomic_umin);
 
-#[allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 #[cfg(test)]
 mod tests {
     use super::*;
