@@ -213,6 +213,7 @@ atomic_base!([T] AtomicPtr, *mut T, 8);
 #[cfg(target_pointer_width = "128")]
 atomic_base!([T] AtomicPtr, *mut T, 16);
 
+impl_default_bit_opts!(AtomicPtr, usize);
 impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -272,6 +273,187 @@ impl<T> AtomicPtr<T> {
             let guard = disable();
             let prev = self.read(&guard);
             self.write(ptr, &guard);
+            prev
+        }
+    }
+
+    #[inline]
+    pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
+        let _ = order;
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        {
+            self.as_native().fetch_byte_add(val, order)
+        }
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(prev.with_addr(prev.addr().wrapping_add(val)), &guard);
+            prev
+        }
+    }
+
+    #[inline]
+    pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
+        let _ = order;
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        {
+            self.as_native().fetch_byte_sub(val, order)
+        }
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(prev.with_addr(prev.addr().wrapping_sub(val)), &guard);
+            prev
+        }
+    }
+
+    #[cfg(test)]
+    #[inline]
+    fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
+        self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
+    }
+    #[cfg(test)]
+    #[inline]
+    fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
+        self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
+    }
+
+    #[inline]
+    pub(crate) fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
+        let _ = order;
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        {
+            self.as_native().fetch_and(val, order)
+        }
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(prev.with_addr(prev.addr() & val), &guard);
+            prev
+        }
+    }
+
+    #[inline]
+    pub(crate) fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
+        let _ = order;
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        {
+            self.as_native().fetch_or(val, order)
+        }
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(prev.with_addr(prev.addr() | val), &guard);
+            prev
+        }
+    }
+
+    #[inline]
+    pub(crate) fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
+        let _ = order;
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        ))]
+        {
+            self.as_native().fetch_xor(val, order)
+        }
+        #[cfg(not(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(feature = "critical-section"),
+            any(
+                portable_atomic_force_amo,
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+            ),
+        )))]
+        {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            let guard = disable();
+            let prev = self.read(&guard);
+            self.write(prev.with_addr(prev.addr() ^ val), &guard);
             prev
         }
     }
