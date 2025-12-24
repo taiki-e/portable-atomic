@@ -327,6 +327,32 @@ macro_rules! cfg_sel {
     };
 }
 
+// Stable equivalent of core::hint::{likely, unlikely}.
+#[allow(dead_code)]
+#[inline(always)]
+#[cold]
+fn cold_path() {}
+#[allow(dead_code)]
+#[inline(always)]
+pub(crate) fn likely(b: bool) -> bool {
+    if b {
+        true
+    } else {
+        cold_path();
+        false
+    }
+}
+#[allow(dead_code)]
+#[inline(always)]
+pub(crate) fn unlikely(b: bool) -> bool {
+    if b {
+        cold_path();
+        true
+    } else {
+        false
+    }
+}
+
 // Equivalent to core::hint::assert_unchecked, but compatible with pre-1.81 rustc.
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[allow(dead_code)]
