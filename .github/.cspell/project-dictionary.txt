@@ -59,7 +59,6 @@ ILRCPC
 includepath
 insn
 INTLEVEL
-Iotel
 ipxe
 isel
 iseleq

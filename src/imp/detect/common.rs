@@ -188,11 +188,11 @@ flags! {
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/X86/X86.td
 #[cfg(target_arch = "x86_64")]
 flags! {
+    // avx
+    #[cfg(target_feature = "sse")]
+    avx("avx", any(target_feature)),
     // cmpxchg16b
     cmpxchg16b("cmpxchg16b", any(target_feature /* 1.69+ */, portable_atomic_target_feature)),
-    // atomic vmovdqa
-    #[cfg(target_feature = "sse")]
-    vmovdqa_atomic("vmovdqa-atomic", any(/* no corresponding target feature */)),
 }
 
 #[allow(

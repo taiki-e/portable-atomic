@@ -659,6 +659,17 @@ build() {
         CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-no-outline-atomics" \
           RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics" \
           x_cargo "${args[@]}" "$@"
+        # Skip soft-float due to "rustc-LLVM ERROR: Unknown mismatch in getCopyFromParts!" error when setting +avx.
+        if ! grep -Eq '^target_feature="soft-float"' <<<"${cfgs}"; then
+          CARGO_TARGET_DIR="${target_dir}/no-cmpxchg16b-avx" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+avx" \
+            x_cargo "${args[@]}" "$@"
+        fi
+      fi
+      if ! grep -Eq '^target_feature="soft-float"' <<<"${cfgs}"; then
+        CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-avx" \
+          RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b,+avx" \
+          x_cargo "${args[@]}" "$@"
       fi
       ;;
     aarch64* | arm64*)

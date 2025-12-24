@@ -665,6 +665,19 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
+      # x86_64 +cmpxchg16b,+avx
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b,+avx
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b,+avx
+        if: startsWith(matrix.target, 'x86_64')
+      # x86_64 +avx
+      # macOS is skipped because it is +cmpxchg16b by default (+cmpxchg16b,+avx is tested above)
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+avx
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+avx
+        if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
       # aarch64 +lse
       # macOS is skipped because it is +lse,+lse2 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
@@ -1088,9 +1101,15 @@ jobs:
       # x86_64 +cmpxchg16b
       - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
-          # vmovdqa load/store path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
+          # outline-atomics (vmovdqa load/store) path has been tested above, disable outline-atomics and test cmpxchg16b load/store path.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
+        if: startsWith(matrix.target, 'x86_64')
+      # x86_64 +cmpxchg16b,+avx
+      - run: tools/test.sh valgrind -vv ${TARGET:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b,+avx
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b,+avx
         if: startsWith(matrix.target, 'x86_64')
       # On AArch64 linux-gnu, outline-atomics is enabled by default.
       - run: tools/test.sh valgrind -vv ${TARGET:-}
