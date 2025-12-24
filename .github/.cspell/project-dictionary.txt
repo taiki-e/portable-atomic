@@ -210,3 +210,4 @@ zacas
 zalasr
 zalrsc
 Zhaoxin
+zynq

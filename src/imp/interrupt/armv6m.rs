@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
+Arm M-Profile Architectures
+
 Adapted from https://github.com/rust-embedded/cortex-m.
 
 Refs: https://developer.arm.com/documentation/ddi0419/c/System-Level-Architecture/System-Level-Programmers--Model/Registers/The-special-purpose-mask-register--PRIMASK

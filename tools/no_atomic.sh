@@ -42,7 +42,9 @@ no_atomic_64=()
 # `"max-atomic-width" == 0` means that atomic is not supported at all.
 # We always provide lock-free atomic load/store by default for avr, msp430, and riscv
 # regardless of the contents of NO_ATOMIC.
-no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8)) and .value.arch != "msp430") | "    \"" + .key + "\","')
+no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8)) and .value.arch != "msp430") | .key')
+# https://github.com/rust-lang/rust/pull/150138
+no_atomic+=(thumbv6-none-eabi)
 
 # old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do
@@ -70,6 +72,7 @@ done
 IFS=$'\n'
 no_atomic_cas=($(LC_ALL=C sort -u <<<"${no_atomic_cas[*]}" | sed -E 's/^/    "/g; s/$/",/g'))
 no_atomic_64=($(LC_ALL=C sort -u <<<"${no_atomic_64[*]}" | sed -E 's/^/    "/g; s/$/",/g'))
+no_atomic=($(LC_ALL=C sort -u <<<"${no_atomic[*]}" | sed -E 's/^/    "/g; s/$/",/g'))
 IFS=$'\n\t'
 
 cat >|"${file}" <<EOF
@@ -93,6 +96,6 @@ ${no_atomic_64[*]}
 
 #[rustfmt::skip]
 pub(crate) static NO_ATOMIC: &[&str] = &[
-${no_atomic}
+${no_atomic[*]}
 ];
 EOF

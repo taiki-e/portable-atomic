@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
+Arm A-Profile Architectures, Arm M-Profile Architectures, Legacy Arm Architectures
+
 Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-
 
 Generated asm:
@@ -30,7 +32,10 @@ pub(crate) type State = u32;
 
 /// Disables interrupts and returns the previous interrupt state.
 #[inline]
-#[instruction_set(arm::a32)]
+#[cfg_attr(
+    not(any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+    instruction_set(arm::a32)
+)]
 pub(crate) fn disable() -> State {
     let cpsr: State;
     // SAFETY: reading CPSR and disabling interrupts are safe.
@@ -55,7 +60,10 @@ pub(crate) fn disable() -> State {
 ///
 /// The state must be the one retrieved by the previous `disable`.
 #[inline]
-#[instruction_set(arm::a32)]
+#[cfg_attr(
+    not(any(target_feature = "v7", portable_atomic_target_feature = "v7")),
+    instruction_set(arm::a32)
+)]
 pub(crate) unsafe fn restore(prev_cpsr: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`,
     //

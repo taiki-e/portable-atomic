@@ -165,8 +165,8 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 >   Enabling this feature/cfg in an environment where privileged instructions are not available, or if the instructions used are not sufficient to disable interrupts in the system, it is also usually considered **unsound**, although the details are system-dependent.
 >
 >   The following are known cases:
->   - On pre-v6 Arm, this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature (or `portable_atomic_disable_fiq` cfg) together.
->   - On RISC-V without A-extension, this generates code for machine-mode (M-mode) by default. If you enable the `s-mode` feature (or `portable_atomic_s_mode` cfg) together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
+>   - On Arm (except for M-Profile architectures), this disables only IRQs by default. For many systems (e.g., GBA) this is enough. If the system need to disable both IRQs and FIQs, you need to enable the `disable-fiq` feature (or `portable_atomic_disable_fiq` cfg) together.
+>   - On RISC-V, this generates code for machine-mode (M-mode) by default. If you enable the `s-mode` feature (or `portable_atomic_s_mode` cfg) together, this generates code for supervisor-mode (S-mode). In particular, `qemu-system-riscv*` uses [OpenSBI](https://github.com/riscv-software-src/opensbi) as the default firmware.
 
 Consider using the [`unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg)](#optional-features-unsafe-assume-privileged) for multi-core systems with atomic CAS.
 
@@ -179,7 +179,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 >
 >   The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature/cfg. (However, it may make sense to enable this feature/cfg by default for libraries specific to a platform where it is guaranteed to always be sound, for example in a hardware abstraction layer targeting a single-core chip.)
 > - Enabling this feature/cfg for unsupported architectures will result in a compile error.
->   - Arm M-Profile architectures (e.g., thumbv6m), pre-v6 Arm (e.g., thumbv4t, thumbv5te), RISC-V, and Xtensa are currently supported. (Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this feature/cfg.)
+>   - Arm, RISC-V, and Xtensa are currently supported. (Since all MSP430 and AVR are single-core, we always provide atomic CAS for them without this feature/cfg.)
 >   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target is not supported yet.
 > - Enabling this feature/cfg for targets where privileged instructions are obviously unavailable (e.g., Linux) will result in a compile error.
 >   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target supports privileged instructions but the build rejected.
@@ -200,7 +200,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 >   The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature/cfg. (However, it may make sense to enable this feature/cfg by default for libraries specific to a platform where it is guaranteed to always be sound, for example in a hardware abstraction layer.)
 > - Enabling this feature/cfg for unsupported targets will result in a compile error.
 >   - This requires atomic CAS (`cfg(target_has_atomic = "ptr")` or `cfg_no_atomic_cas!`).
->   - Arm M-Profile architectures (e.g., thumbv6m), pre-v6 Arm (e.g., thumbv4t, thumbv5te), RISC-V, and Xtensa are currently supported.
+>   - Arm, RISC-V, and Xtensa are currently supported.
 >   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target is not supported yet.
 > - Enabling this feature/cfg for targets where privileged instructions are obviously unavailable (e.g., Linux) will result in a compile error.
 >   - Feel free to [submit an issue](https://github.com/taiki-e/portable-atomic/issues/new) if your target supports privileged instructions but the build rejected.

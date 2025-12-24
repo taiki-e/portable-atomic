@@ -18,6 +18,11 @@ default_targets=(
   # v5TE
   armv5te-none-eabi
   # thumbv5te-none-eabi # TODO: hang since nightly-2025-12-03
+  # v6
+  armv6-none-eabi
+  # thumbv6-none-eabi # TODO: "rustc-LLVM ERROR: Cannot select: intrinsic %llvm.arm.hint" will be fixed in https://github.com/rust-lang/rust/pull/150138
+  # v7-A
+  armv7a-none-eabi
   # v6-M
   thumbv6m-none-eabi
   # v7-M
@@ -202,7 +207,7 @@ run() {
   local assume_single_core_target_rustflags=''
   local assume_privileged_target_rustflags=''
   case "${target}" in
-    armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
+    armv[4-5]t* | thumbv[4-5]t* | thumbv6-* | thumbv6m* | xtensa-esp32s2-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
     arm* | thumb* | xtensa*)
@@ -225,7 +230,7 @@ run() {
       linker=link.ld
       target_rustflags+=" -C link-arg=-T${linker}"
       ;;
-    armv5te* | thumbv5te*)
+    armv5te* | thumbv5te* | armv6-* | thumbv6-* | armv7a*)
       test_dir=tests/no-std-qemu
       ;;
     thumb* | riscv*)
@@ -318,6 +323,30 @@ EOF
         CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
           RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
           x_cargo "${args[@]}" --release "$@"
+        ;;
+      armv6-* | thumbv6-* | armv7a*)
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core-disable-fiq" \
+          RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} --cfg portable_atomic_disable_fiq" \
+          x_cargo "${args[@]}" "$@"
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core-disable-fiq" \
+          RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} --cfg portable_atomic_disable_fiq" \
+          x_cargo "${args[@]}" --release "$@"
+        case "${target}" in
+          armv7a*)
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core-thumb" \
+              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core-thumb" \
+              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              x_cargo "${args[@]}" --release "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged-thumb" \
+              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged-thumb" \
+              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              x_cargo "${args[@]}" --release "$@"
+            ;;
+        esac
         ;;
       riscv*)
         case "${target}" in

@@ -920,6 +920,14 @@ items!({
             )),
         ),
     ))]
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(test, portable_atomic_no_atomic_64))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(test, not(target_has_atomic = "64")))
+    )]
     cfg_no_fast_atomic_64! {
         atomic_int!(all_critical_session, AtomicI64, i64, 8);
         atomic_int!(all_critical_session, AtomicU64, u64, 8);

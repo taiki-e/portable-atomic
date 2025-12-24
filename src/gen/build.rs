@@ -77,4 +77,5 @@ pub(crate) static NO_ATOMIC: &[&str] = &[
     "mipsel-sony-psx",
     "thumbv4t-none-eabi",
     "thumbv5te-none-eabi",
+    "thumbv6-none-eabi",
 ];

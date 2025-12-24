@@ -61,7 +61,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","zaamo","zabha","zacas"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
         );
     }
 
@@ -349,11 +349,28 @@ fn main() {
                         );
                     }
                 }
-                let v6 = known
-                    && (subarch.starts_with("v6")
-                        || subarch.starts_with("v7")
-                        || subarch.starts_with("v8")
-                        || subarch.starts_with("v9"));
+                let mut v6 = known && subarch.starts_with("v6");
+                let mut v7 = known && subarch.starts_with("v7");
+                let (v8, v8m) = if known && (subarch.starts_with("v8") || subarch.starts_with("v9"))
+                {
+                    // Armv8-M is not considered as v8 by LLVM.
+                    // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
+                    if mclass {
+                        // Armv8-M Mainline is a superset of Armv7-M.
+                        // Armv8-M Baseline is a superset of Armv6-M.
+                        // That said, LLVM handles thumbv8m.main without v8m like v6m, not v7m: https://godbolt.org/z/Ph96v9zae
+                        // TODO: Armv9-M has not yet been released,
+                        // so it is not clear how it will be handled here.
+                        (false, true)
+                    } else {
+                        (true, false)
+                    }
+                } else {
+                    (false, false)
+                };
+                v7 |= v8;
+                v6 |= v8m;
+                v6 |= target_feature_fallback("v7", v7);
                 target_feature_fallback("v6", v6);
                 target_feature_fallback("mclass", mclass);
             }
