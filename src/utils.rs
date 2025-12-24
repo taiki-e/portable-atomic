@@ -283,9 +283,47 @@ macro_rules! impl_default_bit_opts {
 }
 
 // This just outputs the input as is, but can be used like an item-level block by using it with cfg.
+// Note: This macro is items!({ }), not items! { }.
+// An extra brace is used in input to make contents rustfmt-able.
 macro_rules! items {
-    ($($tt:tt)*) => {
+    ({$($tt:tt)*}) => {
         $($tt)*
+    };
+}
+
+// rustfmt-compatible cfg_select/cfg_if alternative
+// Note: This macro is cfg_sel!({ }), not cfg_sel! { }.
+// An extra brace is used in input to make contents rustfmt-able.
+macro_rules! cfg_sel {
+    ({#[cfg(else)] { $($output:tt)* }}) => {
+        $($output)*
+    };
+    ({
+        #[cfg($cfg:meta)]
+        { $($output:tt)* }
+        $($( $rest:tt )+)?
+    }) => {
+        #[cfg($cfg)]
+        cfg_sel! {{#[cfg(else)] { $($output)* }}}
+        $(
+            #[cfg(not($cfg))]
+            cfg_sel! {{ $($rest)+ }}
+        )?
+    };
+    ({
+        #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg($cfg1:meta))]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg($cfg2:meta))]
+        { $($output:tt)* }
+        $($( $rest:tt )+)?
+    }) => {
+        #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg($cfg1))]
+        #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg($cfg2))]
+        cfg_sel! {{#[cfg(else)] { $($output)* }}}
+        $(
+            #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not($cfg1)))]
+            #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not($cfg2)))]
+            cfg_sel! {{ $($rest)+ }}
+        )?
     };
 }
 
@@ -625,40 +663,31 @@ pub(crate) mod ffi {
     pub(crate) type c_size_t = usize;
     // c_char is u8 by default on non-Apple/non-Windows/non-Vita Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
     // See references in https://github.com/rust-lang/rust/issues/129945 for details.
-    #[cfg(all(
-        not(any(target_vendor = "apple", windows, target_os = "vita")),
-        any(
-            target_arch = "aarch64",
-            target_arch = "arm",
-            target_arch = "csky",
-            target_arch = "hexagon",
-            target_arch = "msp430",
-            target_arch = "powerpc",
-            target_arch = "powerpc64",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "xtensa",
-        ),
-    ))]
-    pub(crate) type c_char = u8;
-    #[cfg(not(all(
-        not(any(target_vendor = "apple", windows, target_os = "vita")),
-        any(
-            target_arch = "aarch64",
-            target_arch = "arm",
-            target_arch = "csky",
-            target_arch = "hexagon",
-            target_arch = "msp430",
-            target_arch = "powerpc",
-            target_arch = "powerpc64",
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "s390x",
-            target_arch = "xtensa",
-        ),
-    )))]
-    pub(crate) type c_char = i8;
+    cfg_sel!({
+        #[cfg(all(
+            not(any(target_vendor = "apple", windows, target_os = "vita")),
+            any(
+                target_arch = "aarch64",
+                target_arch = "arm",
+                target_arch = "csky",
+                target_arch = "hexagon",
+                target_arch = "msp430",
+                target_arch = "powerpc",
+                target_arch = "powerpc64",
+                target_arch = "riscv32",
+                target_arch = "riscv64",
+                target_arch = "s390x",
+                target_arch = "xtensa",
+            ),
+        ))]
+        {
+            pub(crate) type c_char = u8;
+        }
+        #[cfg(else)]
+        {
+            pub(crate) type c_char = i8;
+        }
+    });
 
     // Static assertions for C type definitions.
     #[cfg(test)]

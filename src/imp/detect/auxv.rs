@@ -280,52 +280,41 @@ mod os {
 
     pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
     pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
-        #[cfg(any(
-            all(
-                target_os = "linux",
-                any(
-                    all(
-                        target_env = "gnu",
-                        any(
-                            target_arch = "aarch64",
-                            all(target_arch = "powerpc64", target_endian = "little"),
+        cfg_sel!({
+            #[cfg(any(
+                all(
+                    target_os = "linux",
+                    any(
+                        all(
+                            target_env = "gnu",
+                            any(
+                                target_arch = "aarch64",
+                                all(target_arch = "powerpc64", target_endian = "little"),
+                            ),
                         ),
+                        target_env = "musl",
+                        target_env = "ohos",
                     ),
-                    target_env = "musl",
-                    target_env = "ohos",
                 ),
-            ),
-            all(target_os = "android", target_pointer_width = "64"),
-            portable_atomic_outline_atomics,
-        ))]
-        let getauxval: GetauxvalTy = ffi::getauxval;
-        #[cfg(not(any(
-            all(
-                target_os = "linux",
-                any(
-                    all(
-                        target_env = "gnu",
-                        any(
-                            target_arch = "aarch64",
-                            all(target_arch = "powerpc64", target_endian = "little"),
-                        ),
-                    ),
-                    target_env = "musl",
-                    target_env = "ohos",
-                ),
-            ),
-            all(target_os = "android", target_pointer_width = "64"),
-            portable_atomic_outline_atomics,
-        )))]
-        // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
-        // is a valid pointer to the function if it is non-null.
-        let getauxval: GetauxvalTy = unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
-            if ptr.is_null() {
-                return 0;
+                all(target_os = "android", target_pointer_width = "64"),
+                portable_atomic_outline_atomics,
+            ))]
+            {
+                let getauxval: GetauxvalTy = ffi::getauxval;
             }
-            core::mem::transmute::<*mut ffi::c_void, GetauxvalTy>(ptr)
-        };
+            #[cfg(else)]
+            {
+                // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
+                // is a valid pointer to the function if it is non-null.
+                let getauxval: GetauxvalTy = unsafe {
+                    let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
+                    if ptr.is_null() {
+                        return 0;
+                    }
+                    core::mem::transmute::<*mut ffi::c_void, GetauxvalTy>(ptr)
+                };
+            }
+        });
 
         // SAFETY: `getauxval` is thread-safe.
         unsafe { getauxval(type_) }
@@ -447,36 +436,33 @@ mod os {
         #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
         const OUT_LEN: ffi::c_int = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
 
-        #[cfg(any(
-            all(
-                target_os = "freebsd",
-                any(
-                    target_arch = "aarch64",
-                    all(target_arch = "powerpc64", target_endian = "little"),
+        cfg_sel!({
+            #[cfg(any(
+                all(
+                    target_os = "freebsd",
+                    any(
+                        target_arch = "aarch64",
+                        all(target_arch = "powerpc64", target_endian = "little"),
+                    ),
                 ),
-            ),
-            portable_atomic_outline_atomics,
-        ))]
-        let elf_aux_info: ElfAuxInfoTy = ffi::elf_aux_info;
-        #[cfg(not(any(
-            all(
-                target_os = "freebsd",
-                any(
-                    target_arch = "aarch64",
-                    all(target_arch = "powerpc64", target_endian = "little"),
-                ),
-            ),
-            portable_atomic_outline_atomics,
-        )))]
-        // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
-        // is a valid pointer to the function if it is non-null.
-        let elf_aux_info: ElfAuxInfoTy = unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
-            if ptr.is_null() {
-                return 0;
+                portable_atomic_outline_atomics,
+            ))]
+            {
+                let elf_aux_info: ElfAuxInfoTy = ffi::elf_aux_info;
             }
-            mem::transmute::<*mut ffi::c_void, ElfAuxInfoTy>(ptr)
-        };
+            #[cfg(else)]
+            {
+                // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
+                // is a valid pointer to the function if it is non-null.
+                let elf_aux_info: ElfAuxInfoTy = unsafe {
+                    let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
+                    if ptr.is_null() {
+                        return 0;
+                    }
+                    mem::transmute::<*mut ffi::c_void, ElfAuxInfoTy>(ptr)
+                };
+            }
+        });
 
         let mut out: ffi::c_ulong = 0;
         // SAFETY:

@@ -9,28 +9,6 @@ Fallback implementation based on disabling interrupts or critical-section
 See README.md of this directory for details.
 */
 
-// On some platforms, atomic load/store can be implemented in a more efficient
-// way than disabling interrupts. On MSP430, some RMWs that do not return the
-// previous value can also be optimized.
-//
-// Note: On single-core systems, it is okay to use critical session-based
-// CAS together with atomic load/store. The load/store will not be
-// called while interrupts are disabled, and since the load/store is
-// atomic, it is not affected by interrupts even if interrupts are enabled.
-#[cfg(not(any(
-    all(target_arch = "avr", portable_atomic_no_asm),
-    feature = "critical-section",
-)))]
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(test, portable_atomic_no_atomic_cas))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "ptr")))
-)]
-use self::arch::atomic;
-
 #[cfg(not(feature = "critical-section"))]
 #[cfg_attr(
     all(
@@ -60,27 +38,27 @@ pub(super) mod arch;
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(test, not(target_has_atomic = "ptr"), portable_atomic_unsafe_assume_single_core))
 )]
-items! {
-use core::{cell::UnsafeCell, sync::atomic::Ordering};
+items!({
+    use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
-// critical-section implementations might use locks internally.
-#[cfg(feature = "critical-section")]
-const IS_ALWAYS_LOCK_FREE: bool = false;
-// Consider atomic operations based on disabling interrupts on single-core
-// systems are lock-free. (We consider the pre-v6 Arm Linux's atomic operations
-// provided in a similar way by the Linux kernel to be lock-free.)
-#[cfg(not(feature = "critical-section"))]
-const IS_ALWAYS_LOCK_FREE: bool = true;
+    // critical-section implementations might use locks internally.
+    #[cfg(feature = "critical-section")]
+    const IS_ALWAYS_LOCK_FREE: bool = false;
+    // Consider atomic operations based on disabling interrupts on single-core
+    // systems are lock-free. (We consider the pre-v6 Arm Linux's atomic operations
+    // provided in a similar way by the Linux kernel to be lock-free.)
+    #[cfg(not(feature = "critical-section"))]
+    const IS_ALWAYS_LOCK_FREE: bool = true;
 
-// Put this in its own module to prevent guard creation.
-use self::guard::disable;
-mod guard {
-    // Note: The caller must NOT explicitly modify registers containing fields modified by disable/restore.
-    //       (Fields modified as side effects of other operations are covered by the absence of preserves_flags,
-    //        so they are fine -- see msp430.rs for more.)
-    #[inline(always)]
-    pub(super) fn disable() -> Guard {
-        Guard {
+    // Put this in its own module to prevent guard creation.
+    use self::guard::disable;
+    mod guard {
+        // Note: The caller must NOT explicitly modify registers containing fields modified by disable/restore.
+        //       (Fields modified as side effects of other operations are covered by the absence of preserves_flags,
+        //        so they are fine -- see msp430.rs for more.)
+        #[inline(always)]
+        pub(super) fn disable() -> Guard {
+            Guard {
             #[cfg(feature = "critical-section")]
             // SAFETY: the state will be restored in the subsequent `release`.
             state: unsafe { critical_section::acquire() },
@@ -88,832 +66,889 @@ mod guard {
             // Get current interrupt state and disable interrupts.
             state: super::arch::disable(),
         }
-    }
-    pub(super) struct Guard {
-        #[cfg(feature = "critical-section")]
-        state: critical_section::RestoreState,
-        #[cfg(not(feature = "critical-section"))]
-        state: super::arch::State,
-    }
-    impl Drop for Guard {
-        #[inline(always)]
-        fn drop(&mut self) {
+        }
+        pub(super) struct Guard {
             #[cfg(feature = "critical-section")]
-            // SAFETY: the state was retrieved by the previous `acquire`.
-            unsafe {
-                critical_section::release(self.state);
-            }
+            state: critical_section::RestoreState,
             #[cfg(not(feature = "critical-section"))]
-            // Restore interrupt state.
-            // SAFETY: the state was retrieved by the previous `disable`.
-            unsafe {
-                super::arch::restore(self.state);
+            state: super::arch::State,
+        }
+        impl Drop for Guard {
+            #[inline(always)]
+            fn drop(&mut self) {
+                #[cfg(feature = "critical-section")]
+                // SAFETY: the state was retrieved by the previous `acquire`.
+                unsafe {
+                    critical_section::release(self.state);
+                }
+                #[cfg(not(feature = "critical-section"))]
+                // Restore interrupt state.
+                // SAFETY: the state was retrieved by the previous `disable`.
+                unsafe {
+                    super::arch::restore(self.state);
+                }
             }
         }
     }
-}
 
-macro_rules! atomic_base {
-    ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $align:literal) => {
-        #[repr(C, align($align))]
-        pub(crate) struct $atomic_type $(<$($generics)*>)? {
-            v: UnsafeCell<$value_type>,
-        }
-
-        // Send is implicitly implemented for atomic integers, but not for atomic pointers.
-        // SAFETY: any data races are prevented by disabling interrupts (or
-        // atomic intrinsics) or critical-section (see module-level comments).
-        unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
-        // SAFETY: any data races are prevented by disabling interrupts (or
-        // atomic intrinsics) or critical-section (see module-level comments).
-        unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
-
-        impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
-            #[inline]
-            pub(crate) const fn new(v: $value_type) -> Self {
-                Self { v: UnsafeCell::new(v) }
+    macro_rules! atomic_base {
+        ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $align:literal) => {
+            #[repr(C, align($align))]
+            pub(crate) struct $atomic_type $(<$($generics)*>)? {
+                v: UnsafeCell<$value_type>,
             }
 
-            #[inline]
-            pub(crate) fn is_lock_free() -> bool {
-                Self::IS_ALWAYS_LOCK_FREE
-            }
-            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
+            // Send is implicitly implemented for atomic integers, but not for atomic pointers.
+            // SAFETY: any data races are prevented by disabling interrupts (or
+            // atomic intrinsics) or critical-section (see module-level comments).
+            unsafe impl $(<$($generics)*>)? Send for $atomic_type $(<$($generics)*>)? {}
+            // SAFETY: any data races are prevented by disabling interrupts (or
+            // atomic intrinsics) or critical-section (see module-level comments).
+            unsafe impl $(<$($generics)*>)? Sync for $atomic_type $(<$($generics)*>)? {}
 
-            #[inline]
-            fn read(&self, _guard: &guard::Guard) -> $value_type {
-                // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                unsafe { self.v.get().read() }
-            }
-            #[inline]
-            fn write(&self, val: $value_type, _guard: &guard::Guard) {
-                // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
-                // module-level comments) and the raw pointer is valid because we got it
-                // from a reference.
-                unsafe { self.v.get().write(val) }
-            }
+            impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+                #[inline]
+                pub(crate) const fn new(v: $value_type) -> Self {
+                    Self { v: UnsafeCell::new(v) }
+                }
 
+                #[inline]
+                pub(crate) fn is_lock_free() -> bool {
+                    Self::IS_ALWAYS_LOCK_FREE
+                }
+                pub(crate) const IS_ALWAYS_LOCK_FREE: bool = IS_ALWAYS_LOCK_FREE;
+
+                #[inline]
+                fn read(&self, _guard: &guard::Guard) -> $value_type {
+                    // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
+                    unsafe { self.v.get().read() }
+                }
+                #[inline]
+                fn write(&self, val: $value_type, _guard: &guard::Guard) {
+                    // SAFETY: any data races are prevented by disabling interrupts or critical-section (see
+                    // module-level comments) and the raw pointer is valid because we got it
+                    // from a reference.
+                    unsafe { self.v.get().write(val) }
+                }
+
+                // As for CAS, there is no corresponding atomic operation on all architectures that use this code.
+                // (If the CAS instruction exists, all atomic operations can be implemented by it, so this code will not be used.)
+                #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
+                pub(crate) fn compare_exchange(
+                    &self,
+                    current: $value_type,
+                    new: $value_type,
+                    success: Ordering,
+                    failure: Ordering,
+                ) -> Result<$value_type, $value_type> {
+                    crate::utils::assert_compare_exchange_ordering(success, failure);
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    if prev == current {
+                        self.write(new, &guard);
+                        Ok(prev)
+                    } else {
+                        Err(prev)
+                    }
+                }
+                #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
+                pub(crate) fn compare_exchange_weak(
+                    &self,
+                    current: $value_type,
+                    new: $value_type,
+                    success: Ordering,
+                    failure: Ordering,
+                ) -> Result<$value_type, $value_type> {
+                    self.compare_exchange(current, new, success, failure)
+                }
+
+                #[inline]
+                pub(crate) const fn as_ptr(&self) -> *mut $value_type {
+                    self.v.get()
+                }
+            }
+        };
+    }
+
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            test,
+            target_arch = "avr",
+            target_arch = "msp430",
+            portable_atomic_no_atomic_cas
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            test,
+            target_arch = "avr",
+            target_arch = "msp430",
+            not(target_has_atomic = "ptr")
+        ))
+    )]
+    items!({
+        #[cfg(target_pointer_width = "16")]
+        atomic_base!([T] AtomicPtr, *mut T, 2);
+        #[cfg(target_pointer_width = "32")]
+        atomic_base!([T] AtomicPtr, *mut T, 4);
+        #[cfg(target_pointer_width = "64")]
+        atomic_base!([T] AtomicPtr, *mut T, 8);
+        #[cfg(target_pointer_width = "128")]
+        atomic_base!([T] AtomicPtr, *mut T, 16);
+
+        impl_default_bit_opts!(AtomicPtr, usize);
+        impl<T> AtomicPtr<T> {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange(
-                &self,
-                current: $value_type,
-                new: $value_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$value_type, $value_type> {
-                crate::utils::assert_compare_exchange_ordering(success, failure);
-                let guard = disable();
-                let prev = self.read(&guard);
-                if prev == current {
-                    self.write(new, &guard);
-                    Ok(prev)
-                } else {
-                    Err(prev)
+            pub(crate) fn load(&self, order: Ordering) -> *mut T {
+                crate::utils::assert_load_ordering(order);
+                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                {
+                    self.as_native().load(order)
+                }
+                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                {
+                    let guard = disable();
+                    self.read(&guard)
                 }
             }
 
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn compare_exchange_weak(
-                &self,
-                current: $value_type,
-                new: $value_type,
-                success: Ordering,
-                failure: Ordering,
-            ) -> Result<$value_type, $value_type> {
-                self.compare_exchange(current, new, success, failure)
-            }
-
-            #[inline]
-            pub(crate) const fn as_ptr(&self) -> *mut $value_type {
-                self.v.get()
-            }
-        }
-    };
-}
-
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(test, target_arch = "avr", target_arch = "msp430", portable_atomic_no_atomic_cas))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, target_arch = "avr", target_arch = "msp430", not(target_has_atomic = "ptr")))
-)]
-items! {
-#[cfg(target_pointer_width = "16")]
-atomic_base!([T] AtomicPtr, *mut T, 2);
-#[cfg(target_pointer_width = "32")]
-atomic_base!([T] AtomicPtr, *mut T, 4);
-#[cfg(target_pointer_width = "64")]
-atomic_base!([T] AtomicPtr, *mut T, 8);
-#[cfg(target_pointer_width = "128")]
-atomic_base!([T] AtomicPtr, *mut T, 16);
-
-impl_default_bit_opts!(AtomicPtr, usize);
-impl<T> AtomicPtr<T> {
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn load(&self, order: Ordering) -> *mut T {
-        crate::utils::assert_load_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        {
-            self.as_native().load(order)
-        }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        {
-            let guard = disable();
-            self.read(&guard)
-        }
-    }
-
-    #[inline]
-    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-    pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
-        crate::utils::assert_store_ordering(order);
-        #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-        {
-            self.as_native().store(ptr, order);
-        }
-        #[cfg(any(target_arch = "avr", feature = "critical-section"))]
-        {
-            let guard = disable();
-            self.write(ptr, &guard);
-        }
-    }
-
-    #[inline]
-    pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().swap(ptr, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(ptr, &guard);
-            prev
-        }
-    }
-
-    #[inline]
-    pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().fetch_byte_add(val, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(prev.with_addr(prev.addr().wrapping_add(val)), &guard);
-            prev
-        }
-    }
-
-    #[inline]
-    pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().fetch_byte_sub(val, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(prev.with_addr(prev.addr().wrapping_sub(val)), &guard);
-            prev
-        }
-    }
-
-    #[cfg(test)]
-    #[inline]
-    fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
-        self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
-    }
-    #[cfg(test)]
-    #[inline]
-    fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
-        self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
-    }
-
-    #[inline]
-    pub(crate) fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().fetch_and(val, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(prev.with_addr(prev.addr() & val), &guard);
-            prev
-        }
-    }
-
-    #[inline]
-    pub(crate) fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().fetch_or(val, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(prev.with_addr(prev.addr() | val), &guard);
-            prev
-        }
-    }
-
-    #[inline]
-    pub(crate) fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
-        let _ = order;
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        {
-            self.as_native().fetch_xor(val, order)
-        }
-        #[cfg(not(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        )))]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            let guard = disable();
-            let prev = self.read(&guard);
-            self.write(prev.with_addr(prev.addr() ^ val), &guard);
-            prev
-        }
-    }
-
-    #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
-    #[inline(always)]
-    fn as_native(&self) -> &atomic::AtomicPtr<T> {
-        // SAFETY: AtomicPtr and atomic::AtomicPtr have the same layout and
-        // guarantee atomicity in a compatible way. (see module-level comments)
-        unsafe { &*(self as *const Self as *const atomic::AtomicPtr<T>) }
-    }
-}
-} // items!
-
-macro_rules! atomic_int {
-    (base, $atomic_type:ident, $int_type:ty, $align:literal) => {
-        atomic_base!($atomic_type, $int_type, $align);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(!(prev & val), &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev.wrapping_neg(), &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn neg(&self, order: Ordering) {
-                self.fetch_neg(order);
-            }
-        }
-    };
-    (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ty, $align:literal) => {
-        atomic_int!(base, $atomic_type, $int_type, $align);
-
-        #[cfg(any(
-            all(target_arch = "avr", portable_atomic_no_asm),
-            feature = "critical-section",
-        ))]
-        atomic_int!(emulate_load_store, $atomic_type, $int_type);
-        #[cfg(not(any(
-            all(target_arch = "avr", portable_atomic_no_asm),
-            feature = "critical-section",
-        )))]
-        impl $atomic_type {
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                crate::utils::assert_load_ordering(order);
-                self.as_native().load(order)
-            }
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn store(&self, val: $int_type, order: Ordering) {
+            pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                self.as_native().store(val, order);
+                #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
+                {
+                    self.as_native().store(ptr, order);
+                }
+                #[cfg(any(target_arch = "avr", feature = "critical-section"))]
+                {
+                    let guard = disable();
+                    self.write(ptr, &guard);
+                }
             }
+
+            #[inline]
+            pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().swap(ptr, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(ptr, &guard);
+                    prev
+                }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().fetch_byte_add(val, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    #[cfg(portable_atomic_no_strict_provenance)]
+                    use crate::utils::ptr::PtrExt as _;
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.with_addr(prev.addr().wrapping_add(val)), &guard);
+                    prev
+                }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().fetch_byte_sub(val, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    #[cfg(portable_atomic_no_strict_provenance)]
+                    use crate::utils::ptr::PtrExt as _;
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.with_addr(prev.addr().wrapping_sub(val)), &guard);
+                    prev
+                }
+            }
+
+            #[cfg(test)]
+            #[inline]
+            fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
+                self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
+            }
+            #[cfg(test)]
+            #[inline]
+            fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
+                self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
+            }
+
+            #[inline]
+            pub(crate) fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().fetch_and(val, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    #[cfg(portable_atomic_no_strict_provenance)]
+                    use crate::utils::ptr::PtrExt as _;
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.with_addr(prev.addr() & val), &guard);
+                    prev
+                }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().fetch_or(val, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    #[cfg(portable_atomic_no_strict_provenance)]
+                    use crate::utils::ptr::PtrExt as _;
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.with_addr(prev.addr() | val), &guard);
+                    prev
+                }
+            }
+
+            #[inline]
+            pub(crate) fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
+                let _ = order;
+                #[cfg(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                ))]
+                {
+                    self.as_native().fetch_xor(val, order)
+                }
+                #[cfg(not(all(
+                    any(target_arch = "riscv32", target_arch = "riscv64"),
+                    not(feature = "critical-section"),
+                    any(
+                        portable_atomic_force_amo,
+                        target_feature = "zaamo",
+                        portable_atomic_target_feature = "zaamo",
+                    ),
+                )))]
+                {
+                    #[cfg(portable_atomic_no_strict_provenance)]
+                    use crate::utils::ptr::PtrExt as _;
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.with_addr(prev.addr() ^ val), &guard);
+                    prev
+                }
+            }
+
+            #[cfg(not(any(target_arch = "avr", feature = "critical-section")))]
             #[inline(always)]
-            fn as_native(&self) -> &atomic::$atomic_type {
-                // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
+            fn as_native(&self) -> &atomic::AtomicPtr<T> {
+                // SAFETY: AtomicPtr and atomic::AtomicPtr have the same layout and
                 // guarantee atomicity in a compatible way. (see module-level comments)
-                unsafe { &*(self as *const Self as *const atomic::$atomic_type) }
+                unsafe { &*(self as *const Self as *const atomic::AtomicPtr<T>) }
             }
         }
+    });
 
-        #[cfg(not(any(
-            all(
-                target_arch = "avr",
-                not(portable_atomic_no_asm),
-                not(feature = "critical-section"),
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-            ),
-            all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
-                not(feature = "critical-section"),
-                any(
-                    portable_atomic_force_amo,
-                    target_feature = "zaamo",
-                    portable_atomic_target_feature = "zaamo",
-                ),
-            ),
-        )))]
-        atomic_int!(cas[emulate], $atomic_type, $int_type);
-        // AVR 8-bit RMW with RMW instructions
-        // RISC-V RMW with Zaamo extension
-        #[cfg(any(
-            all(
-                target_arch = "avr",
-                not(portable_atomic_no_asm),
-                not(feature = "critical-section"),
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-            ),
-            all(
-                any(target_arch = "riscv32", target_arch = "riscv64"),
-                not(feature = "critical-section"),
-                any(
-                    portable_atomic_force_amo,
-                    target_feature = "zaamo",
-                    portable_atomic_target_feature = "zaamo",
-                ),
-            ),
-        ))]
-        atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
-        #[cfg(all(
-            any(target_arch = "riscv32", target_arch = "riscv64"),
-            not(feature = "critical-section"),
-            any(
-                portable_atomic_force_amo,
-                target_feature = "zaamo",
-                portable_atomic_target_feature = "zaamo",
-            ),
-        ))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_and(val, order)
+    macro_rules! atomic_int {
+        (base, $atomic_type:ident, $int_type:ty, $align:literal) => {
+            atomic_base!($atomic_type, $int_type, $align);
+            // As for nand and neg, there is no corresponding atomic operation on all architectures that use this code.
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(!(prev & val), &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.wrapping_neg(), &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn neg(&self, order: Ordering) {
+                    self.fetch_neg(order);
+                }
             }
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_or(val, order)
+        };
+        (load_store_atomic $([$kind:ident])?, $atomic_type:ident, $int_type:ty, $align:literal) => {
+            cfg_sel!({
+                #[cfg(feature = "critical-section")]
+                {
+                    atomic_int!(all_critical_session, $atomic_type, $int_type, $align);
+                }
+                #[cfg(else)]
+                {
+                    atomic_int!(base, $atomic_type, $int_type, $align);
+                    impl_default_bit_opts!($atomic_type, $int_type);
+                    // load/store
+                    cfg_sel!({
+                        // AVR with very old rustc
+                        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
+                        {
+                            atomic_int!(emulate_load_store, $atomic_type, $int_type);
+                        }
+                        #[cfg(else)]
+                        {
+                            impl $atomic_type {
+                                #[inline]
+                                #[cfg_attr(
+                                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                                    track_caller
+                                )]
+                                pub(crate) fn load(&self, order: Ordering) -> $int_type {
+                                    crate::utils::assert_load_ordering(order);
+                                    self.as_native().load(order)
+                                }
+                                #[inline]
+                                #[cfg_attr(
+                                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                                    track_caller
+                                )]
+                                pub(crate) fn store(&self, val: $int_type, order: Ordering) {
+                                    crate::utils::assert_store_ordering(order);
+                                    self.as_native().store(val, order);
+                                }
+                                #[inline(always)]
+                                fn as_native(&self) -> &atomic::$atomic_type {
+                                    // SAFETY: $atomic_type and atomic::$atomic_type have the same layout and
+                                    // guarantee atomicity in a compatible way. (see module-level comments)
+                                    unsafe {
+                                        &*(self as *const Self as *const atomic::$atomic_type)
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    // RMW
+                    cfg_sel!({
+                        // AVR 8-bit RMW with RMW instructions
+                        #[cfg(all(
+                            target_arch = "avr",
+                            not(portable_atomic_no_asm),
+                            any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                        ))]
+                        {
+                            atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
+                            atomic_int!(emulate_bit, $atomic_type, $int_type);
+                            impl $atomic_type {
+                                #[inline]
+                                pub(crate) fn swap(
+                                    &self,
+                                    val: $int_type,
+                                    order: Ordering,
+                                ) -> $int_type {
+                                    self.as_native().swap(val, order)
+                                }
+                            }
+                        }
+                        // RISC-V RMW with Zaamo extension
+                        #[cfg(all(
+                            any(target_arch = "riscv32", target_arch = "riscv64"),
+                            any(
+                                portable_atomic_force_amo,
+                                target_feature = "zaamo",
+                                portable_atomic_target_feature = "zaamo",
+                            ),
+                        ))]
+                        {
+                            atomic_int!(cas $([$kind])?, $atomic_type, $int_type);
+                            impl $atomic_type {
+                                #[inline]
+                                pub(crate) fn fetch_and(
+                                    &self,
+                                    val: $int_type,
+                                    order: Ordering,
+                                ) -> $int_type {
+                                    self.as_native().fetch_and(val, order)
+                                }
+                                #[inline]
+                                pub(crate) fn fetch_or(
+                                    &self,
+                                    val: $int_type,
+                                    order: Ordering,
+                                ) -> $int_type {
+                                    self.as_native().fetch_or(val, order)
+                                }
+                                #[inline]
+                                pub(crate) fn fetch_xor(
+                                    &self,
+                                    val: $int_type,
+                                    order: Ordering,
+                                ) -> $int_type {
+                                    self.as_native().fetch_xor(val, order)
+                                }
+                                #[inline]
+                                pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                                    self.as_native().fetch_not(order)
+                                }
+                            }
+                        }
+                        #[cfg(else)]
+                        {
+                            atomic_int!(cas[emulate], $atomic_type, $int_type);
+                        }
+                    });
+                    // RMW (no-fetch)
+                    cfg_sel!({
+                        // MSP430
+                        #[cfg(target_arch = "msp430")]
+                        {
+                            impl $atomic_type {
+                                #[inline]
+                                pub(crate) fn add(&self, val: $int_type, order: Ordering) {
+                                    self.as_native().add(val, order);
+                                }
+                                #[inline]
+                                pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
+                                    self.as_native().sub(val, order);
+                                }
+                                #[inline]
+                                pub(crate) fn and(&self, val: $int_type, order: Ordering) {
+                                    self.as_native().and(val, order);
+                                }
+                                #[inline]
+                                pub(crate) fn or(&self, val: $int_type, order: Ordering) {
+                                    self.as_native().or(val, order);
+                                }
+                                #[inline]
+                                pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
+                                    self.as_native().xor(val, order);
+                                }
+                                #[inline]
+                                pub(crate) fn not(&self, order: Ordering) {
+                                    self.as_native().not(order);
+                                }
+                            }
+                        }
+                        #[cfg(else)]
+                        {
+                            impl_default_no_fetch_ops!($atomic_type, $int_type);
+                            impl $atomic_type {
+                                #[inline]
+                                pub(crate) fn not(&self, order: Ordering) {
+                                    self.fetch_not(order);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        };
+        (all_critical_session, $atomic_type:ident, $int_type:ty, $align:literal) => {
+            atomic_int!(base, $atomic_type, $int_type, $align);
+            atomic_int!(emulate_load_store, $atomic_type, $int_type);
+            atomic_int!(cas[emulate], $atomic_type, $int_type);
+            impl_default_no_fetch_ops!($atomic_type, $int_type);
+            impl_default_bit_opts!($atomic_type, $int_type);
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn not(&self, order: Ordering) {
+                    self.fetch_not(order);
+                }
             }
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_xor(val, order)
+        };
+        (emulate_load_store, $atomic_type:ident, $int_type:ty) => {
+            impl $atomic_type {
+                #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
+                pub(crate) fn load(&self, order: Ordering) -> $int_type {
+                    crate::utils::assert_load_ordering(order);
+                    let guard = disable();
+                    self.read(&guard)
+                }
+                #[inline]
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller
+                )]
+                pub(crate) fn store(&self, val: $int_type, order: Ordering) {
+                    crate::utils::assert_store_ordering(order);
+                    let guard = disable();
+                    self.write(val, &guard);
+                }
             }
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
-                self.as_native().fetch_not(order)
+        };
+        (emulate_swap, $atomic_type:ident, $int_type:ty) => {
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(val, &guard);
+                    prev
+                }
             }
-        }
-
-        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-        impl_default_no_fetch_ops!($atomic_type, $int_type);
-        impl_default_bit_opts!($atomic_type, $int_type);
-        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.fetch_not(order);
+        };
+        (emulate_arithmetic, $atomic_type:ident, $int_type:ty) => {
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.wrapping_add(val), &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev.wrapping_sub(val), &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(core::cmp::max(prev, val), &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(core::cmp::min(prev, val), &guard);
+                    prev
+                }
             }
-        }
-        // MSP430
-        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn add(&self, val: $int_type, order: Ordering) {
-                self.as_native().add(val, order);
+        };
+        (emulate_bit, $atomic_type:ident, $int_type:ty) => {
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev & val, &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev | val, &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(prev ^ val, &guard);
+                    prev
+                }
+                #[inline]
+                pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+                    let guard = disable();
+                    let prev = self.read(&guard);
+                    self.write(!prev, &guard);
+                    prev
+                }
             }
-            #[inline]
-            pub(crate) fn sub(&self, val: $int_type, order: Ordering) {
-                self.as_native().sub(val, order);
+        };
+        (cas[emulate], $atomic_type:ident, $int_type:ty) => {
+            atomic_int!(emulate_swap, $atomic_type, $int_type);
+            atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
+            atomic_int!(emulate_bit, $atomic_type, $int_type);
+        };
+        // RISC-V 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
+        // RISC-V 8-bit/16-bit RMW with Zabha extension
+        (cas, $atomic_type:ident, $int_type:ty) => {
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                    self.as_native().swap(val, order)
+                }
+                #[inline]
+                pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
+                    self.as_native().fetch_add(val, order)
+                }
+                #[inline]
+                pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
+                    self.as_native().fetch_sub(val, order)
+                }
+                #[inline]
+                pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
+                    self.as_native().fetch_max(val, order)
+                }
+                #[inline]
+                pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
+                    self.as_native().fetch_min(val, order)
+                }
             }
-            #[inline]
-            pub(crate) fn and(&self, val: $int_type, order: Ordering) {
-                self.as_native().and(val, order);
-            }
-            #[inline]
-            pub(crate) fn or(&self, val: $int_type, order: Ordering) {
-                self.as_native().or(val, order);
-            }
-            #[inline]
-            pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
-                self.as_native().xor(val, order);
-            }
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.as_native().not(order);
-            }
-        }
-    };
-    (all_critical_session, $atomic_type:ident, $int_type:ty, $align:literal) => {
-        atomic_int!(base, $atomic_type, $int_type, $align);
-        atomic_int!(emulate_load_store, $atomic_type, $int_type);
-        atomic_int!(cas[emulate], $atomic_type, $int_type);
-        impl_default_no_fetch_ops!($atomic_type, $int_type);
-        impl_default_bit_opts!($atomic_type, $int_type);
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.fetch_not(order);
-            }
-        }
-    };
-    (emulate_load_store, $atomic_type:ident, $int_type:ty) => {
-        impl $atomic_type {
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn load(&self, order: Ordering) -> $int_type {
-                crate::utils::assert_load_ordering(order);
-                let guard = disable();
-                self.read(&guard)
-            }
-            #[inline]
-            #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-            pub(crate) fn store(&self, val: $int_type, order: Ordering) {
-                crate::utils::assert_store_ordering(order);
-                let guard = disable();
-                self.write(val, &guard);
-            }
-        }
-    };
-    (emulate_swap, $atomic_type:ident, $int_type:ty) => {
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(val, &guard);
-                prev
-            }
-        }
-    };
-    (emulate_arithmetic, $atomic_type:ident, $int_type:ty) => {
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev.wrapping_add(val), &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev.wrapping_sub(val), &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(core::cmp::max(prev, val), &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(core::cmp::min(prev, val), &guard);
-                prev
-            }
-        }
-    };
-    (emulate_bit, $atomic_type:ident, $int_type:ty) => {
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev & val, &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev | val, &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(prev ^ val, &guard);
-                prev
-            }
-            #[inline]
-            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
-                let guard = disable();
-                let prev = self.read(&guard);
-                self.write(!prev, &guard);
-                prev
-            }
-        }
-    };
-    (cas[emulate], $atomic_type:ident, $int_type:ty) => {
-        atomic_int!(emulate_swap, $atomic_type, $int_type);
-        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
-        atomic_int!(emulate_bit, $atomic_type, $int_type);
-    };
-    // RISC-V 32-bit(RV32)/{32,64}-bit(RV64) RMW with Zaamo extension
-    // RISC-V 8-bit/16-bit RMW with Zabha extension
-    (cas, $atomic_type:ident, $int_type:ty) => {
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().swap(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_add(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_sub(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_max(val, order)
-            }
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().fetch_min(val, order)
-            }
-        }
-    };
-    // AVR 8-bit RMW with RMW instructions
-    // RISC-V 8-bit/16-bit RMW with Zaamo extension
-    (cas[sub_word], $atomic_type:ident, $int_type:ty) => {
-        // AVR 8-bit RMW with RMW instructions
-        #[cfg(target_arch = "avr")]
-        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
-        #[cfg(target_arch = "avr")]
-        atomic_int!(emulate_bit, $atomic_type, $int_type);
-        #[cfg(target_arch = "avr")]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
-                self.as_native().swap(val, order)
-            }
-        }
-
-        // RISC-V 8-bit/16-bit RMW with Zaamo+Zabha extension
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-        #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
-        atomic_int!(cas, $atomic_type, $int_type);
-
+        };
         // RISC-V 8-bit/16-bit RMW with Zaamo extension
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        atomic_int!(emulate_swap, $atomic_type, $int_type);
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
-    };
-}
+        (cas[sub_word], $atomic_type:ident, $int_type:ty) => {
+            // RISC-V 8-bit/16-bit RMW with Zaamo+Zabha extension
+            #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
+            atomic_int!(cas, $atomic_type, $int_type);
 
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(test, target_arch = "avr", target_arch = "msp430", portable_atomic_no_atomic_cas))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, target_arch = "avr", target_arch = "msp430", not(target_has_atomic = "ptr")))
-)]
-items! {
-    #[cfg(target_pointer_width = "16")]
-    #[cfg(not(target_arch = "avr"))]
-    atomic_int!(load_store_atomic, AtomicIsize, isize, 2);
-    #[cfg(target_pointer_width = "16")]
-    #[cfg(not(target_arch = "avr"))]
-    atomic_int!(load_store_atomic, AtomicUsize, usize, 2);
-    #[cfg(target_arch = "avr")]
-    atomic_int!(all_critical_session, AtomicIsize, isize, 2);
-    #[cfg(target_arch = "avr")]
-    atomic_int!(all_critical_session, AtomicUsize, usize, 2);
-    #[cfg(target_pointer_width = "32")]
-    atomic_int!(load_store_atomic, AtomicIsize, isize, 4);
-    #[cfg(target_pointer_width = "32")]
-    atomic_int!(load_store_atomic, AtomicUsize, usize, 4);
-    #[cfg(target_pointer_width = "64")]
-    atomic_int!(load_store_atomic, AtomicIsize, isize, 8);
-    #[cfg(target_pointer_width = "64")]
-    atomic_int!(load_store_atomic, AtomicUsize, usize, 8);
-    #[cfg(target_pointer_width = "128")]
-    atomic_int!(load_store_atomic, AtomicIsize, isize, 16);
-    #[cfg(target_pointer_width = "128")]
-    atomic_int!(load_store_atomic, AtomicUsize, usize, 16);
-
-    #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
-    atomic_int!(load_store_atomic[sub_word], AtomicI8, i8, 1);
-    #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
-    atomic_int!(load_store_atomic[sub_word], AtomicU8, u8, 1);
-    #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
-    atomic_int!(all_critical_session, AtomicI8, i8, 1);
-    #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
-    atomic_int!(all_critical_session, AtomicU8, u8, 1);
-    #[cfg(not(target_arch = "avr"))]
-    atomic_int!(load_store_atomic[sub_word], AtomicI16, i16, 2);
-    #[cfg(not(target_arch = "avr"))]
-    atomic_int!(load_store_atomic[sub_word], AtomicU16, u16, 2);
-    #[cfg(target_arch = "avr")]
-    atomic_int!(all_critical_session, AtomicI16, i16, 2);
-    #[cfg(target_arch = "avr")]
-    atomic_int!(all_critical_session, AtomicU16, u16, 2);
-
-    #[cfg(not(target_pointer_width = "16"))]
-    atomic_int!(load_store_atomic, AtomicI32, i32, 4);
-    #[cfg(not(target_pointer_width = "16"))]
-    atomic_int!(load_store_atomic, AtomicU32, u32, 4);
-
-    cfg_has_fast_atomic_64! {
-        atomic_int!(load_store_atomic, AtomicI64, i64, 8);
-        atomic_int!(load_store_atomic, AtomicU64, u64, 8);
+            // RISC-V 8-bit/16-bit RMW with Zaamo extension
+            #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
+            atomic_int!(emulate_swap, $atomic_type, $int_type);
+            #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
+            atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
+        };
     }
-}
 
-// Double or more width atomics (require fallback feature for consistency with other situations).
-#[cfg(target_pointer_width = "16")]
-#[cfg(any(test, feature = "fallback"))]
-items! {
-    atomic_int!(all_critical_session, AtomicI32, i32, 4);
-    atomic_int!(all_critical_session, AtomicU32, u32, 4);
-}
-#[cfg(any(
-    test,
-    all(
-        feature = "fallback",
-        not(all(
-            target_arch = "riscv32",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(
-                target_feature = "zacas",
-                portable_atomic_target_feature = "zacas",
-                all(
-                    feature = "fallback",
-                    not(portable_atomic_no_outline_atomics),
-                    any(target_os = "linux", target_os = "android"),
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            test,
+            target_arch = "avr",
+            target_arch = "msp430",
+            portable_atomic_no_atomic_cas,
+        ))
+    )]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            test,
+            target_arch = "avr",
+            target_arch = "msp430",
+            not(target_has_atomic = "ptr"),
+        ))
+    )]
+    items!({
+        // On some platforms, atomic load/store can be implemented in a more efficient
+        // way than disabling interrupts. On MSP430, some RMWs that do not return the
+        // previous value can also be optimized.
+        //
+        // Note: On single-core systems, it is okay to use critical session-based
+        // CAS together with atomic load/store. The load/store will not be
+        // called while interrupts are disabled, and since the load/store is
+        // atomic, it is not affected by interrupts even if interrupts are enabled.
+        #[cfg(not(any(
+            all(target_arch = "avr", portable_atomic_no_asm),
+            feature = "critical-section",
+        )))]
+        use self::arch::atomic;
+
+        #[cfg(target_pointer_width = "16")]
+        #[cfg(not(target_arch = "avr"))]
+        atomic_int!(load_store_atomic, AtomicIsize, isize, 2);
+        #[cfg(target_pointer_width = "16")]
+        #[cfg(not(target_arch = "avr"))]
+        atomic_int!(load_store_atomic, AtomicUsize, usize, 2);
+        #[cfg(target_arch = "avr")]
+        atomic_int!(all_critical_session, AtomicIsize, isize, 2);
+        #[cfg(target_arch = "avr")]
+        atomic_int!(all_critical_session, AtomicUsize, usize, 2);
+        #[cfg(target_pointer_width = "32")]
+        atomic_int!(load_store_atomic, AtomicIsize, isize, 4);
+        #[cfg(target_pointer_width = "32")]
+        atomic_int!(load_store_atomic, AtomicUsize, usize, 4);
+        #[cfg(target_pointer_width = "64")]
+        atomic_int!(load_store_atomic, AtomicIsize, isize, 8);
+        #[cfg(target_pointer_width = "64")]
+        atomic_int!(load_store_atomic, AtomicUsize, usize, 8);
+        #[cfg(target_pointer_width = "128")]
+        atomic_int!(load_store_atomic, AtomicIsize, isize, 16);
+        #[cfg(target_pointer_width = "128")]
+        atomic_int!(load_store_atomic, AtomicUsize, usize, 16);
+
+        #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
+        atomic_int!(load_store_atomic[sub_word], AtomicI8, i8, 1);
+        #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
+        atomic_int!(load_store_atomic[sub_word], AtomicU8, u8, 1);
+        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
+        atomic_int!(all_critical_session, AtomicI8, i8, 1);
+        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
+        atomic_int!(all_critical_session, AtomicU8, u8, 1);
+        #[cfg(not(target_arch = "avr"))]
+        atomic_int!(load_store_atomic[sub_word], AtomicI16, i16, 2);
+        #[cfg(not(target_arch = "avr"))]
+        atomic_int!(load_store_atomic[sub_word], AtomicU16, u16, 2);
+        #[cfg(target_arch = "avr")]
+        atomic_int!(all_critical_session, AtomicI16, i16, 2);
+        #[cfg(target_arch = "avr")]
+        atomic_int!(all_critical_session, AtomicU16, u16, 2);
+
+        #[cfg(not(target_pointer_width = "16"))]
+        atomic_int!(load_store_atomic, AtomicI32, i32, 4);
+        #[cfg(not(target_pointer_width = "16"))]
+        atomic_int!(load_store_atomic, AtomicU32, u32, 4);
+
+        cfg_has_fast_atomic_64! {
+            atomic_int!(load_store_atomic, AtomicI64, i64, 8);
+            atomic_int!(load_store_atomic, AtomicU64, u64, 8);
+        }
+    });
+
+    // Double or more width atomics (require fallback feature for consistency with other situations).
+    #[cfg(target_pointer_width = "16")]
+    #[cfg(any(test, feature = "fallback"))]
+    items!({
+        atomic_int!(all_critical_session, AtomicI32, i32, 4);
+        atomic_int!(all_critical_session, AtomicU32, u32, 4);
+    });
+    #[cfg(any(
+        test,
+        all(
+            feature = "fallback",
+            not(all(
+                target_arch = "riscv32",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(
+                    target_feature = "zacas",
+                    portable_atomic_target_feature = "zacas",
+                    all(
+                        feature = "fallback",
+                        not(portable_atomic_no_outline_atomics),
+                        any(target_os = "linux", target_os = "android"),
+                    ),
                 ),
-            ),
-        )),
-    ),
-))]
-cfg_no_fast_atomic_64! {
-    atomic_int!(all_critical_session, AtomicI64, i64, 8);
-    atomic_int!(all_critical_session, AtomicU64, u64, 8);
-}
-#[cfg(any(
-    test,
-    all(
-        feature = "fallback",
-        not(all(
-            target_arch = "riscv64",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(
-                target_feature = "zacas",
-                portable_atomic_target_feature = "zacas",
-                all(
-                    feature = "fallback",
-                    not(portable_atomic_no_outline_atomics),
-                    any(target_os = "linux", target_os = "android"),
+            )),
+        ),
+    ))]
+    cfg_no_fast_atomic_64! {
+        atomic_int!(all_critical_session, AtomicI64, i64, 8);
+        atomic_int!(all_critical_session, AtomicU64, u64, 8);
+    }
+    #[cfg(any(
+        test,
+        all(
+            feature = "fallback",
+            not(all(
+                target_arch = "riscv64",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                any(
+                    target_feature = "zacas",
+                    portable_atomic_target_feature = "zacas",
+                    all(
+                        feature = "fallback",
+                        not(portable_atomic_no_outline_atomics),
+                        any(target_os = "linux", target_os = "android"),
+                    ),
                 ),
-            ),
-        )),
-    ),
-))]
-items! {
-    atomic_int!(all_critical_session, AtomicI128, i128, 16);
-    atomic_int!(all_critical_session, AtomicU128, u128, 16);
-}
-} // items!
+            )),
+        ),
+    ))]
+    items!({
+        atomic_int!(all_critical_session, AtomicI128, i128, 16);
+        atomic_int!(all_critical_session, AtomicU128, u128, 16);
+    });
+});
 
 #[cfg(test)]
 mod tests {

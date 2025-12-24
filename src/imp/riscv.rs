@@ -42,141 +42,137 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
 ))]
-#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-#[cfg(target_arch = "riscv32")]
-macro_rules! w {
-    () => {
-        ""
-    };
-}
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-#[cfg(target_arch = "riscv64")]
-macro_rules! w {
-    () => {
-        "w"
-    };
-}
+items!({
+    macro_rules! atomic_rmw_amo_ext {
+        // Use +a also for zaamo because `option arch +zaamo` requires LLVM 19.
+        // https://github.com/llvm/llvm-project/commit/8be079cdddfd628d356d9ddb5ab397ea95fb1030
+        ("w") => {
+            "+a"
+        };
+        ("d") => {
+            "+a"
+        };
+        ("b") => {
+            "+a,+zabha"
+        };
+        ("h") => {
+            "+a,+zabha"
+        };
+    }
+    macro_rules! atomic_rmw_amo {
+        ($op:ident, $dst:ident, $val:ident, $order:ident, $size:tt) => {{
+            let out;
+            macro_rules! op {
+                ($asm_order:tt) => {
+                    // SAFETY: The user guaranteed that the AMO instruction is available in this
+                    // system by setting the portable_atomic_force_amo/target_feature and
+                    // portable_atomic_unsafe_assume_single_core.
+                    // The caller of this macro must guarantee the validity of the pointer.
+                    asm!(
+                        ".option push",
+                        // https://github.com/riscv-non-isa/riscv-asm-manual/blob/v0.0.1/src/asm-manual.adoc#arch
+                        // LLVM supports `.option arch` directive on LLVM 17+.
+                        // https://github.com/llvm/llvm-project/commit/9e8ed3403c191ab9c4903e8eeb8f732ff8a43cb4
+                        // Note that `.insn <value>` directive requires LLVM 19.
+                        // https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
+                        concat!(".option arch, ", atomic_rmw_amo_ext!($size)),
+                        concat!("amo", stringify!($op), ".", $size, $asm_order, " {out}, {val}, 0({dst})"), // atomic { _x = *dst; *dst = op(_x, val); out = _x }
+                        ".option pop",
+                        dst = in(reg) ptr_reg!($dst),
+                        val = in(reg) $val,
+                        out = lateout(reg) out,
+                        options(nostack, preserves_flags),
+                    )
+                };
+            }
+            match $order {
+                Ordering::Relaxed => op!(""),
+                Ordering::Acquire => op!(".aq"),
+                Ordering::Release => op!(".rl"),
+                // AcqRel and SeqCst RMWs are equivalent.
+                Ordering::AcqRel | Ordering::SeqCst => op!(".aqrl"),
+                _ => unreachable!(),
+            }
+            out
+        }};
+    }
 
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-macro_rules! atomic_rmw_amo_ext {
-    // Use +a also for zaamo because `option arch +zaamo` requires LLVM 19.
-    // https://github.com/llvm/llvm-project/commit/8be079cdddfd628d356d9ddb5ab397ea95fb1030
-    ("w") => {
-        "+a"
-    };
-    ("d") => {
-        "+a"
-    };
-    ("b") => {
-        "+a,+zabha"
-    };
-    ("h") => {
-        "+a,+zabha"
-    };
-}
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-macro_rules! atomic_rmw_amo {
-    ($op:ident, $dst:ident, $val:ident, $order:ident, $size:tt) => {{
-        let out;
-        macro_rules! op {
-            ($asm_order:tt) => {
-                // SAFETY: The user guaranteed that the AMO instruction is available in this
-                // system by setting the portable_atomic_force_amo/target_feature and
-                // portable_atomic_unsafe_assume_single_core.
-                // The caller of this macro must guarantee the validity of the pointer.
-                asm!(
-                    ".option push",
-                    // https://github.com/riscv-non-isa/riscv-asm-manual/blob/v0.0.1/src/asm-manual.adoc#arch
-                    // LLVM supports `.option arch` directive on LLVM 17+.
-                    // https://github.com/llvm/llvm-project/commit/9e8ed3403c191ab9c4903e8eeb8f732ff8a43cb4
-                    // Note that `.insn <value>` directive requires LLVM 19.
-                    // https://github.com/llvm/llvm-project/commit/2a086dce691e3cc34a2fc27f4fb255bb2cbbfac9
-                    concat!(".option arch, ", atomic_rmw_amo_ext!($size)),
-                    concat!("amo", stringify!($op), ".", $size, $asm_order, " {out}, {val}, 0({dst})"), // atomic { _x = *dst; *dst = op(_x, val); out = _x }
-                    ".option pop",
-                    dst = in(reg) ptr_reg!($dst),
-                    val = in(reg) $val,
-                    out = lateout(reg) out,
-                    options(nostack, preserves_flags),
-                )
+    #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
+    items!({
+        #[cfg(target_arch = "riscv32")]
+        macro_rules! w {
+            () => {
+                ""
             };
         }
-        match $order {
-            Ordering::Relaxed => op!(""),
-            Ordering::Acquire => op!(".aq"),
-            Ordering::Release => op!(".rl"),
-            // AcqRel and SeqCst RMWs are equivalent.
-            Ordering::AcqRel | Ordering::SeqCst => op!(".aqrl"),
-            _ => unreachable!(),
+        #[cfg(target_arch = "riscv64")]
+        macro_rules! w {
+            () => {
+                "w"
+            };
         }
-        out
-    }};
-}
-// 32-bit val.wrapping_shl(shift) but no extra `& (u32::BITS - 1)`
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-#[inline(always)]
-fn sllw(val: u32, shift: u32) -> u32 {
-    // SAFETY: Calling sll{,w} is safe.
-    unsafe {
-        let out;
-        asm!(
-            concat!("sll", w!(), " {out}, {val}, {shift}"), // out = val << shift & 31
-            out = lateout(reg) out,
-            val = in(reg) val,
-            shift = in(reg) shift,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-        out
-    }
-}
-// 32-bit val.wrapping_shr(shift) but no extra `& (u32::BITS - 1)`
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-macro_rules! srlw {
-    ($val:expr, $shift:expr) => {
-        // SAFETY: Calling srl{,w} is safe.
-        unsafe {
-            let val: u32 = $val;
-            let shift: u32 = $shift;
-            let out;
-            asm!(
-                concat!("srl", w!(), " {out}, {val}, {shift}"), // out = val >> shift & 31
-                out = lateout(reg) out,
-                val = in(reg) val,
-                shift = in(reg) shift,
-                options(pure, nomem, nostack, preserves_flags),
-            );
-            out
+
+        // 32-bit val.wrapping_shl(shift) but no extra `& (u32::BITS - 1)`
+        #[inline(always)]
+        fn sllw(val: u32, shift: u32) -> u32 {
+            // SAFETY: Calling sll{,w} is safe.
+            unsafe {
+                let out;
+                asm!(
+                    concat!("sll", w!(), " {out}, {val}, {shift}"), // out = val << shift & 31
+                    out = lateout(reg) out,
+                    val = in(reg) val,
+                    shift = in(reg) shift,
+                    options(pure, nomem, nostack, preserves_flags),
+                );
+                out
+            }
         }
-    };
-}
+        // 32-bit val.wrapping_shr(shift) but no extra `& (u32::BITS - 1)`
+        macro_rules! srlw {
+            ($val:expr, $shift:expr) => {
+                // SAFETY: Calling srl{,w} is safe.
+                unsafe {
+                    let val: u32 = $val;
+                    let shift: u32 = $shift;
+                    let out;
+                    asm!(
+                        concat!("srl", w!(), " {out}, {val}, {shift}"), // out = val >> shift & 31
+                        out = lateout(reg) out,
+                        val = in(reg) val,
+                        shift = in(reg) shift,
+                        options(pure, nomem, nostack, preserves_flags),
+                    );
+                    out
+                }
+            };
+        }
+
+        trait ZeroExtend: Copy {
+            /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
+            fn zero_extend(self) -> u32;
+        }
+        macro_rules! zero_extend {
+            ($int:ident, $uint:ident) => {
+                impl ZeroExtend for $uint {
+                    #[inline(always)]
+                    fn zero_extend(self) -> u32 {
+                        self as u32
+                    }
+                }
+                impl ZeroExtend for $int {
+                    #[allow(clippy::cast_sign_loss)]
+                    #[inline(always)]
+                    fn zero_extend(self) -> u32 {
+                        self as $uint as u32
+                    }
+                }
+            };
+        }
+        zero_extend!(i8, u8);
+        zero_extend!(i16, u16);
+    });
+});
 
 macro_rules! atomic_load_store {
     ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $size:tt) => {
@@ -286,61 +282,52 @@ macro_rules! atomic_base {
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
         ))]
-        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
-        impl_default_bit_opts!($atomic_type, $int_type);
-        // There is no amo{sub,nand,neg}.
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
-            #[inline]
-            pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
+        items!({
+            // There is no amo{sub,nand,neg}.
+            impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+                #[inline]
+                pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(swap, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn $fetch_add(&self, val: $int_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(add, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn $fetch_sub(&self, val: $int_type, order: Ordering) -> $value_type {
+                    self.$fetch_add(val.wrapping_neg(), order)
+                }
+                #[inline]
+                pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(and, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(or, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
+                }
             }
-
-            #[inline]
-            pub(crate) fn $fetch_add(&self, val: $int_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(add, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn $fetch_sub(&self, val: $int_type, order: Ordering) -> $value_type {
-                self.$fetch_add(val.wrapping_neg(), order)
-            }
-
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(and, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(or, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
-            }
-        }
+            #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
+            impl_default_bit_opts!($atomic_type, $int_type);
+        });
     };
 }
 
@@ -359,195 +346,150 @@ macro_rules! atomic {
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
         ))]
-        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
-        impl_default_no_fetch_ops!($atomic_type, $value_type);
-        // There is no amo{sub,nand,neg}.
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                #[cfg(target_arch = "riscv32")]
-                let val: u32 = !0;
-                #[cfg(target_arch = "riscv64")]
-                let val: u64 = !0;
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
+        items!({
+            // There is no amo{sub,nand,neg}.
+            impl $atomic_type {
+                #[inline]
+                pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    #[cfg(target_arch = "riscv32")]
+                    let val: u32 = !0;
+                    #[cfg(target_arch = "riscv64")]
+                    let val: u64 = !0;
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!(xor, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn fetch_max(&self, val: $value_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!($max, dst, val, order, $size) }
+                }
+                #[inline]
+                pub(crate) fn fetch_min(&self, val: $value_type, order: Ordering) -> $value_type {
+                    let dst = self.v.get();
+                    // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                    // pointer passed in is valid because we got it from a reference.
+                    unsafe { atomic_rmw_amo!($min, dst, val, order, $size) }
+                }
             }
             #[cfg(not(any(
                 portable_atomic_unsafe_assume_single_core,
                 feature = "critical-section",
             )))]
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.fetch_not(order);
-            }
-
-            #[inline]
-            pub(crate) fn fetch_max(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!($max, dst, val, order, $size) }
-            }
-
-            #[inline]
-            pub(crate) fn fetch_min(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                unsafe { atomic_rmw_amo!($min, dst, val, order, $size) }
-            }
-        }
+            items!({
+                impl_default_no_fetch_ops!($atomic_type, $value_type);
+                impl $atomic_type {
+                    #[inline]
+                    pub(crate) fn not(&self, order: Ordering) {
+                        self.fetch_not(order);
+                    }
+                }
+            });
+        });
     };
 }
-
-#[cfg(any(
-    test,
-    portable_atomic_force_amo,
-    target_feature = "zaamo",
-    portable_atomic_target_feature = "zaamo",
-))]
-#[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-trait ZeroExtend: Copy {
-    /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
-    fn zero_extend(self) -> u32;
-}
-macro_rules! zero_extend {
-    ($int:ident, $uint:ident) => {
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        impl ZeroExtend for $uint {
-            #[inline(always)]
-            fn zero_extend(self) -> u32 {
-                self as u32
-            }
-        }
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        impl ZeroExtend for $int {
-            #[allow(clippy::cast_sign_loss)]
-            #[inline(always)]
-            fn zero_extend(self) -> u32 {
-                self as $uint as u32
-            }
-        }
-    };
-}
-zero_extend!(i8, u8);
-zero_extend!(i16, u16);
 
 macro_rules! atomic_sub_word {
     ($atomic_type:ident, $value_type:ty, $size:tt, $max:tt, $min:tt) => {
-        #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
-        atomic!($atomic_type, $value_type, $size, $max, $min);
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        atomic_load_store!($atomic_type, $value_type, $size);
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        #[cfg(not(any(portable_atomic_unsafe_assume_single_core, feature = "critical-section")))]
-        impl_default_bit_opts!($atomic_type, $value_type);
-        #[cfg(any(
-            test,
-            portable_atomic_force_amo,
-            target_feature = "zaamo",
-            portable_atomic_target_feature = "zaamo",
-        ))]
-        #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
-        impl $atomic_type {
-            #[inline]
-            pub(crate) fn fetch_and(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                let (dst, shift, mut mask) = crate::utils::create_sub_word_mask_values(dst);
-                mask = !sllw(mask, shift);
-                let mut val = sllw(ZeroExtend::zero_extend(val), shift);
-                val |= mask;
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
-                srlw!(out, shift)
+        cfg_sel!({
+            #[cfg(any(target_feature = "zabha", portable_atomic_target_feature = "zabha"))]
+            {
+                atomic!($atomic_type, $value_type, $size, $max, $min);
             }
-            #[cfg(not(any(
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-            )))]
-            #[inline]
-            pub(crate) fn and(&self, val: $value_type, order: Ordering) {
-                self.fetch_and(val, order);
+            #[cfg(else)]
+            {
+                atomic_load_store!($atomic_type, $value_type, $size);
+                #[cfg(any(
+                    test,
+                    portable_atomic_force_amo,
+                    target_feature = "zaamo",
+                    portable_atomic_target_feature = "zaamo",
+                ))]
+                items!({
+                    impl $atomic_type {
+                        #[inline]
+                        pub(crate) fn fetch_and(
+                            &self,
+                            val: $value_type,
+                            order: Ordering,
+                        ) -> $value_type {
+                            let dst = self.v.get();
+                            let (dst, shift, mut mask) =
+                                crate::utils::create_sub_word_mask_values(dst);
+                            mask = !sllw(mask, shift);
+                            let mut val = sllw(ZeroExtend::zero_extend(val), shift);
+                            val |= mask;
+                            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                            // pointer passed in is valid because we got it from a reference.
+                            let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
+                            srlw!(out, shift)
+                        }
+                        #[inline]
+                        pub(crate) fn fetch_or(
+                            &self,
+                            val: $value_type,
+                            order: Ordering,
+                        ) -> $value_type {
+                            let dst = self.v.get();
+                            let (dst, shift, _mask) =
+                                crate::utils::create_sub_word_mask_values(dst);
+                            let val = sllw(ZeroExtend::zero_extend(val), shift);
+                            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                            // pointer passed in is valid because we got it from a reference.
+                            let out: u32 = unsafe { atomic_rmw_amo!(or, dst, val, order, "w") };
+                            srlw!(out, shift)
+                        }
+                        #[inline]
+                        pub(crate) fn fetch_xor(
+                            &self,
+                            val: $value_type,
+                            order: Ordering,
+                        ) -> $value_type {
+                            let dst = self.v.get();
+                            let (dst, shift, _mask) =
+                                crate::utils::create_sub_word_mask_values(dst);
+                            let val = sllw(ZeroExtend::zero_extend(val), shift);
+                            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                            // pointer passed in is valid because we got it from a reference.
+                            let out: u32 = unsafe { atomic_rmw_amo!(xor, dst, val, order, "w") };
+                            srlw!(out, shift)
+                        }
+                        #[inline]
+                        pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
+                            self.fetch_xor(!0, order)
+                        }
+                    }
+                    #[cfg(not(any(
+                        portable_atomic_unsafe_assume_single_core,
+                        feature = "critical-section",
+                    )))]
+                    items!({
+                        impl_default_bit_opts!($atomic_type, $value_type);
+                        impl $atomic_type {
+                            #[inline]
+                            pub(crate) fn and(&self, val: $value_type, order: Ordering) {
+                                self.fetch_and(val, order);
+                            }
+                            #[inline]
+                            pub(crate) fn or(&self, val: $value_type, order: Ordering) {
+                                self.fetch_or(val, order);
+                            }
+                            #[inline]
+                            pub(crate) fn xor(&self, val: $value_type, order: Ordering) {
+                                self.fetch_xor(val, order);
+                            }
+                            #[inline]
+                            pub(crate) fn not(&self, order: Ordering) {
+                                self.fetch_not(order);
+                            }
+                        }
+                    });
+                });
             }
-
-            #[inline]
-            pub(crate) fn fetch_or(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                let val = sllw(ZeroExtend::zero_extend(val), shift);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                let out: u32 = unsafe { atomic_rmw_amo!(or, dst, val, order, "w") };
-                srlw!(out, shift)
-            }
-            #[cfg(not(any(
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-            )))]
-            #[inline]
-            pub(crate) fn or(&self, val: $value_type, order: Ordering) {
-                self.fetch_or(val, order);
-            }
-
-            #[inline]
-            pub(crate) fn fetch_xor(&self, val: $value_type, order: Ordering) -> $value_type {
-                let dst = self.v.get();
-                let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-                let val = sllw(ZeroExtend::zero_extend(val), shift);
-                // SAFETY: any data races are prevented by atomic intrinsics and the raw
-                // pointer passed in is valid because we got it from a reference.
-                let out: u32 = unsafe { atomic_rmw_amo!(xor, dst, val, order, "w") };
-                srlw!(out, shift)
-            }
-            #[cfg(not(any(
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-            )))]
-            #[inline]
-            pub(crate) fn xor(&self, val: $value_type, order: Ordering) {
-                self.fetch_xor(val, order);
-            }
-
-            #[inline]
-            pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
-                self.fetch_xor(!0, order)
-            }
-            #[cfg(not(any(
-                portable_atomic_unsafe_assume_single_core,
-                feature = "critical-section",
-            )))]
-            #[inline]
-            pub(crate) fn not(&self, order: Ordering) {
-                self.fetch_not(order);
-            }
-        }
+        });
     };
 }
 

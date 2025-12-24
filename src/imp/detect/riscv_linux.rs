@@ -48,53 +48,56 @@ mod ffi {
         pub(crate) const RISCV_HWPROBE_EXT_ZALASR: u64 = 1 << 59;
     });
 
-    #[cfg(not(all(
-        target_os = "linux",
-        any(target_arch = "riscv32", all(target_arch = "riscv64", target_pointer_width = "64")),
-    )))]
-    sys_fn!({
-        extern "C" {
-            // https://man7.org/linux/man-pages/man2/syscall.2.html
-            pub(crate) fn syscall(number: c_long, ...) -> c_long;
+    cfg_sel!({
+        // Use asm-based syscall for compatibility with non-libc targets if possible.
+        #[cfg(all(
+            target_os = "linux", // https://github.com/bytecodealliance/rustix/issues/1095
+            any(target_arch = "riscv32", all(target_arch = "riscv64", target_pointer_width = "64")),
+        ))]
+        {
+            #[inline]
+            pub(crate) unsafe fn syscall(
+                number: c_long,
+                a0: *mut riscv_hwprobe,
+                a1: c_size_t,
+                a2: c_size_t,
+                a3: *mut c_ulong,
+                a4: c_uint,
+            ) -> c_long {
+                #[cfg(not(portable_atomic_no_asm))]
+                use core::arch::asm;
+                // arguments must be extended to 64-bit if RV64
+                let a4 = a4 as usize;
+                let r;
+                // SAFETY: the caller must uphold the safety contract.
+                // Refs:
+                // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv32/syscall_arch.h
+                // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv64/syscall_arch.h
+                unsafe {
+                    asm!(
+                        "ecall",
+                        in("a7") number,
+                        inout("a0") a0 => r,
+                        in("a1") a1,
+                        in("a2") a2,
+                        in("a3") a3,
+                        in("a4") a4,
+                        options(nostack, preserves_flags)
+                    );
+                }
+                r
+            }
+        }
+        #[cfg(else)]
+        {
+            sys_fn!({
+                extern "C" {
+                    // https://man7.org/linux/man-pages/man2/syscall.2.html
+                    pub(crate) fn syscall(number: c_long, ...) -> c_long;
+                }
+            });
         }
     });
-    // Use asm-based syscall for compatibility with non-libc targets if possible.
-    #[cfg(all(
-        target_os = "linux", // https://github.com/bytecodealliance/rustix/issues/1095
-        any(target_arch = "riscv32", all(target_arch = "riscv64", target_pointer_width = "64")),
-    ))]
-    #[inline]
-    pub(crate) unsafe fn syscall(
-        number: c_long,
-        a0: *mut riscv_hwprobe,
-        a1: c_size_t,
-        a2: c_size_t,
-        a3: *mut c_ulong,
-        a4: c_uint,
-    ) -> c_long {
-        #[cfg(not(portable_atomic_no_asm))]
-        use core::arch::asm;
-        // arguments must be extended to 64-bit if RV64
-        let a4 = a4 as usize;
-        let r;
-        // SAFETY: the caller must uphold the safety contract.
-        // Refs:
-        // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv32/syscall_arch.h
-        // - https://github.com/bminor/musl/blob/v1.2.5/arch/riscv64/syscall_arch.h
-        unsafe {
-            asm!(
-                "ecall",
-                in("a7") number,
-                inout("a0") a0 => r,
-                in("a1") a1,
-                in("a2") a2,
-                in("a3") a3,
-                in("a4") a4,
-                options(nostack, preserves_flags)
-            );
-        }
-        r
-    }
 
     // https://github.com/torvalds/linux/blob/v6.16/Documentation/arch/riscv/hwprobe.rst
     pub(crate) unsafe fn __riscv_hwprobe(

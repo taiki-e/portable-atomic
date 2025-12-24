@@ -2353,40 +2353,42 @@ impl<T> From<T> for Arc<T> {
     }
 }
 
-// This just outputs the input as is, but helps avoid syntax checks by old rustc that rejects const generics.
+// This just outputs the input as is, but can be used like an item-level block by using it with cfg.
+// Note: This macro is items!({ }), not items! { }.
+// An extra brace is used in input to make contents rustfmt-able.
 #[cfg(not(portable_atomic_no_min_const_generics))]
 macro_rules! items {
-    ($($tt:tt)*) => {
+    ({$($tt:tt)*}) => {
         $($tt)*
     };
 }
 
 #[cfg(not(portable_atomic_no_min_const_generics))]
-items! {
-impl<T, const N: usize> From<[T; N]> for Arc<[T]> {
-    /// Converts a [`[T; N]`](prim@array) into an `Arc<[T]>`.
-    ///
-    /// The conversion moves the array into a newly allocated `Arc`.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use portable_atomic_util::Arc;
-    /// let original: [i32; 3] = [1, 2, 3];
-    /// let shared: Arc<[i32]> = Arc::from(original);
-    /// assert_eq!(&[1, 2, 3], &shared[..]);
-    /// ```
-    #[inline]
-    fn from(v: [T; N]) -> Self {
-        // Casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized, so we convert via Box.
-        // Since the compiler knows the actual size and metadata, the intermediate allocation is
-        // optimized and generates the same code as when using CoerceUnsized and convert Arc<[T; N]> to Arc<[T]>.
-        // https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569
-        let v: Box<[T]> = Box::<[T; N]>::from(v);
-        v.into()
+items!({
+    impl<T, const N: usize> From<[T; N]> for Arc<[T]> {
+        /// Converts a [`[T; N]`](prim@array) into an `Arc<[T]>`.
+        ///
+        /// The conversion moves the array into a newly allocated `Arc`.
+        ///
+        /// # Example
+        ///
+        /// ```
+        /// use portable_atomic_util::Arc;
+        /// let original: [i32; 3] = [1, 2, 3];
+        /// let shared: Arc<[i32]> = Arc::from(original);
+        /// assert_eq!(&[1, 2, 3], &shared[..]);
+        /// ```
+        #[inline]
+        fn from(v: [T; N]) -> Self {
+            // Casting Arc<[T; N]> -> Arc<[T]> requires unstable CoerceUnsized, so we convert via Box.
+            // Since the compiler knows the actual size and metadata, the intermediate allocation is
+            // optimized and generates the same code as when using CoerceUnsized and convert Arc<[T; N]> to Arc<[T]>.
+            // https://github.com/taiki-e/portable-atomic/issues/143#issuecomment-1866488569
+            let v: Box<[T]> = Box::<[T; N]>::from(v);
+            v.into()
+        }
     }
-}
-}
+});
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T: Clone> From<&[T]> for Arc<[T]> {
@@ -2579,20 +2581,20 @@ impl From<Arc<str>> for Arc<[u8]> {
 }
 
 #[cfg(not(portable_atomic_no_min_const_generics))]
-items! {
-impl<T, const N: usize> core::convert::TryFrom<Arc<[T]>> for Arc<[T; N]> {
-    type Error = Arc<[T]>;
+items!({
+    impl<T, const N: usize> core::convert::TryFrom<Arc<[T]>> for Arc<[T; N]> {
+        type Error = Arc<[T]>;
 
-    fn try_from(boxed_slice: Arc<[T]>) -> Result<Self, Self::Error> {
-        if boxed_slice.len() == N {
-            let ptr = Arc::into_inner_non_null(boxed_slice);
-            Ok(unsafe { Self::from_inner(ptr.cast::<ArcInner<[T; N]>>()) })
-        } else {
-            Err(boxed_slice)
+        fn try_from(boxed_slice: Arc<[T]>) -> Result<Self, Self::Error> {
+            if boxed_slice.len() == N {
+                let ptr = Arc::into_inner_non_null(boxed_slice);
+                Ok(unsafe { Self::from_inner(ptr.cast::<ArcInner<[T; N]>>()) })
+            } else {
+                Err(boxed_slice)
+            }
         }
     }
-}
-}
+});
 
 #[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<T> core::iter::FromIterator<T> for Arc<[T]> {
