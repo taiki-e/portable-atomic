@@ -570,7 +570,7 @@ fn is_allowed_feature(name: &str) -> bool {
     allowed
 }
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.14/build-common.rs.
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/build-common.rs.
 //
 // The target triplets have the form of 'arch-vendor-system'.
 //

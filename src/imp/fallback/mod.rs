@@ -142,15 +142,12 @@ use crate::utils::unlikely;
 // so use it to reduce chunks of byte-wise atomic memcpy.
 use self::seq_lock::{AtomicChunk, Chunk};
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/atomic_cell.rs#L970-L1010.
 #[inline]
 #[must_use]
 fn lock(addr: usize) -> &'static SeqLock {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
-    //
-    // crossbeam-utils 0.8.7 uses 97 here but does not use CachePadded,
-    // so the actual concurrency level will be smaller.
     const LEN: usize = 67;
     const L: CachePadded<SeqLock> = CachePadded::new(SeqLock::new());
     static LOCKS: [CachePadded<SeqLock>; LEN] = [
@@ -197,7 +194,7 @@ macro_rules! atomic {
                 // in SeqLock implementations:
                 //
                 // - https://github.com/Amanieu/seqlock/issues/2
-                // - https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L1111-L1116
+                // - https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/atomic_cell.rs#L1063-L1069
                 // - https://rust-lang.zulipchat.com/#narrow/stream/136281-t-lang.2Fwg-unsafe-code-guidelines/topic/avoiding.20UB.20due.20to.20races.20by.20discarding.20result.3F
                 //
                 // However, in our use case, the implementation that loads/stores value as

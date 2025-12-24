@@ -57,7 +57,7 @@ impl Drop for SpinlockGuard<'_> {
     }
 }
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.7/crossbeam-utils/src/atomic/atomic_cell.rs#L969-L1016.
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/atomic_cell.rs#L970-L1010.
 #[inline]
 fn lock(addr: usize) -> SpinlockGuard<'static> {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
