@@ -554,6 +554,8 @@ jobs:
             printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
             printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
           fi
+          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${{ matrix.target }}" | tr '\n' ',')"
+          printf 'cfgs=%s\n' "${cfgs}" >>"${GITHUB_OUTPUT}"
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
@@ -658,13 +660,12 @@ jobs:
         if: startsWith(matrix.target, 'powerpc64-')
 
       # x86_64 +cmpxchg16b
-      # macOS is skipped because it is +cmpxchg16b by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
-        if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
+        if: startsWith(matrix.target, 'x86_64') && !contains(steps.prepare.outputs.cfgs, ',target_feature="cmpxchg16b",')
       # x86_64 +cmpxchg16b,+avx
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
@@ -679,13 +680,12 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+avx
         if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
       # aarch64 +lse
-      # macOS is skipped because it is +lse,+lse2 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(steps.prepare.outputs.cfgs, ',target_feature="lse",') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # aarch64 +lse,+lse2
       # macOS is skipped because it is +lse,+lse2 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
@@ -693,7 +693,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: startsWith(matrix.target, 'aarch64') && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
