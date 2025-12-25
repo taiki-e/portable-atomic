@@ -1,5 +1,5 @@
 {
-    sub_work_fetch_update
+    sub_word_fetch_update
     Memcheck:Cond
     fun:fetch_update<portable_atomic::tests::test_atomic_bool::fetch_update::{closure_env#*}>
     fun:_*portable_atomic5tests*test_atomic_bools_12fetch_update
@@ -30,13 +30,129 @@
     obj:*
 }
 {
-    sub_work_weak_cas
+    sub_word_weak_cas
     Memcheck:Cond
     fun:_*portable_atomic5tests*test_atomic_*s_21compare_exchange_weak
     fun:{closure#*}
     fun:_*portable_atomic5tests*test_atomic_*21compare_exchange_weak*
     fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
     fun:_*4test28___rust_begin_short_backtrace*
+    fun:{closure#*}
+    fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:catch_unwind<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:run_test_in_process
+    fun:_*4test8run_test0B3_
+    fun:{closure#*}
+    fun:_*3std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:call_once<(), std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:catch_unwind<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:_*3std6thread9lifecycle15spawn_unchecked*
+    fun:call_once<(), (dyn core::ops::function::FnOnce<(), Output=()> + core::marker::Send), alloc::alloc::Global>
+    fun:_*3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    fun:start_thread
+    obj:/usr/lib/s390x-linux-gnu/libc.so.6
+    obj:*
+}
+{
+    std_f32_neg
+    Memcheck:Cond
+    fun:_*portable_atomic5tests*test_atomic_f32s_20quickcheck_fetch_neg4prop
+    fun:{closure#*}<bool, f32>
+    fun:call_once<bool, quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>, bool>
+    fun:catch_unwind<bool, core::panic::unwind_safe::AssertUnwindSafe<quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>, bool>
+    fun:safe<bool, quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>
+    fun:result<bool, f32>
+    fun:quicktest<fn(f32) -> bool>
+    fun:quickcheck<fn(f32) -> bool>
+    fun:_*quickcheck6tester10quickcheck*
+    fun:quickcheck_fetch_neg
+    fun:{closure#*}
+    fun:_*portable_atomic5tests15test_atomic_f3220quickcheck_fetch_neg*
+    fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
+    fun:_*4test28___rust_begin_short_backtrace*
+    fun:run
+    fun:{closure#*}
+    fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:catch_unwind<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:run_test_in_process
+    fun:_*4test8run_test*
+    fun:{closure#*}
+    fun:_*3std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:call_once<(), std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:catch_unwind<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:_*3std6thread9lifecycle15spawn_unchecked*
+    fun:call_once<(), (dyn core::ops::function::FnOnce<(), Output=()> + core::marker::Send), alloc::alloc::Global>
+    fun:_*3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    fun:start_thread
+    obj:/usr/lib/s390x-linux-gnu/libc.so.6
+    obj:*
+}
+{
+    fallback_cas
+    Memcheck:Cond
+    fun:compare_exchange
+    ...
+    fun:{closure#*}
+    fun:test_compare_exchange_ordering<core::result::Result**128, *128>, portable_atomic::imp::fallback::tests::test_atomic_*128::compare_exchange*::{closure_env#*}>
+    fun:compare_exchange*
+    fun:{closure#*}
+    fun:_*portable_atomic3imp8fallback5tests16test_atomic_*128*compare_exchange*
+    fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
+    fun:_*4test28___rust_begin_short_backtrace*
+    fun:run
+    fun:{closure#*}
+    fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:catch_unwind<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:run_test_in_process
+    fun:_*4test8run_test0B3_
+    fun:{closure#*}
+    fun:_*3std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:call_once<(), std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:catch_unwind<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:_*3std6thread9lifecycle15spawn_unchecked*
+    fun:call_once<(), (dyn core::ops::function::FnOnce<(), Output=()> + core::marker::Send), alloc::alloc::Global>
+    fun:_*3std3sys6thread4unixNtB7_6Thread3new12thread_start
+    fun:start_thread
+    obj:/usr/lib/s390x-linux-gnu/libc.so.6
+    obj:*
+}
+{
+    fallback_store
+    Memcheck:Cond
+    fun:atomic_store<u64>
+    fun:store
+    fun:drop
+    fun:drop_in_place<portable_atomic::imp::fallback::seq_lock::SeqLockWriteGuard>
+    fun:compare_exchange
+    ...
+    fun:{closure#*}
+    fun:test_compare_exchange_ordering<core::result::Result<*128, *128>, portable_atomic::imp::fallback::tests::test_atomic_*128::compare_exchange*::{closure_env#*}>
+    fun:compare_exchange*
+    fun:{closure#*}
+    fun:_*portable_atomic3imp8fallback5tests16test_atomic_*128*compare_exchange*
+    fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
+    fun:_*4test28___rust_begin_short_backtrace*
+    fun:run
     fun:{closure#*}
     fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
     fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
