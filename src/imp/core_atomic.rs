@@ -70,170 +70,168 @@ impl<T> AtomicPtr<T> {
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-impl<T> AtomicPtr<T> {
-    #[inline]
-    #[cfg_attr(
-        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
-        track_caller
-    )]
-    pub(crate) fn compare_exchange(
-        &self,
-        current: *mut T,
-        new: *mut T,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<*mut T, *mut T> {
-        crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(portable_atomic_no_stronger_failure_ordering)]
-        let success = crate::utils::upgrade_success_ordering(success, failure);
-        self.inner.compare_exchange(current, new, success, failure)
-    }
-    #[inline]
-    #[cfg_attr(
-        any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
-        track_caller
-    )]
-    pub(crate) fn compare_exchange_weak(
-        &self,
-        current: *mut T,
-        new: *mut T,
-        success: Ordering,
-        failure: Ordering,
-    ) -> Result<*mut T, *mut T> {
-        crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
-        #[cfg(portable_atomic_no_stronger_failure_ordering)]
-        let success = crate::utils::upgrade_success_ordering(success, failure);
-        self.inner.compare_exchange_weak(current, new, success, failure)
-    }
-}
-// Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
-// compatible, but it requires 1.91+. So, for now emulate it only on cfg(miri).
-// Code using AtomicUsize::fetch_* via casts is still permissive-provenance
-// compatible and is sound.
-#[cfg(portable_atomic_no_strict_provenance_atomic_ptr)]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
-#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-impl<T> AtomicPtr<T> {
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
-        #[cfg(miri)]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_add(val)))
+items!({
+    impl<T> AtomicPtr<T> {
+        #[inline]
+        #[cfg_attr(
+            any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+            track_caller
+        )]
+        pub(crate) fn compare_exchange(
+            &self,
+            current: *mut T,
+            new: *mut T,
+            success: Ordering,
+            failure: Ordering,
+        ) -> Result<*mut T, *mut T> {
+            crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
+            #[cfg(portable_atomic_no_stronger_failure_ordering)]
+            let success = crate::utils::upgrade_success_ordering(success, failure);
+            self.inner.compare_exchange(current, new, success, failure)
         }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_add(val, order),
-            )
+        #[inline]
+        #[cfg_attr(
+            any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
+            track_caller
+        )]
+        pub(crate) fn compare_exchange_weak(
+            &self,
+            current: *mut T,
+            new: *mut T,
+            success: Ordering,
+            failure: Ordering,
+        ) -> Result<*mut T, *mut T> {
+            crate::utils::assert_compare_exchange_ordering(success, failure); // for track_caller (compiler can omit double check)
+            #[cfg(portable_atomic_no_stronger_failure_ordering)]
+            let success = crate::utils::upgrade_success_ordering(success, failure);
+            self.inner.compare_exchange_weak(current, new, success, failure)
         }
     }
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
-        #[cfg(miri)]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_sub(val)))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_sub(val, order),
-            )
-        }
-    }
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    pub(crate) fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
-        #[cfg(miri)]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            self.fetch_update_(order, |x| x.with_addr(x.addr() | val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_or(val, order),
-            )
-        }
-    }
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    pub(crate) fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
-        #[cfg(miri)]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            self.fetch_update_(order, |x| x.with_addr(x.addr() & val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_and(val, order),
-            )
-        }
-    }
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    pub(crate) fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
-        #[cfg(miri)]
-        {
-            #[cfg(portable_atomic_no_strict_provenance)]
-            use crate::utils::ptr::PtrExt as _;
-            self.fetch_update_(order, |x| x.with_addr(x.addr() ^ val))
-        }
-        #[cfg(not(miri))]
-        {
-            crate::utils::ptr::with_exposed_provenance_mut(
-                self.as_atomic_usize().fetch_xor(val, order),
-            )
-        }
-    }
-    #[cfg(miri)]
-    #[inline]
-    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> *mut T
-    where
-        F: FnMut(*mut T) -> *mut T,
-    {
-        // This is a private function and all instances of `f` only operate on the value
-        // loaded, so there is no need to synchronize the first load/failed CAS.
-        let mut prev = self.load(Ordering::Relaxed);
-        loop {
-            let next = f(prev);
-            match self.compare_exchange_weak(prev, next, order, Ordering::Relaxed) {
-                Ok(x) => return x,
-                Err(next_prev) => prev = next_prev,
+    // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
+    // compatible, but it requires 1.91+. So, for now emulate it only on cfg(miri).
+    // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
+    // compatible and is sound.
+    #[cfg(portable_atomic_no_strict_provenance_atomic_ptr)]
+    impl<T> AtomicPtr<T> {
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> *mut T {
+            #[cfg(miri)]
+            {
+                #[cfg(portable_atomic_no_strict_provenance)]
+                use crate::utils::ptr::PtrExt as _;
+                self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_add(val)))
+            }
+            #[cfg(not(miri))]
+            {
+                crate::utils::ptr::with_exposed_provenance_mut(
+                    self.as_atomic_usize().fetch_add(val, order),
+                )
             }
         }
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> *mut T {
+            #[cfg(miri)]
+            {
+                #[cfg(portable_atomic_no_strict_provenance)]
+                use crate::utils::ptr::PtrExt as _;
+                self.fetch_update_(order, |x| x.with_addr(x.addr().wrapping_sub(val)))
+            }
+            #[cfg(not(miri))]
+            {
+                crate::utils::ptr::with_exposed_provenance_mut(
+                    self.as_atomic_usize().fetch_sub(val, order),
+                )
+            }
+        }
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn fetch_or(&self, val: usize, order: Ordering) -> *mut T {
+            #[cfg(miri)]
+            {
+                #[cfg(portable_atomic_no_strict_provenance)]
+                use crate::utils::ptr::PtrExt as _;
+                self.fetch_update_(order, |x| x.with_addr(x.addr() | val))
+            }
+            #[cfg(not(miri))]
+            {
+                crate::utils::ptr::with_exposed_provenance_mut(
+                    self.as_atomic_usize().fetch_or(val, order),
+                )
+            }
+        }
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn fetch_and(&self, val: usize, order: Ordering) -> *mut T {
+            #[cfg(miri)]
+            {
+                #[cfg(portable_atomic_no_strict_provenance)]
+                use crate::utils::ptr::PtrExt as _;
+                self.fetch_update_(order, |x| x.with_addr(x.addr() & val))
+            }
+            #[cfg(not(miri))]
+            {
+                crate::utils::ptr::with_exposed_provenance_mut(
+                    self.as_atomic_usize().fetch_and(val, order),
+                )
+            }
+        }
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn fetch_xor(&self, val: usize, order: Ordering) -> *mut T {
+            #[cfg(miri)]
+            {
+                #[cfg(portable_atomic_no_strict_provenance)]
+                use crate::utils::ptr::PtrExt as _;
+                self.fetch_update_(order, |x| x.with_addr(x.addr() ^ val))
+            }
+            #[cfg(not(miri))]
+            {
+                crate::utils::ptr::with_exposed_provenance_mut(
+                    self.as_atomic_usize().fetch_xor(val, order),
+                )
+            }
+        }
+        #[cfg(miri)]
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        fn fetch_update_<F>(&self, order: Ordering, mut f: F) -> *mut T
+        where
+            F: FnMut(*mut T) -> *mut T,
+        {
+            // This is a private function and all instances of `f` only operate on the value
+            // loaded, so there is no need to synchronize the first load/failed CAS.
+            let mut prev = self.load(Ordering::Relaxed);
+            loop {
+                let next = f(prev);
+                match self.compare_exchange_weak(prev, next, order, Ordering::Relaxed) {
+                    Ok(x) => return x,
+                    Err(next_prev) => prev = next_prev,
+                }
+            }
+        }
+        #[cfg(not(miri))]
+        #[inline(always)]
+        fn as_atomic_usize(&self) -> &AtomicUsize {
+            static_assert!(
+                core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()
+            );
+            static_assert!(
+                core::mem::align_of::<AtomicPtr<()>>() == core::mem::align_of::<AtomicUsize>()
+            );
+            // SAFETY: AtomicPtr and AtomicUsize have the same layout,
+            // and both access data in the same way.
+            unsafe { &*(self as *const Self as *const AtomicUsize) }
+        }
     }
-    #[cfg(not(miri))]
-    #[inline(always)]
-    fn as_atomic_usize(&self) -> &AtomicUsize {
-        static_assert!(
-            core::mem::size_of::<AtomicPtr<()>>() == core::mem::size_of::<AtomicUsize>()
-        );
-        static_assert!(
-            core::mem::align_of::<AtomicPtr<()>>() == core::mem::align_of::<AtomicUsize>()
-        );
-        // SAFETY: AtomicPtr and AtomicUsize have the same layout,
-        // and both access data in the same way.
-        unsafe { &*(self as *const Self as *const AtomicUsize) }
-    }
-}
-#[cfg(not(all(
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(any(miri, portable_atomic_sanitize_thread)),
-    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-)))]
-#[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
-#[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-impl_default_bit_opts!(AtomicPtr, usize);
+    #[cfg(not(all(
+        any(target_arch = "x86", target_arch = "x86_64"),
+        not(any(miri, portable_atomic_sanitize_thread)),
+        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    )))]
+    impl_default_bit_opts!(AtomicPtr, usize);
+});
 impl<T> core::ops::Deref for AtomicPtr<T> {
     type Target = core::sync::atomic::AtomicPtr<T>;
     #[inline]
