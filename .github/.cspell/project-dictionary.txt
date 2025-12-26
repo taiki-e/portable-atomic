@@ -110,6 +110,7 @@ midr
 minu
 miscompiles
 mmfr
+monomorphize
 movlps
 movq
 mpidr

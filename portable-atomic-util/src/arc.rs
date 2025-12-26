@@ -25,13 +25,15 @@ use portable_atomic::{
     hint,
 };
 
-use alloc::{alloc::handle_alloc_error, boxed::Box};
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
 use alloc::{
+    alloc::handle_alloc_error,
     borrow::{Cow, ToOwned},
-    string::String,
-    vec::Vec,
+    boxed::Box,
 };
+#[cfg(not(portable_atomic_no_maybe_uninit))]
+use alloc::{string::String, vec::Vec};
+#[cfg(not(portable_atomic_no_min_const_generics))]
+use core::convert::TryFrom;
 use core::{
     alloc::Layout,
     any::Any,
@@ -45,6 +47,8 @@ use core::{
     ptr::{self, NonNull},
     usize,
 };
+#[cfg(not(portable_atomic_no_maybe_uninit))]
+use core::{iter::FromIterator, slice};
 #[cfg(portable_atomic_unstable_coerce_unsized)]
 use core::{marker::Unsize, ops::CoerceUnsized};
 
@@ -219,7 +223,7 @@ fn arc_inner_layout_for_value_layout(layout: Layout) -> Layout {
     // Previously, layout was calculated on the expression
     // `&*(ptr as *const ArcInner<T>)`, but this created a misaligned
     // reference (see #54908).
-    pad_to_align(extend_layout(Layout::new::<ArcInner<()>>(), layout).unwrap().0)
+    layout::pad_to_align(layout::extend(Layout::new::<ArcInner<()>>(), layout).unwrap().0)
 }
 
 unsafe impl<T: ?Sized + Sync + Send> Send for ArcInner<T> {}
@@ -583,7 +587,7 @@ impl<T> Arc<T> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T> Arc<[T]> {
     /// Constructs a new atomically reference-counted slice with uninitialized contents.
     ///
@@ -634,11 +638,24 @@ impl<T> Arc<[T]> {
     pub fn new_zeroed_slice(len: usize) -> Arc<[mem::MaybeUninit<T>]> {
         unsafe {
             Arc::from_ptr(Arc::allocate_for_layout(
-                Layout::array::<T>(len).unwrap(),
+                layout::array::<T>(len).unwrap(),
                 |layout| Global.allocate_zeroed(layout),
                 |mem| {
-                    ptr::slice_from_raw_parts_mut(mem.cast::<T>(), len)
-                        as *mut ArcInner<[mem::MaybeUninit<T>]>
+                    // We create a slice just for metadata (we must use `[mem::MaybeUninit<T>]`
+                    // instead of `[T]` because values behind `mem` is not valid initialized `T`s.
+                    // there is no size/alignment issue thanks to layout::array), and create a
+                    // pointer from `mem` and slice's metadata.
+                    //
+                    // We cannot use other ways here:
+                    // - ptr::slice_from_raw_parts_mut is best way here, but requires Rust 1.42.
+                    // - We cannot use slice::from_raw_parts_mut then casting to its pointer to
+                    //   ArcInner due to provenance because the actual size of valid allocation
+                    //   behind `mem` is `layout.size()` bytes (counters + values + padding) but the
+                    //   allocation from the pointer from slice::from_raw_parts_mut only valid for
+                    //   `size_of::<T> * len` bytes (only values).
+                    let meta: *const _ =
+                        slice::from_raw_parts(mem as *const mem::MaybeUninit<T>, len);
+                    strict::with_metadata_of(mem, meta) as *mut ArcInner<[mem::MaybeUninit<T>]>
                 },
             ))
         }
@@ -683,7 +700,7 @@ impl<T> Arc<mem::MaybeUninit<T>> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T> Arc<[mem::MaybeUninit<T>]> {
     /// Converts to `Arc<[T]>`.
     ///
@@ -1118,7 +1135,7 @@ impl<T: ?Sized> Arc<T> {
             Self::allocate_for_layout(
                 Layout::for_value(value),
                 |layout| Global.allocate(layout),
-                |mem| strict::with_metadata_of(mem, ptr as *mut ArcInner<T>),
+                |mem| strict::with_metadata_of(mem, ptr as *const ArcInner<T>),
             )
         }
     }
@@ -1145,15 +1162,31 @@ impl<T: ?Sized> Arc<T> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T> Arc<[T]> {
-    /// Allocates an `ArcInner<[T]>` with the given length.
-    unsafe fn allocate_for_slice(len: usize) -> *mut ArcInner<[T]> {
+    /// Allocates an `ArcInner<[mem::MaybeUninit<T>]>` with the given length.
+    unsafe fn allocate_for_slice(len: usize) -> *mut ArcInner<[mem::MaybeUninit<T>]> {
         unsafe {
-            Self::allocate_for_layout(
-                Layout::array::<T>(len).unwrap(),
+            Arc::allocate_for_layout(
+                layout::array::<T>(len).unwrap(),
                 |layout| Global.allocate(layout),
-                |mem| ptr::slice_from_raw_parts_mut(mem.cast::<T>(), len) as *mut ArcInner<[T]>,
+                |mem| {
+                    // We create a slice just for metadata (we must use `[mem::MaybeUninit<T>]`
+                    // instead of `[T]` because values behind `mem` is not valid initialized `T`s.
+                    // there is no size/alignment issue thanks to layout::array), and create a
+                    // pointer from `mem` and slice's metadata.
+                    //
+                    // We cannot use other ways here:
+                    // - ptr::slice_from_raw_parts_mut is best way here, but requires Rust 1.42.
+                    // - We cannot use slice::from_raw_parts_mut then casting to its pointer to
+                    //   ArcInner due to provenance because the actual size of valid allocation
+                    //   behind `mem` is `layout.size()` bytes (counters + values + padding) but the
+                    //   allocation from the pointer from slice::from_raw_parts_mut only valid for
+                    //   `size_of::<T> * len` bytes (only values).
+                    let meta: *const _ =
+                        slice::from_raw_parts(mem as *const mem::MaybeUninit<T>, len);
+                    strict::with_metadata_of(mem, meta) as *mut ArcInner<[mem::MaybeUninit<T>]>
+                },
             )
         }
     }
@@ -1166,18 +1199,19 @@ impl<T> Arc<[T]> {
         // In the event of a panic, elements that have been written
         // into the new ArcInner will be dropped, then the memory freed.
         struct Guard<T> {
-            ptr: *mut ArcInner<[mem::MaybeUninit<T>]>,
+            mem: NonNull<u8>,
             elems: *mut T,
+            layout: Layout,
             n_elems: usize,
         }
 
         impl<T> Drop for Guard<T> {
             fn drop(&mut self) {
                 unsafe {
-                    let slice = ptr::slice_from_raw_parts_mut(self.elems, self.n_elems);
+                    let slice = slice::from_raw_parts_mut(self.elems, self.n_elems);
                     ptr::drop_in_place(slice);
 
-                    drop(Box::from_raw(self.ptr));
+                    Global.deallocate(self.mem, self.layout);
                 }
             }
         }
@@ -1185,10 +1219,13 @@ impl<T> Arc<[T]> {
         unsafe {
             let ptr: *mut ArcInner<[mem::MaybeUninit<T>]> = Arc::allocate_for_slice(len);
 
+            let mem = ptr as *mut _ as *mut u8;
+            let layout = Layout::for_value(&*ptr);
+
             // Pointer to first element
             let elems = (*ptr).data.as_mut_ptr() as *mut T;
 
-            let mut guard = Guard { ptr, elems, n_elems: 0 };
+            let mut guard = Guard { mem: NonNull::new_unchecked(mem), elems, layout, n_elems: 0 };
 
             for (i, item) in iter.enumerate() {
                 ptr::write(elems.add(i), item);
@@ -2390,7 +2427,7 @@ items!({
     }
 });
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T: Clone> From<&[T]> for Arc<[T]> {
     /// Allocates a reference-counted slice and fills it by cloning `v`'s items.
     ///
@@ -2408,7 +2445,7 @@ impl<T: Clone> From<&[T]> for Arc<[T]> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T: Clone> From<&mut [T]> for Arc<[T]> {
     /// Allocates a reference-counted slice and fills it by cloning `v`'s items.
     ///
@@ -2427,7 +2464,7 @@ impl<T: Clone> From<&mut [T]> for Arc<[T]> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl From<&str> for Arc<str> {
     /// Allocates a reference-counted `str` and copies `v` into it.
     ///
@@ -2447,7 +2484,7 @@ impl From<&str> for Arc<str> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl From<&mut str> for Arc<str> {
     /// Allocates a reference-counted `str` and copies `v` into it.
     ///
@@ -2466,7 +2503,7 @@ impl From<&mut str> for Arc<str> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl From<String> for Arc<str> {
     /// Allocates a reference-counted `str` and copies `v` into it.
     ///
@@ -2501,7 +2538,7 @@ impl<T: ?Sized> From<Box<T>> for Arc<T> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
+#[cfg(not(portable_atomic_no_maybe_uninit))]
 impl<T> From<Vec<T>> for Arc<[T]> {
     /// Allocates a reference-counted slice and moves `v`'s items into it.
     ///
@@ -2533,7 +2570,6 @@ impl<T> From<Vec<T>> for Arc<[T]> {
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl<'a, B> From<Cow<'a, B>> for Arc<B>
 where
     B: ?Sized + ToOwned,
@@ -2560,7 +2596,6 @@ where
     }
 }
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
 impl From<Arc<str>> for Arc<[u8]> {
     /// Converts an atomically reference-counted string slice into a byte slice.
     ///
@@ -2582,7 +2617,7 @@ impl From<Arc<str>> for Arc<[u8]> {
 
 #[cfg(not(portable_atomic_no_min_const_generics))]
 items!({
-    impl<T, const N: usize> core::convert::TryFrom<Arc<[T]>> for Arc<[T; N]> {
+    impl<T, const N: usize> TryFrom<Arc<[T]>> for Arc<[T; N]> {
         type Error = Arc<[T]>;
 
         fn try_from(boxed_slice: Arc<[T]>) -> Result<Self, Self::Error> {
@@ -2596,8 +2631,8 @@ items!({
     }
 });
 
-#[cfg(not(portable_atomic_no_alloc_layout_extras))]
-impl<T> core::iter::FromIterator<T> for Arc<[T]> {
+#[cfg(not(portable_atomic_no_maybe_uninit))]
+impl<T> FromIterator<T> for Arc<[T]> {
     /// Takes each element in the `Iterator` and collects it into an `Arc<[T]>`.
     ///
     /// # Performance characteristics
@@ -2681,7 +2716,7 @@ fn data_offset<T: ?Sized>(ptr: &T) -> usize {
 #[inline]
 fn data_offset_align(align: usize) -> usize {
     let layout = Layout::new::<ArcInner<()>>();
-    layout.size() + padding_needed_for(layout, align)
+    layout.size() + layout::padding_needed_for(layout, align)
 }
 
 /// A unique owning pointer to an [`ArcInner`] **that does not imply the contents are initialized,**
@@ -3139,62 +3174,137 @@ mod clone {
     }
 }
 
-// Based on unstable Layout::padding_needed_for.
-#[inline]
-#[must_use]
-fn padding_needed_for(layout: Layout, align: usize) -> usize {
-    let len = layout.size();
+mod layout {
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    use core::isize;
+    use core::{alloc::Layout, cmp, usize};
 
-    // Rounded up value is:
-    //   len_rounded_up = (len + align - 1) & !(align - 1);
-    // and then we return the padding difference: `len_rounded_up - len`.
-    //
-    // We use modular arithmetic throughout:
-    //
-    // 1. align is guaranteed to be > 0, so align - 1 is always
-    //    valid.
-    //
-    // 2. `len + align - 1` can overflow by at most `align - 1`,
-    //    so the &-mask with `!(align - 1)` will ensure that in the
-    //    case of overflow, `len_rounded_up` will itself be 0.
-    //    Thus the returned padding, when added to `len`, yields 0,
-    //    which trivially satisfies the alignment `align`.
-    //
-    // (Of course, attempts to allocate blocks of memory whose
-    // size and padding overflow in the above manner should cause
-    // the allocator to yield an error anyway.)
+    // Based on unstable Layout::padding_needed_for.
+    #[inline]
+    #[must_use]
+    pub(super) fn padding_needed_for(layout: Layout, align: usize) -> usize {
+        // FIXME: Can we just change the type on this to `Alignment`?
+        if !align.is_power_of_two() {
+            return usize::MAX;
+        }
+        let len_rounded_up = size_rounded_up_to_custom_align(layout, align);
+        // SAFETY: Cannot overflow because the rounded-up value is never less
+        len_rounded_up.wrapping_sub(layout.size()) // can use unchecked_sub
+    }
 
-    let len_rounded_up = len.wrapping_add(align).wrapping_sub(1) & !align.wrapping_sub(1);
-    len_rounded_up.wrapping_sub(len)
-}
+    /// Returns the smallest multiple of `align` greater than or equal to `self.size()`.
+    ///
+    /// This can return at most `Alignment::MAX` (aka `isize::MAX + 1`)
+    /// because the original size is at most `isize::MAX`.
+    #[inline]
+    fn size_rounded_up_to_custom_align(layout: Layout, align: usize) -> usize {
+        // Rounded up value is:
+        //   size_rounded_up = (size + align - 1) & !(align - 1);
+        //
+        // The arithmetic we do here can never overflow:
+        //
+        // 1. align is guaranteed to be > 0, so align - 1 is always
+        //    valid.
+        //
+        // 2. size is at most `isize::MAX`, so adding `align - 1` (which is at
+        //    most `isize::MAX`) can never overflow a `usize`.
+        //
+        // 3. masking by the alignment can remove at most `align - 1`,
+        //    which is what we just added, thus the value we return is never
+        //    less than the original `size`.
+        //
+        // (Size 0 Align MAX is already aligned, so stays the same, but things like
+        // Size 1 Align MAX or Size isize::MAX Align 2 round up to `isize::MAX + 1`.)
+        let align_m1 = align.wrapping_sub(1);
+        layout.size().wrapping_add(align_m1) & !align_m1
+    }
 
-// Based on Layout::pad_to_align stabilized in Rust 1.44.
-#[inline]
-#[must_use]
-fn pad_to_align(layout: Layout) -> Layout {
-    let pad = padding_needed_for(layout, layout.align());
-    // This cannot overflow. Quoting from the invariant of Layout:
-    // > `size`, when rounded up to the nearest multiple of `align`,
-    // > must not overflow isize (i.e., the rounded value must be
-    // > less than or equal to `isize::MAX`)
-    let new_size = layout.size() + pad;
+    // Based on Layout::pad_to_align stabilized in Rust 1.44.
+    #[inline]
+    #[must_use]
+    pub(super) fn pad_to_align(layout: Layout) -> Layout {
+        // This cannot overflow. Quoting from the invariant of Layout:
+        // > `size`, when rounded up to the nearest multiple of `align`,
+        // > must not overflow isize (i.e., the rounded value must be
+        // > less than or equal to `isize::MAX`)
+        let new_size = size_rounded_up_to_custom_align(layout, layout.align());
 
-    // SAFETY: padded size is guaranteed to not exceed `isize::MAX`.
-    unsafe { Layout::from_size_align_unchecked(new_size, layout.align()) }
-}
+        // SAFETY: padded size is guaranteed to not exceed `isize::MAX`.
+        unsafe { Layout::from_size_align_unchecked(new_size, layout.align()) }
+    }
 
-// Based on Layout::extend stabilized in Rust 1.44.
-#[inline]
-fn extend_layout(layout: Layout, next: Layout) -> Option<(Layout, usize)> {
-    let new_align = cmp::max(layout.align(), next.align());
-    let pad = padding_needed_for(layout, next.align());
+    // Based on Layout::extend stabilized in Rust 1.44.
+    #[inline]
+    pub(super) fn extend(layout: Layout, next: Layout) -> Option<(Layout, usize)> {
+        let new_align = cmp::max(layout.align(), next.align());
+        let offset = size_rounded_up_to_custom_align(layout, next.align());
 
-    let offset = layout.size().checked_add(pad)?;
-    let new_size = offset.checked_add(next.size())?;
+        // SAFETY: `offset` is at most `isize::MAX + 1` (such as from aligning
+        // to `Alignment::MAX`) and `next.size` is at most `isize::MAX` (from the
+        // `Layout` type invariant).  Thus the largest possible `new_size` is
+        // `isize::MAX + 1 + isize::MAX`, which is `usize::MAX`, and cannot overflow.
+        let new_size = offset.wrapping_add(next.size()); // can use unchecked_add
 
-    // The safe constructor is called here to enforce the isize size limit.
-    let layout = Layout::from_size_align(new_size, new_align).ok()?;
-    Some((layout, offset))
+        let layout = Layout::from_size_align(new_size, new_align).ok()?;
+        Some((layout, offset))
+    }
+
+    // Based on Layout::array stabilized in Rust 1.44.
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    #[inline]
+    pub(super) fn array<T>(n: usize) -> Option<Layout> {
+        #[inline(always)]
+        const fn max_size_for_align(align: usize) -> usize {
+            // (power-of-two implies align != 0.)
+
+            // Rounded up size is:
+            //   size_rounded_up = (size + align - 1) & !(align - 1);
+            //
+            // We know from above that align != 0. If adding (align - 1)
+            // does not overflow, then rounding up will be fine.
+            //
+            // Conversely, &-masking with !(align - 1) will subtract off
+            // only low-order-bits. Thus if overflow occurs with the sum,
+            // the &-mask cannot subtract enough to undo that overflow.
+            //
+            // Above implies that checking for summation overflow is both
+            // necessary and sufficient.
+
+            // SAFETY: the maximum possible alignment is `isize::MAX + 1`,
+            // so the subtraction cannot overflow.
+            (isize::MAX as usize + 1).wrapping_sub(align)
+        }
+
+        #[inline]
+        fn inner(element_layout: Layout, n: usize) -> Option<Layout> {
+            let element_size = element_layout.size();
+            let align = element_layout.align();
+
+            // We need to check two things about the size:
+            //  - That the total size won't overflow a `usize`, and
+            //  - That the total size still fits in an `isize`.
+            // By using division we can check them both with a single threshold.
+            // That'd usually be a bad idea, but thankfully here the element size
+            // and alignment are constants, so the compiler will fold all of it.
+            if element_size != 0 && n > max_size_for_align(align) / element_size {
+                return None;
+            }
+
+            // SAFETY: We just checked that we won't overflow `usize` when we multiply.
+            // This is a useless hint inside this function, but after inlining this helps
+            // deduplicate checks for whether the overall capacity is zero (e.g., in `RawVec`'s
+            // allocation path) before/after this multiplication.
+            let array_size = element_size.wrapping_mul(n); // can use unchecked_mul
+
+            // SAFETY: We just checked above that the `array_size` will not
+            // exceed `isize::MAX` even when rounded up to the alignment.
+            // And `Alignment` guarantees it's a power of two.
+            unsafe { Some(Layout::from_size_align_unchecked(array_size, align)) }
+        }
+
+        // Reduce the amount of code we need to monomorphize per `T`.
+        inner(Layout::new::<T>(), n)
+    }
 }
 
 #[cfg(feature = "std")]
@@ -3310,15 +3420,15 @@ mod strict {
     /// Creates a new pointer with the metadata of `other`.
     #[inline]
     #[must_use]
-    pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *mut U) -> *mut U {
-        let target = &mut other as *mut *mut U as *mut *mut u8;
+    pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *const U) -> *mut U {
+        let target = &mut other as *mut *const U as *mut *const u8;
 
         // SAFETY: In case of a thin pointer, this operations is identical
         // to a simple assignment. In case of a fat pointer, with the current
         // fat pointer layout implementation, the first field of such a
         // pointer is always the data pointer, which is likewise assigned.
-        unsafe { *target = this as *mut u8 }
-        other
+        unsafe { *target = this as *const u8 }
+        other as *mut U
     }
 
     // Based on <pointer>::byte_add stabilized in Rust 1.75.
