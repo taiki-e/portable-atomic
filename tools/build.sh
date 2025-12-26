@@ -116,8 +116,7 @@ default_targets=(
   powerpc64-unknown-freebsd
   powerpc64le-unknown-freebsd
   powerpc64-unknown-openbsd
-  # TODO: thread 'rustc' (227565) panicked at compiler/rustc_lint/src/types/improper_ctypes.rs:231:40:
-  # powerpc64-ibm-aix
+  powerpc64-ibm-aix
 
   # s390x
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
@@ -320,8 +319,6 @@ build() {
         hexagon*) return 0 ;;
         # compiler SIGSEGV (last checked: nightly-2025-09-11)
         m68k-unknown-none-elf) return 0 ;;
-        # TODO: thread 'rustc' (227565) panicked at compiler/rustc_lint/src/types/improper_ctypes.rs:231:40: (last checked: nightly-2025-09-11)
-        powerpc64-ibm-aix) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
