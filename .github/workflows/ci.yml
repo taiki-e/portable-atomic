@@ -942,7 +942,7 @@ jobs:
               | tar xjf - --strip-components 1 -C "${HOME}"/msp430-gcc
             printf '%s\n' "${HOME}"/msp430-gcc/bin >>"${GITHUB_PATH}"
             # https://l4re.org/download/snapshots
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-14.tar.xz \
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
               | tar xJf - -C "${HOME}"/aarch64-l4re-gcc
             retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
