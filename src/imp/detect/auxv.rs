@@ -40,11 +40,9 @@ Supported platforms:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
   - arm (uClibc-ng 1.0.0+ https://github.com/wbx-github/uclibc-ng/tree/v1.0.0/libc/sysdeps/linux)
   (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
-  In L4Re which uses uClibc-ng, a dummy API was added first in 2020 that always returns 0 (https://github.com/kernkonzept/l4re-core/commit/e88fa67198074d3e6b4983c5c8af1538e2089ff3),
-  then implemented in 2024 (https://github.com/kernkonzept/l4re-core/commit/3ee2a50dd1b3bc22955e593004990887a0a5b4a3).
-  However, getauxval(AT_HWCAP*) always returns 0 (as of 2025-03-20). (see tests/l4re test)
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
+  The implementation always return 0 (as of 1.8.10): https://github.com/picolibc/picolibc/blob/1.8.10/newlib/libc/picolib/getauxval.c
 - Android 4.3+ (API level 18+) (through getauxval)
   https://github.com/aosp-mirror/platform_bionic/commit/2c5153b043b44e9935a334ae9b2d5a4bc5258b40
   https://github.com/aosp-mirror/platform_bionic/commit/655e430b28d7404f763e7ebefe84fba5a387666d
@@ -74,6 +72,12 @@ Supported platforms:
   - aarch64 (OpenBSD 6.1+ https://www.openbsd.org/61.html)
   - arm (OpenBSD 6.0+ https://www.openbsd.org/60.html)
   - powerpc64 (OpenBSD 6.8+ https://www.openbsd.org/68.html)
+
+On L4Re which uses uClibc-ng, a dummy getauxval was added first in 2020 that always returns 0 (https://github.com/kernkonzept/l4re-core/commit/e88fa67198074d3e6b4983c5c8af1538e2089ff3),
+then implemented in 2024 (https://github.com/kernkonzept/l4re-core/commit/3ee2a50dd1b3bc22955e593004990887a0a5b4a3).
+However, getauxval(AT_HWCAP*) always returns 0 (as of 2025-12-25). (see tests/l4re test)
+On Redox, getauxval is available since 0.5.0 (https://github.com/redox-os/relibc/commit/f9f752d74c4f1f56a89c0fcdd5cab63d2380fe09),
+but the implementation always return 0 (as of 2025-12-25). https://github.com/redox-os/relibc/blob/bb3cadfca4f7e885e600eba1276a9d24bbddb531/src/header/sys_auxv/mod.rs
 
 On platforms that we can assume that getauxval/elf_aux_info is always available, we directly call
 them on except for musl with static linking. (At this time, we also retain compatibility with
@@ -216,7 +220,7 @@ mod os {
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
                 // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/sys/auxv.h
                 // https://github.com/aosp-mirror/platform_bionic/blob/android-16.0.0_r1/libc/include/sys/auxv.h
-                // https://github.com/picolibc/picolibc/blob/1.8.6/newlib/libc/include/sys/auxv.h
+                // https://github.com/picolibc/picolibc/blob/1.8.10/newlib/libc/include/sys/auxv.h
                 #[cfg(any(
                     test,
                     all(

@@ -267,8 +267,9 @@ macro_rules! atomic {
                 }
 
                 // Grab a regular write lock so that writers don't starve this load.
-                let guard = lock
-                    .write(Ordering::AcqRel /* we already emit sc fence in optimistic_read */);
+                let guard = lock.write(
+                    Ordering::AcqRel, // we already emit sc fence in optimistic_read if needed
+                );
                 let val = self.read(&guard);
                 // The value hasn't been changed. Drop the guard without incrementing the stamp.
                 guard.abort();
