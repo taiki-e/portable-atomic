@@ -58,8 +58,7 @@ default_targets=(
   msp430-none-elf
 
   # l4re
-  # TODO: hang
-  # aarch64-unknown-l4re-uclibc # custom target
+  aarch64-unknown-l4re-uclibc # custom target
 )
 
 x() {
