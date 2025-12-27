@@ -281,7 +281,7 @@ macro_rules! __test_atomic_int {
     ($atomic_type:ty, $int_type:ident, single_thread) => {
         #[test]
         fn swap() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -297,7 +297,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn compare_exchange() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -316,7 +316,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn compare_exchange_weak() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -341,7 +341,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_add() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -371,7 +371,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn add() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -401,7 +401,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_sub() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -431,7 +431,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn sub() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -481,7 +481,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_nand() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") {
                 return;
@@ -536,7 +536,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_max() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -577,7 +577,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_min() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -638,7 +638,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_neg() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -660,7 +660,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn neg() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -718,7 +718,7 @@ macro_rules! __test_atomic_int {
         }
         ::quickcheck::quickcheck! {
             fn quickcheck_swap(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -731,7 +731,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_compare_exchange(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -765,7 +765,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_add(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -789,7 +789,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_add(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -813,7 +813,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_sub(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -837,7 +837,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_sub(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -883,7 +883,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_nand(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") {
                     return true;
@@ -943,7 +943,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_max(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -967,7 +967,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_min(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -1011,7 +1011,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_neg(x: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -1038,7 +1038,7 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_neg(x: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;
@@ -1089,7 +1089,7 @@ macro_rules! __test_atomic_int {
 
         #[test]
         fn stress_swap() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -1152,7 +1152,7 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn stress_compare_exchange() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -2024,7 +2024,7 @@ macro_rules! __test_atomic_int_pub {
         use std::boxed::Box;
         #[test]
         fn fetch_update() {
-            // TODO(riscv): wrong result (as of Valgrind 3.25)
+            // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                 return;
@@ -2089,7 +2089,7 @@ macro_rules! __test_atomic_int_pub {
         }
         ::quickcheck::quickcheck! {
             fn quickcheck_fetch_update(x: $int_type, y: $int_type) -> bool {
-                // TODO(riscv): wrong result (as of Valgrind 3.25)
+                // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
                     return true;

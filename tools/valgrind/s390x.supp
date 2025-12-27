@@ -1,4 +1,62 @@
 {
+    test_term_terminfo_cond
+    Memcheck:Cond
+    fun:_*test4term8terminfo4parm6expand
+    fun:apply_cap<std::io::stdio::Stdout>
+    fun:_*test4term8terminfo*
+    fun:write_pretty<std::io::stdio::Stdout>
+    ...
+    fun:_*test10formatters6pretty*
+    ...
+    fun:_*test7console17run_tests_console*
+    ...
+    fun:test_main_with_exit_callback<test::test_main::{closure_env#*}>
+    fun:_*test9test_main
+    fun:_*test16test_main_static
+    fun:call_once<fn(), ()>
+    fun:_*std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:_*std2rt10lang_start*
+    fun:call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)>
+    fun:do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32>
+    fun:catch_unwind<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)>
+    fun:catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32>
+    fun:{closure#*}
+    fun:do_call<std::rt::lang_start_internal::{closure_env#*}, isize>
+    fun:catch_unwind<isize, std::rt::lang_start_internal::{closure_env#*}>
+    fun:catch_unwind<std::rt::lang_start_internal::{closure_env#*}, isize>
+    fun:_*std2rt19lang_start_internal
+    fun:main
+}
+{
+    test_term_terminfo_value8
+    Memcheck:Value8
+    fun:_*test4term8terminfo4parm6expand
+    fun:apply_cap<std::io::stdio::Stdout>
+    fun:_*test4term8terminfo*
+    fun:write_pretty<std::io::stdio::Stdout>
+    ...
+    fun:_*test10formatters6pretty*
+    ...
+    fun:_*test7console17run_tests_console*
+    ...
+    fun:test_main_with_exit_callback<test::test_main::{closure_env#*}>
+    fun:_*test9test_main
+    fun:_*test16test_main_static
+    fun:call_once<fn(), ()>
+    fun:_*std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:_*std2rt10lang_start*
+    fun:call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)>
+    fun:do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32>
+    fun:catch_unwind<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)>
+    fun:catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32>
+    fun:{closure#*}
+    fun:do_call<std::rt::lang_start_internal::{closure_env#*}, isize>
+    fun:catch_unwind<isize, std::rt::lang_start_internal::{closure_env#*}>
+    fun:catch_unwind<std::rt::lang_start_internal::{closure_env#*}, isize>
+    fun:_*std2rt19lang_start_internal
+    fun:main
+}
+{
     sub_word_fetch_update
     Memcheck:Cond
     fun:fetch_update<portable_atomic::tests::test_atomic_bool::fetch_update::{closure_env#*}>

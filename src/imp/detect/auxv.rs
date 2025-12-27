@@ -1016,13 +1016,23 @@ mod tests {
                     assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
                     assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                 }
-            } else if cfg!(valgrind) {
-                // TODO: valgrind bug (result value mismatch) (as of 3.24)
             } else {
                 std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
-                    assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                    assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                    if cfg!(all(valgrind, target_arch = "powerpc64")) {
+                        // TODO: valgrind bug (as of Valgrind 3.26)
+                        assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
+                        assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
+                    } else if cfg!(all(valgrind, target_arch = "aarch64"))
+                        || cfg!(all(valgrind, target_arch = "arm")) && at == ffi::AT_HWCAP2
+                    {
+                        // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.26)
+                        assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
+                        assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                    } else {
+                        assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
+                        assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                    }
                 }
                 for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
                     assert_eq!(

@@ -1074,7 +1074,7 @@ jobs:
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
     container:
-      image: ghcr.io/taiki-e/valgrind:ubuntu-devel-${{ matrix.dpkg-arch }}
+      image: ghcr.io/taiki-e/valgrind:${{ matrix.dpkg-arch }}
       options: --privileged
     steps:
       - uses: taiki-e/checkout-action@v1
@@ -1118,7 +1118,7 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
         if: startsWith(matrix.target, 'aarch64')
       # aarch64 +lse
-      # As of Valgrind 3.19, Valgrind supports atomic instructions of Armv8.0 and Armv8.1 (FEAT_LSE).
+      # As of Valgrind 3.26, Valgrind supports atomic instructions of Armv8.0, Armv8.1 (FEAT_LSE), and Armv8.3 (FEAT_LRCPC).
       - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
@@ -1137,7 +1137,6 @@ jobs:
             docker-arch: ppc64le
           - target: riscv64gc-unknown-linux-gnu
             dpkg-arch: riscv64
-            distro: ubuntu-25.04 # TODO: "unhandled instruction 0x0C0777D7" error on Ubuntu 25.10 (likely due to RVA23U64 extensions are now enabled)
           - target: s390x-unknown-linux-gnu
             dpkg-arch: s390x
     runs-on: ubuntu-latest
@@ -1220,7 +1219,7 @@ jobs:
         with:
           arch: none
           distro: none
-          base_image: --platform=linux/${{ matrix.docker-arch || matrix.dpkg-arch }} ghcr.io/taiki-e/valgrind:${{ matrix.distro || 'ubuntu-devel' }}-${{ matrix.dpkg-arch }}-cross
+          base_image: --platform=linux/${{ matrix.docker-arch || matrix.dpkg-arch }} ghcr.io/taiki-e/valgrind:${{ matrix.dpkg-arch }}-cross
           shell: /bin/bash
           run: |
             set -CeEuxo pipefail

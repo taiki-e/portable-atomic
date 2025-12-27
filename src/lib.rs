@@ -2892,7 +2892,7 @@ const IS_ALWAYS_LOCK_FREE: bool = ", stringify!($atomic_type), "::is_always_lock
                 }
             }
             #[cfg(test)]
-            #[cfg_attr(all(valgrind, target_arch = "powerpc64"), allow(dead_code))] // TODO: Hang (as of Valgrind 3.25)
+            #[cfg_attr(all(valgrind, target_arch = "powerpc64"), allow(dead_code))] // TODO(powerpc64): Hang (as of Valgrind 3.26)
             const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
             #[cfg(not(portable_atomic_no_const_mut_refs))]
