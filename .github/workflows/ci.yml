@@ -966,11 +966,12 @@ jobs:
         if: startsWith(matrix.rust, 'nightly')
       - run: rm -- tests/avr/rust-toolchain.toml
         if: startsWith(matrix.rust, 'nightly-')
-      # syn 2.0.107 & quote 1.0.42 requires Rust 1.68.
+      # syn 2.0.107 & quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
       - run: |
           cargo generate-lockfile
-          cargo update -p syn --precise 2.0.106
+          cargo update -p proc-macro2 --precise 1.0.103
           cargo update -p quote --precise 1.0.41
+          cargo update -p syn --precise 2.0.106
         working-directory: tests/no-std-qemu
         if: matrix.rust == '1.64'
       - run: tools/no-std.sh
