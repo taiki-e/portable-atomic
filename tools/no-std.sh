@@ -17,7 +17,7 @@ default_targets=(
   thumbv4t-none-eabi
   # v5TE
   armv5te-none-eabi
-  # thumbv5te-none-eabi # TODO: hang since nightly-2025-12-03
+  thumbv5te-none-eabi
   # v6
   armv6-none-eabi
   # thumbv6-none-eabi # TODO: "rustc-LLVM ERROR: Cannot select: intrinsic %llvm.arm.hint" will be fixed in https://github.com/rust-lang/rust/pull/150138
@@ -229,10 +229,10 @@ run() {
       linker=link.ld
       target_rustflags+=" -C link-arg=-T${linker}"
       ;;
-    armv5te* | armv6-* | armv7a*)
+    armv7a*)
       test_dir=tests/no-std-qemu
       ;;
-    thumb* | riscv*)
+    arm* | thumb* | riscv*)
       test_dir=tests/no-std-qemu
       linker=link.x
       target_rustflags+=" -C link-arg=-T${linker}"
@@ -295,21 +295,19 @@ EOF
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" "$@"
-    if [[ -n "${assume_single_core_target_rustflags}" ]]; then
-      CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
-        RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
-        x_cargo "${args[@]}" "$@"
-      CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
-        RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
-        x_cargo "${args[@]}" "$@"
-    fi
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" --release "$@"
     if [[ -n "${assume_single_core_target_rustflags}" ]]; then
       CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
         RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
+        x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
+        RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
         x_cargo "${args[@]}" --release "$@"
+      CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
+        RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
+        x_cargo "${args[@]}" "$@"
       CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
         RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
         x_cargo "${args[@]}" --release "$@"
@@ -322,6 +320,26 @@ EOF
         CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
           RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
           x_cargo "${args[@]}" --release "$@"
+        case "${target}" in
+          armv4t* | thumbv4t*)
+            cd -- ../no-std-qemu
+            target_rustflags="${target_rustflags//link\.ld/link.x}"
+            # Run with qemu-system-arm.
+            subcmd=run
+            CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+              RUSTFLAGS="${target_rustflags}" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+              RUSTFLAGS="${target_rustflags}" \
+              x_cargo "${args[@]}" --release "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-disable-fiq" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_disable_fiq" \
+              x_cargo "${args[@]}" --release "$@"
+            ;;
+        esac
         ;;
       armv6-* | thumbv6-* | armv7a*)
         CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core-disable-fiq" \

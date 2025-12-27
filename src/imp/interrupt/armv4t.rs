@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Arm A-Profile Architectures, Arm M-Profile Architectures, Legacy Arm Architectures
+Arm A-Profile Architectures, Arm R-Profile Architectures, Legacy Arm Architectures
 
 Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-
 

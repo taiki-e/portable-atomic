@@ -17,6 +17,12 @@ runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihost
 [target.thumbv8m.main-none-eabihf]
 runner = "qemu-system-arm -M lm3s6965evb -cpu cortex-m33 -display none -semihosting -kernel"
 
+# Armv4T
+[target.armv4t-none-eabi]
+runner = "qemu-system-arm -M versatilepb -cpu ti925t -display none -semihosting -kernel"
+[target.thumbv4t-none-eabi]
+runner = "qemu-system-arm -M versatilepb -cpu ti925t -display none -semihosting -kernel"
+
 # Armv5TE
 [target.armv5te-none-eabi]
 runner = "qemu-system-arm -M versatilepb -cpu arm926 -display none -semihosting -kernel"
@@ -26,11 +32,15 @@ runner = "qemu-system-arm -M versatilepb -cpu arm926 -display none -semihosting 
 # Armv6
 [target.armv6-none-eabi]
 runner = "qemu-system-arm -M versatilepb -cpu arm1176 -display none -semihosting -kernel"
+[target.armv6-none-eabihf]
+runner = "qemu-system-arm -M versatilepb -cpu arm1176 -display none -semihosting -kernel"
 [target.thumbv6-none-eabi]
 runner = "qemu-system-arm -M versatilepb -cpu arm1176 -display none -semihosting -kernel"
 
 # Armv7-A
 [target.armv7a-none-eabi]
+runner = "qemu-system-arm -M xilinx-zynq-a9 -display none -semihosting -kernel"
+[target.armv7a-none-eabihf]
 runner = "qemu-system-arm -M xilinx-zynq-a9 -display none -semihosting -kernel"
 
 # RISC-V

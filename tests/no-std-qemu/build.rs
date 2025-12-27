@@ -4,7 +4,7 @@ use std::env;
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rustc-check-cfg=cfg(armv5te,f,d)");
+    println!("cargo:rustc-check-cfg=cfg(armv4t,armv5te,f,d)");
 
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
@@ -16,6 +16,7 @@ fn main() {
         subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
         subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
         match subarch {
+            "v4t" => println!("cargo:rustc-cfg=armv4t"),
             "v5te" => println!("cargo:rustc-cfg=armv5te"),
             _ => {}
         }
