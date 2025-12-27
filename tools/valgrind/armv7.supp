@@ -9,19 +9,19 @@
     ...
     fun:sort<std::backtrace_rs::symbolize::gimli::elf::ParsedSym, core::slice::{impl#0}::sort_unstable_by_key::{closure_env#0}<std::backtrace_rs::symbolize::gimli::elf::ParsedSym, u64, std::backtrace_rs::symbolize::gimli::elf::{impl#1}::parse::{closure_env#3}>>
     fun:sort_unstable_by_key<std::backtrace_rs::symbolize::gimli::elf::ParsedSym, u64, std::backtrace_rs::symbolize::gimli::elf::{impl#1}::parse::{closure_env#3}>
-    fun:_*3std12backtrace_rs9symbolize5gimli3elf*
+    fun:_*std12backtrace_rs9symbolize5gimli3elf*
     fun:{closure#0}
     fun:mk_or_other<std::backtrace_rs::symbolize::gimli::elf::{impl#0}::new::{closure_env#0}>
     fun:new
     fun:create_mapping
     fun:mapping_for_lib
     fun:{closure#1}
-    fun:_*3std12backtrace_rs9symbolize5gimli*
+    fun:_*std12backtrace_rs9symbolize5gimli*
     fun:resolve
     fun:resolve_frame_unsynchronized<std::sys::backtrace::_print_fmt::{closure#1}::{closure_env#0}>
-    fun:_*3std3sys9backtrace10*
+    fun:_*std3sys9backtrace10*
     fun:call_mut<(&std::backtrace_rs::backtrace::Frame), dyn core::ops::function::FnMut<(&std::backtrace_rs::backtrace::Frame), Output=bool>>
-    fun:_*3std12backtrace_rs9backtrace9libunwind5trace8trace_fn*
+    fun:_*std12backtrace_rs9backtrace9libunwind5trace8trace_fn*
     obj:/usr/lib/arm-linux-gnueabihf/libgcc_s.so.1
     ...
 }
