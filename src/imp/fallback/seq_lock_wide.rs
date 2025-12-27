@@ -7,7 +7,7 @@ use core::{
     sync::atomic::{self, AtomicU32, Ordering},
 };
 
-use super::utils::Backoff;
+use super::utils::{Backoff, sc_fence};
 #[cfg(portable_atomic_unsafe_assume_privileged)]
 use crate::imp::interrupt::arch as interrupt;
 use crate::utils::unlikely;
@@ -47,7 +47,7 @@ impl SeqLock {
     #[inline]
     pub(super) fn optimistic_read(&self, order: Ordering) -> Option<(State, State)> {
         if unlikely(order == Ordering::SeqCst) {
-            atomic::fence(Ordering::SeqCst);
+            sc_fence();
         }
         // The acquire loads from `state_hi` and `state_lo` synchronize with the release stores in
         // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
@@ -87,7 +87,7 @@ impl SeqLock {
         // section of `(stamp.0, stamp.1)`.
         let result = (state_hi, state_lo) == stamp;
         if unlikely(order == Ordering::SeqCst) && result {
-            atomic::fence(Ordering::SeqCst);
+            sc_fence();
         }
         result
     }
@@ -97,7 +97,7 @@ impl SeqLock {
     pub(super) fn write(&self, order: Ordering) -> SeqLockWriteGuard<'_> {
         let emit_sc_fence = order == Ordering::SeqCst;
         if unlikely(emit_sc_fence) {
-            atomic::fence(Ordering::SeqCst);
+            sc_fence();
         }
 
         // Get current interrupt state and disable interrupts when the user
@@ -167,7 +167,7 @@ impl SeqLockWriteGuard<'_> {
         }
 
         if unlikely(this.emit_sc_fence) {
-            atomic::fence(Ordering::SeqCst);
+            sc_fence();
         }
     }
 }
@@ -198,7 +198,7 @@ impl Drop for SeqLockWriteGuard<'_> {
         }
 
         if unlikely(self.emit_sc_fence) {
-            atomic::fence(Ordering::SeqCst);
+            sc_fence();
         }
     }
 }

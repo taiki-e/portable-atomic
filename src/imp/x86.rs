@@ -38,6 +38,42 @@ macro_rules! ptr_modifier {
     };
 }
 
+#[cfg(feature = "fallback")]
+#[cfg(any(
+    test,
+    not(all(
+        target_arch = "x86_64",
+        any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b"),
+    )),
+))]
+#[inline]
+pub(crate) fn sc_fence() {
+    let p = core::cell::UnsafeCell::new(core::mem::MaybeUninit::<usize>::uninit());
+    // SAFETY: raw pointer passed in is valid because we got it from a reference.
+    unsafe {
+        // Equivalent to `mfence`, but is up to 3.1x faster on Coffee Lake and up to 2.4x faster on Raptor Lake-H at least in simple cases.
+        // - https://github.com/taiki-e/portable-atomic/pull/156
+        // - LLVM uses `lock or` https://godbolt.org/z/vv6rjzfYd
+        // - Windows uses `xchg` for x86_32 for MemoryBarrier https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-memorybarrier
+        // - MSVC STL uses `lock inc` https://github.com/microsoft/STL/pull/740
+        // - boost uses `lock or` https://github.com/boostorg/atomic/commit/559eba81af71386cedd99f170dc6101c6ad7bf22
+        #[cfg(target_pointer_width = "64")]
+        asm!(
+            concat!("xchg qword ptr [{p", ptr_modifier!(), "}], {tmp}"),
+            p = inout(reg) p.get() => _,
+            tmp = lateout(reg) _,
+            options(nostack, preserves_flags),
+        );
+        #[cfg(target_pointer_width = "32")]
+        asm!(
+            concat!("xchg dword ptr [{p", ptr_modifier!(), "}], {tmp:e}"),
+            p = inout(reg) p.get() => _,
+            tmp = lateout(reg) _,
+            options(nostack, preserves_flags),
+        );
+    }
+}
+
 macro_rules! atomic_int {
     ($atomic_type:ident, $ptr_size:tt) => {
         impl $atomic_type {
