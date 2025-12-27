@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.13.0] - 2025-12-27
+
 - Add `unsafe-assume-privileged` feature / `portable_atomic_unsafe_assume_privileged` cfg for safer lock-based fallback on multi-core privileged environments. ([b084ee1](https://github.com/taiki-e/portable-atomic/commit/b084ee1b6cba3e9d7158a6c9e5450e1fc8bbde36))
 
 - Support `unsafe-assume-single-core`/`unsafe-assume-privileged` on all 32-bit Arm targets. Previously it was only M-profile and pre-v6 targets. ([7e07f5e](https://github.com/taiki-e/portable-atomic/commit/7e07f5e2bc8ad74287830522c02f960a8c8da59e))
@@ -560,7 +562,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/taiki-e/portable-atomic/compare/v1.10.0...v1.11.0
