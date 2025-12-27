@@ -206,7 +206,7 @@ run() {
   local assume_single_core_target_rustflags=''
   local assume_privileged_target_rustflags=''
   case "${target}" in
-    armv[4-5]t* | thumbv[4-5]t* | thumbv6-* | thumbv6m* | xtensa-esp32s2-*)
+    armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
     arm* | thumb* | xtensa*)
@@ -229,7 +229,7 @@ run() {
       linker=link.ld
       target_rustflags+=" -C link-arg=-T${linker}"
       ;;
-    armv5te* | thumbv5te* | armv6-* | thumbv6-* | armv7a*)
+    armv5te* | armv6-* | armv7a*)
       test_dir=tests/no-std-qemu
       ;;
     thumb* | riscv*)

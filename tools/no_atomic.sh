@@ -43,8 +43,6 @@ no_atomic_64=()
 # We always provide lock-free atomic load/store by default for avr, msp430, and riscv
 # regardless of the contents of NO_ATOMIC.
 no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8)) and .value.arch != "msp430") | .key')
-# https://github.com/rust-lang/rust/pull/150138
-no_atomic+=(thumbv6-none-eabi)
 
 # old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do
