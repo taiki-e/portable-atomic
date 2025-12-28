@@ -516,7 +516,7 @@ jobs:
           - rust: nightly
             target: sparc64-unknown-linux-gnu
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
-    timeout-minutes: 60
+    timeout-minutes: 120 # TODO: reduce
     steps:
       - uses: taiki-e/checkout-action@v1
       - run: |
@@ -610,7 +610,7 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        if: startsWith(matrix.target, 'x86_64') || (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'powerpc64-')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
+        if: startsWith(matrix.target, 'x86_64') || ((startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) || startsWith(matrix.target, 'powerpc64-')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
       # powerpc64 and RISC-V are skipped because tested below.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
@@ -619,7 +619,7 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_detect_false
         # TODO(arm-linux-androideabi): hang
-        if: startsWith(matrix.target, 'x86_64') || startsWith(matrix.target, 'aarch64') && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
+        if: startsWith(matrix.target, 'x86_64') || (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           QEMU_CPU: power7 # no quadword-atomics
@@ -643,7 +643,7 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
       # powerpc64 is skipped because tested below.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
@@ -651,7 +651,7 @@ jobs:
           # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
-        if: startsWith(matrix.target, 'aarch64') && contains(matrix.target, '-musl') && matrix.flags == ''
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && contains(matrix.target, '-musl') && matrix.flags == ''
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
@@ -694,6 +694,14 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
         # QEMU + Wine is slow so test only cases where OS-specific code is called.
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+      # aarch64 +lse2,+lse128
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse2,+lse128
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse2,+lse128
+        # QEMU + Wine is slow so test only cases where OS-specific code is called.
+        # Only QEMU supports this, so skip other runners.
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin') && !contains(matrix.os, '-arm') && matrix.target != 'aarch64-pc-windows-gnullvm'
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
@@ -713,7 +721,6 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zabha
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zabha
-          QEMU_CPU: max
         if: startsWith(matrix.target, 'riscv')
       # riscv +zacas
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
@@ -1120,14 +1127,14 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        if: startsWith(matrix.target, 'aarch64')
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64'))
       # aarch64 +lse
       # As of Valgrind 3.26, Valgrind supports atomic instructions of Armv8.0, Armv8.1 (FEAT_LSE), and Armv8.3 (FEAT_LRCPC).
       - run: tools/test.sh valgrind -vv ${TARGET:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        if: startsWith(matrix.target, 'aarch64')
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64'))
 
   valgrind-cross:
     needs: tidy
