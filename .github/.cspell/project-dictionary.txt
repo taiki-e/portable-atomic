@@ -122,6 +122,7 @@ negs
 newrepo
 newtype
 nngrk
+nolibc
 nostartfiles
 opensbi
 osxsave
@@ -197,6 +198,7 @@ vtable
 vtables
 wfxt
 wokwi
+Wunused
 xadd
 xchg
 xgetbv

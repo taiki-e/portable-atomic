@@ -278,6 +278,11 @@ jobs:
             target: aarch64-pc-windows-msvc
             os: windows-11-arm
           # ------------------------------------------------------------
+          # aarch64-pc-windows-gnullvm
+          - rust: nightly
+            target: aarch64-pc-windows-gnullvm
+            os: windows-11-arm
+          # ------------------------------------------------------------
           # aarch64_be-unknown-linux-gnu
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
@@ -313,11 +318,6 @@ jobs:
             target: aarch64-linux-android
           - rust: nightly
             target: aarch64-linux-android
-          # ------------------------------------------------------------
-          # aarch64-pc-windows-gnullvm
-          # TODO: flaky
-          # - rust: nightly
-          #   target: aarch64-pc-windows-gnullvm
           # ------------------------------------------------------------
           # armv5te-unknown-linux-gnueabi
           - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
@@ -573,8 +573,10 @@ jobs:
           printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
         if: matrix.flags != ''
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
-        # Exclude aarch64-pc-windows-msvc due to "error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run" error
-        if: matrix.rust == 'nightly' && matrix.target != 'aarch64-pc-windows-msvc'
+        # TODO(aarch64-pc-windows-msvc): error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run
+        # TODO(aarch64-pc-windows-gnullvm): error: linker stderr: clang-18: argument unused during compilation: '-nolibc' [-Wunused-command-line-argument]␍
+        #                                                         clang-18: argument unused during compilation: '-no-pie' [-Wunused-command-line-argument]␍
+        if: matrix.rust == 'nightly' && !startsWith(matrix.target, 'aarch64-pc-windows-')
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
@@ -684,24 +686,21 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
-        # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(steps.prepare.outputs.cfgs, ',target_feature="lse",') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(steps.prepare.outputs.cfgs, ',target_feature="lse",')
       # aarch64 +lse,+lse2
       # macOS is skipped because it is +lse,+lse2 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
-        # QEMU + Wine is slow so test only cases where OS-specific code is called.
-        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin')
       # aarch64 +lse2,+lse128
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse2,+lse128
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse2,+lse128
-        # QEMU + Wine is slow so test only cases where OS-specific code is called.
         # Only QEMU supports this, so skip other runners.
-        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin') && !contains(matrix.os, '-arm') && matrix.target != 'aarch64-pc-windows-gnullvm'
+        if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !(startsWith(matrix.os, 'macos') || contains(matrix.os, '-arm'))
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
