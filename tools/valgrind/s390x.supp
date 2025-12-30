@@ -275,3 +275,35 @@
     obj:/usr/lib/s390x-linux-gnu/libc.so.6
     obj:*
 }
+{
+    version_parse
+    Memcheck:Cond
+    fun:_*portable_atomic5tests*version*7Version5parse
+    fun:test_rustc_version
+    fun:{closure#*}
+    fun:_*portable_atomic5tests*test_rustc_version*
+    fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
+    fun:_*test28___rust_begin_short_backtrace*
+    fun:run
+    fun:{closure#*}
+    fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:catch_unwind<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:run_test_in_process
+    fun:_*test8run_test*
+    fun:{closure#*}
+    fun:_*std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:call_once<(), std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:catch_unwind<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:_*std6thread9lifecycle15spawn_unchecked*
+    fun:call_once<(), (dyn core::ops::function::FnOnce<(), Output=()> + core::marker::Send), alloc::alloc::Global>
+    fun:_*std3sys6thread4unix*Thread3new12thread_start
+    fun:start_thread
+    obj:/usr/lib/s390x-linux-gnu/libc.so.6
+    obj:*
+}
