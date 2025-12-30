@@ -936,7 +936,7 @@ jobs:
           retry sudo apt-get -o Acquire::Retries=10 -qq update
           retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           # APT's qemu package doesn't provide firmware for riscv32: https://packages.ubuntu.com/en/jammy/all/qemu-system-data/filelist
-          opensbi_version=1.7 # https://github.com/riscv-software-src/opensbi/releases
+          opensbi_version=1.8 # https://github.com/riscv-software-src/opensbi/releases
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused "https://github.com/riscv-software-src/opensbi/releases/download/v${opensbi_version}/opensbi-${opensbi_version}-rv-bin.tar.xz" \
             | tar xJf -
           sudo mv -- "opensbi-${opensbi_version}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
