@@ -958,7 +958,7 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: taiki-e/cache-cargo-install-action@v2
+      - uses: taiki-e/cache-cargo-install-action@v3
         with:
           # https://github.com/agbrs/agb/tree/5fb928a/mgba-test-runner
           # To install locally:
