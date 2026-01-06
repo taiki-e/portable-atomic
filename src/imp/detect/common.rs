@@ -178,9 +178,9 @@ flags! {
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 flags! {
     // amocas.{w,d,q}
-    zacas("zacas", any(target_feature /* nightly */, portable_atomic_target_feature)),
+    zacas("zacas", any(target_feature /* 1.94+ */, portable_atomic_target_feature)),
     #[cfg(test)] // test-only
-    zabha("zabha", any(target_feature /* nightly */, portable_atomic_target_feature)),
+    zabha("zabha", any(target_feature /* 1.94+ */, portable_atomic_target_feature)),
     #[cfg(test)] // test-only
     zalasr("zalasr", any(/* no corresponding target feature */)),
 }
