@@ -548,9 +548,11 @@ mod tests {
             }
         };
         ($atomic_type:ty) => {
-            use crate::tests::helper;
             #[allow(unused_imports)]
-            use sptr::Strict as _; // for old rustc
+            use sptr::Strict as _;
+
+            use crate::tests::helper; // for old rustc
+
             ::quickcheck::quickcheck! {
                 fn quickcheck_swap(x: usize, y: usize) -> bool {
                     let x = sptr::invalid_mut(x);

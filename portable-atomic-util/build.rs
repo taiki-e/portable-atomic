@@ -6,9 +6,10 @@
 #[allow(dead_code)]
 #[path = "version.rs"]
 mod version;
-use self::version::{Version, rustc_version};
 
 use std::env;
+
+use self::version::{Version, rustc_version};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");

@@ -96,8 +96,11 @@ macro_rules! __test_atomic_int_load_store {
     };
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_int_load_store!($atomic_type, $int_type, single_thread);
-        use crossbeam_utils::thread;
+
         use std::{collections::BTreeSet, time::Instant, vec, vec::Vec};
+
+        use crossbeam_utils::thread;
+
         #[test]
         fn stress_load_store() {
             let mut rng = fastrand::Rng::new();
@@ -229,8 +232,11 @@ macro_rules! __test_atomic_bool_load_store {
 macro_rules! __test_atomic_ptr_load_store {
     ($atomic_type:ty, single_thread) => {
         __test_atomic_common!($atomic_type, *mut u8);
-        use crate::tests::helper::{self, *};
+
         use std::ptr;
+
+        use crate::tests::helper::{self, *};
+
         #[test]
         fn accessor() {
             let mut v = 1;
@@ -2737,12 +2743,15 @@ macro_rules! __stress_test_acquire_release {
         }
     };
     ($atomic_type:ident, $int_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
-        use super::*;
-        use crossbeam_utils::thread;
         use std::{
             convert::TryFrom as _,
             sync::atomic::{AtomicUsize, Ordering},
         };
+
+        use crossbeam_utils::thread;
+
+        use super::*;
+
         let mut n: usize = if cfg!(miri) { 10 } else { 50_000 };
         // This test is relatively fast because it spawns only one thread, but
         // the iterations are limited to a maximum value of integers.
@@ -2800,9 +2809,12 @@ macro_rules! __stress_test_seqcst {
         }
     };
     ($atomic_type:ident, $write:ident, $load_order:ident, $store_order:ident) => {{
-        use super::*;
-        use crossbeam_utils::thread;
         use std::sync::atomic::{AtomicUsize, Ordering};
+
+        use crossbeam_utils::thread;
+
+        use super::*;
+
         let n: usize = if cfg!(miri) {
             8
         } else if cfg!(valgrind)

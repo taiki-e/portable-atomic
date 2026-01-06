@@ -1595,22 +1595,23 @@ Note:
 
 */
 
-// If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
-// we use CAS-based atomic RMW.
-#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
-#[cfg(all(
-    any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    not(portable_atomic_ll_sc_rmw),
-))]
-use self::_atomic_swap_casp as atomic_swap;
-#[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
-#[cfg(not(all(
-    any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-    not(portable_atomic_ll_sc_rmw),
-)))]
-use self::_atomic_swap_ldxp_stxp as atomic_swap;
-#[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
-use self::_atomic_swap_swpp as atomic_swap;
+cfg_sel!({
+    #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
+    {
+        use self::_atomic_swap_swpp as atomic_swap;
+    }
+    #[cfg(all(
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+        not(portable_atomic_ll_sc_rmw),
+    ))]
+    {
+        use self::_atomic_swap_casp as atomic_swap;
+    }
+    #[cfg(else)]
+    {
+        use self::_atomic_swap_ldxp_stxp as atomic_swap;
+    }
+});
 #[cfg(any(
     target_feature = "lse128",
     portable_atomic_target_feature = "lse128",

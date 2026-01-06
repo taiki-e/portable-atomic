@@ -9,7 +9,6 @@ Refs:
 */
 
 use core::arch::asm;
-
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_cas))

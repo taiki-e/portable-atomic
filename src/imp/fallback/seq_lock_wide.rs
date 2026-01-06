@@ -12,10 +12,6 @@ use super::utils::{Backoff, sc_fence};
 use crate::imp::interrupt::arch as interrupt;
 use crate::utils::unlikely;
 
-// See mod.rs for details.
-pub(super) type AtomicChunk = AtomicU32;
-pub(super) type Chunk = u32;
-
 pub(super) type State = u32;
 
 const LOCKED: State = 1;

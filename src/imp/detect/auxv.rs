@@ -849,15 +849,17 @@ mod tests {
     #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
     #[test]
     fn test_alternative() {
-        use crate::utils::ffi::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::{str, vec};
+
         #[cfg(target_pointer_width = "32")]
         use sys::Elf32_auxv_t as Elf_auxv_t;
         #[cfg(target_pointer_width = "64")]
         use sys::Elf64_auxv_t as Elf_auxv_t;
         use test_helper::sys;
+
+        use crate::utils::ffi::*;
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
         // https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
@@ -1051,11 +1053,13 @@ mod tests {
     #[cfg(target_os = "freebsd")]
     #[test]
     fn test_alternative() {
-        use crate::utils::ffi::*;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::ptr;
+
         use test_helper::sys;
+
+        use crate::utils::ffi::*;
 
         // This is almost equivalent to what elf_aux_info does.
         // https://man.freebsd.org/elf_aux_info(3)

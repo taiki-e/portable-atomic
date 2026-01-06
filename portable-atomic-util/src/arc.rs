@@ -19,12 +19,6 @@
 // - https://github.com/rust-lang/rust/pull/133003
 // - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
-use portable_atomic::{
-    self as atomic,
-    Ordering::{Acquire, Relaxed, Release},
-    hint,
-};
-
 use alloc::{
     alloc::handle_alloc_error,
     borrow::{Cow, ToOwned},
@@ -51,6 +45,12 @@ use core::{
 use core::{iter::FromIterator, slice};
 #[cfg(portable_atomic_unstable_coerce_unsized)]
 use core::{marker::Unsize, ops::CoerceUnsized};
+
+use portable_atomic::{
+    self as atomic,
+    Ordering::{Acquire, Relaxed, Release},
+    hint,
+};
 
 /// A soft limit on the amount of references that may be made to an `Arc`.
 ///
@@ -1435,8 +1435,9 @@ impl<T: Clone> Arc<T> {
     /// # Examples
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::ptr;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// let inner = String::from("test");
     /// let ptr = inner.as_ptr();
@@ -1614,8 +1615,9 @@ impl Arc<dyn Any + Send + Sync> {
     /// # Examples
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::any::Any;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// fn print_if_string(value: Arc<dyn Any + Send + Sync>) {
     ///     if let Ok(string) = value.downcast::<String>() {
@@ -1771,8 +1773,9 @@ impl<T /*: ?Sized */> Weak<T> {
     /// # Examples
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::ptr;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// let strong = Arc::new("hello".to_owned());
     /// let weak = Arc::downgrade(&strong);
@@ -2190,8 +2193,9 @@ impl<T: ?Sized + PartialOrd> PartialOrd for Arc<T> {
     /// # Examples
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::cmp::Ordering;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// let five = Arc::new(5);
     ///
@@ -2277,8 +2281,9 @@ impl<T: ?Sized + Ord> Ord for Arc<T> {
     /// # Examples
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::cmp::Ordering;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// let five = Arc::new(5);
     ///
@@ -2581,8 +2586,10 @@ where
     /// # Example
     ///
     /// ```
-    /// use portable_atomic_util::Arc;
     /// use std::borrow::Cow;
+    ///
+    /// use portable_atomic_util::Arc;
+    ///
     /// let cow: Cow<'_, str> = Cow::Borrowed("eggplant");
     /// let shared: Arc<str> = Arc::from(cow);
     /// assert_eq!("eggplant", &shared[..]);
@@ -2792,10 +2799,6 @@ impl<T: ?Sized + error::Error> error::Error for Arc<T> {
 
 #[cfg(feature = "std")]
 mod std_impls {
-    use std::io;
-
-    use super::Arc;
-
     // TODO: Other trait implementations that are stable but we currently don't provide:
     // - alloc::ffi
     //   - https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html#impl-From%3C%26CStr%3E-for-Arc%3CCStr%3E
@@ -2814,6 +2817,7 @@ mod std_impls {
     //   - https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-From%3CPathBuf%3E-for-Arc%3CPath%3E
     //   - Currently, we cannot implement these since Path layout is not stable.
 
+    use std::io;
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsFd-for-Arc%3CT%3E
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsHandle-for-Arc%3CT%3E
     // https://doc.rust-lang.org/nightly/std/sync/struct.Arc.html#impl-AsRawFd-for-Arc%3CT%3E
@@ -2821,8 +2825,6 @@ mod std_impls {
     // Note:
     // - T: ?Sized is currently only allowed on AsFd/AsHandle: https://github.com/rust-lang/rust/pull/114655#issuecomment-1977994288
     // - std doesn't implement AsRawHandle/AsRawSocket for Arc as of Rust 1.90.
-    #[cfg(unix)]
-    use std::os::unix::io as fd;
     // - std::os::unix::io::AsRawFd and std::os::windows::io::{AsRawHandle, AsRawSocket} are available in all versions
     // - std::os::wasi::prelude::AsRawFd requires 1.56 (https://github.com/rust-lang/rust/commit/e555003e6d6b6d71ce5509a6b6c7a15861208d6c)
     // - std::os::unix::io::AsFd, std::os::wasi::prelude::AsFd, and std::os::windows::io::{AsHandle, AsSocket} require Rust 1.63
@@ -2839,9 +2841,14 @@ mod std_impls {
     #[cfg(not(portable_atomic_no_io_safety))]
     #[cfg(target_os = "hermit")]
     use std::os::hermit::io as fd;
+    #[cfg(unix)]
+    use std::os::unix::io as fd;
     #[cfg(not(portable_atomic_no_io_safety))]
     #[cfg(target_os = "wasi")]
     use std::os::wasi::prelude as fd;
+
+    use super::Arc;
+
     /// This impl allows implementing traits that require `AsRawFd` on Arc.
     /// ```
     /// # #[cfg(target_os = "hermit")]
@@ -2850,8 +2857,9 @@ mod std_impls {
     /// # use std::os::wasi::prelude::AsRawFd;
     /// # #[cfg(unix)]
     /// # use std::os::unix::io::AsRawFd;
-    /// use portable_atomic_util::Arc;
     /// use std::net::UdpSocket;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// trait MyTrait: AsRawFd {}
     /// impl MyTrait for Arc<UdpSocket> {}
@@ -2877,8 +2885,9 @@ mod std_impls {
     /// # use std::os::wasi::prelude::AsFd;
     /// # #[cfg(unix)]
     /// # use std::os::unix::io::AsFd;
-    /// use portable_atomic_util::Arc;
     /// use std::net::UdpSocket;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// trait MyTrait: AsFd {}
     /// impl MyTrait for Arc<UdpSocket> {}
@@ -2894,8 +2903,9 @@ mod std_impls {
     /// This impl allows implementing traits that require `AsHandle` on Arc.
     /// ```
     /// # use std::os::windows::io::AsHandle;
-    /// use portable_atomic_util::Arc;
     /// use std::fs::File;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// trait MyTrait: AsHandle {}
     /// impl MyTrait for Arc<File> {}
@@ -2911,8 +2921,9 @@ mod std_impls {
     /// This impl allows implementing traits that require `AsSocket` on Arc.
     /// ```
     /// # use std::os::windows::io::AsSocket;
-    /// use portable_atomic_util::Arc;
     /// use std::net::UdpSocket;
+    ///
+    /// use portable_atomic_util::Arc;
     ///
     /// trait MyTrait: AsSocket {}
     /// impl MyTrait for Arc<UdpSocket> {}

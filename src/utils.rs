@@ -518,9 +518,11 @@ type RetInt = u32;
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
+    use core::mem;
+
     #[cfg(portable_atomic_no_strict_provenance)]
     use self::ptr::PtrExt as _;
-    use core::mem;
+
     // RISC-V, MIPS, SPARC, LoongArch, Xtensa, BPF: shift amount of 32-bit shift instructions is 5 bits unsigned (0-31).
     // PowerPC, C-SKY: shift amount of 32-bit shift instructions is 6 bits unsigned (0-63) and shift amount 32-63 means "clear".
     // Arm: shift amount of 32-bit shift instructions is 8 bits unsigned (0-255).

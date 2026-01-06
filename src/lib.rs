@@ -617,12 +617,19 @@ mod tests;
 #[doc(no_inline)]
 pub use core::sync::atomic::Ordering;
 
-// LLVM doesn't support fence/compiler_fence for MSP430.
-#[cfg(target_arch = "msp430")]
-pub use self::imp::msp430::{compiler_fence, fence};
-#[doc(no_inline)]
-#[cfg(not(target_arch = "msp430"))]
-pub use core::sync::atomic::{compiler_fence, fence};
+cfg_sel!({
+    // LLVM doesn't support fence/compiler_fence for MSP430.
+    #[cfg(target_arch = "msp430")]
+    {
+        pub use self::imp::msp430::{compiler_fence, fence};
+    }
+    #[cfg(else)]
+    {
+        #[doc(no_inline)]
+        #[cfg(not(target_arch = "msp430"))]
+        pub use core::sync::atomic::{compiler_fence, fence};
+    }
+});
 
 mod imp;
 

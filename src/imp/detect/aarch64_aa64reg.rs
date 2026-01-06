@@ -441,12 +441,14 @@ mod tests {
     #[cfg(target_os = "netbsd")]
     #[test]
     fn test_alternative() {
-        use crate::utils::ffi::*;
-        use imp::ffi;
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
         use std::{mem, ptr, vec, vec::Vec};
+
         use test_helper::sys;
+
+        use super::imp::ffi;
+        use crate::utils::ffi::*;
 
         // Call syscall using asm instead of libc.
         // Note that NetBSD does not guarantee the stability of raw syscall as

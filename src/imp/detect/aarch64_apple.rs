@@ -134,6 +134,7 @@ mod tests {
             #[cfg(not(portable_atomic_no_asm))]
             use std::arch::asm;
             use std::mem;
+
             use test_helper::sys;
 
             // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/bsd/kern/syscalls.master#L298

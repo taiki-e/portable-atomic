@@ -39,12 +39,13 @@ use crate::Arc;
 /// intermediate calls to `thread::unpark` as well as nested invocations.
 ///
 /// ```
-/// use portable_atomic_util::{Arc, task::Wake};
 /// use std::{
 ///     future::Future,
 ///     task::{Context, Poll},
 ///     thread::{self, Thread},
 /// };
+///
+/// use portable_atomic_util::{Arc, task::Wake};
 ///
 /// /// A waker that wakes up the current thread when called.
 /// struct ThreadWaker(Thread);
