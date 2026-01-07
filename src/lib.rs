@@ -626,7 +626,6 @@ cfg_sel!({
     #[cfg(else)]
     {
         #[doc(no_inline)]
-        #[cfg(not(target_arch = "msp430"))]
         pub use core::sync::atomic::{compiler_fence, fence};
     }
 });
