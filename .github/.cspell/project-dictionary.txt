@@ -175,6 +175,7 @@ subfic
 subfze
 swpp
 syscall
+syscalls
 sysctlbyname
 sysctlnode
 systeminfo

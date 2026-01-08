@@ -859,7 +859,7 @@ mod tests {
         use sys::Elf64_auxv_t as Elf_auxv_t;
         use test_helper::sys;
 
-        use crate::utils::ffi::*;
+        use crate::utils::{RegISize, RegSize, ffi::*};
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
         // https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
@@ -867,77 +867,73 @@ mod tests {
         //
         // This is currently used only for testing.
         fn getauxval_pr_get_auxv_no_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
-            #[cfg(target_arch = "aarch64")]
+            // Refs:
+            // - aarch64
+            //   https://github.com/bminor/musl/blob/v1.2.5/arch/aarch64/syscall_arch.h
+            // - arm
+            //   https://github.com/bminor/musl/blob/v1.2.5/arch/arm/syscall_arch.h
+            // - powerpc64
+            //   https://github.com/torvalds/linux/blob/v6.18/Documentation/arch/powerpc/syscall64-abi.rst
+            //   https://github.com/bminor/musl/blob/1b76ff0767d01df72f692806ee5adee13c67ef88/arch/powerpc64/syscall_arch.h
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
-                let r: i64;
+                // arguments must be extended to 64-bit if 64-bit arch
+                let number = sys::__NR_prctl as RegSize;
+                let arg1 = sys::PR_GET_AUXV as RegSize;
+                let arg2 = ptr_reg!(out);
+                let arg3 = len as RegSize;
+                let r: RegISize;
                 unsafe {
+                    #[cfg(target_arch = "aarch64")]
                     asm!(
                         "svc 0",
-                        in("x8") sys::__NR_prctl as u64,
-                        inout("x0") sys::PR_GET_AUXV as u64 => r,
-                        in("x1") ptr_reg!(out),
-                        in("x2") len as u64,
+                        in("x8") number,
+                        inout("x0") arg1 => r,
+                        in("x1") arg2,
+                        in("x2") arg3,
                         // arg4 and arg5 must be zero.
                         in("x3") 0_u64,
                         in("x4") 0_u64,
                         options(nostack, preserves_flags),
                     );
-                }
-                #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-                if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
-            }
-            #[cfg(target_arch = "arm")]
-            unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
-                let r: i32;
-                #[cfg(not(target_feature = "thumb-mode"))]
-                unsafe {
+                    #[cfg(all(target_arch = "arm", not(target_feature = "thumb-mode")))]
                     asm!(
                         "svc 0",
-                        in("r7") sys::__NR_prctl,
-                        inout("r0") sys::PR_GET_AUXV => r,
-                        in("r1") out,
-                        in("r2") len,
+                        in("r7") number,
+                        inout("r0") arg1 => r,
+                        in("r1") arg2,
+                        in("r2") arg3,
                         // arg4 and arg5 must be zero.
                         in("r3") 0_u32,
                         in("r4") 0_u32,
                         options(nostack, preserves_flags),
                     );
-                }
-                #[cfg(target_feature = "thumb-mode")]
-                unsafe {
-                    // r7 is reserved on thumb
+                    #[cfg(all(target_arch = "arm", target_feature = "thumb-mode"))]
                     asm!(
+                        // r7 is reserved on thumb
                         "mov {tmp}, r7",
-                        "mov r7, {nr}",
+                        "mov r7, {number}",
                         "svc 0",
                         "mov r7, {tmp}",
-                        nr = in(reg) sys::__NR_prctl,
+                        number = in(reg) number,
                         tmp = out(reg) _,
-                        inout("r0") sys::PR_GET_AUXV => r,
-                        in("r1") out,
-                        in("r2") len,
+                        inout("r0") arg1 => r,
+                        in("r1") arg2,
+                        in("r2") arg3,
                         // arg4 and arg5 must be zero.
                         in("r3") 0_u32,
                         in("r4") 0_u32,
                         options(nostack, preserves_flags),
                     );
-                }
-                #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-                if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
-            }
-            #[cfg(target_arch = "powerpc64")]
-            unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
-                let r: i64;
-                unsafe {
+                    #[cfg(target_arch = "powerpc64")]
                     asm!(
                         "sc",
                         "bns+ 2f",
                         "neg %r3, %r3",
                         "2:",
-                        inout("r0") sys::__NR_prctl as u64 => _,
-                        inout("r3") sys::PR_GET_AUXV as u64 => r,
-                        inout("r4") ptr_reg!(out) => _,
-                        inout("r5") len as u64 => _,
+                        inout("r0") number => _,
+                        inout("r3") arg1 => r,
+                        inout("r4") arg2 => _,
+                        inout("r5") arg3 => _,
                         // arg4 and arg5 must be zero.
                         inout("r6") 0_u64 => _,
                         inout("r7") 0_u64 => _,
@@ -1059,7 +1055,7 @@ mod tests {
 
         use test_helper::sys;
 
-        use crate::utils::ffi::*;
+        use crate::utils::{RegISize, RegSize, ffi::*};
 
         // This is almost equivalent to what elf_aux_info does.
         // https://man.freebsd.org/elf_aux_info(3)
@@ -1128,73 +1124,30 @@ mod tests {
             #[allow(non_camel_case_types)]
             type pid_t = c_int;
 
-            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/lib/libc/aarch64/SYS.h
-            // https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_freebsd_arm64.s
-            #[cfg(target_arch = "aarch64")]
+            // Refs:
+            // - aarch64
+            //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/aarch64/SYS.h
+            //   https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_freebsd_arm64.s
+            // - powerpc64
+            //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/powerpc64/SYS.h
             #[inline]
             fn getpid() -> pid_t {
-                #[allow(clippy::cast_possible_truncation)]
+                let n = sys::SYS_getpid as RegSize;
+                let r: RegISize;
                 // SAFETY: calling getpid is safe.
                 unsafe {
-                    let n = sys::SYS_getpid;
-                    let r: i64;
+                    #[cfg(target_arch = "aarch64")]
                     asm!(
                         "svc 0",
-                        in("x8") n as u64,
+                        in("x8") n,
                         out("x0") r,
-                        // Do not use `preserves_flags` because AArch64 FreeBSD syscall modifies the condition flags.
+                        // Do not use `preserves_flags` because AArch64 FreeBSD syscalls modify the condition flags.
                         options(nostack, readonly),
                     );
-                    r as pid_t
-                }
-            }
-            #[cfg(target_arch = "aarch64")]
-            #[inline]
-            unsafe fn sysctl(
-                name: *const c_int,
-                name_len: c_uint,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *const c_void,
-                new_len: c_size_t,
-            ) -> Result<c_int, c_int> {
-                #[allow(clippy::cast_possible_truncation)]
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    let mut n = sys::SYS___sysctl as u64;
-                    let r: i64;
-                    asm!(
-                        "svc 0",
-                        "b.cc 2f",
-                        "mov x8, x0",
-                        "mov x0, #-1",
-                        "2:",
-                        inout("x8") n,
-                        inout("x0") ptr_reg!(name) => r,
-                        inout("x1") name_len as u64 => _,
-                        in("x2") ptr_reg!(old_p),
-                        in("x3") ptr_reg!(old_len_p),
-                        in("x4") ptr_reg!(new_p),
-                        in("x5") new_len as u64,
-                        // Do not use `preserves_flags` because AArch64 FreeBSD syscall modifies the condition flags.
-                        options(nostack),
-                    );
-                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
-                }
-            }
-
-            // https://github.com/freebsd/freebsd-src/blob/release/14.3.0/lib/libc/powerpc64/SYS.h
-            #[cfg(target_arch = "powerpc64")]
-            #[inline]
-            fn getpid() -> pid_t {
-                #[allow(clippy::cast_possible_truncation)]
-                // SAFETY: calling getpid is safe.
-                unsafe {
-                    let n = sys::SYS_getpid;
-                    let r: i64;
+                    #[cfg(target_arch = "powerpc64")]
                     asm!(
                         "sc",
-                        inout("r0") n as u64 => _,
+                        inout("r0") n => _,
                         out("r3") r,
                         out("r4") _,
                         out("r5") _,
@@ -1210,10 +1163,12 @@ mod tests {
                         out("xer") _,
                         options(nostack, preserves_flags, readonly),
                     );
+                }
+                #[allow(clippy::cast_possible_truncation)]
+                {
                     r as pid_t
                 }
             }
-            #[cfg(target_arch = "powerpc64")]
             #[inline]
             unsafe fn sysctl(
                 name: *const c_int,
@@ -1223,11 +1178,34 @@ mod tests {
                 new_p: *const c_void,
                 new_len: c_size_t,
             ) -> Result<c_int, c_int> {
-                #[allow(clippy::cast_possible_truncation)]
+                let mut n = sys::SYS___sysctl as RegSize;
+                let arg1 = ptr_reg!(name);
+                let arg2 = name_len as RegSize;
+                let arg3 = ptr_reg!(old_p);
+                let arg4 = ptr_reg!(old_len_p);
+                let arg5 = ptr_reg!(new_p);
+                let arg6 = new_len as RegSize;
+                let r: RegISize;
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    let mut n = sys::SYS___sysctl as u64;
-                    let r: i64;
+                    #[cfg(target_arch = "aarch64")]
+                    asm!(
+                        "svc 0",
+                        "b.cc 2f",
+                        "mov x8, x0",
+                        "mov x0, #-1",
+                        "2:",
+                        inout("x8") n,
+                        inout("x0") arg1 => r,
+                        inout("x1") arg2 => _,
+                        in("x2") arg3,
+                        in("x3") arg4,
+                        in("x4") arg5,
+                        in("x5") arg6,
+                        // Do not use `preserves_flags` because AArch64 FreeBSD syscalls modify the condition flags.
+                        options(nostack),
+                    );
+                    #[cfg(target_arch = "powerpc64")]
                     asm!(
                         "sc",
                         "bns+ 2f",
@@ -1235,12 +1213,12 @@ mod tests {
                         "li %r3, -1",
                         "2:",
                         inout("r0") n,
-                        inout("r3") ptr_reg!(name) => r,
-                        inout("r4") name_len as u64 => _,
-                        inout("r5") ptr_reg!(old_p) => _,
-                        inout("r6") ptr_reg!(old_len_p) => _,
-                        inout("r7") ptr_reg!(new_p) => _,
-                        inout("r8") new_len as u64 => _,
+                        inout("r3") arg1 => r,
+                        inout("r4") arg2 => _,
+                        inout("r5") arg3 => _,
+                        inout("r6") arg4 => _,
+                        inout("r7") arg5 => _,
+                        inout("r8") arg6 => _,
                         out("r9") _,
                         out("r10") _,
                         out("r11") _,
@@ -1250,8 +1228,9 @@ mod tests {
                         out("xer") _,
                         options(nostack, preserves_flags),
                     );
-                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
+                #[allow(clippy::cast_possible_truncation)]
+                if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
             }
 
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };

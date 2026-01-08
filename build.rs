@@ -160,6 +160,10 @@ fn main() {
             // The part of this feature we use has not been changed since nightly-2020-06-21
             // until it was stabilized, so it can safely be enabled in nightly for that period.
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
+            if (target_arch == "riscv32" || target_arch == "riscv64") && version.minor < 55 {
+                // Clobber-only registers used in riscv_linux.rs require Rust 1.55 (https://github.com/rust-lang/rust/pull/86416).
+                println!("cargo:rustc-cfg=portable_atomic_no_outline_atomics");
+            }
         }
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     } else {

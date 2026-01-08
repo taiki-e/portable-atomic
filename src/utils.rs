@@ -2,6 +2,8 @@
 
 #![cfg_attr(not(all(test, feature = "float")), allow(dead_code, unused_macros))]
 
+#[allow(unused_imports)]
+pub(crate) use self::generated::{RegISize, RegSize};
 #[macro_use]
 #[path = "gen/utils.rs"]
 mod generated;

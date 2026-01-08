@@ -448,7 +448,7 @@ mod tests {
         use test_helper::sys;
 
         use super::imp::ffi;
-        use crate::utils::ffi::*;
+        use crate::utils::{RegISize, RegSize, ffi::*};
 
         // Call syscall using asm instead of libc.
         // Note that NetBSD does not guarantee the stability of raw syscall as
@@ -456,7 +456,9 @@ mod tests {
         //
         // This is currently used only for testing.
         fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
-            // https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_netbsd_arm64.s
+            // Refs:
+            // - https://github.com/NetBSD/src/blob/c3bf19e1d461f8b4d8812b91b48116a1e45c9d04/lib/libc/arch/aarch64/SYS.h
+            // - https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_netbsd_arm64.s
             #[inline]
             unsafe fn sysctl(
                 name: *const c_int,
@@ -466,29 +468,35 @@ mod tests {
                 new_p: *const c_void,
                 new_len: c_size_t,
             ) -> Result<c_int, c_int> {
+                let mut n = sys::SYS___sysctl as RegSize;
+                let arg1 = ptr_reg!(name);
+                let arg2 = name_len as RegSize;
+                let arg3 = ptr_reg!(old_p);
+                let arg4 = ptr_reg!(old_len_p);
+                let arg5 = ptr_reg!(new_p);
+                let arg6 = new_len as RegSize;
+                let r: RegISize;
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    let mut n = sys::SYS___sysctl as u64;
-                    let r: i64;
                     asm!(
-                        "svc 0",
+                        "svc 0", // #SYS_syscall
                         "b.cc 2f",
                         "mov x17, x0",
                         "mov x0, #-1",
                         "2:",
                         inout("x17") n,
-                        inout("x0") ptr_reg!(name) => r,
-                        inout("x1") name_len as u64 => _,
-                        in("x2") ptr_reg!(old_p),
-                        in("x3") ptr_reg!(old_len_p),
-                        in("x4") ptr_reg!(new_p),
-                        in("x5") new_len as u64,
-                        // Do not use `preserves_flags` because AArch64 NetBSD syscall modifies the condition flags.
+                        inout("x0") arg1 => r,
+                        inout("x1") arg2 => _,
+                        in("x2") arg3,
+                        in("x3") arg4,
+                        in("x4") arg5,
+                        in("x5") arg6,
+                        // Do not use `preserves_flags` because AArch64 NetBSD syscalls modify the condition flags.
                         options(nostack),
                     );
-                    #[allow(clippy::cast_possible_truncation)]
-                    if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
                 }
+                #[allow(clippy::cast_possible_truncation)]
+                if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
             }
 
             // https://github.com/golang/sys/blob/v0.35.0/cpu/cpu_netbsd_arm64.go
