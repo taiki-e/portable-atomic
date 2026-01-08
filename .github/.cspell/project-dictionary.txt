@@ -52,6 +52,7 @@ getisax
 getpid
 getsystemcfg
 gimli
+grmbl
 Halfword
 HWCAP
 hwprobe

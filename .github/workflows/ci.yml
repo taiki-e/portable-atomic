@@ -761,9 +761,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: aarch64-unknown-freebsd
-            os: freebsd
-            version: '13.5'
+          # TODO: pkg: sqlite error while executing grmbl in file update.c:154: NOT NULL constraint failed: packages.path
+          # - target: aarch64-unknown-freebsd
+          #   os: freebsd
+          #   version: '13.5'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.3'
