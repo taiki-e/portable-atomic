@@ -60,7 +60,6 @@ ILRCPC
 includepath
 insn
 INTLEVEL
-ipxe
 isel
 iseleq
 iselgt
@@ -125,7 +124,6 @@ newtype
 nngrk
 nolibc
 nostartfiles
-opensbi
 osxsave
 outputdir
 phdr

@@ -919,29 +919,17 @@ jobs:
             done
             "$@"
           }
-          apt_packages=(
-            qemu-system-arm
-            qemu-system-misc
-          )
           if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
-            apt_packages+=(
+            apt_packages=(
               avr-libc
               gcc-avr
-              ipxe-qemu
               libelf-dev
               mspdebug
               simavr
             )
+            retry sudo apt-get -o Acquire::Retries=10 -qq update
+            retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           fi
-          retry sudo apt-get -o Acquire::Retries=10 -qq update
-          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
-          # APT's qemu package doesn't provide firmware for riscv32: https://packages.ubuntu.com/en/jammy/all/qemu-system-data/filelist
-          opensbi_version=1.8.1 # https://github.com/riscv-software-src/opensbi/releases
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused "https://github.com/riscv-software-src/opensbi/releases/download/v${opensbi_version}/opensbi-${opensbi_version}-rv-bin.tar.xz" \
-            | tar xJf -
-          sudo mv -- "opensbi-${opensbi_version}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.bin" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.bin
-          sudo mv -- "opensbi-${opensbi_version}-rv-bin/share/opensbi/ilp32/generic/firmware/fw_dynamic.elf" /usr/share/qemu/opensbi-riscv32-generic-fw_dynamic.elf
-          rm -rf -- "opensbi-${opensbi_version}-rv-bin"
           if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
@@ -957,6 +945,13 @@ jobs:
           elif [[ "${{ matrix.rust }}" == "stable" ]]; then
             retry espup install --targets esp32s2
           fi
+          # https://github.com/taiki-e/dockerfiles/pkgs/container/qemu-system
+          retry docker create --name qemu-system ghcr.io/taiki-e/qemu-system
+          mkdir -p -- qemu-system
+          docker cp -- qemu-system:/qemu qemu-system/qemu
+          docker rm -f -- qemu-system >/dev/null
+          sudo cp -r -- qemu-system/qemu/. /usr/local/
+          rm -rf -- ./qemu-system
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: taiki-e/cache-cargo-install-action@v3
