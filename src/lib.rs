@@ -87,7 +87,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 - <a name="optional-features-fallback"></a>**`fallback` feature** *(enabled by default)*<br>
   Enable fallback implementations.
 
-  This enables atomic types with larger than the width supported by atomic instructions available on the current target. If the current target supports 128-bit atomics, this is no-op.
+  This enables atomic types with larger than the width supported by atomic instructions available on the current target. If the current target [supports 128-bit atomics](#128-bit-atomics-support), this is no-op.
 
   This uses fallback implementation that using global locks by default. The following features/cfgs change this behavior:
   - [`unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg](#optional-features-unsafe-assume-single-core): Use fallback implementations that disabling interrupts instead of using global locks.

@@ -389,7 +389,7 @@ fn main() {
             // https://github.com/gcc-mirror/gcc/commit/11c2453a16b725b7fb67778e1ab4636a51a1217d
             // https://github.com/rust-lang/rust/pull/130877
             let mut zaamo = false;
-            // target_feature "zacas" is unstable and available on rustc side
+            // target_feature "zacas" is available as unstable on rustc side
             // since nightly-2025-02-26 (https://github.com/rust-lang/rust/pull/137417),
             // and stabilized in Rust 1.94 (https://github.com/rust-lang/rust/pull/145948).
             if !version.probe(87, 2025, 2, 25) || needs_target_feature_fallback(&version, Some(94))
@@ -399,7 +399,7 @@ fn main() {
                 // available non-experimental since LLVM 20 https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
                 zaamo |= target_feature_fallback("zacas", false);
             }
-            // target_feature "zaamo"/"zabha" is unstable and available on rustc side
+            // target_feature "zaamo"/"zabha" is available as unstable on rustc side
             // since nightly-2024-10-02 (https://github.com/rust-lang/rust/pull/130877),
             // and stabilized in Rust 1.94 (https://github.com/rust-lang/rust/pull/145948).
             if !version.probe(83, 2024, 10, 1) || needs_target_feature_fallback(&version, Some(94))
