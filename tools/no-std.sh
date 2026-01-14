@@ -209,6 +209,9 @@ run() {
     armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | xtensa-esp32s2-*)
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
+    xtensa-esp32*)
+      # these chips require critical-section to be enabled, which is incompatible with the single-core and privileged assumptions
+      ;;
     arm* | thumb* | xtensa*)
       assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       assume_privileged_target_rustflags+=" --cfg portable_atomic_unsafe_assume_privileged"
