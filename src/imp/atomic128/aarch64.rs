@@ -496,28 +496,12 @@ Note:
 
 */
 
-// if compile_time(FEAT_LSE2) => ldp:
-// cfg guarantee that the CPU supports FEAT_LSE2.
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-use self::_atomic_load_ldp as atomic_load;
-#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-#[inline]
-unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
-    #[inline]
-    unsafe fn atomic_load_no_lse2(src: *mut u128, order: Ordering) -> u128 {
-        // if compile_time(FEAT_LSE) => casp
-        #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        unsafe {
-            _atomic_load_casp(src, order)
-        }
-        // else => ldxp_stxp
-        #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            _atomic_load_ldxp_stxp(src, order)
-        }
+cfg_sel!({
+    // if compile_time(FEAT_LSE2) => ldp:
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    {
+        use self::_atomic_load_ldp as atomic_load;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
     #[cfg(all(
@@ -547,109 +531,100 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
         ),
     ))]
     {
-        fn_alias! {
-            // inline(never) is just a hint and also not strictly necessary
-            // because we use ifunc helper macro, but used for clarity.
-            #[inline(never)]
-            unsafe fn(src: *mut u128) -> u128;
-            atomic_load_lse2_relaxed = _atomic_load_ldp(Ordering::Relaxed);
-            atomic_load_lse2_acquire = _atomic_load_ldp(Ordering::Acquire);
-            atomic_load_lse2_seqcst = _atomic_load_ldp(Ordering::SeqCst);
-            atomic_load_lse2_rcpc3_acquire = _atomic_load_ldiapp(Ordering::Acquire);
-            atomic_load_lse2_rcpc3_seqcst = _atomic_load_ldiapp(Ordering::SeqCst);
-        }
-        fn_alias! {
-            unsafe fn(src: *mut u128) -> u128;
-            atomic_load_no_lse2_relaxed = atomic_load_no_lse2(Ordering::Relaxed);
-            atomic_load_no_lse2_acquire = atomic_load_no_lse2(Ordering::Acquire);
-            atomic_load_no_lse2_seqcst = atomic_load_no_lse2(Ordering::SeqCst);
-        }
-        // SAFETY: the caller must uphold the safety contract.
-        // and we've checked if FEAT_LSE2/FEAT_LRCPC3 is available.
-        unsafe {
-            match order {
-                Ordering::Relaxed => {
-                    ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            // if detect(FEAT_LSE2) => lse2 (ldp)
-                            atomic_load_lse2_relaxed
-                        } else {
-                            // else => no_lse2:
-                            atomic_load_no_lse2_relaxed
-                        }
-                    })
-                }
-                Ordering::Acquire => {
-                    ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            if cpuinfo.rcpc3() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
-                                atomic_load_lse2_rcpc3_acquire
-                            } else {
+        #[inline]
+        unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
+            fn_alias! {
+                // inline(never) is just a hint and also not strictly necessary
+                // because we use ifunc helper macro, but used for clarity.
+                #[inline(never)]
+                unsafe fn(src: *mut u128) -> u128;
+                atomic_load_lse2_relaxed = _atomic_load_ldp(Ordering::Relaxed);
+                atomic_load_lse2_acquire = _atomic_load_ldp(Ordering::Acquire);
+                atomic_load_lse2_seqcst = _atomic_load_ldp(Ordering::SeqCst);
+                atomic_load_lse2_rcpc3_acquire = _atomic_load_ldiapp(Ordering::Acquire);
+                atomic_load_lse2_rcpc3_seqcst = _atomic_load_ldiapp(Ordering::SeqCst);
+            }
+            fn_alias! {
+                unsafe fn(src: *mut u128) -> u128;
+                atomic_load_no_lse2_relaxed = atomic_load_no_lse2(Ordering::Relaxed);
+                atomic_load_no_lse2_acquire = atomic_load_no_lse2(Ordering::Acquire);
+                atomic_load_no_lse2_seqcst = atomic_load_no_lse2(Ordering::SeqCst);
+            }
+            // SAFETY: the caller must uphold the safety contract.
+            // and we've checked if FEAT_LSE2/FEAT_LRCPC3 is available.
+            unsafe {
+                match order {
+                    Ordering::Relaxed => {
+                        ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
                                 // if detect(FEAT_LSE2) => lse2 (ldp)
-                                atomic_load_lse2_acquire
-                            }
-                        } else {
-                            // else => no_lse2:
-                            atomic_load_no_lse2_acquire
-                        }
-                    })
-                }
-                Ordering::SeqCst => {
-                    ifunc!(unsafe fn(src: *mut u128) -> u128 {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            if cpuinfo.rcpc3() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
-                                atomic_load_lse2_rcpc3_seqcst
+                                atomic_load_lse2_relaxed
                             } else {
-                                // if detect(FEAT_LSE2) => lse2 (ldp)
-                                atomic_load_lse2_seqcst
+                                // else => no_lse2:
+                                atomic_load_no_lse2_relaxed
                             }
-                        } else {
-                            // else => no_lse2:
-                            atomic_load_no_lse2_seqcst
-                        }
-                    })
+                        })
+                    }
+                    Ordering::Acquire => {
+                        ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
+                                if cpuinfo.rcpc3() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
+                                    atomic_load_lse2_rcpc3_acquire
+                                } else {
+                                    // if detect(FEAT_LSE2) => lse2 (ldp)
+                                    atomic_load_lse2_acquire
+                                }
+                            } else {
+                                // else => no_lse2:
+                                atomic_load_no_lse2_acquire
+                            }
+                        })
+                    }
+                    Ordering::SeqCst => {
+                        ifunc!(unsafe fn(src: *mut u128) -> u128 {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
+                                if cpuinfo.rcpc3() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
+                                    atomic_load_lse2_rcpc3_seqcst
+                                } else {
+                                    // if detect(FEAT_LSE2) => lse2 (ldp)
+                                    atomic_load_lse2_seqcst
+                                }
+                            } else {
+                                // else => no_lse2:
+                                atomic_load_no_lse2_seqcst
+                            }
+                        })
+                    }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
             }
         }
     }
     // else => no_lse2:
-    #[cfg(not(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
-            // These don't support detection of FEAT_LSE2.
-            // target_os = "fuchsia",
-            // windows,
-        ),
-    )))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_load_no_lse2(src, order)
+    #[cfg(else)]
+    {
+        use self::atomic_load_no_lse2 as atomic_load;
     }
-}
+});
+#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+cfg_sel!({
+    // if compile_time(FEAT_LSE) => casp
+    // cfg guarantee that the CPU supports FEAT_LSE.
+    #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
+    {
+        use self::_atomic_load_casp as atomic_load_no_lse2;
+    }
+    // else => ldxp_stxp
+    #[cfg(else)]
+    {
+        use self::_atomic_load_ldxp_stxp as atomic_load_no_lse2;
+    }
+});
 // If CPU supports FEAT_LSE2, LDP/LDIAPP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
@@ -900,51 +875,12 @@ Note:
 
 */
 
-// if compile_time(FEAT_LSE2) => stp:
-// cfg guarantee that the CPU supports FEAT_LSE2.
-#[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
-use self::_atomic_store_stp as atomic_store;
-#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
-#[inline]
-unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    #[inline]
-    unsafe fn atomic_store_no_lse2(dst: *mut u128, val: u128, order: Ordering) {
-        // if compile_time(FEAT_LSE) && not(ll_sc_rmw) => casp
-        // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
-        // we use CAS-based atomic RMW.
-        #[cfg(all(
-            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-            not(portable_atomic_ll_sc_rmw),
-        ))]
-        // SAFETY: the caller must uphold the safety contract.
-        // cfg guarantee that the CPU supports FEAT_LSE.
-        unsafe {
-            _atomic_swap_casp(dst, val, order);
-        }
-        // else => ldxp_stxp
-        #[cfg(not(all(
-            any(target_feature = "lse", portable_atomic_target_feature = "lse"),
-            not(portable_atomic_ll_sc_rmw),
-        )))]
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            _atomic_store_ldxp_stxp(dst, val, order);
-        }
-    }
-    #[cfg(any(
-        target_feature = "lse128",
-        portable_atomic_target_feature = "lse128",
-        all(
-            not(portable_atomic_no_outline_atomics),
-            not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
-        ),
-    ))]
-    #[inline]
-    unsafe fn _atomic_store_swpp(dst: *mut u128, val: u128, order: Ordering) {
-        // SAFETY: the caller must uphold the safety contract.
-        unsafe {
-            _atomic_swap_swpp(dst, val, order);
-        }
+cfg_sel!({
+    // if compile_time(FEAT_LSE2) => stp:
+    // cfg guarantee that the CPU supports FEAT_LSE2.
+    #[cfg(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))]
+    {
+        use self::_atomic_store_stp as atomic_store;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
     #[cfg(all(
@@ -974,117 +910,134 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
         ),
     ))]
     {
-        fn_alias! {
-            // inline(never) is just a hint and also not strictly necessary
-            // because we use ifunc helper macro, but used for clarity.
-            #[inline(never)]
-            unsafe fn(dst: *mut u128, val: u128);
-            atomic_store_lse2_relaxed = _atomic_store_stp(Ordering::Relaxed);
-            atomic_store_lse2_release = _atomic_store_stp(Ordering::Release);
-            atomic_store_lse2_seqcst = _atomic_store_stp(Ordering::SeqCst);
-            atomic_store_lse2_rcpc3_release = _atomic_store_stilp(Ordering::Release);
-            atomic_store_lse2_rcpc3_seqcst = _atomic_store_stilp(Ordering::SeqCst);
-            atomic_store_lse128_release = _atomic_store_swpp(Ordering::Release);
-            atomic_store_lse128_seqcst = _atomic_store_swpp(Ordering::SeqCst);
-        }
-        fn_alias! {
-            unsafe fn(dst: *mut u128, val: u128);
-            atomic_store_no_lse2_relaxed = atomic_store_no_lse2(Ordering::Relaxed);
-            atomic_store_no_lse2_release = atomic_store_no_lse2(Ordering::Release);
-            atomic_store_no_lse2_seqcst = atomic_store_no_lse2(Ordering::SeqCst);
-        }
-        // SAFETY: the caller must uphold the safety contract.
-        // and we've checked if FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128 is available.
-        unsafe {
-            match order {
-                Ordering::Relaxed => {
-                    ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            // if detect(FEAT_LSE2) => lse2 (stp)
-                            atomic_store_lse2_relaxed
-                        } else {
-                            // else => no_lse2:
-                            atomic_store_no_lse2_relaxed
-                        }
-                    });
+        #[inline]
+        unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
+            #[cfg(any(
+                target_feature = "lse128",
+                portable_atomic_target_feature = "lse128",
+                all(
+                    not(portable_atomic_no_outline_atomics),
+                    not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")),
+                ),
+            ))]
+            #[inline]
+            unsafe fn _atomic_store_swpp(dst: *mut u128, val: u128, order: Ordering) {
+                // SAFETY: the caller must uphold the safety contract.
+                unsafe {
+                    _atomic_swap_swpp(dst, val, order);
                 }
-                Ordering::Release => {
-                    ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            if cpuinfo.rcpc3() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
-                                atomic_store_lse2_rcpc3_release
-                            } else if cpuinfo.lse128() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order != relaxed => lse128 (swpp)
-                                atomic_store_lse128_release
-                            } else {
+            }
+            fn_alias! {
+                // inline(never) is just a hint and also not strictly necessary
+                // because we use ifunc helper macro, but used for clarity.
+                #[inline(never)]
+                unsafe fn(dst: *mut u128, val: u128);
+                atomic_store_lse2_relaxed = _atomic_store_stp(Ordering::Relaxed);
+                atomic_store_lse2_release = _atomic_store_stp(Ordering::Release);
+                atomic_store_lse2_seqcst = _atomic_store_stp(Ordering::SeqCst);
+                atomic_store_lse2_rcpc3_release = _atomic_store_stilp(Ordering::Release);
+                atomic_store_lse2_rcpc3_seqcst = _atomic_store_stilp(Ordering::SeqCst);
+                atomic_store_lse128_release = _atomic_store_swpp(Ordering::Release);
+                atomic_store_lse128_seqcst = _atomic_store_swpp(Ordering::SeqCst);
+            }
+            fn_alias! {
+                unsafe fn(dst: *mut u128, val: u128);
+                atomic_store_no_lse2_relaxed = atomic_store_no_lse2(Ordering::Relaxed);
+                atomic_store_no_lse2_release = atomic_store_no_lse2(Ordering::Release);
+                atomic_store_no_lse2_seqcst = atomic_store_no_lse2(Ordering::SeqCst);
+            }
+            // SAFETY: the caller must uphold the safety contract.
+            // and we've checked if FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128 is available.
+            unsafe {
+                match order {
+                    Ordering::Relaxed => {
+                        ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
                                 // if detect(FEAT_LSE2) => lse2 (stp)
-                                atomic_store_lse2_release
-                            }
-                        } else {
-                            // else => no_lse2:
-                            atomic_store_no_lse2_release
-                        }
-                    });
-                }
-                Ordering::SeqCst => {
-                    ifunc!(unsafe fn(dst: *mut u128, val: u128) {
-                        let cpuinfo = detect::detect();
-                        if cpuinfo.lse2() {
-                            if cpuinfo.lse128() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order == seqcst => lse128 (swpp)
-                                atomic_store_lse128_seqcst
-                            } else if cpuinfo.rcpc3() {
-                                // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
-                                atomic_store_lse2_rcpc3_seqcst
+                                atomic_store_lse2_relaxed
                             } else {
-                                // if detect(FEAT_LSE2) => lse2 (stp)
-                                atomic_store_lse2_seqcst
+                                // else => no_lse2:
+                                atomic_store_no_lse2_relaxed
                             }
-                        } else {
-                            // else => no_lse2:
-                            atomic_store_no_lse2_seqcst
-                        }
-                    });
+                        });
+                    }
+                    Ordering::Release => {
+                        ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
+                                if cpuinfo.rcpc3() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
+                                    atomic_store_lse2_rcpc3_release
+                                } else if cpuinfo.lse128() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order != relaxed => lse128 (swpp)
+                                    atomic_store_lse128_release
+                                } else {
+                                    // if detect(FEAT_LSE2) => lse2 (stp)
+                                    atomic_store_lse2_release
+                                }
+                            } else {
+                                // else => no_lse2:
+                                atomic_store_no_lse2_release
+                            }
+                        });
+                    }
+                    Ordering::SeqCst => {
+                        ifunc!(unsafe fn(dst: *mut u128, val: u128) {
+                            let cpuinfo = detect::detect();
+                            if cpuinfo.lse2() {
+                                if cpuinfo.lse128() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order == seqcst => lse128 (swpp)
+                                    atomic_store_lse128_seqcst
+                                } else if cpuinfo.rcpc3() {
+                                    // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
+                                    atomic_store_lse2_rcpc3_seqcst
+                                } else {
+                                    // if detect(FEAT_LSE2) => lse2 (stp)
+                                    atomic_store_lse2_seqcst
+                                }
+                            } else {
+                                // else => no_lse2:
+                                atomic_store_no_lse2_seqcst
+                            }
+                        });
+                    }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
             }
         }
     }
     // else => no_lse2:
-    #[cfg(not(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
-            // These don't support detection of FEAT_LSE2.
-            // target_os = "fuchsia",
-            // windows,
-        ),
-    )))]
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        atomic_store_no_lse2(dst, val, order);
+    #[cfg(else)]
+    {
+        use self::atomic_store_no_lse2 as atomic_store;
     }
-}
+});
+#[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
+cfg_sel!({
+    // if compile_time(FEAT_LSE) && not(ll_sc_rmw) => casp
+    // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
+    // we use CAS-based atomic RMW.
+    #[cfg(all(
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+        not(portable_atomic_ll_sc_rmw),
+    ))]
+    {
+        #[inline]
+        unsafe fn atomic_store_no_lse2(dst: *mut u128, val: u128, order: Ordering) {
+            // SAFETY: the caller must uphold the safety contract.
+            // cfg guarantee that the CPU supports FEAT_LSE.
+            unsafe {
+                _atomic_swap_casp(dst, val, order);
+            }
+        }
+    }
+    // else => ldxp_stxp
+    #[cfg(else)]
+    {
+        use self::_atomic_store_ldxp_stxp as atomic_store_no_lse2;
+    }
+});
 // If CPU supports FEAT_LSE2, STP/STILP is single-copy atomic writes,
 // otherwise it is two single-copy atomic writes.
 // Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile

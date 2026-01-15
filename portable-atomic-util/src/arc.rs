@@ -52,6 +52,10 @@ use portable_atomic::{
     hint,
 };
 
+use crate::utils::ptr as strict;
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
+
 /// A soft limit on the amount of references that may be made to an `Arc`.
 ///
 /// Going above this limit will abort your program (although not
@@ -3393,87 +3397,6 @@ impl Global {
             // * Other conditions must be upheld by the caller, as per `Allocator::deallocate()`'s
             //   safety documentation.
             unsafe { alloc::alloc::dealloc(ptr.as_ptr(), layout) }
-        }
-    }
-}
-
-#[cfg(portable_atomic_no_strict_provenance)]
-use self::strict::PtrExt as _;
-
-// This module provides core::ptr strict_provenance/exposed_provenance polyfill for pre-1.84 rustc.
-mod strict {
-    #[cfg(portable_atomic_no_strict_provenance)]
-    use core::mem;
-    #[cfg(not(portable_atomic_no_strict_provenance))]
-    #[allow(unused_imports)]
-    pub(crate) use core::ptr::without_provenance_mut;
-
-    #[cfg(portable_atomic_no_strict_provenance)]
-    #[inline(always)]
-    #[must_use]
-    pub(super) const fn without_provenance_mut<T>(addr: usize) -> *mut T {
-        // An int-to-pointer transmute currently has exactly the intended semantics: it creates a
-        // pointer without provenance. Note that this is *not* a stable guarantee about transmute
-        // semantics, it relies on sysroot crates having special status.
-        // SAFETY: every valid integer is also a valid pointer (as long as you don't dereference that
-        // pointer).
-        #[cfg(miri)]
-        unsafe {
-            mem::transmute(addr)
-        }
-        // const transmute requires Rust 1.56.
-        #[cfg(not(miri))]
-        {
-            addr as *mut T
-        }
-    }
-
-    /// Creates a new pointer with the metadata of `other`.
-    #[inline]
-    #[must_use]
-    pub(super) fn with_metadata_of<T, U: ?Sized>(this: *mut T, mut other: *const U) -> *mut U {
-        let target = &mut other as *mut *const U as *mut *const u8;
-
-        // SAFETY: In case of a thin pointer, this operations is identical
-        // to a simple assignment. In case of a fat pointer, with the current
-        // fat pointer layout implementation, the first field of such a
-        // pointer is always the data pointer, which is likewise assigned.
-        unsafe { *target = this as *const u8 }
-        other as *mut U
-    }
-
-    // Based on <pointer>::byte_add stabilized in Rust 1.75.
-    #[inline]
-    #[must_use]
-    pub(super) unsafe fn byte_add<T: ?Sized>(ptr: *mut T, count: usize) -> *mut T {
-        // SAFETY: the caller must uphold the safety contract for `add`.
-        unsafe { with_metadata_of((ptr as *mut u8).add(count), ptr) }
-    }
-
-    // Based on <pointer>::byte_sub stabilized in Rust 1.75.
-    #[inline]
-    #[must_use]
-    pub(super) unsafe fn byte_sub<T: ?Sized>(ptr: *mut T, count: usize) -> *mut T {
-        // SAFETY: the caller must uphold the safety contract for `sub`.
-        unsafe { with_metadata_of((ptr as *mut u8).sub(count), ptr) }
-    }
-
-    #[cfg(portable_atomic_no_strict_provenance)]
-    pub(crate) trait PtrExt<T: ?Sized>: Copy {
-        #[must_use]
-        fn addr(self) -> usize;
-    }
-    #[cfg(portable_atomic_no_strict_provenance)]
-    impl<T: ?Sized> PtrExt<T> for *const T {
-        #[inline(always)]
-        #[must_use]
-        fn addr(self) -> usize {
-            // A pointer-to-integer transmute currently has exactly the right semantics: it returns the
-            // address without exposing the provenance. Note that this is *not* a stable guarantee about
-            // transmute semantics, it relies on sysroot crates having special status.
-            // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the
-            // provenance).
-            unsafe { mem::transmute(self as *const ()) }
         }
     }
 }

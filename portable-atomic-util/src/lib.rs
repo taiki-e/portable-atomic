@@ -102,6 +102,9 @@ extern crate std;
 #[cfg(all(feature = "std", portable_atomic_no_alloc))]
 extern crate std as alloc;
 
+#[macro_use]
+mod utils;
+
 #[cfg(any(all(feature = "alloc", not(portable_atomic_no_alloc)), feature = "std"))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
 mod arc;
