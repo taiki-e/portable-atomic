@@ -156,6 +156,9 @@ bail() {
   printf >&2 'error: %s\n' "$*"
   exit 1
 }
+info() {
+  printf >&2 'info: %s\n' "$*"
+}
 is_no_std() {
   case "$1" in
     *-linux-none*) ;;
@@ -276,16 +279,19 @@ build() {
       target=avr-unknown-gnu-atmega2560 # custom target
     fi
     if [[ ! -f "target-specs/${target}.json" ]]; then
-      printf '%s\n' "target '${target}' not available on ${rustc_version} (skipped all checks)"
+      if [[ -n "${ALL_TARGETS_MUST_BE_AVAILABLE:-}" ]]; then
+        bail "target '${target}' not available on ${rustc_version}"
+      fi
+      info "target '${target}' not available on ${rustc_version} (skipped all checks)"
       return 0
     fi
     if [[ "${rustc_minor_version}" -lt 47 ]]; then
-      printf '%s\n' "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
+      info "custom target ('${target}') is not work well with old rustc (${rustc_version}) (skipped all checks)"
       return 0
     fi
     if [[ "${rustc_minor_version}" -lt 91 ]] && [[ "${target}" != "avr"* ]]; then
       # Skip pre-1.91 because target-pointer-width change
-      printf '%s\n' "target '${target}' requires 1.91-nightly or later (skipped)"
+      info "target '${target}' requires 1.91-nightly or later (skipped)"
       return 0
     fi
     local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
@@ -305,7 +311,7 @@ build() {
   elif [[ -n "${nightly}" ]]; then
     # -Z build-std requires 1.39.0-nightly: https://github.com/rust-lang/cargo/pull/7216
     if [[ "${rustc_minor_version}" -lt 39 ]]; then
-      printf '%s\n' "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
+      info "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
       return 0
     fi
     cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
@@ -335,7 +341,7 @@ build() {
       args+=(-Z build-std)
     fi
   else
-    printf '%s\n' "target '${target}' requires nightly compiler (skipped all checks)"
+    info "target '${target}' requires nightly compiler (skipped all checks)"
     return 0
   fi
   has_atomic_cas=1
@@ -353,7 +359,7 @@ build() {
     riscv*)
       if [[ -z "${has_atomic_cas}" ]] && [[ -z "${has_asm}" ]]; then
         # RISC-V without A-extension requires asm to implement atomics.
-        printf '%s\n' "target '${target}' requires asm to implement atomics (skipped all checks)"
+        info "target '${target}' requires asm to implement atomics (skipped all checks)"
         return 0
       fi
       ;;
@@ -376,7 +382,7 @@ build() {
       ;;
     m68k*)
       if [[ "${llvm_version}" -lt 20 ]]; then
-        printf '%s\n' "target '${target}' requires LLVM 20+ (skipped all checks)"
+        info "target '${target}' requires LLVM 20+ (skipped all checks)"
         return 0
       fi
       # Workaround for compiler SIGSEGV.
@@ -501,7 +507,7 @@ build() {
               ;;
           esac
         else
-          printf '%s\n' "target '${target}' requires asm to implement atomic CAS (skipped API check)"
+          info "target '${target}' requires asm to implement atomic CAS (skipped API check)"
         fi
       fi
     fi
@@ -562,7 +568,7 @@ build() {
               ;;
           esac
         else
-          printf '%s\n' "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
+          info "target '${target}' requires asm to implement atomic CAS (skipped build with --cfg portable_atomic_unsafe_assume_single_core)"
         fi
         case "${target}" in
           avr* | msp430*) ;; # always single-core
@@ -746,9 +752,9 @@ for target in "${targets[@]}"; do
     for default_target in "${default_targets[@]}"; do
       if [[ "${target}" == "${default_target}" ]]; then
         if [[ -n "${CI:-}" ]]; then
-          printf '%s\n' "target '${target}' is included in the default targets list and covered by other CI jobs or matrices (skipped all checks)"
+          info "target '${target}' is included in the default targets list and covered by other CI jobs or matrices (skipped all checks)"
         else
-          printf '%s\n' "target '${target}' is included in the default targets list (skipped all checks because SKIP_DEFAULT_TARGET is set)"
+          info "target '${target}' is included in the default targets list (skipped all checks because SKIP_DEFAULT_TARGET is set)"
         fi
         target=''
         break

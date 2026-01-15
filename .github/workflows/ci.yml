@@ -875,6 +875,7 @@ jobs:
           TESTS: ${{ matrix.tests }}
           TARGET_GROUP: ${{ matrix.target-group }}
           SKIP_DEFAULT_TARGET: ${{ matrix.skip-default-target }}
+          ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
 
   no-std:
     needs: tidy
@@ -977,6 +978,8 @@ jobs:
         working-directory: tests/no-std-qemu
         if: matrix.rust == '1.64'
       - run: tools/no-std.sh
+        env:
+          ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
       - run: tools/build.sh +esp xtensa-esp32s2-none-elf
         if: matrix.rust == 'stable'
       # TODO: exit with 1 without message
