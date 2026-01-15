@@ -9,8 +9,7 @@ Refs:
 - AVR® Instruction Set Manual, Rev. DS40002198B
   https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf
 
-Generated asm:
-- avr https://godbolt.org/z/W5jxGsToc
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

@@ -2,3 +2,4 @@
 tools/tidy.sh linguist-detectable=false
 .github/.cspell/rust-dependencies.txt linguist-generated
 src/gen/** linguist-generated
+tests/asm-test/asm/** linguist-detectable=false

@@ -48,5 +48,10 @@
       "dictionaries": ["bash", "cpp-refined", "rust"]
     }
   ],
-  "ignorePaths": ["target-specs/**", "tools/valgrind/**", "**/*.ld"]
+  "ignorePaths": [
+    "target-specs/**",
+    "tools/valgrind/**",
+    "tests/asm-test/asm/**",
+    "**/*.ld"
+  ]
 }

@@ -6,6 +6,8 @@ Refs:
   https://www.cadence.com/content/dam/cadence-www/global/en_US/documents/tools/silicon-solutions/compute-ip/isa-summary.pdf
 - Linux kernel's Xtensa atomic implementation
   https://github.com/torvalds/linux/blob/v6.16/arch/xtensa/include/asm/atomic.h
+
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 use core::arch::asm;

@@ -1,0 +1,76 @@
+[package]
+name = "asm-test"
+edition = "2021"
+
+[lib]
+doc = false
+doctest = false
+
+[features]
+core = []
+
+[dependencies]
+portable-atomic = { path = "../..", optional = true, default-features = false }
+paste = "1"
+
+[dev-dependencies]
+asmtest = "0.1"
+build-context = "0.1"
+
+[lints]
+workspace = true
+
+[workspace]
+resolver = "2"
+
+# This table is shared by projects under github.com/taiki-e.
+# Expect for unexpected_cfgs.check-cfg, it is not intended for manual editing.
+[workspace.lints.rust]
+deprecated_safe = "warn"
+improper_ctypes = "warn"
+improper_ctypes_definitions = "warn"
+non_ascii_idents = "warn"
+rust_2018_idioms = "warn"
+single_use_lifetimes = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(portable_atomic_unsafe_assume_single_core)',
+] }
+# unnameable_types = "warn"
+# unreachable_pub = "warn"
+unsafe_op_in_unsafe_fn = "warn"
+[workspace.lints.clippy]
+all = "warn" # Downgrade deny-by-default lints
+pedantic = "warn"
+as_ptr_cast_mut = "warn"
+as_underscore = "warn"
+default_union_representation = "warn"
+inline_asm_x86_att_syntax = "warn"
+trailing_empty_array = "warn"
+transmute_undefined_repr = "warn"
+undocumented_unsafe_blocks = "warn"
+unused_trait_names = "warn"
+# Suppress buggy or noisy clippy lints
+bool_assert_comparison = { level = "allow", priority = 1 }
+borrow_as_ptr = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/8286
+cast_lossless = { level = "allow", priority = 1 } # suggested code has poor codegen with -C opt-level=0 https://godbolt.org/z/GzTxzbd9q
+declare_interior_mutable_const = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/7665
+doc_markdown = { level = "allow", priority = 1 }
+float_cmp = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/7725
+incompatible_msrv = { level = "allow", priority = 1 } # buggy: doesn't consider cfg, https://github.com/rust-lang/rust-clippy/issues/12280, https://github.com/rust-lang/rust-clippy/issues/12257#issuecomment-2093667187
+lint_groups_priority = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/12920
+manual_assert = { level = "allow", priority = 1 }
+manual_range_contains = { level = "allow", priority = 1 } # https://github.com/rust-lang/rust-clippy/issues/6455#issuecomment-1225966395
+missing_errors_doc = { level = "allow", priority = 1 }
+module_name_repetitions = { level = "allow", priority = 1 } # buggy: https://github.com/rust-lang/rust-clippy/issues?q=is%3Aissue+is%3Aopen+module_name_repetitions
+naive_bytecount = { level = "allow", priority = 1 }
+nonminimal_bool = { level = "allow", priority = 1 } # buggy: https://github.com/rust-lang/rust-clippy/issues?q=is%3Aissue+is%3Aopen+nonminimal_bool
+range_plus_one = { level = "allow", priority = 1 } # buggy: https://github.com/rust-lang/rust-clippy/issues?q=is%3Aissue+is%3Aopen+range_plus_one
+similar_names = { level = "allow", priority = 1 }
+single_match = { level = "allow", priority = 1 }
+single_match_else = { level = "allow", priority = 1 }
+struct_excessive_bools = { level = "allow", priority = 1 }
+struct_field_names = { level = "allow", priority = 1 }
+too_many_arguments = { level = "allow", priority = 1 }
+too_many_lines = { level = "allow", priority = 1 }
+type_complexity = { level = "allow", priority = 1 }
+unreadable_literal = { level = "allow", priority = 1 }

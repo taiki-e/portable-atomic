@@ -9,8 +9,7 @@ Refs:
 - MSP430x5xx and MSP430x6xx Family User's Guide, Rev. Q
   https://www.ti.com/lit/ug/slau208q/slau208q.pdf
 
-Generated asm:
-- msp430 https://godbolt.org/z/fc6h89xac
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

@@ -74,15 +74,7 @@ Refs:
   https://developer.arm.com/documentation/ddi0600/latest (PDF)
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- aarch64 https://godbolt.org/z/aEWe7zhMh
-- aarch64 msvc https://godbolt.org/z/Phq7M6MPs
-- aarch64 (+lse) https://godbolt.org/z/9Go3dT6sW
-- aarch64 msvc (+lse) https://godbolt.org/z/vGvc6bTMT
-- aarch64 (+lse,+lse2) https://godbolt.org/z/KddzqsM9o
-- aarch64 (+lse,+lse2,+rcpc3) https://godbolt.org/z/sePheahxh
-- aarch64 (+lse2,+lse128) https://godbolt.org/z/WPqM9M1r3
-- aarch64 (+lse2,+lse128,+rcpc3) https://godbolt.org/z/5Mf8dc88Y
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 include!("macros.rs");
