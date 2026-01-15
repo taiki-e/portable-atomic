@@ -23,6 +23,8 @@ default_targets=(
   # thumbv6-none-eabi # TODO: "rustc-LLVM ERROR: Cannot select: intrinsic %llvm.arm.hint" will be fixed in https://github.com/rust-lang/rust/pull/150138
   # v7-A
   armv7a-none-eabi
+  # v8-R
+  armv8r-none-eabihf
   # v6-M
   thumbv6m-none-eabi
   # v7-M

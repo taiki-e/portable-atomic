@@ -437,7 +437,10 @@ build() {
         # NB: sync with tools/no-std.sh
         case "${target}" in
           armv4t* | thumbv4t*) test_dir=tests/gba ;;
-          arm* | thumb* | riscv*) test_dir=tests/no-std-qemu ;;
+          arm* | thumb* | riscv*)
+            test_dir=tests/no-std-qemu
+            args+=(--features semihosting-no-std-test-rt/disable-link-check)
+            ;;
           avr*) test_dir=tests/avr ;;
           msp430*) test_dir=tests/msp430 ;;
           xtensa*) test_dir=tests/xtensa ;;

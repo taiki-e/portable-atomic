@@ -39,9 +39,13 @@ runner = "qemu-system-arm -M versatilepb -cpu arm1176 -display none -semihosting
 
 # Armv7-A
 [target.armv7a-none-eabi]
-runner = "qemu-system-arm -M xilinx-zynq-a9 -display none -semihosting -kernel"
+runner = "qemu-system-arm -M xilinx-zynq-a9 -cpu cortex-a9 -display none -semihosting -kernel"
 [target.armv7a-none-eabihf]
-runner = "qemu-system-arm -M xilinx-zynq-a9 -display none -semihosting -kernel"
+runner = "qemu-system-arm -M xilinx-zynq-a9 -cpu cortex-a9 -display none -semihosting -kernel"
+
+# Armv8-R
+[target.armv8r-none-eabihf]
+runner = "qemu-system-arm -M mps3-an536 -cpu cortex-r52 -display none -semihosting -kernel"
 
 # RISC-V
 [target.'cfg(all(target_arch = "riscv32", target_os = "none"))']
