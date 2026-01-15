@@ -866,7 +866,6 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/free-device-space@main
-        if: matrix.target-group == ''
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
@@ -901,6 +900,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@v1
+      - uses: taiki-e/github-actions/free-device-space@main
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
