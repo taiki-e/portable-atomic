@@ -10,8 +10,7 @@ Refs:
 
 See also src/imp/riscv.rs.
 
-Generated asm:
-- riscv64gc https://godbolt.org/z/zTrzT1Ee7
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

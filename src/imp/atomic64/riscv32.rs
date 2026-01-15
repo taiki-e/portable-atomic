@@ -21,8 +21,7 @@ Refs:
 - RISC-V Atomics ABI Specification
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20250812-301374e92976e298e676e7129a6212926b2299ce/riscv-atomic.adoc
 
-Generated asm:
-- riscv32imac (+zacas) https://godbolt.org/z/9bTdfhKre
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 // TODO: merge duplicated code with atomic128/riscv64.rs

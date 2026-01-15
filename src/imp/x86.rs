@@ -12,8 +12,7 @@ this module and use CAS loop instead.
 Refs:
 - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
 
-Generated asm:
-- x86_64 https://godbolt.org/z/ETa1MGTP3
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

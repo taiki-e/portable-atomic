@@ -7,8 +7,7 @@ Adapted from https://github.com/rust-embedded/cortex-m.
 
 Refs: https://developer.arm.com/documentation/ddi0419/c/System-Level-Architecture/System-Level-Programmers--Model/Registers/The-special-purpose-mask-register--PRIMASK
 
-Generated asm:
-- armv6-m https://godbolt.org/z/1sqKnsY6n
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

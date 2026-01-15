@@ -26,11 +26,7 @@ Refs:
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- s390x https://godbolt.org/z/oPxYYEvPG
-- s390x (z196) https://godbolt.org/z/M69KrKT7Y
-- s390x (z15,-vector) https://godbolt.org/z/Wec8b3ada
-- s390x (z15) https://godbolt.org/z/KxWcrbfYh
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 include!("macros.rs");

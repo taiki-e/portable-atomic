@@ -15,8 +15,7 @@ Refs:
 - x86 and amd64 instruction reference https://www.felixcloutier.com/x86
 - atomic-maybe-uninit https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- x86_64 (+cmpxchg16b) https://godbolt.org/z/rfs1jxd51
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 // TODO: use core::arch::x86_64::cmpxchg16b where available and efficient than asm

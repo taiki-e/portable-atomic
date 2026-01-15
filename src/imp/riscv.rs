@@ -23,11 +23,7 @@ Refs:
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- riscv64gc https://godbolt.org/z/Ws933n9jE
-- riscv64gc (+zabha) https://godbolt.org/z/zEKPPW11f
-- riscv32imac https://godbolt.org/z/TKbYdbaE9
-- riscv32imac (+zabha) https://godbolt.org/z/TnePfK6co
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 // TODO: Zacas/Zalrsc extension

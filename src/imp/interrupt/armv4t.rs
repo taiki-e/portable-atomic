@@ -5,8 +5,7 @@ Arm A-Profile Architectures, Arm R-Profile Architectures, Legacy Arm Architectur
 
 Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-
 
-Generated asm:
-- armv5te https://godbolt.org/z/fhaW3d9Kv
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]
@@ -84,9 +83,6 @@ pub(crate) unsafe fn restore(prev_cpsr: State) {
 // On pre-v6 Arm, we cannot use core::sync::atomic here because they call the
 // `__sync_*` builtins for non-relaxed load/store (because pre-v6 Arm doesn't
 // have Data Memory Barrier).
-//
-// Generated asm:
-// - armv5te https://godbolt.org/z/deqTqPzqz
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(any(test, portable_atomic_no_atomic_cas)))]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),

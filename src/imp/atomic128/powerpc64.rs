@@ -29,9 +29,7 @@ Refs:
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- powerpc64 (pwr8) https://godbolt.org/z/TjKsPbWc6
-- powerpc64le https://godbolt.org/z/5WqPGhb3Y
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 include!("macros.rs");

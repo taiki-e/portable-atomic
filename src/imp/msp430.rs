@@ -20,8 +20,7 @@ Refs:
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- msp430 https://godbolt.org/z/MGrd4jPoq
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 #[cfg(not(portable_atomic_no_asm))]

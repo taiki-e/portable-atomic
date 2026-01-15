@@ -21,8 +21,7 @@ Refs:
 - RISC-V Atomics ABI Specification
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20250812-301374e92976e298e676e7129a6212926b2299ce/riscv-atomic.adoc
 
-Generated asm:
-- riscv64gc (+zacas) https://godbolt.org/z/c59a9fs63
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 include!("macros.rs");

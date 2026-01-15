@@ -4,6 +4,7 @@ updates:
     directories:
       - /
       # crates with [workspace] table are not recognized by the above 'directory: /'
+      - /tests/asm-test
       - /tests/avr
       - /tests/gba
       - /tests/msp430

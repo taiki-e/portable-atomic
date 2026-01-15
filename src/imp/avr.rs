@@ -18,8 +18,7 @@ Refs:
 - atomic-maybe-uninit
   https://github.com/taiki-e/atomic-maybe-uninit
 
-Generated asm:
-- avr https://godbolt.org/z/j49rYbj4d
+See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
 use core::{arch::asm, cell::UnsafeCell, sync::atomic::Ordering};
