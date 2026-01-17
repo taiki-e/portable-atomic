@@ -16,7 +16,6 @@
 
 // TODO:
 // - https://github.com/rust-lang/rust/pull/132231
-// - https://github.com/rust-lang/rust/pull/133003
 // - https://github.com/rust-lang/rust/pull/131460 / https://github.com/rust-lang/rust/pull/132031
 
 use alloc::{
@@ -1378,7 +1377,7 @@ impl<T: ?Sized + CloneToUninit> Arc<T> {
 
             let initialized_clone = unsafe {
                 // Clone. If the clone panics, `in_progress` will be dropped and clean up.
-                this_data_ref.clone_to_uninit(in_progress.data_ptr());
+                this_data_ref.clone_to_uninit(in_progress.data_ptr() as *mut u8);
                 // Cast type of pointer, now that it is initialized.
                 in_progress.into_arc()
             };
@@ -3068,36 +3067,40 @@ mod clone {
         slice,
     };
 
+    #[cfg(not(portable_atomic_no_maybe_uninit))]
+    use super::strict;
+
     // Based on unstable core::clone::CloneToUninit.
     // This trait is private and cannot be implemented for types outside of `portable-atomic-util`.
     #[doc(hidden)] // private API
     #[allow(unknown_lints, unnameable_types)] // Not public API. unnameable_types is available on Rust 1.79+
     pub unsafe trait CloneToUninit {
-        unsafe fn clone_to_uninit(&self, dst: *mut Self);
+        unsafe fn clone_to_uninit(&self, dest: *mut u8);
     }
     unsafe impl<T: Clone> CloneToUninit for T {
         #[inline]
-        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+        unsafe fn clone_to_uninit(&self, dest: *mut u8) {
             // SAFETY: we're calling a specialization with the same contract
-            unsafe { clone_one(self, dst) }
+            unsafe { clone_one(self, dest as *mut T) }
         }
     }
     #[cfg(not(portable_atomic_no_maybe_uninit))]
     unsafe impl<T: Clone> CloneToUninit for [T] {
         #[inline]
         #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+        unsafe fn clone_to_uninit(&self, dest: *mut u8) {
+            let dest: *mut [T] = strict::with_metadata_of(dest, self);
             // SAFETY: we're calling a specialization with the same contract
-            unsafe { clone_slice(self, dst) }
+            unsafe { clone_slice(self, dest) }
         }
     }
     #[cfg(not(portable_atomic_no_maybe_uninit))]
     unsafe impl CloneToUninit for str {
         #[inline]
         #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
-        unsafe fn clone_to_uninit(&self, dst: *mut Self) {
+        unsafe fn clone_to_uninit(&self, dest: *mut u8) {
             // SAFETY: str is just a [u8] with UTF-8 invariant
-            unsafe { self.as_bytes().clone_to_uninit(dst as *mut [u8]) }
+            unsafe { self.as_bytes().clone_to_uninit(dest) }
         }
     }
     // Note: Currently, we cannot implement this for CStr/OsStr/Path since theirs layout is not stable.
@@ -3127,7 +3130,7 @@ mod clone {
         // This is the most likely mistake to make, so check it as a debug assertion.
         debug_assert_eq!(
             len,
-            uninit_ref.len(),
+            uninit_ref.len(), // <*const [T]>::len is unstable
             "clone_to_uninit() source and destination must have equal lengths",
         );
 
