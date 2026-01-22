@@ -13,7 +13,7 @@ detailed description of the atomic and synchronize instructions in this architec
 https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#s390x
 
 LLVM's minimal supported architecture level is arch8 (z10):
-https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
+https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
 This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
 https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
 

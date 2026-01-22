@@ -283,8 +283,8 @@ fn main() {
             if !version.probe(82, 2024, 8, 29) || needs_target_feature_fallback(&version, None) {
                 // FEAT_LSE2 doesn't imply FEAT_LSE. FEAT_LSE128 implies FEAT_LSE but not FEAT_LSE2.
                 // AArch64 macOS always supports FEAT_LSE and FEAT_LSE2 because M1 is Armv8.4 with all features of Armv8.5 except FEAT_BTI:
-                // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AArch64/AArch64Processors.td#L1289
-                // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AArch64/AArch64Processors.td#L941
+                // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AArch64/AArch64Processors.td#L1558
+                // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AArch64/AArch64Processors.td#L1180
                 // Script to get builtin targets that support FEAT_LSE/FEAT_LSE2 by default:
                 // $ (for target in $(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "aarch64" or .value.arch == "arm64ec" then .key else empty end'); do rustc --print cfg --target "${target}" | grep -Fq '"lse"' && printf '%s\n' "${target}"; done)
                 // $ (for target in $(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "aarch64" or .value.arch == "arm64ec" then .key else empty end'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
@@ -383,7 +383,6 @@ fn main() {
             // zabha and zacas imply zaamo in GCC, LLVM 20+, and Rust, but do not in LLVM 19.
             // However, enabling them without zaamo or a is not allowed in LLVM 19, so we can assume
             // zaamo is available when zabha is enabled).
-            // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/RISCV/RISCVFeatures.td#L245-L259
             // https://github.com/llvm/llvm-project/commit/956361ca080a689a96b6552d28681aaf0ad2f494
             // https://github.com/gcc-mirror/gcc/commit/7b2b2e3d660edc8ef3a8cfbdfc2b0fd499459601
             // https://github.com/gcc-mirror/gcc/commit/11c2453a16b725b7fb67778e1ab4636a51a1217d
@@ -424,21 +423,21 @@ fn main() {
                             pwr8_features = cpu_version >= 8;
                         }
                     } else {
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td#L714
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td#L483
+                        // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L789
+                        // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L557
                         // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
                         // on this target (see CI config for more), "future" is based on pwr10 features.
                         // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
                         pwr8_features = cpu == "future" || cpu == "ppc64le";
                     }
                 } else {
-                    // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td#L714
+                    // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L789
                     // See also https://github.com/rust-lang/rust/issues/59932
                     pwr8_features = env::var("CARGO_CFG_TARGET_ENDIAN")
                         .expect("CARGO_CFG_TARGET_ENDIAN not set")
                         == "little";
                 }
-                // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td#L409
+                // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L484
                 // lqarx and stqcx.
                 target_feature_fallback("quadword-atomics", pwr8_features);
             }
@@ -448,7 +447,7 @@ fn main() {
             let mut arch13_features = false; // z15+
             if let Some(cpu) = target_cpu() {
                 // LLVM and GCC recognize the same names:
-                // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/SystemZ/SystemZProcessors.td
+                // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-15.2.0/gcc/config/s390/s390.opt#L58-L128
                 if let Some(arch_version) = strip_prefix(&cpu, "arch") {
                     if let Ok(arch_version) = arch_version.parse::<u32>() {
@@ -470,13 +469,13 @@ fn main() {
             // since nightly-2025-06-05 (https://github.com/rust-lang/rust/pull/141250),
             // and stabilized in Rust 1.93 (https://github.com/rust-lang/rust/pull/145656).
             if !version.probe(89, 2025, 6, 4) || needs_target_feature_fallback(&version, Some(93)) {
-                // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
+                // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
                 target_feature_fallback("miscellaneous-extensions-3", arch13_features);
             }
             // As of rustc 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
-            // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
+            // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
             // bcr 14,0
             target_feature_fallback("fast-serialization", arch9_features);
             // {l,st}oc{,g}{,r}
@@ -486,7 +485,7 @@ fn main() {
         }
         "avr" => {
             // target_feature "rmw" will be added in https://github.com/rust-lang/rust/pull/146900
-            // https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AVR/AVRDevices.td
+            // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AVR/AVRDevices.td
             let mut xmegau = false; // FamilyXMEGAU
             if let Some(cpu) = target_cpu() {
                 match &*cpu {

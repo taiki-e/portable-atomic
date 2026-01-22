@@ -93,7 +93,7 @@ macro_rules! flags {
 
 // rustc definitions: https://github.com/rust-lang/rust/blob/ddaf12390d3ffb7d5ba74491a48f3cd528e5d777/compiler/rustc_target/src/target_features.rs
 
-// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/AArch64/AArch64Features.td
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AArch64/AArch64Features.td
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
 flags! {
     // The Armv8.1 architecture extension
@@ -160,21 +160,21 @@ flags! {
     cpuid("cpuid", any(/* no corresponding target feature */)),
 }
 
-// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/ARM/ARMFeatures.td
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/ARM/ARMFeatures.td
 #[cfg(target_arch = "arm")]
 flags! {
     #[cfg(test)] // test-only
     lpae("lpae", any(/* no corresponding target feature */)),
 }
 
-// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/PowerPC/PPC.td
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td
 #[cfg(target_arch = "powerpc64")]
 flags! {
     // lqarx and stqcx.
     quadword_atomics("quadword-atomics", any(target_feature /* nightly */, portable_atomic_target_feature)),
 }
 
-// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/RISCV/RISCVFeatures.td
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/RISCV/RISCVFeatures.td
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 flags! {
     // amocas.{w,d,q}
@@ -185,7 +185,7 @@ flags! {
     zalasr("zalasr", any(/* no corresponding target feature */)),
 }
 
-// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/Target/X86/X86.td
+// LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/X86/X86.td
 #[cfg(target_arch = "x86_64")]
 flags! {
     // avx

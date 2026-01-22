@@ -80,7 +80,8 @@ jobs:
         # - LLVM 19 : stable 1.82 - 1.86, nightly-2024-08-01 (1.82) - nightly-2025-02-17 (1.87)
         # - LLVM 20 : stable 1.87 - 1.90, nightly-2025-02-18 (1.87) - nightly-2025-08-07 (1.91)
         # - LLVM 21 : stable 1.91 -     , nightly-2025-08-07 (1.91) -                          , since https://github.com/rust-lang/rust/pull/143684
-        # (see also https://github.com/rust-lang/rust/commits/master/src/llvm-project)
+        # - LLVM 22 :                   ,                                                      , since https://github.com/rust-lang/rust/pull/150722
+        # (see also https://github.com/rust-lang/rust/commits/HEAD/src/llvm-project)
         # Minimum external LLVM version table:
         # - LLVM 3.9: stable 1.23 - 1.28, since https://github.com/rust-lang/rust/pull/45326
         # - LLVM 5  : stable 1.29 - 1.32, since https://github.com/rust-lang/rust/pull/51899
