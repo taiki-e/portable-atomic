@@ -258,6 +258,156 @@ asm_test::fetch_nand::u64::release:
         jl                0b
         br                %r14
 
+asm_test::fetch_nand::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        cije              %r3,0,1f
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        j                 3f
+1:
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+        lhi               %r4,1
+2:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r4,32,39,24
+        rll               %r5,%r5,0(%r3)
+        cs                %r0,%r5,0(%r1)
+        jl                2b
+3:
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_nand::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        cije              %r3,0,1f
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        j                 3f
+1:
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+        lhi               %r4,1
+2:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r4,32,39,24
+        rll               %r5,%r5,0(%r3)
+        cs                %r0,%r5,0(%r1)
+        jl                2b
+3:
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_nand::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        cije              %r3,0,1f
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        j                 3f
+1:
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+        lhi               %r4,1
+2:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r4,32,39,24
+        rll               %r5,%r5,0(%r3)
+        cs                %r0,%r5,0(%r1)
+        jl                2b
+3:
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_nand::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        cije              %r3,0,1f
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        j                 3f
+1:
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+        lhi               %r4,1
+2:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r4,32,39,24
+        rll               %r5,%r5,0(%r3)
+        cs                %r0,%r5,0(%r1)
+        jl                2b
+3:
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_nand::bool::release:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        cije              %r3,0,1f
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        j                 3f
+1:
+        l                 %r0,0(%r1)
+        lcr               %r3,%r2
+        lhi               %r4,1
+2:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r4,32,39,24
+        rll               %r5,%r5,0(%r3)
+        cs                %r0,%r5,0(%r1)
+        jl                2b
+3:
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
 asm_test::fetch_nand::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
@@ -2063,6 +2213,381 @@ asm_test::compare_exchange::u64::release_relaxed:
         llgfr             %r2,%r0
         br                %r14
 
+asm_test::compare_exchange::bool::acqrel_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::seqcst_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::acqrel_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::acqrel_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::acquire_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::relaxed_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::release_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::seqcst_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::seqcst_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::acquire_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::acquire_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::relaxed_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::relaxed_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::release_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange::bool::release_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
 asm_test::compare_exchange::u128::acqrel_seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
@@ -3246,6 +3771,381 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         lochie            %r0,1
         xilf              %r0,1
         llgfr             %r2,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acqrel_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::seqcst_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acqrel_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acqrel_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acquire_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::relaxed_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::release_seqcst:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::seqcst_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::seqcst_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acquire_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::acquire_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::relaxed_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::relaxed_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::release_acquire:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::bool::release_relaxed:
+        stmg              %r13,%r15,104(%r15)
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r0,8(%r2)
+        risbg             %r4,%r14,32,55
+        llcr              %r14,%r14
+        cr                %r14,%r3
+        jlh               1f
+        rll               %r13,%r4,-8(%r5)
+        cs                %r0,%r13,0(%r1)
+        jl                0b
+1:
+        lhi               %r2,0
+        lochie            %r2,1
+        lhi               %r3,0
+        xilf              %r2,1
+        tmll              %r14,255
+        lochine           %r3,1
+        lmg               %r13,%r15,104(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
@@ -6006,6 +6906,24 @@ asm_test::load::u64::relaxed:
         lg                %r2,0(%r2)
         br                %r14
 
+asm_test::load::bool::seqcst:
+        tm                0(%r2),255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::load::bool::acquire:
+        tm                0(%r2),255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::load::bool::relaxed:
+        tm                0(%r2),255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
 asm_test::load::u128::seqcst:
         lpq               %r0,0(%r3)
         stg               %r1,8(%r2)
@@ -6244,6 +7162,91 @@ asm_test::swap::u64::release:
         jl                0b
         br                %r14
 
+asm_test::swap::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r3,32,39,24
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::swap::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r3,32,39,24
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::swap::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r3,32,39,24
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::swap::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r3,32,39,24
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::swap::bool::release:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        risbg             %r5,%r3,32,39,24
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
 asm_test::swap::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
@@ -6364,6 +7367,19 @@ asm_test::store::u64::relaxed:
 
 asm_test::store::u64::release:
         stg               %r3,0(%r2)
+        br                %r14
+
+asm_test::store::bool::seqcst:
+        stc               %r3,0(%r2)
+        bnor              %r0
+        br                %r14
+
+asm_test::store::bool::relaxed:
+        stc               %r3,0(%r2)
+        br                %r14
+
+asm_test::store::bool::release:
+        stc               %r3,0(%r2)
         br                %r14
 
 asm_test::store::u128::seqcst:
@@ -6573,6 +7589,96 @@ asm_test::fetch_or::u64::relaxed:
 
 asm_test::fetch_or::u64::release:
         laog              %r2,%r3,0(%r2)
+        br                %r14
+
+asm_test::fetch_or::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_or::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_or::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_or::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_or::bool::release:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
         br                %r14
 
 asm_test::fetch_or::u128::acqrel:
@@ -7128,6 +8234,101 @@ asm_test::fetch_and::u64::relaxed:
 
 asm_test::fetch_and::u64::release:
         lang              %r2,%r3,0(%r2)
+        br                %r14
+
+asm_test::fetch_and::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_and::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_and::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_and::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_and::bool::release:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
         br                %r14
 
 asm_test::fetch_and::u128::acqrel:
@@ -9220,6 +10421,91 @@ asm_test::fetch_not::u64::release:
         laxg              %r2,%r0,0(%r2)
         br                %r14
 
+asm_test::fetch_not::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_not::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_not::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_not::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_not::bool::release:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
 asm_test::fetch_not::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r0,8(%r3)
@@ -9773,6 +11059,96 @@ asm_test::fetch_xor::u64::relaxed:
 
 asm_test::fetch_xor::u64::release:
         laxg              %r2,%r3,0(%r2)
+        br                %r14
+
+asm_test::fetch_xor::bool::acqrel:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_xor::bool::seqcst:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_xor::bool::acquire:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_xor::bool::relaxed:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
+        br                %r14
+
+asm_test::fetch_xor::bool::release:
+        risbgnz           %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        rll               %r0,%r0,8(%r2)
+        tmll              %r0,255
+        lghi              %r2,0
+        locghine          %r2,1
         br                %r14
 
 asm_test::fetch_xor::u128::acqrel:

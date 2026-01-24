@@ -223,6 +223,96 @@ asm_test::fetch_nand::u32::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::fetch_nand::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r2, r0
+        mrs               r3, apsr
+        orr               r0, r3, #192
+        msr               CPSR_c, r0
+        cmp               r1, #0
+        ldrb              r0, [r2]
+        eorne             r1, r0, #1
+        moveq             r1, #1
+        cmp               r0, #0
+        strb              r1, [r2]
+        movne             r0, #1
+        msr               CPSR_c, r3
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_nand::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r2, r0
+        mrs               r3, apsr
+        orr               r0, r3, #192
+        msr               CPSR_c, r0
+        cmp               r1, #0
+        ldrb              r0, [r2]
+        eorne             r1, r0, #1
+        moveq             r1, #1
+        cmp               r0, #0
+        strb              r1, [r2]
+        movne             r0, #1
+        msr               CPSR_c, r3
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_nand::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r2, r0
+        mrs               r3, apsr
+        orr               r0, r3, #192
+        msr               CPSR_c, r0
+        cmp               r1, #0
+        ldrb              r0, [r2]
+        eorne             r1, r0, #1
+        moveq             r1, #1
+        cmp               r0, #0
+        strb              r1, [r2]
+        movne             r0, #1
+        msr               CPSR_c, r3
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_nand::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r2, r0
+        mrs               r3, apsr
+        orr               r0, r3, #192
+        msr               CPSR_c, r0
+        cmp               r1, #0
+        ldrb              r0, [r2]
+        eorne             r1, r0, #1
+        moveq             r1, #1
+        cmp               r0, #0
+        strb              r1, [r2]
+        movne             r0, #1
+        msr               CPSR_c, r3
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_nand::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r2, r0
+        mrs               r3, apsr
+        orr               r0, r3, #192
+        msr               CPSR_c, r0
+        cmp               r1, #0
+        ldrb              r0, [r2]
+        eorne             r1, r0, #1
+        moveq             r1, #1
+        cmp               r0, #0
+        strb              r1, [r2]
+        movne             r0, #1
+        msr               CPSR_c, r3
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::fetch_umax::u8::acqrel:
         push              {r11, lr}
         mov               r11, sp
@@ -1508,6 +1598,276 @@ asm_test::compare_exchange::u32::release_relaxed:
         pop               {r11, lr}
         bx                lr
 
+asm_test::compare_exchange::bool::acqrel_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::seqcst_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::acqrel_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::acqrel_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::acquire_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::relaxed_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::release_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::seqcst_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::seqcst_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::acquire_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::acquire_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::relaxed_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::relaxed_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::release_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange::bool::release_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         push              {r11, lr}
         mov               r11, sp
@@ -2300,6 +2660,276 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         streq             r2, [r3]
         moveq             r0, #0
         msr               CPSR_c, lr
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acqrel_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::seqcst_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acqrel_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acqrel_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acquire_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::relaxed_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::release_seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::seqcst_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::seqcst_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acquire_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::acquire_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::relaxed_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::relaxed_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::release_acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::compare_exchange_weak::bool::release_relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mov               r3, r1
+        mrs               r12, apsr
+        orr               r1, r12, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        strbeq            r2, [r0]
+        subs              r0, r1, r3
+        movne             r0, #1
+        cmp               r1, #0
+        msr               CPSR_c, r12
+        movne             r1, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3731,6 +4361,33 @@ asm_test::load::u32::relaxed:
         pop               {r11, lr}
         bx                lr
 
+asm_test::load::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        ldrb              r0, [r0]
+        ands              r0, r0, #255
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::load::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        ldrb              r0, [r0]
+        ands              r0, r0, #255
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::load::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        ldrb              r0, [r0]
+        ands              r0, r0, #255
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::swap::u8::acqrel:
         push              {r11, lr}
         mov               r11, sp
@@ -3926,6 +4583,81 @@ asm_test::swap::u32::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::swap::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        strb              r1, [r0]
+        cmp               r2, #0
+        msr               CPSR_c, r3
+        movne             r2, #1
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::swap::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        strb              r1, [r0]
+        cmp               r2, #0
+        msr               CPSR_c, r3
+        movne             r2, #1
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::swap::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        strb              r1, [r0]
+        cmp               r2, #0
+        msr               CPSR_c, r3
+        movne             r2, #1
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::swap::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        strb              r1, [r0]
+        cmp               r2, #0
+        msr               CPSR_c, r3
+        movne             r2, #1
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::swap::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        strb              r1, [r0]
+        cmp               r2, #0
+        msr               CPSR_c, r3
+        movne             r2, #1
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::store::u8::seqcst:
         push              {r11, lr}
         mov               r11, sp
@@ -3986,6 +4718,27 @@ asm_test::store::u32::release:
         push              {r11, lr}
         mov               r11, sp
         str               r1, [r0]
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::store::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        strb              r1, [r0]
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::store::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        strb              r1, [r0]
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::store::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        strb              r1, [r0]
         pop               {r11, lr}
         bx                lr
 
@@ -4194,6 +4947,86 @@ asm_test::fetch_or::u32::release:
         ldr               r2, [r0]
         orr               r1, r2, r1
         str               r1, [r0]
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_or::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        orr               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_or::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        orr               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_or::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        orr               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_or::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        orr               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_or::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        orr               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -4614,6 +5447,86 @@ asm_test::fetch_and::u32::release:
         ldr               r2, [r0]
         and               r1, r2, r1
         str               r1, [r0]
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_and::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        and               r1, r1, r2
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_and::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        and               r1, r1, r2
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_and::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        and               r1, r1, r2
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_and::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        and               r1, r1, r2
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_and::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        and               r1, r1, r2
+        strb              r1, [r0]
+        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -5529,6 +6442,86 @@ asm_test::fetch_not::u32::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::fetch_not::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r2, apsr
+        orr               r1, r2, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, #0
+        eor               r3, r1, #1
+        strb              r3, [r0]
+        movne             r1, #1
+        msr               CPSR_c, r2
+        mov               r0, r1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_not::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r2, apsr
+        orr               r1, r2, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, #0
+        eor               r3, r1, #1
+        strb              r3, [r0]
+        movne             r1, #1
+        msr               CPSR_c, r2
+        mov               r0, r1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_not::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r2, apsr
+        orr               r1, r2, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, #0
+        eor               r3, r1, #1
+        strb              r3, [r0]
+        movne             r1, #1
+        msr               CPSR_c, r2
+        mov               r0, r1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_not::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r2, apsr
+        orr               r1, r2, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, #0
+        eor               r3, r1, #1
+        strb              r3, [r0]
+        movne             r1, #1
+        msr               CPSR_c, r2
+        mov               r0, r1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_not::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r2, apsr
+        orr               r1, r2, #192
+        msr               CPSR_c, r1
+        ldrb              r1, [r0]
+        cmp               r1, #0
+        eor               r3, r1, #1
+        strb              r3, [r0]
+        movne             r1, #1
+        msr               CPSR_c, r2
+        mov               r0, r1
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::fetch_sub::u8::acqrel:
         push              {r11, lr}
         mov               r11, sp
@@ -5944,6 +6937,86 @@ asm_test::fetch_xor::u32::release:
         ldr               r2, [r0]
         eor               r1, r2, r1
         str               r1, [r0]
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_xor::bool::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        eor               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_xor::bool::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        eor               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_xor::bool::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        eor               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_xor::bool::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        eor               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
+        msr               CPSR_c, r3
+        mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::fetch_xor::bool::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               r3, apsr
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
+        ldrb              r2, [r0]
+        cmp               r2, #0
+        eor               r1, r2, r1
+        strb              r1, [r0]
+        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}

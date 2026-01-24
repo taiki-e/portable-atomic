@@ -203,6 +203,113 @@
         ret
 
 .text:
+        tbz               w1, #0x0, 1f
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+1:
+        mov               w8, #0x1                // =1
+2:
+        ldaxrb            w9, [x0]
+        stlxrb            w10, w8, [x0]
+        cbnz              w10, 2b
+        mov               w8, w9
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        tbz               w1, #0x0, 1f
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+1:
+        mov               w8, #0x1                // =1
+2:
+        ldaxrb            w9, [x0]
+        stlxrb            w10, w8, [x0]
+        cbnz              w10, 2b
+        mov               w8, w9
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+        tbz               w1, #0x0, 1f
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+1:
+        mov               w8, #0x1                // =1
+2:
+        ldaxrb            w9, [x0]
+        stxrb             w10, w8, [x0]
+        cbnz              w10, 2b
+        mov               w8, w9
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        tbz               w1, #0x0, 1f
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, #0x1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+1:
+        mov               w8, #0x1                // =1
+2:
+        ldxrb             w9, [x0]
+        stxrb             w10, w8, [x0]
+        cbnz              w10, 2b
+        mov               w8, w9
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        tbz               w1, #0x0, 1f
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+1:
+        mov               w8, #0x1                // =1
+2:
+        ldxrb             w9, [x0]
+        stlxrb            w10, w8, [x0]
+        cbnz              w10, 2b
+        mov               w8, w9
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
 0:
         ldaxp             x8, x1, [x0]
         and               x9, x8, x2
@@ -1786,6 +1893,309 @@
         ret
 
 .text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldxrb             w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        mov               w9, w2
+0:
+        ldxrb             w8, [x0]
+        cmp               w8, w1
+        b.ne              1f
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+1:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+
+.text:
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
@@ -3232,6 +3642,333 @@
         mvn               w9, wzr
         mov               x1, x8
         and               x0, x9, #0x1
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cbz               w10, 1f
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+1:
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cbz               w10, 1f
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+1:
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cbz               w10, 1f
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        eor               w0, wzr, #0x1
+        cset              w1, ne
+        ret
+1:
+        dmb               ish
+        mov               w9, #0x1                // =1
+        cmp               w8, #0x0
+        eor               w0, w9, #0x1
+        cset              w1, ne
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stxrb             w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stxrb             w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stxrb             w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldxrb             w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stxrb             w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldaxrb            w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
+        ret
+
+.text:
+        ldxrb             w8, [x0]
+        cmp               w8, w1
+        b.ne              0f
+        mov               w9, w2
+        stlxrb            w10, w9, [x0]
+        cmp               w10, #0x0
+        csetm             w9, eq
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, w9
+        ret
+0:
+        clrex
+        cmp               w8, #0x0
+        mov               w8, #0x1                // =1
+        cset              w1, ne
+        bic               w0, w8, wzr
         ret
 
 .text:
@@ -5342,6 +6079,24 @@
         ret
 
 .text:
+        ldarb             w8, [x0]
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        ldarb             w8, [x0]
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        ldrb              w8, [x0]
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
 0:
         ldaxp             x8, x1, [x0]
         stlxp             w9, x8, x1, [x0]
@@ -5530,6 +6285,57 @@
         ret
 
 .text:
+        mov               w8, w1
+0:
+        ldaxrb            w9, [x0]
+        stlxrb            w10, w8, [x0]
+        cbnz              w10, 0b
+        cmp               w9, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        mov               w9, w1
+0:
+        ldaxrb            w8, [x0]
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+        mov               w8, w1
+0:
+        ldaxrb            w9, [x0]
+        stxrb             w10, w8, [x0]
+        cbnz              w10, 0b
+        cmp               w9, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        mov               w8, w1
+0:
+        ldxrb             w9, [x0]
+        stxrb             w10, w8, [x0]
+        cbnz              w10, 0b
+        cmp               w9, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+        mov               w8, w1
+0:
+        ldxrb             w9, [x0]
+        stlxrb            w10, w8, [x0]
+        cbnz              w10, 0b
+        cmp               w9, #0x0
+        cset              w0, ne
+        ret
+
+.text:
 0:
         ldaxp             x8, x1, [x0]
         stlxp             w9, x2, x3, [x0]
@@ -5620,6 +6426,19 @@
 
 .text:
         stlr              x1, [x0]
+        ret
+
+.text:
+        stlrb             w1, [x0]
+        dmb               ish
+        ret
+
+.text:
+        strb              w1, [x0]
+        ret
+
+.text:
+        stlrb             w1, [x0]
         ret
 
 .text:
@@ -5830,6 +6649,57 @@
 
 .text:
 0:
+        ldaxrb            w8, [x0]
+        orr               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        orr               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        orr               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        orr               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        orr               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
         ldaxp             x8, x1, [x0]
         orr               x9, x8, x2
         orr               x10, x1, x3
@@ -6296,6 +7166,57 @@
         and               x9, x0, x1
         stlxr             w10, x9, [x8]
         cbnz              w10, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        and               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        and               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
         ret
 
 .text:
@@ -7576,6 +8497,57 @@
 
 .text:
 0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, #0x1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, #0x1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, #0x1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
         ldaxp             x8, x1, [x0]
         mvn               x9, x8
         mvn               x10, x1
@@ -8042,6 +9014,57 @@
         eor               x9, x0, x1
         stlxr             w10, x9, [x8]
         cbnz              w10, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        dmb               ish
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, w1
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w9, w8, w1
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        cmp               w8, #0x0
+        cset              w0, ne
         ret
 
 .text:

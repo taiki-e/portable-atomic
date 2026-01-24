@@ -1,3 +1,156 @@
+<portable_atomic::AtomicBool>::compare_exchange:
+        slli              a5, a4, 0x3
+        auipc             a6, 0x0
+        mv                a6, a6
+        add               a5, a6, a5
+        ld                a5, 0x0(a5)
+        jr                a5
+        beqz              a3, 0x40 <.Lpcrel_hi0+0x3c>
+        li                a5, 0x1
+        bne               a3, a5, 0x58 <.Lpcrel_hi0+0x54>
+        li                a3, 0x4
+        beq               a4, a3, 0x30 <.Lpcrel_hi0+0x2c>
+        li                a3, 0x1
+        li                a5, 0x2
+        bne               a4, a5, 0x64 <.Lpcrel_hi0+0x60>
+        li                a3, 0x3
+        j                 0x64 <.Lpcrel_hi0+0x60>
+        li                a3, 0x2
+        beq               a4, a3, 0x64 <.Lpcrel_hi0+0x60>
+        addi              a4, a4, -0x4
+        seqz              a3, a4
+        slli              a3, a3, 0x2
+        j                 0x64 <.Lpcrel_hi0+0x60>
+        li                a5, 0x4
+        bne               a4, a5, 0x64 <.Lpcrel_hi0+0x60>
+        li                a3, 0x4
+        andi              a4, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0xac <.Lpcrel_hi0+0xa8>
+        beqz              a2, 0xe4 <.Lpcrel_hi0+0xe0>
+        li                a2, 0x1
+        li                a5, 0x2
+        sllw              a2, a2, a0
+        blt               a5, a3, 0x17c <.Lpcrel_hi0+0x178>
+        beqz              a3, 0x1b4 <.Lpcrel_hi0+0x1b0>
+        li                a5, 0x1
+        bne               a3, a5, 0x1ec <.Lpcrel_hi0+0x1e8>
+        amoor.w.rl        a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        li                a2, 0x0
+        li                a5, 0x2
+        sllw              a2, a2, a0
+        blt               a5, a3, 0x128 <.Lpcrel_hi0+0x124>
+        beqz              a3, 0x144 <.Lpcrel_hi0+0x140>
+        li                a5, 0x1
+        bne               a3, a5, 0x160 <.Lpcrel_hi0+0x15c>
+        amoor.w.rl        a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        li                a5, 0xff
+        sllw              a2, a2, a0
+        sllw              a5, a5, a0
+        not               a5, a5
+        li                a6, 0x2
+        or                a2, a2, a5
+        blt               a6, a3, 0x198 <.Lpcrel_hi0+0x194>
+        beqz              a3, 0x1d0 <.Lpcrel_hi0+0x1cc>
+        li                a5, 0x1
+        bne               a3, a5, 0x208 <.Lpcrel_hi0+0x204>
+        amoand.w.rl       a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w.aqrl      a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w           a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w.aq        a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w.aqrl      a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoand.w.aqrl     a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w           a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoand.w          a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoor.w.aq        a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        amoand.w.aq       a2, a2, (a4)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+        auipc             a0, 0x0
+        auipc             a1, 0x0
+        mv                a0, a0
+        mv                a2, a1
+        li                a1, 0x34
+        auipc             ra, 0x0
+        jalr              ra <.Lpcrel_hi2+0x10>
+        auipc             a0, 0x0
+        auipc             a1, 0x0
+        mv                a0, a0
+        mv                a2, a1
+        li                a1, 0x3d
+        auipc             ra, 0x0
+        jalr              ra <.Lpcrel_hi4+0x10>
+
 asm_test::fetch_nand::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
@@ -196,6 +349,96 @@ asm_test::fetch_nand::u64::release:
         sd                a1, 0x0(a0)
         csrw              mstatus, a3
         mv                a0, a2
+        ret
+
+asm_test::fetch_nand::bool::acqrel:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0x1
+        sllw              a3, a3, a0
+        beqz              a1, 0f
+        amoxor.w.aqrl     a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        amoor.w.aqrl      a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::seqcst:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0x1
+        sllw              a3, a3, a0
+        beqz              a1, 0f
+        amoxor.w.aqrl     a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        amoor.w.aqrl      a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::acquire:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0x1
+        sllw              a3, a3, a0
+        beqz              a1, 0f
+        amoxor.w.aq       a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        amoor.w.aq        a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::relaxed:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0x1
+        sllw              a3, a3, a0
+        beqz              a1, 0f
+        amoxor.w          a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        amoor.w           a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::release:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0x1
+        sllw              a3, a3, a0
+        beqz              a1, 0f
+        amoxor.w.rl       a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        amoor.w.rl        a1, a3, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -1398,6 +1641,266 @@ asm_test::compare_exchange::u64::release_relaxed:
         mv                a1, a3
         ret
 
+asm_test::compare_exchange::bool::acqrel_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire:
+        li                a3, 0x3
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::acqrel_relaxed:
+        li                a3, 0x3
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::acquire_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst:
+        li                a4, 0x4
+        li                a3, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::release_seqcst:
+        li                a3, 0x1
+        li                a4, 0x4
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::seqcst_acquire:
+        li                a3, 0x4
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::seqcst_relaxed:
+        li                a3, 0x4
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::acquire_acquire:
+        li                a3, 0x2
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::acquire_relaxed:
+        li                a3, 0x2
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::relaxed_acquire:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aq        a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aq        a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aq       a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed:
+        li                a3, 0x0
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange::bool::release_acquire:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed:
+        li                a3, 0x1
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
@@ -2297,6 +2800,266 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         csrw              mstatus, a5
         mv                a1, a3
         ret
+
+asm_test::compare_exchange_weak::bool::acqrel_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange_weak::bool::seqcst_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange_weak::bool::acqrel_acquire:
+        li                a3, 0x3
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::acqrel_relaxed:
+        li                a3, 0x3
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::acquire_seqcst:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange_weak::bool::relaxed_seqcst:
+        li                a4, 0x4
+        li                a3, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::release_seqcst:
+        li                a3, 0x1
+        li                a4, 0x4
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::seqcst_acquire:
+        li                a3, 0x4
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::seqcst_relaxed:
+        li                a3, 0x4
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::acquire_acquire:
+        li                a3, 0x2
+        li                a4, 0x2
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::acquire_relaxed:
+        li                a3, 0x2
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::relaxed_acquire:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aq        a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aq        a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aq       a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange_weak::bool::relaxed_relaxed:
+        li                a3, 0x0
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
+
+asm_test::compare_exchange_weak::bool::release_acquire:
+        andi              a3, a0, -0x4
+        slliw             a0, a0, 0x3
+        beq               a1, a2, 0f
+        beqz              a2, 1f
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+0:
+        li                a2, 0x0
+        sllw              a2, a2, a0
+        amoor.w.aqrl      a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+1:
+        li                a4, 0xff
+        sllw              a4, a4, a0
+        not               a4, a4
+        sllw              a2, a2, a0
+        or                a2, a2, a4
+        amoand.w.aqrl     a2, a2, (a3)
+        srlw              a0, a2, a0
+        zext.b            a0, a0
+        snez              a2, a0
+        xor               a0, a1, a2
+        mv                a1, a2
+        ret
+
+asm_test::compare_exchange_weak::bool::release_relaxed:
+        li                a3, 0x1
+        li                a4, 0x0
+0:
+        auipc             t1, 0x0
+        jr                t0b
 
 asm_test::or::u8::acqrel:
         andi              a2, a0, -0x4
@@ -3278,6 +4041,27 @@ asm_test::load::u64::relaxed:
         ld                a0, 0x0(a0)
         ret
 
+asm_test::load::bool::seqcst:
+        fence             rw, rw
+        lb                a0, 0x0(a0)
+        fence             r, rw
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::load::bool::acquire:
+        lb                a0, 0x0(a0)
+        fence             r, rw
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::load::bool::relaxed:
+        lb                a0, 0x0(a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
 asm_test::swap::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
@@ -3398,6 +4182,121 @@ asm_test::swap::u64::release:
         amoswap.d.rl      a0, a1, (a0)
         ret
 
+asm_test::swap::bool::acqrel:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        beqz              a1, 0f
+        li                a1, 0x1
+        sllw              a1, a1, a0
+        amoor.w.aqrl      a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::seqcst:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        beqz              a1, 0f
+        li                a1, 0x1
+        sllw              a1, a1, a0
+        amoor.w.aqrl      a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::acquire:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        beqz              a1, 0f
+        li                a1, 0x1
+        sllw              a1, a1, a0
+        amoor.w.aq        a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aq       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::relaxed:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        beqz              a1, 0f
+        li                a1, 0x1
+        sllw              a1, a1, a0
+        amoor.w           a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w          a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::release:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        beqz              a1, 0f
+        li                a1, 0x1
+        sllw              a1, a1, a0
+        amoor.w.rl        a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+0:
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.rl       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
 asm_test::store::u8::seqcst:
         fence             rw, w
         sb                a1, 0x0(a0)
@@ -3456,6 +4355,21 @@ asm_test::store::u64::relaxed:
 asm_test::store::u64::release:
         fence             rw, w
         sd                a1, 0x0(a0)
+        ret
+
+asm_test::store::bool::seqcst:
+        fence             rw, w
+        sb                a1, 0x0(a0)
+        fence             rw, rw
+        ret
+
+asm_test::store::bool::relaxed:
+        sb                a1, 0x0(a0)
+        ret
+
+asm_test::store::bool::release:
+        fence             rw, w
+        sb                a1, 0x0(a0)
         ret
 
 asm_test::fetch_or::u8::acqrel:
@@ -3576,6 +4490,56 @@ asm_test::fetch_or::u64::relaxed:
 
 asm_test::fetch_or::u64::release:
         amoor.d.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::bool::acqrel:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoor.w.aqrl      a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::seqcst:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoor.w.aqrl      a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::acquire:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoor.w.aq        a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::relaxed:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoor.w           a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::release:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoor.w.rl        a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_add::u8::acqrel:
@@ -3871,6 +4835,76 @@ asm_test::fetch_and::u64::relaxed:
 
 asm_test::fetch_and::u64::release:
         amoand.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::bool::acqrel:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::seqcst:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::acquire:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.aq       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::relaxed:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w          a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::release:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a0
+        not               a3, a3
+        sllw              a1, a1, a0
+        or                a1, a1, a3
+        amoand.w.rl       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -4498,6 +5532,61 @@ asm_test::fetch_not::u64::release:
         amoxor.d.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_not::bool::acqrel:
+        andi              a1, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoxor.w.aqrl     a1, a2, (a1)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_not::bool::seqcst:
+        andi              a1, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoxor.w.aqrl     a1, a2, (a1)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_not::bool::acquire:
+        andi              a1, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoxor.w.aq       a1, a2, (a1)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_not::bool::relaxed:
+        andi              a1, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoxor.w          a1, a2, (a1)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_not::bool::release:
+        andi              a1, a0, -0x4
+        slliw             a0, a0, 0x3
+        li                a2, 0x1
+        sllw              a2, a2, a0
+        amoxor.w.rl       a1, a2, (a1)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
 asm_test::fetch_sub::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
@@ -4756,5 +5845,55 @@ asm_test::fetch_xor::u64::relaxed:
 
 asm_test::fetch_xor::u64::release:
         amoxor.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::bool::acqrel:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoxor.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::seqcst:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoxor.w.aqrl     a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::acquire:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoxor.w.aq       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::relaxed:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoxor.w          a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::release:
+        andi              a2, a0, -0x4
+        slliw             a0, a0, 0x3
+        sllw              a1, a1, a0
+        amoxor.w.rl       a1, a1, (a2)
+        srlw              a0, a1, a0
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 

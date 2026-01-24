@@ -36,6 +36,7 @@ pub mod load {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -81,6 +82,7 @@ pub mod store {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -142,6 +144,7 @@ pub mod swap {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -318,6 +321,7 @@ pub mod compare_exchange {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -494,6 +498,7 @@ pub mod compare_exchange_weak {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -799,6 +804,7 @@ pub mod fetch_and {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -921,6 +927,7 @@ pub mod fetch_nand {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -982,6 +989,7 @@ pub mod fetch_or {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -1104,6 +1112,7 @@ pub mod fetch_xor {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -1226,6 +1235,7 @@ pub mod fetch_not {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
