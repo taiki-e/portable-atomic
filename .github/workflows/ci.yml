@@ -78,7 +78,7 @@ jobs:
         # - LLVM 17 : stable 1.73 - 1.77, nightly-2023-08-09 (1.73) - nightly-2024-02-13 (1.78)
         # - LLVM 18 : stable 1.78 - 1.81, nightly-2024-02-14 (1.78) - nightly-2024-07-31 (1.82)
         # - LLVM 19 : stable 1.82 - 1.86, nightly-2024-08-01 (1.82) - nightly-2025-02-17 (1.87)
-        # - LLVM 20 : stable 1.87 - 1.90, nightly-2025-02-18 (1.87) - nightly-2025-08-07 (1.91)
+        # - LLVM 20 : stable 1.87 - 1.90, nightly-2025-02-18 (1.87) - nightly-2025-08-06 (1.91)
         # - LLVM 21 : stable 1.91 -     , nightly-2025-08-07 (1.91) -                          , since https://github.com/rust-lang/rust/pull/143684
         # - LLVM 22 :                   ,                                                      , since https://github.com/rust-lang/rust/pull/150722
         # (see also https://github.com/rust-lang/rust/commits/HEAD/src/llvm-project)
@@ -122,6 +122,8 @@ jobs:
           #   target: x86_64-unknown-linux-gnu
           # - rust: '1.86' # LLVM 19
           #   target: x86_64-unknown-linux-gnu
+          # - rust: '1.90' # LLVM 20
+          #   target: x86_64-unknown-linux-gnu
           - rust: stable
             target: x86_64-unknown-linux-gnu
           - rust: beta
@@ -152,7 +154,6 @@ jobs:
           - rust: nightly-x86_64-pc-windows-gnu
             target: x86_64-pc-windows-gnu
             os: windows-latest
-
           # ------------------------------------------------------------
           # i586-unknown-linux-gnu
           - rust: nightly
@@ -174,6 +175,8 @@ jobs:
           # - rust: '1.81' # LLVM 18
           #   target: i686-unknown-linux-gnu
           # - rust: '1.86' # LLVM 19
+          #   target: i686-unknown-linux-gnu
+          # - rust: '1.90' # LLVM 20
           #   target: i686-unknown-linux-gnu
           - rust: stable
             target: i686-unknown-linux-gnu
@@ -215,6 +218,9 @@ jobs:
           #   target: aarch64-unknown-linux-gnu
           #   os: ubuntu-24.04-arm
           # - rust: '1.86' # LLVM 19
+          #   target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-24.04-arm
+          # - rust: '1.90' # LLVM 20
           #   target: aarch64-unknown-linux-gnu
           #   os: ubuntu-24.04-arm
           - rust: stable
@@ -259,6 +265,9 @@ jobs:
           # - rust: '1.86' # LLVM 19
           #   target: aarch64-apple-darwin
           #   os: macos-latest
+          # - rust: '1.90' # LLVM 20
+          #   target: aarch64-apple-darwin
+          #   os: macos-latest
           - rust: stable
             target: aarch64-apple-darwin
             os: macos-latest
@@ -285,6 +294,12 @@ jobs:
             os: windows-11-arm
           # ------------------------------------------------------------
           # aarch64_be-unknown-linux-gnu
+          - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
+            target: aarch64_be-unknown-linux-gnu
+          # - rust: nightly-2024-11-07 # Rust 1.84, LLVM 19 (broken on nightly-2025-02-17 due to https://github.com/rust-lang/stdarch/issues/1484)
+          #   target: aarch64_be-unknown-linux-gnu
+          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
+          #   target: aarch64_be-unknown-linux-gnu
           - rust: nightly
             target: aarch64_be-unknown-linux-gnu
           # ------------------------------------------------------------
@@ -292,6 +307,9 @@ jobs:
           - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
             target: arm64ec-pc-windows-msvc
             os: windows-11-arm
+          # - rust: '1.90' # LLVM 20
+          #   target: arm64ec-pc-windows-msvc
+          #   os: windows-11-arm
           - rust: stable
             target: arm64ec-pc-windows-msvc
             os: windows-11-arm
@@ -336,6 +354,8 @@ jobs:
           # - rust: '1.81' # LLVM 18
           #   target: armv5te-unknown-linux-gnueabi
           # - rust: '1.86' # LLVM 19
+          #   target: armv5te-unknown-linux-gnueabi
+          # - rust: '1.90' # LLVM 20
           #   target: armv5te-unknown-linux-gnueabi
           - rust: stable
             target: armv5te-unknown-linux-gnueabi
@@ -433,6 +453,8 @@ jobs:
           #   target: powerpc64-unknown-linux-gnu
           # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
           #   target: powerpc64-unknown-linux-gnu
+          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
+          #   target: powerpc64-unknown-linux-gnu
           - rust: nightly
             target: powerpc64-unknown-linux-gnu
           # ------------------------------------------------------------
@@ -451,6 +473,8 @@ jobs:
           #   target: powerpc64le-unknown-linux-gnu
           # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
           #   target: powerpc64le-unknown-linux-gnu
+          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
+          #   target: powerpc64le-unknown-linux-gnu
           - rust: nightly
             target: powerpc64le-unknown-linux-gnu
           # ------------------------------------------------------------
@@ -466,6 +490,8 @@ jobs:
           # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
           #   target: riscv32gc-unknown-linux-gnu
           # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
+          #   target: riscv32gc-unknown-linux-gnu
+          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
           #   target: riscv32gc-unknown-linux-gnu
           - rust: nightly
             target: riscv32gc-unknown-linux-gnu
@@ -487,6 +513,8 @@ jobs:
           #   target: riscv64gc-unknown-linux-gnu
           # - rust: '1.86' # LLVM 19
           #   target: riscv64gc-unknown-linux-gnu
+          # - rust: '1.90' # LLVM 20
+          #   target: riscv64gc-unknown-linux-gnu
           - rust: stable
             target: riscv64gc-unknown-linux-gnu
           # - rust: beta
@@ -506,12 +534,18 @@ jobs:
           #   target: s390x-unknown-linux-gnu
           - rust: '1.84' # LLVM 19 (inline asm for s390x has been stabilized in Rust 1.84)
             target: s390x-unknown-linux-gnu
+          # - rust: '1.90' # LLVM 20
+          #   target: s390x-unknown-linux-gnu
           - rust: stable
             target: s390x-unknown-linux-gnu
           # - rust: beta
           #   target: s390x-unknown-linux-gnu
           - rust: nightly
             target: s390x-unknown-linux-gnu
+          # TODO: cranelift doesn't support inline assembly on s390x yet
+          # - rust: nightly
+          #   target: s390x-unknown-linux-gnu
+          #   flags: -Z codegen-backend=cranelift
           # ------------------------------------------------------------
           # sparc64-unknown-linux-gnu
           - rust: nightly
@@ -766,12 +800,12 @@ jobs:
           # - target: aarch64-unknown-freebsd
           #   os: freebsd
           #   version: '13.5'
-          # - target: aarch64-unknown-freebsd
-          #   os: freebsd
-          #   version: '14.3'
-          # - target: aarch64-unknown-freebsd
-          #   os: freebsd
-          #   version: '15.0'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '14.3'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '15.0'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
