@@ -146,7 +146,7 @@ scwp
 selgr
 seqlock
 setb
-sete
+setne
 sifive
 signedness
 SIGTRAP

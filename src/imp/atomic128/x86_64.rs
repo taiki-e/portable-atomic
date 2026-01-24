@@ -133,17 +133,17 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg16b {
-            ($rdi:tt) => {
+            ($rsi:tt) => {
                 asm!(
                     "xchg r8, rbx", // save rbx which is reserved by LLVM
-                    concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
-                    "sete cl",
+                    concat!("lock cmpxchg16b xmmword ptr [", $rsi, "]"),
+                    "setne cl",
                     "mov rbx, r8", // restore rbx
                     inout("r8") new.pair.lo => _,
                     in("rcx") new.pair.hi,
                     inout("rax") old.pair.lo => prev_lo,
                     inout("rdx") old.pair.hi => prev_hi,
-                    in($rdi) dst,
+                    in($rsi) dst,
                     lateout("cl") r,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
@@ -151,11 +151,11 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
             };
         }
         #[cfg(target_pointer_width = "32")]
-        cmpxchg16b!("edi");
+        cmpxchg16b!("esi");
         #[cfg(target_pointer_width = "64")]
-        cmpxchg16b!("rdi");
+        cmpxchg16b!("rsi");
         crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra test
-        (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r != 0)
+        (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r == 0)
     }
 }
 
