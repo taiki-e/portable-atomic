@@ -135,11 +135,11 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    "xchg {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
+                    "xchg r8, rbx", // save rbx which is reserved by LLVM
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                     "sete cl",
-                    "mov rbx, {rbx_tmp}", // restore rbx
-                    rbx_tmp = inout(reg) new.pair.lo => _,
+                    "mov rbx, r8", // restore rbx
+                    inout("r8") new.pair.lo => _,
                     in("rcx") new.pair.hi,
                     inout("rax") old.pair.lo => prev_lo,
                     inout("rdx") old.pair.hi => prev_hi,
@@ -235,8 +235,8 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
                     concat!("xchg qword ptr [{p", ptr_modifier!(), "}], {tmp}"),
                     dst = in(reg) dst,
                     val = in(xmm_reg) val,
-                    p = inout(reg) p.get() => _,
-                    tmp = lateout(reg) _,
+                    p = in(reg) p.get(),
+                    tmp = out(reg) _,
                     options(nostack, preserves_flags),
                 );
             }
@@ -371,12 +371,12 @@ unsafe fn _atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
+                    "mov rsi, rbx", // save rbx which is reserved by LLVM
                     "xor rbx, rbx", // zeroed rbx
                     concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
-                    "mov rbx, {rbx_tmp}", // restore rbx
+                    "mov rbx, rsi", // restore rbx
                     // set old/new args of cmpxchg16b to 0 (rbx is zeroed after saved to rbx_tmp, to avoid xchg)
-                    rbx_tmp = out(reg) _,
+                    out("rsi") _,
                     in("rcx") 0_u64,
                     inout("rax") 0_u64 => out_lo,
                     inout("rdx") 0_u64 => out_hi,
@@ -545,7 +545,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
         macro_rules! cmpxchg16b {
             ($rdi:tt) => {
                 asm!(
-                    "xchg {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
+                    "xchg rsi, rbx", // save rbx which is reserved by LLVM
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
                     //
@@ -560,8 +560,8 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
                     "2:",
                         concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                         "jne 2b",
-                    "mov rbx, {rbx_tmp}", // restore rbx
-                    rbx_tmp = inout(reg) val.pair.lo => _,
+                    "mov rbx, rsi", // restore rbx
+                    inout("rsi") val.pair.lo => _,
                     in("rcx") val.pair.hi,
                     out("rax") prev_lo,
                     out("rdx") prev_hi,
@@ -611,7 +611,7 @@ macro_rules! atomic_rmw_cas_3 {
                 macro_rules! cmpxchg16b {
                     ($rdi:tt) => {
                         asm!(
-                            "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
+                            "mov r9, rbx", // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //
@@ -627,8 +627,8 @@ macro_rules! atomic_rmw_cas_3 {
                                 $($op)*
                                 concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                                 "jne 2b",
-                            "mov rbx, {rbx_tmp}", // restore rbx
-                            rbx_tmp = out(reg) _,
+                            "mov rbx, r9", // restore rbx
+                            out("r9") _,
                             out("rcx") _,
                             out("rax") prev_lo,
                             out("rdx") prev_hi,
@@ -679,7 +679,7 @@ macro_rules! atomic_rmw_cas_2 {
                 macro_rules! cmpxchg16b {
                     ($rdi:tt) => {
                         asm!(
-                            "mov {rbx_tmp}, rbx", // save rbx which is reserved by LLVM
+                            "mov rsi, rbx", // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //
@@ -695,8 +695,8 @@ macro_rules! atomic_rmw_cas_2 {
                                 $($op)*
                                 concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
                                 "jne 2b",
-                            "mov rbx, {rbx_tmp}", // restore rbx
-                            rbx_tmp = out(reg) _,
+                            "mov rbx, rsi", // restore rbx
+                            out("rsi") _,
                             out("rcx") _,
                             out("rax") prev_lo,
                             out("rdx") prev_hi,

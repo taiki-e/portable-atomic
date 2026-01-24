@@ -59,15 +59,15 @@ pub(crate) fn sc_fence() {
         #[cfg(target_pointer_width = "64")]
         asm!(
             concat!("xchg qword ptr [{p", ptr_modifier!(), "}], {tmp}"),
-            p = inout(reg) p.get() => _,
-            tmp = lateout(reg) _,
+            p = in(reg) p.get(),
+            tmp = out(reg) _,
             options(nostack, preserves_flags),
         );
         #[cfg(target_pointer_width = "32")]
         asm!(
             concat!("xchg dword ptr [{p", ptr_modifier!(), "}], {tmp:e}"),
-            p = inout(reg) p.get() => _,
-            tmp = lateout(reg) _,
+            p = in(reg) p.get(),
+            tmp = out(reg) _,
             options(nostack, preserves_flags),
         );
     }
