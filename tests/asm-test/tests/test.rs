@@ -82,9 +82,13 @@ fn test() {
         // x86 and x86_64
         Revision::new("x86_64_cmpxchg16b", "x86_64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+cmpxchg16b", "--cfg", "portable_atomic_no_outline_atomics"]),
+        Revision::new("x86_64_cmpxchg16b_msvc", "x86_64-pc-windows-msvc")
+            .rustc_args(["-C", "target-feature=+cmpxchg16b", "--cfg", "portable_atomic_no_outline_atomics"]),
         Revision::new("x86_64_cmpxchg16b_avx", "x86_64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
         Revision::new("x86_64_cmpxchg16b_avx_x32", "x86_64-unknown-linux-gnux32")
+            .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
+        Revision::new("x86_64_cmpxchg16b_avx_msvc", "x86_64-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
         Revision::new("x86", "i686-unknown-linux-gnu"),
     ];
