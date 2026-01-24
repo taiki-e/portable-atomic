@@ -205,15 +205,19 @@ target_lower="${target_lower//./_}"
 target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
 randomize_layout=' -Z randomize-layout'
 cranelift=''
+gcc=''
 if [[ "${RUSTFLAGS:-}" =~ -Z\ *codegen-backend=cranelift ]]; then
   cranelift=1
   retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-cranelift-preview &>/dev/null
+elif [[ "${RUSTFLAGS:-}" =~ -Z\ *codegen-backend=gcc ]]; then
+  gcc=1
+  retry rustup ${pre_args[@]+"${pre_args[@]}"} component add rustc-codegen-gcc-preview "gcc-${target}-preview" &>/dev/null
 else
   case "$(basename -- "${cargo%.exe}")" in
     cargo-clif) cranelift=1 ;;
   esac
 fi
-if [[ -n "${cranelift}" ]]; then
+if [[ -n "${cranelift}" ]] || [[ -n "${gcc}" ]]; then
   # panic=unwind is not supported yet.
   # https://github.com/rust-lang/rustc_codegen_cranelift#not-yet-supported
   flags=' -C panic=abort -Z panic_abort_tests'
@@ -288,7 +292,7 @@ run() {
     x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
   fi
 
-  if [[ -n "${cranelift}" ]]; then
+  if [[ -n "${cranelift}" ]] || [[ -n "${gcc}" ]]; then
     return # LTO is not supported
   fi
 

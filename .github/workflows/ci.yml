@@ -136,6 +136,9 @@ jobs:
           - rust: nightly
             target: x86_64-unknown-linux-gnu
             flags: -Z codegen-backend=cranelift
+          - rust: nightly
+            target: x86_64-unknown-linux-gnu
+            flags: -Z codegen-backend=gcc
           # ------------------------------------------------------------
           # x86_64-apple-darwin
           - rust: nightly
@@ -542,7 +545,7 @@ jobs:
           #   target: s390x-unknown-linux-gnu
           - rust: nightly
             target: s390x-unknown-linux-gnu
-          # TODO: cranelift doesn't support inline assembly on s390x yet
+          # TODO(cranelift): cranelift doesn't support inline assembly on s390x yet
           # - rust: nightly
           #   target: s390x-unknown-linux-gnu
           #   flags: -Z codegen-backend=cranelift
@@ -615,6 +618,7 @@ jobs:
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
+      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_gcc/src/builder.rs#L1916
       - run: |
           rustflags="${RUSTFLAGS:-}"
           if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f16; then
@@ -626,7 +630,10 @@ jobs:
           if [[ "${rustflags}" != "${RUSTFLAGS:-}" ]]; then
             printf '%s\n' "RUSTFLAGS=${rustflags}" >>"${GITHUB_ENV}"
           fi
-        if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift')
+        if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift') && !contains(matrix.flags, 'codegen-backend=gcc')
+      # TODO(gcc): for disabling some failing tests
+      - run: printf '%s\n' "RUSTC_CODEGEN_GCC=1" >>"${GITHUB_ENV}"
+        if: contains(matrix.flags, 'codegen-backend=gcc')
       # for serde on old nightly
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
         if: matrix.rust == 'nightly-2024-02-13'

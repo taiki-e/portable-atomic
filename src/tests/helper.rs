@@ -542,6 +542,13 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_max() {
+            // TODO(gcc): failure: https://github.com/rust-lang/rustc_codegen_gcc/issues/821#issuecomment-3793567607
+            if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                && $int_type::MIN == 0
+                && mem::size_of::<$int_type>() <= 8
+            {
+                return;
+            }
             // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
@@ -583,6 +590,13 @@ macro_rules! __test_atomic_int {
         }
         #[test]
         fn fetch_min() {
+            // TODO(gcc): failure: https://github.com/rust-lang/rustc_codegen_gcc/issues/821#issuecomment-3793567607
+            if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                && $int_type::MIN == 0
+                && mem::size_of::<$int_type>() <= 8
+            {
+                return;
+            }
             // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
@@ -949,6 +963,13 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_max(x: $int_type, y: $int_type) -> bool {
+                // TODO(gcc): failure: https://github.com/rust-lang/rustc_codegen_gcc/issues/821#issuecomment-3793567607
+                if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                    && $int_type::MIN == 0
+                    && mem::size_of::<$int_type>() <= 8
+                {
+                    return true;
+                }
                 // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
@@ -973,6 +994,13 @@ macro_rules! __test_atomic_int {
                 true
             }
             fn quickcheck_fetch_min(x: $int_type, y: $int_type) -> bool {
+                // TODO(gcc): failure: https://github.com/rust-lang/rustc_codegen_gcc/issues/821#issuecomment-3793567607
+                if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                    && $int_type::MIN == 0
+                    && mem::size_of::<$int_type>() <= 8
+                {
+                    return true;
+                }
                 // TODO(riscv): wrong result (as of Valgrind 3.26)
                 #[cfg(valgrind)]
                 if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
@@ -2030,6 +2058,12 @@ macro_rules! __test_atomic_int_pub {
         use std::boxed::Box;
         #[test]
         fn fetch_update() {
+            // TODO(gcc): failure
+            if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                && !cfg!(debug_assertions)
+            {
+                return;
+            }
             // TODO(riscv): wrong result (as of Valgrind 3.26)
             #[cfg(valgrind)]
             if cfg!(target_arch = "riscv64") && mem::size_of::<$int_type>() <= 2 {
@@ -2242,6 +2276,12 @@ macro_rules! __test_atomic_bool_pub {
         }
         #[test]
         fn fetch_update() {
+            // TODO(gcc): failure
+            if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                && !cfg!(debug_assertions)
+            {
+                return;
+            }
             let a = <$atomic_type>::new(false);
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
             for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
@@ -2300,6 +2340,12 @@ macro_rules! __test_atomic_ptr_pub {
         use std::boxed::Box;
         #[test]
         fn fetch_update() {
+            // TODO(gcc): failure
+            if option_env!("RUSTC_CODEGEN_GCC").unwrap_or_default() == "1"
+                && !cfg!(debug_assertions)
+            {
+                return;
+            }
             let a = <$atomic_type>::new(ptr::null_mut());
             test_compare_exchange_ordering(|set, fetch| a.fetch_update(set, fetch, |x| Some(x)));
             for &(success, failure) in &helper::COMPARE_EXCHANGE_ORDERINGS {
