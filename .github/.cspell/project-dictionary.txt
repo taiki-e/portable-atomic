@@ -177,7 +177,6 @@ syscall
 syscalls
 sysctlbyname
 sysctlnode
-systeminfo
 systemsim
 tagme
 uart
