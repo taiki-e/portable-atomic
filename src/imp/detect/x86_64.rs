@@ -37,10 +37,10 @@ fn __cpuid(leaf: u32) -> CpuidResult {
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L109
     unsafe {
         asm!(
-            "mov rsi, rbx", // save rbx which is reserved by LLVM
+            "mov r8, rbx", // save rbx which is reserved by LLVM
             "cpuid",
-            "xchg rsi, rbx", // restore rbx
-            out("rsi") ebx,
+            "xchg r8, rbx", // restore rbx
+            out("r8") ebx,
             inout("eax") leaf => eax,
             inout("ecx") 0 => ecx,
             out("edx") edx,

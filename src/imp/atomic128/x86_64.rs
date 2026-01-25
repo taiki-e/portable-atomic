@@ -133,27 +133,36 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         let new = U128 { whole: new };
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg16b {
-            ($rsi:tt) => {
+            ($dst:tt) => {
                 asm!(
                     "xchg r8, rbx", // save rbx which is reserved by LLVM
-                    concat!("lock cmpxchg16b xmmword ptr [", $rsi, "]"),
+                    concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
                     "setne cl",
                     "mov rbx, r8", // restore rbx
                     inout("r8") new.pair.lo => _,
                     in("rcx") new.pair.hi,
                     inout("rax") old.pair.lo => prev_lo,
                     inout("rdx") old.pair.hi => prev_hi,
-                    in($rsi) dst,
+                    in($dst) dst,
                     lateout("cl") r,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
                 )
             };
         }
+        // rdi and rsi are call-preserved on Windows.
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "32")]
         cmpxchg16b!("esi");
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "64")]
         cmpxchg16b!("rsi");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "32")]
+        cmpxchg16b!("r11d");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "64")]
+        cmpxchg16b!("r11");
         crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra test
         (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r == 0)
     }
@@ -369,27 +378,36 @@ unsafe fn _atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
         // cmpxchg16b is always SeqCst.
         let (out_lo, out_hi);
         macro_rules! cmpxchg16b {
-            ($rdi:tt) => {
+            ($dst:tt, $save:tt) => {
                 asm!(
-                    "mov rsi, rbx", // save rbx which is reserved by LLVM
+                    concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                     "xor rbx, rbx", // zeroed rbx
-                    concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
-                    "mov rbx, rsi", // restore rbx
+                    concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
+                    concat!("mov rbx, ", $save), // restore rbx
                     // set old/new args of cmpxchg16b to 0 (rbx is zeroed after saved to rbx_tmp, to avoid xchg)
-                    out("rsi") _,
+                    out($save) _,
                     in("rcx") 0_u64,
                     inout("rax") 0_u64 => out_lo,
                     inout("rdx") 0_u64 => out_hi,
-                    in($rdi) src,
+                    in($dst) src,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
                 )
             };
         }
+        // rdi and rsi are call-preserved on Windows.
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "32")]
-        cmpxchg16b!("edi");
+        cmpxchg16b!("edi", "rsi");
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "64")]
-        cmpxchg16b!("rdi");
+        cmpxchg16b!("rdi", "rsi");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "32")]
+        cmpxchg16b!("r9d", "r8");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "64")]
+        cmpxchg16b!("r9", "r8");
         U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
@@ -543,9 +561,9 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
         let val = U128 { whole: val };
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg16b {
-            ($rdi:tt) => {
+            ($dst:tt, $save:tt) => {
                 asm!(
-                    "xchg rsi, rbx", // save rbx which is reserved by LLVM
+                    concat!("xchg ", $save, ", rbx"), // save rbx which is reserved by LLVM
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
                     //
@@ -555,26 +573,35 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
                     // so we must use inline assembly to implement this.
                     // (i.e., byte-wise atomic based on the standard library's atomic types
                     // cannot be used here).
-                    concat!("mov rax, qword ptr [", $rdi, "]"),
-                    concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                    concat!("mov rax, qword ptr [", $dst, "]"),
+                    concat!("mov rdx, qword ptr [", $dst, " + 8]"),
                     "2:",
-                        concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                        concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
                         "jne 2b",
-                    "mov rbx, rsi", // restore rbx
-                    inout("rsi") val.pair.lo => _,
+                    concat!("mov rbx, ", $save), // restore rbx
+                    inout($save) val.pair.lo => _,
                     in("rcx") val.pair.hi,
                     out("rax") prev_lo,
                     out("rdx") prev_hi,
-                    in($rdi) dst,
+                    in($dst) dst,
                     // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                     options(nostack),
                 )
             };
         }
+        // rdi and rsi are call-preserved on Windows.
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "32")]
-        cmpxchg16b!("edi");
+        cmpxchg16b!("edi", "rsi");
+        #[cfg(not(windows))]
         #[cfg(target_pointer_width = "64")]
-        cmpxchg16b!("rdi");
+        cmpxchg16b!("rdi", "rsi");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "32")]
+        cmpxchg16b!("r9d", "r8");
+        #[cfg(windows)]
+        #[cfg(target_pointer_width = "64")]
+        cmpxchg16b!("r9", "r8");
         U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
     }
 }
@@ -583,7 +610,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
 /// `unsafe fn(dst: *mut u128, val: u128, order: Ordering) -> u128;`
 ///
 /// `$op` can use the following registers:
-/// - rsi/r8 pair: val argument (read-only for `$op`)
+/// - r8/r9 pair: val argument (read-only for `$op`)
 /// - rax/rdx pair: previous value loaded (read-only for `$op`)
 /// - rbx/rcx pair: new value that will be stored
 // We could use CAS loop by atomic_compare_exchange here, but using an inline assembly allows
@@ -609,9 +636,9 @@ macro_rules! atomic_rmw_cas_3 {
                 let val = U128 { whole: val };
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! cmpxchg16b {
-                    ($rdi:tt) => {
+                    ($dst:tt, $save:tt) => {
                         asm!(
-                            "mov r9, rbx", // save rbx which is reserved by LLVM
+                            concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //
@@ -621,29 +648,38 @@ macro_rules! atomic_rmw_cas_3 {
                             // so we must use inline assembly to implement this.
                             // (i.e., byte-wise atomic based on the standard library's atomic types
                             // cannot be used here).
-                            concat!("mov rax, qword ptr [", $rdi, "]"),
-                            concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                            concat!("mov rax, qword ptr [", $dst, "]"),
+                            concat!("mov rdx, qword ptr [", $dst, " + 8]"),
                             "2:",
                                 $($op)*
-                                concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                                concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
                                 "jne 2b",
-                            "mov rbx, r9", // restore rbx
-                            out("r9") _,
+                            concat!("mov rbx, ", $save), // restore rbx
+                            out($save) _,
                             out("rcx") _,
                             out("rax") prev_lo,
                             out("rdx") prev_hi,
-                            in($rdi) dst,
-                            in("rsi") val.pair.lo,
-                            in("r8") val.pair.hi,
+                            in($dst) dst,
+                            in("r8") val.pair.lo,
+                            in("r9") val.pair.hi,
                             // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                             options(nostack),
                         )
                     };
                 }
+                // rdi and rsi are call-preserved on Windows.
+                #[cfg(not(windows))]
                 #[cfg(target_pointer_width = "32")]
-                cmpxchg16b!("edi");
+                cmpxchg16b!("edi", "r10");
+                #[cfg(not(windows))]
                 #[cfg(target_pointer_width = "64")]
-                cmpxchg16b!("rdi");
+                cmpxchg16b!("rdi", "r10");
+                #[cfg(windows)]
+                #[cfg(target_pointer_width = "32")]
+                cmpxchg16b!("r10d", "r11");
+                #[cfg(windows)]
+                #[cfg(target_pointer_width = "64")]
+                cmpxchg16b!("r10", "r11");
                 U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
             }
         }
@@ -677,9 +713,9 @@ macro_rules! atomic_rmw_cas_2 {
                 // cmpxchg16b is always SeqCst.
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! cmpxchg16b {
-                    ($rdi:tt) => {
+                    ($dst:tt, $save:tt) => {
                         asm!(
-                            "mov rsi, rbx", // save rbx which is reserved by LLVM
+                            concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
                             //
@@ -689,27 +725,36 @@ macro_rules! atomic_rmw_cas_2 {
                             // so we must use inline assembly to implement this.
                             // (i.e., byte-wise atomic based on the standard library's atomic types
                             // cannot be used here).
-                            concat!("mov rax, qword ptr [", $rdi, "]"),
-                            concat!("mov rdx, qword ptr [", $rdi, " + 8]"),
+                            concat!("mov rax, qword ptr [", $dst, "]"),
+                            concat!("mov rdx, qword ptr [", $dst, " + 8]"),
                             "2:",
                                 $($op)*
-                                concat!("lock cmpxchg16b xmmword ptr [", $rdi, "]"),
+                                concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
                                 "jne 2b",
-                            "mov rbx, rsi", // restore rbx
-                            out("rsi") _,
+                            concat!("mov rbx, ", $save), // restore rbx
+                            out($save) _,
                             out("rcx") _,
                             out("rax") prev_lo,
                             out("rdx") prev_hi,
-                            in($rdi) dst,
+                            in($dst) dst,
                             // Do not use `preserves_flags` because CMPXCHG16B modifies the ZF flag.
                             options(nostack),
                         )
                     };
                 }
+                // rdi and rsi are call-preserved on Windows.
+                #[cfg(not(windows))]
                 #[cfg(target_pointer_width = "32")]
-                cmpxchg16b!("edi");
+                cmpxchg16b!("edi", "rsi");
+                #[cfg(not(windows))]
                 #[cfg(target_pointer_width = "64")]
-                cmpxchg16b!("rdi");
+                cmpxchg16b!("rdi", "rsi");
+                #[cfg(windows)]
+                #[cfg(target_pointer_width = "32")]
+                cmpxchg16b!("r9d", "r8");
+                #[cfg(windows)]
+                #[cfg(target_pointer_width = "64")]
+                cmpxchg16b!("r9", "r8");
                 U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole
             }
         }
@@ -719,46 +764,46 @@ macro_rules! atomic_rmw_cas_2 {
 atomic_rmw_cas_3! {
     atomic_add_cmpxchg16b,
     "mov rbx, rax",
-    "add rbx, rsi",
+    "add rbx, r8",
     "mov rcx, rdx",
-    "adc rcx, r8",
+    "adc rcx, r9",
 }
 atomic_rmw_cas_3! {
     atomic_sub_cmpxchg16b,
     "mov rbx, rax",
-    "sub rbx, rsi",
+    "sub rbx, r8",
     "mov rcx, rdx",
-    "sbb rcx, r8",
+    "sbb rcx, r9",
 }
 atomic_rmw_cas_3! {
     atomic_and_cmpxchg16b,
     "mov rbx, rax",
-    "and rbx, rsi",
+    "and rbx, r8",
     "mov rcx, rdx",
-    "and rcx, r8",
+    "and rcx, r9",
 }
 atomic_rmw_cas_3! {
     atomic_nand_cmpxchg16b,
     "mov rbx, rax",
-    "and rbx, rsi",
+    "and rbx, r8",
     "not rbx",
     "mov rcx, rdx",
-    "and rcx, r8",
+    "and rcx, r9",
     "not rcx",
 }
 atomic_rmw_cas_3! {
     atomic_or_cmpxchg16b,
     "mov rbx, rax",
-    "or rbx, rsi",
+    "or rbx, r8",
     "mov rcx, rdx",
-    "or rcx, r8",
+    "or rcx, r9",
 }
 atomic_rmw_cas_3! {
     atomic_xor_cmpxchg16b,
     "mov rbx, rax",
-    "xor rbx, rsi",
+    "xor rbx, r8",
     "mov rcx, rdx",
-    "xor rcx, r8",
+    "xor rcx, r9",
 }
 
 atomic_rmw_cas_2! {
@@ -778,42 +823,42 @@ atomic_rmw_cas_2! {
 
 atomic_rmw_cas_3! {
     atomic_max_cmpxchg16b,
-    "cmp rsi, rax",
-    "mov rcx, r8",
+    "cmp r8, rax",
+    "mov rcx, r9",
     "sbb rcx, rdx",
-    "mov rcx, r8",
+    "mov rcx, r9",
     "cmovl rcx, rdx",
-    "mov rbx, rsi",
+    "mov rbx, r8",
     "cmovl rbx, rax",
 }
 atomic_rmw_cas_3! {
     atomic_umax_cmpxchg16b,
-    "cmp rsi, rax",
-    "mov rcx, r8",
+    "cmp r8, rax",
+    "mov rcx, r9",
     "sbb rcx, rdx",
-    "mov rcx, r8",
+    "mov rcx, r9",
     "cmovb rcx, rdx",
-    "mov rbx, rsi",
+    "mov rbx, r8",
     "cmovb rbx, rax",
 }
 atomic_rmw_cas_3! {
     atomic_min_cmpxchg16b,
-    "cmp rsi, rax",
-    "mov rcx, r8",
+    "cmp r8, rax",
+    "mov rcx, r9",
     "sbb rcx, rdx",
-    "mov rcx, r8",
+    "mov rcx, r9",
     "cmovge rcx, rdx",
-    "mov rbx, rsi",
+    "mov rbx, r8",
     "cmovge rbx, rax",
 }
 atomic_rmw_cas_3! {
     atomic_umin_cmpxchg16b,
-    "cmp rsi, rax",
-    "mov rcx, r8",
+    "cmp r8, rax",
+    "mov rcx, r9",
     "sbb rcx, rdx",
-    "mov rcx, r8",
+    "mov rcx, r9",
     "cmovae rcx, rdx",
-    "mov rbx, rsi",
+    "mov rbx, r8",
     "cmovae rbx, rax",
 }
 

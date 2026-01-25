@@ -149,6 +149,43 @@ jobs:
             os: macos-latest # Rosetta on AArch64
           # ------------------------------------------------------------
           # x86_64-pc-windows-msvc
+
+          - rust: '1.56' # LLVM 13
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - rust: '1.59' # LLVM 13
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
+          # - rust: '1.64' # LLVM 14
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.69' # LLVM 15
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.72' # LLVM 16
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.77' # LLVM 17
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.81' # LLVM 18
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.86' # LLVM 19
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          # - rust: '1.90' # LLVM 20
+          #   target: x86_64-pc-windows-msvc
+          #   os: windows-latest
+          - rust: stable
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - rust: beta
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
           - rust: nightly
             target: x86_64-pc-windows-msvc
             os: windows-latest

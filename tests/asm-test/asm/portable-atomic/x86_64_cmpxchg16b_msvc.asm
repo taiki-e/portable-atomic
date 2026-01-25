@@ -319,113 +319,98 @@ asm_test::fetch_nand::bool::release:
         ret
 
 asm_test::fetch_nand::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         not               rbx
         mov               rcx, rdx
-        and               rcx, r8
+        and               rcx, r9
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_nand::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         not               rbx
         mov               rcx, rdx
-        and               rcx, r8
+        and               rcx, r9
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_nand::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         not               rbx
         mov               rcx, rdx
-        and               rcx, r8
+        and               rcx, r9
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_nand::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         not               rbx
         mov               rcx, rdx
-        and               rcx, r8
+        and               rcx, r9
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_nand::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         not               rbx
         mov               rcx, rdx
-        and               rcx, r8
+        and               rcx, r9
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -659,118 +644,103 @@ asm_test::fetch_umax::u64::release:
         ret
 
 asm_test::fetch_umax::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovb             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovb             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umax::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovb             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovb             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umax::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovb             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovb             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umax::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovb             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovb             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umax::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovb             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovb             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umin::u8::acqrel:
@@ -1004,118 +974,103 @@ asm_test::fetch_umin::u64::release:
         ret
 
 asm_test::fetch_umin::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovae            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovae            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umin::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovae            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovae            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umin::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovae            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovae            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umin::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovae            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovae            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_umin::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovae            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovae            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::compare_exchange::u8::acqrel_seqcst:
@@ -1809,15 +1764,14 @@ asm_test::compare_exchange::bool::release_relaxed:
         ret
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1826,19 +1780,17 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::seqcst_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1847,19 +1799,17 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::acqrel_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1868,19 +1818,17 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::acqrel_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1889,19 +1837,17 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::acquire_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1910,19 +1856,17 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::relaxed_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1931,19 +1875,17 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::release_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1952,19 +1894,17 @@ asm_test::compare_exchange::u128::release_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::seqcst_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1973,19 +1913,17 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::seqcst_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -1994,19 +1932,17 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::acquire_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2015,19 +1951,17 @@ asm_test::compare_exchange::u128::acquire_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::acquire_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2036,19 +1970,17 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::relaxed_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2057,19 +1989,17 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::relaxed_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2078,19 +2008,17 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::release_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2099,19 +2027,17 @@ asm_test::compare_exchange::u128::release_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange::u128::release_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2120,7 +2046,6 @@ asm_test::compare_exchange::u128::release_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -2814,15 +2739,14 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2831,19 +2755,17 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::seqcst_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2852,19 +2774,17 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2873,19 +2793,17 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2894,19 +2812,17 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::acquire_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2915,19 +2831,17 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::relaxed_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2936,19 +2850,17 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::release_seqcst:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2957,19 +2869,17 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::seqcst_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2978,19 +2888,17 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::seqcst_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -2999,19 +2907,17 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::acquire_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3020,19 +2926,17 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::acquire_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3041,19 +2945,17 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::relaxed_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3062,19 +2964,17 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::relaxed_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3083,19 +2983,17 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::release_acquire:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3104,19 +3002,17 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::compare_exchange_weak::u128::release_relaxed:
-        push              rsi
         mov               rax, r8
         mov               r10, rcx
-        mov               r8, qword ptr [rsp + 0x30]
-        mov               rcx, qword ptr [rsp + 0x38]
-        mov               rsi, rdx
+        mov               r8, qword ptr [rsp + 0x28]
+        mov               rcx, qword ptr [rsp + 0x30]
+        mov               r11, rdx
         mov               rdx, r9
         xchg              r8, rbx
-        lock cmpxchg16b   xmmword ptr [rsi]
+        lock cmpxchg16b   xmmword ptr [r11]
         setne             cl
         mov               rbx, r8
         movzx             ecx, cl
@@ -3125,7 +3021,6 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         mov               qword ptr [r10], rcx
         mov               qword ptr [r10 + 0x8], 0x0
         mov               rax, r10
-        pop               rsi
         ret
 
 asm_test::or::u8::acqrel:
@@ -3209,103 +3104,88 @@ asm_test::or::u64::release:
         ret
 
 asm_test::or::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::or::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::or::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::or::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::or::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::add::u8::acqrel:
@@ -3389,103 +3269,88 @@ asm_test::add::u64::release:
         ret
 
 asm_test::add::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::add::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::add::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::add::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::add::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::and::u8::acqrel:
@@ -3569,103 +3434,88 @@ asm_test::and::u64::release:
         ret
 
 asm_test::and::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::and::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::and::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::and::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::and::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::neg::u8::acqrel:
@@ -3749,98 +3599,78 @@ asm_test::neg::u64::release:
         ret
 
 asm_test::neg::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::neg::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::neg::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::neg::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::neg::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::not::u8::acqrel:
@@ -3924,98 +3754,78 @@ asm_test::not::u64::release:
         ret
 
 asm_test::not::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::not::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::not::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::not::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::not::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::sub::u8::acqrel:
@@ -4099,103 +3909,88 @@ asm_test::sub::u64::release:
         ret
 
 asm_test::sub::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::sub::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::sub::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::sub::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::sub::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::xor::u8::acqrel:
@@ -4279,103 +4074,88 @@ asm_test::xor::u64::release:
         ret
 
 asm_test::xor::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::xor::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::xor::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::xor::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::xor::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::load::u8::seqcst:
@@ -4445,48 +4225,36 @@ asm_test::load::bool::relaxed:
         ret
 
 asm_test::load::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         xor               ecx, ecx
         xor               eax, eax
         xor               edx, edx
-        mov               rsi, rbx
+        mov               r8, rbx
         xor               rbx, rbx
-        lock cmpxchg16b   xmmword ptr [rdi]
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        lock cmpxchg16b   xmmword ptr [r9]
+        mov               rbx, r8
         ret
 
 asm_test::load::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         xor               ecx, ecx
         xor               eax, eax
         xor               edx, edx
-        mov               rsi, rbx
+        mov               r8, rbx
         xor               rbx, rbx
-        lock cmpxchg16b   xmmword ptr [rdi]
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        lock cmpxchg16b   xmmword ptr [r9]
+        mov               rbx, r8
         ret
 
 asm_test::load::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         xor               ecx, ecx
         xor               eax, eax
         xor               edx, edx
-        mov               rsi, rbx
+        mov               r8, rbx
         xor               rbx, rbx
-        lock cmpxchg16b   xmmword ptr [rdi]
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        lock cmpxchg16b   xmmword ptr [r9]
+        mov               rbx, r8
         ret
 
 asm_test::swap::u8::acqrel:
@@ -4620,88 +4388,68 @@ asm_test::swap::bool::release:
         ret
 
 asm_test::swap::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::swap::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::swap::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::swap::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::swap::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::store::u8::seqcst:
@@ -4765,54 +4513,42 @@ asm_test::store::bool::release:
         ret
 
 asm_test::store::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::store::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::store::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
+        mov               r9, rcx
         mov               rcx, r8
-        mov               rsi, rdx
-        xchg              rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r8, rdx
+        xchg              r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_or::u8::acqrel:
@@ -5076,103 +4812,88 @@ asm_test::fetch_or::bool::release:
         ret
 
 asm_test::fetch_or::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_or::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_or::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_or::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_or::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        or                rbx, rsi
+        or                rbx, r8
         mov               rcx, rdx
-        or                rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_add::u8::acqrel:
@@ -5276,103 +4997,88 @@ asm_test::fetch_add::u64::release:
         ret
 
 asm_test::fetch_add::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_add::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_add::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_add::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_add::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        add               rbx, rsi
+        add               rbx, r8
         mov               rcx, rdx
-        adc               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        adc               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_and::u8::acqrel:
@@ -5636,103 +5342,88 @@ asm_test::fetch_and::bool::release:
         ret
 
 asm_test::fetch_and::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_and::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_and::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_and::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_and::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        and               rbx, rsi
+        and               rbx, r8
         mov               rcx, rdx
-        and               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -5966,118 +5657,103 @@ asm_test::fetch_max::i64::release:
         ret
 
 asm_test::fetch_max::i128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovl             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovl             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_max::i128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovl             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovl             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_max::i128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovl             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovl             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_max::i128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovl             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovl             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_max::i128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovl             rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovl             rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_min::i8::acqrel:
@@ -6311,118 +5987,103 @@ asm_test::fetch_min::i64::release:
         ret
 
 asm_test::fetch_min::i128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovge            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovge            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_min::i128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovge            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovge            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_min::i128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovge            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovge            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_min::i128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovge            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovge            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_min::i128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
-        cmp               rsi, rax
-        mov               rcx, r8
+        cmp               r8, rax
+        mov               rcx, r9
         sbb               rcx, rdx
-        mov               rcx, r8
+        mov               rcx, r9
         cmovge            rcx, rdx
-        mov               rbx, rsi
+        mov               rbx, r8
         cmovge            rbx, rax
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_neg::u8::acqrel:
@@ -6626,98 +6287,78 @@ asm_test::fetch_neg::u64::release:
         ret
 
 asm_test::fetch_neg::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_neg::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_neg::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_neg::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_neg::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         neg               rbx
         mov               rcx, 0x0
         sbb               rcx, rdx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_not::u8::acqrel:
@@ -6981,98 +6622,78 @@ asm_test::fetch_not::bool::release:
         ret
 
 asm_test::fetch_not::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_not::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_not::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_not::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_not::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, rcx
+        mov               r8, rbx
+        mov               rax, qword ptr [r9]
+        mov               rdx, qword ptr [r9 + 0x8]
 0:
         mov               rbx, rax
         not               rbx
         mov               rcx, rdx
         not               rcx
-        lock cmpxchg16b   xmmword ptr [rdi]
+        lock cmpxchg16b   xmmword ptr [r9]
         jne               0b
-        mov               rbx, rsi
-        pop               rdi
-        pop               rsi
+        mov               rbx, r8
         ret
 
 asm_test::fetch_sub::u8::acqrel:
@@ -7196,103 +6817,88 @@ asm_test::fetch_sub::u64::release:
         ret
 
 asm_test::fetch_sub::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_sub::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_sub::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_sub::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_sub::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        sub               rbx, rsi
+        sub               rbx, r8
         mov               rcx, rdx
-        sbb               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        sbb               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_xor::u8::acqrel:
@@ -7556,102 +7162,87 @@ asm_test::fetch_xor::bool::release:
         ret
 
 asm_test::fetch_xor::u128::acqrel:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_xor::u128::seqcst:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_xor::u128::acquire:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_xor::u128::relaxed:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
 asm_test::fetch_xor::u128::release:
-        push              rsi
-        push              rdi
-        mov               rdi, rcx
-        mov               rsi, rdx
-        mov               r9, rbx
-        mov               rax, qword ptr [rdi]
-        mov               rdx, qword ptr [rdi + 0x8]
+        mov               r9, r8
+        mov               r10, rcx
+        mov               r8, rdx
+        mov               r11, rbx
+        mov               rax, qword ptr [r10]
+        mov               rdx, qword ptr [r10 + 0x8]
 0:
         mov               rbx, rax
-        xor               rbx, rsi
+        xor               rbx, r8
         mov               rcx, rdx
-        xor               rcx, r8
-        lock cmpxchg16b   xmmword ptr [rdi]
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [r10]
         jne               0b
-        mov               rbx, r9
-        pop               rdi
-        pop               rsi
+        mov               rbx, r11
         ret
 
