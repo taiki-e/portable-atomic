@@ -210,7 +210,7 @@ run() {
       target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
       ;;
     xtensa-esp32*)
-      # these chips require critical-section to be enabled, which is incompatible with the single-core and privileged assumptions
+      # At this time, these chips require critical-section to be enabled, which is incompatible with the single-core and privileged assumptions.
       ;;
     arm* | thumb* | xtensa*)
       assume_single_core_target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
