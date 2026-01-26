@@ -5,9 +5,11 @@
 
 use core::{arch::asm, cell::UnsafeCell, ops::Range, sync::atomic::Ordering};
 
+// https://documentation.espressif.com/esp32_technical_reference_manual_en.pdf, Table 3.3-4. External Memory Address Mapping
 #[cfg(portable_atomic_target_cpu = "esp32")]
 const EXTERNAL_DATA_BUS_ADDRESS_RANGE: Range<usize> = 0x3F80_0000..0x3FC0_0000;
 
+// https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.pdf, Table 4.3-2. External Memory Address Mapping
 #[cfg(portable_atomic_target_cpu = "esp32s3")]
 const EXTERNAL_DATA_BUS_ADDRESS_RANGE: Range<usize> = 0x3C00_0000..0x3E00_0000;
 
