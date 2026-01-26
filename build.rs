@@ -515,16 +515,22 @@ fn main() {
         "xtensa" => {
             // Some Xtensa CPUs have CAS for internal memory, but also have an external address space,
             // which does not correctly provide atomic access. The affected CPUs have their own build targets,
-            // so detecting them is not a problem.
+            // but may also be specified with `-C target-cpu`.
             // Xtensa targets have been introduced in Rust 1.81.0.
-            match target {
-                "xtensa-esp32-none-elf" | "xtensa-esp32-espidf" => target_cpu_fallback("esp32"),
-                "xtensa-esp32s3-none-elf" | "xtensa-esp32s3-espidf" => {
-                    target_cpu_fallback("esp32s3")
+            if let Some(cpu) = target_cpu() {
+                if cpu == "esp32" || cpu == "esp32s3" {
+                    target_cpu_fallback(&cpu);
                 }
-                // ESP32-S2 does not have atomic CAS, so it is not affected by the issue the same way.
-                // For other Xtensa CPUs, assume they are not affected.
-                _ => {}
+            } else {
+                match target {
+                    "xtensa-esp32-none-elf" | "xtensa-esp32-espidf" => target_cpu_fallback("esp32"),
+                    "xtensa-esp32s3-none-elf" | "xtensa-esp32s3-espidf" => {
+                        target_cpu_fallback("esp32s3")
+                    }
+                    // ESP32-S2 does not have atomic CAS, so it is not affected by the issue the same way.
+                    // For other Xtensa CPUs, assume they are not affected.
+                    _ => {}
+                }
             }
         }
         _ => {}
