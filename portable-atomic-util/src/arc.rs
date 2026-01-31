@@ -191,8 +191,7 @@ pub struct Weak<T: ?Sized> {
     // but it is not necessarily a valid pointer.
     // `Weak::new` sets this to `usize::MAX` so that it doesn’t need
     // to allocate space on the heap. That's not a value a real pointer
-    // will ever have because RcBox has alignment at least 2.
-    // This is only possible when `T: Sized`; unsized `T` never dangle.
+    // will ever have because ArcInner has alignment at least 2.
     ptr: NonNull<ArcInner<T>>,
 }
 
@@ -698,7 +697,7 @@ impl<T> Arc<mem::MaybeUninit<T>> {
     pub unsafe fn assume_init(self) -> Arc<T> {
         let ptr = Arc::into_inner_non_null(self);
         // SAFETY: MaybeUninit<T> has the same layout as T, and
-        // the caller must ensure data is initialized.
+        // the caller must guarantee that the data is initialized.
         unsafe { Arc::from_inner(ptr.cast::<ArcInner<T>>()) }
     }
 }
@@ -739,7 +738,7 @@ impl<T> Arc<[mem::MaybeUninit<T>]> {
     pub unsafe fn assume_init(self) -> Arc<[T]> {
         let ptr = Arc::into_inner_non_null(self);
         // SAFETY: [MaybeUninit<T>] has the same layout as [T], and
-        // the caller must ensure data is initialized.
+        // the caller must guarantee that the data is initialized.
         unsafe { Arc::from_ptr(ptr.as_ptr() as *mut ArcInner<[T]>) }
     }
 }
@@ -763,6 +762,8 @@ impl<T: ?Sized> Arc<T> {
     /// and alignment, this is basically like transmuting references of
     /// different types. See [`mem::transmute`] for more information
     /// on what restrictions apply in this case.
+    ///
+    /// The raw pointer must point to a block of memory allocated by the global allocator.
     ///
     /// The user of `from_raw` has to make sure a specific value of `T` is only
     /// dropped once.
@@ -822,9 +823,11 @@ impl<T: ?Sized> Arc<T> {
     ///
     /// # Safety
     ///
-    /// The pointer must have been obtained through `Arc::into_raw`, and the
-    /// associated `Arc` instance must be valid (i.e. the strong count must be at
-    /// least 1) for the duration of this method.
+    /// The pointer must have been obtained through `Arc::into_raw` and must satisfy the
+    /// same layout requirements specified in [`Arc::from_raw`].
+    /// The associated `Arc` instance must be valid (i.e. the strong count must be at
+    /// least 1) for the duration of this method, and `ptr` must point to a block of memory
+    /// allocated by the global allocator.
     ///
     /// # Examples
     ///
@@ -858,9 +861,11 @@ impl<T: ?Sized> Arc<T> {
     ///
     /// # Safety
     ///
-    /// The pointer must have been obtained through `Arc::into_raw`, and the
-    /// associated `Arc` instance must be valid (i.e. the strong count must be at
-    /// least 1) when invoking this method. This method can be used to release the final
+    /// The pointer must have been obtained through `Arc::into_raw` and must satisfy the
+    /// same layout requirements specified in [`Arc::from_raw`].
+    /// The associated `Arc` instance must be valid (i.e. the strong count must be at
+    /// least 1) when invoking this method, and `ptr` must point to a block of memory
+    /// allocated by the global allocator. This method can be used to release the final
     /// `Arc` and backing storage, but **should not** be called after the final `Arc` has been
     /// released.
     ///
@@ -933,6 +938,9 @@ impl<T: ?Sized> Arc<T> {
     pub fn as_ptr(this: &Self) -> *const T {
         let ptr: *mut ArcInner<T> = this.ptr.as_ptr();
 
+        // SAFETY: This cannot go through Deref::deref or ArcInnerPtr::inner because
+        // this is required to retain raw/mut provenance such that e.g. `get_mut` can
+        // write through the pointer after the Arc is recovered through `from_raw`.
         unsafe { data_ptr::<T>(ptr, &**this) }
     }
 
@@ -1695,7 +1703,7 @@ struct WeakInner<'a> {
     strong: &'a atomic::AtomicUsize,
 }
 
-// TODO: See Weak::from_raw
+// TODO: See todo comment in Weak::from_raw
 impl<T /*: ?Sized */> Weak<T> {
     /// Converts a raw pointer previously created by [`into_raw`] back into `Weak<T>`.
     ///
@@ -1708,7 +1716,7 @@ impl<T /*: ?Sized */> Weak<T> {
     /// # Safety
     ///
     /// The pointer must have originated from the [`into_raw`] and must still own its potential
-    /// weak reference.
+    /// weak reference, and must point to a block of memory allocated by global allocator.
     ///
     /// It is allowed for the strong count to be 0 at the time of calling this. Nevertheless, this
     /// takes ownership of one weak reference currently represented as a raw pointer (the weak
@@ -1753,10 +1761,9 @@ impl<T /*: ?Sized */> Weak<T> {
             // only support sized types that can avoid references to data
             // unless align_of_val_raw is stabilized.
             // // SAFETY: data_offset is safe to call, as ptr references a real (potentially dropped) T.
-            // let offset = unsafe { data_offset::<T>(ptr) };
+            // let offset = unsafe { data_offset(ptr) };
             let offset = data_offset_align(mem::align_of::<T>());
-
-            // Thus, we reverse the offset to get the whole RcBox.
+            // Thus, we reverse the offset to get the whole ArcInner.
             // SAFETY: the pointer originated from a Weak, so this offset is safe.
             unsafe { strict::byte_sub(ptr as *mut T, offset) as *mut ArcInner<T> }
         };
@@ -1766,7 +1773,7 @@ impl<T /*: ?Sized */> Weak<T> {
     }
 }
 
-// TODO: See Weak::from_raw
+// TODO: See todo comment in Weak::from_raw
 impl<T /*: ?Sized */> Weak<T> {
     /// Returns a raw pointer to the object `T` pointed to by this `Weak<T>`.
     ///
@@ -1803,7 +1810,7 @@ impl<T /*: ?Sized */> Weak<T> {
             // a valid payload address, as the payload is at least as aligned as ArcInner (usize).
             ptr as *const T
         } else {
-            // TODO: See Weak::from_raw
+            // TODO: See todo comment in Weak::from_raw
             // // SAFETY: if is_dangling returns false, then the pointer is dereferenceable.
             // // The payload may be dropped at this point, and we have to maintain provenance,
             // // so use raw pointer manipulation.
@@ -1949,7 +1956,7 @@ impl<T: ?Sized> Weak<T> {
         if is_dangling(ptr) {
             None
         } else {
-            // SAFETY: non-dangling Weak is a valid pointer.
+            // SAFETY: non-dangling Weak has a valid pointer.
             // We are careful to *not* create a reference covering the "data" field, as
             // the field may be mutated concurrently (for example, if the last `Arc`
             // is dropped, the data field will be dropped in-place).
@@ -2661,12 +2668,12 @@ impl<T> FromIterator<T> for Arc<[T]> {
     /// this behaves as if we wrote:
     ///
     /// ```
-    /// # #![cfg_attr(rustfmt, rustfmt::skip)] // rustfmt bug that inserts new line before "# ..." when the previous line ends with a comment.
     /// use portable_atomic_util::Arc;
     /// let evens: Arc<[u8]> = (0..10).filter(|&x| x % 2 == 0)
     ///     .collect::<Vec<_>>() // The first set of allocations happens here.
     ///     .into(); // A second allocation for `Arc<[T]>` happens here.
-    /// # assert_eq!(&*evens, &[0, 2, 4, 6, 8]);
+    ///
+    /// assert_eq!(&*evens, &[0, 2, 4, 6, 8]);
     /// ```
     ///
     /// This will allocate as many times as needed for constructing the `Vec<T>`
@@ -2678,10 +2685,10 @@ impl<T> FromIterator<T> for Arc<[T]> {
     /// a single allocation will be made for the `Arc<[T]>`. For example:
     ///
     /// ```
-    /// # #![cfg_attr(rustfmt, rustfmt::skip)] // rustfmt bug that inserts new line before "# ..." when the previous line ends with a comment.
     /// use portable_atomic_util::Arc;
     /// let evens: Arc<[u8]> = (0..10).collect(); // Just a single allocation happens here.
-    /// # assert_eq!(&*evens, &*(0..10).collect::<Vec<_>>());
+    ///
+    /// assert_eq!(&*evens, &*(0..10).collect::<Vec<_>>());
     /// ```
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         iter.into_iter().collect::<Vec<T>>().into()
@@ -2719,7 +2726,7 @@ unsafe fn data_ptr<T: ?Sized>(arc: *mut ArcInner<T>, data: &T) -> *mut T {
 /// Gets the offset within an `ArcInner` for the payload behind a pointer.
 fn data_offset<T: ?Sized>(ptr: &T) -> usize {
     // Align the unsized value to the end of the ArcInner.
-    // Because RcBox is repr(C), it will always be the last field in memory.
+    // Because ArcInner is repr(C), it will always be the last field in memory.
     data_offset_align(mem::align_of_val::<T>(ptr))
 }
 
