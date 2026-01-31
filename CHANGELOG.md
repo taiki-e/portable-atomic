@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.13.1] - 2026-01-31
+
 - Update to stabilized [PowerPC64](https://github.com/rust-lang/rust/pull/147996) inline assembly. ([92b02f8a](https://github.com/taiki-e/portable-atomic/commit/92b02f8a279327a1780cbe127d9effb2baae9b2f))
 
 - Work around [rustc_codegen_gcc bugs on x86_64](https://github.com/rust-lang/rustc_codegen_gcc/issues/821#issuecomment-3793567607). ([ae4c501](https://github.com/taiki-e/portable-atomic/commit/ae4c501aec84a3537fe35ec57ceae94b3a05ade0))
@@ -572,7 +574,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.13.1...HEAD
+[1.13.1]: https://github.com/taiki-e/portable-atomic/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/taiki-e/portable-atomic/compare/v1.11.0...v1.11.1
