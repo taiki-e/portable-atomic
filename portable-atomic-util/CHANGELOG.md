@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-01-31
+
 - Add `Arc::{new_zeroed,new_zeroed_slice}` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.92](https://github.com/rust-lang/rust/pull/144091)) ([f8affb6](https://github.com/taiki-e/portable-atomic/commit/f8affb661abb1ac928cd78a66bf8fe1e72c42e42), [ae5aba7](https://github.com/taiki-e/portable-atomic/commit/ae5aba7cbe182b5d83b4b4973ccdaab372bef4d6))
 
 - Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717)) ([2d8d33c](https://github.com/taiki-e/portable-atomic/commit/2d8d33c127126e9d290c6f368f54c2a784b43b57))
@@ -110,7 +112,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.4...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.5...HEAD
+[0.2.5]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.4...portable-atomic-util-0.2.5
 [0.2.4]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.3...portable-atomic-util-0.2.4
 [0.2.3]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.2...portable-atomic-util-0.2.3
 [0.2.2]: https://github.com/taiki-e/portable-atomic/compare/portable-atomic-util-0.2.1...portable-atomic-util-0.2.2
