@@ -3251,7 +3251,7 @@ asm_test::and::u64::release:
 asm_test::neg::u8::acqrel:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sb                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3259,7 +3259,7 @@ asm_test::neg::u8::acqrel:
 asm_test::neg::u8::seqcst:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sb                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3267,7 +3267,7 @@ asm_test::neg::u8::seqcst:
 asm_test::neg::u8::acquire:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sb                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3275,7 +3275,7 @@ asm_test::neg::u8::acquire:
 asm_test::neg::u8::relaxed:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sb                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3283,7 +3283,7 @@ asm_test::neg::u8::relaxed:
 asm_test::neg::u8::release:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sb                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3291,7 +3291,7 @@ asm_test::neg::u8::release:
 asm_test::neg::u16::acqrel:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sh                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3299,7 +3299,7 @@ asm_test::neg::u16::acqrel:
 asm_test::neg::u16::seqcst:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sh                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3307,7 +3307,7 @@ asm_test::neg::u16::seqcst:
 asm_test::neg::u16::acquire:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sh                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3315,7 +3315,7 @@ asm_test::neg::u16::acquire:
 asm_test::neg::u16::relaxed:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sh                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3323,7 +3323,7 @@ asm_test::neg::u16::relaxed:
 asm_test::neg::u16::release:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sh                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3331,7 +3331,7 @@ asm_test::neg::u16::release:
 asm_test::neg::u32::acqrel:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sw                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3339,7 +3339,7 @@ asm_test::neg::u32::acqrel:
 asm_test::neg::u32::seqcst:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sw                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3347,7 +3347,7 @@ asm_test::neg::u32::seqcst:
 asm_test::neg::u32::acquire:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sw                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3355,7 +3355,7 @@ asm_test::neg::u32::acquire:
 asm_test::neg::u32::relaxed:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sw                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -3363,7 +3363,7 @@ asm_test::neg::u32::relaxed:
 asm_test::neg::u32::release:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
-        negw              a2, a2
+        neg               a2, a2
         sw                a2, 0x0(a0)
         csrw              mstatus, a1
         ret
@@ -4452,7 +4452,7 @@ asm_test::fetch_min::i64::release:
 asm_test::fetch_neg::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sb                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4461,7 +4461,7 @@ asm_test::fetch_neg::u8::acqrel:
 asm_test::fetch_neg::u8::seqcst:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sb                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4470,7 +4470,7 @@ asm_test::fetch_neg::u8::seqcst:
 asm_test::fetch_neg::u8::acquire:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sb                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4479,7 +4479,7 @@ asm_test::fetch_neg::u8::acquire:
 asm_test::fetch_neg::u8::relaxed:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sb                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4488,7 +4488,7 @@ asm_test::fetch_neg::u8::relaxed:
 asm_test::fetch_neg::u8::release:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sb                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4497,7 +4497,7 @@ asm_test::fetch_neg::u8::release:
 asm_test::fetch_neg::u16::acqrel:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sh                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4506,7 +4506,7 @@ asm_test::fetch_neg::u16::acqrel:
 asm_test::fetch_neg::u16::seqcst:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sh                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4515,7 +4515,7 @@ asm_test::fetch_neg::u16::seqcst:
 asm_test::fetch_neg::u16::acquire:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sh                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4524,7 +4524,7 @@ asm_test::fetch_neg::u16::acquire:
 asm_test::fetch_neg::u16::relaxed:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sh                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4533,7 +4533,7 @@ asm_test::fetch_neg::u16::relaxed:
 asm_test::fetch_neg::u16::release:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sh                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4542,7 +4542,7 @@ asm_test::fetch_neg::u16::release:
 asm_test::fetch_neg::u32::acqrel:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sw                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4551,7 +4551,7 @@ asm_test::fetch_neg::u32::acqrel:
 asm_test::fetch_neg::u32::seqcst:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sw                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4560,7 +4560,7 @@ asm_test::fetch_neg::u32::seqcst:
 asm_test::fetch_neg::u32::acquire:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sw                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4569,7 +4569,7 @@ asm_test::fetch_neg::u32::acquire:
 asm_test::fetch_neg::u32::relaxed:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sw                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1
@@ -4578,7 +4578,7 @@ asm_test::fetch_neg::u32::relaxed:
 asm_test::fetch_neg::u32::release:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
-        negw              a3, a1
+        neg               a3, a1
         sw                a3, 0x0(a0)
         csrw              mstatus, a2
         mv                a0, a1

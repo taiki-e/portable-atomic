@@ -4118,7 +4118,7 @@ asm_test::fetch_neg::u8::acqrel:
         li                a3, 0xff
         sllw              a3, a3, a1
 0:
-        negw              a4, a0
+        neg               a4, a0
         zext.b            a0, a0
         sllw              a5, a0, a1
         zext.b            a0, a4
@@ -4146,7 +4146,7 @@ asm_test::fetch_neg::u8::seqcst:
         li                a3, 0xff
         sllw              a3, a3, a1
 0:
-        negw              a4, a0
+        neg               a4, a0
         zext.b            a0, a0
         sllw              a5, a0, a1
         zext.b            a0, a4
@@ -4174,7 +4174,7 @@ asm_test::fetch_neg::u8::acquire:
         li                a3, 0xff
         sllw              a3, a3, a1
 0:
-        negw              a4, a0
+        neg               a4, a0
         zext.b            a0, a0
         sllw              a5, a0, a1
         zext.b            a0, a4
@@ -4202,7 +4202,7 @@ asm_test::fetch_neg::u8::relaxed:
         li                a3, 0xff
         sllw              a3, a3, a1
 0:
-        negw              a4, a0
+        neg               a4, a0
         zext.b            a0, a0
         sllw              a5, a0, a1
         zext.b            a0, a4
@@ -4230,7 +4230,7 @@ asm_test::fetch_neg::u8::release:
         li                a3, 0xff
         sllw              a3, a3, a1
 0:
-        negw              a4, a0
+        neg               a4, a0
         zext.b            a0, a0
         sllw              a5, a0, a1
         zext.b            a0, a4
@@ -4259,7 +4259,7 @@ asm_test::fetch_neg::u16::acqrel:
         addi              a7, a3, -0x1
         sllw              a4, a7, a1
 0:
-        negw              a5, a0
+        neg               a5, a0
         and               a0, a0, a7
         sllw              a2, a0, a1
         and               a5, a5, a7
@@ -4288,7 +4288,7 @@ asm_test::fetch_neg::u16::seqcst:
         addi              a7, a3, -0x1
         sllw              a4, a7, a1
 0:
-        negw              a5, a0
+        neg               a5, a0
         and               a0, a0, a7
         sllw              a2, a0, a1
         and               a5, a5, a7
@@ -4317,7 +4317,7 @@ asm_test::fetch_neg::u16::acquire:
         addi              a7, a3, -0x1
         sllw              a4, a7, a1
 0:
-        negw              a5, a0
+        neg               a5, a0
         and               a0, a0, a7
         sllw              a2, a0, a1
         and               a5, a5, a7
@@ -4346,7 +4346,7 @@ asm_test::fetch_neg::u16::relaxed:
         addi              a7, a3, -0x1
         sllw              a4, a7, a1
 0:
-        negw              a5, a0
+        neg               a5, a0
         and               a0, a0, a7
         sllw              a2, a0, a1
         and               a5, a5, a7
@@ -4375,7 +4375,7 @@ asm_test::fetch_neg::u16::release:
         addi              a7, a3, -0x1
         sllw              a4, a7, a1
 0:
-        negw              a5, a0
+        neg               a5, a0
         and               a0, a0, a7
         sllw              a2, a0, a1
         and               a5, a5, a7

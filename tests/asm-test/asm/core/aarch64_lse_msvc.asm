@@ -18,12 +18,10 @@ asm_test::fetch_nand::u8::seqcst:
         and               w10, w8, w1
         mvn               w10, w10
         casalb            w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8, uxtb
         mov               w8, w9
         b.ne              0b
         mov               w0, w8
-        dmb               ish
         ret
 
 asm_test::fetch_nand::u8::acquire:
@@ -85,12 +83,10 @@ asm_test::fetch_nand::u16::seqcst:
         and               w10, w8, w1
         mvn               w10, w10
         casalh            w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8, uxth
         mov               w8, w9
         b.ne              0b
         mov               w0, w8
-        dmb               ish
         ret
 
 asm_test::fetch_nand::u16::acquire:
@@ -152,12 +148,10 @@ asm_test::fetch_nand::u32::seqcst:
         and               w10, w8, w1
         mvn               w10, w10
         casal             w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8
         mov               w8, w9
         b.ne              0b
         mov               w0, w8
-        dmb               ish
         ret
 
 asm_test::fetch_nand::u32::acquire:
@@ -219,12 +213,10 @@ asm_test::fetch_nand::u64::seqcst:
         and               x10, x8, x1
         mvn               x10, x10
         casal             x9, x10, [x0]
-        dmb               ish
         cmp               x9, x8
         mov               x8, x9
         b.ne              0b
         mov               x0, x8
-        dmb               ish
         ret
 
 asm_test::fetch_nand::u64::acquire:
@@ -295,13 +287,11 @@ asm_test::fetch_nand::u128::seqcst:
         mvn               x11, x9
         mov               x5, x7
         caspal            x4, x5, x10, x11, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_nand::u128::acquire:
@@ -364,7 +354,6 @@ asm_test::fetch_umax::u8::acqrel:
 
 asm_test::fetch_umax::u8::seqcst:
         ldumaxalb         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umax::u8::acquire:
@@ -385,7 +374,6 @@ asm_test::fetch_umax::u16::acqrel:
 
 asm_test::fetch_umax::u16::seqcst:
         ldumaxalh         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umax::u16::acquire:
@@ -406,7 +394,6 @@ asm_test::fetch_umax::u32::acqrel:
 
 asm_test::fetch_umax::u32::seqcst:
         ldumaxal          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umax::u32::acquire:
@@ -427,7 +414,6 @@ asm_test::fetch_umax::u64::acqrel:
 
 asm_test::fetch_umax::u64::seqcst:
         ldumaxal          x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umax::u64::acquire:
@@ -471,13 +457,11 @@ asm_test::fetch_umax::u128::seqcst:
         csel              x9, x7, x3, lo
         csel              x8, x4, x2, lo
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_umax::u128::acquire:
@@ -540,7 +524,6 @@ asm_test::fetch_umin::u8::acqrel:
 
 asm_test::fetch_umin::u8::seqcst:
         lduminalb         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umin::u8::acquire:
@@ -561,7 +544,6 @@ asm_test::fetch_umin::u16::acqrel:
 
 asm_test::fetch_umin::u16::seqcst:
         lduminalh         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umin::u16::acquire:
@@ -582,7 +564,6 @@ asm_test::fetch_umin::u32::acqrel:
 
 asm_test::fetch_umin::u32::seqcst:
         lduminal          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umin::u32::acquire:
@@ -603,7 +584,6 @@ asm_test::fetch_umin::u64::acqrel:
 
 asm_test::fetch_umin::u64::seqcst:
         lduminal          x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_umin::u64::acquire:
@@ -647,13 +627,11 @@ asm_test::fetch_umin::u128::seqcst:
         csel              x9, x7, x3, hs
         csel              x8, x4, x2, hs
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_umin::u128::acquire:
@@ -722,7 +700,6 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
 asm_test::compare_exchange::u8::seqcst_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -777,7 +754,6 @@ asm_test::compare_exchange::u8::release_seqcst:
 asm_test::compare_exchange::u8::seqcst_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -787,7 +763,6 @@ asm_test::compare_exchange::u8::seqcst_acquire:
 asm_test::compare_exchange::u8::seqcst_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -860,7 +835,6 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
 asm_test::compare_exchange::u16::seqcst_seqcst:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -915,7 +889,6 @@ asm_test::compare_exchange::u16::release_seqcst:
 asm_test::compare_exchange::u16::seqcst_acquire:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -925,7 +898,6 @@ asm_test::compare_exchange::u16::seqcst_acquire:
 asm_test::compare_exchange::u16::seqcst_relaxed:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -998,7 +970,6 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
 asm_test::compare_exchange::u32::seqcst_seqcst:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1053,7 +1024,6 @@ asm_test::compare_exchange::u32::release_seqcst:
 asm_test::compare_exchange::u32::seqcst_acquire:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1063,7 +1033,6 @@ asm_test::compare_exchange::u32::seqcst_acquire:
 asm_test::compare_exchange::u32::seqcst_relaxed:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1136,7 +1105,6 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
 asm_test::compare_exchange::u64::seqcst_seqcst:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1191,7 +1159,6 @@ asm_test::compare_exchange::u64::release_seqcst:
 asm_test::compare_exchange::u64::seqcst_acquire:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1201,7 +1168,6 @@ asm_test::compare_exchange::u64::seqcst_acquire:
 asm_test::compare_exchange::u64::seqcst_relaxed:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1277,7 +1243,6 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -1344,7 +1309,6 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -1356,7 +1320,6 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -1442,7 +1405,6 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
 asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -1497,7 +1459,6 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
 asm_test::compare_exchange_weak::u8::seqcst_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -1507,7 +1468,6 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
 asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxtb
         mov               w1, w8
         cset              w9, eq
@@ -1580,7 +1540,6 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
 asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -1635,7 +1594,6 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
 asm_test::compare_exchange_weak::u16::seqcst_acquire:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -1645,7 +1603,6 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
 asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         mov               w8, w1
         casalh            w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1, uxth
         mov               w1, w8
         cset              w9, eq
@@ -1718,7 +1675,6 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
 asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1773,7 +1729,6 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
 asm_test::compare_exchange_weak::u32::seqcst_acquire:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1783,7 +1738,6 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
 asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         mov               w8, w1
         casal             w8, w2, [x0]
-        dmb               ish
         cmp               w8, w1
         mov               w1, w8
         cset              w9, eq
@@ -1856,7 +1810,6 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
 asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1911,7 +1864,6 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
 asm_test::compare_exchange_weak::u64::seqcst_acquire:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1921,7 +1873,6 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
 asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         mov               x8, x1
         casal             x8, x2, [x0]
-        dmb               ish
         cmp               x8, x1
         mov               x1, x8
         cset              w9, eq
@@ -1997,7 +1948,6 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2064,7 +2014,6 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2076,7 +2025,6 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         mov               x6, x2
         mov               x7, x3
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2228,7 +2176,6 @@ asm_test::swap::u8::acqrel:
 
 asm_test::swap::u8::seqcst:
         swpalb            w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::swap::u8::acquire:
@@ -2249,7 +2196,6 @@ asm_test::swap::u16::acqrel:
 
 asm_test::swap::u16::seqcst:
         swpalh            w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::swap::u16::acquire:
@@ -2270,7 +2216,6 @@ asm_test::swap::u32::acqrel:
 
 asm_test::swap::u32::seqcst:
         swpal             w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::swap::u32::acquire:
@@ -2291,7 +2236,6 @@ asm_test::swap::u64::acqrel:
 
 asm_test::swap::u64::seqcst:
         swpal             x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::swap::u64::acquire:
@@ -2327,13 +2271,11 @@ asm_test::swap::u128::seqcst:
         mov               x6, x4
         mov               x5, x7
         caspal            x4, x5, x2, x3, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::swap::u128::acquire:
@@ -2436,7 +2378,6 @@ asm_test::store::u128::seqcst:
         mov               x6, x4
         mov               x7, x5
         caspal            x6, x7, x2, x3, [x0]
-        dmb               ish
         cmp               x7, x5
         ccmp              x6, x4, #0x0, eq
         mov               x4, x6
@@ -2477,7 +2418,6 @@ asm_test::fetch_or::u8::acqrel:
 
 asm_test::fetch_or::u8::seqcst:
         ldsetalb          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_or::u8::acquire:
@@ -2498,7 +2438,6 @@ asm_test::fetch_or::u16::acqrel:
 
 asm_test::fetch_or::u16::seqcst:
         ldsetalh          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_or::u16::acquire:
@@ -2519,7 +2458,6 @@ asm_test::fetch_or::u32::acqrel:
 
 asm_test::fetch_or::u32::seqcst:
         ldsetal           w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_or::u32::acquire:
@@ -2540,7 +2478,6 @@ asm_test::fetch_or::u64::acqrel:
 
 asm_test::fetch_or::u64::seqcst:
         ldsetal           x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_or::u64::acquire:
@@ -2580,13 +2517,11 @@ asm_test::fetch_or::u128::seqcst:
         orr               x9, x7, x3
         mov               x5, x7
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_or::u128::acquire:
@@ -2643,7 +2578,6 @@ asm_test::fetch_add::u8::acqrel:
 
 asm_test::fetch_add::u8::seqcst:
         ldaddalb          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_add::u8::acquire:
@@ -2664,7 +2598,6 @@ asm_test::fetch_add::u16::acqrel:
 
 asm_test::fetch_add::u16::seqcst:
         ldaddalh          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_add::u16::acquire:
@@ -2685,7 +2618,6 @@ asm_test::fetch_add::u32::acqrel:
 
 asm_test::fetch_add::u32::seqcst:
         ldaddal           w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_add::u32::acquire:
@@ -2706,7 +2638,6 @@ asm_test::fetch_add::u64::acqrel:
 
 asm_test::fetch_add::u64::seqcst:
         ldaddal           x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_add::u64::acquire:
@@ -2746,13 +2677,11 @@ asm_test::fetch_add::u128::seqcst:
         adc               x9, x7, x3
         mov               x5, x7
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_add::u128::acquire:
@@ -2811,7 +2740,6 @@ asm_test::fetch_and::u8::acqrel:
 asm_test::fetch_and::u8::seqcst:
         mvn               w8, w1
         ldclralb          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_and::u8::acquire:
@@ -2837,7 +2765,6 @@ asm_test::fetch_and::u16::acqrel:
 asm_test::fetch_and::u16::seqcst:
         mvn               w8, w1
         ldclralh          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_and::u16::acquire:
@@ -2863,7 +2790,6 @@ asm_test::fetch_and::u32::acqrel:
 asm_test::fetch_and::u32::seqcst:
         mvn               w8, w1
         ldclral           w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_and::u32::acquire:
@@ -2889,7 +2815,6 @@ asm_test::fetch_and::u64::acqrel:
 asm_test::fetch_and::u64::seqcst:
         mvn               x8, x1
         ldclral           x8, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_and::u64::acquire:
@@ -2932,13 +2857,11 @@ asm_test::fetch_and::u128::seqcst:
         and               x9, x7, x3
         mov               x5, x7
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_and::u128::acquire:
@@ -2995,7 +2918,6 @@ asm_test::fetch_max::i8::acqrel:
 
 asm_test::fetch_max::i8::seqcst:
         ldsmaxalb         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_max::i8::acquire:
@@ -3016,7 +2938,6 @@ asm_test::fetch_max::i16::acqrel:
 
 asm_test::fetch_max::i16::seqcst:
         ldsmaxalh         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_max::i16::acquire:
@@ -3037,7 +2958,6 @@ asm_test::fetch_max::i32::acqrel:
 
 asm_test::fetch_max::i32::seqcst:
         ldsmaxal          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_max::i32::acquire:
@@ -3058,7 +2978,6 @@ asm_test::fetch_max::i64::acqrel:
 
 asm_test::fetch_max::i64::seqcst:
         ldsmaxal          x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_max::i64::acquire:
@@ -3102,13 +3021,11 @@ asm_test::fetch_max::i128::seqcst:
         csel              x9, x7, x3, lt
         csel              x8, x4, x2, lt
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_max::i128::acquire:
@@ -3171,7 +3088,6 @@ asm_test::fetch_min::i8::acqrel:
 
 asm_test::fetch_min::i8::seqcst:
         ldsminalb         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_min::i8::acquire:
@@ -3192,7 +3108,6 @@ asm_test::fetch_min::i16::acqrel:
 
 asm_test::fetch_min::i16::seqcst:
         ldsminalh         w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_min::i16::acquire:
@@ -3213,7 +3128,6 @@ asm_test::fetch_min::i32::acqrel:
 
 asm_test::fetch_min::i32::seqcst:
         ldsminal          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_min::i32::acquire:
@@ -3234,7 +3148,6 @@ asm_test::fetch_min::i64::acqrel:
 
 asm_test::fetch_min::i64::seqcst:
         ldsminal          x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_min::i64::acquire:
@@ -3278,13 +3191,11 @@ asm_test::fetch_min::i128::seqcst:
         csel              x9, x7, x3, ge
         csel              x8, x4, x2, ge
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_min::i128::acquire:
@@ -3359,7 +3270,6 @@ asm_test::fetch_neg::u8::seqcst:
 0:
         neg               w10, w8
         casalb            w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8, uxtb
         mov               w8, w9
         b.ne              0b
@@ -3420,7 +3330,6 @@ asm_test::fetch_neg::u16::seqcst:
 0:
         neg               w10, w8
         casalh            w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8, uxth
         mov               w8, w9
         b.ne              0b
@@ -3481,7 +3390,6 @@ asm_test::fetch_neg::u32::seqcst:
 0:
         neg               w10, w8
         casal             w9, w10, [x0]
-        dmb               ish
         cmp               w9, w8
         mov               w8, w9
         b.ne              0b
@@ -3542,7 +3450,6 @@ asm_test::fetch_neg::u64::seqcst:
 0:
         neg               x10, x8
         casal             x9, x10, [x0]
-        dmb               ish
         cmp               x9, x8
         mov               x8, x9
         b.ne              0b
@@ -3614,7 +3521,6 @@ asm_test::fetch_neg::u128::seqcst:
         ngc               x7, x5
         mov               x3, x5
         caspal            x2, x3, x6, x7, [x0]
-        dmb               ish
         cmp               x3, x5
         ccmp              x2, x4, #0x0, eq
         b.ne              0b
@@ -3684,7 +3590,6 @@ asm_test::fetch_not::u8::acqrel:
 asm_test::fetch_not::u8::seqcst:
         mov               w8, #-0x1               // =-1
         ldeoralb          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_not::u8::acquire:
@@ -3710,7 +3615,6 @@ asm_test::fetch_not::u16::acqrel:
 asm_test::fetch_not::u16::seqcst:
         mov               w8, #-0x1               // =-1
         ldeoralh          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_not::u16::acquire:
@@ -3736,7 +3640,6 @@ asm_test::fetch_not::u32::acqrel:
 asm_test::fetch_not::u32::seqcst:
         mov               w8, #-0x1               // =-1
         ldeoral           w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_not::u32::acquire:
@@ -3762,7 +3665,6 @@ asm_test::fetch_not::u64::acqrel:
 asm_test::fetch_not::u64::seqcst:
         mov               x8, #-0x1               // =-1
         ldeoral           x8, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_not::u64::acquire:
@@ -3805,13 +3707,11 @@ asm_test::fetch_not::u128::seqcst:
         mvn               x7, x5
         mov               x3, x5
         caspal            x2, x3, x6, x7, [x0]
-        dmb               ish
         cmp               x3, x5
         ccmp              x2, x4, #0x0, eq
         b.ne              0b
         mov               x0, x2
         mov               x1, x3
-        dmb               ish
         ret
 
 asm_test::fetch_not::u128::acquire:
@@ -3870,7 +3770,6 @@ asm_test::fetch_sub::u8::acqrel:
 asm_test::fetch_sub::u8::seqcst:
         neg               w8, w1
         ldaddalb          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_sub::u8::acquire:
@@ -3896,7 +3795,6 @@ asm_test::fetch_sub::u16::acqrel:
 asm_test::fetch_sub::u16::seqcst:
         neg               w8, w1
         ldaddalh          w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_sub::u16::acquire:
@@ -3922,7 +3820,6 @@ asm_test::fetch_sub::u32::acqrel:
 asm_test::fetch_sub::u32::seqcst:
         neg               w8, w1
         ldaddal           w8, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_sub::u32::acquire:
@@ -3948,7 +3845,6 @@ asm_test::fetch_sub::u64::acqrel:
 asm_test::fetch_sub::u64::seqcst:
         neg               x8, x1
         ldaddal           x8, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_sub::u64::acquire:
@@ -3991,13 +3887,11 @@ asm_test::fetch_sub::u128::seqcst:
         sbc               x9, x7, x3
         mov               x5, x7
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_sub::u128::acquire:
@@ -4054,7 +3948,6 @@ asm_test::fetch_xor::u8::acqrel:
 
 asm_test::fetch_xor::u8::seqcst:
         ldeoralb          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_xor::u8::acquire:
@@ -4075,7 +3968,6 @@ asm_test::fetch_xor::u16::acqrel:
 
 asm_test::fetch_xor::u16::seqcst:
         ldeoralh          w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_xor::u16::acquire:
@@ -4096,7 +3988,6 @@ asm_test::fetch_xor::u32::acqrel:
 
 asm_test::fetch_xor::u32::seqcst:
         ldeoral           w1, w0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_xor::u32::acquire:
@@ -4117,7 +4008,6 @@ asm_test::fetch_xor::u64::acqrel:
 
 asm_test::fetch_xor::u64::seqcst:
         ldeoral           x1, x0, [x0]
-        dmb               ish
         ret
 
 asm_test::fetch_xor::u64::acquire:
@@ -4157,13 +4047,11 @@ asm_test::fetch_xor::u128::seqcst:
         eor               x9, x7, x3
         mov               x5, x7
         caspal            x4, x5, x8, x9, [x0]
-        dmb               ish
         cmp               x5, x7
         ccmp              x4, x6, #0x0, eq
         b.ne              0b
         mov               x0, x4
         mov               x1, x5
-        dmb               ish
         ret
 
 asm_test::fetch_xor::u128::acquire:
