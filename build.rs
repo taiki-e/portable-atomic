@@ -185,12 +185,19 @@ fn main() {
                 }
             }
             "powerpc64" => {
-                // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
-                if version.nightly
-                    && version.probe(60, 2022, 2, 12)
-                    && is_allowed_feature("asm_experimental_arch")
-                {
-                    println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                // asm! on PowerPC stabilized in Rust 1.95 (nightly-2026-01-28): https://github.com/rust-lang/rust/pull/147996
+                if !version.probe(95, 2026, 1, 27) {
+                    if version.nightly
+                        && version.probe(60, 2022, 2, 12)
+                        && is_allowed_feature("asm_experimental_arch")
+                    {
+                        // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
+                        // The part of this feature we use has not been changed since nightly-2022-02-13
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
                 }
             }
             _ => {}
@@ -298,7 +305,7 @@ fn main() {
                     target_feature_fallback("lse", lse);
                 }
             }
-            // As of rustc 1.85, target_feature "lsfe" is not available on rustc side:
+            // As of Rust 1.85, target_feature "lsfe" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.85.0/compiler/rustc_target/src/target_features.rs
             target_feature_fallback("lsfe", false);
 
@@ -473,7 +480,7 @@ fn main() {
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
                 target_feature_fallback("miscellaneous-extensions-3", arch13_features);
             }
-            // As of rustc 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
+            // As of Rust 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
             // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
             // bcr 14,0

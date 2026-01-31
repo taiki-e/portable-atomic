@@ -154,7 +154,9 @@ min_stable_toolchain() {
   fi
   case "${target}" in
     arm64ec* | s390x*) toolchain=1.84 ;; # LLVM 19
-    *) toolchain=1.59 ;;                 # LLVM 13
+    # TODO: uncomment once 1.95 is stable
+    # powerpc*) toolchain=1.95 ;; # LLVM 22
+    *) toolchain=1.59 ;; # LLVM 13
   esac
 }
 min_nightly_toolchain() {
@@ -221,6 +223,12 @@ add_matrix() {
         1.5[6-9] | 1.6[0-9] | 1.7[0-9] | 1.8[0-3]) convert_toolchain_for_unstable_asm ;;
       esac
       ;;
+    # TODO: uncomment once 1.95 is stable
+    # powerpc*)
+    #   case "${toolchain}" in
+    #     1.5[6-9] | 1.6[0-9] | 1.7[0-9] | 1.8[0-9] | 1.9[0-4]) convert_toolchain_for_unstable_asm ;;
+    #   esac
+    #   ;;
     *) [[ -z "${require_nightly}" ]] || convert_toolchain_for_unstable_asm ;;
   esac
   if [[ -z "${toolchain}" ]]; then
@@ -314,6 +322,11 @@ for target in "${targets[@]}"; do
       arm64ec* | s390x*)
         case "${toolchain}" in
           1.8[4-6]) toolchain='' ;; # Handled in min stable toolchain
+        esac
+        ;;
+      powerpc*)
+        case "${toolchain}" in
+          1.95) toolchain='' ;; # Handled in min stable toolchain
         esac
         ;;
       aarch64_be*)
