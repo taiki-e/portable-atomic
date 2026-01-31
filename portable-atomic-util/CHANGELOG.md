@@ -12,19 +12,23 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Add `Arc::{new_zeroed,new_zeroed_slice}` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.92](https://github.com/rust-lang/rust/pull/144091))
+- Add `Arc::{new_zeroed,new_zeroed_slice}` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.92](https://github.com/rust-lang/rust/pull/144091)) ([f8affb6](https://github.com/taiki-e/portable-atomic/commit/f8affb661abb1ac928cd78a66bf8fe1e72c42e42), [ae5aba7](https://github.com/taiki-e/portable-atomic/commit/ae5aba7cbe182b5d83b4b4973ccdaab372bef4d6))
 
-- Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717))
+- Implement `Default` for `Pin<Arc<T>: Default>`. (align to the [std `Arc` change in Rust 1.91](https://github.com/rust-lang/rust/pull/143717)) ([2d8d33c](https://github.com/taiki-e/portable-atomic/commit/2d8d33c127126e9d290c6f368f54c2a784b43b57))
 
-- Implement `From<&mut {[T],str}>` for `Arc<{[T],str}>` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.84](https://github.com/rust-lang/rust/pull/129329))
+- Implement `From<&mut {[T],str}>` for `Arc<{[T],str}>` at Rust 1.36+. (align to the [std `Arc` change in Rust 1.84](https://github.com/rust-lang/rust/pull/129329)) ([99640d6](https://github.com/taiki-e/portable-atomic/commit/99640d656fb93c54e3fc255b820f61653d6c425e), [ae5aba7](https://github.com/taiki-e/portable-atomic/commit/ae5aba7cbe182b5d83b4b4973ccdaab372bef4d6))
 
-- Implement `{AsFd, AsRawFd}` for `Arc<T>` on Trusty.
+- Implement `{AsFd, AsRawFd}` for `Arc<T>` on Trusty. ([1b09ffb](https://github.com/taiki-e/portable-atomic/commit/1b09ffbc3010dc64b16e4fdf39742caee933ec7d))
 
-- Support slice-related methods that previously required Rust 1.44+ at Rust 1.36+.
+- Support slice-related methods that previously required Rust 1.44+ at Rust 1.36+. ([ae5aba7](https://github.com/taiki-e/portable-atomic/commit/ae5aba7cbe182b5d83b4b4973ccdaab372bef4d6))
 
-- Support `AsRawFd for Arc<T>` implementation on Unix in all Rust versions. Previously, it was only for Rust 1.63+.
+- Support `AsRawFd for Arc<T>` implementation on Unix in all Rust versions. Previously, it was only for Rust 1.63+. ([1b09ffb](https://github.com/taiki-e/portable-atomic/commit/1b09ffbc3010dc64b16e4fdf39742caee933ec7d))
 
-- Fix build error when building for HermitOS with `std` feature in Rust 1.63-1.68.
+- Fix build error when building for HermitOS with `std` feature in Rust 1.63-1.68. ([1b09ffb](https://github.com/taiki-e/portable-atomic/commit/1b09ffbc3010dc64b16e4fdf39742caee933ec7d))
+
+- Documentation improvements.
+
+- Enable [release immutability](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/immutable-releases).
 
 ## [0.2.4] - 2024-11-23
 
