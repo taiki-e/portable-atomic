@@ -18,7 +18,7 @@ git config user.name 'Taiki Endo'
 git config user.email 'te316e89@gmail.com'
 
 has_update=''
-for path in src/gen/*; do
+for path in src/gen/* .github/workflows/*-matrix.json; do
   git add -N "${path}"
   if ! git diff --exit-code -- "${path}" &>/dev/null; then
     git add "${path}"

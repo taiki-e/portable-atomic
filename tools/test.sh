@@ -325,24 +325,31 @@ run() {
     case "${target}" in
       *-linux-musl*) flags+=" -C target-feature=-crt-static" ;;
     esac
+    skip=''
     case "${target}" in
-      # cannot find crt2.o/rsbegin.o/rsend.o when building std
-      i686-pc-windows-gnu) ;;
-      *)
-        if [[ ${#build_std[@]} -gt 0 ]]; then
-          CARGO_TARGET_DIR="${target_dir}/careful" \
-            RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
-            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
-            x_cargo careful test -Z doctest-xcompile ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
-        else
-          # -Z doctest-xcompile is already passed
-          CARGO_TARGET_DIR="${target_dir}/careful" \
-            RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
-            RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
-            x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
+      # TODO(i686-pc-windows-gnu): cannot find crt2.o/rsbegin.o/rsend.o when building std
+      i686-pc-windows-gnu) skip=1 ;;
+      arm64ec-pc-windows-msvc)
+        if [[ "${rustc_minor_version}" -lt 84 ]]; then
+          # LINK : fatal error LNK1000: unknown error at 00007FF6ABEA2DE8; consult documentation for technical support options␍
+          skip=1
         fi
         ;;
     esac
+    if [[ -z "${skip}" ]]; then
+      if [[ ${#build_std[@]} -gt 0 ]]; then
+        CARGO_TARGET_DIR="${target_dir}/careful" \
+          RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+          RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
+          x_cargo careful test -Z doctest-xcompile ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
+      else
+        # -Z doctest-xcompile is already passed
+        CARGO_TARGET_DIR="${target_dir}/careful" \
+          RUSTFLAGS="${RUSTFLAGS:-}${flags}" \
+          RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${flags}" \
+          x_cargo careful test ${release[@]+"${release[@]}"} ${tests[@]+"${tests[@]}"} "$@"
+      fi
+    fi
   fi
 }
 

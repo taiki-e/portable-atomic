@@ -13,3 +13,5 @@ cd -- "$(dirname -- "$0")"/..
 set -x
 
 ./tools/target_spec.sh
+
+./tools/matrix.sh

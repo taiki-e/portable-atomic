@@ -56,540 +56,22 @@ jobs:
       clippy: false # covered by TESTS=1 ./tools/build.sh
       docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
 
+  prepare:
+    runs-on: ubuntu-slim
+    timeout-minutes: 15 # Max execution time of ubuntu-slim runner.
+    steps:
+      - uses: taiki-e/checkout-action@v1
+      - name: Prepare
+        id: prepare
+        run: printf 'test-matrix=%s\n' "$(jq -c . .github/workflows/test-matrix.json)" >>"${GITHUB_OUTPUT}"
+    outputs:
+      test-matrix: ${{ steps.prepare.outputs.test-matrix }}
+
   test:
-    needs: tidy
+    needs: [prepare, tidy]
     strategy:
       fail-fast: false
-      matrix:
-        # LLVM version table:
-        # - LLVM 3.9: stable 1.14 - 1.18, ?                         - ?
-        # - LLVM 4  : stable 1.19 - 1.24, ?                         - ?
-        # - LLVM 6  : stable 1.25 - 1.28, ?                         - ?
-        # - LLVM 7  : stable 1.29,        ?                         - ?
-        # - LLVM 8  : stable 1.30 - 1.37, ?                         - ?
-        # - LLVM 9  : stable 1.38 - 1.44, ?                         - ?
-        # - LLVM 10 : stable 1.45 - 1.46, ?                         - nightly-2020-08-23 (1.47)
-        # - LLVM 11 : stable 1.47 - 1.51, nightly-2020-08-24 (1.47) - nightly-2021-03-04 (1.52)
-        # - LLVM 12 : stable 1.52 - 1.55, nightly-2021-03-05 (1.52) - nightly-2021-08-21 (1.56)
-        # - LLVM 13 : stable 1.56 - 1.59, nightly-2021-08-22 (1.56) - nightly-2022-02-17 (1.60)
-        # - LLVM 14 : stable 1.60 - 1.64, nightly-2022-02-18 (1.60) - nightly-2022-08-12 (1.65)
-        # - LLVM 15 : stable 1.65 - 1.69, nightly-2022-08-13 (1.65) - nightly-2023-03-25 (1.70)
-        # - LLVM 16 : stable 1.70 - 1.72, nightly-2023-03-26 (1.70) - nightly-2023-08-08 (1.73)
-        # - LLVM 17 : stable 1.73 - 1.77, nightly-2023-08-09 (1.73) - nightly-2024-02-13 (1.78)
-        # - LLVM 18 : stable 1.78 - 1.81, nightly-2024-02-14 (1.78) - nightly-2024-07-31 (1.82)
-        # - LLVM 19 : stable 1.82 - 1.86, nightly-2024-08-01 (1.82) - nightly-2025-02-17 (1.87)
-        # - LLVM 20 : stable 1.87 - 1.90, nightly-2025-02-18 (1.87) - nightly-2025-08-06 (1.91)
-        # - LLVM 21 : stable 1.91 -     , nightly-2025-08-07 (1.91) -                          , since https://github.com/rust-lang/rust/pull/143684
-        # - LLVM 22 :                   ,                                                      , since https://github.com/rust-lang/rust/pull/150722
-        # (see also https://github.com/rust-lang/rust/commits/HEAD/src/llvm-project)
-        # Minimum external LLVM version table:
-        # - LLVM 3.9: stable 1.23 - 1.28, since https://github.com/rust-lang/rust/pull/45326
-        # - LLVM 5  : stable 1.29 - 1.32, since https://github.com/rust-lang/rust/pull/51899
-        # - LLVM 6  : stable 1.33 - 1.40, since https://github.com/rust-lang/rust/pull/56642
-        # - LLVM 7  : stable 1.41 - 1.43, since https://github.com/rust-lang/rust/pull/66973
-        # - LLVM 8  : stable 1.44 - 1.49, since https://github.com/rust-lang/rust/pull/71147
-        # - LLVM 9  : stable 1.50 - 1.52, since https://github.com/rust-lang/rust/pull/78848
-        # - LLVM 10 : stable 1.53 - 1.57, since https://github.com/rust-lang/rust/pull/83387
-        # - LLVM 12 : stable 1.58 - 1.64, since https://github.com/rust-lang/rust/pull/90175
-        # - LLVM 13 : stable 1.65 - 1.68, since https://github.com/rust-lang/rust/pull/100460
-        # - LLVM 14 : stable 1.69 - 1.72, since https://github.com/rust-lang/rust/pull/107573
-        # - LLVM 15 : stable 1.73 - 1.75, since https://github.com/rust-lang/rust/pull/114148
-        # - LLVM 16 : stable 1.76 - 1.78, since https://github.com/rust-lang/rust/pull/117947
-        # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
-        # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
-        # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
-        # - LLVM 20 : stable 1.92       , since https://github.com/rust-lang/rust/pull/145071
-        # Note that some commented-out LLVM version entries are kept here, which may be temporarily uncommented if
-        # needed to investigate possible issues that may arise between LLVM and code generated for certain targets.
-        include:
-          # ------------------------------------------------------------
-          # x86_64-unknown-linux-gnu
-          - rust: '1.56' # LLVM 13
-            target: x86_64-unknown-linux-gnu
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: x86_64-unknown-linux-gnu
-          - rust: '1.59' # LLVM 13
-            target: x86_64-unknown-linux-gnu
-          # - rust: '1.64' # LLVM 14
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.69' # LLVM 15
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.72' # LLVM 16
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.77' # LLVM 17
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.81' # LLVM 18
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.86' # LLVM 19
-          #   target: x86_64-unknown-linux-gnu
-          # - rust: '1.90' # LLVM 20
-          #   target: x86_64-unknown-linux-gnu
-          - rust: stable
-            target: x86_64-unknown-linux-gnu
-          - rust: beta
-            target: x86_64-unknown-linux-gnu
-          - rust: nightly
-            target: x86_64-unknown-linux-gnu
-          - rust: nightly
-            target: x86_64-unknown-linux-gnu
-            flags: -C panic=abort -Z panic_abort_tests
-          - rust: nightly
-            target: x86_64-unknown-linux-gnu
-            flags: -Z codegen-backend=cranelift
-          - rust: nightly
-            target: x86_64-unknown-linux-gnu
-            flags: -Z codegen-backend=gcc
-          # ------------------------------------------------------------
-          # x86_64-apple-darwin
-          - rust: nightly
-            target: x86_64-apple-darwin
-            os: macos-15-intel
-          - rust: nightly
-            target: x86_64-apple-darwin
-            os: macos-latest # Rosetta on AArch64
-          # ------------------------------------------------------------
-          # x86_64-pc-windows-msvc
-
-          - rust: '1.56' # LLVM 13
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - rust: '1.59' # LLVM 13
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          # - rust: '1.64' # LLVM 14
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.69' # LLVM 15
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.72' # LLVM 16
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.77' # LLVM 17
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.81' # LLVM 18
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.86' # LLVM 19
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          # - rust: '1.90' # LLVM 20
-          #   target: x86_64-pc-windows-msvc
-          #   os: windows-latest
-          - rust: stable
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - rust: beta
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          - rust: nightly
-            target: x86_64-pc-windows-msvc
-            os: windows-latest
-          # ------------------------------------------------------------
-          # x86_64-pc-windows-gnu
-          - rust: nightly-x86_64-pc-windows-gnu
-            target: x86_64-pc-windows-gnu
-            os: windows-latest
-          # ------------------------------------------------------------
-          # i586-unknown-linux-gnu
-          - rust: nightly
-            target: i586-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # i686-unknown-linux-gnu
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: i686-unknown-linux-gnu
-          - rust: '1.59' # LLVM 13
-            target: i686-unknown-linux-gnu
-          # - rust: '1.64' # LLVM 14
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.69' # LLVM 15
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.72' # LLVM 16
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.77' # LLVM 17
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.81' # LLVM 18
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.86' # LLVM 19
-          #   target: i686-unknown-linux-gnu
-          # - rust: '1.90' # LLVM 20
-          #   target: i686-unknown-linux-gnu
-          - rust: stable
-            target: i686-unknown-linux-gnu
-          # - rust: beta
-          #   target: i686-unknown-linux-gnu
-          - rust: nightly
-            target: i686-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # i686-pc-windows-msvc
-          - rust: nightly-i686-pc-windows-msvc
-            target: i686-pc-windows-msvc
-            os: windows-latest
-          # ------------------------------------------------------------
-          # i686-pc-windows-gnu
-          - rust: nightly-i686-pc-windows-gnu
-            target: i686-pc-windows-gnu
-            os: windows-latest
-          # ------------------------------------------------------------
-          # aarch64-unknown-linux-gnu
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-          - rust: '1.59' # LLVM 13
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-          # - rust: '1.64' # LLVM 14
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.69' # LLVM 15
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.72' # LLVM 16
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.77' # LLVM 17
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.81' # LLVM 18
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.86' # LLVM 19
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          # - rust: '1.90' # LLVM 20
-          #   target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-24.04-arm
-          - rust: stable
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-          - rust: beta
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest # QEMU on x86_64
-          - rust: nightly
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
-            flags: -Z codegen-backend=cranelift
-          # ------------------------------------------------------------
-          # aarch64-apple-darwin
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: aarch64-apple-darwin
-            os: macos-latest
-          - rust: '1.59' # LLVM 13
-            target: aarch64-apple-darwin
-            os: macos-latest
-          # - rust: '1.64' # LLVM 14
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.69' # LLVM 15
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.72' # LLVM 16
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.77' # LLVM 17
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.81' # LLVM 18
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.86' # LLVM 19
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          # - rust: '1.90' # LLVM 20
-          #   target: aarch64-apple-darwin
-          #   os: macos-latest
-          - rust: stable
-            target: aarch64-apple-darwin
-            os: macos-latest
-          - rust: beta
-            target: aarch64-apple-darwin
-            os: macos-latest
-          - rust: nightly
-            target: aarch64-apple-darwin
-            os: macos-latest
-          # ------------------------------------------------------------
-          # aarch64-apple-ios-macabi
-          - rust: nightly
-            target: aarch64-apple-ios-macabi
-            os: macos-latest
-          # ------------------------------------------------------------
-          # aarch64-pc-windows-msvc
-          - rust: nightly
-            target: aarch64-pc-windows-msvc
-            os: windows-11-arm
-          # ------------------------------------------------------------
-          # aarch64-pc-windows-gnullvm
-          - rust: nightly
-            target: aarch64-pc-windows-gnullvm
-            os: windows-11-arm
-          # ------------------------------------------------------------
-          # aarch64_be-unknown-linux-gnu
-          - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
-            target: aarch64_be-unknown-linux-gnu
-          # - rust: nightly-2024-11-07 # Rust 1.84, LLVM 19 (broken on nightly-2025-02-17 due to https://github.com/rust-lang/stdarch/issues/1484)
-          #   target: aarch64_be-unknown-linux-gnu
-          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
-          #   target: aarch64_be-unknown-linux-gnu
-          - rust: nightly
-            target: aarch64_be-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # arm64ec-pc-windows-msvc
-          - rust: '1.84' # LLVM 19 (inline asm for arm64ec has been stabilized in Rust 1.84)
-            target: arm64ec-pc-windows-msvc
-            os: windows-11-arm
-          # - rust: '1.90' # LLVM 20
-          #   target: arm64ec-pc-windows-msvc
-          #   os: windows-11-arm
-          - rust: stable
-            target: arm64ec-pc-windows-msvc
-            os: windows-11-arm
-          # - rust: beta
-          #   target: arm64ec-pc-windows-msvc
-          #   os: windows-11-arm
-          - rust: nightly
-            target: arm64ec-pc-windows-msvc
-            os: windows-11-arm
-          # ------------------------------------------------------------
-          # aarch64-unknown-linux-musl
-          - rust: stable
-            target: aarch64-unknown-linux-musl
-          - rust: stable
-            target: aarch64-unknown-linux-musl
-            flags: -C target-feature=-crt-static
-          - rust: nightly
-            target: aarch64-unknown-linux-musl
-          - rust: nightly
-            target: aarch64-unknown-linux-musl
-            flags: -C target-feature=-crt-static
-          # ------------------------------------------------------------
-          # aarch64-linux-android
-          - rust: stable
-            target: aarch64-linux-android
-          - rust: nightly
-            target: aarch64-linux-android
-          # ------------------------------------------------------------
-          # armv5te-unknown-linux-gnueabi
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: armv5te-unknown-linux-gnueabi
-          - rust: '1.59' # LLVM 13
-            target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.64' # LLVM 14
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.69' # LLVM 15
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.72' # LLVM 16
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.77' # LLVM 17
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.81' # LLVM 18
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.86' # LLVM 19
-          #   target: armv5te-unknown-linux-gnueabi
-          # - rust: '1.90' # LLVM 20
-          #   target: armv5te-unknown-linux-gnueabi
-          - rust: stable
-            target: armv5te-unknown-linux-gnueabi
-          # - rust: beta
-          #   target: armv5te-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv5te-unknown-linux-gnueabi
-          # ------------------------------------------------------------
-          # arm-unknown-linux-gnueabi
-          - rust: nightly
-            target: arm-unknown-linux-gnueabi
-          # ------------------------------------------------------------
-          # armv7-unknown-linux-gnueabi
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabi
-          # ------------------------------------------------------------
-          # armv7-unknown-linux-gnueabihf
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-24.04-arm
-          - rust: nightly
-            target: armv7-unknown-linux-gnueabihf
-            os: ubuntu-latest # QEMU on x86_64
-          # ------------------------------------------------------------
-          # armeb-unknown-linux-gnueabi
-          - rust: nightly
-            target: armeb-unknown-linux-gnueabi
-            os: ubuntu-22.04
-          # ------------------------------------------------------------
-          # arm-linux-androideabi
-          # TODO: backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
-          - rust: nightly-2024-08-30
-            target: arm-linux-androideabi
-          # ------------------------------------------------------------
-          # thumbv7neon-unknown-linux-gnueabihf
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-            os: ubuntu-24.04-arm
-          - rust: nightly
-            target: thumbv7neon-unknown-linux-gnueabihf
-            os: ubuntu-latest # QEMU on x86_64
-          # ------------------------------------------------------------
-          # loongarch64-unknown-linux-gnu
-          - rust: nightly
-            target: loongarch64-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # mips-unknown-linux-gnu
-          - rust: nightly
-            target: mips-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # mipsel-unknown-linux-gnu
-          - rust: nightly
-            target: mipsel-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # mips64-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mips64-unknown-linux-gnuabi64
-          # ------------------------------------------------------------
-          # mips64el-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mips64el-unknown-linux-gnuabi64
-          # ------------------------------------------------------------
-          # mipsisa32r6-unknown-linux-gnu
-          - rust: nightly
-            target: mipsisa32r6-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # mipsisa32r6el-unknown-linux-gnu
-          - rust: nightly
-            target: mipsisa32r6el-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # mipsisa64r6-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mipsisa64r6-unknown-linux-gnuabi64
-          # ------------------------------------------------------------
-          # mipsisa64r6el-unknown-linux-gnuabi64
-          - rust: nightly
-            target: mipsisa64r6el-unknown-linux-gnuabi64
-          # ------------------------------------------------------------
-          # powerpc-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # powerpc64-unknown-linux-gnu
-          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
-            target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
-          #   target: powerpc64-unknown-linux-gnu
-          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
-          #   target: powerpc64-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc64-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # powerpc64le-unknown-linux-gnu
-          - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
-            target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
-          #   target: powerpc64le-unknown-linux-gnu
-          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
-          #   target: powerpc64le-unknown-linux-gnu
-          - rust: nightly
-            target: powerpc64le-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # riscv32gc-unknown-linux-gnu
-          - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
-            target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
-          #   target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
-          #   target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
-          #   target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
-          #   target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
-          #   target: riscv32gc-unknown-linux-gnu
-          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
-          #   target: riscv32gc-unknown-linux-gnu
-          - rust: nightly
-            target: riscv32gc-unknown-linux-gnu
-          # ------------------------------------------------------------
-          # riscv64gc-unknown-linux-gnu
-          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
-            target: riscv64gc-unknown-linux-gnu
-          - rust: '1.59' # LLVM 13
-            target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.64' # LLVM 14
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.69' # LLVM 15
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.72' # LLVM 16
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.77' # LLVM 17
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.81' # LLVM 18
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.86' # LLVM 19
-          #   target: riscv64gc-unknown-linux-gnu
-          # - rust: '1.90' # LLVM 20
-          #   target: riscv64gc-unknown-linux-gnu
-          - rust: stable
-            target: riscv64gc-unknown-linux-gnu
-          # - rust: beta
-          #   target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
-            target: riscv64gc-unknown-linux-gnu
-          - rust: nightly
-            target: riscv64gc-unknown-linux-gnu
-            flags: -Z codegen-backend=cranelift
-          # ------------------------------------------------------------
-          # s390x-unknown-linux-gnu
-          - rust: nightly-2023-05-09 # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
-            target: s390x-unknown-linux-gnu
-          # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
-          #   target: s390x-unknown-linux-gnu
-          # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
-          #   target: s390x-unknown-linux-gnu
-          - rust: '1.84' # LLVM 19 (inline asm for s390x has been stabilized in Rust 1.84)
-            target: s390x-unknown-linux-gnu
-          # - rust: '1.90' # LLVM 20
-          #   target: s390x-unknown-linux-gnu
-          - rust: stable
-            target: s390x-unknown-linux-gnu
-          # - rust: beta
-          #   target: s390x-unknown-linux-gnu
-          - rust: nightly
-            target: s390x-unknown-linux-gnu
-          # TODO(cranelift): cranelift doesn't support inline assembly on s390x yet
-          # - rust: nightly
-          #   target: s390x-unknown-linux-gnu
-          #   flags: -Z codegen-backend=cranelift
-          # ------------------------------------------------------------
-          # sparc64-unknown-linux-gnu
-          - rust: nightly
-            target: sparc64-unknown-linux-gnu
+      matrix: ${{ fromJSON(needs.prepare.outputs.test-matrix) }}
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 120 # TODO: reduce
     steps:
@@ -614,38 +96,49 @@ jobs:
           toolchain: ${{ matrix.rust }}
       - id: prepare
         run: |
-          if [[ "${{ matrix.target }}" == '' ]]; then
+          if [[ "${TARGET}" == '' ]]; then
             printf 'matrix.target must be set\n'
             exit 1
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
-          if [[ "${host}" != "${{ matrix.target }}" ]]; then
-            printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+          if [[ "${host}" != "${TARGET}" ]]; then
+            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
             printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
           fi
-          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${{ matrix.target }}" | tr '\n' ',')"
+          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}" | tr '\n' ',')"
           printf 'cfgs=%s\n' "${cfgs}" >>"${GITHUB_OUTPUT}"
+        env:
+          TARGET: ${{ matrix.target }}
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
         if: steps.prepare.outputs.target-not-host == 'true'
       - run: |
-          target="${{ matrix.target }}"
-          target_lower="${target//-/_}"
+          target_lower="${TARGET//-/_}"
           target_lower="${target_lower//./_}"
           target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
+          flags=''
           if [[ "$(eval "printf '%s\n' \${CARGO_TARGET_${target_upper}_RUNNER:-}")" == *"qemu"* ]]; then
-            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg qemu" >>"${GITHUB_ENV}"
+            flags+=" --cfg qemu"
           fi
-      - run: |
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${{ matrix.flags }}" >>"${GITHUB_ENV}"
-        if: matrix.flags != ''
-      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -D linker_messages" >>"${GITHUB_ENV}"
-        # TODO(aarch64-pc-windows-msvc): error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run
-        # TODO(aarch64-pc-windows-gnullvm): error: linker stderr: clang-18: argument unused during compilation: '-nolibc' [-Wunused-command-line-argument]␍
-        #                                                         clang-18: argument unused during compilation: '-no-pie' [-Wunused-command-line-argument]␍
-        if: matrix.rust == 'nightly' && !startsWith(matrix.target, 'aarch64-pc-windows-')
+          if [[ -n "${FLAGS}" ]]; then
+            flags+=" ${FLAGS}"
+          fi
+          if [[ "${RUST}" == "nightly" ]]; then
+            case "${TARGET}" in
+              # TODO(windows): error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run
+              *-darwin* | aarch64*-windows-* | csky*) ;;
+              *) flags+=" -D linker_messages" ;;
+            esac
+          fi
+          if [[ -n "${flags}" ]]; then
+            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${flags}" >>"${GITHUB_ENV}"
+            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${flags}" >>"${GITHUB_ENV}"
+          fi
+        env:
+          TARGET: ${{ matrix.target }}
+          FLAGS: ${{ matrix.flags }}
+          RUST: ${{ matrix.rust }}
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
@@ -814,12 +307,14 @@ jobs:
         if: startsWith(matrix.target, 's390x')
 
       # Skip targets that also checked by "build" job.
-      - run: tools/build.sh ${{ matrix.target || 'host' }}
+      - run: tools/build.sh "${TARGET}"
         env:
           SKIP_DEFAULT_TARGET: 1
-      - run: TESTS=1 tools/build.sh ${{ matrix.target || 'host' }}
+          TARGET: ${{ matrix.target }}
+      - run: TESTS=1 tools/build.sh "${TARGET}"
         env:
           SKIP_DEFAULT_TARGET: 1
+          TARGET: ${{ matrix.target }}
 
       - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
         if: matrix.rust != 'nightly-2021-08-21'
@@ -962,6 +457,7 @@ jobs:
           # - '1.77' # LLVM 17
           # - '1.81' # LLVM 18
           # - '1.86' # LLVM 19
+          # - '1.90' # LLVM 20
           - stable
           # - nightly-2022-08-12 # Rust 1.65, LLVM 14
           # - nightly-2023-03-25 # Rust 1.70, LLVM 15
@@ -969,6 +465,7 @@ jobs:
           # - nightly-2024-02-13 # Rust 1.78, LLVM 17
           # - nightly-2024-07-31 # Rust 1.82, LLVM 18
           # - nightly-2025-02-17 # Rust 1.87, LLVM 19
+          # - nightly-2025-08-06 # Rust 1.91, LLVM 20
           - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -1150,6 +647,9 @@ jobs:
             os: ubuntu-24.04-arm
           - target: armv7-unknown-linux-gnueabihf
             os: ubuntu-24.04-arm
+          # TODO: "unhandled instruction: 0x4508 0xD103" in atomic_sub in Arc::drop (as of Valgrind 3.26)
+          # - target: thumbv7neon-unknown-linux-gnueabihf
+          #   os: ubuntu-24.04-arm
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     timeout-minutes: 60
     steps:
@@ -1158,14 +658,16 @@ jobs:
       - uses: taiki-e/install-action@cargo-hack
       - id: prepare
         run: |
-          if [[ "${{ matrix.target }}" == '' ]]; then
+          if [[ "${TARGET}" == '' ]]; then
             printf 'matrix.target must be set\n'
             exit 1
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
-          if [[ "${host}" != "${{ matrix.target }}" ]]; then
-            printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+          if [[ "${host}" != "${TARGET}" ]]; then
+            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
           fi
+        env:
+          TARGET: ${{ matrix.target }}
       # - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/setup-cross-toolchain-action@v1
         with:
@@ -1226,45 +728,47 @@ jobs:
           export CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true
           # Skip debug mode because it's slow.
           binary_path=$(
-            ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+            ./tools/test.sh build-valgrind --target "${TARGET}" --release
           )
           mv -- "${binary_path}" ./release
           binary_path=$(
             CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
               CARGO_PROFILE_RELEASE_LTO=fat \
-              ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+              ./tools/test.sh build-valgrind --target "${TARGET}" --release
           )
           mv -- "${binary_path}" ./release-fat-lto
-          case "${{ matrix.target }}" in
+          case "${TARGET}" in
             s390x*)
               # s390x z196 (arch9)
               binary_path=$(
                 RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z196" \
-                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+                  ./tools/test.sh build-valgrind --target "${TARGET}" --release
               )
               mv -- "${binary_path}" ./release-z196
               binary_path=$(
                 RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z196" \
                   CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
                   CARGO_PROFILE_RELEASE_LTO=fat \
-                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+                  ./tools/test.sh build-valgrind --target "${TARGET}" --release
               )
               mv -- "${binary_path}" ./release-z196-fat-lto
               # s390x z15 (arch13)
               binary_path=$(
                 RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z15" \
-                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+                  ./tools/test.sh build-valgrind --target "${TARGET}" --release
               )
               mv -- "${binary_path}" ./release-z15
               binary_path=$(
                 RUSTFLAGS="${RUSTFLAGS:-} -C target-cpu=z15" \
                   CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
                   CARGO_PROFILE_RELEASE_LTO=fat \
-                  ./tools/test.sh build-valgrind --target "${{ matrix.target }}" --release
+                  ./tools/test.sh build-valgrind --target "${TARGET}" --release
               )
               mv -- "${binary_path}" ./release-z15-fat-lto
               ;;
           esac
+        env:
+          TARGET: ${{ matrix.target }}
       - uses: uraimo/run-on-arch-action@v3
         with:
           arch: none

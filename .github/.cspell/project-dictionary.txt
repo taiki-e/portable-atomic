@@ -122,7 +122,6 @@ negs
 newrepo
 newtype
 nngrk
-nolibc
 nostartfiles
 osxsave
 outputdir
@@ -197,7 +196,6 @@ vtable
 vtables
 wfxt
 wokwi
-Wunused
 xadd
 xchg
 xgetbv
