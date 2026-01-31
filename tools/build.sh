@@ -321,7 +321,7 @@ build() {
         xtensa*) return 0 ;;
         # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25 (last checked: nightly-2025-09-11)
         amdgcn*) return 0 ;;
-        # error: symbol 'fma' is already defined (last checked: nightly-2025-09-13)
+        # error: symbol 'fma' is already defined (last checked: nightly-2025-09-13) https://github.com/rust-lang/compiler-builtins/pull/1066
         hexagon*) return 0 ;;
         # compiler SIGSEGV (last checked: nightly-2025-09-11)
         m68k-unknown-none-elf) return 0 ;;
@@ -665,14 +665,14 @@ build() {
         CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-no-outline-atomics" \
           RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics" \
           x_cargo "${args[@]}" "$@"
-        # Skip soft-float due to "rustc-LLVM ERROR: Unknown mismatch in getCopyFromParts!" error when setting +avx.
-        if ! grep -Eq '^target_feature="soft-float"' <<<"${cfgs}"; then
+        # Skip soft-float targets due to "rustc-LLVM ERROR: Unknown mismatch in getCopyFromParts!" error when setting +avx.
+        if grep -Eq '^target_feature="sse"' <<<"${cfgs}"; then
           CARGO_TARGET_DIR="${target_dir}/no-cmpxchg16b-avx" \
             RUSTFLAGS="${target_rustflags} -C target-feature=+avx" \
             x_cargo "${args[@]}" "$@"
         fi
       fi
-      if ! grep -Eq '^target_feature="soft-float"' <<<"${cfgs}"; then
+      if grep -Eq '^target_feature="sse"' <<<"${cfgs}"; then
         CARGO_TARGET_DIR="${target_dir}/cmpxchg16b-avx" \
           RUSTFLAGS="${target_rustflags} -C target-feature=+cmpxchg16b,+avx" \
           x_cargo "${args[@]}" "$@"
