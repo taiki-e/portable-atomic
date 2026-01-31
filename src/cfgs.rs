@@ -285,7 +285,7 @@ mod atomic_64_macros {
                 any(miri, portable_atomic_sanitize_thread),
                 not(portable_atomic_atomic_intrinsics),
             )),
-            portable_atomic_unstable_asm_experimental_arch,
+            not(portable_atomic_no_asm),
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics",
@@ -374,7 +374,7 @@ mod atomic_128_macros {
                 any(miri, portable_atomic_sanitize_thread),
                 not(portable_atomic_atomic_intrinsics),
             )),
-            portable_atomic_unstable_asm_experimental_arch,
+            not(portable_atomic_no_asm),
             any(
                 target_feature = "quadword-atomics",
                 portable_atomic_target_feature = "quadword-atomics",

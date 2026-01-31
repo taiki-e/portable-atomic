@@ -187,7 +187,7 @@ macro_rules! atomic {
                 ),
                 all(
                     target_arch = "powerpc64",
-                    portable_atomic_unstable_asm_experimental_arch,
+                    not(portable_atomic_no_asm),
                     not(portable_atomic_no_outline_atomics),
                     any(
                         all(
@@ -292,7 +292,7 @@ macro_rules! atomic {
                 ),
                 all(
                     target_arch = "powerpc64",
-                    portable_atomic_unstable_asm_experimental_arch,
+                    not(portable_atomic_no_asm),
                     not(portable_atomic_no_outline_atomics),
                     any(
                         all(
