@@ -19,7 +19,7 @@ fastrand = "2"
 paste = "1"
 quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", rev = "83b1d59" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "f1261a5" }
+test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "e2e8e37" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "0.2"
