@@ -81,6 +81,45 @@ fn make_mut_clone_panic() {
     drop(v1);
 }
 
+/// Test that a panic from a destructor does not leak the allocation.
+#[test]
+fn panic_no_leak() {
+    // use std::alloc::{AllocError, Allocator, Global, Layout};
+    use std::panic::{AssertUnwindSafe, catch_unwind};
+    // use std::ptr::NonNull;
+
+    // TODO: no custom allocator support
+    // struct AllocCount(Cell<i32>);
+    // unsafe impl Allocator for AllocCount {
+    //     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+    //         self.0.set(self.0.get() + 1);
+    //         Global.allocate(layout)
+    //     }
+    //     unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
+    //         self.0.set(self.0.get() - 1);
+    //         unsafe { Global.deallocate(ptr, layout) }
+    //     }
+    // }
+
+    struct PanicOnDrop;
+    impl Drop for PanicOnDrop {
+        fn drop(&mut self) {
+            panic!("PanicOnDrop");
+        }
+    }
+
+    if !is_panic_abort() {
+        // let alloc = AllocCount(Cell::new(0));
+        // let rc = Arc::new_in(PanicOnDrop, &alloc);
+        let rc = Arc::new(PanicOnDrop);
+        // assert_eq!(alloc.0.get(), 1);
+
+        let panic_message = catch_unwind(AssertUnwindSafe(|| drop(rc))).unwrap_err();
+        assert_eq!(*panic_message.downcast_ref::<&'static str>().unwrap(), "PanicOnDrop");
+        // assert_eq!(alloc.0.get(), 0);
+    }
+}
+
 #[test]
 fn weak_dangling() {
     let w = Weak::<Aligned>::new();
