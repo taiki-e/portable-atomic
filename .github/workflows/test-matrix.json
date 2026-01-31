@@ -323,19 +323,19 @@
       "target": "mips64el-unknown-linux-gnuabi64"
     },
     {
-      "rust": "nightly",
+      "rust": "nightly-2026-01-28",
       "target": "mipsisa32r6-unknown-linux-gnu"
     },
     {
-      "rust": "nightly",
+      "rust": "nightly-2026-01-28",
       "target": "mipsisa32r6el-unknown-linux-gnu"
     },
     {
-      "rust": "nightly",
+      "rust": "nightly-2026-01-28",
       "target": "mipsisa64r6-unknown-linux-gnuabi64"
     },
     {
-      "rust": "nightly",
+      "rust": "nightly-2026-01-28",
       "target": "mipsisa64r6el-unknown-linux-gnuabi64"
     },
     {

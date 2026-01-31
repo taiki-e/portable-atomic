@@ -325,6 +325,8 @@ build() {
         hexagon*) return 0 ;;
         # compiler SIGSEGV (last checked: nightly-2025-09-11)
         m68k-unknown-none-elf) return 0 ;;
+        # TODO(mips): compiler SIGILL with LLVM 22
+        mipsisa*) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then

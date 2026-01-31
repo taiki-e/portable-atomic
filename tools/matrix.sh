@@ -342,6 +342,11 @@ for target in "${targets[@]}"; do
           nightly) toolchain=nightly-2024-08-30 ;;
         esac
         ;;
+      mipsisa*)
+        case "${toolchain}" in
+          nightly) toolchain=nightly-2026-01-28 ;; # TODO(mips): compiler SIGILL with LLVM 22
+        esac
+        ;;
     esac
     add_matrix
   done
