@@ -296,6 +296,9 @@ build() {
       return 0
     fi
     local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
+    if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
+      args+=(-Z json-target-spec)
+    fi
   elif [[ "${target}" != "${host}" ]]; then
     local target_flags=(--target "${target}")
   else

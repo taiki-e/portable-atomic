@@ -169,6 +169,9 @@ if [[ -n "${target}" ]]; then
       bail "target '${target}' not available on ${rustc_version}"
     fi
     target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
+    if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
+      target_flags+=(-Z json-target-spec)
+    fi
   else
     target_flags=(--target "${target}")
   fi

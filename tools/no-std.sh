@@ -159,6 +159,11 @@ run() {
       return 0
     fi
     local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
+    if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
+      if [[ "${target}" != "avr-unknown-gnu-atmega2560" ]]; then
+        target_flags+=(-Z json-target-spec)
+      fi
+    fi
   else
     local target_flags=(--target "${target}")
   fi
