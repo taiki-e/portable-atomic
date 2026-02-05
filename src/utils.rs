@@ -356,7 +356,7 @@ pub(crate) fn unlikely(b: bool) -> bool {
 }
 
 // Equivalent to core::hint::assert_unchecked, but compatible with pre-1.81 rustc.
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64", target_arch = "xtensa"))]
 #[allow(dead_code)]
 #[inline(always)]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
@@ -507,16 +507,16 @@ pub(crate) struct Pair<T: Copy> {
     pub(crate) lo: T,
 }
 
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "xtensa"))]
 type MinWord = u32;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "xtensa"))]
 type RetInt = u32;
 // Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.6/src/utils.rs#L255.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
 // Refs: https://github.com/llvm/llvm-project/blob/llvmorg-21.1.0/llvm/lib/CodeGen/AtomicExpandPass.cpp#L812
 // (aligned_ptr, shift, mask)
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "xtensa"))]
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
