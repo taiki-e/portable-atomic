@@ -405,6 +405,7 @@ macro_rules! atomic_asm {
                                 val = in(reg) val,
                                 out = out(reg) out,
                                 tmp = out(reg) _,
+                                out("scompare1") _,
                                 options(nostack, preserves_flags),
                             )
                         };
@@ -444,6 +445,7 @@ macro_rules! atomic_asm {
                                 old = in(reg) old,
                                 out = inout(reg) new => out,
                                 r = inout(reg) r,
+                                out("scompare1") _,
                                 options(nostack, preserves_flags),
                             )
                         };
@@ -501,6 +503,8 @@ macro_rules! atomic_asm_sub_word {
                                 shift = in(reg) shift,
                                 mask = inout(reg) mask => _,
                                 tmp = out(reg) _,
+                                out("scompare1") _,
+                                out("sar") _,
                                 options(nostack, preserves_flags),
                             )
                         };
@@ -561,6 +565,8 @@ macro_rules! atomic_asm_sub_word {
                                 mask = inout(reg) mask => _,
                                 tmp = out(reg) _,
                                 r = inout(reg) r,
+                                out("scompare1") _,
+                                out("sar") _,
                                 options(nostack, preserves_flags),
                             )
                         };
