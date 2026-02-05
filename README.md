@@ -225,8 +225,10 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
+- [asmtest]: A library for tracking generated assemblies.
 
 [#60]: https://github.com/taiki-e/portable-atomic/issues/60
+[asmtest]: https://github.com/taiki-e/asmtest
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [critical-section]: https://github.com/rust-embedded/critical-section
