@@ -275,6 +275,7 @@ build() {
   shift
   local args=("${base_args[@]}")
   local target_rustflags="${base_rustflags}"
+  local rustc_target_flags=()
   if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
     if [[ "${target}" == "avr-none" ]]; then
       target=avr-unknown-gnu-atmega2560 # custom target
@@ -295,19 +296,21 @@ build() {
       info "target '${target}' requires 1.91-nightly or later (skipped)"
       return 0
     fi
-    local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
     if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
       args+=(-Z json-target-spec)
+      rustc_target_flags+=(-Z unstable-options)
     fi
+    args+=(--target "${workspace_dir}/target-specs/${target}.json")
+    rustc_target_flags+=(--target "${workspace_dir}/target-specs/${target}.json")
   elif [[ "${target}" != "${host}" ]]; then
-    local target_flags=(--target "${target}")
+    args+=(--target "${target}")
+    rustc_target_flags+=(--target "${target}")
   else
-    local no_target_flags='1'
+    local no_target_flags=1
   fi
-  args+=(${target_flags[@]+"${target_flags[@]}"})
   local cfgs
   if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${rustc_target_flags[@]+"${rustc_target_flags[@]}"})
     retry rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
     # core/alloc/std sets feature(strict_provenance_lints), so we cannot use
     # -Z crate-attr=feature(strict_provenance_lints) when -Z build-std is needed.
@@ -318,7 +321,7 @@ build() {
       info "-Z build-std not available on ${rustc_version} (skipped all checks for '${target}')"
       return 0
     fi
-    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${target_flags[@]+"${target_flags[@]}"})
+    cfgs=$(RUSTC_BOOTSTRAP=1 rustc ${pre_args[@]+"${pre_args[@]}"} --print cfg ${rustc_target_flags[@]+"${rustc_target_flags[@]}"})
     if [[ -n "${TARGET_GROUP:-}" ]]; then
       case "${target}" in
         # builtin xtensa targets are completely broken with builtin LLVM (last checked: nightly-2025-09-11): https://github.com/rust-lang/rust/pull/125141#discussion_r1637484228
@@ -633,14 +636,14 @@ build() {
       if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
         if grep -Eq '^target_feature="crt-static"' <<<"${cfgs}"; then
           CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
-            RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static" \
             x_cargo "${args[@]}" "$@"
           CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
-            RUSTFLAGS="${target_rustflags} -C target_feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
             x_cargo "${args[@]}" "$@"
         else
           CARGO_TARGET_DIR="${target_dir}/crt-static" \
-            RUSTFLAGS="${target_rustflags} -C target_feature=+crt-static" \
+            RUSTFLAGS="${target_rustflags} -C target-feature=+crt-static" \
             x_cargo "${args[@]}" ${no_target_flags+"--target=${target}"} "$@"
         fi
       fi
