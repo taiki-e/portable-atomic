@@ -124,8 +124,76 @@ items!({
                 }
             }
         };
-        (boolean, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt) => {
+        (boolean_fetch, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt) => {
             atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
+            impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+                #[inline]
+                pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_and(val, order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_or(val, order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_xor(val, order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_not(order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_neg(&self, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_neg(order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_nand(val, order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_min(val, order)
+                    )
+                }
+
+                #[inline]
+                pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_max(val, order)
+                    )
+                }
+            }
+        };
+        (boolean, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt) => {
+            atomic!(boolean_fetch, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
                 pub(crate) fn and(&self, val: $int_type, order: Ordering) {
@@ -151,64 +219,25 @@ items!({
                 pub(crate) fn neg(&self, order: Ordering) {
                     self.fetch_neg(order);
                 }
-
-                #[inline]
-                pub(crate) fn fetch_and(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_or(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_xor(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_not(&self, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_neg(&self, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_nor(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_nand(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_min(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_max(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
             }
         };
         (ptr, $([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt) => {
-            atomic!(boolean, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
+            atomic!(boolean_fetch, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
-                pub(crate) fn fetch_byte_sub(&self, _val: usize, _order: Ordering) -> $value_type {
-                    loop {}
+                pub(crate) fn fetch_byte_sub(&self, val: usize, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_byte_sub(val, order)
+                    )
                 }
 
                 #[inline]
-                pub(crate) fn fetch_byte_add(&self, _val: usize, _order: Ordering) -> $value_type {
-                    loop {}
+                pub(crate) fn fetch_byte_add(&self, val: usize, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_byte_add(val, order)
+                    )
                 }
             }
         };
@@ -226,13 +255,19 @@ items!({
                 }
 
                 #[inline]
-                pub(crate) fn fetch_sub(&self, _val: $value_type, _order: Ordering) -> $value_type {
-                    loop {}
+                pub(crate) fn fetch_sub(&self, val: $value_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_sub(val, order)
+                    )
                 }
 
                 #[inline]
-                pub(crate) fn fetch_add(&self, _val: $value_type, _order: Ordering) -> $value_type {
-                    loop {}
+                pub(crate) fn fetch_add(&self, val: $value_type, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        loop {},
+                        self.v.fetch_add(val, order)
+                    )
                 }
             }
         };
