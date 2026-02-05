@@ -514,7 +514,8 @@ jobs:
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${{ matrix.rust }}" == "stable" ]]; then
-            retry espup install --targets esp32s2
+            # Use the latest toolchain once upstream bug fixed.
+            retry espup install --targets esp32s2 --toolchain-version 1.90.0
           fi
           # https://github.com/taiki-e/dockerfiles/pkgs/container/qemu-system
           retry docker create --name qemu-system ghcr.io/taiki-e/qemu-system
@@ -812,6 +813,7 @@ jobs:
             done
             "$@"
           }
-          retry espup install --targets esp32
+          # Use the latest toolchain once upstream bug fixed.
+          retry espup install --targets esp32s2 --toolchain-version 1.90.0
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml
       - run: cargo +esp test --manifest-path tests/asm-test/Cargo.toml
