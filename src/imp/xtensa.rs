@@ -76,7 +76,7 @@ items!({
                     failure: Ordering,
                 ) -> Result<$value_type, $value_type> {
                     dispatch_impl!(self,
-                        to_result(unsafe { <$value_type as AtomicCompareExchange>::atomic_compare_exchange(self.v.as_ptr(), current, new, success, failure) }),
+                        to_result(unsafe { <$value_type>::atomic_compare_exchange(self.v.as_ptr(), current, new, success, failure) }),
                         self.v.compare_exchange(current, new, success, failure)
                     )
                 }
@@ -90,7 +90,7 @@ items!({
                     failure: Ordering,
                 ) -> Result<$value_type, $value_type> {
                     dispatch_impl!(self,
-                        to_result(unsafe { <$value_type as AtomicCompareExchange>::atomic_compare_exchange_weak(self.v.as_ptr(), current, new, success, failure) }),
+                        to_result(unsafe { <$value_type>::atomic_compare_exchange_weak(self.v.as_ptr(), current, new, success, failure) }),
                         self.v.compare_exchange_weak(current, new, success, failure)
                     )
                 }
@@ -104,8 +104,11 @@ items!({
                     all(debug_assertions, not(portable_atomic_no_track_caller)),
                     track_caller
                 )]
-                pub(crate) fn load(&self, _order: Ordering) -> $value_type {
-                    loop {}
+                pub(crate) fn load(&self, order: Ordering) -> $value_type {
+                    dispatch_impl!(self,
+                        unsafe { <$value_type>::atomic_load(self.v.as_ptr(), order) },
+                        self.v.load(order)
+                    )
                 }
 
                 #[inline]
@@ -113,8 +116,11 @@ items!({
                     all(debug_assertions, not(portable_atomic_no_track_caller)),
                     track_caller
                 )]
-                pub(crate) fn store(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn store(&self, val: $value_type, order: Ordering) {
+                    dispatch_impl!(self,
+                        unsafe { <$value_type>::atomic_store(self.v.as_ptr(), val, order) },
+                        self.v.store(val, order)
+                    )
                 }
             }
         };
@@ -122,37 +128,32 @@ items!({
             atomic!(load_store, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
-                pub(crate) fn add(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn and(&self, val: $int_type, order: Ordering) {
+                    self.fetch_and(val, order);
                 }
 
                 #[inline]
-                pub(crate) fn sub(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn or(&self, val: $int_type, order: Ordering) {
+                    self.fetch_or(val, order);
                 }
 
                 #[inline]
-                pub(crate) fn and(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn xor(&self, val: $int_type, order: Ordering) {
+                    self.fetch_xor(val, order);
                 }
 
                 #[inline]
-                pub(crate) fn or(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn not(&self, order: Ordering) {
+                    self.fetch_not(order);
                 }
 
                 #[inline]
-                pub(crate) fn xor(&self, _val: $value_type, _order: Ordering) {
-                    loop {}
+                pub(crate) fn neg(&self, order: Ordering) {
+                    self.fetch_neg(order);
                 }
 
                 #[inline]
-                pub(crate) fn not(&self, _order: Ordering) {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_not(&self, _order: Ordering) -> $value_type {
+                pub(crate) fn fetch_and(&self, _val: $int_type, _order: Ordering) -> $value_type {
                     loop {}
                 }
 
@@ -162,22 +163,27 @@ items!({
                 }
 
                 #[inline]
+                pub(crate) fn fetch_xor(&self, _val: $int_type, _order: Ordering) -> $value_type {
+                    loop {}
+                }
+
+                #[inline]
+                pub(crate) fn fetch_not(&self, _order: Ordering) -> $value_type {
+                    loop {}
+                }
+
+                #[inline]
+                pub(crate) fn fetch_neg(&self, _order: Ordering) -> $value_type {
+                    loop {}
+                }
+
+                #[inline]
                 pub(crate) fn fetch_nor(&self, _val: $int_type, _order: Ordering) -> $value_type {
                     loop {}
                 }
 
                 #[inline]
-                pub(crate) fn fetch_and(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
                 pub(crate) fn fetch_nand(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_xor(&self, _val: $int_type, _order: Ordering) -> $value_type {
                     loop {}
                 }
 
@@ -188,16 +194,6 @@ items!({
 
                 #[inline]
                 pub(crate) fn fetch_max(&self, _val: $int_type, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn fetch_neg(&self, _order: Ordering) -> $value_type {
-                    loop {}
-                }
-
-                #[inline]
-                pub(crate) fn neg(&self, _order: Ordering) {
                     loop {}
                 }
             }
@@ -219,6 +215,16 @@ items!({
         ($([$($generics:tt)*])? $atomic_type:ident, $value_type:ty, $int_type:ty, $size:tt) => {
             atomic!(boolean, $([$($generics)*])? $atomic_type, $value_type, $int_type, $size);
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
+                #[inline]
+                pub(crate) fn add(&self, val: $value_type, order: Ordering) {
+                    self.fetch_add(val, order);
+                }
+
+                #[inline]
+                pub(crate) fn sub(&self, val: $value_type, order: Ordering) {
+                    self.fetch_sub(val, order);
+                }
+
                 #[inline]
                 pub(crate) fn fetch_sub(&self, _val: $value_type, _order: Ordering) -> $value_type {
                     loop {}
