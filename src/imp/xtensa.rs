@@ -60,10 +60,10 @@ items!({
                 pub(crate) const IS_ALWAYS_LOCK_FREE: bool = <crate::imp::interrupt::$atomic_type$(<$($generics)*>)?>::IS_ALWAYS_LOCK_FREE;
 
                 #[inline]
-                pub(crate) fn swap(&self, _val: $value_type, _order: Ordering) -> $value_type {
+                pub(crate) fn swap(&self, val: $value_type, order: Ordering) -> $value_type {
                     dispatch_impl!(self,
-                        loop {},
-                        self.v.swap(_val, _order)
+                        unsafe { <$value_type>::atomic_swap(self.v.as_ptr(), val, order) },
+                        self.v.swap(val, order)
                     )
                 }
 
