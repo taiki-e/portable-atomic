@@ -312,6 +312,8 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
                 any(
                     portable_atomic_unsafe_assume_single_core,
                     portable_atomic_unsafe_assume_privileged,
+                    portable_atomic_target_cpu = "esp32",
+                    portable_atomic_target_cpu = "esp32s3",
                 ),
             ),
         ),

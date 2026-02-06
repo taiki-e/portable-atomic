@@ -35,6 +35,10 @@
         not(target_has_atomic = "ptr"),
     )))
 )]
+#[cfg_attr(
+    target_arch = "xtensa",
+    cfg(not(any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3")))
+)]
 mod core_atomic;
 
 // AVR
@@ -46,6 +50,10 @@ mod avr;
 // MSP430
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
+
+// Xtensas with address ranges that do not support atomic operations
+#[cfg(any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3"))]
+pub(crate) mod xtensa;
 
 // RISC-V without A-extension
 #[cfg(any(test, not(feature = "critical-section")))]
@@ -97,6 +105,8 @@ mod atomic128;
 #[cfg(not(any(
     target_arch = "avr",
     target_arch = "msp430",
+    portable_atomic_target_cpu = "esp32",
+    portable_atomic_target_cpu = "esp32s3",
     portable_atomic_unsafe_assume_single_core,
 )))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
@@ -161,10 +171,13 @@ mod fallback;
 // On AVR, we always use critical section based fallback implementation.
 // AVR can be safely assumed to be single-core, so this is sound.
 // MSP430 as well.
+// On ESP32, we always use critical section based fallback implementation.
 // See the module-level comments of interrupt module for more.
 #[cfg(any(
     target_arch = "avr",
     target_arch = "msp430",
+    portable_atomic_target_cpu = "esp32",
+    portable_atomic_target_cpu = "esp32s3",
     feature = "critical-section",
     portable_atomic_unsafe_assume_single_core,
     portable_atomic_unsafe_assume_privileged,
@@ -176,6 +189,8 @@ mod fallback;
         portable_atomic_no_atomic_cas,
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
+        portable_atomic_target_cpu = "esp32",
+        portable_atomic_target_cpu = "esp32s3",
     ))
 )]
 #[cfg_attr(
@@ -185,6 +200,8 @@ mod fallback;
         not(target_has_atomic = "ptr"),
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
+        portable_atomic_target_cpu = "esp32",
+        portable_atomic_target_cpu = "esp32s3",
     ))
 )]
 #[cfg(any(
@@ -208,7 +225,7 @@ pub(crate) mod float;
 
 // {8,16,32}-bit & ptr-sized atomics
 cfg_sel!({
-    // has CAS | (has core atomic & !(avr | msp430 | critical section)) => core atomic
+    // has CAS | (has core atomic & !(avr | msp430 | critical section | esp32)) => core atomic
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(not(any(
@@ -224,6 +241,8 @@ cfg_sel!({
                 ),
                 portable_atomic_no_atomic_cas,
             ),
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
         )))
     )]
     #[cfg_attr(
@@ -241,6 +260,8 @@ cfg_sel!({
                 ),
                 not(target_has_atomic = "ptr"),
             ),
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
         )))
     )]
     {
@@ -253,7 +274,13 @@ cfg_sel!({
     #[cfg(any(
         target_arch = "avr",
         target_arch = "msp430",
-        feature = "critical-section",
+        all(
+            not(any(
+                portable_atomic_target_cpu = "esp32",
+                portable_atomic_target_cpu = "esp32s3"
+            )),
+            feature = "critical-section",
+        ),
         portable_atomic_unsafe_assume_single_core,
     ))]
     {
@@ -271,6 +298,14 @@ cfg_sel!({
             AtomicUsize,
         };
     }
+    // Xtensa with quirky external data bus address range
+    #[cfg(any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3"))]
+    {
+        pub(crate) use self::xtensa::{
+            AtomicI8, AtomicI16, AtomicI32, AtomicIsize, AtomicPtr, AtomicU8, AtomicU16, AtomicU32,
+            AtomicUsize,
+        };
+    }
     // bpf & !(critical section) => core atomic
     #[cfg(target_arch = "bpf")]
     {
@@ -284,7 +319,7 @@ cfg_sel!({
 
 // 64-bit atomics
 cfg_sel!({
-    // has CAS | (has core atomic & !(avr | msp430 | critical section)) => core atomic
+    // (has CAS & !esp32) | (has core atomic & !(avr | msp430 | critical section)) => core atomic
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(all(
@@ -300,7 +335,9 @@ cfg_sel!({
                         portable_atomic_unsafe_assume_single_core,
                     ),
                     portable_atomic_no_atomic_cas,
-                )
+                ),
+                portable_atomic_target_cpu = "esp32",
+                portable_atomic_target_cpu = "esp32s3",
             )),
             any(
                 not(portable_atomic_no_atomic_64),
@@ -323,7 +360,9 @@ cfg_sel!({
                         portable_atomic_unsafe_assume_single_core,
                     ),
                     not(target_has_atomic = "ptr"),
-                )
+                ),
+                portable_atomic_target_cpu = "esp32",
+                portable_atomic_target_cpu = "esp32s3",
             )),
             any(
                 target_has_atomic = "64",
@@ -365,12 +404,14 @@ cfg_sel!({
     {
         pub(crate) use self::atomic64::riscv32::{AtomicI64, AtomicU64};
     }
-    // no native atomic CAS & (assume single core | critical section) => critical section based fallback
+    // (no native atomic CAS | esp32) & (assume single core | critical section) => critical section based fallback
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
             all(feature = "critical-section", portable_atomic_no_atomic_cas),
             portable_atomic_unsafe_assume_single_core,
         ))
@@ -380,6 +421,8 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
             all(feature = "critical-section", not(target_has_atomic = "ptr")),
             portable_atomic_unsafe_assume_single_core,
         ))
@@ -548,12 +591,14 @@ cfg_sel!({
     {
         pub(crate) use self::atomic128::s390x::{AtomicI128, AtomicU128};
     }
-    // no native atomic CAS & (assume single core | critical section) => critical section based fallback
+    // (no native atomic CAS | esp32) & (assume single core | critical section) => critical section based fallback
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
             all(feature = "critical-section", portable_atomic_no_atomic_cas),
             portable_atomic_unsafe_assume_single_core,
         ))
@@ -563,6 +608,8 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
             all(feature = "critical-section", not(target_has_atomic = "ptr")),
             portable_atomic_unsafe_assume_single_core,
         ))
