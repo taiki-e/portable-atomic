@@ -120,7 +120,7 @@
 {
     std_f32_abs
     Memcheck:Cond
-    fun:_*portable_atomic5tests15test_atomic_f32s_20quickcheck_fetch_abs4prop
+    fun:_*portable_atomic5tests15test_atomic_f32s_20quickcheck_fetch_abs4prop*
     fun:{closure#*}<bool, f32>
     fun:call_once<bool, quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>
     fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<quickcheck::tester::{impl#*}::result::{closure_env#*}<bool, f32>>, bool>
@@ -136,7 +136,7 @@
     fun:_*portable_atomic5tests15test_atomic_f3220quickcheck_fetch_abs*
     fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
     fun:_*test28___rust_begin_short_backtrace*
-    fun:run
+    ...
     fun:{closure#*}
     fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
     fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
