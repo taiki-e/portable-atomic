@@ -541,11 +541,13 @@ jobs:
       - run: rm -- tests/avr/rust-toolchain.toml
         if: startsWith(matrix.rust, 'nightly-')
       # syn 2.0.107 & quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
+      # unicode-ident 1.0.23 requires Rust 1.71.
       - run: |
           cargo generate-lockfile
           cargo update -p proc-macro2 --precise 1.0.103
           cargo update -p quote --precise 1.0.41
           cargo update -p syn --precise 2.0.106
+          cargo update -p unicode-ident --precise 1.0.22
         working-directory: tests/no-std-qemu
         if: matrix.rust == '1.64'
       - run: tools/no-std.sh
