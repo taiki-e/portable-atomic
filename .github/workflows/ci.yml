@@ -504,17 +504,17 @@ jobs:
           if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
               | tar xjf - --strip-components 1 -C "${HOME}"/msp430-gcc
             printf '%s\n' "${HOME}"/msp430-gcc/bin >>"${GITHUB_PATH}"
             # https://l4re.org/download/snapshots
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
               | tar xJf - -C "${HOME}"/aarch64-l4re-gcc
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${{ matrix.rust }}" == "stable" ]]; then
-            # Use the latest toolchain once upstream bug fixed.
+            # TODO: Use the latest toolchain once upstream bug fixed.
             retry espup install --targets esp32s2 --toolchain-version 1.90.0
           fi
           # https://github.com/taiki-e/dockerfiles/pkgs/container/qemu-system
@@ -815,7 +815,7 @@ jobs:
             done
             "$@"
           }
-          # Use the latest toolchain once upstream bug fixed.
+          # TODO: Use the latest toolchain once upstream bug fixed.
           retry espup install --targets esp32s2 --toolchain-version 1.90.0
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml
       - run: cargo +esp test --manifest-path tests/asm-test/Cargo.toml

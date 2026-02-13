@@ -280,7 +280,7 @@ run() {
         mkdir -p -- tmp/l4re
         (
           cd -- tmp/l4re
-          [[ -e l4re_hello-2_arm_virt.elf ]] || retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-connrefused -O https://l4re.org/download/snapshots/pre-built-images/arm64/l4re_hello-2_arm_virt.elf
+          [[ -e l4re_hello-2_arm_virt.elf ]] || retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors -O https://l4re.org/download/snapshots/pre-built-images/arm64/l4re_hello-2_arm_virt.elf
           [[ -e workdir-arm ]] || l4image -i l4re_hello-2_arm_virt.elf --outputdir workdir-arm extract
           [[ -e workdir-arm/hello ]] || rm -- workdir-arm/hello
           if [[ -e workdir-arm/hello-2.cfg ]]; then
