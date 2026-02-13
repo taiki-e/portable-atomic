@@ -428,7 +428,7 @@ LLVM version: 15.0.3",
 #[cfg(feature = "serde")]
 #[test]
 fn test_serde() {
-    use std::fmt;
+    use std::{eprint, eprintln, fmt};
 
     use serde::{
         de::{Deserialize, Deserializer},
@@ -462,14 +462,14 @@ fn test_serde() {
 
     macro_rules! t {
         ($atomic_type:ty, $value_type:ident $(as $token_value_type:ident)?, $token_type:ident) => {
-            std::eprint!("test_serde {} ... ", stringify!($value_type));
+            eprint!("test_serde {} ... ", stringify!($value_type));
             assert_tokens(&DebugPartialEq(<$atomic_type>::new($value_type::MAX)), &[
                 Token::$token_type($value_type::MAX $(as $token_value_type)?),
             ]);
             assert_tokens(&DebugPartialEq(<$atomic_type>::new($value_type::MIN)), &[
                 Token::$token_type($value_type::MIN $(as $token_value_type)?),
             ]);
-            std::eprintln!("ok");
+            eprintln!("ok");
         };
     }
 

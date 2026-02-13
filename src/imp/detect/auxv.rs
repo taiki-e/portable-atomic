@@ -852,7 +852,7 @@ mod tests {
     fn test_alternative() {
         #[cfg(not(portable_atomic_no_asm))]
         use std::arch::asm;
-        use std::{str, vec};
+        use std::{eprintln, str, vec};
 
         #[cfg(target_pointer_width = "32")]
         use sys::Elf32_auxv_t as Elf_auxv_t;
@@ -1010,13 +1010,13 @@ mod tests {
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
             // TODO: qemu-user bug (fails even on kernel >= 6.4) (as of 9.2)
             if (major, minor) < (6, 4) || cfg!(qemu) {
-                std::eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
+                eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
                     assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
                     assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                 }
             } else {
-                std::eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
+                eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
                     if cfg!(all(valgrind, target_arch = "powerpc64")) {
                         // TODO: valgrind bug (as of Valgrind 3.26)

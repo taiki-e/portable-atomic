@@ -6,8 +6,8 @@ rust-version = "1.34" # Prevent clippy from suggesting a code that requires a ne
 publish = false
 
 [lib]
-doctest = false
 doc = false
+doctest = false
 
 [features]
 float = ["portable-atomic/float"]
