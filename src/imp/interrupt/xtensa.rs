@@ -17,9 +17,19 @@ use core::arch::asm;
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "ptr")))
+    cfg(any(
+        test,
+        not(any(
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
+            target_has_atomic = "ptr"
+        ))
+    ))
 )]
 pub(super) use core::sync::atomic;
+
+#[cfg(any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3"))]
+pub(super) use crate::imp::xtensa as atomic;
 
 pub(crate) type State = u32;
 

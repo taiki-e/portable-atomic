@@ -9,7 +9,11 @@ Fallback implementation based on disabling interrupts or critical-section
 See README.md of this directory for details.
 */
 
-#[cfg(not(feature = "critical-section"))]
+#[cfg(any(
+    not(feature = "critical-section"),
+    portable_atomic_target_cpu = "esp32",
+    portable_atomic_target_cpu = "esp32s3",
+))]
 #[cfg_attr(
     all(
         target_arch = "arm",
@@ -30,13 +34,26 @@ See README.md of this directory for details.
 #[cfg_attr(target_arch = "xtensa", path = "xtensa.rs")]
 pub(super) mod arch;
 
+// ESP32 and ESP32-S3 require a critical-section based implementation for some of their address spaces.
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(test, portable_atomic_no_atomic_cas, portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        test,
+        portable_atomic_no_atomic_cas,
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_target_cpu = "esp32",
+        portable_atomic_target_cpu = "esp32s3",
+    ))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(test, not(target_has_atomic = "ptr"), portable_atomic_unsafe_assume_single_core))
+    cfg(any(
+        test,
+        not(target_has_atomic = "ptr"),
+        portable_atomic_unsafe_assume_single_core,
+        portable_atomic_target_cpu = "esp32",
+        portable_atomic_target_cpu = "esp32s3",
+    ))
 )]
 items!({
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
@@ -243,6 +260,8 @@ items!({
             test,
             target_arch = "avr",
             target_arch = "msp430",
+            portable_atomic_target_cpu = "esp32",
+            portable_atomic_target_cpu = "esp32s3",
             not(target_has_atomic = "ptr")
         ))
     )]
@@ -613,6 +632,46 @@ items!({
         cfg_has_fast_atomic_64! {
             atomic_int!(load_store_atomic, AtomicI64, i64, 8);
             atomic_int!(load_store_atomic, AtomicU64, u64, 8);
+        }
+    });
+
+    // Current target data unsoundly enables CAS for these devices. Generate the necessary
+    // critical-section based implementations that we'll wrap in `imp/xtensa.rs`.
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(all()))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(all(
+            target_has_atomic,
+            any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3")
+        ))
+    )]
+    items!({
+        use self::arch::atomic;
+
+        atomic_int!(load_store_atomic, AtomicIsize, isize, 4);
+        atomic_int!(load_store_atomic, AtomicUsize, usize, 4);
+
+        atomic_int!(load_store_atomic[sub_word], AtomicI8, i8, 1);
+        atomic_int!(load_store_atomic[sub_word], AtomicU8, u8, 1);
+
+        atomic_int!(load_store_atomic[sub_word], AtomicI16, i16, 2);
+        atomic_int!(load_store_atomic[sub_word], AtomicU16, u16, 2);
+
+        atomic_int!(load_store_atomic, AtomicI32, i32, 4);
+        atomic_int!(load_store_atomic, AtomicU32, u32, 4);
+
+        atomic_base!(native_load_store, [T] AtomicPtr, *mut T);
+        impl<T> AtomicPtr<T> {
+            #[cfg(test)]
+            #[inline]
+            fn fetch_ptr_add(&self, val: usize, order: Ordering) -> *mut T {
+                self.fetch_byte_add(val.wrapping_mul(core::mem::size_of::<T>()), order)
+            }
+            #[cfg(test)]
+            #[inline]
+            fn fetch_ptr_sub(&self, val: usize, order: Ordering) -> *mut T {
+                self.fetch_byte_sub(val.wrapping_mul(core::mem::size_of::<T>()), order)
+            }
         }
     });
 
