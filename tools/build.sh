@@ -127,7 +127,7 @@ default_targets=(
 # - env.TEST_FEATURES in .github/workflows/ci.yml.
 # - test_features list in tools/test.sh.
 test_features="float,std,serde,critical-section"
-exclude_features="unsafe-assume-single-core,unsafe-assume-privileged,s-mode,force-amo,disable-fiq"
+exclude_features="require-no-spin-64,require-no-spin-128,unsafe-assume-single-core,unsafe-assume-privileged,s-mode,force-amo,disable-fiq"
 
 x() {
   (

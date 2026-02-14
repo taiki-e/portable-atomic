@@ -103,6 +103,18 @@ mod atomic128;
         // Use other ways.
         target_arch = "avr",
         target_arch = "msp430",
+        all(
+            feature = "critical-section",
+            // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+            // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+            // It may eventually be implemented unconditionally after a warning period.
+            any(
+                feature = "require-no-spin-64",
+                feature = "require-no-spin-128",
+                target_os = "none",
+                target_os = "espidf",
+            ),
+        ),
         portable_atomic_unsafe_assume_single_core,
         // --------------------
         // Has 128-bit atomics.
@@ -169,7 +181,20 @@ mod fallback;
     cfg(any(
         target_arch = "avr",
         target_arch = "msp430",
-        all(feature = "critical-section", any(test, portable_atomic_no_atomic_cas)),
+        all(
+            feature = "critical-section",
+            any(
+                test,
+                // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                // It may eventually be implemented unconditionally after a warning period.
+                portable_atomic_no_atomic_cas,
+                feature = "require-no-spin-64",
+                feature = "require-no-spin-128",
+                target_os = "none",
+                target_os = "espidf",
+            ),
+        ),
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
     ))
@@ -179,7 +204,20 @@ mod fallback;
     cfg(any(
         target_arch = "avr",
         target_arch = "msp430",
-        all(feature = "critical-section", any(test, not(target_has_atomic = "ptr"))),
+        all(
+            feature = "critical-section",
+            any(
+                test,
+                // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                // It may eventually be implemented unconditionally after a warning period.
+                not(target_has_atomic = "ptr"),
+                feature = "require-no-spin-64",
+                feature = "require-no-spin-128",
+                target_os = "none",
+                target_os = "espidf",
+            ),
+        ),
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
     ))
@@ -368,7 +406,19 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(feature = "critical-section", portable_atomic_no_atomic_cas),
+            all(
+                feature = "critical-section",
+                any(
+                    // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                    // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                    // It may eventually be implemented unconditionally after a warning period.
+                    portable_atomic_no_atomic_cas,
+                    feature = "require-no-spin-64",
+                    feature = "require-no-spin-128",
+                    target_os = "none",
+                    target_os = "espidf",
+                ),
+            ),
             portable_atomic_unsafe_assume_single_core,
         ))
     )]
@@ -377,7 +427,19 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(feature = "critical-section", not(target_has_atomic = "ptr")),
+            all(
+                feature = "critical-section",
+                any(
+                    // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                    // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                    // It may eventually be implemented unconditionally after a warning period.
+                    not(target_has_atomic = "ptr"),
+                    feature = "require-no-spin-64",
+                    feature = "require-no-spin-128",
+                    target_os = "none",
+                    target_os = "espidf",
+                ),
+            ),
             portable_atomic_unsafe_assume_single_core,
         ))
     )]
@@ -398,6 +460,12 @@ cfg_sel!({
         cfg(all(feature = "fallback", target_has_atomic = "ptr"))
     )]
     {
+        #[cfg(feature = "require-no-spin-64")]
+        compile_error!(
+            "fallback with no spinning wait is required for 64-bit and smaller atomics (by require-no-spin-64 feature);\n\
+            consider enabling one of the `critical-section` feature or `unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg).\n\
+            see <https://github.com/taiki-e/portable-atomic#optional-features-fallback> for more."
+        );
         pub(crate) use self::fallback::{AtomicI64, AtomicU64};
     }
     // RISC-V without A-extension & !(assume single core | critical section)
@@ -551,7 +619,19 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(feature = "critical-section", portable_atomic_no_atomic_cas),
+            all(
+                feature = "critical-section",
+                any(
+                    // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                    // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                    // It may eventually be implemented unconditionally after a warning period.
+                    portable_atomic_no_atomic_cas,
+                    feature = "require-no-spin-64",
+                    feature = "require-no-spin-128",
+                    target_os = "none",
+                    target_os = "espidf",
+                ),
+            ),
             portable_atomic_unsafe_assume_single_core,
         ))
     )]
@@ -560,7 +640,19 @@ cfg_sel!({
         cfg(any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(feature = "critical-section", not(target_has_atomic = "ptr")),
+            all(
+                feature = "critical-section",
+                any(
+                    // By default, for target with CAS, gate with bare-metal and some embedded OSes that known to use critical-section,
+                    // for compatibility with old versions: https://github.com/taiki-e/portable-atomic/issues/222#issuecomment-3676574523
+                    // It may eventually be implemented unconditionally after a warning period.
+                    not(target_has_atomic = "ptr"),
+                    feature = "require-no-spin-64",
+                    feature = "require-no-spin-128",
+                    target_os = "none",
+                    target_os = "espidf",
+                ),
+            ),
             portable_atomic_unsafe_assume_single_core,
         ))
     )]
@@ -578,6 +670,12 @@ cfg_sel!({
         cfg(all(feature = "fallback", target_has_atomic = "ptr"))
     )]
     {
+        #[cfg(feature = "require-no-spin-128")]
+        compile_error!(
+            "fallback with no spinning wait is required for 128-bit and smaller atomics (by require-no-spin-64 feature);\n\
+            consider enabling one of the `critical-section` feature or `unsafe-assume-privileged` feature (or `portable_atomic_unsafe_assume_privileged` cfg).\n\
+            see <https://github.com/taiki-e/portable-atomic#optional-features-fallback> for more."
+        );
         pub(crate) use self::fallback::{AtomicI128, AtomicU128};
     }
     #[cfg(else)]

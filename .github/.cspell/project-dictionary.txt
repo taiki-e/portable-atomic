@@ -47,6 +47,7 @@ espup
 exynos
 fild
 fistp
+futex
 getauxval
 getisax
 getpid

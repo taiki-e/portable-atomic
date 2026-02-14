@@ -52,6 +52,25 @@ portable-atomic = { version = "1.3", default-features = false, features = ["requ
 
 (Since 1.8, portable-atomic can display a [helpful error message](https://github.com/taiki-e/portable-atomic/pull/181) even without the `require-cas` feature when the rustc version is 1.78+. However, the `require-cas` feature also allows rejecting builds at an earlier stage, we recommend enabling it unless enabling it causes [problems](https://github.com/matklad/once_cell/pull/267).)
 
+When using 64-bit or 128-bit atomics in embedded environments where atomic CAS is available, the default fallback in those environments is global locks with [(unbounded) spinning wait](https://en.wikipedia.org/wiki/Spinlock) without disabling interrupts, which presents a risk of deadlock due to interrupts.
+
+To prevent this, you need either the environment-specific locking mechanism provided by [`critical-section`](#optional-features-critical-section) or lock with disabling interrupts using privileged instructions ([`unsafe-assume-single-core`](#optional-features-unsafe-assume-single-core)/[`unsafe-assume-privileged`]((#optional-features-unsafe-assume-privileged))).
+
+To ensure either native atomic instructions or these are used, enable the following features depending on the width of the atomic operation you want to use:
+
+```toml
+[dependencies]
+# When 64-bit and smaller atomics use fallback using spinlock without disabling interrupts, trigger compile error.
+portable-atomic = { version = "1.14", default-features = false, features = ["require-no-spin-64"] }
+```
+
+```toml
+[dependencies]
+# When 128-bit and smaller atomics use fallback using spinlock without disabling interrupts, trigger compile error.
+# (This implies require-no-spin-64.)
+portable-atomic = { version = "1.14", default-features = false, features = ["require-no-spin-128"] }
+```
+
 ## 128-bit atomics support
 
 Native 128-bit atomic operations are available on x86_64 (Rust 1.59+), AArch64 (Rust 1.59+), riscv64 (Rust 1.59+), Arm64EC (Rust 1.84+), s390x (Rust 1.84+), and powerpc64 (Rust 1.95+), otherwise the fallback implementation is used.
@@ -92,11 +111,22 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 
   This enables atomic types with larger than the width supported by atomic instructions available on the current target. If the current target [supports 128-bit atomics](#128-bit-atomics-support), this is no-op.
 
-  This uses fallback implementation that using global locks by default. The following features/cfgs change this behavior:
+  By default, this uses fallback implementation that using global locks. The following features/cfgs change this behavior:
   - [`unsafe-assume-single-core` feature / `portable_atomic_unsafe_assume_single_core` cfg](#optional-features-unsafe-assume-single-core): Use fallback implementations that disabling interrupts instead of using global locks.
     - If your target is single-core and calling interrupt disable instructions is safe, this is a safer and more efficient option.
   - [`unsafe-assume-privileged` feature / `portable_atomic_unsafe_assume_privileged` cfg](#optional-features-unsafe-assume-privileged): Use fallback implementations that using global locks with disabling interrupts.
     - If your target is multi-core and calling interrupt disable instructions is safe, this is a safer option.
+
+  TODO:
+
+  | | Target has atomic CAS (types with atomics) | Target has atomic CAS (types without atomics) | Target has only atomic load/store (all types) |
+  | -- | -- | -- | -- |
+  | (current) With only default features | Native | Lock (spinning wait) | Native load/store only (lock cannot be implemented without CAS) |
+  | (new) With only default features (has futex) | Native | Lock (futex wait) | Native load/store only (lock cannot be implemented without CAS) |
+  | (new) With only default features (no futex) | Native | Lock (spinning wait) \[1] | Native load/store only (lock cannot be implemented without CAS) |
+  | With `critical-section` (since 1.14) | Native | Critical section | Critical section |
+  | With `unsafe-assume-privileged` (since 1.13) | Native | Disable interrupts + Lock (spinning wait) | Native load/store only (lock cannot be implemented without CAS) |
+  | With `unsafe-assume-single-core` (since 1.12) | Native | Disable interrupts | Disable interrupts |
 
 - <a name="optional-features-float"></a>**`float` feature**<br>
   Provide `AtomicF{32,64}`.
