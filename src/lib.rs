@@ -140,7 +140,7 @@ RUSTFLAGS="--cfg portable_atomic_unsafe_assume_single_core" cargo ...
 >
 >   The recommended approach for libraries is to leave it up to the end user whether or not to enable this feature. (However, it may make sense to enable this feature by default for libraries specific to a platform where other implementations are known not to work.)
 >
->   See also [](https://github.com/matklad/once_cell/issues/264#issuecomment-2352654806).
+>   See also [this comment](https://github.com/matklad/once_cell/issues/264#issuecomment-2352654806).
 >
 >   As an example, the end-user's `Cargo.toml` that uses a crate that provides a critical-section implementation and a crate that depends on portable-atomic as an option would be expected to look like this:
 >
