@@ -94,16 +94,18 @@ mod atomic128;
 // Lock-based fallback implementations
 
 #[cfg(feature = "fallback")]
-#[cfg(not(any(
-    target_arch = "avr",
-    target_arch = "msp430",
-    portable_atomic_unsafe_assume_single_core,
-)))]
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
-#[cfg(any(
-    test,
-    not(any(
+#[cfg_attr(
+    not(test),
+    cfg(not(any(
+        // ---------------
+        // Use other ways.
+        target_arch = "avr",
+        target_arch = "msp430",
+        portable_atomic_unsafe_assume_single_core,
+        // --------------------
+        // Has 128-bit atomics.
         all(
             target_arch = "aarch64",
             not(all(
@@ -162,18 +164,12 @@ mod fallback;
 // AVR can be safely assumed to be single-core, so this is sound.
 // MSP430 as well.
 // See the module-level comments of interrupt module for more.
-#[cfg(any(
-    target_arch = "avr",
-    target_arch = "msp430",
-    feature = "critical-section",
-    portable_atomic_unsafe_assume_single_core,
-    portable_atomic_unsafe_assume_privileged,
-))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(
-        test,
-        portable_atomic_no_atomic_cas,
+        target_arch = "avr",
+        target_arch = "msp430",
+        all(feature = "critical-section", any(test, portable_atomic_no_atomic_cas)),
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
     ))
@@ -181,8 +177,9 @@ mod fallback;
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
     cfg(any(
-        test,
-        not(target_has_atomic = "ptr"),
+        target_arch = "avr",
+        target_arch = "msp430",
+        all(feature = "critical-section", any(test, not(target_has_atomic = "ptr"))),
         portable_atomic_unsafe_assume_single_core,
         portable_atomic_unsafe_assume_privileged,
     ))
