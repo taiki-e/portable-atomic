@@ -1,0 +1,99 @@
+only_if: $CIRRUS_TAG == '' && ($CIRRUS_PR != '' || $CIRRUS_BRANCH == 'main')
+auto_cancellation: $CIRRUS_PR != ''
+env:
+  CARGO_INCREMENTAL: '0'
+  CARGO_NET_RETRY: '10'
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  RUST_TEST_THREADS: '1'
+  RUSTDOCFLAGS: -D warnings
+  RUSTFLAGS: -D warnings --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16 --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128
+  RUSTUP_MAX_RETRIES: '10'
+  PORTABLE_ATOMIC_DENY_WARNINGS: '1'
+
+freebsd_test_task:
+  name: test ($TARGET)
+  freebsd_instance:
+    image_family: freebsd-13-5
+  matrix:
+    - env:
+        TARGET: x86_64-unknown-freebsd
+    - env:
+        TARGET: i686-unknown-freebsd
+  setup_script:
+    - set -CeEuxo pipefail
+    - |
+      retry() {
+        for i in {1..10}; do
+          if "$@"; then
+            return 0
+          else
+            sleep "${i}"
+          fi
+        done
+        "$@"
+      }
+    - retry curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --target "${TARGET}"
+    - retry curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-x86_64-unknown-freebsd.tar.gz" | tar xzf - -C "${HOME}/.cargo/bin"
+  test_script:
+    - . "${HOME}/.cargo/env"
+    - set -CeEuxo pipefail
+    - ./tools/test.sh -vv --target "${TARGET}"
+
+freebsd_valgrind_task:
+  name: test ($TARGET)
+  freebsd_instance:
+    image_family: freebsd-13-5
+  matrix:
+    - env:
+        TARGET: x86_64-unknown-freebsd
+    - env:
+        TARGET: i686-unknown-freebsd
+  setup_script:
+    - set -CeEuxo pipefail
+    - |
+      retry() {
+        for i in {1..10}; do
+          if "$@"; then
+            return 0
+          else
+            sleep "${i}"
+          fi
+        done
+        "$@"
+      }
+    - retry curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly --target "${TARGET}"
+    - retry curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-x86_64-unknown-freebsd.tar.gz" | tar xzf - -C "${HOME}/.cargo/bin"
+    - retry pkg install -y valgrind
+  test_script:
+    - . "${HOME}/.cargo/env"
+    - set -CeEuxo pipefail
+    - ./tools/test.sh valgrind -vv --target "${TARGET}"
+
+openbsd_test_task:
+  name: test ($TARGET)
+  compute_engine_instance:
+    image_project: pg-ci-images
+    # https://github.com/anarazel/pg-vm-images/blob/main/packer/openbsd.pkrvars.hcl
+    image: family/pg-ci-openbsd-vanilla
+    platform: openbsd
+  env:
+    TARGET: x86_64-unknown-openbsd
+  setup_script:
+    - set -CeEuxo pipefail
+    - |
+      retry() {
+        for i in {1..10}; do
+          if "$@"; then
+            return 0
+          else
+            sleep "${i}"
+          fi
+        done
+        "$@"
+      }
+    # OpenBSD is tier 3 target, so install rust from package manager instead of rustup
+    - retry pkg_add rust
+  test_script:
+    - set -CeEuxo pipefail
+    - ./tools/test.sh -vv --target "${TARGET}"

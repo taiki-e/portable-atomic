@@ -61,7 +61,7 @@ fn main() {
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","thumb-mode","v6","v7","zaamo","zabha","zacas"))"#
         );
     }
 
@@ -184,7 +184,24 @@ fn main() {
                     }
                 }
             }
-            "powerpc64" => {
+            "loongarch64" => {
+                // asm! on LoongArch64 stabilized in Rust 1.72 (nightly-2023-05-31?): https://github.com/rust-lang/rust/pull/111235
+                if version.minor < 72 {
+                    // https://github.com/rust-lang/rust/pull/101069 merged in Rust 1.71 (nightly-2023-04-26?).
+                    println!("cargo:rustc-cfg=atomic_maybe_uninit_no_asm");
+                }
+            }
+            "loongarch32" => {
+                // asm! on loongarch32 stabilized in Rust 1.91 (nightly-2025-08-11): https://github.com/rust-lang/rust/pull/144402
+                if !version.probe(91, 2025, 8, 10) {
+                    if version.nightly && is_allowed_feature("asm_experimental_arch") {
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                }
+            }
+            "powerpc" | "powerpc64" => {
                 // asm! on PowerPC stabilized in Rust 1.95 (nightly-2026-01-28): https://github.com/rust-lang/rust/pull/147996
                 if !version.probe(95, 2026, 1, 27) {
                     if version.nightly
@@ -384,6 +401,11 @@ fn main() {
                 v6 |= target_feature_fallback("v7", v7);
                 target_feature_fallback("v6", v6);
                 target_feature_fallback("mclass", mclass);
+                // All builtin targets that start with "thumb" enable thumb-mode, and
+                // some builtin targets that start with "arm" are also enable thumb-mode.
+                let thumb_mode =
+                    target.starts_with("thumb") || generated::ARM_BUT_THUMB_MODE.contains(&target);
+                target_feature_fallback("thumb-mode", thumb_mode);
             }
         }
         "riscv32" | "riscv64" => {

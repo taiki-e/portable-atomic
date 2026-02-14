@@ -326,7 +326,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
-// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, s390x, PowerPC64
+// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, LoongArch, PowerPC, s390x
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
 // This also helps us test that our assembly code works with the minimum external
@@ -349,7 +349,14 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         portable_atomic_unstable_asm_experimental_arch,
-        any(target_arch = "arm64ec", target_arch = "s390x", target_arch = "powerpc64"),
+        any(
+            target_arch = "arm64ec",
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+            target_arch = "powerpc",
+            target_arch = "powerpc64",
+            target_arch = "s390x",
+        ),
     ),
     feature(asm_experimental_arch)
 )]

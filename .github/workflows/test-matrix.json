@@ -276,6 +276,21 @@
       "target": "armv7-unknown-linux-gnueabi"
     },
     {
+      "rust": "1.59",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf",
       "os": "ubuntu-24.04-arm"
@@ -283,6 +298,21 @@
     {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf"
+    },
+    {
+      "rust": "1.59",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
     },
     {
       "rust": "nightly",

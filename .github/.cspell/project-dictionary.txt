@@ -47,6 +47,7 @@ espup
 exynos
 fild
 fistp
+futex
 getauxval
 getisax
 getpid
@@ -54,6 +55,7 @@ getsystemcfg
 gimli
 grmbl
 Halfword
+hppa
 HWCAP
 hwprobe
 ILRCPC
@@ -106,6 +108,7 @@ memd
 mfcr
 mfence
 mgba
+microblaze
 midr
 minu
 miscompiles
@@ -179,10 +182,13 @@ sysctlnode
 systemsim
 tagme
 uart
+ulock
 umax
 umin
+umtx
 unclonable
 unsize
+upstreamed
 usart
 uscat
 uwrite
@@ -194,6 +200,7 @@ vmovdqa
 vreg
 vtable
 vtables
+wakeup
 wfxt
 wokwi
 xadd

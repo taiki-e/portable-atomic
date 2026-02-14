@@ -76,6 +76,41 @@ macro_rules! ifunc {
         func($($arg_pat),*)
     }};
 }
+// Refs: https://github.com/rust-lang/rust/blob/1.92.0/library/std/src/sys/pal/unix/weak/dlsym.rs
+#[allow(unused_macros)]
+#[cfg(target_vendor = "apple")]
+macro_rules! dlsym {
+    (unsafe extern "C" fn $name:ident($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?;) => {
+        #[inline]
+        fn $name() -> Option<unsafe extern "C" fn($($arg_ty),*) $(-> $ret_ty)?> {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            type FnTy = unsafe extern "C" fn($($arg_ty),*) $(-> $ret_ty)?;
+            static FUNC: core::sync::atomic::AtomicPtr<ffi::c_void>
+                = core::sync::atomic::AtomicPtr::new(crate::utils::ptr::without_provenance_mut(1));
+            #[cold]
+            fn init() -> Option<FnTy> {
+                // SAFETY: we passed a valid C string to dlsym.
+                let func = unsafe { ffi::dlsym(ffi::RTLD_DEFAULT, c!(stringify!($name)).as_ptr()) };
+                FUNC.store(func, core::sync::atomic::Ordering::Release);
+                if func.is_null() {
+                    None
+                } else {
+                    // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`,
+                    // and a pointer returned by dlsym is a valid pointer to the function if it is non-null.
+                    Some(unsafe { core::mem::transmute::<*mut ffi::c_void, FnTy>(func) })
+                }
+            }
+            match FUNC.load(core::sync::atomic::Ordering::Acquire) {
+                func if func.addr() == 1 => init(),
+                func if func.is_null() => None,
+                // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`,
+                // and a pointer returned by dlsym is a valid pointer to the function if it is non-null.
+                func => Some(unsafe { core::mem::transmute::<*mut ffi::c_void, FnTy>(func) }),
+            }
+        }
+    };
+}
 
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -659,12 +694,6 @@ pub(crate) mod ptr {
 // - safe abstraction (c! macro) for creating static C strings without runtime checks.
 //   (c"..." requires Rust 1.77)
 // - helper macros for defining FFI bindings.
-#[cfg(any(
-    test,
-    portable_atomic_test_no_std_static_assert_ffi,
-    not(any(target_arch = "x86", target_arch = "x86_64"))
-))]
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
 pub(crate) mod ffi {
