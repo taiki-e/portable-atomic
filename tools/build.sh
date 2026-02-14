@@ -116,8 +116,7 @@ default_targets=(
   powerpc64-unknown-freebsd
   powerpc64le-unknown-freebsd
   powerpc64-unknown-openbsd
-  # TODO: "error: branch target not a multiple of four (242)" with LLVM 22 (https://github.com/rust-lang/rust/issues/151818)
-  # powerpc64-ibm-aix
+  powerpc64-ibm-aix
 
   # s390x
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
@@ -334,8 +333,6 @@ build() {
         m68k-unknown-none-elf) return 0 ;;
         # TODO(mips): compiler SIGILL with LLVM 22
         mipsisa*) return 0 ;;
-        # TODO: "error: branch target not a multiple of four (242)" with LLVM 22 (https://github.com/rust-lang/rust/issues/151818)
-        powerpc64-ibm-aix) return 0 ;;
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
