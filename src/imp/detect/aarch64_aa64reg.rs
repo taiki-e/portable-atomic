@@ -458,7 +458,7 @@ mod tests {
         fn sysctl_cpu_id_no_libc(name: &[&[u8]]) -> Result<AA64Reg, c_int> {
             // Refs:
             // - https://github.com/NetBSD/src/blob/c3bf19e1d461f8b4d8812b91b48116a1e45c9d04/lib/libc/arch/aarch64/SYS.h
-            // - https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_netbsd_arm64.s
+            // - https://github.com/golang/go/blob/go1.26.0/src/syscall/asm_netbsd_arm64.s
             #[inline]
             unsafe fn sysctl(
                 name: *const c_int,

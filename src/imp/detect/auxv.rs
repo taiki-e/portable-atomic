@@ -174,9 +174,10 @@ mod os {
             pub(crate) const AT_HWCAP4: c_ulong = 30;
 
             // Defined in dlfcn.h.
-            // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.40
+            // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.43
             // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
+            // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
             // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
             #[cfg(any(
                 test,
@@ -216,10 +217,10 @@ mod os {
             extern "C" {
                 // Defined in sys/auxv.h.
                 // https://man7.org/linux/man-pages/man3/getauxval.3.html
-                // https://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sys/auxv.h;hb=glibc-2.40
+                // https://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sys/auxv.h;hb=glibc-2.43
                 // https://git.musl-libc.org/cgit/musl/tree/include/sys/auxv.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
-                // https://github.com/kernkonzept/l4re-core/blob/4351d4474804636122d64ea5a5d41f5e78e9208e/uclibc/lib/contrib/uclibc/include/sys/auxv.h
+                // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/sys/auxv.h
                 // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.11/libc/include/sys/auxv.h
                 #[cfg(any(
@@ -245,9 +246,10 @@ mod os {
 
                 // Defined in dlfcn.h.
                 // https://man7.org/linux/man-pages/man3/dlsym.3.html
-                // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.40
+                // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.43
                 // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
+                // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
                 // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
                 #[cfg(any(
                     test,
@@ -381,7 +383,8 @@ mod os {
                 )),
             ))]
             #[allow(clippy::cast_sign_loss)]
-            pub(crate) const RTLD_DEFAULT: *mut c_void = -2_isize as usize as *mut c_void;
+            pub(crate) const RTLD_DEFAULT: *mut c_void =
+                crate::utils::ptr::without_provenance_mut(-2_isize as usize);
         });
 
         sys_fn!({
@@ -1128,7 +1131,7 @@ mod tests {
             // Refs:
             // - aarch64
             //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/aarch64/SYS.h
-            //   https://github.com/golang/go/blob/go1.25.0/src/syscall/asm_freebsd_arm64.s
+            //   https://github.com/golang/go/blob/go1.26.0/src/syscall/asm_freebsd_arm64.s
             // - powerpc64
             //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/powerpc64/SYS.h
             #[inline]

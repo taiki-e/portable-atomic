@@ -57,6 +57,7 @@ mod ffi {
                 target_arch = "riscv32",
                 all(target_arch = "riscv64", target_pointer_width = "64"),
             ),
+            not(portable_atomic_no_asm_syscall),
         ))]
         {
             #[cfg(not(portable_atomic_no_asm))]
