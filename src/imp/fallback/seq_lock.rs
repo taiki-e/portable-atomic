@@ -1,27 +1,41 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/seq_lock_wide.rs.
+// Seqlock logic is adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/seq_lock.rs.
+// Wait logic is adapted from https://github.com/rust-lang/rust/blob/1.92.0/library/std/src/sys/sync/mutex/futex.rs.
 
 use core::{
     mem::ManuallyDrop,
     sync::atomic::{self, AtomicU64, Ordering},
 };
 
-use super::utils::{Backoff, sc_fence};
+use super::{
+    utils::sc_fence,
+    wait::{notify64_one as notify, wait64 as wait},
+};
 #[cfg(portable_atomic_unsafe_assume_privileged)]
 use crate::imp::interrupt::arch as interrupt;
 use crate::utils::unlikely;
 
 pub(super) type State = u64;
 
-const LOCKED: State = 1;
+const LOCKED: State = 0b01; // locked, no other threads waiting
+const CONTENDED: State = 0b11; // locked, and other threads waiting (contended)
 
-/// A simple stamped lock.
+#[inline]
+fn is_locked(state: State) -> bool {
+    state & LOCKED != 0
+}
+#[inline]
+fn is_unlocked(state: State) -> bool {
+    state & LOCKED == 0
+}
+
+/// A stamped lock.
 pub(super) struct SeqLock {
     /// The current state of the lock.
     ///
-    /// All bits except the least significant one hold the current stamp. When locked, the state
-    /// equals 1 and doesn't contain a valid stamp.
+    /// If the least significant bit is 0, the state holds the current stamp.
+    /// If the least significant bit is 1, this lock is locked and the state doesn't contain a valid stamp.
     state: AtomicU64,
 }
 
@@ -40,7 +54,7 @@ impl SeqLock {
             sc_fence();
         }
         let state = self.state.load(Ordering::Acquire);
-        if state == LOCKED { None } else { Some(state) }
+        if is_locked(state) { None } else { Some(state) }
     }
 
     /// Returns `true` if the current stamp is equal to `stamp`.
@@ -70,26 +84,83 @@ impl SeqLock {
         #[cfg(portable_atomic_unsafe_assume_privileged)]
         let interrupt_state = interrupt::disable();
 
-        let mut backoff = Backoff::new();
-        loop {
-            let previous = self.state.swap(LOCKED, Ordering::Acquire);
+        let mut previous = self.state.load(Ordering::Relaxed);
+        if is_locked(previous)
+            || self
+                .state
+                .compare_exchange(previous, LOCKED, Ordering::Acquire, Ordering::Relaxed)
+                .is_err()
+        {
+            previous = self.write_contended();
+        }
+        atomic::fence(Ordering::Release);
 
-            if previous != LOCKED {
-                atomic::fence(Ordering::Release);
+        SeqLockWriteGuard {
+            lock: self,
+            state: previous,
+            #[cfg(portable_atomic_unsafe_assume_privileged)]
+            interrupt_state,
+            emit_sc_fence,
+        }
+    }
 
-                return SeqLockWriteGuard {
-                    lock: self,
-                    state: previous,
-                    #[cfg(portable_atomic_unsafe_assume_privileged)]
-                    interrupt_state,
-                    emit_sc_fence,
-                };
-            }
+    #[cold]
+    #[must_use]
+    fn write_contended(&self) -> State {
+        // Spin first to speed things up if the lock is released quickly.
+        let mut state = self.spin();
 
-            while self.state.load(Ordering::Relaxed) == LOCKED {
-                backoff.snooze();
+        // If it's unlocked now, attempt to take the lock
+        // without marking it as contended.
+        if is_unlocked(state) {
+            match self.state.compare_exchange(state, LOCKED, Ordering::Acquire, Ordering::Relaxed) {
+                Ok(_) => return state, // Locked!
+                Err(s) => state = s,
             }
         }
+
+        loop {
+            // Put the lock in contended state.
+            // We avoid an unnecessary write if it as already set to CONTENDED,
+            // to be friendlier for the caches.
+            if state != CONTENDED {
+                state = self.state.swap(CONTENDED, Ordering::Acquire);
+                // We changed it from unlocked to CONTENDED, so we just successfully locked it.
+                if is_unlocked(state) {
+                    return state;
+                }
+            }
+
+            // Wait for the futex to change state, assuming it is still CONTENDED.
+            wait(&self.state, CONTENDED);
+
+            // Spin again after waking up.
+            state = self.spin();
+        }
+    }
+
+    fn spin(&self) -> State {
+        let mut spin = 100;
+        loop {
+            // We only use `load` (and not `swap` or `compare_exchange`)
+            // while spinning, to be easier on the caches.
+            let state = self.state.load(Ordering::Relaxed);
+
+            // We stop spinning when unlocked,
+            // but also when it's CONTENDED.
+            if state != LOCKED || spin == 0 {
+                return state;
+            }
+
+            #[allow(deprecated)]
+            core::sync::atomic::spin_loop_hint();
+            spin -= 1;
+        }
+    }
+
+    #[cold]
+    fn notify(&self) {
+        notify(&self.state);
     }
 }
 
@@ -120,13 +191,21 @@ impl SeqLockWriteGuard<'_> {
         // Restore the stamp.
         //
         // Release ordering for synchronizing with `optimistic_read`.
-        this.lock.state.store(this.state, Ordering::Release);
+        let state = this.lock.state.swap(this.state, Ordering::Release);
 
         // Restore interrupt state.
         // SAFETY: the state was retrieved by the previous `disable`.
         #[cfg(portable_atomic_unsafe_assume_privileged)]
         unsafe {
             interrupt::restore(this.interrupt_state);
+        }
+
+        if state == CONTENDED {
+            // We only wake up one thread. When that thread locks the mutex, it
+            // will mark the mutex as CONTENDED (see write_contended above),
+            // which makes sure that any other waiting threads will also be
+            // woken up eventually.
+            this.lock.notify();
         }
 
         if unlikely(this.emit_sc_fence) {
@@ -141,13 +220,21 @@ impl Drop for SeqLockWriteGuard<'_> {
         // Release the lock and increment the stamp.
         //
         // Release ordering for synchronizing with `optimistic_read`.
-        self.lock.state.store(self.state.wrapping_add(2), Ordering::Release);
+        let state = self.lock.state.swap(self.state.wrapping_add(2), Ordering::Release);
 
         // Restore interrupt state.
         // SAFETY: the state was retrieved by the previous `disable`.
         #[cfg(portable_atomic_unsafe_assume_privileged)]
         unsafe {
             interrupt::restore(self.interrupt_state);
+        }
+
+        if state == CONTENDED {
+            // We only wake up one thread. When that thread locks the mutex, it
+            // will mark the mutex as CONTENDED (see write_contended above),
+            // which makes sure that any other waiting threads will also be
+            // woken up eventually.
+            self.lock.notify();
         }
 
         if unlikely(self.emit_sc_fence) {

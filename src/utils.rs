@@ -76,6 +76,91 @@ macro_rules! ifunc {
         func($($arg_pat),*)
     }};
 }
+// Refs: https://github.com/rust-lang/rust/blob/1.93.0/library/std/src/sys/pal/unix/weak/dlsym.rs
+#[allow(unused_macros)]
+#[cfg(target_vendor = "apple")]
+macro_rules! dlsym {
+    (pub(crate) unsafe extern "C" fn $name:ident($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?;) => {
+        #[inline]
+        pub(crate) fn $name() -> Option<unsafe extern "C" fn($($arg_ty),*) $(-> $ret_ty)?> {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            type FnTy = unsafe extern "C" fn($($arg_ty),*) $(-> $ret_ty)?;
+            static FUNC: core::sync::atomic::AtomicPtr<c_void>
+                = core::sync::atomic::AtomicPtr::new(crate::utils::ptr::without_provenance_mut(1));
+            #[cold]
+            fn init() -> Option<FnTy> {
+                // SAFETY: we passed a valid C string to dlsym.
+                let func = unsafe { dlsym(RTLD_DEFAULT, c!(stringify!($name)).as_ptr()) };
+                FUNC.store(func, core::sync::atomic::Ordering::Release);
+                if func.is_null() {
+                    None
+                } else {
+                    // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`,
+                    // and a pointer returned by dlsym is a valid pointer to the function if it is non-null.
+                    Some(unsafe { core::mem::transmute::<*mut c_void, FnTy>(func) })
+                }
+            }
+            match FUNC.load(core::sync::atomic::Ordering::Acquire) {
+                func if func.addr() == 1 => init(),
+                func if func.is_null() => None,
+                // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`,
+                // and a pointer returned by dlsym is a valid pointer to the function if it is non-null.
+                func => Some(unsafe { core::mem::transmute::<*mut c_void, FnTy>(func) }),
+            }
+        }
+    };
+}
+// Refs: https://github.com/rust-lang/rust/blob/1.93.0/library/std/src/sys/pal/windows/compat.rs
+#[allow(unused_macros)]
+#[cfg(windows)]
+macro_rules! dlsym {
+    (
+        #[link(name = $module:tt)]
+        pub(crate) unsafe extern "system" fn $name:ident($($arg_pat:ident: $arg_ty:ty),* $(,)?) $(-> $ret_ty:ty)?;
+    ) => {
+        #[inline]
+        pub(crate) fn $name() -> Option<unsafe extern "system" fn($($arg_ty),*) $(-> $ret_ty)?> {
+            #[cfg(portable_atomic_no_strict_provenance)]
+            use crate::utils::ptr::PtrExt as _;
+            type FnTy = unsafe extern "system" fn($($arg_ty),*) $(-> $ret_ty)?;
+            static FUNC: core::sync::atomic::AtomicPtr<c_void>
+                = core::sync::atomic::AtomicPtr::new(crate::utils::ptr::without_provenance_mut(1));
+            #[cold]
+            fn init() -> Option<FnTy> {
+                // SAFETY: we passed a valid C string.
+                let module = unsafe { GetModuleHandleA(c!($module).as_ptr() as *const u8) };
+                if module.is_null() {
+                    FUNC.store(core::ptr::null_mut(), core::sync::atomic::Ordering::Release);
+                    None
+                } else {
+                    // SAFETY: `module` is valid module and we passed a valid C string.
+                    let proc = unsafe {
+                        GetProcAddress(module, c!(stringify!($name)).as_ptr() as *const u8)
+                    };
+                    if let Some(proc) = proc {
+                        // SAFETY: a pointer returned by GetProcAddress is a valid pointer to the function if it is non-null.
+                        let proc = unsafe {
+                            core::mem::transmute::<unsafe extern "system" fn() -> isize, FnTy>(proc)
+                        };
+                        FUNC.store(proc as *mut c_void, core::sync::atomic::Ordering::Release);
+                        Some(proc)
+                    } else {
+                        FUNC.store(core::ptr::null_mut(), core::sync::atomic::Ordering::Release);
+                        None
+                    }
+                }
+            }
+            match FUNC.load(core::sync::atomic::Ordering::Acquire) {
+                func if func.addr() == 1 => init(),
+                func if func.is_null() => None,
+                // SAFETY: `FnTy` is a function pointer, which is always safe to transmute with a `*mut ()`,
+                // and a pointer returned by GetProcAddress is a valid pointer to the function if it is non-null.
+                func => Some(unsafe { core::mem::transmute::<*mut c_void, FnTy>(func) }),
+            }
+        }
+    };
+}
 
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -659,12 +744,6 @@ pub(crate) mod ptr {
 // - safe abstraction (c! macro) for creating static C strings without runtime checks.
 //   (c"..." requires Rust 1.77)
 // - helper macros for defining FFI bindings.
-#[cfg(any(
-    test,
-    portable_atomic_test_no_std_static_assert_ffi,
-    not(any(target_arch = "x86", target_arch = "x86_64"))
-))]
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
 pub(crate) mod ffi {
@@ -770,33 +849,33 @@ pub(crate) mod ffi {
 
     macro_rules! c {
         ($s:expr) => {{
-            const BYTES: &[u8] = concat!($s, "\0").as_bytes();
-            const _: () = static_assert!(crate::utils::ffi::_const_is_c_str(BYTES));
+            // const str::as_bytes requires Rust 1.39
+            const BYTES: &str = concat!($s, "\0");
+            const _CHECK: () = static_assert!(crate::utils::ffi::_const_is_c_str(BYTES));
             #[allow(unused_unsafe)]
             // SAFETY: we've checked `BYTES` is a valid C string
             unsafe {
-                crate::utils::ffi::CStr::from_bytes_with_nul_unchecked(BYTES)
+                crate::utils::ffi::CStr::from_bytes_with_nul_unchecked(BYTES.as_bytes())
             }
         }};
     }
 
+    #[cfg_attr(portable_atomic_no_track_caller, allow(unused_variables))]
     #[must_use]
-    pub(crate) const fn _const_is_c_str(bytes: &[u8]) -> bool {
-        #[cfg(portable_atomic_no_track_caller)]
-        {
-            // const_if_match/const_loop was stabilized (nightly-2020-06-30) 2 days before
-            // track_caller was stabilized (nightly-2020-07-02), so we reuse the cfg for
-            // track_caller here instead of emitting a cfg for const_if_match/const_loop.
-            // https://github.com/rust-lang/rust/pull/72437
-            // track_caller was stabilized 11 days after the oldest nightly version
-            // that uses this module, and is included in the same 1.46 stable release.
-            // The check here is insufficient in this case, but this is fine because this function
-            // is internal code that is not used to process input from the user and our CI checks
-            // all builtin targets and some custom targets with some versions of newer compilers.
-            !bytes.is_empty()
-        }
+    pub(crate) const fn _const_is_c_str(bytes: &str) -> bool {
+        // const_slice_is_empty requires Rust 1.39.
+        // const_if_match/const_loop was stabilized (nightly-2020-06-30) 2 days before
+        // track_caller was stabilized (nightly-2020-07-02), so we reuse the cfg for
+        // track_caller here instead of emitting a cfg for const_if_match/const_loop.
+        // https://github.com/rust-lang/rust/pull/72437
+        // track_caller was stabilized 11 days after the oldest nightly version
+        // that uses this module, and is included in the same 1.46 stable release.
+        // The check here is insufficient in this case, but this is fine because this function
+        // is internal code that is not used to process input from the user and our CI checks
+        // all builtin targets and some custom targets with some versions of newer compilers.
         #[cfg(not(portable_atomic_no_track_caller))]
         {
+            let bytes = bytes.as_bytes();
             // Based on https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/c_str.rs#L417
             // - bytes must be nul-terminated.
             // - bytes must not contain any interior nul bytes.
@@ -814,8 +893,8 @@ pub(crate) mod ffi {
                     return false;
                 }
             }
-            true
         }
+        true
     }
 
     /// Defines types with #[cfg(test)] static assertions which checks
@@ -900,7 +979,7 @@ pub(crate) mod ffi {
     macro_rules! sys_fn {
         ({
             $(#[$extern_attr:meta])*
-            extern $abi:literal {$(
+            extern $abi:tt {$(
                 $(#[$fn_attr:meta])*
                 $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
                     $($args:tt)*
@@ -947,22 +1026,22 @@ pub(crate) mod ffi {
         #[test]
         fn test_is_c_str() {
             #[track_caller]
-            fn t(bytes: &[u8]) {
+            fn t(bytes: &str) {
                 assert_eq!(
                     super::_const_is_c_str(bytes),
-                    std::ffi::CStr::from_bytes_with_nul(bytes).is_ok()
+                    std::ffi::CStr::from_bytes_with_nul(bytes.as_bytes()).is_ok()
                 );
             }
-            t(b"\0");
-            t(b"a\0");
-            t(b"abc\0");
-            t(b"");
-            t(b"a");
-            t(b"abc");
-            t(b"\0a");
-            t(b"\0a\0");
-            t(b"ab\0c\0");
-            t(b"\0\0");
+            t("\0");
+            t("a\0");
+            t("abc\0");
+            t("");
+            t("a");
+            t("abc");
+            t("\0a");
+            t("\0a\0");
+            t("ab\0c\0");
+            t("\0\0");
         }
     }
 }

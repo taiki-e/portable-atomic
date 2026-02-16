@@ -849,8 +849,7 @@ mod tests {
 
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
-    #[cfg_attr(target_arch = "arm", rustversion::nightly)] // cfg(target_feature = "thumb-mode") is nightly-only
-    #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
+    #[cfg_attr(target_arch = "powerpc64", cfg(not(portable_atomic_no_asm_syscall)))]
     #[test]
     fn test_alternative() {
         #[cfg(not(portable_atomic_no_asm))]
@@ -899,7 +898,13 @@ mod tests {
                         in("x4") 0_u64,
                         options(nostack, preserves_flags),
                     );
-                    #[cfg(all(target_arch = "arm", not(target_feature = "thumb-mode")))]
+                    #[cfg(all(
+                        target_arch = "arm",
+                        not(any(
+                            target_feature = "thumb-mode",
+                            portable_atomic_target_feature = "thumb-mode",
+                        )),
+                    ))]
                     asm!(
                         "svc 0",
                         in("r7") number,
@@ -911,7 +916,13 @@ mod tests {
                         in("r4") 0_u32,
                         options(nostack, preserves_flags),
                     );
-                    #[cfg(all(target_arch = "arm", target_feature = "thumb-mode"))]
+                    #[cfg(all(
+                        target_arch = "arm",
+                        any(
+                            target_feature = "thumb-mode",
+                            portable_atomic_target_feature = "thumb-mode",
+                        ),
+                    ))]
                     asm!(
                         // r7 is reserved on thumb
                         "mov {tmp}, r7",

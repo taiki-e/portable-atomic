@@ -70,7 +70,6 @@ $(sed -E 's/^/        target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 ))]
 #[macro_use]
 mod imp {
-    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     macro_rules! ptr_reg {
         (\$ptr:ident) => {{
             let _: *const _ = \$ptr; // ensure \$ptr is a pointer (*mut _ or *const _)
@@ -101,7 +100,6 @@ $(sed -E 's/^/        target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 )))]
 #[macro_use]
 mod imp {
-    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     macro_rules! ptr_reg {
         (\$ptr:ident) => {{
             let _: *const _ = \$ptr; // ensure \$ptr is a pointer (*mut _ or *const _)
@@ -214,5 +212,40 @@ ${no_atomic_64[*]}
 #[rustfmt::skip]
 pub(crate) static NO_ATOMIC: &[&str] = &[
 ${no_atomic[*]}
+];
+EOF
+
+arm_but_thumb_mode=()
+thumb_but_arm_mode=()
+for target in $(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "arm" then .key else empty end'); do
+  cfgs=$(rustc --print cfg --target "${target}")
+  case "${target}" in
+    thumb*)
+      if ! grep -Fq 'target_feature="thumb-mode"' <<<"${cfgs}"; then
+        thumb_but_arm_mode+=("${target}")
+      fi
+      ;;
+    *)
+      if grep -Fq 'target_feature="thumb-mode"' <<<"${cfgs}"; then
+        arm_but_thumb_mode+=("${target}")
+      fi
+      ;;
+  esac
+done
+if [[ ${#thumb_but_arm_mode[@]} -ne 0 ]]; then
+  IFS=' '
+  bail "thumb* but in arm mode...: ${thumb_but_arm_mode[*]}"
+fi
+
+# sort and dedup
+IFS=$'\n'
+arm_but_thumb_mode=($(LC_ALL=C sort -u <<<"${arm_but_thumb_mode[*]}" | sed -E 's/^/    "/g; s/$/",/g'))
+IFS=$'\n\t'
+
+cat >>"${build_file}" <<EOF
+
+#[rustfmt::skip]
+pub(crate) static ARM_BUT_THUMB_MODE: &[&str] = &[
+${arm_but_thumb_mode[*]}
 ];
 EOF

@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - dev
+      - futex
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
@@ -574,6 +575,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             flags: -C target-feature=+cmpxchg16b
           - target: x86_64-pc-windows-msvc
+          - target: x86_64-unknown-freebsd
           - target: aarch64-unknown-linux-gnu
           - target: aarch64-apple-darwin
           - target: i686-unknown-linux-gnu

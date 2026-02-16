@@ -307,3 +307,37 @@
     obj:/usr/lib/s390x-linux-gnu/libc.so.6
     obj:*
 }
+{
+    fallback_cas2
+    Memcheck:Cond
+    ...
+    fun:compare_exchange
+    fun:compare_exchange_weak
+    fun:compare_exchange_weak
+    fun:{closure#*}
+    fun:_*portable_atomic3imp8fallback5tests16test_atomic_*12821compare_exchange_weak*
+    fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>
+    fun:_*test28___rust_begin_short_backtrace*
+    fun:run
+    fun:{closure#*}
+    fun:call_once<core::result::Result<(), alloc::string::String>, test::run_test_in_process::{closure_env#*}>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:catch_unwind<core::result::Result<(), alloc::string::String>, core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure_env#*}>, core::result::Result<(), alloc::string::String>>
+    fun:run_test_in_process
+    fun:_*test8run_test*
+    fun:{closure#*}
+    fun:_*std3sys9backtrace28___rust_begin_short_backtrace*
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:call_once<(), std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>
+    fun:do_call<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:catch_unwind<(), core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>>
+    fun:catch_unwind<core::panic::unwind_safe::AssertUnwindSafe<std::thread::lifecycle::spawn_unchecked::{closure#*}::{closure_env#*}<test::run_test::{closure_env#*}, ()>>, ()>
+    fun:{closure#*}<test::run_test::{closure_env#*}, ()>
+    fun:_*std6thread9lifecycle15spawn_unchecked*
+    fun:call_once<(), (dyn core::ops::function::FnOnce<(), Output=()> + core::marker::Send), alloc::alloc::Global>
+    fun:_*std3sys6thread4unix*6Thread3new12thread_start
+    fun:start_thread
+    obj:/usr/lib/s390x-linux-gnu/libc.so.6
+    obj:*
+}
