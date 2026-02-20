@@ -555,8 +555,10 @@ mod arch {
         pub(crate) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
         // Linux 6.18+
         // https://github.com/torvalds/linux/commit/220928e52cb03d223b3acad3888baf0687486d21
+        // FreeBSD 16.0+
+        // https://github.com/freebsd/freebsd-src/commit/3a960425df759a7bb8f946d23f035c63f3a5de7a
         #[cfg(test)]
-        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
         pub(crate) const HWCAP3_LSFE: ffi::c_ulong = 1 << 2;
     });
@@ -608,7 +610,6 @@ mod arch {
             check!(hwcap2, rcpc3, HWCAP2_LRCPC3);
             check!(hwcap2, lse128, HWCAP2_LSE128);
             #[cfg(test)]
-            #[cfg(any(target_os = "linux", target_os = "android"))]
             {
                 let hwcap3 = os::getauxval(ffi::AT_HWCAP3);
                 check!(hwcap3, lsfe, HWCAP3_LSFE);
