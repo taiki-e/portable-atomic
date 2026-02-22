@@ -62,16 +62,10 @@ EOF
     ;;
   xtensa*)
     case "${runner}" in
-      wokwi-server)
-        case "${target}" in
-          xtensa-esp32-none-elf) chip=esp32 ;;
-          xtensa-esp32s2-none-elf) chip=esp32s2 ;;
-          # Note: https://github.com/MabezDev/wokwi-server/pull/16 is not yet released
-          xtensa-esp32s3-none-elf) chip=esp32s3 ;;
-          *) bail "unrecognized target '${target}'" ;;
-        esac
+      wokwi-cli)
+        sed -E "s|<path>|../../${bin#"${WOKWI_WORKSPACE_DIR}/"}|g" "${WOKWI_TMPDIR}/wokwi-base.toml" >|"${WOKWI_TMPDIR}/wokwi.toml"
         start_simulator() {
-          "${WOKWI_SERVER:-wokwi-server}" --chip "${chip}" "${bin}" &>>"${stdout}" &
+          "${WOKWI_CLI:-wokwi-cli}" "${WOKWI_TMPDIR}" &>>"${stdout}" &
         }
         ;;
       *) bail "unrecognized runner '${runner}'" ;;
@@ -121,7 +115,7 @@ tail -s0 -f "${stdout}" &
 tail_pid=$!
 
 start_simulator
-simulator_pid=$!
+[[ -n "${simulator_pid}" ]] || simulator_pid=$!
 
 if [[ -n "${no_exit}" ]]; then
   # Inspired by mgba-test-runner.

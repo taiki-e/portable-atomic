@@ -40,6 +40,8 @@ csrrci
 csrw
 cxchg
 cxchgweak
+devkitc
+devkitm
 dlfcn
 dlsym
 ecall

@@ -177,13 +177,13 @@ run() {
         fi
         ;;
       avr*)
-        if ! type -P simavr >/dev/null; then
+        if ! type -P "${SIMAVR:-simavr}" >/dev/null; then
           info "no-std test for ${target} requires simavr (switched to build-only)"
           subcmd=build
         fi
         ;;
       msp430*)
-        if ! type -P mspdebug >/dev/null; then
+        if ! type -P "${MSPDEBUG:-mspdebug}" >/dev/null; then
           info "no-std test for ${target} requires mspdebug (switched to build-only)"
           subcmd=build
         fi
@@ -199,8 +199,8 @@ run() {
   case "${target}" in
     xtensa*)
       # TODO: run test with simulator on CI
-      if ! type -P wokwi-server >/dev/null; then
-        info "no-std test for ${target} requires wokwi-server (switched to build-only)"
+      if ! type -P "${WOKWI_CLI:-wokwi-cli}" >/dev/null; then
+        info "no-std test for ${target} requires wokwi-cli (switched to build-only)"
         subcmd=build
       fi
       ;;
@@ -267,19 +267,31 @@ run() {
       ;;
     xtensa*)
       test_dir=tests/xtensa
-      export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh wokwi-server ${target}"
+      export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh wokwi-cli ${target}"
       linker=linkall.x
       target_rustflags+=" -C link-arg=-Wl,-T${linker} -C link-arg=-nostartfiles"
+      local cpu
+      cpu=$(cut -d- -f2 <<<"${target}")
+      args+=(--features "esp-println/${cpu},esp-hal/${cpu}")
+      if [[ "${subcmd}" != "build" ]]; then
+        export WOKWI_TMPDIR="${workspace_dir}/tmp/wokwi"
+        export WOKWI_WORKSPACE_DIR="${workspace_dir}"
+        rm -rf -- "${WOKWI_TMPDIR}"
+        mkdir -p -- "${WOKWI_TMPDIR}"
+        cp -- "${test_dir}/diagram-${cpu}.json" "${WOKWI_TMPDIR}/diagram.json"
+        cp -- "${test_dir}/wokwi-base.toml" "${WOKWI_TMPDIR}/wokwi-base.toml"
+      fi
       ;;
     aarch64*-l4re*)
       test_dir=tests/l4re
+      export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh l4image ${target}"
       if [[ "${subcmd}" != "build" ]]; then
-        export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh l4image ${target}"
         L4RE_SYSROOTS="$(dirname -- "$(dirname -- "$(type -P aarch64-l4re-gcc)")")"/sysroots/aarch64-l4re
         export L4RE_SYSROOTS
-        mkdir -p -- tmp/l4re
+        export L4RE_TMPDIR="${workspace_dir}/tmp/l4re"
+        mkdir -p -- "${L4RE_TMPDIR}"
         (
-          cd -- tmp/l4re
+          cd -- "${L4RE_TMPDIR}"
           [[ -e l4re_hello-2_arm_virt.elf ]] || retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors -O https://l4re.org/download/snapshots/pre-built-images/arm64/l4re_hello-2_arm_virt.elf
           [[ -e workdir-arm ]] || l4image -i l4re_hello-2_arm_virt.elf --outputdir workdir-arm extract
           [[ -e workdir-arm/hello ]] || rm -- workdir-arm/hello
@@ -293,7 +305,6 @@ EOF
             sed -E "${in_place[@]}" 's/hello/l4re-test/g' workdir-arm/modules.list
           fi
         )
-        export L4RE_TMPDIR="${workspace_dir}/tmp/l4re"
       fi
       ;;
     *) bail "unrecognized target '${target}'" ;;
