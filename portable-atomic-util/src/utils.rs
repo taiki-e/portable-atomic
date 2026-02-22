@@ -35,8 +35,6 @@ pub(crate) mod ptr {
         }
         #[cfg(else)]
         {
-            use core::mem;
-
             #[inline(always)]
             #[must_use]
             pub(crate) const fn without_provenance_mut<T>(addr: usize) -> *mut T {
@@ -47,9 +45,10 @@ pub(crate) mod ptr {
                 // pointer).
                 #[cfg(miri)]
                 unsafe {
-                    mem::transmute(addr)
+                    core::mem::transmute(addr)
                 }
                 // const transmute requires Rust 1.56.
+                // Using transmute doesn't work with CHERI: https://github.com/kent-weak-memory/rust/blob/0c0ca909de877f889629057e1ddf139527446d75/library/core/src/ptr/mod.rs#L607
                 #[cfg(not(miri))]
                 {
                     addr as *mut T
@@ -69,7 +68,15 @@ pub(crate) mod ptr {
                     // transmute semantics, it relies on sysroot crates having special status.
                     // SAFETY: Pointer-to-integer transmutes are valid (if you are okay with losing the
                     // provenance).
-                    unsafe { mem::transmute(self as *const ()) }
+                    #[cfg(miri)]
+                    unsafe {
+                        core::mem::transmute(self as *const ())
+                    }
+                    // Using transmute doesn't work with CHERI: https://github.com/kent-weak-memory/rust/blob/0c0ca909de877f889629057e1ddf139527446d75/library/core/src/ptr/mut_ptr.rs#L210
+                    #[cfg(not(miri))]
+                    {
+                        self as *const () as usize
+                    }
                 }
             }
         }
