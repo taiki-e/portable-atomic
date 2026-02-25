@@ -5503,4 +5503,3 @@ asm_test::fetch_xor::bool::release:
         movne             r0, #1
         pop               {r11, lr}
         bx                lr
-

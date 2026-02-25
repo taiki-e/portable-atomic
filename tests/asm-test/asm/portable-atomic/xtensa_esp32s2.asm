@@ -6534,4 +6534,3 @@ asm_test::fetch_umin::u32::seqcst:
         rsync
         mov.n             a2, a8
         retw.n
-

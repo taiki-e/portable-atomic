@@ -7314,4 +7314,3 @@ asm_test::fetch_xor::u128::release:
         mov               qword ptr [r11d], rax
         mov               eax, r11d
         ret
-

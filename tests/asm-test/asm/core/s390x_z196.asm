@@ -8139,4 +8139,3 @@ asm_test::fetch_xor::u128::release:
         stg               %r4,8(%r2)
         lmg               %r10,%r15,80(%r15)
         br                %r14
-

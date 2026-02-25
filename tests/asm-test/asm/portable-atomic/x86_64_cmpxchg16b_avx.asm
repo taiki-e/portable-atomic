@@ -6959,4 +6959,3 @@ asm_test::fetch_xor::u128::release:
         jne               0b
         mov               rbx, r10
         ret
-

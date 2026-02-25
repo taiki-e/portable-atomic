@@ -5428,4 +5428,3 @@ asm_test::fetch_xor::u128::release:
         jne               0b
         pop               rbx
         ret
-

@@ -2987,4 +2987,3 @@ asm_test::fetch_xor::u32::release:
         bl                0f
         pop               {r11, lr}
         bx                lr
-

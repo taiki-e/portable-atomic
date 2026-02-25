@@ -6592,4 +6592,3 @@ asm_test::fetch_xor::bool::release:
         sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
-

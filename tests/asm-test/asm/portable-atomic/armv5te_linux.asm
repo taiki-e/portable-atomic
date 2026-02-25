@@ -5032,4 +5032,3 @@ asm_test::fetch_xor::bool::release:
         cmp               r0, #0
         movne             r0, #1
         pop               {r11, pc}
-

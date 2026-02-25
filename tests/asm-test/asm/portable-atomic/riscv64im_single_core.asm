@@ -6688,4 +6688,3 @@ asm_test::fetch_xor::bool::release:
         csrw              mstatus, a2
         snez              a0, a3
         ret
-

@@ -10077,4 +10077,3 @@ asm_test::fetch_xor::bool::release:
         zext.b            a0, a0
         snez              a0, a0
         ret
-

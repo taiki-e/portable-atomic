@@ -8309,4 +8309,3 @@ asm_test::fetch_xor::u128::release:
         mr                3, 7
         mr                4, 6
         blr
-

@@ -7923,4 +7923,3 @@ asm_test::fetch_xor::bool::release:
         test              al, al
         setne             al
         ret
-

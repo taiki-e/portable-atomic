@@ -4368,4 +4368,3 @@ asm_test::fetch_xor::u32::relaxed:
 asm_test::fetch_xor::u32::release:
         amoxor.w.rl       a0, a1, (a0)
         ret
-

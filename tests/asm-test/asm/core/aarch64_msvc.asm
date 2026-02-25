@@ -6451,4 +6451,3 @@ asm_test::fetch_xor::u128::release:
         stlxp             w11, x10, x9, [x8]
         cbnz              w11, 0b
         ret
-

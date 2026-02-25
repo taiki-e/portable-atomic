@@ -4759,4 +4759,3 @@ asm_test::fetch_xor::bool::release:
         mov               #1,	r12	;r3 As==01
         bic               r13,	r12	;
         ret
-

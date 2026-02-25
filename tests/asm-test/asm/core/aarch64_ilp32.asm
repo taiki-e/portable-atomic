@@ -6322,4 +6322,3 @@ asm_test::fetch_xor::u128::release:
         cbnz              w13, 0b
         stp               x10, x9, [x8]
         ret
-

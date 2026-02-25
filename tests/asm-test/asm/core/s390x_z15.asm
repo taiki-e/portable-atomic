@@ -7549,4 +7549,3 @@ asm_test::fetch_xor::u128::release:
         jl                0b
         vst               %v1,0(%r2),3
         br                %r14
-

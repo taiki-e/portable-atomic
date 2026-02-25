@@ -12823,4 +12823,3 @@ asm_test::fetch_xor::u128::release:
         stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
-

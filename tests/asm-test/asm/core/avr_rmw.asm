@@ -99,4 +99,3 @@ asm_test::store::u16::release:
         std               Z+1, r23	; 0x01
         out               0x3f, r0	; 63
         ret
-

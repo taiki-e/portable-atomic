@@ -6185,4 +6185,3 @@ asm_test::fetch_xor::u128::release:
         mov               x1, x7
         mov               x0, x6
         ret
-

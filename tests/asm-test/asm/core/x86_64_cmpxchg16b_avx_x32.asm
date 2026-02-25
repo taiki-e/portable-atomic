@@ -5437,4 +5437,3 @@ asm_test::fetch_xor::u128::release:
         mov               eax, edi
         pop               rbx
         ret
-

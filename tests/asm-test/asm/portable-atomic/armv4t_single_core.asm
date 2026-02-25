@@ -7021,4 +7021,3 @@ asm_test::fetch_xor::bool::release:
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
-

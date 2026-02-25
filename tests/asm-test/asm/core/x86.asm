@@ -5744,4 +5744,3 @@ asm_test::fetch_xor::u64::release:
         pop               ebx
         pop               ebp
         ret
-

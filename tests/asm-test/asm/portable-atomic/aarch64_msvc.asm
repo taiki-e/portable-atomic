@@ -9005,4 +9005,3 @@ asm_test::fetch_xor::u128::release:
         cbnz              w11, 0b
         mov               x0, x8
         ret
-

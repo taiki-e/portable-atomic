@@ -5329,4 +5329,3 @@ asm_test::fetch_xor::bool::release:
         mov               r24, r1
         eor               r25, r25
         ret
-
