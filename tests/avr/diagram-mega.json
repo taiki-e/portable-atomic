@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "author": "Taiki Endo",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-arduino-mega",
+      "id": "mega",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    ["mega:1", "$serialMonitor:RX", "", []],
+    ["mega:0", "$serialMonitor:TX", "", []]
+  ],
+  "dependencies": {}
+}

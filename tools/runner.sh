@@ -20,6 +20,19 @@ target="$2"
 bin="$3"
 stdout=".test-${target}.stdout"
 
+setup_wokwi() {
+  local bin="../../${bin#"${WOKWI_WORKSPACE_DIR}/"}"
+  cat >|"${WOKWI_TMPDIR}/wokwi.toml" <<EOF
+[wokwi]
+version = 1
+elf = "${bin}"
+firmware = "${bin}"
+EOF
+  start_simulator() {
+    "${WOKWI_CLI:-wokwi-cli}" "${WOKWI_TMPDIR}" &>>"${stdout}" &
+  }
+}
+
 no_exit=1
 case "${target}" in
   avr*)
@@ -43,6 +56,7 @@ case "${target}" in
           "${QEMU_SYSTEM_AVR:-qemu-system-avr}" -M "${machine}" -display none -serial stdio -bios "${bin}" &>>"${stdout}" &
         }
         ;;
+      wokwi-cli) setup_wokwi ;;
       *) bail "unrecognized runner '${runner}'" ;;
     esac
     ;;
@@ -62,12 +76,7 @@ EOF
     ;;
   xtensa*)
     case "${runner}" in
-      wokwi-cli)
-        sed -E "s|<path>|../../${bin#"${WOKWI_WORKSPACE_DIR}/"}|g" "${WOKWI_TMPDIR}/wokwi-base.toml" >|"${WOKWI_TMPDIR}/wokwi.toml"
-        start_simulator() {
-          "${WOKWI_CLI:-wokwi-cli}" "${WOKWI_TMPDIR}" &>>"${stdout}" &
-        }
-        ;;
+      wokwi-cli) setup_wokwi ;;
       *) bail "unrecognized runner '${runner}'" ;;
     esac
     ;;
