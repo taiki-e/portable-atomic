@@ -83,9 +83,9 @@ RUSTFLAGS="--cfg portable_atomic_unstable_coerce_unsized" cargo ...
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
     clippy::impl_trait_in_params,
-    // clippy::missing_inline_in_public_items,
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
+    // clippy::missing_inline_in_public_items,
 )]
 #![cfg_attr(portable_atomic_no_strict_provenance, allow(unstable_name_collisions))]
 #![allow(clippy::inline_always)]

@@ -288,15 +288,15 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
     clippy::exhaustive_enums,
     clippy::exhaustive_structs,
     clippy::impl_trait_in_params,
-    clippy::missing_inline_in_public_items,
     clippy::std_instead_of_alloc,
     clippy::std_instead_of_core,
+    clippy::missing_inline_in_public_items,
     // Code outside of cfg(feature = "float") shouldn't use float.
     clippy::float_arithmetic,
 )]
 #![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
 #![cfg_attr(portable_atomic_no_strict_provenance, allow(unstable_name_collisions))]
-#![allow(clippy::inline_always, clippy::used_underscore_items)]
+#![allow(clippy::inline_always, clippy::unreadable_literal, clippy::used_underscore_items)]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
 // On tier 2 platforms (currently N/A), we use cfg set by build script to
