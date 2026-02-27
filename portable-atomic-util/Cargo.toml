@@ -2,6 +2,7 @@
 name = "portable-atomic-util"
 version = "0.2.5" #publish:version
 edition = "2018"
+# NB: Sync with rust-version field in other Cargo.toml files and msrv badge in README.md
 rust-version = "1.34" # Align to portable-atomic
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/taiki-e/portable-atomic"
