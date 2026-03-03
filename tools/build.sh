@@ -327,8 +327,6 @@ build() {
         xtensa*) return 0 ;;
         # rustc-LLVM ERROR: Cannot select: 0x7f9dc3256d20: ..., src/num/mod.rs:713:25 (last checked: nightly-2025-09-11)
         amdgcn*) return 0 ;;
-        # error: symbol 'fma' is already defined (last checked: nightly-2025-09-13) https://github.com/rust-lang/compiler-builtins/pull/1066
-        hexagon*) return 0 ;;
         # compiler SIGSEGV (last checked: nightly-2025-09-11)
         m68k-unknown-none-elf) return 0 ;;
         # TODO(mips): compiler SIGILL with LLVM 22
