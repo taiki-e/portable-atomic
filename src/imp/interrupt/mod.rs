@@ -393,7 +393,6 @@ items!({
                         ))]
                         {
                             atomic_int!(emulate_arithmetic, $atomic_type, $int_type);
-                            atomic_int!(emulate_bit, $atomic_type, $int_type);
                         }
                         // RISC-V RMW with Zaamo extension
                         #[cfg(all(

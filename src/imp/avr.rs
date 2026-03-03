@@ -72,8 +72,10 @@ macro_rules! atomic8 {
                     );
                 }
             }
+        }
 
-            #[cfg(any(target_feature = "rmw", portable_atomic_target_feature = "rmw"))]
+        #[cfg(any(target_feature = "rmw", portable_atomic_target_feature = "rmw"))]
+        impl $atomic_type {
             #[inline]
             pub(crate) fn swap(&self, val: $value_type, _order: Ordering) -> $value_type {
                 let dst = self.v.get();
@@ -90,6 +92,65 @@ macro_rules! atomic8 {
                     );
                 }
                 out
+            }
+
+            #[inline]
+            pub(crate) fn fetch_and(&self, val: $value_type, _order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                let out;
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                // cfg guarantee that the CPU supports RMW instructions.
+                unsafe {
+                    asm!(
+                        "lac Z, {val}", // atomic { _x = *Z; *Z &= !val; val = _x }
+                        val = inout(reg) !val => out,
+                        in("Z") dst,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                out
+            }
+
+            #[inline]
+            pub(crate) fn fetch_or(&self, val: $value_type, _order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                let out;
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                // cfg guarantee that the CPU supports RMW instructions.
+                unsafe {
+                    asm!(
+                        "las Z, {val}", // atomic { _x = *Z; *Z |= val; val = _x }
+                        val = inout(reg) val => out,
+                        in("Z") dst,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                out
+            }
+
+            #[inline]
+            pub(crate) fn fetch_xor(&self, val: $value_type, _order: Ordering) -> $value_type {
+                let dst = self.v.get();
+                let out;
+                // SAFETY: any data races are prevented by atomic intrinsics and the raw
+                // pointer passed in is valid because we got it from a reference.
+                // cfg guarantee that the CPU supports RMW instructions.
+                unsafe {
+                    asm!(
+                        "lat Z, {val}", // atomic { _x = *Z; *Z ^= val; val = _x }
+                        val = inout(reg) val => out,
+                        in("Z") dst,
+                        options(nostack, preserves_flags),
+                    );
+                }
+                out
+            }
+
+            #[inline]
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $value_type {
+                self.fetch_xor(!0, order)
             }
         }
     };
