@@ -350,7 +350,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         portable_atomic_unstable_asm_experimental_arch,
-        any(target_arch = "arm64ec", target_arch = "s390x"),
+        any(target_arch = "arm64ec", target_arch = "s390x", target_arch = "xtensa"),
     ),
     feature(asm_experimental_arch)
 )]

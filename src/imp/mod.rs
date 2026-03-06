@@ -35,10 +35,10 @@
         not(target_has_atomic = "ptr"),
     )))
 )]
-#[cfg_attr(
+#[cfg(all(
     target_arch = "xtensa",
-    cfg(not(any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3")))
-)]
+    any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3",)
+))]
 mod core_atomic;
 
 // AVR
