@@ -202,6 +202,10 @@ fn main() {
                 if is_allowed_feature("asm_experimental_arch") {
                     println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
                 }
+                // Between 1.90 and 1.94 some register clobbers were not defined correctly, so asm implementation cannot be used.
+                if version.probe(91, 2025, 8, 30) && !version.probe(94, 2026, 3, 6) {
+                    println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                }
             }
             _ => {}
         }
