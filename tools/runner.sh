@@ -40,7 +40,8 @@ case "${target}" in
       simavr)
         no_exit=''
         case "${target}" in
-          avr-unknown-gnu-atmega2560) mcu="atmega2560" ;;
+          avr-none) mcu=atmega2560 ;; # TODO: parse -C target-cpu
+          avr-*) mcu="${target##*-}" ;;
           *) bail "unrecognized target '${target}'" ;;
         esac
         start_simulator() {
@@ -49,7 +50,8 @@ case "${target}" in
         ;;
       qemu-system)
         case "${target}" in
-          avr-unknown-gnu-atmega2560) machine=mega2560 ;;
+          avr-none) machine=mega2560 ;; # TODO: parse -C target-cpu
+          avr-*) machine="${target##*-at}" ;;
           *) bail "unrecognized target '${target}'" ;;
         esac
         start_simulator() {
@@ -109,7 +111,7 @@ cleanup() {
   case "${target}" in
     aarch64*-l4re*)
       # shellcheck disable=SC2009
-      qemu_pid=$(ps x -o "%p %c " | grep -E 'qemu-system-aar' | sed -E 's/^\s+//g' | cut -d' ' -f1)
+      qemu_pid=$(ps x -o "%p %c " | grep -F 'qemu-system-aar' | sed -E 's/^\s+//g' | cut -d' ' -f1)
       kill -- "${qemu_pid}" || true
       ;;
   esac

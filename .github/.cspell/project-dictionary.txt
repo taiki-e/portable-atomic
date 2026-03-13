@@ -119,6 +119,7 @@ mpidr
 mspdebug
 mstatus
 mstatush
+muldi
 mvfr
 negs
 newrepo
@@ -187,8 +188,6 @@ unclonable
 unsize
 usart
 uscat
-uwrite
-uwriteln
 versatilepb
 virt
 vmlinux

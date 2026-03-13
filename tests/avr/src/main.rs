@@ -18,14 +18,9 @@ fn main() -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
 
-    macro_rules! print {
+    macro_rules! print_str {
         ($($tt:tt)*) => {{
-            let _ = ufmt::uwrite!(serial, $($tt)*);
-        }};
-    }
-    macro_rules! println {
-        ($($tt:tt)*) => {{
-            let _ = ufmt::uwriteln!(serial, $($tt)*);
+            sim::write_str(&mut serial, $($tt)*);
         }};
     }
 
@@ -35,9 +30,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
                 }
-                print!("test test_atomic_{} ... ", stringify!($int_type));
+                print_str!(concat!("test test_atomic_", stringify!($int_type), " ... "));
                 [<test_atomic_ $int_type>]();
-                println!("ok");
+                print_str!("ok\n");
             }
         };
     }
@@ -47,9 +42,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
                 }
-                print!("test test_atomic_{} ... ", stringify!($float_type));
+                print_str!(concat!("test test_atomic_", stringify!($float_type), " ... "));
                 [<test_atomic_ $float_type>]();
-                println!("ok");
+                print_str!("ok\n");
             }
         };
     }
@@ -58,9 +53,9 @@ fn main() -> ! {
             fn test_atomic_bool() {
                 __test_atomic_bool!(AtomicBool);
             }
-            print!("test test_atomic_bool ... ");
+            print_str!("test test_atomic_bool ... ");
             test_atomic_bool();
-            println!("ok");
+            print_str!("ok\n");
         };
     }
     macro_rules! test_atomic_ptr {
@@ -68,9 +63,9 @@ fn main() -> ! {
             fn test_atomic_ptr() {
                 __test_atomic_ptr!(AtomicPtr<u8>);
             }
-            print!("test test_atomic_ptr ... ");
+            print_str!("test test_atomic_ptr ... ");
             test_atomic_ptr();
-            println!("ok");
+            print_str!("ok\n");
         };
     }
 
@@ -100,7 +95,7 @@ fn main() -> ! {
         // test_atomic_float!(f64);
     }
 
-    println!("Tests finished successfully");
+    print_str!("Tests finished successfully\n");
 
     sim::exit(0)
 }
@@ -114,14 +109,21 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = sim::Usart(arduino_hal::default_serial!(dp, pins, 57600));
 
-    macro_rules! println {
-        ($($tt:tt)*) => {{
-            use core::fmt::Write as _;
-            let _ = writeln!(serial, $($tt)*);
-        }};
+    #[cfg(debug_assertions)]
+    {
+        let _ = info;
+        sim::write_str(&mut serial.0, "panicked\n");
     }
-
-    println!("{info}");
+    #[cfg(not(debug_assertions))]
+    {
+        macro_rules! println {
+            ($($tt:tt)*) => {{
+                use core::fmt::Write as _;
+                let _ = writeln!(serial, $($tt)*);
+            }};
+        }
+        println!("{info}");
+    }
     sim::exit(1)
 }
 
@@ -139,6 +141,15 @@ mod sim {
         loop {}
     }
 
+    pub fn write_str<USART, RX, TX>(usart: &mut arduino_hal::usart::Usart<USART, RX, TX>, s: &str)
+    where
+        USART: arduino_hal::usart::UsartOps<arduino_hal::hal::Atmega, RX, TX>,
+    {
+        for b in s.bytes() {
+            usart.write_byte(b);
+        }
+    }
+    #[repr(transparent)]
     pub struct Usart<USART, RX, TX>(pub arduino_hal::usart::Usart<USART, RX, TX>)
     where
         USART: arduino_hal::usart::UsartOps<arduino_hal::hal::Atmega, RX, TX>;
@@ -147,9 +158,7 @@ mod sim {
         USART: arduino_hal::usart::UsartOps<arduino_hal::hal::Atmega, RX, TX>,
     {
         fn write_str(&mut self, s: &str) -> fmt::Result {
-            for b in s.bytes() {
-                self.0.write_byte(b);
-            }
+            write_str(&mut self.0, s);
             Ok(())
         }
     }

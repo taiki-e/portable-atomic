@@ -12,15 +12,10 @@ mod helper;
 use msp430f5529 as _;
 use portable_atomic::*;
 
-macro_rules! print {
-    ($($tt:tt)*) => {
-        let _ = ufmt::uwrite!(simio::Console, $($tt)*);
-    };
-}
-macro_rules! println {
-    ($($tt:tt)*) => {
-        let _ = ufmt::uwriteln!(simio::Console, $($tt)*);
-    };
+macro_rules! print_str {
+    ($($tt:tt)*) => {{
+        simio::write_str($($tt)*);
+    }};
 }
 
 #[msp430_rt::entry]
@@ -32,9 +27,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $int_type>]() {
                     __test_atomic_int!([<Atomic $int_type:camel>], $int_type);
                 }
-                print!("{}", concat!("test test_atomic_", stringify!($int_type), " ... "));
+                print_str!(concat!("test test_atomic_", stringify!($int_type), " ... "));
                 [<test_atomic_ $int_type>]();
-                println!("ok");
+                print_str!("ok\n");
             }
         };
     }
@@ -45,9 +40,9 @@ fn main() -> ! {
                 fn [<test_atomic_ $float_type>]() {
                     __test_atomic_float!([<Atomic $float_type:camel>], $float_type);
                 }
-                print!("{}", concat!("test test_atomic_", stringify!($float_type), " ... "));
+                print_str!(concat!("test test_atomic_", stringify!($float_type), " ... "));
                 [<test_atomic_ $float_type>]();
-                println!("ok");
+                print_str!("ok\n");
             }
         };
     }
@@ -57,9 +52,9 @@ fn main() -> ! {
             fn test_atomic_bool() {
                 __test_atomic_bool!(AtomicBool);
             }
-            print!("test test_atomic_bool ... ");
+            print_str!("test test_atomic_bool ... ");
             test_atomic_bool();
-            println!("ok");
+            print_str!("ok\n");
         };
     }
     #[cfg(feature = "ptr")]
@@ -68,13 +63,11 @@ fn main() -> ! {
             fn test_atomic_ptr() {
                 __test_atomic_ptr!(AtomicPtr<u8>);
             }
-            print!("test test_atomic_ptr ... ");
+            print_str!("test test_atomic_ptr ... ");
             test_atomic_ptr();
-            println!("ok");
+            print_str!("ok\n");
         };
     }
-
-    println!("starting tests...");
 
     #[cfg(feature = "default")]
     {
@@ -118,7 +111,7 @@ fn main() -> ! {
     #[cfg(feature = "f64")]
     test_atomic_float!(f64);
 
-    println!("Tests finished successfully");
+    print_str!("Tests finished successfully\n");
 
     #[allow(clippy::empty_loop)] // this test crate is #![no_std]
     loop {}
@@ -145,21 +138,14 @@ extern "C" fn abort() -> ! {
 }
 
 mod simio {
-    use core::{convert::Infallible, fmt};
+    use core::fmt;
 
     pub struct Console;
-    fn write_str(s: &str) {
-        // https://github.com/dlbeer/mspdebug/blob/v0.25/simio/simio_console.c#L130
+    pub fn write_str(s: &str) {
+        // https://github.com/dlbeer/mspdebug/blob/v0.26/simio/simio_console.c#L188
         let addr = 0x00FF_usize as *mut u8;
         for &b in s.as_bytes() {
             unsafe { addr.write_volatile(b) }
-        }
-    }
-    impl ufmt::uWrite for Console {
-        type Error = Infallible;
-        fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
-            write_str(s);
-            Ok(())
         }
     }
     impl fmt::Write for Console {

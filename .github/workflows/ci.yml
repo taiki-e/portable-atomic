@@ -899,8 +899,6 @@ jobs:
         env:
           RUSTFLAGS: -W warnings
         if: startsWith(matrix.rust, 'nightly')
-      - run: rm -- tests/avr/rust-toolchain.toml
-        if: startsWith(matrix.rust, 'nightly-')
       # syn 2.0.107 & quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
       # unicode-ident 1.0.23 requires Rust 1.71.
       - run: |

@@ -8,9 +8,8 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "3e35ecf" }
+arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "d75ec62" }
 paste = "1"
-ufmt = "0.2"
 
 [lints]
 workspace = true

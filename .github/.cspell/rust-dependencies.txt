@@ -7,4 +7,3 @@ fastrand
 quickcheck
 rustversion
 sptr
-ufmt

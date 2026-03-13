@@ -20,7 +20,7 @@ default_targets=(
   thumbv5te-none-eabi
   # v6
   armv6-none-eabi
-  # thumbv6-none-eabi # TODO: enable once https://github.com/rust-lang/compiler-builtins/pull/1050 released
+  thumbv6-none-eabi
   # v7-A
   armv7a-none-eabi
   # v8-R
@@ -48,13 +48,12 @@ default_targets=(
   riscv32em-unknown-none-elf
   riscv32emc-unknown-none-elf
   # riscv64
-  riscv64i-unknown-none-elf # custom target
   riscv64im-unknown-none-elf
   riscv64imac-unknown-none-elf
   riscv64gc-unknown-none-elf
 
   # avr
-  avr-unknown-gnu-atmega2560 # custom target
+  avr-none
 
   # msp430
   msp430-none-elf
@@ -121,6 +120,7 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 llvm_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | { grep -E '^LLVM version:' || true; } | cut -d' ' -f3)
 llvm_version="${llvm_version%%.*}"
+commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 workspace_dir=$(pwd)
 target_dir="${workspace_dir}/target"
 nightly=''
@@ -153,11 +153,15 @@ setup_wokwi() {
 run() {
   local target="$1"
   shift
-  target_lower="${target//-/_}"
-  target_lower="${target_lower//./_}"
-  target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
   local target_rustflags="${RUSTFLAGS:-}"
+  if [[ "${target}" == "avr-none" ]] && [[ "${rustc_minor_version}" -lt 88 ]]; then
+    target=avr-unknown-gnu-atmega2560 # custom target
+  fi
+  local target_flags=()
   if ! grep -Eq "^${target}$" <<<"${rustc_target_list}" || [[ -f "target-specs/${target}.json" ]]; then
+    if [[ "${target}" == "riscv64im-unknown-none-elf" ]]; then
+      target=riscv64i-unknown-none-elf # custom target
+    fi
     if [[ ! -f "target-specs/${target}.json" ]]; then
       if [[ -n "${ALL_TARGETS_MUST_BE_AVAILABLE:-}" ]]; then
         bail "target '${target}' not available on ${rustc_version}"
@@ -165,20 +169,23 @@ run() {
       info "target '${target}' not available on ${rustc_version} (skipped)"
       return 0
     fi
-    if [[ "${rustc_minor_version}" -lt 91 ]] && [[ "${target}" != "avr"* ]]; then
-      # Skip pre-1.91 because target-pointer-width change
-      info "target '${target}' requires 1.91-nightly or later (skipped)"
-      return 0
-    fi
-    local target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
     if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
-      if [[ "${target}" != "avr-unknown-gnu-atmega2560" ]]; then
-        target_flags+=(-Z json-target-spec)
-      fi
+      target_flags+=(-Z json-target-spec)
+    fi
+    if [[ "${rustc_minor_version}" -lt 91 ]] || [[ "${commit_date}" == '2025-08-05' ]]; then
+      # Handle target-pointer-width change.
+      mkdir -p -- tmp/target-specs
+      sed -E 's/"target-(c-int|pointer)-width": ([0-9]+)/"target-\1-width": "\2"/g' "target-specs/${target}.json" >|"tmp/target-specs/${target}.json"
+      target_flags+=(--target "${workspace_dir}/tmp/target-specs/${target}.json")
+    else
+      target_flags+=(--target "${workspace_dir}/target-specs/${target}.json")
     fi
   else
-    local target_flags=(--target "${target}")
+    target_flags+=(--target "${target}")
   fi
+  target_lower="${target//-/_}"
+  target_lower="${target_lower//./_}"
+  target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
   subcmd=run
   if [[ -z "${CI:-}" ]]; then
     case "${target}" in
@@ -265,8 +272,24 @@ run() {
     avr*)
       test_dir=tests/avr
       export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh simavr ${target}"
+      if [[ "${target}" == "avr-none" ]]; then
+        # "error: target requires explicitly specifying a cpu with `-C target-cpu`"
+        target_rustflags+=" -C target-cpu=atmega2560"
+      fi
       ;;
     msp430*)
+      case "${commit_date}" in
+        2023-08-23)
+          # multiple definition of `__muldi3'
+          info "target '${target}' in broken on this version (skipped)"
+          return 0
+          ;;
+        2025-08-05)
+          # "invalid signature for `extern "msp430-interrupt"` function" due to https://github.com/rust-lang/rust/issues/143072
+          info "target '${target}' in broken on this version (skipped)"
+          return 0
+          ;;
+      esac
       test_dir=tests/msp430
       export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh mspdebug ${target}"
       # Refs: https://github.com/rust-embedded/msp430-quickstart/blob/535cd3c810ec6096a1dd0546ea290ed94aa6fd01/.cargo/config

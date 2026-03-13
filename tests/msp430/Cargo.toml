@@ -28,10 +28,9 @@ f64 = ["portable-atomic/float"]
 [dependencies]
 portable-atomic = { path = "../.." }
 
-msp430-rt = "0.4"
+msp430-rt = "=0.4.1"
 msp430f5529 = { features = ["rt"], git = "https://github.com/cr1901/msp430f5529.git", rev = "23946ef" }
 paste = "1"
-ufmt = "0.2"
 
 [lints]
 workspace = true
@@ -100,3 +99,6 @@ codegen-units = 1
 lto = true
 opt-level = "s"
 panic = "abort"
+
+[patch.crates-io]
+msp430-rt = { git = "https://github.com/taiki-e/msp430-rt.git", rev = "68bbd8b" } # lower MSRV
