@@ -252,16 +252,8 @@
       "os": "windows-11-arm"
     },
     {
-      "rust": "1.59",
-      "target": "armv5te-unknown-linux-gnueabi"
-    },
-    {
-      "rust": "nightly-2021-08-21",
-      "target": "armv5te-unknown-linux-gnueabi"
-    },
-    {
-      "rust": "stable",
-      "target": "armv5te-unknown-linux-gnueabi"
+      "rust": "nightly",
+      "target": "armv4t-unknown-linux-gnueabi"
     },
     {
       "rust": "nightly",
@@ -402,6 +394,10 @@
     {
       "rust": "nightly",
       "target": "s390x-unknown-linux-gnu"
+    },
+    {
+      "rust": "nightly",
+      "target": "sparc-unknown-linux-gnu"
     },
     {
       "rust": "nightly",

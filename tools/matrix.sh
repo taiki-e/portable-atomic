@@ -47,12 +47,13 @@ targets=(
   arm64ec-pc-windows-msvc
 
   # arm
+  armv4t-unknown-linux-gnueabi        # Armv4T Linux A32
   armv5te-unknown-linux-gnueabi       # Armv5TE Linux A32
-  arm-unknown-linux-gnueabi           # Armv6 Linux A32
+  arm-unknown-linux-gnueabi           # Armv6K Linux A32
   armv7-unknown-linux-gnueabi         # Armv7 Linux A32 sf
   armv7-unknown-linux-gnueabihf       # Armv7 Linux Linux A32 hf
   thumbv7neon-unknown-linux-gnueabihf # Armv7 Linux T32 hf
-  armeb-unknown-linux-gnueabi         # Armv8 Linux big A32 sf
+  armeb-unknown-linux-gnueabi         # Armv8 Linux big (BE-8) A32 sf
   arm-linux-androideabi               # Armv5TE Android A32
 
   # csky
@@ -63,10 +64,11 @@ targets=(
   # hexagon-unknown-linux-musl # TODO(hexagon)
 
   # loongarch
+  # loongarch32-unknown-linux-gnu # TODO(loongarch32): https://inbox.sourceware.org/libc-alpha/20251225024222.1375100-6-mengqinggang@loongson.cn/t/
   loongarch64-unknown-linux-gnu
 
   # m68k
-  # m68k-unknown-linux-gnu # TODO(m68k)
+  # m68k-unknown-linux-gnu # TODO(m68k): relocation truncated to fit: R_68K_PC16 against
 
   # mips
   mips-unknown-linux-gnu
@@ -91,8 +93,11 @@ targets=(
   s390x-unknown-linux-gnu
 
   # sparc
-  # sparc-unknown-linux-gnu # TODO(sparc)
+  sparc-unknown-linux-gnu
   sparc64-unknown-linux-gnu
+
+  # xtensa
+  # xtensa-unknown-linux-gnu # TODO(xtensa): https://wiki.linux-xtensa.org
 )
 
 # LLVM version table:
@@ -133,6 +138,7 @@ targets=(
 # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
 # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
 # - LLVM 20 : stable 1.92       , since https://github.com/rust-lang/rust/pull/145071
+# - LLVM 21 : stable            , since https://github.com/rust-lang/rust/pull/153684
 toolchains=(
   1.56 # LLVM 13
   1.64 # LLVM 14
@@ -142,7 +148,7 @@ toolchains=(
   1.81 # LLVM 18
   1.86 # LLVM 19
   1.90 # LLVM 20
-  # 1.94 # LLVM 21
+  1.94 # LLVM 21
   stable
   beta
   nightly
@@ -171,44 +177,61 @@ min_nightly_toolchain() {
 }
 convert_toolchain_for_unstable_asm() {
   case "${toolchain}" in
-    1.5[6-9])
+    1.56) bail "should be handled by calling min_nightly_toolchain" ;;
+    1.5[7-9])
+      # LLVM 13
       case "${target}" in
-        *) toolchain=nightly-2022-08-12 ;; # Rust 1.65, LLVM 14
+        *) toolchain=nightly-2022-02-13 ;; # Rust 1.60
       esac
       ;;
     1.6[0-4])
+      # LLVM 14
       case "${target}" in
-        *) toolchain=nightly-2022-08-12 ;; # Rust 1.65, LLVM 14
+        *) toolchain=nightly-2022-08-12 ;; # Rust 1.65
       esac
       ;;
     1.6[5-9])
+      # LLVM 15
       case "${target}" in
-        *) toolchain=nightly-2023-03-25 ;; # Rust 1.70, LLVM 15
+        *) toolchain=nightly-2023-03-25 ;; # Rust 1.70
       esac
       ;;
     1.7[0-2])
+      # LLVM 16
       case "${target}" in
-        *) toolchain=nightly-2023-08-08 ;; # Rust 1.73, LLVM 16
+        *) toolchain=nightly-2023-08-08 ;; # Rust 1.73
       esac
       ;;
     1.7[3-7])
+      # LLVM 17
       case "${target}" in
-        *) toolchain=nightly-2024-02-13 ;; # Rust 1.78, LLVM 17
+        *) toolchain=nightly-2024-02-13 ;; # Rust 1.78
       esac
       ;;
     1.7[8-9] | 1.8[0-1])
+      # LLVM 18
       case "${target}" in
-        *) toolchain=nightly-2024-07-31 ;; # Rust 1.82, LLVM 18
+        *) toolchain=nightly-2024-07-31 ;; # Rust 1.82
       esac
       ;;
     1.8[2-6])
+      # LLVM 19
       case "${target}" in
-        aarch64_be*) toolchain=nightly-2024-11-07 ;; # Rust 1.84, LLVM 19 (broken on nightly-2025-02-17 due to https://github.com/rust-lang/stdarch/issues/1484)
-        *) toolchain=nightly-2025-02-17 ;;           # Rust 1.87, LLVM 19
+        aarch64_be*) toolchain=nightly-2024-11-07 ;; # Rust 1.84 (broken on nightly-2025-02-17 due to https://github.com/rust-lang/stdarch/issues/1484)
+        *) toolchain=nightly-2025-02-17 ;;           # Rust 1.87
       esac
       ;;
     1.8[7-9] | 1.90)
-      toolchain=nightly-2025-08-06 # Rust 1.91, LLVM 20
+      # LLVM 20
+      case "${target}" in
+        *) toolchain=nightly-2025-08-06 ;; # Rust 1.91
+      esac
+      ;;
+    1.9[1-4])
+      # LLVM 21
+      case "${target}" in
+        *) toolchain=nightly-2026-01-28 ;; # Rust 1.95
+      esac
       ;;
     1.*) bail "unhandled ${toolchain}" ;;
     stable | beta) toolchain='' ;; # ignore
@@ -220,13 +243,13 @@ add_matrix() {
   case "${target}" in
     arm64ec* | s390x*)
       case "${toolchain}" in
-        1.5[6-9] | 1.6[0-9] | 1.7[0-9] | 1.8[0-3]) convert_toolchain_for_unstable_asm ;;
+        1.[5-7][0-9] | 1.8[0-3]) convert_toolchain_for_unstable_asm ;;
       esac
       ;;
     # TODO: uncomment once 1.95 is stable
     # powerpc*)
     #   case "${toolchain}" in
-    #     1.5[6-9] | 1.6[0-9] | 1.7[0-9] | 1.8[0-9] | 1.9[0-4]) convert_toolchain_for_unstable_asm ;;
+    #     1.[5-8][0-9] | 1.9[0-4]) convert_toolchain_for_unstable_asm ;;
     #   esac
     #   ;;
     *) [[ -z "${require_nightly}" ]] || convert_toolchain_for_unstable_asm ;;
@@ -249,6 +272,7 @@ for target in "${targets[@]}"; do
   # Check target with unstable asm or tier 3 target.
   require_nightly=''
   case "${target}" in
+    # TODO: remove powerpc once 1.95 is stable
     aarch64_be* | armeb* | riscv32* | csky* | hexagon* | m68k* | mips* | powerpc* | sparc*)
       require_nightly=1
       ;;
@@ -266,15 +290,15 @@ for target in "${targets[@]}"; do
   esac
   os="${base_os}"
 
-  base_flags=''
-
   test_only_on_nightly=''
   case "${target}" in
     # We have no architecture-specific code for these.
-    loongarch* | mips* | powerpc-* | sparc* | arm-unknown-linux-gnueabi | armv7-unknown-linux-gnueabi | armv7-unknown-linux-gnueabihf | armeb-unknown-linux-gnueabi | thumbv7neon-unknown-linux-gnueabihf | arm-linux-androideabi) test_only_on_nightly=1 ;;
+    loongarch* | mips* | powerpc-* | sparc* | armv7-unknown-linux-gnueabihf | armeb-unknown-linux-gnueabi | thumbv7neon-unknown-linux-gnueabihf | arm-linux-androideabi) test_only_on_nightly=1 ;;
     # We have architecture-specific code for these, but OS-specific code are
     # also tested by other targets or have no OS-specific code.
     x86_64-apple-darwin | x86_64-pc-windows-gnu | i586-unknown-linux-gnu | i686-pc-windows-msvc | i686-pc-windows-gnu | aarch64-apple-ios-macabi | aarch64-pc-windows-msvc | aarch64-pc-windows-gnullvm) test_only_on_nightly=1 ;;
+    # Tested with Arm runner in test-container job.
+    armv4t-unknown-linux-gnueabi | armv5te-unknown-linux-gnueabi | arm-unknown-linux-gnueabi | armv7-unknown-linux-gnueabi) test_only_on_nightly=1 ;;
   esac
   test_only_on_stable_and_nightly=''
   case "${target}" in
@@ -283,17 +307,18 @@ for target in "${targets[@]}"; do
 
   if [[ -z "${test_only_on_nightly}" ]] && [[ -z "${test_only_on_stable_and_nightly}" ]]; then
     # Test with min stable toolchain.
-    flags="${base_flags}"
+    flags=''
     min_stable_toolchain
     add_matrix
     # Test with min nightly toolchain.
-    flags="${base_flags}"
+    flags=''
     min_nightly_toolchain
     add_matrix
   fi
   # Test other toolchains.
   for toolchain in "${toolchains[@]}"; do
-    # To test other Rust/LLVM versions, comment out the following and test_only_on_nightly above:
+    # To test other Rust/LLVM versions, comment out the following and test_only_on_nightly above
+    # (you also need to disable "nightly" in toolchains due to job limits of GitHub Actions):
     case "${toolchain}" in
       1.56 | beta)
         case "${target}" in
@@ -317,7 +342,7 @@ for target in "${targets[@]}"; do
         fi
         ;;
     esac
-    flags="${base_flags}"
+    flags=''
     case "${target}" in
       arm64ec* | s390x*)
         case "${toolchain}" in
@@ -344,7 +369,10 @@ for target in "${targets[@]}"; do
         ;;
       mipsisa*)
         case "${toolchain}" in
-          nightly) toolchain=nightly-2026-01-28 ;; # TODO(mips): compiler SIGILL with LLVM 22
+          1.95) toolchain='' ;; # compiler SIGILL with LLVM 22
+          # TODO(mips): compiler SIGILL with LLVM 22
+          beta) toolchain='' ;;
+          nightly) toolchain=nightly-2026-01-28 ;;
         esac
         ;;
     esac
@@ -355,7 +383,7 @@ for target in "${targets[@]}"; do
     aarch64-unknown-linux-gnu | armv7*-linux-gnueabihf | thumbv7*-linux-gnueabihf)
       toolchain=nightly
       os=''
-      flags="${base_flags}"
+      flags=''
       add_matrix
       os="${base_os}"
       ;;
@@ -365,7 +393,7 @@ for target in "${targets[@]}"; do
     x86_64-apple-darwin)
       toolchain=nightly
       os='macos-latest'
-      flags="${base_flags}"
+      flags=''
       add_matrix
       os="${base_os}"
       ;;
@@ -373,7 +401,7 @@ for target in "${targets[@]}"; do
   # Test with dynamic linking.
   case "${target}" in
     aarch64-unknown-linux-musl)
-      flags="${base_flags} -C target-feature=-crt-static"
+      flags="-C target-feature=-crt-static"
       toolchain=stable
       add_matrix
       toolchain=nightly
@@ -384,7 +412,7 @@ for target in "${targets[@]}"; do
   case "${target}" in
     x86_64-unknown-linux-gnu)
       toolchain=nightly
-      flags="${base_flags} -C panic=abort -Z panic_abort_tests"
+      flags="-C panic=abort -Z panic_abort_tests"
       add_matrix
       ;;
   esac
@@ -394,7 +422,7 @@ for target in "${targets[@]}"; do
     # TODO(cranelift): s390x-unknown-linux-gnu: cranelift doesn't support asm for s390x yet
     x86_64-unknown-linux-gnu | aarch64-unknown-linux-gnu | riscv64gc-unknown-linux-gnu | x86_64-apple-darwin | aarch64-apple-darwin | x86_64-pc-windows-msvc)
       toolchain=nightly
-      flags="${base_flags} -Z codegen-backend=cranelift"
+      flags="-Z codegen-backend=cranelift"
       add_matrix
       ;;
   esac
@@ -403,7 +431,7 @@ for target in "${targets[@]}"; do
     # TODO(gcc): m68k-unknown-linux-gnu
     x86_64-unknown-linux-gnu)
       toolchain=nightly
-      flags="${base_flags} -Z codegen-backend=gcc"
+      flags="-Z codegen-backend=gcc"
       add_matrix
       ;;
   esac

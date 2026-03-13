@@ -48,9 +48,8 @@ jobs:
   tidy:
     uses: taiki-e/github-actions/.github/workflows/tidy.yml@main
     permissions:
-      contents: read
-      pull-requests: write # for gh pr edit --add-assignee
-      repository-projects: read # for gh pr edit --add-assignee
+      contents: write # for creating branch for pr
+      pull-requests: write # unused (used in `codegen-automerge: true` case)
       security-events: write # for github/codeql-action/*
     secrets: inherit
     with:
@@ -69,7 +68,9 @@ jobs:
       test-matrix: ${{ steps.prepare.outputs.test-matrix }}
 
   test:
-    needs: [prepare, tidy]
+    needs:
+      - prepare
+      - tidy
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.test-matrix) }}
@@ -83,21 +84,27 @@ jobs:
       #   if: startsWith(matrix.os, 'macos')
       # - run: C:/msys64/usr/bin/pacman -S --noconfirm moreutils
       #   if: startsWith(matrix.os, 'windows')
-      - uses: taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@cargo-minimal-versions
-      - uses: taiki-e/install-action@cargo-careful
-        # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
-        if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024'))
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-careful@0.4.7
-        if: startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')
+          tool: cargo-hack,cargo-minimal-versions
+          fallback: none
+      - uses: taiki-e/install-action@v2
+        with:
+          # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
+          tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
+          fallback: none
+        if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm'))
+      - uses: taiki-e/cache-cargo-install-action@v3
+        with:
+          # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
+          tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
+        if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
       - id: prepare
         run: |
-          if [[ "${TARGET}" == '' ]]; then
+          if [[ -z "${TARGET}" ]]; then
             printf 'matrix.target must be set\n'
             exit 1
           fi
@@ -127,19 +134,30 @@ jobs:
           fi
           if [[ "${RUST}" == "nightly" ]]; then
             case "${TARGET}" in
+              # TODO(macos): error: linker stderr: ld: ignoring duplicate libraries: '-lc', '-lm'
               # TODO(windows): error: linker stdout: C:\a\portable-atomic\portable-atomic\target\debug\deps\portable_atomic-6f0d7f05900c9263.exe : warning LNK4072: section count 101 exceeds max (96); image may not run
-              *-darwin* | aarch64*-windows-* | csky*) ;;
+              # TODO(csky): error: linker stderr: /home/runner/gcc-csky-linux-gnuabiv2/bin/../lib/gcc/csky-linux-gnuabiv2/6.3.0/../../../../csky-linux-gnuabiv2/bin/ld: file ....o's arch flag ck860 conflict with target ck810,set target arch flag to ck860
+              *-darwin* | *-windows-* | csky*) ;;
               *) flags+=" -D linker_messages" ;;
             esac
           fi
           if [[ -n "${flags}" ]]; then
-            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} ${flags}" >>"${GITHUB_ENV}"
-            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} ${flags}" >>"${GITHUB_ENV}"
+            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
           fi
         env:
           TARGET: ${{ matrix.target }}
           FLAGS: ${{ matrix.flags }}
           RUST: ${{ matrix.rust }}
+      - name: Workaround for rustc/LLVM bug about SPARC-V8+
+        run: |
+          # Workaround for "unknown architecture of input file `*/symbols.o' is incompatible with sparc:v8plus output"
+          flags=' -C target-feature=-v8plus -C link-arg=-mv8plus --cfg crossbeam_no_atomic_64'
+          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
+          # Workaround for "rustc-LLVM ERROR: Unsupported instruction : <MCInst 11 <MCOperand Reg:174>>" with LLVM 20-22
+          printf 'CARGO_PROFILE_RELEASE_OPT_LEVEL=0\n' >>"${GITHUB_ENV}"
+        if: startsWith(matrix.target, 'sparc-')
       # for f16 and f128
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
@@ -163,8 +181,8 @@ jobs:
       - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
         if: matrix.rust == 'nightly-2024-02-13'
 
-      - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-} ${RELEASE:-}
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_unstable_coerce_unsized
         if: startsWith(matrix.rust, 'nightly')
@@ -175,31 +193,31 @@ jobs:
       # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
       # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking, AArch64 illumos, and AIX.
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        if: startsWith(matrix.target, 'x86_64') || ((startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) || startsWith(matrix.target, 'powerpc64-')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
+        if: startsWith(matrix.target, 'x86_64') || ((startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) || startsWith(matrix.target, 'powerpc64-')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv4t') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
       # powerpc64 and RISC-V are skipped because tested below.
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           # Note: detect_false cfg is intended to make it easy for developers to test
           # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_detect_false
         # TODO(arm-linux-androideabi): hang
-        if: startsWith(matrix.target, 'x86_64') || (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv5te')
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+        if: startsWith(matrix.target, 'x86_64') || (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv4t') || startsWith(matrix.target, 'armv5te')
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           QEMU_CPU: power7 # no quadword-atomics
         if: startsWith(matrix.target, 'powerpc64-')
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }}
           QEMU_CPU: sifive-u34 # no zacas
         if: startsWith(matrix.target, 'riscv32')
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }}
           RUSTFLAGS: ${{ env.RUSTFLAGS }}
@@ -208,20 +226,20 @@ jobs:
       # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux/illumos, powerpc64, and RISC-V Linux.
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       # RISC-V Linux is skipped because outline-atomics is enabled by default.
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && contains(matrix.target, '-musl') && matrix.flags == '' || startsWith(matrix.target, 'powerpc64-')
       # powerpc64 is skipped because tested below.
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           # Note: detect_false cfg is intended to make it easy for developers to test
           # cases where features usually available is not available, and is not a public API.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics --cfg portable_atomic_test_detect_false
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && contains(matrix.target, '-musl') && matrix.flags == ''
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_outline_atomics
@@ -229,40 +247,40 @@ jobs:
         if: startsWith(matrix.target, 'powerpc64-')
 
       # x86_64 +cmpxchg16b
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           # cmpxchg16b + outline-atomics (vmovdqa load/store) path is tested in first 2 runs on macOS.
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
         if: startsWith(matrix.target, 'x86_64') && !contains(steps.prepare.outputs.cfgs, ',target_feature="cmpxchg16b",')
       # x86_64 +cmpxchg16b,+avx
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b,+avx
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b,+avx
         if: startsWith(matrix.target, 'x86_64')
       # x86_64 +avx
       # macOS is skipped because it is +cmpxchg16b by default (+cmpxchg16b,+avx is tested above)
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+avx
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+avx
         if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
       # aarch64 +lse
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(steps.prepare.outputs.cfgs, ',target_feature="lse",')
       # aarch64 +lse,+lse2
       # macOS is skipped because it is +lse,+lse2 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse,+lse2
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse,+lse2
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !contains(matrix.target, '-darwin')
       # aarch64 +lse2,+lse128
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lse2,+lse128
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lse2,+lse128
@@ -270,38 +288,38 @@ jobs:
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) && !(startsWith(matrix.os, 'macos') || contains(matrix.os, '-arm'))
       # powerpc64 pwr7
       # powerpc64- (big-endian) is skipped because it is pre-pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr7
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr7
         if: startsWith(matrix.target, 'powerpc64le-')
       # powerpc64 pwr8
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=pwr8
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=pwr8
         if: startsWith(matrix.target, 'powerpc64-')
       # riscv +zabha
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zabha
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zabha
         if: startsWith(matrix.target, 'riscv')
       # riscv +zacas
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+zacas
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+zacas
         if: startsWith(matrix.target, 'riscv')
       # s390x z196 (arch9)
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
         if: startsWith(matrix.target, 's390x')
       # s390x z15 (arch13)
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15
@@ -317,11 +335,346 @@ jobs:
           SKIP_DEFAULT_TARGET: 1
           TARGET: ${{ matrix.target }}
 
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-}
+      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-}
         if: matrix.rust != 'nightly-2021-08-21'
-      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} ${RELEASE:-} --direct
+      - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-} --direct
         # -Z direct-minimal-versions requires Cargo 1.70.
         if: (!(startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022') || startsWith(matrix.rust, 'nightly-2023')))
+
+  test-container:
+    needs: tidy
+    name: test (${{ matrix.rust }}, ${{ matrix.target }}, ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+            target: armv4t-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          # - rust: nightly-2022-02-13 # Rust 1.60, LLVM 13
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2022-08-12 # Rust 1.65, LLVM 14
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2023-03-25 # Rust 1.70, LLVM 15
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2023-08-08 # Rust 1.73, LLVM 16
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2024-02-13 # Rust 1.78, LLVM 17
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2024-07-31 # Rust 1.82, LLVM 18
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2025-02-17 # Rust 1.87, LLVM 19
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2025-08-06 # Rust 1.91, LLVM 20
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: nightly-2026-01-28 # Rust 1.95, LLVM 21
+          #   target: armv4t-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          - rust: nightly
+            target: armv4t-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+            target: armv5te-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          - rust: '1.59' # LLVM 13
+            target: armv5te-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          # - rust: '1.64' # LLVM 14
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.69' # LLVM 15
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.72' # LLVM 16
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.77' # LLVM 17
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.81' # LLVM 18
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.86' # LLVM 19
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.90' # LLVM 20
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.94' # LLVM 21
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          - rust: stable
+            target: armv5te-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          # - rust: beta
+          #   target: armv5te-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          - rust: nightly
+            target: armv5te-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          # We test only one version because we have no architecture-specific code for these.
+          # - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.59' # LLVM 13
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.64' # LLVM 14
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.69' # LLVM 15
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.72' # LLVM 16
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.77' # LLVM 17
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.81' # LLVM 18
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.86' # LLVM 19
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.90' # LLVM 20
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.94' # LLVM 21
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: stable
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: beta
+          #   target: arm-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          - rust: nightly
+            target: arm-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+          # We test only one version because we have no architecture-specific code for these.
+          # - rust: nightly-2021-08-21 # Rust 1.56, LLVM 12
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.59' # LLVM 13
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.64' # LLVM 14
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.69' # LLVM 15
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.72' # LLVM 16
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.77' # LLVM 17
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.81' # LLVM 18
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.86' # LLVM 19
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.90' # LLVM 20
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: '1.94' # LLVM 21
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: stable
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          # - rust: beta
+          #   target: armv7-unknown-linux-gnueabi
+          #   runner: native
+          #   os: ubuntu-24.04-arm
+          #   container: debian:13-slim
+          - rust: nightly
+            target: armv7-unknown-linux-gnueabi
+            runner: native
+            os: ubuntu-24.04-arm
+            container: debian:13-slim
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    container:
+      image: ${{ matrix.container }}
+      options: --privileged
+    steps:
+      - uses: taiki-e/checkout-action@v1
+      - run: |
+          apt-get -o Acquire::Retries=10 -qq update
+          apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc libc6-dev
+          # apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+          fallback: none
+      - uses: taiki-e/install-action@v2
+        with:
+          # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
+          tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
+          fallback: none
+        if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm'))
+      - uses: taiki-e/github-actions/install-rust@stable
+        if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
+      - uses: taiki-e/cache-cargo-install-action@v3
+        with:
+          # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
+          tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
+        if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
+      - uses: taiki-e/github-actions/install-rust@main
+        with:
+          toolchain: ${{ matrix.rust }}
+      - id: prepare
+        run: |
+          if [[ -z "${TARGET}" ]]; then
+            printf 'matrix.target must be set\n'
+            exit 1
+          fi
+          host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
+          if [[ "${host}" != "${TARGET}" ]]; then
+            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
+            printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
+          fi
+          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}" | tr '\n' ',')"
+          printf 'cfgs=%s\n' "${cfgs}" >>"${GITHUB_OUTPUT}"
+        env:
+          TARGET: ${{ matrix.target }}
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+          runner: ${{ matrix.runner }}
+        if: steps.prepare.outputs.target-not-host == 'true'
+      - run: |
+          target_lower="${TARGET//-/_}"
+          target_lower="${target_lower//./_}"
+          target_upper=$(tr '[:lower:]' '[:upper:]' <<<"${target_lower}")
+          flags=''
+          if [[ "$(eval "printf '%s\n' \${CARGO_TARGET_${target_upper}_RUNNER:-}")" == *"qemu"* ]]; then
+            flags+=" --cfg qemu"
+          fi
+          if [[ -n "${FLAGS}" ]]; then
+            flags+=" ${FLAGS}"
+          fi
+          if [[ "${RUST}" == "nightly" ]]; then
+            flags+=" -D linker_messages"
+          fi
+          if [[ -n "${flags}" ]]; then
+            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
+          fi
+        env:
+          TARGET: ${{ matrix.target }}
+          FLAGS: ${{ matrix.flags }}
+          RUST: ${{ matrix.rust }}
+
+      - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
 
   test-bsd:
     needs: tidy
@@ -438,7 +791,10 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
-      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+          fallback: none
       - run: tools/build.sh
         env:
           TESTS: ${{ matrix.tests }}
@@ -459,7 +815,9 @@ jobs:
           # - '1.81' # LLVM 18
           # - '1.86' # LLVM 19
           # - '1.90' # LLVM 20
+          # - '1.94' # LLVM 21
           - stable
+          # - beta
           # - nightly-2022-08-12 # Rust 1.65, LLVM 14
           # - nightly-2023-03-25 # Rust 1.70, LLVM 15
           # - nightly-2023-08-08 # Rust 1.73, LLVM 16
@@ -467,6 +825,7 @@ jobs:
           # - nightly-2024-07-31 # Rust 1.82, LLVM 18
           # - nightly-2025-02-17 # Rust 1.87, LLVM 19
           # - nightly-2025-08-06 # Rust 1.91, LLVM 20
+          # - nightly-2026-01-28 # Rust 1.95, LLVM 21
           - nightly
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -476,9 +835,10 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@main
         with:
           toolchain: ${{ matrix.rust }}
-      - uses: taiki-e/install-action@cargo-hack
-        if: matrix.rust == 'stable'
-      - uses: taiki-e/install-action@espup
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack,espup
+          fallback: none
         if: matrix.rust == 'stable'
       - run: |
           retry() {
@@ -588,7 +948,10 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@nightly
         with:
           component: miri
-      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+          fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
         if: matrix.target != 'x86_64-unknown-linux-gnu'
@@ -613,7 +976,10 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@nightly
-      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+          fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
           printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
@@ -659,10 +1025,13 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@v1
       - uses: taiki-e/github-actions/install-rust@nightly
-      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+          fallback: none
       - id: prepare
         run: |
-          if [[ "${TARGET}" == '' ]]; then
+          if [[ -z "${TARGET}" ]]; then
             printf 'matrix.target must be set\n'
             exit 1
           fi
@@ -804,7 +1173,10 @@ jobs:
       - uses: taiki-e/github-actions/install-rust@nightly
         with:
           component: rust-src
-      - uses: taiki-e/install-action@espup
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: espup
+          fallback: none
       - run: |
           retry() {
             for i in {1..10}; do

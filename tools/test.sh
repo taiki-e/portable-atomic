@@ -139,6 +139,7 @@ rustc_target_list=$(rustc ${pre_args[@]+"${pre_args[@]}"} --print target-list)
 rustc_version=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^release:' | cut -d' ' -f2)
 rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
+commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
 workspace_dir=$(pwd)
 target_dir="${workspace_dir}/target"
@@ -168,9 +169,16 @@ if [[ -n "${target}" ]]; then
     if [[ ! -f "target-specs/${target}.json" ]]; then
       bail "target '${target}' not available on ${rustc_version}"
     fi
-    target_flags=(--target "${workspace_dir}/target-specs/${target}.json")
     if { cargo ${pre_args[@]+"${pre_args[@]}"} -Z help || true; } | grep -Fq json-target-spec; then
       target_flags+=(-Z json-target-spec)
+    fi
+    if [[ "${rustc_minor_version}" -lt 91 ]] || [[ "${commit_date}" == '2025-08-05' ]]; then
+      # Handle target-pointer-width change.
+      mkdir -p -- tmp/target-specs
+      sed -E 's/"target-(c-int|pointer)-width": ([0-9]+)/"target-\1-width": "\2"/g' "target-specs/${target}.json" >|"tmp/target-specs/${target}.json"
+      target_flags+=(--target "${workspace_dir}/tmp/target-specs/${target}.json")
+    else
+      target_flags+=(--target "${workspace_dir}/target-specs/${target}.json")
     fi
   else
     target_flags=(--target "${target}")
