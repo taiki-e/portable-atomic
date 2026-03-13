@@ -375,6 +375,12 @@ for target in "${targets[@]}"; do
           nightly) toolchain=nightly-2026-01-28 ;;
         esac
         ;;
+      i686-pc-windows-msvc)
+        case "${toolchain}" in
+          # TODO(x86): LLVM OOM with Rust 1.96
+          nightly) toolchain=nightly-2026-03-05 ;;
+        esac
+        ;;
     esac
     add_matrix
   done

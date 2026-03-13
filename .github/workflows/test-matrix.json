@@ -97,7 +97,7 @@
       "target": "i686-unknown-linux-gnu"
     },
     {
-      "rust": "nightly-i686-pc-windows-msvc",
+      "rust": "nightly-2026-03-05-i686-pc-windows-msvc",
       "target": "i686-pc-windows-msvc",
       "os": "windows-latest"
     },
