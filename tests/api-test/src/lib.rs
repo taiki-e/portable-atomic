@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
+#![cfg_attr(
+    any(portable_atomic_unstable_f16, portable_atomic_unstable_f128),
+    allow(unused_features)
+)]
 #![cfg_attr(portable_atomic_unstable_f16, feature(f16))]
 #![cfg_attr(portable_atomic_unstable_f128, feature(f128))]
 #![allow(unused_imports)]

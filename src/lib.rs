@@ -305,7 +305,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
     all(
         not(portable_atomic_no_asm),
         any(
-            target_arch = "avr",
+            all(target_arch = "avr", not(feature = "critical-section")),
             target_arch = "msp430",
             all(
                 target_arch = "xtensa",
@@ -320,8 +320,12 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 )]
 // f16/f128
 // cfg is unstable and explicitly enabled by the user
-#![cfg_attr(portable_atomic_unstable_f16, feature(f16))]
-#![cfg_attr(portable_atomic_unstable_f128, feature(f128))]
+#![cfg_attr(
+    any(portable_atomic_unstable_f16, portable_atomic_unstable_f128),
+    allow(unused_features)
+)]
+#![cfg_attr(all(portable_atomic_unstable_f16, feature = "float"), feature(f16))]
+#![cfg_attr(all(portable_atomic_unstable_f128, feature = "float"), feature(f128))]
 // Old nightly only
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
@@ -392,6 +396,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
             target_arch = "powerpc64",
             target_arch = "s390x",
         ),
+        portable_atomic_atomic_intrinsics,
         any(miri, portable_atomic_sanitize_thread),
     ),
     feature(core_intrinsics)
