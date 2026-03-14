@@ -354,7 +354,7 @@ build() {
     info "target '${target}' requires nightly compiler (skipped all checks)"
     return 0
   fi
-  has_atomic_cas=1
+  local has_atomic_cas=1
   # target_has_atomic changed in 1.40.0-nightly: https://github.com/rust-lang/rust/pull/65214
   if [[ "${rustc_minor_version}" -ge 40 ]]; then
     if ! grep -Eq '^target_has_atomic=' <<<"${cfgs}"; then
@@ -409,13 +409,11 @@ build() {
     # Some no-std targets have target-specific test crates, so build public
     # crates' library part and (if they exist) target-specific test crates.
     if is_no_std "${target}"; then
-      local build_util_with_critical_section=''
       if [[ -z "${has_atomic_cas}" ]]; then
         case "${target}" in
           armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
-          bpf* | mips*) build_util_with_critical_section=1 ;;
         esac
       fi
       # TODO: handle SIGILL and ERR
@@ -434,13 +432,6 @@ build() {
           ;;
       esac
       sed -E "${in_place[@]}" 's/^(.* #build:static_assert_ffi)/# \1/g' Cargo.toml
-      if [[ -z "${build_util_with_critical_section}" ]]; then
-        RUSTFLAGS="${target_rustflags}" \
-          x_cargo "${args[@]}" --features alloc --manifest-path portable-atomic-util/Cargo.toml "$@"
-      else
-        RUSTFLAGS="${target_rustflags}" \
-          x_cargo "${args[@]}" --features alloc,portable-atomic/critical-section --manifest-path portable-atomic-util/Cargo.toml "$@"
-      fi
       # Most target-specific test crates are nightly-only.
       if [[ -n "${nightly}" ]]; then
         local test_dir=''
@@ -540,7 +531,7 @@ build() {
         if [[ -n "${has_asm}" ]]; then
           case "${target}" in
             avr* | msp430*) ;; # always single-core
-            bpf* | mips*) ;;   # TODO, Arc can't be used here yet
+            bpf* | mips*) ;;   # TODO: assume-single-core is not yet supported
             *)
               CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
                 RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
@@ -565,7 +556,7 @@ build() {
                       x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                     CARGO_TARGET_DIR="${target_dir}/zaamo" \
                       RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo" \
-                      x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" --exclude portable-atomic-util "$@"
+                      x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" "$@"
                     # Support for Zabha extension requires LLVM 19+.
                     if [[ "${llvm_version}" -ge 19 ]]; then
                       CARGO_TARGET_DIR="${target_dir}/assume-single-core-zabha" \
@@ -573,7 +564,7 @@ build() {
                         x_cargo "${args[@]}" --exclude-features "critical-section" "$@"
                       CARGO_TARGET_DIR="${target_dir}/zabha" \
                         RUSTFLAGS="${target_rustflags} -C target-feature=+zaamo,+zabha" \
-                        x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" --exclude portable-atomic-util "$@"
+                        x_cargo "${args[@]}" --exclude-features "critical-section,require-cas" "$@"
                     fi
                   fi
                   ;;
@@ -585,15 +576,7 @@ build() {
         fi
         case "${target}" in
           avr* | msp430*) ;; # always single-core
-          *)
-            # portable-atomic-util crate and portable-atomic's require-cas feature require atomic CAS,
-            # so doesn't work on this target without portable_atomic_unsafe_assume_single_core cfg
-            # or critical-section feature.
-            args+=(
-              --exclude portable-atomic-util
-              --exclude-features require-cas
-            )
-            ;;
+          *) args+=(--exclude-features require-cas) ;;
         esac
       fi
     fi

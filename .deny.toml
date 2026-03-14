@@ -20,7 +20,6 @@ build.include-workspace = false # covered by tools/tidy.sh
 build.include-archives = true
 build.allow-build-scripts = [
     { name = "portable-atomic" },
-    { name = "portable-atomic-util" },
     { name = "serde_core" },
     { name = "serde" }, # https://github.com/serde-rs/serde/issues/2972
 ]

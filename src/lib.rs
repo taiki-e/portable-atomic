@@ -21,7 +21,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - mention optimizations not available in the standard library's equivalents
 -->
 
-portable-atomic version of `std::sync::Arc` is provided by the [portable-atomic-util](https://github.com/taiki-e/portable-atomic/tree/HEAD/portable-atomic-util) crate.
+portable-atomic version of `std::sync::Arc` and `std::task::Wake` is provided by the [portable-atomic-util] crate.
 
 ## Usage
 
@@ -255,6 +255,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 
 ## Related Projects
 
+- [portable-atomic-util]: Synchronization primitives built with portable-atomic. This provides portable-atomic version of `std::sync::Arc` and `std::task::Wake`.
 - [atomic-maybe-uninit]: Atomic operations on potentially uninitialized integers.
 - [atomic-memcpy]: Byte-wise atomic memcpy.
 - [asmtest]: A library for tracking generated assemblies.
@@ -264,6 +265,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 [atomic-maybe-uninit]: https://github.com/taiki-e/atomic-maybe-uninit
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [critical-section]: https://github.com/rust-embedded/critical-section
+[portable-atomic-util]: https://github.com/taiki-e/portable-atomic-util
 [rust-lang/rust#100650]: https://github.com/rust-lang/rust/issues/100650
 [serde]: https://github.com/serde-rs/serde
 
