@@ -112,7 +112,6 @@ midr
 minu
 miscompiles
 mmfr
-monomorphize
 movlps
 movq
 mpidr
@@ -130,7 +129,6 @@ osxsave
 outputdir
 phdr
 picolibc
-pointee
 prctl
 prefetcher
 PRIMASK
@@ -184,8 +182,6 @@ tagme
 uart
 umax
 umin
-unclonable
-unsize
 usart
 uscat
 versatilepb
@@ -193,8 +189,6 @@ virt
 vmlinux
 vmovdqa
 vreg
-vtable
-vtables
 wfxt
 wokwi
 xadd

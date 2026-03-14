@@ -86,7 +86,6 @@ workspace = true
 [workspace]
 members = [
     "bench",
-    "portable-atomic-util",
     "tests/api-test",
 ]
 
@@ -116,8 +115,6 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     # Known custom cfgs, excluding those that may be set by build script.
     # Public APIs, considered unstable unless documented as stable in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
-    # Public unstable API(s) - portable-atomic-util
-    'cfg(portable_atomic_unstable_coerce_unsized)',
     # Not public API.
     'cfg(portable_atomic_test_detect_false,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind)',
 ] }
