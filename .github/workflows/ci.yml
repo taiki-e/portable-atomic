@@ -1095,6 +1095,9 @@ jobs:
         with:
           target: ${{ matrix.target }}
           runner: valgrind
+      - uses: taiki-e/github-actions/setup-docker@main
+        with:
+          qemu: ${{ matrix.arch }}
       - run: |
           export CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true
           # Skip debug mode because it's slow.
@@ -1138,29 +1141,33 @@ jobs:
               mv -- "${binary_path}" ./release-z15-fat-lto
               ;;
           esac
+
+          # NB: Sync with arguments in tools/test.sh.
+          workspace_dir=$(pwd)
+          args='-v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all'
+          supp="${workspace_dir}/tools/valgrind/${TARGET%%-*}.supp"
+          if [[ -f "${supp}" ]]; then
+            args+=" --suppressions=\"${supp}\""
+          fi
+          cat >run <<'EOF'
+          #!/usr/bin/env bash
+          set -CeEuxo pipefail
+          EOF
+          for bin in ./release*; do
+            printf '%s\n' "valgrind ${args} ${bin}" >>run
+          done
+          cat -- ./run
+          chmod +x ./run
+          docker run --rm --init --user "$(id -u)":"$(id -g)" \
+            --volume "${workspace_dir}:${workspace_dir}" --workdir "${workspace_dir}" \
+            -e CI -e GITHUB_ACTIONS \
+            -e RUST_BACKTRACE -e RUST_TEST_THREADS \
+            -e PORTABLE_ATOMIC_DENY_WARNINGS \
+            --platform=linux/"${ARCH}" ghcr.io/taiki-e/valgrind:"${ARCH}"-cross \
+            ./run
         env:
           TARGET: ${{ matrix.target }}
-      - uses: uraimo/run-on-arch-action@v3
-        with:
-          arch: none
-          distro: none
-          base_image: --platform=linux/${{ matrix.arch }} ghcr.io/taiki-e/valgrind:${{ matrix.arch }}-cross
-          shell: /bin/bash
-          run: |
-            set -CeEuxo pipefail
-            export RUST_BACKTRACE=1
-            export RUST_TEST_THREADS=1
-            export PORTABLE_ATOMIC_DENY_WARNINGS=1
-            # NB: Sync with arguments in tools/test.sh.
-            args=(-v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all)
-            target="${{ matrix.target }}"
-            supp="$(pwd)/tools/valgrind/${target%%-*}.supp"
-            if [[ -f "${supp}" ]]; then
-              args+=(--suppressions="${supp}")
-            fi
-            for bin in ./release*; do
-              valgrind "${args[@]}" "${bin}"
-            done
+          ARCH: ${{ matrix.arch }}
 
   asm-test:
     needs: tidy
