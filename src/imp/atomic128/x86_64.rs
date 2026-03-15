@@ -44,6 +44,12 @@ mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
+#[cfg(target_feature = "sse")]
+#[cfg(not(all(
+    not(target_feature = "avx"),
+    any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
+)))]
+use core::arch::x86_64::__m128i;
 use core::sync::atomic::Ordering;
 
 use crate::utils::{Pair, U128};
@@ -197,7 +203,7 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128) -> u128 {
     //
     // atomic load by vmovdqa is always SeqCst.
     unsafe {
-        let out: core::arch::x86_64::__m128i;
+        let out: __m128i;
         asm!(
             concat!("vmovdqa {out}, xmmword ptr [{src", ptr_modifier!(), "}]"),
             src = in(reg) src,
@@ -220,7 +226,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        let val: core::arch::x86_64::__m128i = core::mem::transmute(val);
+        let val: __m128i = core::mem::transmute(val);
         match order {
             // Relaxed and Release stores are equivalent.
             Ordering::Relaxed | Ordering::Release => {

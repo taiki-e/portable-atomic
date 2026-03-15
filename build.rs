@@ -4,14 +4,14 @@
 
 #![allow(clippy::match_same_arms)] // https://github.com/rust-lang/rust-clippy/issues/12044
 
-#[path = "version.rs"]
-mod version;
-use self::version::{Version, rustc_version};
-
 #[path = "src/gen/build.rs"]
 mod generated;
+#[path = "version.rs"]
+mod version;
 
 use std::{env, str};
+
+use self::version::{Version, rustc_version};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
