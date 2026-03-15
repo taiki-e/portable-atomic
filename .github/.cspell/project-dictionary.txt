@@ -7,6 +7,7 @@ amocas
 aqrl
 armasm
 armreg
+atomicsabi
 atxmega
 Auxinfo
 auxv
@@ -19,7 +20,6 @@ casx
 cbnz
 ccmp
 cdsg
-cinc
 clgr
 clidr
 cmovae
@@ -35,7 +35,6 @@ CPSR
 cpuid
 cpus
 csel
-cset
 csrrci
 csrw
 cxchg
@@ -125,6 +124,7 @@ newrepo
 newtype
 nngrk
 nostartfiles
+NZCV
 osxsave
 outputdir
 phdr

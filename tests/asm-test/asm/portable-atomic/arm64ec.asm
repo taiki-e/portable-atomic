@@ -2199,17 +2199,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2221,17 +2215,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -2244,17 +2232,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2266,17 +2248,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2288,17 +2264,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2310,17 +2280,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2332,17 +2296,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2354,17 +2312,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -2377,17 +2329,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -2400,17 +2346,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2422,17 +2362,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2444,17 +2378,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2466,17 +2394,11 @@
 0:
         ldxp              x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2488,17 +2410,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -2510,17 +2426,11 @@
 0:
         ldxp              x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3855,17 +3765,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3877,17 +3781,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -3900,17 +3798,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3922,17 +3814,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3944,17 +3830,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3966,17 +3846,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -3988,17 +3862,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4010,17 +3878,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -4033,17 +3895,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         dmb               ish
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
@@ -4056,17 +3912,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4078,17 +3928,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4100,17 +3944,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4122,17 +3960,11 @@
 0:
         ldxp              x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stxp              w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stxp              w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4144,17 +3976,11 @@
 0:
         ldaxp             x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
@@ -4166,17 +3992,11 @@
 0:
         ldxp              x9, x10, [x0]
         cmp               x9, x2
-        cset              w11, ne
-        cmp               x10, x3
-        cinc              w11, w11, ne
-        cbz               w11, 1f
-        stlxp             w11, x9, x10, [x0]
+        ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
-        b                 2f
-1:
-        stlxp             w11, x4, x5, [x0]
-        cbnz              w11, 0b
-2:
         stp               x9, x10, [x8, #0x10]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq

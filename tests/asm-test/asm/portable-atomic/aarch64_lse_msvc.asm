@@ -353,7 +353,6 @@ asm_test::fetch_nand::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -609,7 +608,6 @@ asm_test::fetch_umax::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -865,7 +863,6 @@ asm_test::fetch_umin::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -1626,7 +1623,6 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -1693,7 +1689,6 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -1705,7 +1700,6 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2484,7 +2478,6 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2551,7 +2544,6 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2563,7 +2555,6 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        dmb               ish
         cmp               x6, x2
         stp               x6, x7, [x8, #0x10]
         ccmp              x7, x3, #0x0, eq
@@ -2741,7 +2732,6 @@ asm_test::or::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::or::u128::acquire:
@@ -2887,7 +2877,6 @@ asm_test::add::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::add::u128::acquire:
@@ -3053,7 +3042,6 @@ asm_test::and::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::and::u128::acquire:
@@ -3339,7 +3327,6 @@ asm_test::neg::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::neg::u128::acquire:
@@ -3505,7 +3492,6 @@ asm_test::not::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::not::u128::acquire:
@@ -3671,7 +3657,6 @@ asm_test::sub::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::sub::u128::acquire:
@@ -3817,7 +3802,6 @@ asm_test::xor::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::xor::u128::acquire:
@@ -4081,7 +4065,6 @@ asm_test::swap::u128::seqcst:
         cmp               x9, x5
         ccmp              x8, x4, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x5
         mov               x0, x4
         ret
@@ -4199,7 +4182,6 @@ asm_test::store::u128::seqcst:
         cmp               x9, x5
         ccmp              x8, x4, #0x0, eq
         b.ne              0b
-        dmb               ish
         ret
 
 asm_test::store::u128::relaxed:
@@ -4360,7 +4342,6 @@ asm_test::fetch_or::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -4516,7 +4497,6 @@ asm_test::fetch_add::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -4727,7 +4707,6 @@ asm_test::fetch_and::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -4997,7 +4976,6 @@ asm_test::fetch_max::i128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -5273,7 +5251,6 @@ asm_test::fetch_min::i128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -5595,7 +5572,6 @@ asm_test::fetch_neg::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x0, x6
         mov               x1, x7
         ret
@@ -5806,7 +5782,6 @@ asm_test::fetch_not::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x0, x6
         mov               x1, x7
         ret
@@ -5982,7 +5957,6 @@ asm_test::fetch_sub::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
@@ -6168,7 +6142,6 @@ asm_test::fetch_xor::u128::seqcst:
         cmp               x9, x7
         ccmp              x8, x6, #0x0, eq
         b.ne              0b
-        dmb               ish
         mov               x1, x7
         mov               x0, x6
         ret
