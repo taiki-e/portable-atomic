@@ -6,6 +6,9 @@ trap -- 's=$?; printf >&2 "%s\n" "${0##*/}:${LINENO}: \`${BASH_COMMAND}\` exit w
 trap -- 'printf >&2 "%s\n" "${0##*/}: trapped SIGINT"; exit 1' SIGINT
 cd -- "$(dirname -- "$0")"/..
 
+# See https://github.com/taiki-e/portable-atomic/blob/HEAD/DEVELOPMENT.md#testing-fuchsia
+# for usage.
+#
 # USAGE:
 #    ./tools/fuchsia-test.sh [+toolchain] <aarch64|x86_64> [cargo_options]...
 #    ./tools/fuchsia-test.sh emu <aarch64|x86_64>
@@ -44,6 +47,9 @@ case "${1:-}" in
   emu)
     cmd="$1"
     shift
+    if [[ $# -gt 0 ]]; then
+      bail "unrecognized argument '$1' for emu subcommand"
+    fi
     ;;
 esac
 case "${1:-}" in
@@ -53,7 +59,6 @@ case "${1:-}" in
 esac
 target="$1-unknown-fuchsia"
 shift
-export PORTABLE_ATOMIC_DENY_WARNINGS=1
 
 cargo_options=()
 rest_cargo_options=(--test-threads=1)

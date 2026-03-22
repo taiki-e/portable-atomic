@@ -119,6 +119,7 @@ mstatus
 mstatush
 muldi
 mvfr
+mysim
 negs
 newrepo
 newtype

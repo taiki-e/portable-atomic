@@ -54,10 +54,10 @@ Host requirements: x86_64 Linux
 Install dependencies.
 
 ```sh
-# gcc-powerpc64le-linux-gnu and libc6-dev-ppc64el-cross for cross-compiling
-# xterm and libtcl8.6 for simulator
-# jq for parsing json output from cargo
-sudo apt-get install gcc-powerpc64le-linux-gnu libc6-dev-ppc64el-cross xterm libtcl8.6 jq
+# gcc-powerpc64le-linux-gnu and libc6-dev-ppc64el-cross for cross-compilation
+# jq for our testing helper which handles json output from cargo
+# xterm and libtcl8.6 for running simulator
+sudo apt-get install gcc-powerpc64le-linux-gnu libc6-dev-ppc64el-cross jq xterm libtcl8.6
 ```
 
 Download Simulator from [download page](https://www.ibm.com/support/pages/node/6493437).
@@ -82,53 +82,23 @@ mv vmlinux ../../images
 mv skiboot.lid ../../images
 ```
 
-Start simulator.
+Start simulator (Ctrl-C and then enter `exit` to stop).
 
 ```sh
-cd /opt/ibm/systemsim-<version>/run/p10/linux
-../power10 -f boot-linux-ubuntu-p10.tcl
+./systemsim-test.sh emu
 ```
+
+(In simulator's console (`root@ubuntu2004mambo:`), test runner `./s` will automatically be run. If you want to stop the currently running test and run tests with a new build, Ctrl-C to stop it and re-run it before starting a new build.)
 
 <!-- omit in toc -->
 ### Run tests
 
-Install Rust target.
-
 ```sh
-rustup target add powerpc64le-unknown-linux-gnu
+# By default this runs test with --lib on workspace root.
+./tools/systemsim-test.sh --release
 ```
 
-Build tests for powerpc64le and get path to test binary.
-
-```sh
-# Note: Below is a way to get path to unit test binary. If you need to get
-# binaries for other tests, you need to adjust the script or copy paths from
-# cargo's "Executable ..." output.
-binary_path=$(
-  CARGO_TARGET_POWERPC64LE_UNKNOWN_LINUX_GNU_LINKER=powerpc64le-linux-gnu-gcc \
-    ./tools/test.sh build --target powerpc64le-unknown-linux-gnu --release
-)
-```
-
-Copy test binary to `/tmp` (to easily type in simulator's console).
-
-```sh
-cp "$binary_path" /tmp/t
-```
-
-In simulator's console, copy test binary from host.
-
-```sh
-callthru source /tmp/t >t && chmod +x ./t
-```
-
-Run test binary in simulator.
-
-```sh
-./t --test-threads=1
-```
-
-TODO: Automate more processes.
+TODO: Reflects whether the test was successful in the exit code of the script.
 
 ## Testing Fuchsia
 
