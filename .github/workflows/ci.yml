@@ -168,7 +168,11 @@ jobs:
             rustflags+=' --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16'
           fi
           if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f128; then
-            rustflags+=' --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128'
+            case "${TARGET:-}" in
+              # TODO(f128): undefined reference to `f{maximum,minimum}_numl' (symbols added in glibc 2.35)
+              *=armeb-unknown-linux-gnueabi | *=riscv32gc-unknown-linux-gnu) ;;
+              *) rustflags+=' --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128' ;;
+            esac
           fi
           if [[ "${rustflags}" != "${RUSTFLAGS:-}" ]]; then
             printf '%s\n' "RUSTFLAGS=${rustflags}" >>"${GITHUB_ENV}"
