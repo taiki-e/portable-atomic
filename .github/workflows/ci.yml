@@ -676,7 +676,7 @@ jobs:
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
 
-  test-bsd:
+  test-vm:
     needs: tidy
     name: test (${{ matrix.target }}${{ matrix.version }})
     strategy:
@@ -698,19 +698,35 @@ jobs:
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.6'
+          - target: aarch64-unknown-illumos
+            os: omnios
     runs-on: ubuntu-latest
     timeout-minutes: 120 # TODO: build on OpenBSD is too slow
     steps:
       - uses: taiki-e/checkout-action@v1
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          retry curl --proto '=https' --tlsv1.2 -fsSL https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
+            | tar xJf -
+        if: matrix.os == 'omnios'
       - uses: taiki-e/cross-platform-actions-action@neoverse-v1
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
           # We don't test x86_64 here because there is no OS-specific code on x86_64.
-          architecture: aarch64
-          version: ${{ matrix.version }}
+          architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
+          version: ${{ matrix.os == 'omnios' && 'r151056' || matrix.version }}
           shell: bash
-          sync_files: runner-to-vm
+          sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
           run: |
             set -CeEuxo pipefail
             retry() {
@@ -730,6 +746,32 @@ jobs:
               FreeBSD) retry sudo pkg install -y rust ;;
               NetBSD) retry sudo pkgin -y install rust ;;
               OpenBSD) retry sudo pkg_add rust ;;
+              SunOS)
+                if [[ "$(/usr/bin/uname -o)" == 'illumos' ]]; then
+                  sudo pkg install developer/gcc14 ooce/developer/aarch64-gcc14 ooce/developer/rust jq
+                  # Copy libraries that missing in ooce/developer/aarch64-sysroot.
+                  for src_lib in missing-libs/*; do
+                    lib="${src_lib##*/}"
+                    sudo mv -- "${src_lib}" /opt/cross/aarch64/sysroot/lib/"${lib}"
+                    (
+                      cd -- /opt/cross/aarch64/sysroot/lib
+                      sudo ln -s -- "${lib}" "${lib%.*}"
+                    )
+                    (
+                      cd -- /opt/cross/aarch64/sysroot/usr/lib
+                      sudo ln -s -- ../../lib/"${lib}" "${lib}"
+                      sudo ln -s -- ../../lib/"${lib}" "${lib%.*}"
+                    )
+                  done
+                  export CARGO_TARGET_AARCH64_UNKNOWN_ILLUMOS_LINKER=/opt/cross/aarch64/bin/aarch64-unknown-solaris2.11-gcc
+                  binary_path=$(
+                    RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_outline_atomics" \
+                      ./tools/test.sh build --target aarch64-unknown-illumos
+                  )
+                  mv -- "${binary_path}" ./debug
+                  exit
+                fi
+                ;;
             esac
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
@@ -740,6 +782,54 @@ jobs:
                   cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
                 ;;
             esac
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          retry sudo apt-get -o Acquire::Retries=10 -qq update
+          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+            sshpass
+          retry curl --proto '=https' --tlsv1.2 -fsSL https://github.com/taiki-e/qemu/releases/download/patched-11.0.0-rc0/qemu-ubuntu-24.04.tar.xz \
+            | tar xJf -
+          sudo cp -r -- qemu/. /usr/local/
+          rm -rf -- ./qemu
+          retry curl --proto '=https' --tlsv1.2 -fsSL -O https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/u-boot.bin
+          retry curl --proto '=https' --tlsv1.2 -fsSL -O https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/braich-151055.raw.xz
+          xz -d braich-151055.raw.xz
+          qemu-system-aarch64 \
+            -display none \
+            -monitor none \
+            -serial stdio \
+            -machine virt \
+            -accel tcg,thread=multi \
+            -m 6G \
+            -smp 2 \
+            -cpu neoverse-v1 \
+            -bios u-boot.bin \
+            -netdev user,id=net0,hostfwd=tcp::10022-:22 \
+            -device virtio-net-device,netdev=net0 \
+            -device virtio-blk-device,drive=hd0 \
+            -drive file=braich-151055.raw,format=raw,id=hd0,if=none \
+            -semihosting-config enable=on,target=native &
+          qemu_pid=$!
+          for i in {1..10}; do
+            if sshpass -p "" scp -P 10022 -o "StrictHostKeyChecking=no" ./debug root@localhost:/debug; then
+              break
+            else
+              sleep 30 # wait for qemu startup
+            fi
+          done
+          sshpass -p "" ssh -p 10022 root@localhost chmod +x /debug
+          sshpass -p "" ssh -p 10022 root@localhost /debug -- aarch64
+          kill -- "${qemu_pid}"
+        if: matrix.os == 'omnios'
 
   build:
     needs: tidy

@@ -14,6 +14,7 @@ auxv
 auxvec
 bitops
 BOOKE
+braich
 callthru
 casp
 casx
@@ -54,6 +55,7 @@ getpid
 getsystemcfg
 gimli
 Halfword
+hostfwd
 HWCAP
 hwprobe
 ILRCPC
@@ -120,11 +122,14 @@ muldi
 mvfr
 mysim
 negs
+neoverse
+netdev
 newrepo
 newtype
 nngrk
 nostartfiles
 NZCV
+ooce
 osxsave
 outputdir
 phdr
@@ -159,6 +164,7 @@ slgrk
 sllw
 sreg
 srlw
+sshpass
 sstatus
 stdarch
 stilp
@@ -186,6 +192,7 @@ usart
 uscat
 versatilepb
 virt
+virtio
 vmlinux
 vmovdqa
 vreg
