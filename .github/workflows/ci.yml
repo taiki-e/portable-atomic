@@ -191,7 +191,7 @@ jobs:
 
       # {,no-}outline-atomics
       # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
-      # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking, AArch64 illumos, and AIX.
+      # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking, and AIX.
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
@@ -223,7 +223,7 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }}
           QEMU_CPU: sifive-u54 # no zacas
         if: startsWith(matrix.target, 'riscv64')
-      # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux/illumos, powerpc64, and RISC-V Linux.
+      # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux, powerpc64, and RISC-V Linux.
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       # RISC-V Linux is skipped because outline-atomics is enabled by default.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
@@ -764,10 +764,7 @@ jobs:
                     )
                   done
                   export CARGO_TARGET_AARCH64_UNKNOWN_ILLUMOS_LINKER=/opt/cross/aarch64/bin/aarch64-unknown-solaris2.11-gcc
-                  binary_path=$(
-                    RUSTFLAGS="${RUSTFLAGS} --cfg portable_atomic_outline_atomics" \
-                      ./tools/test.sh build --target aarch64-unknown-illumos
-                  )
+                  binary_path=$(./tools/test.sh build --target aarch64-unknown-illumos)
                   mv -- "${binary_path}" ./debug
                   exit
                 fi

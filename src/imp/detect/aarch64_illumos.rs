@@ -3,11 +3,8 @@
 /*
 Run-time CPU feature detection on AArch64 illumos by using getisax.
 
-As of nightly-2024-09-07, is_aarch64_feature_detected doesn't support run-time detection on illumos.
-https://github.com/rust-lang/stdarch/blob/d9466edb4c53cece8686ee6e17b028436ddf4151/crates/std_detect/src/detect/mod.rs
-
-Run-time detection on AArch64 illumos is currently disabled by default as experimental
-because illumos AArch64 port is experimental and we cannot run tests on the VM or real machine.
+As of Rust 1.94, is_aarch64_feature_detected doesn't support run-time detection on illumos.
+https://github.com/rust-lang/rust/blob/1.94.0/library/std_detect/src/detect/mod.rs
 */
 
 include!("common.rs");

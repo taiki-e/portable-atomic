@@ -116,7 +116,7 @@ See tests::test_alternative and aarch64_aa64reg.rs for (test-only) alternative i
 
 # FreeBSD
 
-As of nightly-2024-09-07, is_aarch64_feature_detected always uses mrs on
+As of Rust 1.94, is_aarch64_feature_detected always uses mrs on
 AArch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
 on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
 

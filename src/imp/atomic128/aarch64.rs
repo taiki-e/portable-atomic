@@ -117,7 +117,6 @@ mod detect;
 #[path = "../detect/aarch64_aa64reg.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(test, portable_atomic_outline_atomics))] // TODO(aarch64-illumos): currently disabled by default
 #[cfg(any(
     test,
     not(all(
@@ -190,7 +189,7 @@ macro_rules! debug_assert_lse {
                 target_os = "freebsd",
                 target_os = "netbsd",
                 target_os = "openbsd",
-                all(target_os = "illumos", portable_atomic_outline_atomics),
+                target_os = "illumos",
                 target_os = "fuchsia",
                 windows,
             ),
@@ -229,7 +228,7 @@ macro_rules! debug_assert_lse2 {
                 target_os = "freebsd",
                 target_os = "netbsd",
                 target_os = "openbsd",
-                all(target_os = "illumos", portable_atomic_outline_atomics),
+                target_os = "illumos",
                 // These don't support detection of FEAT_LSE2.
                 // target_os = "fuchsia",
                 // windows,
@@ -272,7 +271,7 @@ macro_rules! debug_assert_lse128 {
                 target_os = "freebsd",
                 target_os = "netbsd",
                 target_os = "openbsd",
-                all(target_os = "illumos", portable_atomic_outline_atomics),
+                target_os = "illumos",
                 // These don't support detection of FEAT_LSE128.
                 // target_os = "fuchsia",
                 // windows,
@@ -315,7 +314,7 @@ macro_rules! debug_assert_rcpc3 {
                 target_os = "freebsd",
                 target_os = "netbsd",
                 target_os = "openbsd",
-                all(target_os = "illumos", portable_atomic_outline_atomics),
+                target_os = "illumos",
                 // These don't support detection of FEAT_LRCPC3.
                 // target_os = "fuchsia",
                 // windows,
@@ -518,7 +517,7 @@ cfg_sel!({
             target_os = "freebsd",
             target_os = "netbsd",
             target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
+            target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
             // windows,
@@ -899,7 +898,7 @@ cfg_sel!({
             target_os = "freebsd",
             target_os = "netbsd",
             target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
+            target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
             // windows,
@@ -1250,7 +1249,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "freebsd",
             target_os = "netbsd",
             target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
+            target_os = "illumos",
             target_os = "fuchsia",
             windows,
         ),
@@ -1388,7 +1387,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "freebsd",
             target_os = "netbsd",
             target_os = "openbsd",
-            all(target_os = "illumos", portable_atomic_outline_atomics),
+            target_os = "illumos",
             target_os = "fuchsia",
             windows,
         ),
