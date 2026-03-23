@@ -137,8 +137,8 @@ targets=(
 # - LLVM 17 : stable 1.79 - 1.82, since https://github.com/rust-lang/rust/pull/122649
 # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
 # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
-# - LLVM 20 : stable 1.92       , since https://github.com/rust-lang/rust/pull/145071
-# - LLVM 21 : stable            , since https://github.com/rust-lang/rust/pull/153684
+# - LLVM 20 : stable 1.92 - 1.95, since https://github.com/rust-lang/rust/pull/145071
+# - LLVM 21 : stable 1.96 -     , since https://github.com/rust-lang/rust/pull/153684
 toolchains=(
   1.56 # LLVM 13
   1.64 # LLVM 14

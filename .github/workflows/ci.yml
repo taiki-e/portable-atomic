@@ -683,10 +683,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TODO: pkg: sqlite error while executing grmbl in file update.c:154: NOT NULL constraint failed: packages.path
-          # - target: aarch64-unknown-freebsd
-          #   os: freebsd
-          #   version: '13.5'
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '13.5'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.3'
@@ -865,26 +864,24 @@ jobs:
           if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
+            retry curl --proto '=https' --tlsv1.2 -fsSL https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
               | tar xjf - --strip-components 1 -C "${HOME}"/msp430-gcc
             printf '%s\n' "${HOME}"/msp430-gcc/bin >>"${GITHUB_PATH}"
             # https://l4re.org/download/snapshots
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
+            retry curl --proto '=https' --tlsv1.2 -fsSL https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
               | tar xJf - -C "${HOME}"/aarch64-l4re-gcc
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 --retry-all-errors -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
+            retry curl --proto '=https' --tlsv1.2 -fsSL -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${{ matrix.rust }}" == "stable" ]]; then
             # TODO: Use the latest toolchain once upstream bug fixed.
             retry espup install --targets esp32s2 --toolchain-version 1.90.0
           fi
-          # https://github.com/taiki-e/dockerfiles/pkgs/container/qemu-system
-          retry docker create --name qemu-system ghcr.io/taiki-e/qemu-system
-          mkdir -p -- qemu-system
-          docker cp -- qemu-system:/qemu qemu-system/qemu
-          docker rm -f -- qemu-system >/dev/null
-          sudo cp -r -- qemu-system/qemu/. /usr/local/
-          rm -rf -- ./qemu-system
+          retry curl --proto '=https' --tlsv1.2 -fsSL https://github.com/taiki-e/qemu/releases/download/patched-11.0.0-rc0/qemu-ubuntu-24.04.tar.xz \
+            | tar xJf -
+          rm -- qemu/bin/qemu-system-sparc # TODO: QEMU 10.2-11.0 exits with 1
+          sudo cp -r -- qemu/. /usr/local/
+          rm -rf -- ./qemu
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: taiki-e/cache-cargo-install-action@v3
