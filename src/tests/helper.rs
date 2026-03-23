@@ -132,7 +132,7 @@ macro_rules! __test_atomic_int_load_store {
                         }
                         eprintln!("load end={:?}", now.elapsed());
                         for v in v {
-                            assert!(set.contains(&v), "v={}", v);
+                            assert!(set.contains(&v), "load unexpected={}", v);
                         }
                     });
                 }
@@ -1206,7 +1206,7 @@ macro_rules! __test_atomic_int {
                             }
                             eprintln!("load end={:?}", now.elapsed());
                             for v in v {
-                                assert!(set.contains(&v), "v={}", v);
+                                assert!(set.contains(&v), "load unexpected={}", v);
                             }
                         });
                     }
@@ -1219,7 +1219,7 @@ macro_rules! __test_atomic_int {
                         }
                         eprintln!("swap end={:?}", now.elapsed());
                         for v in v {
-                            assert!(set.contains(&v), "v={}", v);
+                            assert!(set.contains(&v), "swap unexpected={}", v);
                         }
                     });
                 }
@@ -1271,7 +1271,7 @@ macro_rules! __test_atomic_int {
                         }
                         eprintln!("load end={:?}", now.elapsed());
                         for v in v {
-                            assert!(set.contains(&v), "v={}", v);
+                            assert!(set.contains(&v), "load unexpected={}", v);
                         }
                     });
                     s.spawn(move |_| {
@@ -1293,7 +1293,7 @@ macro_rules! __test_atomic_int {
                         }
                         eprintln!("compare_exchange end={:?}", now.elapsed());
                         for v in v {
-                            assert!(set.contains(&v), "v={}", v);
+                            assert!(set.contains(&v), "cas unexpected={}", v);
                         }
                     });
                 }
