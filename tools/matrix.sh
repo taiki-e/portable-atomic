@@ -13,7 +13,7 @@ cd -- "$(dirname -- "$0")"/..
 # This script is intended to be called by gen.sh, but can be called separately.
 
 # FYI: To get the current matrix on normal workflow:
-#   pipx run yq '.jobs.test.strategy.matrix' .github/workflows/ci.yml
+#   uvx yq '.jobs.test.strategy.matrix' .github/workflows/ci.yml
 
 bail() {
   printf >&2 'error: %s\n' "$*"
