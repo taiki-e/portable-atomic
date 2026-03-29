@@ -2,8 +2,9 @@
 # https://docs.zizmor.sh/configuration/
 
 rules:
-  secrets-inherit: { disable: true }
+  anonymous-definition: { disable: true }
   unpinned-uses:
     config:
       policies:
         taiki-e/*: any
+  unpinned-images: { disable: true }

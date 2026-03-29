@@ -51,7 +51,8 @@ jobs:
       contents: write # for creating branch for pr
       pull-requests: write # unused (used in `codegen-automerge: true` case)
       security-events: write # for github/codeql-action/*
-    secrets: inherit
+    secrets:
+      PR_TOKEN_APP_PRIVATE_KEY: ${{ secrets.PR_TOKEN_APP_PRIVATE_KEY }}
     with:
       clippy: false # covered by TESTS=1 ./tools/build.sh
       docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
@@ -941,7 +942,7 @@ jobs:
             done
             "$@"
           }
-          if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
+          if [[ "${RUST}" == "nightly"* ]]; then
             apt_packages=(
               avr-libc
               gcc-avr
@@ -952,7 +953,7 @@ jobs:
             retry sudo apt-get -o Acquire::Retries=10 -qq update
             retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           fi
-          if [[ "${{ matrix.rust }}" == "nightly"* ]]; then
+          if [[ "${RUST}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
             retry curl --proto '=https' --tlsv1.2 -fsSL https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
@@ -964,7 +965,7 @@ jobs:
             retry curl --proto '=https' --tlsv1.2 -fsSL -o "${HOME}"/aarch64-l4re-gcc/bin/l4image https://l4re.org/download/snapshots/pre-built-images/l4image
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
-          elif [[ "${{ matrix.rust }}" == "stable" ]]; then
+          elif [[ "${RUST}" == "stable" ]]; then
             # TODO: Use the latest toolchain once upstream bug fixed.
             retry espup install --targets esp32s2 --toolchain-version 1.90.0
           fi
@@ -975,6 +976,7 @@ jobs:
           rm -rf -- ./qemu
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUST: ${{ matrix.rust }}
       - uses: taiki-e/cache-cargo-install-action@v3
         with:
           # https://github.com/agbrs/agb/tree/5fb928a/mgba-test-runner
@@ -1039,7 +1041,9 @@ jobs:
           tool: cargo-hack
           fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: printf '%s\n' "TARGET=--target=${{ matrix.target }}" >>"${GITHUB_ENV}"
+      - run: printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
+        env:
+          TARGET: ${{ matrix.target }}
         if: matrix.target != 'x86_64-unknown-linux-gnu'
       - run: printf '%s\n' "MIRIFLAGS=-Zmiri-many-seeds=0..16" >>"${GITHUB_ENV}"
         if: github.event_name == 'schedule' && matrix.target == 'x86_64-unknown-linux-gnu'
