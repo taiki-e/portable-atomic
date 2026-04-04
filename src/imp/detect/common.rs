@@ -149,6 +149,12 @@ flags! {
 
     // The Armv9.6 architecture extension
     // https://developer.arm.com/documentation/109697/2025_06/Feature-descriptions/The-Armv9-6-architecture-extension
+    // FEAT_LS64WB, LS64 for Write-back cacheable memory
+    // > This feature is supported in AArch64 state only.
+    // > FEAT_LS64WB is OPTIONAL from Armv9.2.
+    // > If FEAT_LS64WB is implemented, then FEAT_LS64_ACCDATA is implemented.
+    #[cfg(test)] // test-only
+    ls64wb("ls64wb", any(/* no corresponding target feature */)),
     // FEAT_LSFE, Large System Float Extension
     // > This feature is supported in AArch64 state only.
     // > FEAT_LSFE is OPTIONAL from Armv9.3.

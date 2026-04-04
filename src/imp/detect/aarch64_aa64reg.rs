@@ -92,6 +92,15 @@ fn _detect(info: &mut CpuInfo) {
             info.set(CpuInfoFlag::rcpc2);
         }
     }
+    // LS64, bits [63:60]
+    // > FEAT_LS64 implements the functionality identified by 0b0001.
+    // > FEAT_LS64_V implements the functionality identified by 0b0010.
+    // > FEAT_LS64_ACCDATA implements the functionality identified by 0b0011.
+    // > FEAT_LS64WB implements the functionality identified by 0b0100.
+    #[cfg(test)]
+    if extract(aa64isar1, 63, 60) >= 0b0100 {
+        info.set(CpuInfoFlag::ls64wb);
+    }
     // ID_AA64ISAR3_EL1, AArch64 Instruction Set Attribute Register 3
     // https://developer.arm.com/documentation/ddi0601/2025-06/AArch64-Registers/ID-AA64ISAR3-EL1--AArch64-Instruction-Set-Attribute-Register-3
     // LSFE, bits [19:16]
@@ -422,6 +431,12 @@ mod tests {
             }
         } else {
             assert_eq!(lrcpc, 0b0000);
+        }
+        let ls64 = extract(aa64isar1, 19, 16);
+        if detect().ls64wb() {
+            assert_eq!(ls64, 0b0100);
+        } else {
+            assert!(ls64 < 0b0100, "{}", ls64);
         }
         let lsfe = extract(aa64isar3, 19, 16);
         if detect().lsfe() {
