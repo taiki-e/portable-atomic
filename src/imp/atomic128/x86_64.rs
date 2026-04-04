@@ -44,7 +44,6 @@ mod detect;
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -66,7 +65,6 @@ macro_rules! debug_assert_cmpxchg16b {
         }
     };
 }
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -81,7 +79,6 @@ macro_rules! debug_assert_cmpxchg16b_avx {
     }};
 }
 
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -92,7 +89,6 @@ macro_rules! ptr_modifier {
         ":e"
     };
 }
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -187,8 +183,10 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 // baseline and is always available, but the SSE target feature is disabled for
 // use cases such as kernels and firmware that should not use vector registers.
 // So, do not use vector registers unless SSE target feature is enabled.
+// Note that we cannot use cfg(target_abi = "softfloat") because cfg(target_abi)
+// is unavailable on old rustc and target_abi = "softfloat" is not set for
+// softfloat x86_64 targets as of Rust 1.95.
 // See also https://github.com/rust-lang/rust/blob/1.84.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -213,7 +211,6 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128) -> u128 {
         core::mem::transmute(out)
     }
 }
-#[cfg(target_feature = "sse")]
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
