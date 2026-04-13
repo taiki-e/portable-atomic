@@ -432,8 +432,8 @@ asm_test::fetch_nand::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -452,8 +452,8 @@ asm_test::fetch_nand::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -472,8 +472,8 @@ asm_test::fetch_nand::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -492,8 +492,8 @@ asm_test::fetch_nand::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -512,8 +512,8 @@ asm_test::fetch_nand::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -842,8 +842,8 @@ asm_test::fetch_umax::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -866,8 +866,8 @@ asm_test::fetch_umax::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -890,8 +890,8 @@ asm_test::fetch_umax::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -914,8 +914,8 @@ asm_test::fetch_umax::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -938,8 +938,8 @@ asm_test::fetch_umax::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -1272,8 +1272,8 @@ asm_test::fetch_umin::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -1296,8 +1296,8 @@ asm_test::fetch_umin::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -1320,8 +1320,8 @@ asm_test::fetch_umin::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -1344,8 +1344,8 @@ asm_test::fetch_umin::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -1368,8 +1368,8 @@ asm_test::fetch_umin::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r14,%r4
@@ -4872,8 +4872,8 @@ asm_test::or::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ogrk              %r13,%r1,%r3
         ogrk              %r12,%r0,%r4
@@ -4886,8 +4886,8 @@ asm_test::or::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ogrk              %r13,%r1,%r3
         ogrk              %r12,%r0,%r4
@@ -4900,8 +4900,8 @@ asm_test::or::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ogrk              %r13,%r1,%r3
         ogrk              %r12,%r0,%r4
@@ -4914,8 +4914,8 @@ asm_test::or::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ogrk              %r13,%r1,%r3
         ogrk              %r12,%r0,%r4
@@ -4928,8 +4928,8 @@ asm_test::or::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ogrk              %r13,%r1,%r3
         ogrk              %r12,%r0,%r4
@@ -5122,8 +5122,8 @@ asm_test::add::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         algrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -5137,8 +5137,8 @@ asm_test::add::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         algrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -5152,8 +5152,8 @@ asm_test::add::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         algrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -5167,8 +5167,8 @@ asm_test::add::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         algrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -5182,8 +5182,8 @@ asm_test::add::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         algrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -5387,8 +5387,8 @@ asm_test::and::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ngrk              %r13,%r1,%r3
         ngrk              %r12,%r0,%r4
@@ -5401,8 +5401,8 @@ asm_test::and::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ngrk              %r13,%r1,%r3
         ngrk              %r12,%r0,%r4
@@ -5415,8 +5415,8 @@ asm_test::and::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ngrk              %r13,%r1,%r3
         ngrk              %r12,%r0,%r4
@@ -5429,8 +5429,8 @@ asm_test::and::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ngrk              %r13,%r1,%r3
         ngrk              %r12,%r0,%r4
@@ -5443,8 +5443,8 @@ asm_test::and::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         ngrk              %r13,%r1,%r3
         ngrk              %r12,%r0,%r4
@@ -6296,8 +6296,8 @@ asm_test::neg::u64::release:
 asm_test::neg::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lghi              %r3,0
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r3,%r1
         lghi              %r12,0
@@ -6310,8 +6310,8 @@ asm_test::neg::u128::acqrel:
 asm_test::neg::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lghi              %r3,0
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r3,%r1
         lghi              %r12,0
@@ -6324,8 +6324,8 @@ asm_test::neg::u128::seqcst:
 asm_test::neg::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lghi              %r3,0
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r3,%r1
         lghi              %r12,0
@@ -6338,8 +6338,8 @@ asm_test::neg::u128::acquire:
 asm_test::neg::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lghi              %r3,0
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r3,%r1
         lghi              %r12,0
@@ -6352,8 +6352,8 @@ asm_test::neg::u128::relaxed:
 asm_test::neg::u128::release:
         stmg              %r12,%r15,96(%r15)
         lghi              %r3,0
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r3,%r1
         lghi              %r12,0
@@ -6545,8 +6545,8 @@ asm_test::not::u64::release:
 
 asm_test::not::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -6559,8 +6559,8 @@ asm_test::not::u128::acqrel:
 
 asm_test::not::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -6573,8 +6573,8 @@ asm_test::not::u128::seqcst:
 
 asm_test::not::u128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -6587,8 +6587,8 @@ asm_test::not::u128::acquire:
 
 asm_test::not::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -6601,8 +6601,8 @@ asm_test::not::u128::relaxed:
 
 asm_test::not::u128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -6807,8 +6807,8 @@ asm_test::sub::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -6822,8 +6822,8 @@ asm_test::sub::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -6837,8 +6837,8 @@ asm_test::sub::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -6852,8 +6852,8 @@ asm_test::sub::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -6867,8 +6867,8 @@ asm_test::sub::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         slgrk             %r13,%r1,%r3
         lgr               %r12,%r0
@@ -7062,8 +7062,8 @@ asm_test::xor::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         xgrk              %r13,%r1,%r3
         xgrk              %r12,%r0,%r4
@@ -7076,8 +7076,8 @@ asm_test::xor::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         xgrk              %r13,%r1,%r3
         xgrk              %r12,%r0,%r4
@@ -7090,8 +7090,8 @@ asm_test::xor::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         xgrk              %r13,%r1,%r3
         xgrk              %r12,%r0,%r4
@@ -7104,8 +7104,8 @@ asm_test::xor::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         xgrk              %r13,%r1,%r3
         xgrk              %r12,%r0,%r4
@@ -7118,8 +7118,8 @@ asm_test::xor::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
         lg                %r3,8(%r3)
-        lg                %r0,8(%r2)
-        lg                %r1,0(%r2)
+        lg                %r1,8(%r2)
+        lg                %r0,0(%r2)
 0:
         xgrk              %r13,%r1,%r3
         xgrk              %r12,%r0,%r4
@@ -7529,8 +7529,8 @@ asm_test::swap::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
         lg                %r13,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         cdsg              %r0,%r12,0(%r3)
         jl                0b
@@ -7543,8 +7543,8 @@ asm_test::swap::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
         lg                %r13,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         cdsg              %r0,%r12,0(%r3)
         jl                0b
@@ -7557,8 +7557,8 @@ asm_test::swap::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
         lg                %r13,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         cdsg              %r0,%r12,0(%r3)
         jl                0b
@@ -7571,8 +7571,8 @@ asm_test::swap::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
         lg                %r13,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         cdsg              %r0,%r12,0(%r3)
         jl                0b
@@ -7585,8 +7585,8 @@ asm_test::swap::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r12,0(%r4)
         lg                %r13,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         cdsg              %r0,%r12,0(%r3)
         jl                0b
@@ -7968,8 +7968,8 @@ asm_test::fetch_or::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ogrk              %r13,%r1,%r4
         ogrk              %r12,%r0,%r5
@@ -7984,8 +7984,8 @@ asm_test::fetch_or::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ogrk              %r13,%r1,%r4
         ogrk              %r12,%r0,%r5
@@ -8000,8 +8000,8 @@ asm_test::fetch_or::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ogrk              %r13,%r1,%r4
         ogrk              %r12,%r0,%r5
@@ -8016,8 +8016,8 @@ asm_test::fetch_or::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ogrk              %r13,%r1,%r4
         ogrk              %r12,%r0,%r5
@@ -8032,8 +8032,8 @@ asm_test::fetch_or::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ogrk              %r13,%r1,%r4
         ogrk              %r12,%r0,%r5
@@ -8238,8 +8238,8 @@ asm_test::fetch_add::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         algrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -8255,8 +8255,8 @@ asm_test::fetch_add::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         algrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -8272,8 +8272,8 @@ asm_test::fetch_add::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         algrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -8289,8 +8289,8 @@ asm_test::fetch_add::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         algrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -8306,8 +8306,8 @@ asm_test::fetch_add::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         algrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -8623,8 +8623,8 @@ asm_test::fetch_and::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -8639,8 +8639,8 @@ asm_test::fetch_and::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -8655,8 +8655,8 @@ asm_test::fetch_and::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -8671,8 +8671,8 @@ asm_test::fetch_and::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -8687,8 +8687,8 @@ asm_test::fetch_and::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         ngrk              %r13,%r1,%r4
         ngrk              %r12,%r0,%r5
@@ -9013,8 +9013,8 @@ asm_test::fetch_max::i128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9036,8 +9036,8 @@ asm_test::fetch_max::i128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9059,8 +9059,8 @@ asm_test::fetch_max::i128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9082,8 +9082,8 @@ asm_test::fetch_max::i128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9105,8 +9105,8 @@ asm_test::fetch_max::i128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9438,8 +9438,8 @@ asm_test::fetch_min::i128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9461,8 +9461,8 @@ asm_test::fetch_min::i128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9484,8 +9484,8 @@ asm_test::fetch_min::i128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9507,8 +9507,8 @@ asm_test::fetch_min::i128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -9530,8 +9530,8 @@ asm_test::fetch_min::i128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         clgr              %r1,%r4
         lgr               %r12,%r4
@@ -10492,8 +10492,8 @@ asm_test::fetch_neg::u64::release:
 asm_test::fetch_neg::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lghi              %r4,0
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r4,%r1
         lghi              %r12,0
@@ -10508,8 +10508,8 @@ asm_test::fetch_neg::u128::acqrel:
 asm_test::fetch_neg::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lghi              %r4,0
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r4,%r1
         lghi              %r12,0
@@ -10524,8 +10524,8 @@ asm_test::fetch_neg::u128::seqcst:
 asm_test::fetch_neg::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lghi              %r4,0
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r4,%r1
         lghi              %r12,0
@@ -10540,8 +10540,8 @@ asm_test::fetch_neg::u128::acquire:
 asm_test::fetch_neg::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lghi              %r4,0
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r4,%r1
         lghi              %r12,0
@@ -10556,8 +10556,8 @@ asm_test::fetch_neg::u128::relaxed:
 asm_test::fetch_neg::u128::release:
         stmg              %r12,%r15,96(%r15)
         lghi              %r4,0
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r4,%r1
         lghi              %r12,0
@@ -10851,8 +10851,8 @@ asm_test::fetch_not::bool::release:
 
 asm_test::fetch_not::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -10867,8 +10867,8 @@ asm_test::fetch_not::u128::acqrel:
 
 asm_test::fetch_not::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -10883,8 +10883,8 @@ asm_test::fetch_not::u128::seqcst:
 
 asm_test::fetch_not::u128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -10899,8 +10899,8 @@ asm_test::fetch_not::u128::acquire:
 
 asm_test::fetch_not::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -10915,8 +10915,8 @@ asm_test::fetch_not::u128::relaxed:
 
 asm_test::fetch_not::u128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         lcgr              %r13,%r1
         aghi              %r13,-1
@@ -11133,8 +11133,8 @@ asm_test::fetch_sub::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -11150,8 +11150,8 @@ asm_test::fetch_sub::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -11167,8 +11167,8 @@ asm_test::fetch_sub::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -11184,8 +11184,8 @@ asm_test::fetch_sub::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -11201,8 +11201,8 @@ asm_test::fetch_sub::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         slgrk             %r13,%r1,%r4
         lgr               %r12,%r0
@@ -11503,8 +11503,8 @@ asm_test::fetch_xor::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         xgrk              %r13,%r1,%r4
         xgrk              %r12,%r0,%r5
@@ -11519,8 +11519,8 @@ asm_test::fetch_xor::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         xgrk              %r13,%r1,%r4
         xgrk              %r12,%r0,%r5
@@ -11535,8 +11535,8 @@ asm_test::fetch_xor::u128::acquire:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         xgrk              %r13,%r1,%r4
         xgrk              %r12,%r0,%r5
@@ -11551,8 +11551,8 @@ asm_test::fetch_xor::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         xgrk              %r13,%r1,%r4
         xgrk              %r12,%r0,%r5
@@ -11567,8 +11567,8 @@ asm_test::fetch_xor::u128::release:
         stmg              %r12,%r15,96(%r15)
         lg                %r5,0(%r4)
         lg                %r4,8(%r4)
-        lg                %r0,8(%r3)
-        lg                %r1,0(%r3)
+        lg                %r1,8(%r3)
+        lg                %r0,0(%r3)
 0:
         xgrk              %r13,%r1,%r4
         xgrk              %r12,%r0,%r5
