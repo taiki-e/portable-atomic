@@ -16,6 +16,7 @@ auxvec
 bitops
 BOOKE
 braich
+buildx
 callthru
 casp
 casx
