@@ -19,6 +19,7 @@ updates:
     ignore:
       # For test on old rustc.
       - dependency-name: crossbeam-utils
+      - dependency-name: fastrand
       - dependency-name: libc
     labels: []
   - package-ecosystem: github-actions
