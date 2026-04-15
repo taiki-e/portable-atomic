@@ -94,7 +94,7 @@ macro_rules! atomic_float {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
                             asm!(
                                 start_lsfe!(),
-                                concat!("ldfadd", $acquire, $release, " {out:", $modifier, "}, {val:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x + val; out = _x }
+                                concat!("ldfadd", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x + val; out = _x }
                                 dst = in(reg) ptr_reg!(dst),
                                 val = in(vreg) val,
                                 out = lateout(vreg) out,
@@ -110,11 +110,11 @@ macro_rules! atomic_float {
                     macro_rules! add {
                         ($order:tt, $_msvc_fence:tt) => {
                             asm!(
-                                // ldfadd{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x + {h,s,d}1; {h,s,d}0 = _x }
+                                // ldfadd{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x + {h,s,d}0; {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "00041"),
                                 in("x2") ptr_reg!(dst),
-                                in("v1") val,
-                                out("v0") out,
+                                in("v0") val,
+                                out("v1") out,
                                 options(nostack),
                             )
                         };
@@ -143,7 +143,7 @@ macro_rules! atomic_float {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
                             asm!(
                                 start_lsfe!(),
-                                concat!("ldfmaxnm", $acquire, $release, " {out:", $modifier, "}, {val:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.max(val); out = _x }
+                                concat!("ldfmaxnm", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.max(val); out = _x }
                                 dst = in(reg) ptr_reg!(dst),
                                 val = in(vreg) val,
                                 out = lateout(vreg) out,
@@ -159,11 +159,11 @@ macro_rules! atomic_float {
                     macro_rules! max {
                         ($order:tt, $_msvc_fence:tt) => {
                             asm!(
-                                // ldfmaxnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.max({h,s,d}1); {h,s,d}0 = _x }
+                                // ldfmaxnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.max({h,s,d}0); {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "06041"),
                                 in("x2") ptr_reg!(dst),
-                                in("v1") val,
-                                out("v0") out,
+                                in("v0") val,
+                                out("v1") out,
                                 options(nostack),
                             )
                         };
@@ -187,7 +187,7 @@ macro_rules! atomic_float {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
                             asm!(
                                 start_lsfe!(),
-                                concat!("ldfminnm", $acquire, $release, " {out:", $modifier, "}, {val:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.min(val); out = _x }
+                                concat!("ldfminnm", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.min(val); out = _x }
                                 dst = in(reg) ptr_reg!(dst),
                                 val = in(vreg) val,
                                 out = lateout(vreg) out,
@@ -203,11 +203,11 @@ macro_rules! atomic_float {
                     macro_rules! min {
                         ($order:tt, $_msvc_fence:tt) => {
                             asm!(
-                                // ldfminnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.min({h,s,d}1); {h,s,d}0 = _x }
+                                // ldfminnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.min({h,s,d}0); {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "07041"),
                                 in("x2") ptr_reg!(dst),
-                                in("v1") val,
-                                out("v0") out,
+                                in("v0") val,
+                                out("v1") out,
                                 options(nostack),
                             )
                         };
