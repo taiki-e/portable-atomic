@@ -677,7 +677,7 @@ jobs:
       #   env:
       #     TESTS: 1
       #   if: matrix.rust == 'stable'
-      - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf
+      - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
         if: matrix.rust == 'stable'
 
   miri:
