@@ -5544,7 +5544,7 @@ asm_test::fetch_min::i8::relaxed:
         sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        sext              a11, a8, 8
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
