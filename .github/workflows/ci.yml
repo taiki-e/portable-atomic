@@ -968,8 +968,7 @@ jobs:
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${RUST}" == "stable" ]]; then
-            # TODO: Use the latest toolchain once upstream bug fixed.
-            retry espup install --targets esp32s2 --toolchain-version 1.90.0
+            retry espup install --targets esp32s2
           fi
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0-rc0/qemu-ubuntu-24.04.tar.xz \
             | tar xJf -
@@ -1296,7 +1295,6 @@ jobs:
             done
             "$@"
           }
-          # TODO: Use the latest toolchain once upstream bug fixed.
-          retry espup install --targets esp32s2 --toolchain-version 1.90.0
+          retry espup install --targets esp32s2
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml
       - run: cargo +esp test --manifest-path tests/asm-test/Cargo.toml
