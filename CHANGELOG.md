@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Xtensa: route atomic read-modify-write operations on ESP32 / ESP32-S3 PSRAM addresses through a critical section. `Atomic*::IS_ALWAYS_LOCK_FREE` becomes `false` on these CPUs.
+
 ## [1.15.0] - 2026-08-09
 
 - Work around [`core::sync::atomic` bug](https://github.com/rust-lang/compiler-builtins/pull/1234) which may cause data races with non-relaxed load/CAS on pre-v6 ARM Linux/Android due to missing memory barrier. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
