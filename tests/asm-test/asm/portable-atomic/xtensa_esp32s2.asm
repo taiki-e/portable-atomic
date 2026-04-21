@@ -5322,12 +5322,10 @@ asm_test::fetch_and::bool::release:
 
 asm_test::fetch_max::i8::acqrel:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         max               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5337,12 +5335,10 @@ asm_test::fetch_max::i8::acqrel:
 
 asm_test::fetch_max::i8::seqcst:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         max               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5352,12 +5348,10 @@ asm_test::fetch_max::i8::seqcst:
 
 asm_test::fetch_max::i8::acquire:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         max               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5367,12 +5361,10 @@ asm_test::fetch_max::i8::acquire:
 
 asm_test::fetch_max::i8::relaxed:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         max               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5382,12 +5374,10 @@ asm_test::fetch_max::i8::relaxed:
 
 asm_test::fetch_max::i8::release:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         max               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5399,8 +5389,7 @@ asm_test::fetch_max::i16::acqrel:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         max               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5412,8 +5401,7 @@ asm_test::fetch_max::i16::seqcst:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         max               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5425,8 +5413,7 @@ asm_test::fetch_max::i16::acquire:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         max               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5438,8 +5425,7 @@ asm_test::fetch_max::i16::relaxed:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         max               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5451,8 +5437,7 @@ asm_test::fetch_max::i16::release:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         max               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5517,12 +5502,10 @@ asm_test::fetch_max::i32::release:
 
 asm_test::fetch_min::i8::acqrel:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5532,12 +5515,10 @@ asm_test::fetch_min::i8::acqrel:
 
 asm_test::fetch_min::i8::seqcst:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5547,12 +5528,10 @@ asm_test::fetch_min::i8::seqcst:
 
 asm_test::fetch_min::i8::acquire:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5562,12 +5541,10 @@ asm_test::fetch_min::i8::acquire:
 
 asm_test::fetch_min::i8::relaxed:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5577,12 +5554,10 @@ asm_test::fetch_min::i8::relaxed:
 
 asm_test::fetch_min::i8::release:
         entry             a1, 32
-        slli              a8, a3, 24
-        srai              a9, a8, 24
+        sext              a9, a3, 7
         rsil              a10, 15
         l8ui              a8, a2, 0
-        slli              a11, a8, 24
-        srai              a11, a11, 24
+        sext              a11, a8, 7
         min               a9, a9, a11
         s8i               a9, a2, 0
         wsr.ps            a10
@@ -5594,8 +5569,7 @@ asm_test::fetch_min::i16::acqrel:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         min               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5607,8 +5581,7 @@ asm_test::fetch_min::i16::seqcst:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         min               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5620,8 +5593,7 @@ asm_test::fetch_min::i16::acquire:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         min               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5633,8 +5605,7 @@ asm_test::fetch_min::i16::relaxed:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         min               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
@@ -5646,8 +5617,7 @@ asm_test::fetch_min::i16::release:
         entry             a1, 32
         rsil              a9, 15
         l16si             a8, a2, 0
-        slli              a10, a3, 16
-        srai              a10, a10, 16
+        sext              a10, a3, 15
         min               a10, a10, a8
         s16i              a10, a2, 0
         wsr.ps            a9
