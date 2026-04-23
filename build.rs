@@ -56,12 +56,15 @@ fn main() {
         // Custom cfgs set by build script. Not public API.
         // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            "cargo:rustc-check-cfg=cfg(atomic_maybe_uninit_no_asm,portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_pre_llvm_15,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
+            "cargo:rustc-check-cfg=cfg(atomic_maybe_uninit_no_asm,portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_pre_llvm_15,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
             r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
+        );
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_cpu,values("esp32","esp32s3"))"#
         );
     }
 
@@ -510,6 +513,33 @@ fn main() {
                 target_feature_fallback("rmw", xmegau);
             }
         }
+        "xtensa" => {
+            // ESP32 / ESP32-S3 advertise atomic CAS in core atomics, but LLVM's
+            // atomic instructions do not behave atomically on addresses backed by
+            // external (PSRAM / data bus) memory. The `src/imp/xtensa.rs` wrapper
+            // dispatches each operation based on the address at runtime; to
+            // select it we need to know which of the two affected CPUs we are
+            // targeting. Infer from `target-cpu`, or from the known Espressif
+            // target triples when no target-cpu is specified.
+            // ESP32-S2 has no atomic CAS at all and is handled by the generic
+            // no-CAS path, so it is intentionally absent here.
+            if let Some(cpu) = target_cpu() {
+                if cpu == "esp32" || cpu == "esp32s3" {
+                    target_cpu_fallback(&cpu);
+                }
+            } else {
+                let esp_cpu = match target {
+                    "xtensa-esp32-none-elf" | "xtensa-esp32-espidf" => Some("esp32"),
+                    "xtensa-esp32s3-none-elf" | "xtensa-esp32s3-espidf" => Some("esp32s3"),
+                    // ESP32-S2 does not have atomic CAS, so it is not affected by the issue the same way.
+                    // For other Xtensa CPUs, assume they are not affected.
+                    _ => None,
+                };
+                if let Some(cpu) = esp_cpu {
+                    target_cpu_fallback(cpu);
+                }
+            }
+        }
         _ => {}
     }
 }
@@ -566,6 +596,11 @@ fn target_cpu() -> Option<String> {
         }
     }
     cpu.map(str::to_owned)
+}
+
+// `target_cpu` is not a valid cfg option. Where there is absolutely no other option, inject a cfg fallback.
+fn target_cpu_fallback(cpu: &str) {
+    println!("cargo:rustc-cfg=portable_atomic_target_cpu=\"{}\"", cpu);
 }
 
 fn is_allowed_feature(name: &str) -> bool {

@@ -47,6 +47,7 @@ devkitm
 dlfcn
 dlsym
 ecall
+Espressif
 espup
 exynos
 fild
@@ -140,6 +141,7 @@ picolibc
 prctl
 prefetcher
 PRIMASK
+PSRAM
 pstq
 quadword
 rcpc

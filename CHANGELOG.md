@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Xtensa: route atomic read-modify-write operations on ESP32 / ESP32-S3 PSRAM addresses through a critical section. `Atomic*::IS_ALWAYS_LOCK_FREE` becomes `false` on these CPUs.
+
 ## [1.13.1] - 2026-01-31
 
 - Update to stabilized [PowerPC64](https://github.com/rust-lang/rust/pull/147996) inline assembly. ([92b02f8a](https://github.com/taiki-e/portable-atomic/commit/92b02f8a279327a1780cbe127d9effb2baae9b2f))

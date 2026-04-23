@@ -35,6 +35,13 @@
         not(target_has_atomic = "ptr"),
     )))
 )]
+// ESP32 and ESP32-S3 have native atomic CAS on internal memory but not on
+// PSRAM. Redirect this module to a wrapper, which exposes the same public API
+// and dispatches each operation based on the address at runtime.
+#[cfg_attr(
+    any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3"),
+    path = "xtensa.rs"
+)]
 mod core_atomic;
 
 // AVR
