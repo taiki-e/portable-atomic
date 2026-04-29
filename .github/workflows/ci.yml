@@ -40,13 +40,13 @@ concurrency:
 jobs:
   msrv:
     needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/msrv.yml@dec917193d835117a7238865adf83273d9fcd27a # main
+    uses: taiki-e/github-actions/.github/workflows/msrv.yml@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main
     with:
       # NB: sync with env.TEST_FEATURES
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
       args: --features float,std --ignore-unknown-features
   tidy:
-    uses: taiki-e/github-actions/.github/workflows/tidy.yml@dec917193d835117a7238865adf83273d9fcd27a # main
+    uses: taiki-e/github-actions/.github/workflows/tidy.yml@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main
     permissions:
       contents: write # for creating branch for pr
       pull-requests: write # unused (used in `codegen-automerge: true` case)
@@ -100,7 +100,7 @@ jobs:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: ${{ matrix.rust }}
       - id: prepare
@@ -111,11 +111,11 @@ jobs:
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
           if [[ "${host}" != "${TARGET}" ]]; then
-            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
-            printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
+            printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
+            printf 'target-not-host=true\n' >>"${GITHUB_OUTPUT}"
           fi
-          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}" | tr '\n' ',')"
-          printf 'cfgs=%s\n' "${cfgs}" >>"${GITHUB_OUTPUT}"
+          cfgs=$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}")
+          printf 'cfgs=%s\n' ",${cfgs//$'\n'/,}," >>"${GITHUB_OUTPUT}"
         env:
           TARGET: ${{ matrix.target }}
       - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
@@ -143,8 +143,8 @@ jobs:
             esac
           fi
           if [[ -n "${flags}" ]]; then
-            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
-            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
           fi
         env:
           TARGET: ${{ matrix.target }}
@@ -154,8 +154,8 @@ jobs:
         run: |
           # Workaround for "unknown architecture of input file `*/symbols.o' is incompatible with sparc:v8plus output"
           flags=' -C target-feature=-v8plus -C link-arg=-mv8plus --cfg crossbeam_no_atomic_64'
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
+          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
           # Workaround for "rustc-LLVM ERROR: Unsupported instruction : <MCInst 11 <MCOperand Reg:174>>" with LLVM 20-22
           printf 'CARGO_PROFILE_RELEASE_OPT_LEVEL=0\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'sparc-')
@@ -176,14 +176,14 @@ jobs:
             esac
           fi
           if [[ "${rustflags}" != "${RUSTFLAGS:-}" ]]; then
-            printf '%s\n' "RUSTFLAGS=${rustflags}" >>"${GITHUB_ENV}"
+            printf 'RUSTFLAGS=%s\n' "${rustflags}" >>"${GITHUB_ENV}"
           fi
         if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift') && !contains(matrix.flags, 'codegen-backend=gcc')
       # TODO(gcc): for disabling some failing tests
-      - run: printf '%s\n' "RUSTC_CODEGEN_GCC=1" >>"${GITHUB_ENV}"
+      - run: printf 'RUSTC_CODEGEN_GCC=1\n' >>"${GITHUB_ENV}"
         if: contains(matrix.flags, 'codegen-backend=gcc')
       # for serde on old nightly
-      - run: printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
+      - run: printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
         if: matrix.rust == 'nightly-2024-02-13'
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
@@ -626,7 +626,7 @@ jobs:
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
           fallback: none
         if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm'))
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: stable
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
@@ -635,7 +635,7 @@ jobs:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: ${{ matrix.rust }}
       - id: prepare
@@ -646,11 +646,11 @@ jobs:
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
           if [[ "${host}" != "${TARGET}" ]]; then
-            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
-            printf '%s\n' "target-not-host=true" >>"${GITHUB_OUTPUT}"
+            printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
+            printf 'target-not-host=true\n' >>"${GITHUB_OUTPUT}"
           fi
-          cfgs=",$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}" | tr '\n' ',')"
-          printf 'cfgs=%s\n' "${cfgs}" >>"${GITHUB_OUTPUT}"
+          cfgs=$(RUSTC_BOOTSTRAP=1 rustc --print cfg --target "${TARGET}")
+          printf 'cfgs=%s\n' ",${cfgs//$'\n'/,}," >>"${GITHUB_OUTPUT}"
         env:
           TARGET: ${{ matrix.target }}
       - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
@@ -673,13 +673,16 @@ jobs:
             flags+=" -D linker_messages"
           fi
           if [[ -n "${flags}" ]]; then
-            printf '%s\n' "RUSTFLAGS=${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
-            printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
+            printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
           fi
         env:
           TARGET: ${{ matrix.target }}
           FLAGS: ${{ matrix.flags }}
           RUST: ${{ matrix.rust }}
+      # for serde on old nightly
+      - run: printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
+        if: matrix.rust == 'nightly-2024-02-13'
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
 
@@ -880,8 +883,8 @@ jobs:
     timeout-minutes: 120 # TODO: nightly builds take a long time because there are too many targets
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/free-device-space@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: ${{ matrix.rust }}
       - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
@@ -924,8 +927,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/free-device-space@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: ${{ matrix.rust }}
       - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
@@ -999,7 +1002,7 @@ jobs:
           cargo update -p syn --precise 2.0.106
           cargo update -p unicode-ident --precise 1.0.22
         working-directory: tests/no-std-qemu
-        if: matrix.rust == '1.64'
+        if: startsWith(matrix.rust, '1.6')
       - run: tools/no-std.sh
         env:
           ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
@@ -1034,7 +1037,7 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: nightly
           component: miri
@@ -1043,11 +1046,11 @@ jobs:
           tool: cargo-hack
           fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - run: printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
+      - run: printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
         env:
           TARGET: ${{ matrix.target }}
         if: matrix.target != 'x86_64-unknown-linux-gnu'
-      - run: printf '%s\n' "MIRIFLAGS=-Zmiri-many-seeds=0..16" >>"${GITHUB_ENV}"
+      - run: printf 'MIRIFLAGS=%s\n' "-Zmiri-many-seeds=0..16" >>"${GITHUB_ENV}"
         if: github.event_name == 'schedule' && matrix.target == 'x86_64-unknown-linux-gnu'
       - run: tools/test.sh miri ${TARGET:-}
         env:
@@ -1067,7 +1070,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: nightly
       - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
@@ -1077,17 +1080,17 @@ jobs:
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
           printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
+          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'address'
       - run: |
           printf 'MSAN_OPTIONS=verbosity=2\n' >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'memory'
       - run: |
-          printf '%s\n' "RUSTFLAGS=${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
-          printf '%s\n' "RUSTDOCFLAGS=${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
       - run: tools/test.sh -Z build-std -vv
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
@@ -1118,7 +1121,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: nightly
       - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
@@ -1133,7 +1136,7 @@ jobs:
           fi
           host="$(rustc -vV | grep -E '^host:' | cut -d' ' -f2)"
           if [[ "${host}" != "${TARGET}" ]]; then
-            printf '%s\n' "TARGET=--target=${TARGET}" >>"${GITHUB_ENV}"
+            printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
           fi
         env:
           TARGET: ${{ matrix.target }}
@@ -1187,7 +1190,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: nightly
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
@@ -1195,7 +1198,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           runner: valgrind
-      - uses: taiki-e/github-actions/setup-docker@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/setup-docker@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           buildx: false
           qemu: ${{ matrix.arch }}
@@ -1276,7 +1279,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@dec917193d835117a7238865adf83273d9fcd27a # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
         with:
           toolchain: nightly
           component: rust-src
@@ -1296,5 +1299,7 @@ jobs:
             "$@"
           }
           retry espup install --targets esp32s2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml
       - run: cargo +esp test --manifest-path tests/asm-test/Cargo.toml

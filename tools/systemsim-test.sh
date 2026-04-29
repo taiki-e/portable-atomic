@@ -95,10 +95,12 @@ done
 EOF
     # shellcheck disable=SC2016
     sed -Ei '/mysim go/d' "${base_boot_tcl}-test.tcl"
-    printf 'console_input mysim "callthru source /tmp/systemsim/s >s"\n' >>"${base_boot_tcl}-test.tcl"
-    printf 'console_input mysim "chmod +x ./s"\n' >>"${base_boot_tcl}-test.tcl"
-    printf 'console_input mysim "./s"\n' >>"${base_boot_tcl}-test.tcl"
-    printf 'mysim go\n' >>"${base_boot_tcl}-test.tcl"
+    cat >>"${base_boot_tcl}-test.tcl" <<'EOF'
+console_input mysim "callthru source /tmp/systemsim/s >s"
+console_input mysim "chmod +x ./s"
+console_input mysim "./s"
+mysim go
+EOF
     ../power10 -f "${base_boot_tcl}-test.tcl"
     exit 0
     ;;
