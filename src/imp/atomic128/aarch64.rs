@@ -133,7 +133,13 @@ mod detect;
 #[path = "../detect/aarch64_fuchsia.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
+#[cfg(any(
+    test,
+    not(all(
+        any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+    )),
+))]
 #[cfg(windows)]
 #[path = "../detect/aarch64_windows.rs"]
 mod detect;
@@ -231,7 +237,7 @@ macro_rules! debug_assert_lse2 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LSE2.
                 // target_os = "fuchsia",
-                // windows,
+                windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
@@ -274,7 +280,7 @@ macro_rules! debug_assert_lse128 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LSE128.
                 // target_os = "fuchsia",
-                // windows,
+                windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
@@ -317,7 +323,7 @@ macro_rules! debug_assert_rcpc3 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LRCPC3.
                 // target_os = "fuchsia",
-                // windows,
+                windows,
             ),
         ))]
         #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
@@ -520,7 +526,7 @@ cfg_sel!({
             target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // windows,
+            windows,
         ),
     ))]
     {
@@ -901,7 +907,7 @@ cfg_sel!({
             target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
-            // windows,
+            windows,
         ),
     ))]
     {
