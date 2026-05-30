@@ -298,7 +298,12 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 )]
 #![cfg_attr(not(portable_atomic_no_asm), warn(missing_docs))] // module-level #![allow(missing_docs)] doesn't work for macros on old rustc
 #![cfg_attr(portable_atomic_no_strict_provenance, allow(unstable_name_collisions))]
-#![allow(clippy::inline_always, clippy::unreadable_literal, clippy::used_underscore_items)]
+#![allow(
+    clippy::inline_always,
+    clippy::manual_assert_eq,
+    clippy::unreadable_literal,
+    clippy::used_underscore_items
+)]
 // asm_experimental_arch
 // AVR, MSP430, and Xtensa are tier 3 platforms and require nightly anyway.
 // On tier 2 platforms (currently N/A), we use cfg set by build script to
