@@ -63,7 +63,10 @@ pub(crate) fn disable() -> State {
 pub(crate) unsafe fn restore(prev_sreg: State) {
     // SAFETY: the caller must guarantee that the state was retrieved by the previous `disable`.
     //
-    // This clobbers the entire status register. See msp430.rs for safety on this.
+    // This clobbers the entire status register, but all other flags are the arithmetic flags that
+    // are changed as a side effect of arithmetic operations, etc., which LLVM recognizes unless
+    // preserves_flags is set, so it is safe to clobber them here.
+    // See also the discussion at https://github.com/taiki-e/portable-atomic/pull/40.
     unsafe {
         #[cfg(not(portable_atomic_no_asm))]
         asm!(
