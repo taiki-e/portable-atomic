@@ -263,6 +263,7 @@ add_matrix() {
   local target_out="\"rust\": \"${toolchain}\""
   target_out+=",\"target\": \"${target}\""
   [[ -z "${os}" ]] || target_out+=",\"os\": \"${os}\""
+  [[ -z "${container}" ]] || target_out+=",\"container\": \"${container}\""
   [[ -z "${flags}" ]] || target_out+=",\"flags\": \"${flags# }\""
   matrix=$(jq -c ".include |= .+ [{${target_out}}]" <<<"${matrix}")
 }
@@ -270,22 +271,28 @@ for target in "${targets[@]}"; do
   # Check target with unstable asm or tier 3 target.
   require_nightly=''
   case "${target}" in
-    aarch64_be* | armeb* | riscv32* | csky* | hexagon* | m68k* | mips* | sparc*)
+    aarch64_be* | armeb* | armv4t* | riscv32* | csky* | hexagon* | m68k* | mips* | sparc*)
       require_nightly=1
       ;;
   esac
 
   # Determine the default runs-on.
   base_os=''
+  base_container=''
   case "${target}" in
-    aarch64-unknown-linux-gnu | armv7*-linux-gnueabihf | thumbv7*-linux-gnueabihf) base_os=ubuntu-24.04-arm ;;
     armeb-unknown-linux-gnueabi) base_os=ubuntu-22.04 ;;
+    aarch64-unknown-linux-gnu | armv7*-linux-gnueabihf | thumbv7*-linux-gnueabihf) base_os=ubuntu-24.04-arm ;;
+    arm*-unknown-linux-gnueabi)
+      base_os=ubuntu-24.04-arm
+      base_container=debian:13-slim
+      ;;
     x86_64*-apple-* | i?86*-apple-*) base_os=macos-15-intel ;;
     aarch64*-apple-* | arm*-apple-*) base_os=macos-latest ;;
     x86_64*-windows* | i?86*-windows*) base_os=windows-latest ;;
     aarch64*-windows* | arm*-windows*) base_os=windows-11-arm ;;
   esac
   os="${base_os}"
+  container="${base_container}"
 
   test_only_on_nightly=''
   case "${target}" in
@@ -294,8 +301,8 @@ for target in "${targets[@]}"; do
     # We have architecture-specific code for these, but OS-specific code are
     # also tested by other targets or have no OS-specific code.
     x86_64-apple-darwin | x86_64-pc-windows-gnu | i586-unknown-linux-gnu | i686-pc-windows-msvc | i686-pc-windows-gnu | aarch64-apple-ios-macabi | aarch64-pc-windows-msvc | aarch64-pc-windows-gnullvm) test_only_on_nightly=1 ;;
-    # Tested with Arm runner in test-container job.
-    armv4t-unknown-linux-gnueabi | armv5te-unknown-linux-gnueabi | arm-unknown-linux-gnueabi | armv7-unknown-linux-gnueabi) test_only_on_nightly=1 ;;
+    # We test only one version because we have no architecture-specific code for these.
+    arm-unknown-linux-gnueabi | armv7-unknown-linux-gnueabi) test_only_on_nightly=1 ;;
   esac
   test_only_on_stable_and_nightly=''
   case "${target}" in
@@ -384,12 +391,15 @@ for target in "${targets[@]}"; do
   done
   # Test with QEMU.
   case "${target}" in
-    aarch64-unknown-linux-gnu | armv7*-linux-gnueabihf | thumbv7*-linux-gnueabihf)
+    armeb-unknown-linux-gnueabi) ;;
+    aarch64-unknown-linux-gnu | armv7*-linux-gnueabihf | thumbv7*-linux-gnueabihf | arm*-unknown-linux-gnueabi)
       toolchain=nightly
       os=''
+      container=''
       flags=''
       add_matrix
       os="${base_os}"
+      container="${base_container}"
       ;;
   esac
   # Test with Rosetta on AArch64.
