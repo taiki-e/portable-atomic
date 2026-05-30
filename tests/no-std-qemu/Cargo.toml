@@ -10,7 +10,7 @@ portable-atomic = { path = "../..", features = ["float"] }
 
 paste = "1"
 semihosting = { version = "0.1", features = ["stdio", "panic-handler"] }
-semihosting-no-std-test-rt = { features = ["qemu-system"], git = "https://github.com/taiki-e/semihosting.git", rev = "075a26b" }
+semihosting-no-std-test-rt = { features = ["qemu-system"], git = "https://github.com/taiki-e/semihosting.git", rev = "e2430fa1b34b35570459b01ebd913051b2e4cbbc" }
 
 [lints]
 workspace = true

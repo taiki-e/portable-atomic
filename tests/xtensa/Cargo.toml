@@ -8,8 +8,8 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f" }
-esp-println = { default-features = false, features = ["uart"], git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f" }
+esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f43d2308c91c579a80830b3ecac44acd12" }
+esp-println = { default-features = false, features = ["uart"], git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f43d2308c91c579a80830b3ecac44acd12" }
 paste = "1"
 
 [lints]
