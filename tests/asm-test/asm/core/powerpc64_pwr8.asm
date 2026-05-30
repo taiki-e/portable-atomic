@@ -1259,13 +1259,13 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1285,13 +1285,13 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1311,13 +1311,13 @@ asm_test::compare_exchange::u8::acqrel_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1336,13 +1336,13 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1357,13 +1357,13 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1377,13 +1377,13 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1405,7 +1405,7 @@ asm_test::compare_exchange::u8::release_seqcst:
         lwsync
         crclr             20
 2:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1425,13 +1425,13 @@ asm_test::compare_exchange::u8::seqcst_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1450,13 +1450,13 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1471,13 +1471,13 @@ asm_test::compare_exchange::u8::acquire_acquire:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1492,12 +1492,12 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1511,13 +1511,13 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1531,12 +1531,12 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1558,7 +1558,7 @@ asm_test::compare_exchange::u8::release_acquire:
         lwsync
         crclr             20
 2:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1579,7 +1579,7 @@ asm_test::compare_exchange::u8::release_relaxed:
 1:
         crclr             20
 2:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -1599,14 +1599,16 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::seqcst_seqcst:
@@ -1625,14 +1627,16 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::acqrel_acquire:
@@ -1651,14 +1655,16 @@ asm_test::compare_exchange::u16::acqrel_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::acqrel_relaxed:
@@ -1676,14 +1682,16 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::acquire_seqcst:
@@ -1692,20 +1700,22 @@ asm_test::compare_exchange::u16::acquire_seqcst:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+2:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 1b
 
 asm_test::compare_exchange::u16::relaxed_seqcst:
         clrlwi            5, 5, 16
@@ -1714,18 +1724,20 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+2:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 1b
 
 asm_test::compare_exchange::u16::release_seqcst:
         clrlwi            6, 4, 16
@@ -1745,8 +1757,11 @@ asm_test::compare_exchange::u16::release_seqcst:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::seqcst_acquire:
@@ -1765,14 +1780,16 @@ asm_test::compare_exchange::u16::seqcst_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::seqcst_relaxed:
@@ -1790,14 +1807,16 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 3f
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+3:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::acquire_acquire:
@@ -1806,20 +1825,22 @@ asm_test::compare_exchange::u16::acquire_acquire:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+2:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 1b
 
 asm_test::compare_exchange::u16::acquire_relaxed:
         clrlwi            5, 5, 16
@@ -1827,19 +1848,21 @@ asm_test::compare_exchange::u16::acquire_relaxed:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
-        crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
+2:
+        crclr             20
+        b                 1b
 
 asm_test::compare_exchange::u16::relaxed_acquire:
         clrlwi            5, 5, 16
@@ -1848,18 +1871,20 @@ asm_test::compare_exchange::u16::relaxed_acquire:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+2:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 1b
 
 asm_test::compare_exchange::u16::relaxed_relaxed:
         clrlwi            5, 5, 16
@@ -1868,17 +1893,19 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
 0:
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 1f
+        bf-               2, 2f
         sthcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 1:
-        crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
+2:
+        crclr             20
+        b                 1b
 
 asm_test::compare_exchange::u16::release_acquire:
         clrlwi            6, 4, 16
@@ -1898,8 +1925,11 @@ asm_test::compare_exchange::u16::release_acquire:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u16::release_relaxed:
@@ -1919,8 +1949,11 @@ asm_test::compare_exchange::u16::release_relaxed:
 1:
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange::u32::acqrel_seqcst:
@@ -1938,14 +1971,16 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::seqcst_seqcst:
@@ -1963,14 +1998,16 @@ asm_test::compare_exchange::u32::seqcst_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::acqrel_acquire:
@@ -1988,14 +2025,16 @@ asm_test::compare_exchange::u32::acqrel_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::acqrel_relaxed:
@@ -2012,14 +2051,16 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::acquire_seqcst:
@@ -2032,14 +2073,16 @@ asm_test::compare_exchange::u32::acquire_seqcst:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::relaxed_seqcst:
@@ -2051,14 +2094,16 @@ asm_test::compare_exchange::u32::relaxed_seqcst:
         bf-               2, 1f
         stwcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::release_seqcst:
@@ -2078,8 +2123,9 @@ asm_test::compare_exchange::u32::release_seqcst:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::seqcst_acquire:
@@ -2097,14 +2143,16 @@ asm_test::compare_exchange::u32::seqcst_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::seqcst_relaxed:
@@ -2121,14 +2169,16 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::acquire_acquire:
@@ -2141,14 +2191,16 @@ asm_test::compare_exchange::u32::acquire_acquire:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::acquire_relaxed:
@@ -2161,13 +2213,15 @@ asm_test::compare_exchange::u32::acquire_relaxed:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::relaxed_acquire:
@@ -2179,14 +2233,16 @@ asm_test::compare_exchange::u32::relaxed_acquire:
         bf-               2, 1f
         stwcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::relaxed_relaxed:
@@ -2198,13 +2254,15 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
         bf-               2, 1f
         stwcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::release_acquire:
@@ -2224,8 +2282,9 @@ asm_test::compare_exchange::u32::release_acquire:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u32::release_relaxed:
@@ -2244,8 +2303,9 @@ asm_test::compare_exchange::u32::release_relaxed:
 1:
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acqrel_seqcst:
@@ -2263,14 +2323,16 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::seqcst_seqcst:
@@ -2288,14 +2350,16 @@ asm_test::compare_exchange::u64::seqcst_seqcst:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acqrel_acquire:
@@ -2313,14 +2377,16 @@ asm_test::compare_exchange::u64::acqrel_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acqrel_relaxed:
@@ -2337,14 +2403,16 @@ asm_test::compare_exchange::u64::acqrel_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acquire_seqcst:
@@ -2357,14 +2425,16 @@ asm_test::compare_exchange::u64::acquire_seqcst:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::relaxed_seqcst:
@@ -2376,14 +2446,16 @@ asm_test::compare_exchange::u64::relaxed_seqcst:
         bf-               2, 1f
         stdcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::release_seqcst:
@@ -2403,8 +2475,9 @@ asm_test::compare_exchange::u64::release_seqcst:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::seqcst_acquire:
@@ -2422,14 +2495,16 @@ asm_test::compare_exchange::u64::seqcst_acquire:
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::seqcst_relaxed:
@@ -2446,14 +2521,16 @@ asm_test::compare_exchange::u64::seqcst_relaxed:
         bt+               2, 0b
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 2:
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acquire_acquire:
@@ -2466,14 +2543,16 @@ asm_test::compare_exchange::u64::acquire_acquire:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::acquire_relaxed:
@@ -2486,13 +2565,15 @@ asm_test::compare_exchange::u64::acquire_relaxed:
         bf-               2, 0b
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::relaxed_acquire:
@@ -2504,14 +2585,16 @@ asm_test::compare_exchange::u64::relaxed_acquire:
         bf-               2, 1f
         stdcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::relaxed_relaxed:
@@ -2523,13 +2606,15 @@ asm_test::compare_exchange::u64::relaxed_relaxed:
         bf-               2, 1f
         stdcx.            5, 0, 3
         bf-               2, 0b
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 1:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::release_acquire:
@@ -2549,8 +2634,9 @@ asm_test::compare_exchange::u64::release_acquire:
         lwsync
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u64::release_relaxed:
@@ -2569,8 +2655,9 @@ asm_test::compare_exchange::u64::release_relaxed:
 1:
         crclr             20
 2:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
@@ -2596,10 +2683,12 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2626,10 +2715,12 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2656,10 +2747,12 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2686,10 +2779,12 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2716,10 +2811,12 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2746,10 +2843,12 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2776,10 +2875,12 @@ asm_test::compare_exchange::u128::release_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2806,10 +2907,12 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2836,10 +2939,12 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2865,10 +2970,12 @@ asm_test::compare_exchange::u128::acquire_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2894,10 +3001,12 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2923,10 +3032,12 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2951,10 +3062,12 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -2981,10 +3094,12 @@ asm_test::compare_exchange::u128::release_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -3010,10 +3125,12 @@ asm_test::compare_exchange::u128::release_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -3028,13 +3145,13 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3049,13 +3166,13 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3070,13 +3187,13 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3093,7 +3210,7 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3107,13 +3224,13 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3126,13 +3243,13 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3146,13 +3263,13 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3167,13 +3284,13 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3190,7 +3307,7 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3204,13 +3321,13 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3226,7 +3343,7 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3239,13 +3356,13 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3258,12 +3375,12 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3277,13 +3394,13 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3297,12 +3414,12 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         crset             20
         stbcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
+        li                3, -1
         isel              3, 0, 3, 20
         blr
 
@@ -3310,64 +3427,70 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         lwsync
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         sync
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::acqrel_acquire:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         lwsync
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         clrlwi            6, 4, 16
@@ -3382,89 +3505,100 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange_weak::u16::acquire_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::release_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         lwsync
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::seqcst_acquire:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         sync
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         clrlwi            6, 4, 16
@@ -3479,29 +3613,34 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange_weak::u16::acquire_acquire:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
-        bf-               2, 0f
+        bf-               2, 1f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::acquire_relaxed:
         clrlwi            6, 4, 16
@@ -3515,85 +3654,96 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
 
 asm_test::compare_exchange_weak::u16::relaxed_acquire:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
-        crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
+1:
+        crclr             20
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::release_acquire:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         lwsync
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
+        blr
+1:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        b                 0b
 
 asm_test::compare_exchange_weak::u16::release_relaxed:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
         cmplw             4, 6
-        bf-               2, 0f
+        bf-               2, 1f
         clrlwi            5, 5, 16
         lwsync
         crset             20
         sthcx.            5, 0, 3
-        bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
-        blr
+        bf-               2, 1f
 0:
-        crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 0
+        li                5, 1
+        isel              3, 5, 3, 20
+        not               3, 3
+        clrldi            3, 3, 56
         blr
+1:
+        crclr             20
+        b                 0b
 
 asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         mr                6, 4
@@ -3605,14 +3755,16 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::seqcst_seqcst:
@@ -3625,14 +3777,16 @@ asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::acqrel_acquire:
@@ -3645,14 +3799,16 @@ asm_test::compare_exchange_weak::u32::acqrel_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::acqrel_relaxed:
@@ -3667,8 +3823,9 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::acquire_seqcst:
@@ -3680,14 +3837,16 @@ asm_test::compare_exchange_weak::u32::acquire_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::relaxed_seqcst:
@@ -3698,14 +3857,16 @@ asm_test::compare_exchange_weak::u32::relaxed_seqcst:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::release_seqcst:
@@ -3717,14 +3878,16 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::seqcst_acquire:
@@ -3737,14 +3900,16 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::seqcst_relaxed:
@@ -3759,8 +3924,9 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::acquire_acquire:
@@ -3772,14 +3938,16 @@ asm_test::compare_exchange_weak::u32::acquire_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::acquire_relaxed:
@@ -3793,8 +3961,9 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::relaxed_acquire:
@@ -3805,14 +3974,16 @@ asm_test::compare_exchange_weak::u32::relaxed_acquire:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::relaxed_relaxed:
@@ -3823,13 +3994,15 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::release_acquire:
@@ -3841,14 +4014,16 @@ asm_test::compare_exchange_weak::u32::release_acquire:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u32::release_relaxed:
@@ -3860,13 +4035,15 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         crset             20
         stwcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acqrel_seqcst:
@@ -3879,14 +4056,16 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::seqcst_seqcst:
@@ -3899,14 +4078,16 @@ asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acqrel_acquire:
@@ -3919,14 +4100,16 @@ asm_test::compare_exchange_weak::u64::acqrel_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acqrel_relaxed:
@@ -3941,8 +4124,9 @@ asm_test::compare_exchange_weak::u64::acqrel_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acquire_seqcst:
@@ -3954,14 +4138,16 @@ asm_test::compare_exchange_weak::u64::acquire_seqcst:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::relaxed_seqcst:
@@ -3972,14 +4158,16 @@ asm_test::compare_exchange_weak::u64::relaxed_seqcst:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::release_seqcst:
@@ -3991,14 +4179,16 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::seqcst_acquire:
@@ -4011,14 +4201,16 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::seqcst_relaxed:
@@ -4033,8 +4225,9 @@ asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acquire_acquire:
@@ -4046,14 +4239,16 @@ asm_test::compare_exchange_weak::u64::acquire_acquire:
         bf-               2, 0f
         lwsync
         crset             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::acquire_relaxed:
@@ -4067,8 +4262,9 @@ asm_test::compare_exchange_weak::u64::acquire_relaxed:
         lwsync
         crset             20
 0:
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::relaxed_acquire:
@@ -4079,14 +4275,16 @@ asm_test::compare_exchange_weak::u64::relaxed_acquire:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::relaxed_relaxed:
@@ -4097,13 +4295,15 @@ asm_test::compare_exchange_weak::u64::relaxed_relaxed:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::release_acquire:
@@ -4115,14 +4315,16 @@ asm_test::compare_exchange_weak::u64::release_acquire:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         lwsync
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u64::release_relaxed:
@@ -4134,13 +4336,15 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         crset             20
         stdcx.            5, 0, 3
         bf-               2, 0f
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 0:
         crclr             20
-        li                3, 1
-        isel              3, 0, 3, 20
+        li                3, 255
+        li                5, 254
+        isel              3, 5, 3, 20
         blr
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
@@ -4166,10 +4370,12 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4196,10 +4402,12 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4226,10 +4434,12 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4256,10 +4466,12 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4286,10 +4498,12 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4316,10 +4530,12 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4346,10 +4562,12 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4376,10 +4594,12 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4406,10 +4626,12 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4435,10 +4657,12 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4464,10 +4688,12 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4493,10 +4719,12 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4521,10 +4749,12 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4551,10 +4781,12 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 
@@ -4580,10 +4812,12 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         std               11, 24(3)
         std               10, 16(3)
         or                4, 5, 4
-        addic             5, 4, -1
-        subfe             4, 5, 4
         li                5, 0
+        cntlzd            4, 4
         std               5, 0(3)
+        rldicl            4, 4, 58, 63
+        not               4, 4
+        clrldi            4, 4, 56
         std               4, 8(3)
         blr
 

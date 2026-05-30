@@ -1104,138 +1104,198 @@ asm_test::fetch_umin::u64::release:
         ret
 
 asm_test::compare_exchange::u8::acqrel_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::seqcst_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::acqrel_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::acqrel_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::acquire_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::relaxed_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::release_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::seqcst_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::seqcst_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::acquire_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::acquire_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::relaxed_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::relaxed_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::release_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u8::release_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange::u16::acqrel_seqcst:
@@ -1245,8 +1305,9 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1258,8 +1319,9 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1271,8 +1333,9 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1284,8 +1347,9 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1297,8 +1361,9 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1310,8 +1375,9 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1323,8 +1389,9 @@ asm_test::compare_exchange::u16::release_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1336,8 +1403,9 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1349,8 +1417,9 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1362,8 +1431,9 @@ asm_test::compare_exchange::u16::acquire_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1375,8 +1445,9 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1388,8 +1459,9 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1401,8 +1473,9 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1414,8 +1487,9 @@ asm_test::compare_exchange::u16::release_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1427,8 +1501,9 @@ asm_test::compare_exchange::u16::release_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1440,8 +1515,9 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1453,8 +1529,9 @@ asm_test::compare_exchange::u32::seqcst_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1466,8 +1543,9 @@ asm_test::compare_exchange::u32::acqrel_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1479,8 +1557,9 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1492,8 +1571,9 @@ asm_test::compare_exchange::u32::acquire_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1505,8 +1585,9 @@ asm_test::compare_exchange::u32::relaxed_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1518,8 +1599,9 @@ asm_test::compare_exchange::u32::release_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1531,8 +1613,9 @@ asm_test::compare_exchange::u32::seqcst_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1544,8 +1627,9 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1557,8 +1641,9 @@ asm_test::compare_exchange::u32::acquire_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1570,8 +1655,9 @@ asm_test::compare_exchange::u32::acquire_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1583,8 +1669,9 @@ asm_test::compare_exchange::u32::relaxed_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1596,8 +1683,9 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1609,8 +1697,9 @@ asm_test::compare_exchange::u32::release_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1622,8 +1711,9 @@ asm_test::compare_exchange::u32::release_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -1639,10 +1729,11 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1659,10 +1750,11 @@ asm_test::compare_exchange::u64::seqcst_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1679,10 +1771,11 @@ asm_test::compare_exchange::u64::acqrel_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1699,10 +1792,11 @@ asm_test::compare_exchange::u64::acqrel_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1719,10 +1813,11 @@ asm_test::compare_exchange::u64::acquire_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1739,10 +1834,11 @@ asm_test::compare_exchange::u64::relaxed_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1759,10 +1855,11 @@ asm_test::compare_exchange::u64::release_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1779,10 +1876,11 @@ asm_test::compare_exchange::u64::seqcst_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1799,10 +1897,11 @@ asm_test::compare_exchange::u64::seqcst_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1819,10 +1918,11 @@ asm_test::compare_exchange::u64::acquire_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1839,10 +1939,11 @@ asm_test::compare_exchange::u64::acquire_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1859,10 +1960,11 @@ asm_test::compare_exchange::u64::relaxed_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1879,10 +1981,11 @@ asm_test::compare_exchange::u64::relaxed_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1899,10 +2002,11 @@ asm_test::compare_exchange::u64::release_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -1919,148 +2023,209 @@ asm_test::compare_exchange::u64::release_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
         ret               0x4
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::seqcst_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::acquire_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::relaxed_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::release_seqcst:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::seqcst_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::seqcst_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::acquire_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::acquire_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::relaxed_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::relaxed_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::release_acquire:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u8::release_relaxed:
-        movzx             eax, byte ptr [esp + 0x8]
-        movzx             ecx, byte ptr [esp + 0xc]
-        mov               edx, dword ptr [esp + 0x4]
+        push              esi
+        movzx             eax, byte ptr [esp + 0xc]
+        movzx             ecx, byte ptr [esp + 0x10]
+        mov               edx, dword ptr [esp + 0x8]
+        xor               esi, esi
         lock cmpxchg      byte ptr [edx], cl
         mov               edx, eax
-        setne             al
+        mov               eax, 0xff
+        cmove             eax, esi
+        pop               esi
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -2070,8 +2235,9 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2083,8 +2249,9 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2096,8 +2263,9 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2109,8 +2277,9 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2122,8 +2291,9 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2135,8 +2305,9 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2148,8 +2319,9 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2161,8 +2333,9 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2174,8 +2347,9 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2187,8 +2361,9 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2200,8 +2375,9 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2213,8 +2389,9 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2226,8 +2403,9 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2239,8 +2417,9 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2252,8 +2431,9 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      word ptr [esi], dx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2265,8 +2445,9 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2278,8 +2459,9 @@ asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2291,8 +2473,9 @@ asm_test::compare_exchange_weak::u32::acqrel_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2304,8 +2487,9 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2317,8 +2501,9 @@ asm_test::compare_exchange_weak::u32::acquire_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2330,8 +2515,9 @@ asm_test::compare_exchange_weak::u32::relaxed_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2343,8 +2529,9 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2356,8 +2543,9 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2369,8 +2557,9 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2382,8 +2571,9 @@ asm_test::compare_exchange_weak::u32::acquire_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2395,8 +2585,9 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2408,8 +2599,9 @@ asm_test::compare_exchange_weak::u32::relaxed_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2421,8 +2613,9 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2434,8 +2627,9 @@ asm_test::compare_exchange_weak::u32::release_acquire:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2447,8 +2641,9 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         mov               esi, dword ptr [esp + 0x8]
         xor               ecx, ecx
         lock cmpxchg      dword ptr [esi], edx
-        setne             cl
+        sete              cl
         mov               edx, eax
+        xor               ecx, 0xff
         mov               eax, ecx
         pop               esi
         ret
@@ -2464,10 +2659,11 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2484,10 +2680,11 @@ asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2504,10 +2701,11 @@ asm_test::compare_exchange_weak::u64::acqrel_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2524,10 +2722,11 @@ asm_test::compare_exchange_weak::u64::acqrel_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2544,10 +2743,11 @@ asm_test::compare_exchange_weak::u64::acquire_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2564,10 +2764,11 @@ asm_test::compare_exchange_weak::u64::relaxed_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2584,10 +2785,11 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2604,10 +2806,11 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2624,10 +2827,11 @@ asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2644,10 +2848,11 @@ asm_test::compare_exchange_weak::u64::acquire_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2664,10 +2869,11 @@ asm_test::compare_exchange_weak::u64::acquire_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2684,10 +2890,11 @@ asm_test::compare_exchange_weak::u64::relaxed_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2704,10 +2911,11 @@ asm_test::compare_exchange_weak::u64::relaxed_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2724,10 +2932,11 @@ asm_test::compare_exchange_weak::u64::release_acquire:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
@@ -2744,10 +2953,11 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         lock cmpxchg8b    qword ptr [esi]
         mov               ecx, dword ptr [esp + 0xc]
         mov               ebx, 0x0
-        setne             bl
+        sete              bl
         mov               dword ptr [ecx + 0x4], eax
         mov               dword ptr [ecx + 0x8], edx
         mov               eax, ecx
+        xor               ebx, 0xff
         mov               dword ptr [ecx], ebx
         pop               esi
         pop               ebx
