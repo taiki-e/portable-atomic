@@ -59,7 +59,7 @@ default_targets=(
   msp430-none-elf
 
   # l4re
-  aarch64-unknown-l4re-uclibc # custom target
+  # aarch64-unknown-l4re-uclibc # custom target # TODO: version `GLIBC_2.42' not found
 )
 
 x() {
