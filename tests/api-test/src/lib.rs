@@ -89,6 +89,8 @@ pub fn all() {
     #[cfg(feature = "float")]
     test_atomic_float!(f32);
     #[cfg(feature = "float")]
+    // TODO: rustc bug: https://github.com/rust-lang/rust/issues/114479
+    #[cfg(not(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))))]
     test_atomic_float!(f64);
     #[cfg(all(feature = "float", portable_atomic_unstable_f128))]
     test_atomic_float!(f128);

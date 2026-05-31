@@ -3282,6 +3282,7 @@ pub(crate) mod float_rand {
     pub(crate) fn f32(rng: &mut fastrand::Rng) -> f32 {
         f32::from_bits(rng.u32(..))
     }
+    #[cfg(not(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2"))))]
     pub(crate) fn f64(rng: &mut fastrand::Rng) -> f64 {
         f64::from_bits(rng.u64(..))
     }

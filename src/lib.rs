@@ -4322,6 +4322,7 @@ This is `const fn` on Rust 1.83+.
                 <imp::float::$atomic_type>::IS_ALWAYS_LOCK_FREE
             }
             #[cfg(test)]
+            #[cfg_attr(all(not(debug_assertions), target_arch = "x86", not(target_feature = "sse2")), allow(dead_code))]
             const IS_ALWAYS_LOCK_FREE: bool = Self::is_always_lock_free();
 
             const_fn! {
