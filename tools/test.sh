@@ -141,7 +141,7 @@ rustc_minor_version="${rustc_version#*.}"
 rustc_minor_version="${rustc_minor_version%%.*}"
 commit_date=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^commit-date:' | cut -d' ' -f2)
 host=$(rustc ${pre_args[@]+"${pre_args[@]}"} -vV | grep -E '^host:' | cut -d' ' -f2)
-workspace_dir=$(pwd)
+workspace_dir="${PWD}"
 target_dir="${workspace_dir}/target"
 nightly=''
 if [[ "${rustc_version}" =~ nightly|dev ]]; then
@@ -258,7 +258,13 @@ case "${cmd}" in
     ;;
   miri)
     retry rustup ${pre_args[@]+"${pre_args[@]}"} component add miri &>/dev/null
-    export MIRIFLAGS="${MIRIFLAGS:-} -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation"
+    miriflags="${MIRIFLAGS:-}"
+    for flag in -Zmiri-strict-provenance -Zmiri-symbolic-alignment-check -Zmiri-disable-isolation; do
+      if [[ " ${miriflags} " != *" ${flag} "* ]]; then
+        miriflags+=" ${flag}"
+      fi
+    done
+    export MIRIFLAGS="${miriflags}"
     export RUSTFLAGS="${RUSTFLAGS:-}${randomize_layout}"
     export RUSTDOCFLAGS="${RUSTDOCFLAGS:-}${randomize_layout}"
     export QUICKCHECK_TESTS=10

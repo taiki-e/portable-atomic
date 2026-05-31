@@ -160,9 +160,8 @@ min_stable_toolchain() {
   fi
   case "${target}" in
     arm64ec* | s390x*) toolchain=1.84 ;; # LLVM 19
-    # TODO: uncomment once 1.95 is stable
-    # powerpc*) toolchain=1.95 ;; # LLVM 22
-    *) toolchain=1.59 ;; # LLVM 13
+    powerpc*) toolchain=1.95 ;;          # LLVM 22
+    *) toolchain=1.59 ;;                 # LLVM 13
   esac
 }
 min_nightly_toolchain() {
@@ -246,12 +245,11 @@ add_matrix() {
         1.[5-7][0-9] | 1.8[0-3]) convert_toolchain_for_unstable_asm ;;
       esac
       ;;
-    # TODO: uncomment once 1.95 is stable
-    # powerpc*)
-    #   case "${toolchain}" in
-    #     1.[5-8][0-9] | 1.9[0-4]) convert_toolchain_for_unstable_asm ;;
-    #   esac
-    #   ;;
+    powerpc*)
+      case "${toolchain}" in
+        1.[5-8][0-9] | 1.9[0-4]) convert_toolchain_for_unstable_asm ;;
+      esac
+      ;;
     *) [[ -z "${require_nightly}" ]] || convert_toolchain_for_unstable_asm ;;
   esac
   if [[ -z "${toolchain}" ]]; then
@@ -272,8 +270,7 @@ for target in "${targets[@]}"; do
   # Check target with unstable asm or tier 3 target.
   require_nightly=''
   case "${target}" in
-    # TODO: remove powerpc once 1.95 is stable
-    aarch64_be* | armeb* | riscv32* | csky* | hexagon* | m68k* | mips* | powerpc* | sparc*)
+    aarch64_be* | armeb* | riscv32* | csky* | hexagon* | m68k* | mips* | sparc*)
       require_nightly=1
       ;;
   esac
@@ -361,7 +358,7 @@ for target in "${targets[@]}"; do
         ;;
       arm-linux-androideabi)
         case "${toolchain}" in
-          1.8[3-9] | 1.9[0-4]) toolchain='' ;; # backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
+          1.8[3-9] | 1.9[0-6]) toolchain='' ;; # backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
           # TODO(arm-android): backtrace bug: panicked at /home/runner/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/../../backtrace/src/symbolize/gimli/libs_dl_iterate_phdr.rs:48:30:
           stable | beta) toolchain='' ;;
           nightly) toolchain=nightly-2024-08-30 ;;
@@ -369,7 +366,7 @@ for target in "${targets[@]}"; do
         ;;
       mipsisa*)
         case "${toolchain}" in
-          1.95) toolchain='' ;; # compiler SIGILL with LLVM 22
+          1.9[5-6]) toolchain='' ;; # compiler SIGILL with LLVM 22
           # TODO(mips): compiler SIGILL with LLVM 22
           beta) toolchain='' ;;
           nightly) toolchain=nightly-2026-01-28 ;;
@@ -377,6 +374,7 @@ for target in "${targets[@]}"; do
         ;;
       i686-pc-windows-msvc)
         case "${toolchain}" in
+          1.96) toolchain='' ;; # LLVM OOM with Rust 1.96
           # TODO(x86): LLVM OOM with Rust 1.96
           nightly) toolchain=nightly-2026-03-05 ;;
         esac
