@@ -2790,7 +2790,7 @@ pub(crate) fn stress_test_config(rng: &mut fastrand::Rng) -> (usize, usize) {
     } else {
         25_000
     };
-    let threads = if cfg!(debug_assertions) { 2 } else { rng.usize(2..=8) };
+    let threads = if cfg!(any(debug_assertions, valgrind)) { 2 } else { rng.usize(2..=8) };
     eprintln!("threads={}", threads);
     (iterations, threads)
 }
@@ -2838,7 +2838,7 @@ macro_rules! __stress_acquire_release {
     ) => {
         paste::paste! {
             #[test]
-            #[cfg_attr(all(debug_assertions, not(miri)), ignore = "slow in some environments")] // debug mode is slow.
+            #[cfg_attr(all(any(debug_assertions, valgrind_cross), not(miri)), ignore = "slow in some environments")] // debug mode is slow.
             #[allow(
                 clippy::cast_possible_wrap,
                 clippy::cast_sign_loss,
@@ -2883,7 +2883,7 @@ macro_rules! __stress_seqcst {
             // of iterations are needed, but this test is slow in some environments.
             // So, ignore on QEMU by default.
             #[test]
-            #[cfg_attr(any(all(debug_assertions, not(miri)), qemu), ignore = "slow in some environments")] // debug mode is slow.
+            #[cfg_attr(any(all(any(debug_assertions, valgrind_cross), not(miri)), qemu), ignore = "slow in some environments")] // debug mode is slow.
             #[allow(
                 clippy::cast_possible_wrap,
                 clippy::cast_sign_loss,
