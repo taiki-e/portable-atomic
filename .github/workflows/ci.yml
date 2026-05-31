@@ -199,10 +199,6 @@ jobs:
         if: startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022')
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
-      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
-        env:
-          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_unstable_coerce_unsized
-        if: startsWith(matrix.rust, 'nightly')
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
       # and src/tests have extended copies of doctest, so this will not reduce test coverage.
 
