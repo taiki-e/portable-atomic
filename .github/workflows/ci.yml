@@ -1,7 +1,6 @@
 name: CI
 
-permissions:
-  contents: read
+permissions: {}
 
 on:
   pull_request:
@@ -38,26 +37,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tidy:
+    uses: taiki-e/github-actions/.github/workflows/tidy.yml@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main
+    permissions:
+      security-events: write # for github/codeql-action/*
+    with:
+      clippy: false # covered by TESTS=1 ./tools/build.sh
+      docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
+  codegen:
+    needs: tidy
+    uses: taiki-e/github-actions/.github/workflows/gen.yml@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main
+    permissions:
+      contents: write # for creating branch for pr
+    secrets:
+      PR_TOKEN_APP_PRIVATE_KEY: ${{ secrets.PR_TOKEN_APP_PRIVATE_KEY }}
   msrv:
     needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/msrv.yml@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main
+    uses: taiki-e/github-actions/.github/workflows/rust-msrv.yml@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main
     with:
       # NB: sync with env.TEST_FEATURES
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
       args: --features float,std --ignore-unknown-features
-  tidy:
-    uses: taiki-e/github-actions/.github/workflows/tidy.yml@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main
-    permissions:
-      contents: write # for creating branch for pr
-      pull-requests: write # unused (used in `codegen-automerge: true` case)
-      security-events: write # for github/codeql-action/*
-    secrets:
-      PR_TOKEN_APP_PRIVATE_KEY: ${{ secrets.PR_TOKEN_APP_PRIVATE_KEY }}
-    with:
-      clippy: false # covered by TESTS=1 ./tools/build.sh
-      docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
 
   prepare:
+    needs: tidy
     runs-on: ubuntu-slim
     timeout-minutes: 15 # Max execution time of ubuntu-slim runner.
     steps:
@@ -69,13 +72,11 @@ jobs:
       test-matrix: ${{ steps.prepare.outputs.test-matrix }}
 
   test:
-    needs:
-      - prepare
-      - tidy
+    needs: prepare
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.test-matrix) }}
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     timeout-minutes: 120 # TODO: reduce
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -85,11 +86,7 @@ jobs:
       #   if: startsWith(matrix.os, 'macos')
       # - run: C:/msys64/usr/bin/pacman -S --noconfirm moreutils
       #   if: startsWith(matrix.os, 'windows')
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack,cargo-minimal-versions
-          fallback: none
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
@@ -100,9 +97,10 @@ jobs:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: ${{ matrix.rust }}
+          tool: rust@${{ matrix.rust }},cargo-hack,cargo-minimal-versions
+          fallback: none
       - id: prepare
         run: |
           if [[ -z "${TARGET}" ]]; then
@@ -118,9 +116,11 @@ jobs:
           printf 'cfgs=%s\n' ",${cfgs//$'\n'/,}," >>"${GITHUB_OUTPUT}"
         env:
           TARGET: ${{ matrix.target }}
-      - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
+      - uses: taiki-e/setup-cross-toolchain-action@3d9770ce98eb7dbcf378563182a5e8031165f75b # v1.41.0
         with:
           target: ${{ matrix.target }}
+          # TODO(loongarch): wrong result
+          qemu: ${{ startsWith(matrix.target, 'loongarch64-') && '10.2' || '' }}
         if: steps.prepare.outputs.target-not-host == 'true'
       - run: |
           target_lower="${TARGET//-/_}"
@@ -152,10 +152,6 @@ jobs:
           RUST: ${{ matrix.rust }}
       - name: Workaround for rustc/LLVM bug about SPARC-V8+
         run: |
-          # Workaround for "unknown architecture of input file `*/symbols.o' is incompatible with sparc:v8plus output"
-          flags=' -C target-feature=-v8plus -C link-arg=-mv8plus --cfg crossbeam_no_atomic_64'
-          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS}${flags}" >>"${GITHUB_ENV}"
-          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS}${flags}" >>"${GITHUB_ENV}"
           # Workaround for "rustc-LLVM ERROR: Unsupported instruction : <MCInst 11 <MCOperand Reg:174>>" with LLVM 20-22
           printf 'CARGO_PROFILE_RELEASE_OPT_LEVEL=0\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'sparc-')
@@ -347,8 +343,8 @@ jobs:
         if: (!(startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022') || startsWith(matrix.rust, 'nightly-2023')))
 
   test-container:
-    needs: tidy
     name: test (${{ matrix.rust }}, ${{ matrix.target }}, ${{ matrix.os }})
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -605,7 +601,7 @@ jobs:
             runner: native
             os: ubuntu-24.04-arm
             container: debian:13-slim
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     timeout-minutes: 60
     container:
       image: ${{ matrix.container }}
@@ -616,28 +612,26 @@ jobs:
           apt-get -o Acquire::Retries=10 -qq update
           apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc libc6-dev
           # apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack
-          fallback: none
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
           fallback: none
         if: startsWith(matrix.rust, 'nightly') && !(startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm'))
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: stable
+          tool: rust@stable
+          fallback: none
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
       - uses: taiki-e/cache-cargo-install-action@a8b9ecf8e0c0ea09d7481cfc583a5203ecd585b5 # v3.0.5
         with:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
           tool: cargo-careful${{ (startsWith(matrix.rust, 'nightly-2023') || startsWith(matrix.rust, 'nightly-2024')) && '@0.4.7' || '' }}
         if: startsWith(matrix.rust, 'nightly') && startsWith(matrix.os, 'ubuntu') && contains(matrix.os, '-arm')
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: ${{ matrix.rust }}
+          tool: rust@${{ matrix.rust }},cargo-hack
+          fallback: none
       - id: prepare
         run: |
           if [[ -z "${TARGET}" ]]; then
@@ -653,7 +647,7 @@ jobs:
           printf 'cfgs=%s\n' ",${cfgs//$'\n'/,}," >>"${GITHUB_OUTPUT}"
         env:
           TARGET: ${{ matrix.target }}
-      - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
+      - uses: taiki-e/setup-cross-toolchain-action@3d9770ce98eb7dbcf378563182a5e8031165f75b # v1.41.0
         with:
           target: ${{ matrix.target }}
           runner: ${{ matrix.runner }}
@@ -687,8 +681,8 @@ jobs:
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
 
   test-vm:
-    needs: tidy
     name: test (${{ matrix.target }}${{ matrix.version }})
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -699,7 +693,7 @@ jobs:
             version: '13.5'
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '14.3'
+            version: '14.4'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '15.0'
@@ -711,7 +705,7 @@ jobs:
             version: '7.6'
           - target: aarch64-unknown-illumos
             os: omnios
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120 # TODO: build on OpenBSD is too slow
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -729,12 +723,12 @@ jobs:
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
             | tar xJf -
         if: matrix.os == 'omnios'
-      - uses: taiki-e/cross-platform-actions-action@ffb5ad752bfc9b9b259d3a73500cf8beaaf6f9f2 # neoverse-v1 # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/cross-platform-actions-action@6520aa58510f3aaf6a4f19095add23cf34d13c60 # neoverse-v1 # zizmor: ignore[stale-action-refs]
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
-          version: ${{ matrix.os == 'omnios' && 'r151056' || matrix.version }}
+          version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
           shell: bash
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
           run: |
@@ -803,7 +797,7 @@ jobs:
           retry sudo apt-get -o Acquire::Retries=10 -qq update
           retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
             sshpass
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0-rc0/qemu-ubuntu-24.04.tar.xz \
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0/qemu-ubuntu-24.04.tar.xz \
             | tar xJf -
           sudo cp -r -- qemu/. /usr/local/
           rm -rf -- ./qemu
@@ -839,8 +833,8 @@ jobs:
         if: matrix.os == 'omnios'
 
   build:
-    needs: tidy
     name: build (${{ matrix.name || matrix.rust }})
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -879,17 +873,14 @@ jobs:
             rust: nightly
             target-group: tier3
             skip-default-target: 1
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120 # TODO: nightly builds take a long time because there are too many targets
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/free-device-space@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: ${{ matrix.rust }}
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack
+          tool: rust@${{ matrix.rust }},cargo-hack
           fallback: none
       - run: tools/build.sh
         env:
@@ -923,19 +914,15 @@ jobs:
           # - nightly-2025-08-06 # Rust 1.91, LLVM 20
           # - nightly-2026-01-28 # Rust 1.95, LLVM 21
           - nightly
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/free-device-space@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: ${{ matrix.rust }}
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack,espup
+          tool: rust@${{ matrix.rust }}${{ matrix.rust == 'stable' && ',cargo-hack,espup' || '' }}
           fallback: none
-        if: matrix.rust == 'stable'
       - run: |
           retry() {
             for i in {1..10}; do
@@ -973,7 +960,7 @@ jobs:
           elif [[ "${RUST}" == "stable" ]]; then
             retry espup install --targets esp32s2
           fi
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0-rc0/qemu-ubuntu-24.04.tar.xz \
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0/qemu-ubuntu-24.04.tar.xz \
             | tar xJf -
           rm -- qemu/bin/qemu-system-sparc # TODO: QEMU 10.2-11.0 exits with 1
           sudo cp -r -- qemu/. /usr/local/
@@ -1033,17 +1020,13 @@ jobs:
           - target: powerpc64le-unknown-linux-gnu
           - target: riscv64gc-unknown-linux-gnu
           - target: s390x-unknown-linux-gnu
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: nightly
-          component: miri
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack
+          tool: rust@nightly+miri,cargo-hack
           fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
@@ -1066,16 +1049,13 @@ jobs:
           - address
           - memory
           - thread
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: nightly
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack
+          tool: rust@nightly,cargo-hack
           fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
@@ -1102,8 +1082,8 @@ jobs:
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
 
   valgrind:
-    needs: tidy
     name: valgrind (${{ matrix.target }})
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -1117,16 +1097,13 @@ jobs:
           # TODO: "unhandled instruction: 0x4508 0xD103" in atomic_sub in Arc::drop (as of Valgrind 3.26)
           # - target: thumbv7neon-unknown-linux-gnueabihf
           #   os: ubuntu-24.04-arm
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: nightly
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: cargo-hack
+          tool: rust@nightly,cargo-hack
           fallback: none
       - id: prepare
         run: |
@@ -1141,7 +1118,7 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
       # - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
+      - uses: taiki-e/setup-cross-toolchain-action@3d9770ce98eb7dbcf378563182a5e8031165f75b # v1.41.0
         with:
           target: ${{ matrix.target }}
           runner: valgrind
@@ -1174,8 +1151,8 @@ jobs:
         if: (startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64'))
 
   valgrind-cross:
-    needs: tidy
     name: valgrind (${{ matrix.target }})
+    needs: tidy
     strategy:
       fail-fast: false
       matrix:
@@ -1186,19 +1163,20 @@ jobs:
             arch: riscv64
           - target: s390x-unknown-linux-gnu
             arch: s390x
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: nightly
+          tool: rust@nightly
+          fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      - uses: taiki-e/setup-cross-toolchain-action@d62f33b587e73b0004731caebc7d2d46b18a7567 # v1.39.2
+      - uses: taiki-e/setup-cross-toolchain-action@3d9770ce98eb7dbcf378563182a5e8031165f75b # v1.41.0
         with:
           target: ${{ matrix.target }}
           runner: valgrind
-      - uses: taiki-e/github-actions/setup-docker@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/github-actions/setup-docker@1bb80ca038216cd1fb7b6ca6d76240b3772963ab # main # zizmor: ignore[stale-action-refs]
         with:
           buildx: false
           qemu: ${{ matrix.arch }}
@@ -1247,7 +1225,7 @@ jobs:
           esac
 
           # NB: Sync with arguments in tools/test.sh.
-          workspace_dir=$(pwd)
+          workspace_dir="${PWD}"
           args='-v --error-exitcode=1 --error-limit=no --leak-check=full --track-origins=yes --fair-sched=yes --gen-suppressions=all'
           supp="${workspace_dir}/tools/valgrind/${TARGET%%-*}.supp"
           if [[ -f "${supp}" ]]; then
@@ -1262,12 +1240,14 @@ jobs:
           done
           cat -- ./run
           chmod +x ./run
+          # https://github.com/taiki-e/setup-cross-toolchain-action#valgrind-runner
+          valgrind_version='3.27.1'
           docker run --rm --init --user "$(id -u)":"$(id -g)" \
             --mount "type=bind,source=${workspace_dir},target=${workspace_dir}" --workdir "${workspace_dir}" \
             -e CI -e GITHUB_ACTIONS \
             -e RUST_BACKTRACE -e RUST_TEST_THREADS \
             -e PORTABLE_ATOMIC_DENY_WARNINGS \
-            --platform=linux/"${ARCH}" ghcr.io/taiki-e/valgrind:"${ARCH}"-cross \
+            --platform=linux/"${ARCH}" ghcr.io/taiki-e/valgrind:"${valgrind_version}-${ARCH}"-cross \
             ./run
         env:
           TARGET: ${{ matrix.target }}
@@ -1275,17 +1255,13 @@ jobs:
 
   asm-test:
     needs: tidy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/install-rust@3c1cac16ef654d1febb66f21f328fa167f0d2fef # main # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@c070f87102a1c75b3183910f391c1cb887fe13c8 # v2.77.6
         with:
-          toolchain: nightly
-          component: rust-src
-      - uses: taiki-e/install-action@b8be7f5e140177087325943c4a8e169d01c59b3d # v2.75.3
-        with:
-          tool: espup
+          tool: rust@nightly+rust-src,espup
           fallback: none
       - run: |
           retry() {
