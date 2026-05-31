@@ -190,6 +190,14 @@ jobs:
       # for serde on old nightly
       - run: printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} --cfg no_diagnostic_namespace" >>"${GITHUB_ENV}"
         if: matrix.rust == 'nightly-2024-02-13'
+      # The latest crossbeam-utils requires Rust 1.60.
+      # libc 0.2.164 and fastrand 2.4.0 requires Rust 1.63.
+      - run: |
+          cargo generate-lockfile
+          cargo update -p crossbeam-utils --precise 0.8.16
+          cargo update -p libc --precise 0.2.163
+          cargo update -p fastrand --precise 2.3.0
+        if: startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022')
 
       - run: tools/test.sh -vv ${TARGET:-} ${DOCTEST_XCOMPILE:-} ${BUILD_STD:-}
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}

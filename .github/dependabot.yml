@@ -16,11 +16,6 @@ updates:
       default-days: 14 # Note: Unless dependencies are pinned/locked, the effect is limited.
     commit-message:
       prefix: ''
-    ignore:
-      # For test on old rustc.
-      - dependency-name: crossbeam-utils
-      - dependency-name: fastrand
-      - dependency-name: libc
     labels: []
   - package-ecosystem: github-actions
     directory: /
