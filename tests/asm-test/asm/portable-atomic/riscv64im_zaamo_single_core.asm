@@ -1,60 +1,68 @@
 <portable_atomic::AtomicBool>::compare_exchange:
         slli              a5, a4, 0x3
+
+.Lpcrel_hi0:
         auipc             a6, 0x0
         mv                a6, a6
         add               a5, a6, a5
         ld                a5, 0x0(a5)
         jr                a5
-        beqz              a3, 0x40 <.Lpcrel_hi0+0x3c>
+        beqz              a3, 1f
         li                a5, 0x1
-        bne               a3, a5, 0x58 <.Lpcrel_hi0+0x54>
+        bne               a3, a5, 2f
         li                a3, 0x4
-        beq               a4, a3, 0x30 <.Lpcrel_hi0+0x2c>
+        beq               a4, a3, 0f
+0:
         li                a3, 0x1
         li                a5, 0x2
-        bne               a4, a5, 0x64 <.Lpcrel_hi0+0x60>
+        bne               a4, a5, 3f
         li                a3, 0x3
-        j                 0x64 <.Lpcrel_hi0+0x60>
+1:
+        j                 3f
         li                a3, 0x2
-        beq               a4, a3, 0x64 <.Lpcrel_hi0+0x60>
+        beq               a4, a3, 3f
         addi              a4, a4, -0x4
         seqz              a3, a4
         slli              a3, a3, 0x2
-        j                 0x64 <.Lpcrel_hi0+0x60>
+2:
+        j                 3f
         li                a5, 0x4
-        bne               a4, a5, 0x64 <.Lpcrel_hi0+0x60>
+        bne               a4, a5, 3f
+3:
         li                a3, 0x4
         andi              a4, a0, -0x4
         slliw             a0, a0, 0x3
-        beq               a1, a2, 0xac <.Lpcrel_hi0+0xa8>
-        beqz              a2, 0xe4 <.Lpcrel_hi0+0xe0>
+        beq               a1, a2, 4f
+        beqz              a2, 5f
         li                a2, 0x1
         li                a5, 0x2
         sllw              a2, a2, a0
-        blt               a5, a3, 0x17c <.Lpcrel_hi0+0x178>
-        beqz              a3, 0x1b4 <.Lpcrel_hi0+0x1b0>
+        blt               a5, a3, 9f
+        beqz              a3, 11f
         li                a5, 0x1
-        bne               a3, a5, 0x1ec <.Lpcrel_hi0+0x1e8>
+        bne               a3, a5, 13f
         amoor.w.rl        a2, a2, (a4)
         srlw              a0, a2, a0
         zext.b            a0, a0
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+4:
         ret
         li                a2, 0x0
         li                a5, 0x2
         sllw              a2, a2, a0
-        blt               a5, a3, 0x128 <.Lpcrel_hi0+0x124>
-        beqz              a3, 0x144 <.Lpcrel_hi0+0x140>
+        blt               a5, a3, 6f
+        beqz              a3, 7f
         li                a5, 0x1
-        bne               a3, a5, 0x160 <.Lpcrel_hi0+0x15c>
+        bne               a3, a5, 8f
         amoor.w.rl        a2, a2, (a4)
         srlw              a0, a2, a0
         zext.b            a0, a0
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+5:
         ret
         li                a5, 0xff
         sllw              a2, a2, a0
@@ -62,16 +70,17 @@
         not               a5, a5
         li                a6, 0x2
         or                a2, a2, a5
-        blt               a6, a3, 0x198 <.Lpcrel_hi0+0x194>
-        beqz              a3, 0x1d0 <.Lpcrel_hi0+0x1cc>
+        blt               a6, a3, 10f
+        beqz              a3, 12f
         li                a5, 0x1
-        bne               a3, a5, 0x208 <.Lpcrel_hi0+0x204>
+        bne               a3, a5, 14f
         amoand.w.rl       a2, a2, (a4)
         srlw              a0, a2, a0
         zext.b            a0, a0
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+6:
         ret
         amoor.w.aqrl      a2, a2, (a4)
         srlw              a0, a2, a0
@@ -79,6 +88,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+7:
         ret
         amoor.w           a2, a2, (a4)
         srlw              a0, a2, a0
@@ -86,6 +96,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+8:
         ret
         amoor.w.aq        a2, a2, (a4)
         srlw              a0, a2, a0
@@ -93,6 +104,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+9:
         ret
         amoor.w.aqrl      a2, a2, (a4)
         srlw              a0, a2, a0
@@ -100,6 +112,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+10:
         ret
         amoand.w.aqrl     a2, a2, (a4)
         srlw              a0, a2, a0
@@ -107,6 +120,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+11:
         ret
         amoor.w           a2, a2, (a4)
         srlw              a0, a2, a0
@@ -114,6 +128,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+12:
         ret
         amoand.w          a2, a2, (a4)
         srlw              a0, a2, a0
@@ -121,6 +136,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+13:
         ret
         amoor.w.aq        a2, a2, (a4)
         srlw              a0, a2, a0
@@ -128,6 +144,7 @@
         snez              a2, a0
         xor               a0, a1, a2
         mv                a1, a2
+14:
         ret
         amoand.w.aq       a2, a2, (a4)
         srlw              a0, a2, a0
@@ -136,14 +153,22 @@
         xor               a0, a1, a2
         mv                a1, a2
         ret
+
+.Lpcrel_hi1:
         auipc             a0, 0x0
+
+.Lpcrel_hi2:
         auipc             a1, 0x0
         mv                a0, a0
         mv                a2, a1
         li                a1, 0x34
         auipc             ra, 0x0
         jalr              ra <.Lpcrel_hi2+0x10>
+
+.Lpcrel_hi3:
         auipc             a0, 0x0
+
+.Lpcrel_hi4:
         auipc             a1, 0x0
         mv                a0, a0
         mv                a2, a1
