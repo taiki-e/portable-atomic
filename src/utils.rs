@@ -329,11 +329,12 @@ macro_rules! cfg_sel {
     };
 }
 
-// Stable equivalent of core::hint::{likely, unlikely}.
+// Equivalent to core::hint::cold_path, but compatible with pre-1.95 rustc.
 #[allow(dead_code)]
 #[inline(always)]
 #[cold]
 fn cold_path() {}
+// Stable equivalent of core::hint::{likely, unlikely}.
 #[allow(dead_code)]
 #[inline(always)]
 pub(crate) fn likely(b: bool) -> bool {
