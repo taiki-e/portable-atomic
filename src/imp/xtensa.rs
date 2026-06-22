@@ -88,6 +88,36 @@ macro_rules! rmw {
     }};
 }
 
+// Atomic store that is serialized against the emulated PSRAM RMWs.
+//
+// A naturally aligned store is itself atomic on these CPUs (only the
+// read-modify-write instruction misbehaves on PSRAM), but it must take the
+// same critical section as the RMW path. Otherwise, on the dual-core
+// ESP32 / ESP32-S3, a plain store on one core could land between the read
+// and write of an in-progress RMW on the other core and be lost.
+//
+// When the `critical-section` feature is disabled, RMWs on PSRAM panic, so no
+// store-vs-RMW race can occur and a plain native store stays correct.
+macro_rules! store {
+    ($self:ident, $val:ident, $order:ident) => {{
+        #[cfg(feature = "critical-section")]
+        {
+            let p: *mut _ = $self.as_ptr();
+            if in_psram(p) {
+                critical_section::with(|_cs| {
+                    // SAFETY: inside a critical section we have exclusive
+                    // access to `p`, which is valid and aligned because it
+                    // came from `&self`. The store is serialized with the
+                    // RMW path, which takes the same critical section.
+                    unsafe { core::ptr::write_volatile(p, $val) }
+                });
+                return;
+            }
+        }
+        $self.inner.store($val, $order);
+    }};
+}
+
 // ---------------------------------------------------------------------------
 // AtomicPtr
 
@@ -113,13 +143,16 @@ impl<T> AtomicPtr<T> {
     #[cfg_attr(any(debug_assertions, miri), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
+        // No critical section needed: A naturally aligned load always
+        // observes a complete value written by a store or by the RMW
+        // path's single `write_volatile`.
         self.inner.load(order)
     }
     #[inline]
     #[cfg_attr(any(debug_assertions, miri), track_caller)]
     pub(crate) fn store(&self, ptr: *mut T, order: Ordering) {
         crate::utils::assert_store_ordering(order);
-        self.inner.store(ptr, order);
+        store!(self, ptr, order);
     }
 
     #[inline]
@@ -363,13 +396,16 @@ macro_rules! atomic_int {
             #[cfg_attr(any(debug_assertions, miri), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
+                // No critical section needed: A naturally aligned load always
+                // observes a complete value written by a store or by the RMW
+                // path's single `write_volatile`.
                 self.inner.load(order)
             }
             #[inline]
             #[cfg_attr(any(debug_assertions, miri), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
-                self.inner.store(val, order);
+                store!(self, val, order);
             }
 
             #[inline]
