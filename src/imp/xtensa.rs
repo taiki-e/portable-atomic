@@ -337,7 +337,7 @@ impl_default_bit_opts!(AtomicPtr, usize);
 // AtomicInt
 
 macro_rules! atomic_int {
-    ($atomic_type:ident, $int_type:ident, $align:literal) => {
+    ($atomic_type:ident, $int_type:ident) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
@@ -564,11 +564,11 @@ macro_rules! atomic_int {
     };
 }
 
-atomic_int!(AtomicIsize, isize, 4);
-atomic_int!(AtomicUsize, usize, 4);
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
-atomic_int!(AtomicI32, i32, 4);
-atomic_int!(AtomicU32, u32, 4);
+atomic_int!(AtomicIsize, isize);
+atomic_int!(AtomicUsize, usize);
+atomic_int!(AtomicI8, i8);
+atomic_int!(AtomicU8, u8);
+atomic_int!(AtomicI16, i16);
+atomic_int!(AtomicU16, u16);
+atomic_int!(AtomicI32, i32);
+atomic_int!(AtomicU32, u32);
