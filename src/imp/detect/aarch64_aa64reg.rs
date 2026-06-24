@@ -432,7 +432,7 @@ mod tests {
         } else {
             assert_eq!(lrcpc, 0b0000);
         }
-        let ls64 = extract(aa64isar1, 19, 16);
+        let ls64 = extract(aa64isar1, 63, 60);
         if detect().ls64wb() {
             assert_eq!(ls64, 0b0100);
         } else {
