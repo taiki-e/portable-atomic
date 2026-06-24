@@ -62,7 +62,7 @@ jobs:
   prepare:
     needs: tidy
     runs-on: ubuntu-slim
-    timeout-minutes: 15 # Max execution time of ubuntu-slim runner.
+    timeout-minutes: 5
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - name: Prepare
@@ -77,8 +77,8 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.test-matrix) }}
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
-    timeout-minutes: 120 # TODO: reduce
     container: ${{ matrix.container && fromJSON(format('{{"image":"{0}","options":"--privileged"}}', matrix.container)) || '' }}
+    timeout-minutes: 120 # TODO: reduce
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc libc6-dev
@@ -622,8 +622,10 @@ jobs:
           if [[ "${RUST}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
-            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2 \
-              | tar xjf - --strip-components 1 -C "${HOME}"/msp430-gcc
+            retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -o msp430-gcc.tar.bz2 https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-LlCjWuAbzH/9.3.1.2/msp430-gcc-9.3.1.11_linux64.tar.bz2
+            sha256sum -c - >/dev/null <<<'b60851b61565e3ddd2193298a3fac5120c2402597174106cc5f8482b9e9986e6 *msp430-gcc.tar.bz2'
+            tar xf msp430-gcc.tar.bz2 --strip-components 1 -C "${HOME}"/msp430-gcc
+            rm -- msp430-gcc.tar.bz2
             printf '%s\n' "${HOME}"/msp430-gcc/bin >>"${GITHUB_PATH}"
             # https://l4re.org/download/snapshots
             retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://l4re.org/download/snapshots/toolchain/toolchain-l4re-arm64-gcc-15.tar.xz \
