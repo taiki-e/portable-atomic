@@ -317,7 +317,7 @@ docker run --rm --init --user "$(id -u):$(id -g)" \\
   -e CI -e GITHUB_ACTIONS -e RUST_BACKTRACE -e RUST_TEST_THREADS \\
   -e PORTABLE_ATOMIC_DENY_WARNINGS \\
   --platform=linux/${arch} ghcr.io/taiki-e/valgrind:${valgrind_version}-${arch}-cross \\
-  valgrind "\$@"
+  ${valgrind} "\$@"
 EOF
     chmod +x ./tmp/valgrind-cross
     export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tmp/valgrind-cross"
