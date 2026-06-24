@@ -410,10 +410,10 @@ EOF
               RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
               x_cargo "${args[@]}" --release "$@"
             CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged-thumb" \
-              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags} -C target-feature=+thumb-mode" \
               x_cargo "${args[@]}" "$@"
             CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged-thumb" \
-              RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags} -C target-feature=+thumb-mode" \
+              RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags} -C target-feature=+thumb-mode" \
               x_cargo "${args[@]}" --release "$@"
             ;;
         esac
