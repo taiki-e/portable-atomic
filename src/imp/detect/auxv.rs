@@ -1052,6 +1052,7 @@ mod tests {
     }
     #[allow(clippy::cast_possible_wrap)]
     #[cfg(target_os = "freebsd")]
+    #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
     #[test]
     fn test_alternative() {
         #[cfg(not(portable_atomic_no_asm))]
