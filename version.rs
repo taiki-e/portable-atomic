@@ -74,6 +74,7 @@ impl Version {
         let nightly = match env::var_os("RUSTC_BOOTSTRAP") {
             // When -1 is passed rustc works like stable, e.g., cfg(target_feature = "unstable_target_feature") will never be set. https://github.com/rust-lang/rust/pull/132993
             Some(ref v) if v == "-1" => false,
+            // When 1 is passed stable rustc works like nightly, but we ignore it for now.
             _ => channel == "nightly" || channel == "dev",
         };
 
