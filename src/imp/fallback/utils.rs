@@ -89,6 +89,7 @@ use core::ops;
     )),
     repr(align(64))
 )]
+#[repr(C)]
 pub(crate) struct CachePadded<T> {
     value: T,
 }
