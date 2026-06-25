@@ -631,17 +631,20 @@ build() {
       fi
       ;;
   esac
-  if [[ -n "${has_atomic_cas}" ]]; then
+  if [[ -n "${has_atomic_cas}" ]] && [[ -n "${has_asm}" ]]; then
     case "${target}" in
-      armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
+      armv[6-8]* | thumbv[6-8]* | riscv??*-none* | xtensa-*)
         case "${target}" in
           *-none*)
             CARGO_TARGET_DIR="${target_dir}/assume-single-core" \
               RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core" \
-              x_cargo "${args[@]}" "$@"
-            CARGO_TARGET_DIR="${target_dir}/assume-single-privileged" \
+              x_cargo "${args[@]}" --features "fallback" --exclude-features "critical-section" "$@"
+            CARGO_TARGET_DIR="${target_dir}/assume-privileged" \
               RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_privileged" \
-              x_cargo "${args[@]}" "$@"
+              x_cargo "${args[@]}" --features "fallback" --exclude-features "critical-section" "$@"
+            CARGO_TARGET_DIR="${target_dir}/assume-single-core-privileged" \
+              RUSTFLAGS="${target_rustflags} --cfg portable_atomic_unsafe_assume_single_core --cfg portable_atomic_unsafe_assume_privileged" \
+              x_cargo "${args[@]}" --features "fallback" --exclude-features "critical-section" "$@"
             ;;
         esac
         ;;

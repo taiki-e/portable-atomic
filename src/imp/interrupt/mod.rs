@@ -30,7 +30,10 @@ See README.md of this directory for details.
 #[cfg_attr(target_arch = "xtensa", path = "xtensa.rs")]
 pub(super) mod arch;
 
-#[cfg(not(portable_atomic_unsafe_assume_privileged))]
+#[cfg(not(all(
+    portable_atomic_unsafe_assume_privileged,
+    not(portable_atomic_unsafe_assume_single_core),
+)))]
 items!({
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
