@@ -219,7 +219,7 @@ mod tests_common {
         let mut flags = vec![("init", CpuInfoFlag::Init)];
         flags.extend(CpuInfo::ALL_FLAGS.iter().map(|&(name, flag, _)| (name, flag)));
         let flag_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
-        let name_set = flags.iter().map(|(_, flag)| flag).collect::<BTreeSet<_>>();
+        let name_set = flags.iter().map(|(name, _)| name).collect::<BTreeSet<_>>();
         if flag_set.len() != flags.len() {
             panic!("CpuInfo flag values must be unique")
         }
