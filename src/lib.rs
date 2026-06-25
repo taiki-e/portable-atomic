@@ -249,7 +249,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 > - This is compatible with no-std (as with all features except `std`).
 > - On some targets, run-time detection is disabled by default mainly for compatibility with incomplete build environments or support for it is experimental, and can be enabled by `portable_atomic_outline_atomics` cfg. (When both cfg are enabled, `*_no_*` cfg is preferred.)
 > - Some AArch64 targets enable LLVM's `outline-atomics` target feature by default, so if you set this cfg, you may want to disable that as well. (However, portable-atomic's outline-atomics does not depend on the compiler-rt symbols, so even if you need to disable LLVM's outline-atomics, you may not need to disable portable-atomic's outline-atomics.)
-> - Dynamic detection is currently only supported in x86_64, AArch64, Arm, RISC-V, Arm64EC, and powerpc64. Enabling this cfg for unsupported architectures will result in a compile error.
+> - Dynamic detection is currently only supported in x86_64, AArch64, Arm, RISC-V, Arm64EC, and powerpc64. Enabling this cfg for unsupported architectures will be ignored.
 
 </div>
 
@@ -523,17 +523,6 @@ compile_error!(
      see also <https://github.com/taiki-e/portable-atomic/issues/148> for troubleshooting"
 );
 
-#[cfg(portable_atomic_no_outline_atomics)]
-#[cfg(not(any(
-    target_arch = "aarch64",
-    target_arch = "arm",
-    target_arch = "arm64ec",
-    target_arch = "powerpc64",
-    target_arch = "riscv32",
-    target_arch = "riscv64",
-    target_arch = "x86_64",
-)))]
-compile_error!("`portable_atomic_no_outline_atomics` cfg does not compatible with this target");
 #[cfg(portable_atomic_outline_atomics)]
 #[cfg(not(any(
     target_arch = "aarch64",

@@ -10,17 +10,17 @@ fn test() {
     let revisions = &[
         // AArch64
         Revision::new("aarch64", "aarch64-unknown-linux-gnu")
-            .rustc_args(["-C", "target-feature=-outline-atomics", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_be", "aarch64_be-unknown-linux-gnu")
-            .rustc_args(["-C", "target-feature=-outline-atomics", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_ilp32", "aarch64-unknown-linux-gnu_ilp32")
-            .rustc_args(["-C", "target-feature=-outline-atomics", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_msvc", "aarch64-pc-windows-msvc")
-            .rustc_args(["-C", "target-feature=-outline-atomics", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_lse", "aarch64-unknown-linux-gnu")
-            .rustc_args(["-C", "target-feature=+lse", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=+lse"]),
         Revision::new("aarch64_lse_msvc", "aarch64-pc-windows-msvc")
-            .rustc_args(["-C", "target-feature=+lse", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=+lse"]),
         Revision::new("aarch64_lse_lse2", "aarch64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+lse,+lse2"]),
         Revision::new("aarch64_lse_lse2_rcpc3", "aarch64-unknown-linux-gnu")
@@ -31,7 +31,7 @@ fn test() {
             .rustc_args(["-C", "target-feature=+lse2,+lse128,+rcpc3"]),
         // Arm64EC
         Revision::new("arm64ec", "arm64ec-pc-windows-msvc")
-            .rustc_args(["-C", "target-feature=-outline-atomics", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         // Arm
         Revision::new("armv4t_linux", "armv4t-unknown-linux-gnueabi"),
         Revision::new("armv4t_single_core", "armv4t-none-eabi")
@@ -81,9 +81,9 @@ fn test() {
             .rustc_args(["-C", "target-cpu=z15"]),
         // x86 and x86_64
         Revision::new("x86_64_cmpxchg16b", "x86_64-unknown-linux-gnu")
-            .rustc_args(["-C", "target-feature=+cmpxchg16b", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=+cmpxchg16b"]),
         Revision::new("x86_64_cmpxchg16b_msvc", "x86_64-pc-windows-msvc")
-            .rustc_args(["-C", "target-feature=+cmpxchg16b", "--cfg", "portable_atomic_no_outline_atomics"]),
+            .rustc_args(["-C", "target-feature=+cmpxchg16b"]),
         Revision::new("x86_64_cmpxchg16b_avx", "x86_64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
         Revision::new("x86_64_cmpxchg16b_avx_x32", "x86_64-unknown-linux-gnux32")
@@ -104,8 +104,10 @@ fn test() {
     };
     Tester::new()
         .cargo_args(["-Z", "build-std=core", "--features", "portable-atomic"])
+        .rustc_args(["--cfg", "portable_atomic_no_outline_atomics"])
         .dump(env!("CARGO_MANIFEST_DIR"), "asm/portable-atomic", revisions);
     Tester::new()
         .cargo_args(["-Z", "build-std=core", "--features", "core"])
+        .rustc_args(["--cfg", "portable_atomic_no_outline_atomics"])
         .dump(env!("CARGO_MANIFEST_DIR"), "asm/core", revisions);
 }
