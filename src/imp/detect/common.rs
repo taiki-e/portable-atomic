@@ -42,8 +42,42 @@ pub(crate) fn detect() -> CpuInfo {
     if !cfg!(portable_atomic_test_detect_false) {
         _detect(&mut info);
     }
-    CACHE.store(info.0, Ordering::Relaxed);
-    info
+    {
+        // Avoid store/CAS if the cache is already updated.
+        let info = CpuInfo(CACHE.load(Ordering::Relaxed));
+        if info.0 != 0 {
+            return info;
+        }
+    }
+    if cfg!(any(
+        all(
+            target_arch = "x86_64",
+            not(any(target_feature = "cmpxchg16b", portable_atomic_target_feature = "cmpxchg16b")),
+        ),
+        all(
+            target_arch = "powerpc64",
+            not(any(
+                target_feature = "quadword-atomics",
+                portable_atomic_target_feature = "quadword-atomics",
+            )),
+        ),
+        all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(any(target_feature = "zacas", portable_atomic_target_feature = "zacas")),
+        ),
+    )) {
+        // Use CAS if the detection result affects lock-freeness.
+        match CACHE.compare_exchange(0, info.0, Ordering::Relaxed, Ordering::Relaxed) {
+            Ok(_) => info,
+            Err(info) => {
+                debug_assert_ne!(info, 0);
+                CpuInfo(info)
+            }
+        }
+    } else {
+        CACHE.store(info.0, Ordering::Relaxed);
+        info
+    }
 }
 
 macro_rules! flags {

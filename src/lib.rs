@@ -798,6 +798,8 @@ impl AtomicBool {
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
     ///
+    /// This function is guaranteed to always return the same result.
+    ///
     /// # Examples
     ///
     /// ```
@@ -1845,6 +1847,8 @@ impl<T> AtomicPtr<T> {
     /// atomic instructions, global locks for every potentially
     /// concurrent atomic operation will be used.
     ///
+    /// This function is guaranteed to always return the same result.
+    ///
     /// # Examples
     ///
     /// ```
@@ -2872,6 +2876,8 @@ This is `const fn` on Rust 1.83+.
 If the compiler or the platform doesn't support the necessary
 atomic instructions, global locks for every potentially
 concurrent atomic operation will be used.
+
+This function is guaranteed to always return the same result.
 
 # Examples
 
@@ -4302,6 +4308,8 @@ This is `const fn` on Rust 1.83+.
             /// If the compiler or the platform doesn't support the necessary
             /// atomic instructions, global locks for every potentially
             /// concurrent atomic operation will be used.
+            ///
+            /// This function is guaranteed to always return the same result.
             #[inline]
             #[must_use]
             pub fn is_lock_free() -> bool {
