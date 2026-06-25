@@ -39,7 +39,7 @@ cpuid
 cpus
 csel
 csrrci
-csrw
+csrs
 cssc
 cxchg
 cxchgweak

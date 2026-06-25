@@ -32,10 +32,11 @@ pub(crate) fn disable() -> State {
     //
     // Interrupt level 15 to disable all interrupts.
     // SYNC after RSIL is not required.
+    // Use a14 per https://github.com/torvalds/linux/blob/v6.16/arch/xtensa/include/asm/atomic.h#L33-L37.
     unsafe {
         asm!(
-            "rsil {ps}, 15", // ps = PS; PS.INTLEVEL = 15
-            ps = out(reg) ps,
+            "rsil a14, 15", // a14 = PS; PS.INTLEVEL = 15
+            out("a14") ps,
             // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
             options(nostack),
         );
@@ -57,9 +58,9 @@ pub(crate) unsafe fn restore(prev_ps: State) {
     // See also 3.8.10 Processor Control Instructions of Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors.
     unsafe {
         asm!(
-            "wsr.ps {prev_ps}", // PS = prev_ps
-            "rsync",            // wait
-            prev_ps = in(reg) prev_ps,
+            "wsr.ps a14", // PS = a14
+            "rsync",      // wait
+            in("a14") prev_ps,
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
             options(nostack),
         );

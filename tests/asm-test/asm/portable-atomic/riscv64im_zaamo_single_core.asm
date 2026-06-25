@@ -179,200 +179,220 @@
 asm_test::fetch_nand::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u8::seqcst:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u8::acquire:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u8::relaxed:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u8::release:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u16::acqrel:
         csrrci            a3, mstatus, 0x8
         lhu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u16::seqcst:
         csrrci            a3, mstatus, 0x8
         lhu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u16::acquire:
         csrrci            a3, mstatus, 0x8
         lhu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u16::relaxed:
         csrrci            a3, mstatus, 0x8
         lhu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u16::release:
         csrrci            a3, mstatus, 0x8
         lhu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u32::acqrel:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sw                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u32::seqcst:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sw                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u32::acquire:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sw                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u32::relaxed:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sw                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u32::release:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sw                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u64::acqrel:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sd                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u64::seqcst:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sd                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u64::acquire:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sd                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u64::relaxed:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sd                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_nand::u64::release:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         and               a1, a2, a1
         not               a1, a1
         sd                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -474,7 +494,8 @@ asm_test::fetch_umax::u8::acqrel:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u8::seqcst:
@@ -485,7 +506,8 @@ asm_test::fetch_umax::u8::seqcst:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u8::acquire:
@@ -496,7 +518,8 @@ asm_test::fetch_umax::u8::acquire:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u8::relaxed:
@@ -507,7 +530,8 @@ asm_test::fetch_umax::u8::relaxed:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u8::release:
@@ -518,7 +542,8 @@ asm_test::fetch_umax::u8::release:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u16::acqrel:
@@ -529,7 +554,8 @@ asm_test::fetch_umax::u16::acqrel:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u16::seqcst:
@@ -540,7 +566,8 @@ asm_test::fetch_umax::u16::seqcst:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u16::acquire:
@@ -551,7 +578,8 @@ asm_test::fetch_umax::u16::acquire:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u16::relaxed:
@@ -562,7 +590,8 @@ asm_test::fetch_umax::u16::relaxed:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u16::release:
@@ -573,7 +602,8 @@ asm_test::fetch_umax::u16::release:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umax::u32::acqrel:
@@ -624,7 +654,8 @@ asm_test::fetch_umin::u8::acqrel:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u8::seqcst:
@@ -635,7 +666,8 @@ asm_test::fetch_umin::u8::seqcst:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u8::acquire:
@@ -646,7 +678,8 @@ asm_test::fetch_umin::u8::acquire:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u8::relaxed:
@@ -657,7 +690,8 @@ asm_test::fetch_umin::u8::relaxed:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u8::release:
@@ -668,7 +702,8 @@ asm_test::fetch_umin::u8::release:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u16::acqrel:
@@ -679,7 +714,8 @@ asm_test::fetch_umin::u16::acqrel:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u16::seqcst:
@@ -690,7 +726,8 @@ asm_test::fetch_umin::u16::seqcst:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u16::acquire:
@@ -701,7 +738,8 @@ asm_test::fetch_umin::u16::acquire:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u16::relaxed:
@@ -712,7 +750,8 @@ asm_test::fetch_umin::u16::relaxed:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u16::release:
@@ -723,7 +762,8 @@ asm_test::fetch_umin::u16::release:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_umin::u32::acqrel:
@@ -772,7 +812,8 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -784,7 +825,8 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -796,7 +838,8 @@ asm_test::compare_exchange::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -808,7 +851,8 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -820,7 +864,8 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -832,7 +877,8 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -844,7 +890,8 @@ asm_test::compare_exchange::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -856,7 +903,8 @@ asm_test::compare_exchange::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -868,7 +916,8 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -880,7 +929,8 @@ asm_test::compare_exchange::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -892,7 +942,8 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -904,7 +955,8 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -916,7 +968,8 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -928,7 +981,8 @@ asm_test::compare_exchange::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -940,7 +994,8 @@ asm_test::compare_exchange::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -953,12 +1008,14 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -969,12 +1026,14 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -985,12 +1044,14 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1001,12 +1062,14 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1017,12 +1080,14 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1033,12 +1098,14 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1049,12 +1116,14 @@ asm_test::compare_exchange::u16::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1065,12 +1134,14 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1081,12 +1152,14 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1097,12 +1170,14 @@ asm_test::compare_exchange::u16::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1113,12 +1188,14 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1129,12 +1206,14 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1145,12 +1224,14 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1161,12 +1242,14 @@ asm_test::compare_exchange::u16::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1177,12 +1260,14 @@ asm_test::compare_exchange::u16::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1193,12 +1278,14 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1209,12 +1296,14 @@ asm_test::compare_exchange::u32::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1225,12 +1314,14 @@ asm_test::compare_exchange::u32::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1241,12 +1332,14 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1257,12 +1350,14 @@ asm_test::compare_exchange::u32::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1273,12 +1368,14 @@ asm_test::compare_exchange::u32::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1289,12 +1386,14 @@ asm_test::compare_exchange::u32::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1305,12 +1404,14 @@ asm_test::compare_exchange::u32::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1321,12 +1422,14 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1337,12 +1440,14 @@ asm_test::compare_exchange::u32::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1353,12 +1458,14 @@ asm_test::compare_exchange::u32::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1369,12 +1476,14 @@ asm_test::compare_exchange::u32::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1385,12 +1494,14 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1401,12 +1512,14 @@ asm_test::compare_exchange::u32::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1417,12 +1530,14 @@ asm_test::compare_exchange::u32::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1433,12 +1548,14 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1449,12 +1566,14 @@ asm_test::compare_exchange::u64::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1465,12 +1584,14 @@ asm_test::compare_exchange::u64::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1481,12 +1602,14 @@ asm_test::compare_exchange::u64::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1497,12 +1620,14 @@ asm_test::compare_exchange::u64::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1513,12 +1638,14 @@ asm_test::compare_exchange::u64::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1529,12 +1656,14 @@ asm_test::compare_exchange::u64::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1545,12 +1674,14 @@ asm_test::compare_exchange::u64::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1561,12 +1692,14 @@ asm_test::compare_exchange::u64::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1577,12 +1710,14 @@ asm_test::compare_exchange::u64::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1593,12 +1728,14 @@ asm_test::compare_exchange::u64::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1609,12 +1746,14 @@ asm_test::compare_exchange::u64::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1625,12 +1764,14 @@ asm_test::compare_exchange::u64::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1641,12 +1782,14 @@ asm_test::compare_exchange::u64::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1657,12 +1800,14 @@ asm_test::compare_exchange::u64::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -1932,7 +2077,8 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -1944,7 +2090,8 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -1956,7 +2103,8 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -1968,7 +2116,8 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -1980,7 +2129,8 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -1992,7 +2142,8 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2004,7 +2155,8 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2016,7 +2168,8 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2028,7 +2181,8 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2040,7 +2194,8 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2052,7 +2207,8 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2064,7 +2220,8 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2076,7 +2233,8 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2088,7 +2246,8 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2100,7 +2259,8 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        csrw              mstatus, a4
+        andi              a4, a4, 0x8
+        csrs              mstatus, a4
         xor               a1, a3, a1
         snez              a0, a1
         mv                a1, a3
@@ -2113,12 +2273,14 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2129,12 +2291,14 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2145,12 +2309,14 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2161,12 +2327,14 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2177,12 +2345,14 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2193,12 +2363,14 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2209,12 +2381,14 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2225,12 +2399,14 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2241,12 +2417,14 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2257,12 +2435,14 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2273,12 +2453,14 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2289,12 +2471,14 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2305,12 +2489,14 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2321,12 +2507,14 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2337,12 +2525,14 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2353,12 +2543,14 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2369,12 +2561,14 @@ asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2385,12 +2579,14 @@ asm_test::compare_exchange_weak::u32::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2401,12 +2597,14 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2417,12 +2615,14 @@ asm_test::compare_exchange_weak::u32::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2433,12 +2633,14 @@ asm_test::compare_exchange_weak::u32::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2449,12 +2651,14 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2465,12 +2669,14 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2481,12 +2687,14 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2497,12 +2705,14 @@ asm_test::compare_exchange_weak::u32::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2513,12 +2723,14 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2529,12 +2741,14 @@ asm_test::compare_exchange_weak::u32::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2545,12 +2759,14 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2561,12 +2777,14 @@ asm_test::compare_exchange_weak::u32::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2577,12 +2795,14 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2593,12 +2813,14 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2609,12 +2831,14 @@ asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2625,12 +2849,14 @@ asm_test::compare_exchange_weak::u64::acqrel_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2641,12 +2867,14 @@ asm_test::compare_exchange_weak::u64::acqrel_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2657,12 +2885,14 @@ asm_test::compare_exchange_weak::u64::acquire_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2673,12 +2903,14 @@ asm_test::compare_exchange_weak::u64::relaxed_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2689,12 +2921,14 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2705,12 +2939,14 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2721,12 +2957,14 @@ asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2737,12 +2975,14 @@ asm_test::compare_exchange_weak::u64::acquire_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2753,12 +2993,14 @@ asm_test::compare_exchange_weak::u64::acquire_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2769,12 +3011,14 @@ asm_test::compare_exchange_weak::u64::relaxed_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2785,12 +3029,14 @@ asm_test::compare_exchange_weak::u64::relaxed_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2801,12 +3047,14 @@ asm_test::compare_exchange_weak::u64::release_acquire:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -2817,12 +3065,14 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         mv                a4, a0
         li                a0, 0x0
         sd                a2, 0x0(a4)
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 0:
         li                a0, 0x1
-        csrw              mstatus, a5
+        andi              a5, a5, 0x8
+        csrs              mstatus, a5
         mv                a1, a3
         ret
 
@@ -3199,81 +3449,91 @@ asm_test::or::u64::release:
 asm_test::add::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u8::seqcst:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u8::acquire:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u8::relaxed:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u8::release:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u16::acqrel:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u16::seqcst:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u16::acquire:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u16::relaxed:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u16::release:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         add               a1, a3, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::add::u32::acqrel:
@@ -3474,161 +3734,181 @@ asm_test::and::u64::release:
 asm_test::neg::u8::acqrel:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sb                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u8::seqcst:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sb                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u8::acquire:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sb                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u8::relaxed:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sb                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u8::release:
         csrrci            a1, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sb                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u16::acqrel:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sh                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u16::seqcst:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sh                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u16::acquire:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sh                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u16::relaxed:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sh                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u16::release:
         csrrci            a1, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sh                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u32::acqrel:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sw                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u32::seqcst:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sw                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u32::acquire:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sw                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u32::relaxed:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sw                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u32::release:
         csrrci            a1, mstatus, 0x8
         lw                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sw                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u64::acqrel:
         csrrci            a1, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sd                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u64::seqcst:
         csrrci            a1, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sd                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u64::acquire:
         csrrci            a1, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sd                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u64::relaxed:
         csrrci            a1, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sd                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::neg::u64::release:
         csrrci            a1, mstatus, 0x8
         ld                a2, 0x0(a0)
+        andi              a1, a1, 0x8
         neg               a2, a2
         sd                a2, 0x0(a0)
-        csrw              mstatus, a1
+        csrs              mstatus, a1
         ret
 
 asm_test::not::u8::acqrel:
@@ -3769,81 +4049,91 @@ asm_test::not::u64::release:
 asm_test::sub::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u8::seqcst:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u8::acquire:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u8::relaxed:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u8::release:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u16::acqrel:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u16::seqcst:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u16::acquire:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u16::relaxed:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u16::release:
         csrrci            a2, mstatus, 0x8
         lh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
         sub               a3, a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         ret
 
 asm_test::sub::u32::acqrel:
@@ -4091,7 +4381,8 @@ asm_test::swap::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4099,7 +4390,8 @@ asm_test::swap::u8::seqcst:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4107,7 +4399,8 @@ asm_test::swap::u8::acquire:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4115,7 +4408,8 @@ asm_test::swap::u8::relaxed:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4123,7 +4417,8 @@ asm_test::swap::u8::release:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4131,7 +4426,8 @@ asm_test::swap::u16::acqrel:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4139,7 +4435,8 @@ asm_test::swap::u16::seqcst:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4147,7 +4444,8 @@ asm_test::swap::u16::acquire:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4155,7 +4453,8 @@ asm_test::swap::u16::relaxed:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4163,7 +4462,8 @@ asm_test::swap::u16::release:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4570,90 +4870,100 @@ asm_test::fetch_or::bool::release:
 asm_test::fetch_add::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u8::seqcst:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u8::acquire:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u8::relaxed:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u8::release:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u16::acqrel:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u16::seqcst:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u16::acquire:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u16::relaxed:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_add::u16::release:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         add               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
@@ -4940,7 +5250,8 @@ asm_test::fetch_max::i8::acqrel:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i8::seqcst:
@@ -4951,7 +5262,8 @@ asm_test::fetch_max::i8::seqcst:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i8::acquire:
@@ -4962,7 +5274,8 @@ asm_test::fetch_max::i8::acquire:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i8::relaxed:
@@ -4973,7 +5286,8 @@ asm_test::fetch_max::i8::relaxed:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i8::release:
@@ -4984,7 +5298,8 @@ asm_test::fetch_max::i8::release:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i16::acqrel:
@@ -4995,7 +5310,8 @@ asm_test::fetch_max::i16::acqrel:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i16::seqcst:
@@ -5006,7 +5322,8 @@ asm_test::fetch_max::i16::seqcst:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i16::acquire:
@@ -5017,7 +5334,8 @@ asm_test::fetch_max::i16::acquire:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i16::relaxed:
@@ -5028,7 +5346,8 @@ asm_test::fetch_max::i16::relaxed:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i16::release:
@@ -5039,7 +5358,8 @@ asm_test::fetch_max::i16::release:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_max::i32::acqrel:
@@ -5090,7 +5410,8 @@ asm_test::fetch_min::i8::acqrel:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i8::seqcst:
@@ -5101,7 +5422,8 @@ asm_test::fetch_min::i8::seqcst:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i8::acquire:
@@ -5112,7 +5434,8 @@ asm_test::fetch_min::i8::acquire:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i8::relaxed:
@@ -5123,7 +5446,8 @@ asm_test::fetch_min::i8::relaxed:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i8::release:
@@ -5134,7 +5458,8 @@ asm_test::fetch_min::i8::release:
         mv                a1, a0
 0:
         sb                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i16::acqrel:
@@ -5145,7 +5470,8 @@ asm_test::fetch_min::i16::acqrel:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i16::seqcst:
@@ -5156,7 +5482,8 @@ asm_test::fetch_min::i16::seqcst:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i16::acquire:
@@ -5167,7 +5494,8 @@ asm_test::fetch_min::i16::acquire:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i16::relaxed:
@@ -5178,7 +5506,8 @@ asm_test::fetch_min::i16::relaxed:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i16::release:
@@ -5189,7 +5518,8 @@ asm_test::fetch_min::i16::release:
         mv                a1, a0
 0:
         sh                a1, 0x0(a2)
-        csrw              mstatus, a3
+        andi              a3, a3, 0x8
+        csrs              mstatus, a3
         ret
 
 asm_test::fetch_min::i32::acqrel:
@@ -5235,180 +5565,200 @@ asm_test::fetch_min::i64::release:
 asm_test::fetch_neg::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u8::seqcst:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u8::acquire:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u8::relaxed:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u8::release:
         csrrci            a2, mstatus, 0x8
         lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sb                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u16::acqrel:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u16::seqcst:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u16::acquire:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u16::relaxed:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u16::release:
         csrrci            a2, mstatus, 0x8
         lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sh                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u32::acqrel:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sw                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u32::seqcst:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sw                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u32::acquire:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sw                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u32::relaxed:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sw                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u32::release:
         csrrci            a2, mstatus, 0x8
         lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sw                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u64::acqrel:
         csrrci            a2, mstatus, 0x8
         ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sd                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u64::seqcst:
         csrrci            a2, mstatus, 0x8
         ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sd                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u64::acquire:
         csrrci            a2, mstatus, 0x8
         ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sd                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u64::relaxed:
         csrrci            a2, mstatus, 0x8
         ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sd                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
 asm_test::fetch_neg::u64::release:
         csrrci            a2, mstatus, 0x8
         ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
         neg               a3, a1
         sd                a3, 0x0(a0)
-        csrw              mstatus, a2
+        csrs              mstatus, a2
         mv                a0, a1
         ret
 
@@ -5615,90 +5965,100 @@ asm_test::fetch_not::bool::release:
 asm_test::fetch_sub::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u8::seqcst:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u8::acquire:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u8::relaxed:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u8::release:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u16::acqrel:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u16::seqcst:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u16::acquire:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u16::relaxed:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
 asm_test::fetch_sub::u16::release:
         csrrci            a3, mstatus, 0x8
         lh                a2, 0x0(a0)
+        andi              a3, a3, 0x8
         sub               a1, a2, a1
         sh                a1, 0x0(a0)
-        csrw              mstatus, a3
+        csrs              mstatus, a3
         mv                a0, a2
         ret
 
