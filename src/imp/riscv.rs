@@ -8,6 +8,10 @@ at all on such targets. https://github.com/rust-lang/rust/pull/114499)
 
 Also, optionally provides RMW implementation when Zaamo extension or force-amo feature is enabled.
 
+If A extension is not available but Zalrsc or Zacas extension is available, LLVM can implement all
+atomic operations using it (https://github.com/llvm/llvm-project/commit/70f70390bb83a383fcb88ea843adbc4edf6ee34b),
+so this module contains no code for these extensions.
+
 See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
 detailed description of the atomic and synchronize instructions in this architecture:
 https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#risc-v
@@ -25,8 +29,6 @@ Refs:
 
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
-
-// TODO: Zacas/Zalrsc extension
 
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
