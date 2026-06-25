@@ -140,22 +140,28 @@ mod detect;
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
     )),
 ))]
+#[cfg(target_vendor = "apple")]
+#[path = "../detect/aarch64_apple.rs"]
+mod detect;
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
+    test,
+    not(all(
+        any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
+        any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+    )),
+))]
 #[cfg(windows)]
 #[path = "../detect/aarch64_windows.rs"]
 mod detect;
 
-#[cfg(test)] // test-only (we use auxv.rs)
+#[cfg(test)] // test-only (we use auxv.rs instead)
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
 #[path = "../detect/aarch64_aa64reg.rs"]
 mod test_detect_aa64reg;
-#[cfg(test)] // test-only (unused)
-#[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(target_vendor = "apple")]
-#[path = "../detect/aarch64_apple.rs"]
-mod test_detect_apple;
-#[cfg(test)] // test-only (we use aarch64_aa64reg.rs)
+#[cfg(test)] // test-only (we use aarch64_aa64reg.rs instead)
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(target_os = "openbsd")]
 #[path = "../detect/auxv.rs"]
@@ -197,6 +203,7 @@ macro_rules! debug_assert_lse {
                 target_os = "openbsd",
                 target_os = "illumos",
                 target_os = "fuchsia",
+                target_vendor = "apple",
                 windows,
             ),
         ))]
@@ -237,6 +244,7 @@ macro_rules! debug_assert_lse2 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LSE2.
                 // target_os = "fuchsia",
+                target_vendor = "apple",
                 windows,
             ),
         ))]
@@ -280,6 +288,7 @@ macro_rules! debug_assert_lse128 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LSE128.
                 // target_os = "fuchsia",
+                target_vendor = "apple",
                 windows,
             ),
         ))]
@@ -323,6 +332,7 @@ macro_rules! debug_assert_rcpc3 {
                 target_os = "illumos",
                 // These don't support detection of FEAT_LRCPC3.
                 // target_os = "fuchsia",
+                target_vendor = "apple",
                 windows,
             ),
         ))]
@@ -526,6 +536,7 @@ cfg_sel!({
             target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
+            target_vendor = "apple",
             windows,
         ),
     ))]
@@ -907,6 +918,7 @@ cfg_sel!({
             target_os = "illumos",
             // These don't support detection of FEAT_LSE2.
             // target_os = "fuchsia",
+            target_vendor = "apple",
             windows,
         ),
     ))]
@@ -1257,6 +1269,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             target_os = "illumos",
             target_os = "fuchsia",
+            target_vendor = "apple",
             windows,
         ),
     ))]
@@ -1395,6 +1408,7 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             target_os = "illumos",
             target_os = "fuchsia",
+            target_vendor = "apple",
             windows,
         ),
     )))]

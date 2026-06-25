@@ -13,7 +13,7 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64 | freebsd | elf_aux_info | all | Enabled by default |
 | aarch64 | netbsd | sysctlbyname | all | Enabled by default |
 | aarch64 | openbsd | sysctl | all | Enabled by default |
-| aarch64 | macos/ios/tvos/watchos/visionos | sysctlbyname | all | Currently only used in tests (see [aarch64_apple.rs](aarch64_apple.rs)) |
+| aarch64 | macos/ios/tvos/watchos/visionos | sysctlbyname | all | Enabled by default |
 | aarch64 | illumos | getisax | lse, lse2 | Enabled by default |
 | aarch64/arm64ec | windows | IsProcessorFeaturePresent | lse, lse2 | Enabled by default |
 | aarch64 | fuchsia | zx_system_get_features | lse | Enabled by default |

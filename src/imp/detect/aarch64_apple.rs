@@ -30,12 +30,11 @@ target_feature="v8.7a"
 target_feature="wfxt"
 ```
 
-Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
+Non-macOS targets doesn't always supports FEAT_LSE2, so we use this module on them.
+As used in the example in https://developer.apple.com/documentation/xcode/writing-arm64-code-for-apple-platforms#Enable-DIT-for-constant-time-cryptographic-operations,
+sysctlbyname is supported on all Apple platforms.
 
-TODO: non-macOS targets doesn't always supports FEAT_LSE2, but sysctl on them on the App Store is...?
-- https://developer.apple.com/forums/thread/9440
-- https://nabla-c0d3.github.io/blog/2015/06/16/ios9-security-privacy
-- https://github.com/rust-lang/stdarch/pull/1636
+Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 */
 
 include!("common.rs");
@@ -102,16 +101,15 @@ fn _detect(info: &mut CpuInfo) {
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
     // https://github.com/google/boringssl/commit/91e0b11eba517d83b910b20fe3740eeb39ecb37e
+    // TODO: use hw.optional.arm.caps on macOS 15+.
+    // - https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/osfmk/arm/cpu_capabilities_public.h
+    // - https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0/compiler-rt/lib/builtins/cpu_model/aarch64/fmv/apple.inc#L56
     check!(lse, "hw.optional.arm.FEAT_LSE" || "hw.optional.armv8_1_atomics");
     check!(lse2, "hw.optional.arm.FEAT_LSE2");
-    check!(lse128, "hw.optional.arm.FEAT_LSE128");
-    #[cfg(test)]
-    check!(lsfe, "hw.optional.arm.FEAT_LSFE");
     #[cfg(test)]
     check!(rcpc, "hw.optional.arm.FEAT_LRCPC");
     #[cfg(test)]
     check!(rcpc2, "hw.optional.arm.FEAT_LRCPC2");
-    check!(rcpc3, "hw.optional.arm.FEAT_LRCPC3");
 }
 
 #[allow(
@@ -130,123 +128,6 @@ mod tests {
     #[test]
     fn test_alternative() {
         use crate::utils::ffi::*;
-
-        // Call syscall using asm instead of libc.
-        // Note that macOS does not guarantee the stability of raw syscall.
-        // (And they actually changed it: https://go-review.googlesource.com/c/go/+/25495)
-        //
-        // This is currently used only for testing.
-        fn sysctlbyname32_no_libc(name: &CStr) -> Result<u32, c_int> {
-            #[cfg(not(portable_atomic_no_asm))]
-            use std::arch::asm;
-            use std::mem;
-
-            use test_helper::sys;
-
-            use crate::utils::{RegISize, RegSize};
-
-            // Refs: https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/libsyscall/custom/SYS.h#L427
-            #[inline]
-            unsafe fn sysctl(
-                name: *const c_int,
-                name_len: c_uint,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *const c_void,
-                new_len: c_size_t,
-            ) -> Result<c_int, c_int> {
-                // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/osfmk/mach/i386/syscall_sw.h#L158
-                #[inline]
-                const fn syscall_construct_unix(n: u64) -> u64 {
-                    const SYSCALL_CLASS_UNIX: u64 = 2;
-                    const SYSCALL_CLASS_SHIFT: u64 = 24;
-                    const SYSCALL_CLASS_MASK: u64 = 0xFF << SYSCALL_CLASS_SHIFT;
-                    const SYSCALL_NUMBER_MASK: u64 = !SYSCALL_CLASS_MASK;
-                    (SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT) | (SYSCALL_NUMBER_MASK & n)
-                }
-                // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/bsd/kern/syscalls.master#L298
-                let mut n = syscall_construct_unix(202);
-                let arg1 = ptr_reg!(name);
-                let arg2 = name_len as RegSize;
-                let arg3 = ptr_reg!(old_p);
-                let arg4 = ptr_reg!(old_len_p);
-                let arg5 = ptr_reg!(new_p);
-                let arg6 = new_len as RegSize;
-                let r: RegISize;
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    asm!(
-                        "svc 0x80", // #SWI_SYSCALL https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/osfmk/mach/arm/vm_param.h#L417
-                        "b.cc 2f",
-                        "mov x16, x0",
-                        "mov x0, #-1",
-                        "2:",
-                        inout("x16") n,
-                        inout("x0") arg1 => r,
-                        inout("x1") arg2 => _,
-                        in("x2") arg3,
-                        in("x3") arg4,
-                        in("x4") arg5,
-                        in("x5") arg6,
-                        // Do not use `preserves_flags` because AArch64 Darwin syscalls modify the condition flags.
-                        options(nostack),
-                    );
-                }
-                #[allow(clippy::cast_possible_truncation)]
-                if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
-            }
-            // https://github.com/apple-oss-distributions/Libc/blob/af11da5ca9d527ea2f48bb7efbd0f0f2a4ea4812/gen/FreeBSD/sysctlbyname.c
-            unsafe fn sysctlbyname(
-                name: &CStr,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *mut c_void,
-                new_len: c_size_t,
-            ) -> Result<c_int, c_int> {
-                let mut real_oid: [c_int; sys::CTL_MAXNAME as usize + 2] = unsafe { mem::zeroed() };
-
-                // Note that this is undocumented API.
-                // Although FreeBSD defined it in sys/sysctl.h since https://github.com/freebsd/freebsd-src/commit/382e01c8dc7f328f46c61c82a29222f432f510f7
-                let mut name2oid_oid: [c_int; 2] = [0, 3];
-
-                let mut oid_len = mem::size_of_val(&real_oid);
-                unsafe {
-                    sysctl(
-                        name2oid_oid.as_mut_ptr(),
-                        2,
-                        real_oid.as_mut_ptr().cast::<c_void>(),
-                        &mut oid_len,
-                        name.as_ptr().cast::<c_void>() as *mut c_void,
-                        name.to_bytes_with_nul().len() - 1,
-                    )?;
-                }
-                oid_len /= mem::size_of::<c_int>();
-                #[allow(clippy::cast_possible_truncation)]
-                unsafe {
-                    sysctl(real_oid.as_mut_ptr(), oid_len as u32, old_p, old_len_p, new_p, new_len)
-                }
-            }
-
-            const OUT_LEN: ffi::c_size_t = mem::size_of::<u32>() as ffi::c_size_t;
-
-            let mut out = 0_u32;
-            let mut out_len = OUT_LEN;
-            // SAFETY:
-            // - `out_len` does not exceed the size of `out`.
-            // - `sysctlbyname` is thread-safe.
-            let res = unsafe {
-                sysctlbyname(
-                    name,
-                    (&mut out as *mut u32).cast::<ffi::c_void>(),
-                    &mut out_len,
-                    ptr::null_mut(),
-                    0,
-                )?
-            };
-            debug_assert_eq!(res, 0);
-            debug_assert_eq!(out_len, OUT_LEN);
-            Ok(out)
-        }
 
         // Call sysctl command instead of libc API.
         //
@@ -292,10 +173,8 @@ mod tests {
                 );
             }
             if let Some(res) = res {
-                assert_eq!(res, sysctlbyname32_no_libc(name).unwrap());
                 assert_eq!(res, sysctl_output.field(name).unwrap());
             } else {
-                assert_eq!(sysctlbyname32_no_libc(name).unwrap_err(), libc::ENOENT);
                 assert!(sysctl_output.field(name).is_none());
             }
         }

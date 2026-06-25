@@ -103,7 +103,6 @@ lqarx
 lrcpc
 lsfe
 lwsync
-MAXNAME
 maxu
 mcpu
 memcheck
