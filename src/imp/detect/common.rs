@@ -42,13 +42,6 @@ pub(crate) fn detect() -> CpuInfo {
     if !cfg!(portable_atomic_test_detect_false) {
         _detect(&mut info);
     }
-    {
-        // Avoid store/CAS if the cache is already updated.
-        let info = CpuInfo(CACHE.load(Ordering::Relaxed));
-        if info.0 != 0 {
-            return info;
-        }
-    }
     if cfg!(any(
         all(
             target_arch = "x86_64",
