@@ -8,15 +8,22 @@ instructions that were not available on the M1 but are now available on the
 latest Apple hardware and this library currently wants to use:
 
 ```console
-$ LC_ALL=C comm -23 <(rustc --print cfg --target aarch64-apple-darwin -C target-cpu=apple-m4 | grep -F target_feature) <(rustc --print cfg --target aarch64-apple-darwin | grep -F target_feature)
+$ LC_ALL=C comm -23 <(rustc --print cfg --target aarch64-apple-darwin -C target-cpu=apple-m5 | grep -F target_feature) <(rustc --print cfg --target aarch64-apple-darwin | grep -F target_feature)
 target_feature="bf16"
 target_feature="bti"
+target_feature="cssc"
 target_feature="ecv"
+target_feature="hbc"
 target_feature="i8mm"
+target_feature="mte"
 target_feature="sme"
+target_feature="sme-b16b16"
+target_feature="sme-f16f16"
 target_feature="sme-f64f64"
 target_feature="sme-i16i64"
 target_feature="sme2"
+target_feature="sme2p1"
+target_feature="sve-b16b16"
 target_feature="v8.5a"
 target_feature="v8.6a"
 target_feature="v8.7a"
@@ -256,13 +263,8 @@ mod tests {
             fn field(&self, name: &CStr) -> Option<u32> {
                 let name = name.to_bytes_with_nul();
                 let name = str::from_utf8(&name[..name.len() - 1]).unwrap();
-                Some(
-                    self.0
-                        .lines()
-                        .find_map(|s| s.strip_prefix(&format!("{}: ", name)))?
-                        .parse()
-                        .unwrap(),
-                )
+                let prefix = format!("{}: ", name);
+                Some(self.0.lines().find_map(|s| s.strip_prefix(&prefix))?.parse().unwrap())
             }
         }
 

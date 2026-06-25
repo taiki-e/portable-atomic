@@ -40,6 +40,7 @@ cpus
 csel
 csrrci
 csrw
+cssc
 cxchg
 cxchgweak
 devkitc
