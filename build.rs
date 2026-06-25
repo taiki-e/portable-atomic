@@ -331,7 +331,9 @@ fn main() {
                     strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb")).unwrap();
                 subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
                 subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
-                subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
+                let mut i = subarch.splitn(2, '.');
+                subarch = i.next().unwrap();
+                let suffix = i.next().unwrap_or_default(); // .base/.main suffix
                 let mut known = true;
                 // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
                 let mut mclass = false;
@@ -372,6 +374,7 @@ fn main() {
                         // That said, LLVM handles thumbv8m.main without v8m like v6m, not v7m: https://godbolt.org/z/Ph96v9zae
                         // TODO: Armv9-M has not yet been released,
                         // so it is not clear how it will be handled here.
+                        v7 = suffix == "main";
                         (false, true)
                     } else {
                         (true, false)
