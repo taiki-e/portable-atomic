@@ -45,6 +45,16 @@ use core::{mem, ptr};
 mod ffi {
     pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_void};
 
+    #[cfg(test)] // test-only
+    sys_const!({
+        // https://github.com/apple-oss-distributions/xnu/blob/xnu-12377.121.6/osfmk/arm/cpu_capabilities_public.h
+        pub(crate) const CAP_BIT_FEAT_LSE: usize = 6;
+        pub(crate) const CAP_BIT_FEAT_LRCPC: usize = 15;
+        pub(crate) const CAP_BIT_FEAT_LRCPC2: usize = 16;
+        pub(crate) const CAP_BIT_FEAT_LSE2: usize = 30;
+        pub(crate) const CAP_BIT_NB: usize = 92;
+    });
+
     sys_fn!({
         extern "C" {
             // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname
@@ -102,9 +112,8 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
     // Query both names in case future versions of macOS remove the old name.
     // https://github.com/golang/go/commit/c15593197453b8bf90fc3a9080ba2afeaf7934ea
     // https://github.com/google/boringssl/commit/91e0b11eba517d83b910b20fe3740eeb39ecb37e
-    // TODO: use hw.optional.arm.caps on macOS 15+.
-    // - https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/osfmk/arm/cpu_capabilities_public.h
-    // - https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0/compiler-rt/lib/builtins/cpu_model/aarch64/fmv/apple.inc#L56
+    // hw.optional.arm.caps is available on macOS 15+.
+    // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0/compiler-rt/lib/builtins/cpu_model/aarch64/fmv/apple.inc#L56
     check!(lse, "hw.optional.arm.FEAT_LSE" || "hw.optional.armv8_1_atomics");
     check!(lse2, "hw.optional.arm.FEAT_LSE2");
     #[cfg(test)]
@@ -131,6 +140,25 @@ mod tests {
     fn test_alternative() {
         use crate::utils::ffi::*;
 
+        const CAPS_LEN: usize = (ffi::CAP_BIT_NB + 63) / 64;
+        fn arm_caps(caps: &mut [u64; CAPS_LEN]) -> bool {
+            let mut caps_len = CAPS_LEN * 8;
+            // SAFETY:
+            // - name a valid C string.
+            // - `caps_len` does not exceed the size of `caps`.
+            // - `sysctlbyname` is thread-safe.
+            let res = unsafe {
+                ffi::sysctlbyname(
+                    c!("hw.optional.arm.caps").as_ptr(),
+                    caps.as_mut_ptr().cast::<ffi::c_void>(),
+                    &mut caps_len,
+                    ptr::null_mut(),
+                    0,
+                )
+            };
+            res == 0
+        }
+
         // Call sysctl command instead of libc API.
         //
         // This is used only for testing.
@@ -151,16 +179,18 @@ mod tests {
             }
         }
 
+        let mut caps = [0_u64; CAPS_LEN];
+        let has_caps = arm_caps(&mut caps);
         let sysctl_output = SysctlHwOptionalOutput::new();
-        for (name, expected_on_macos) in [
-            (c!("hw.optional.arm.FEAT_LSE"), Some(1)),
-            (c!("hw.optional.armv8_1_atomics"), Some(1)),
-            (c!("hw.optional.arm.FEAT_LSE2"), Some(1)),
-            (c!("hw.optional.arm.FEAT_LSE128"), None),
-            (c!("hw.optional.arm.FEAT_LSFE"), None),
-            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1)),
-            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1)),
-            (c!("hw.optional.arm.FEAT_LRCPC3"), None),
+        for (name, expected_on_macos, cap_bit) in [
+            (c!("hw.optional.arm.FEAT_LSE"), Some(1), ffi::CAP_BIT_FEAT_LSE),
+            (c!("hw.optional.armv8_1_atomics"), Some(1), ffi::CAP_BIT_FEAT_LSE),
+            (c!("hw.optional.arm.FEAT_LSE2"), Some(1), ffi::CAP_BIT_FEAT_LSE2),
+            (c!("hw.optional.arm.FEAT_LSE128"), None, 0),
+            (c!("hw.optional.arm.FEAT_LSFE"), None, 0),
+            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1), ffi::CAP_BIT_FEAT_LRCPC),
+            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1), ffi::CAP_BIT_FEAT_LRCPC2),
+            (c!("hw.optional.arm.FEAT_LRCPC3"), None, 0),
         ] {
             let res = sysctlbyname32(name);
             if res.is_none() {
@@ -176,6 +206,9 @@ mod tests {
             }
             if let Some(res) = res {
                 assert_eq!(res, sysctl_output.field(name).unwrap());
+                if has_caps {
+                    assert_eq!(caps[cap_bit / 64] & (1 << (cap_bit & 63)) != 0, res != 0);
+                }
             } else {
                 assert!(sysctl_output.field(name).is_none());
             }
