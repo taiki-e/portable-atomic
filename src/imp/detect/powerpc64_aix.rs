@@ -39,11 +39,12 @@ mod ffi {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     // SAFETY: calling getsystemcfg is safe.
     let impl_ = unsafe { ffi::getsystemcfg(ffi::SC_IMPL) };
     if impl_ == ffi::c_ulong::MAX {
-        return;
+        return info;
     }
     // Check both POWER_8 and later ISAs (which are superset of POWER_8) because
     // AIX currently doesn't set POWER_8 when POWER_9 is set.
@@ -51,4 +52,5 @@ fn _detect(info: &mut CpuInfo) {
     if impl_ & (ffi::POWER_8 | ffi::POWER_9 | ffi::POWER_10) != 0 {
         info.set(CpuInfoFlag::quadword_atomics);
     }
+    info
 }

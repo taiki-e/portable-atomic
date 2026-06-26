@@ -51,7 +51,8 @@ struct AA64Reg {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     let AA64Reg {
         aa64isar0,
         aa64isar1,
@@ -117,6 +118,7 @@ fn _detect(info: &mut CpuInfo) {
     if extract(aa64mmfr2, 35, 32) >= 0b0001 {
         info.set(CpuInfoFlag::lse2);
     }
+    info
 }
 
 fn extract(x: u64, high: usize, low: usize) -> u64 {

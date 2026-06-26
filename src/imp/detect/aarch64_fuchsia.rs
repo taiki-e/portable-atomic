@@ -48,7 +48,8 @@ fn zx_system_get_features(kind: u32) -> u32 {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     let features = zx_system_get_features(ffi::ZX_FEATURE_KIND_CPU);
     macro_rules! check {
         ($flag:ident, $bit:ident) => {
@@ -58,6 +59,7 @@ fn _detect(info: &mut CpuInfo) {
         };
     }
     check!(lse, ZX_ARM64_FEATURE_ISA_ATOMICS);
+    info
 }
 
 #[allow(

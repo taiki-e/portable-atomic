@@ -35,7 +35,8 @@ mod ffi {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     const OUT_LEN: ffi::c_uint = 2;
     let mut out = [0_u32; OUT_LEN as usize];
     // SAFETY: the pointer is valid because we got it from a reference.
@@ -57,4 +58,5 @@ fn _detect(info: &mut CpuInfo) {
     #[cfg(test)]
     check!(v2, rcpc2, AV_AARCH64_2_ILRCPC);
     check!(v2, lse2, AV_AARCH64_2_LSE2);
+    info
 }

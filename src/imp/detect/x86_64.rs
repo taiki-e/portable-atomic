@@ -51,7 +51,8 @@ fn __cpuid(leaf: u32) -> CpuidResult {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     let CpuidResult { ecx: proc_info_ecx, .. } = __cpuid(1);
 
     // https://github.com/rust-lang/rust/blob/1.92.0/library/std_detect/src/detect/os/x86.rs#L104
@@ -79,6 +80,7 @@ fn _detect(info: &mut CpuInfo) {
             }
         }
     }
+    info
 }
 
 #[allow(

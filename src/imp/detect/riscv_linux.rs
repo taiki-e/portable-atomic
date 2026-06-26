@@ -174,7 +174,8 @@ fn riscv_hwprobe(out: &mut [ffi::riscv_hwprobe]) -> bool {
 }
 
 #[cold]
-fn _detect(info: &mut CpuInfo) {
+#[must_use]
+fn _detect(mut info: CpuInfo) -> CpuInfo {
     let mut out = [
         ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_BASE_BEHAVIOR, value: 0 },
         ffi::riscv_hwprobe { key: ffi::RISCV_HWPROBE_KEY_IMA_EXT_0, value: 0 },
@@ -198,6 +199,7 @@ fn _detect(info: &mut CpuInfo) {
         #[cfg(test)]
         check!(zalasr, RISCV_HWPROBE_EXT_ZALASR);
     }
+    info
 }
 
 #[allow(

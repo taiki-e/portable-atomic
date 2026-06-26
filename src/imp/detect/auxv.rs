@@ -564,7 +564,8 @@ mod arch {
     });
 
     #[cold]
-    pub(super) fn _detect(info: &mut CpuInfo) {
+    #[must_use]
+    pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
         #[cfg(target_os = "android")]
         {
             // Samsung Exynos 9810 has a bug that big and little cores have different
@@ -582,7 +583,7 @@ mod arch {
             // On Exynos, ro.arch is not available on Android 12+, but it is fine
             // because Android 9+ includes the fix.
             if len > 0 && arch.starts_with(b"exynos9810") {
-                return;
+                return info;
             }
         }
 
@@ -615,6 +616,7 @@ mod arch {
                 check!(hwcap3, lsfe, HWCAP3_LSFE);
             }
         }
+        info
     }
 }
 #[cfg(target_arch = "arm")]
@@ -642,7 +644,8 @@ mod arch {
     });
 
     #[cold]
-    pub(crate) fn _detect(info: &mut CpuInfo) {
+    #[must_use]
+    pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
         macro_rules! check {
             ($x:ident, $flag:ident, $($bit:ident) ||+) => {
                 if $x & ($($bit) |+) != 0 {
@@ -658,6 +661,7 @@ mod arch {
         let hwcap = os::getauxval(ffi::AT_HWCAP);
         #[cfg(test)]
         check!(hwcap, lpae, HWCAP_LPAE);
+        info
     }
 }
 #[cfg(target_arch = "powerpc64")]
@@ -706,7 +710,8 @@ mod arch {
     });
 
     #[cold]
-    pub(super) fn _detect(info: &mut CpuInfo) {
+    #[must_use]
+    pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
         let hwcap = os::getauxval(ffi::AT_HWCAP);
         if hwcap & PPC_FEATURE_BOOKE != 0 {
             // quadword-atomics (Load/Store Quadword category in ISA 2.07) is requirement of ISA 2.07
@@ -715,7 +720,7 @@ mod arch {
             // BookE processors that appear to be supported on these platforms.)
             // Refs: Appendix B "Platform Support Requirements" of Power ISA 2.07B
             // https://ibm.ent.box.com/s/jd5w15gz301s5b5dt375mshpq9c3lh4u
-            return;
+            return info;
         }
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
         // Check both 2_07 and later ISAs (which are superset of 2_07) because
@@ -727,6 +732,7 @@ mod arch {
         if hwcap2 & isa_2_07_or_later != 0 {
             info.set(CpuInfoFlag::quadword_atomics);
         }
+        info
     }
 }
 

@@ -40,7 +40,7 @@ pub(crate) fn detect() -> CpuInfo {
     // Note: detect_false cfg is intended to make it easy for developers to test
     // cases where features usually available is not available, and is not a public API.
     if !cfg!(portable_atomic_test_detect_false) {
-        _detect(&mut info);
+        info = _detect(info);
     }
     if cfg!(any(
         all(
