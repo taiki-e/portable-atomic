@@ -50,6 +50,8 @@ mod test_detect_auxv;
 use core::arch::asm;
 use core::{mem, sync::atomic::Ordering};
 
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
 use crate::utils::{Pair, U64};
 
 // https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/arm/kernel_user_helpers.rst
@@ -119,7 +121,7 @@ macro_rules! select_atomic {
         #[inline]
         unsafe fn $name($dst: *mut u64 $(, $($arg)*)?, _: Ordering) $(-> $ret_ty)? {
             unsafe fn kuser_cmpxchg64_fn($dst: *mut u64 $(, $($arg)*)?) $(-> $ret_ty)? {
-                debug_assert!($dst as usize % 8 == 0);
+                debug_assert!($dst.addr() % 8 == 0);
                 debug_assert!(has_kuser_cmpxchg64());
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
@@ -189,7 +191,7 @@ unsafe fn atomic_compare_exchange(
     _: Ordering,
 ) -> Result<u64, u64> {
     unsafe fn kuser_cmpxchg64_fn(dst: *mut u64, old: u64, new: u64) -> (u64, bool) {
-        debug_assert!(dst as usize % 8 == 0);
+        debug_assert!(dst.addr() % 8 == 0);
         debug_assert!(has_kuser_cmpxchg64());
         // SAFETY: the caller must uphold the safety contract.
         unsafe {

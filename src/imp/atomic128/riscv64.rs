@@ -40,6 +40,8 @@ mod detect;
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
 use crate::utils::{Pair, U128};
 
 macro_rules! debug_assert_zacas {
@@ -156,7 +158,7 @@ unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
 }
 #[inline]
 unsafe fn atomic_load_zacas(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_zacas!();
     let (out_lo, out_hi);
 
@@ -296,7 +298,7 @@ unsafe fn atomic_compare_exchange_zacas(
     success: Ordering,
     failure: Ordering,
 ) -> (u128, bool) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_zacas!();
     let order = crate::utils::upgrade_success_ordering(success, failure);
     let old = U128 { whole: old };

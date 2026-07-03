@@ -2112,6 +2112,9 @@ macro_rules! __test_atomic_int_pub {
     ($atomic_type:ty, $int_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $int_type);
         use std::boxed::Box;
+
+        #[allow(unused_imports)]
+        use sptr::Strict as _; // for old rustc
         #[test]
         fn fetch_update() {
             // TODO(gcc): failure
@@ -2176,7 +2179,7 @@ macro_rules! __test_atomic_int_pub {
 
             unsafe {
                 let ptr: *mut Align16<$int_type> = Box::into_raw(Box::new(Align16(0)));
-                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                assert!(ptr.addr() % mem::align_of::<$atomic_type>() == 0);
                 {
                     let a = <$atomic_type>::from_ptr(ptr.cast::<$int_type>());
                     *a.as_ptr() = 1;
@@ -2228,6 +2231,9 @@ macro_rules! __test_atomic_float_pub {
     ($atomic_type:ty, $float_type:ident) => {
         __test_atomic_pub_common!($atomic_type, $float_type);
         use std::boxed::Box;
+
+        #[allow(unused_imports)]
+        use sptr::Strict as _; // for old rustc
         #[test]
         fn fetch_update() {
             let a = <$atomic_type>::new(7.);
@@ -2273,7 +2279,7 @@ macro_rules! __test_atomic_float_pub {
 
             unsafe {
                 let ptr: *mut Align16<$float_type> = Box::into_raw(Box::new(Align16(0.)));
-                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                assert!(ptr.addr() % mem::align_of::<$atomic_type>() == 0);
                 {
                     let a = <$atomic_type>::from_ptr(ptr.cast::<$float_type>());
                     *a.as_ptr() = 1.;
@@ -2288,6 +2294,9 @@ macro_rules! __test_atomic_bool_pub {
     ($atomic_type:ty) => {
         __test_atomic_pub_common!($atomic_type, bool);
         use std::boxed::Box;
+
+        #[allow(unused_imports)]
+        use sptr::Strict as _; // for old rustc
         #[test]
         fn fetch_nand() {
             let a = <$atomic_type>::new(true);
@@ -2395,7 +2404,7 @@ macro_rules! __test_atomic_bool_pub {
 
             unsafe {
                 let ptr: *mut bool = Box::into_raw(Box::new(false));
-                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                assert!(ptr.addr() % mem::align_of::<$atomic_type>() == 0);
                 {
                     let a = <$atomic_type>::from_ptr(ptr);
                     *a.as_ptr() = true;
@@ -2464,7 +2473,7 @@ macro_rules! __test_atomic_ptr_pub {
 
             unsafe {
                 let ptr: *mut Align16<*mut u8> = Box::into_raw(Box::new(Align16(ptr::null_mut())));
-                assert!(ptr as usize % mem::align_of::<$atomic_type>() == 0);
+                assert!(ptr.addr() % mem::align_of::<$atomic_type>() == 0);
                 {
                     let a = <$atomic_type>::from_ptr(ptr.cast::<*mut u8>());
                     *a.as_ptr() = ptr::null_mut::<u8>().wrapping_add(1);

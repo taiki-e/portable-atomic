@@ -51,6 +51,8 @@ use core::arch::asm;
 use core::arch::x86_64::__m128i;
 use core::sync::atomic::Ordering;
 
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
 use crate::utils::{Pair, U128};
 
 // Asserts that the function is called in the correct context.
@@ -113,7 +115,7 @@ macro_rules! ptr_modifier {
 )]
 #[inline]
 unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_cmpxchg16b!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -194,7 +196,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 #[target_feature(enable = "avx")]
 #[inline]
 unsafe fn _atomic_load_vmovdqa(src: *mut u128) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_cmpxchg16b_avx!();
 
     // SAFETY: the caller must uphold the safety contract.
@@ -218,7 +220,7 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128) -> u128 {
 #[target_feature(enable = "avx")]
 #[inline]
 unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_cmpxchg16b_avx!();
 
     // SAFETY: the caller must uphold the safety contract.
@@ -366,7 +368,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
 )]
 #[inline]
 unsafe fn _atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_cmpxchg16b!();
 
     // SAFETY: the caller must guarantee that `src` is valid for both writes and
@@ -546,7 +548,7 @@ use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 )]
 #[inline]
 unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_cmpxchg16b!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -627,7 +629,7 @@ macro_rules! atomic_rmw_cas_3 {
         )]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             debug_assert_cmpxchg16b!();
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
@@ -705,7 +707,7 @@ macro_rules! atomic_rmw_cas_2 {
         )]
         #[inline]
         unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             debug_assert_cmpxchg16b!();
             // SAFETY: the caller must guarantee that `dst` is valid for both writes and
             // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.

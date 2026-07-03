@@ -171,6 +171,8 @@ mod test_detect_auxv;
 use core::arch::asm;
 use core::sync::atomic::Ordering;
 
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
 use crate::utils::{Pair, U128};
 
 #[cfg(any(
@@ -645,7 +647,7 @@ cfg_sel!({
 ))]
 #[inline]
 unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_lse2!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for reads,
@@ -712,7 +714,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
 ))]
 #[inline]
 unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_lse2!();
     debug_assert_rcpc3!();
 
@@ -785,7 +787,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
 unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     debug_assert_lse!();
 
     // SAFETY: the caller must uphold the safety contract.
@@ -824,7 +826,7 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
 ))]
 #[inline]
 unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -1061,7 +1063,7 @@ cfg_sel!({
 ))]
 #[inline]
 unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_lse2!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for writes,
@@ -1136,7 +1138,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
 ))]
 #[inline]
 unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_lse2!();
     debug_assert_rcpc3!();
 
@@ -1195,7 +1197,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
 ))]
 #[inline]
 unsafe fn _atomic_store_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -1430,7 +1432,7 @@ unsafe fn _atomic_compare_exchange_casp(
     success: Ordering,
     failure: Ordering,
 ) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_lse!();
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
@@ -1472,7 +1474,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     success: Ordering,
     failure: Ordering,
 ) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -1581,7 +1583,7 @@ cfg_sel!({
 ))]
 #[inline]
 unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_lse128!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
@@ -1632,7 +1634,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
 unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     debug_assert_lse!();
 
     // SAFETY: the caller must uphold the safety contract.
@@ -1685,7 +1687,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
 ))]
 #[inline]
 unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -1739,7 +1741,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
         ))]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
                 let val = U128 { whole: val };
@@ -1791,7 +1793,7 @@ macro_rules! atomic_rmw_cas_3 {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             debug_assert_lse!();
             // SAFETY: the caller must uphold the safety contract.
             // cfg guarantee that the CPU supports FEAT_LSE.
@@ -1863,7 +1865,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
         ))]
         #[inline]
         unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
                 let (mut prev_lo, mut prev_hi);
@@ -1911,7 +1913,7 @@ macro_rules! atomic_rmw_cas_2 {
         #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
         #[inline]
         unsafe fn $name(dst: *mut u128, order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             debug_assert_lse!();
             // SAFETY: the caller must uphold the safety contract.
             // cfg guarantee that the CPU supports FEAT_LSE.
@@ -1995,7 +1997,7 @@ atomic_rmw_cas_3! {
 #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
 #[inline]
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
@@ -2071,7 +2073,7 @@ atomic_rmw_cas_3! {
 #[cfg(any(target_feature = "lse128", portable_atomic_target_feature = "lse128"))]
 #[inline]
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
     // reads, 16-byte aligned, that there are no concurrent non-atomic operations,

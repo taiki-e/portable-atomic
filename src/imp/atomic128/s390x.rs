@@ -33,6 +33,8 @@ include!("macros.rs");
 
 use core::{arch::asm, sync::atomic::Ordering};
 
+#[cfg(portable_atomic_no_strict_provenance)]
+use crate::utils::ptr::PtrExt as _;
 use crate::utils::{Pair, U128};
 
 // bcr 14,0 requires fast-BCR-serialization facility added in arch9 (z196).
@@ -105,7 +107,7 @@ fn extract_cc(r: i64) -> bool {
 
 #[inline]
 unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
-    debug_assert!(src as usize % 16 == 0);
+    debug_assert!(src.addr() % 16 == 0);
     let (out_hi, out_lo);
 
     // SAFETY: the caller must uphold the safety contract.
@@ -125,7 +127,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
 
 #[inline]
 unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     let val = U128 { whole: val };
 
     // SAFETY: the caller must uphold the safety contract.
@@ -160,7 +162,7 @@ unsafe fn atomic_compare_exchange(
     _success: Ordering,
     _failure: Ordering,
 ) -> Result<u128, u128> {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     let old = U128 { whole: old };
     let new = U128 { whole: new };
     let (prev_hi, prev_lo);
@@ -243,7 +245,7 @@ where
 
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
-    debug_assert!(dst as usize % 16 == 0);
+    debug_assert!(dst.addr() % 16 == 0);
     let val = U128 { whole: val };
     let (mut prev_hi, mut prev_lo);
 
@@ -287,7 +289,7 @@ macro_rules! atomic_rmw_cas_3 {
     ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             let val = U128 { whole: val };
             let (mut prev_hi, mut prev_lo);
 
@@ -330,7 +332,7 @@ macro_rules! atomic_rmw_cas_2 {
     ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
         unsafe fn $name(dst: *mut u128, _order: Ordering) -> u128 {
-            debug_assert!(dst as usize % 16 == 0);
+            debug_assert!(dst.addr() % 16 == 0);
             let (mut prev_hi, mut prev_lo);
 
             // SAFETY: the caller must uphold the safety contract.
