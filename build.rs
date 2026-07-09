@@ -364,8 +364,7 @@ fn main() {
                 }
                 let mut v6 = known && subarch.starts_with("v6");
                 let mut v7 = known && subarch.starts_with("v7");
-                let (v8, v8m) = if known && (subarch.starts_with("v8") || subarch.starts_with("v9"))
-                {
+                if known && (subarch.starts_with("v8") || subarch.starts_with("v9")) {
                     // Armv8-M is not considered as v8 by LLVM.
                     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
                     if mclass {
@@ -374,16 +373,12 @@ fn main() {
                         // That said, LLVM handles thumbv8m.main without v8m like v6m, not v7m: https://godbolt.org/z/Ph96v9zae
                         // TODO: Armv9-M has not yet been released,
                         // so it is not clear how it will be handled here.
+                        v6 = true;
                         v7 = suffix == "main";
-                        (false, true)
                     } else {
-                        (true, false)
+                        v7 = true;
                     }
-                } else {
-                    (false, false)
-                };
-                v7 |= v8;
-                v6 |= v8m;
+                }
                 v6 |= target_feature_fallback("v7", v7);
                 target_feature_fallback("v6", v6);
                 target_feature_fallback("mclass", mclass);
