@@ -7,10 +7,9 @@ use core::{
     sync::atomic::{self, AtomicU32, Ordering},
 };
 
-use super::utils::{Backoff, sc_fence};
+use super::utils::Backoff;
 #[cfg(portable_atomic_unsafe_assume_privileged)]
 use crate::imp::interrupt::arch as interrupt;
-use crate::utils::unlikely;
 
 pub(super) type State = u32;
 
@@ -41,10 +40,7 @@ impl SeqLock {
     ///
     /// This method should be called before optimistic reads.
     #[inline]
-    pub(super) fn optimistic_read(&self, order: Ordering) -> Option<(State, State)> {
-        if unlikely(order == Ordering::SeqCst) {
-            sc_fence();
-        }
+    pub(super) fn optimistic_read(&self) -> Option<(State, State)> {
         // The acquire loads from `state_hi` and `state_lo` synchronize with the release stores in
         // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
         //
@@ -61,7 +57,7 @@ impl SeqLock {
     /// This method should be called after optimistic reads to check whether they are valid. The
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[inline]
-    pub(super) fn validate_read(&self, stamp: (State, State), order: Ordering) -> bool {
+    pub(super) fn validate_read(&self, stamp: (State, State)) -> bool {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
         // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
         // visible.
@@ -81,21 +77,12 @@ impl SeqLock {
         // Except for the case that both `state_hi` and `state_lo` wrapped around, the following
         // condition implies that we're noticing no modification to the data after the critical
         // section of `(stamp.0, stamp.1)`.
-        let result = (state_hi, state_lo) == stamp;
-        if unlikely(order == Ordering::SeqCst) && result {
-            sc_fence();
-        }
-        result
+        (state_hi, state_lo) == stamp
     }
 
     /// Grabs the lock for writing.
     #[inline]
-    pub(super) fn write(&self, order: Ordering) -> SeqLockWriteGuard<'_> {
-        let emit_sc_fence = order == Ordering::SeqCst;
-        if unlikely(emit_sc_fence) {
-            sc_fence();
-        }
-
+    pub(super) fn write(&self) -> SeqLockWriteGuard<'_> {
         // Get current interrupt state and disable interrupts when the user
         // explicitly declares that privileged instructions are available.
         #[cfg(portable_atomic_unsafe_assume_privileged)]
@@ -115,7 +102,6 @@ impl SeqLock {
                     state_lo: previous,
                     #[cfg(portable_atomic_unsafe_assume_privileged)]
                     interrupt_state,
-                    emit_sc_fence,
                 };
             }
 
@@ -138,8 +124,6 @@ pub(super) struct SeqLockWriteGuard<'a> {
     /// The interrupt state before disabling.
     #[cfg(portable_atomic_unsafe_assume_privileged)]
     interrupt_state: interrupt::State,
-
-    emit_sc_fence: bool,
 }
 
 impl SeqLockWriteGuard<'_> {
@@ -160,10 +144,6 @@ impl SeqLockWriteGuard<'_> {
         #[cfg(portable_atomic_unsafe_assume_privileged)]
         unsafe {
             interrupt::restore(this.interrupt_state);
-        }
-
-        if unlikely(this.emit_sc_fence) {
-            sc_fence();
         }
     }
 }
@@ -192,43 +172,35 @@ impl Drop for SeqLockWriteGuard<'_> {
         unsafe {
             interrupt::restore(self.interrupt_state);
         }
-
-        if unlikely(self.emit_sc_fence) {
-            sc_fence();
-        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Ordering, SeqLock};
+    use super::SeqLock;
 
     #[test]
     fn smoke() {
-        for &order in &[Ordering::AcqRel, Ordering::SeqCst] {
-            let lock = SeqLock::new();
-            let before = lock.optimistic_read(order).unwrap();
-            assert!(lock.validate_read(before, order));
-            {
-                let _guard = lock.write(order);
-            }
-            assert!(!lock.validate_read(before, order));
-            let after = lock.optimistic_read(order).unwrap();
-            assert_ne!(before, after);
+        let lock = SeqLock::new();
+        let before = lock.optimistic_read().unwrap();
+        assert!(lock.validate_read(before));
+        {
+            let _guard = lock.write();
         }
+        assert!(!lock.validate_read(before));
+        let after = lock.optimistic_read().unwrap();
+        assert_ne!(before, after);
     }
 
     #[test]
     fn test_abort() {
-        for &order in &[Ordering::AcqRel, Ordering::SeqCst] {
-            let lock = SeqLock::new();
-            let before = lock.optimistic_read(order).unwrap();
-            {
-                let guard = lock.write(order);
-                guard.abort();
-            }
-            let after = lock.optimistic_read(order).unwrap();
-            assert_eq!(before, after, "aborted write does not update the stamp");
+        let lock = SeqLock::new();
+        let before = lock.optimistic_read().unwrap();
+        {
+            let guard = lock.write();
+            guard.abort();
         }
+        let after = lock.optimistic_read().unwrap();
+        assert_eq!(before, after, "aborted write does not update the stamp");
     }
 }
