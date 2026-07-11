@@ -625,9 +625,21 @@ cfg_sel!({
     {
         pub use self::imp::msp430::{compiler_fence, fence};
     }
+    // We have optimized fence for x86.
+    // Miri and Sanitizer do not support inline assembly.
+    #[cfg(all(
+        not(doc),
+        any(target_arch = "x86", target_arch = "x86_64"),
+        not(any(miri, portable_atomic_sanitize_thread)),
+        any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+    ))]
+    {
+        pub use core::sync::atomic::compiler_fence;
+
+        pub use self::imp::x86::fence;
+    }
     #[cfg(else)]
     {
-        #[doc(no_inline)]
         pub use core::sync::atomic::{compiler_fence, fence};
     }
 });
