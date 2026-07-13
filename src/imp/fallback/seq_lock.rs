@@ -143,6 +143,7 @@ mod tests {
         assert!(lock.validate_read(before));
         {
             let _guard = lock.write();
+            assert!(lock.optimistic_read().is_none());
         }
         assert!(!lock.validate_read(before));
         let after = lock.optimistic_read().unwrap();
@@ -155,6 +156,7 @@ mod tests {
         let before = lock.optimistic_read().unwrap();
         {
             let guard = lock.write();
+            assert!(lock.optimistic_read().is_none());
             guard.abort();
         }
         let after = lock.optimistic_read().unwrap();
