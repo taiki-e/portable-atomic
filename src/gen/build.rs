@@ -78,3 +78,9 @@ pub(crate) static NO_ATOMIC: &[&str] = &[
     "thumbv4t-none-eabi",
     "thumbv5te-none-eabi",
 ];
+
+#[rustfmt::skip]
+pub(crate) static ARM_BUT_THUMB_MODE: &[&str] = &[
+    "armv7-linux-androideabi",
+    "armv7-sony-vita-newlibeabihf",
+];

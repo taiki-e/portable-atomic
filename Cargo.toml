@@ -74,7 +74,8 @@ libc = "=0.2.163" # newer libc requires Rust 1.63
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
-    "Win32_System_Threading", # IsProcessorFeaturePresent
+    "Win32_System_LibraryLoader", # GetModuleHandleA/GetProcAddress
+    "Win32_System_Threading", # IsProcessorFeaturePresent/WaitOnAddress
 ] }
 
 [target.'cfg(valgrind)'.dev-dependencies]
@@ -102,8 +103,10 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_arch,values("xtensa"))', # 1.81+ https://github.com/rust-lang/rust/pull/125141
     'cfg(target_arch,values("amdgpu"))', # 1.86+ https://github.com/rust-lang/rust/pull/134740
     'cfg(target_arch,values("loongarch32"))', # 1.89+ https://github.com/rust-lang/rust/pull/142053
+    'cfg(target_arch,values("alpha","arc","arc64","hppa","hppa64","ia64","microblaze","nios2","or1k","sh"))', # see src/imp/fallback/wait.rs
     'cfg(target_os,values("trusty"))', # 1.82+ https://github.com/rust-lang/rust/pull/129490
     'cfg(target_os,values("psx"))', # 1.84+ https://github.com/rust-lang/rust/pull/131168
+    'cfg(target_family,values("rust9x"))', # https://github.com/rust9x/rust
     'cfg(target_env,values("psx"))', # pre-1.84 https://github.com/rust-lang/rust/pull/131168
     'cfg(target_feature,values("lse2","lse128","rcpc3"))', # 1.82+ https://github.com/rust-lang/rust/pull/128192
     'cfg(target_feature,values("quadword-atomics"))', # 1.83+ https://github.com/rust-lang/rust/pull/130873

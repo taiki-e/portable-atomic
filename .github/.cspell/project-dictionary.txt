@@ -50,8 +50,10 @@ dlsym
 ecall
 espup
 exynos
+FARPROC
 fild
 fistp
+futex
 getauxval
 getisax
 getpid
@@ -59,6 +61,7 @@ getsystemcfg
 gimli
 Halfword
 hostfwd
+hppa
 HWCAP
 hwprobe
 ILRCPC
@@ -110,6 +113,7 @@ memd
 mfcr
 mfence
 mgba
+microblaze
 midr
 minu
 miscompiles
@@ -128,6 +132,7 @@ neoverse
 netdev
 newrepo
 newtype
+nios
 nngrk
 nostartfiles
 numl
@@ -135,6 +140,7 @@ NZCV
 ooce
 osxsave
 outputdir
+PCSTR
 phdr
 picolibc
 prctl
@@ -189,8 +195,11 @@ sysctlnode
 systemsim
 tagme
 uart
+ulock
 umax
 umin
+umtx
+upstreamed
 usart
 uscat
 versatilepb
@@ -199,6 +208,7 @@ virtio
 vmlinux
 vmovdqa
 vreg
+wakeup
 wfxt
 wokwi
 xadd
