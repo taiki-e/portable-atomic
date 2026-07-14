@@ -605,10 +605,10 @@ items!({
         #[cfg(not(target_pointer_width = "16"))]
         atomic_int!(load_store_atomic, AtomicU32, u32, 4);
 
-        cfg_has_fast_atomic_64! {
+        cfg_has_fast_atomic_64!({
             atomic_int!(load_store_atomic, AtomicI64, i64, 8);
             atomic_int!(load_store_atomic, AtomicU64, u64, 8);
-        }
+        });
     });
 
     // Double or more width atomics (require fallback feature for consistency with other situations).
@@ -646,10 +646,10 @@ items!({
         not(portable_atomic_no_cfg_target_has_atomic),
         cfg(any(test, not(target_has_atomic = "64")))
     )]
-    cfg_no_fast_atomic_64! {
+    cfg_no_fast_atomic_64!({
         atomic_int!(all_critical_session, AtomicI64, i64, 8);
         atomic_int!(all_critical_session, AtomicU64, u64, 8);
-    }
+    });
     #[cfg(any(
         test,
         all(

@@ -118,6 +118,9 @@ pub(crate) use self::imp::{RegISize, RegSize};
 // and fast, so use it to implement normal sequence lock.
 //
 // See ptr_reg macro for the reason why all known 64-bit architectures are listed.
+//
+// Note: These macros are cfg_*!({ }), not cfg_*! { }.
+// An extra brace is used in input to make contents rustfmt-able.
 #[cfg(any(
     not(any(target_pointer_width = "16", target_pointer_width = "32")), // i.e., 64-bit or greater
 $(sed -E 's/^/    target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
@@ -125,12 +128,12 @@ $(sed -E 's/^/    target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 #[macro_use]
 mod fast_atomic_64_macros {
     macro_rules! cfg_has_fast_atomic_64 {
-        (\$(\$tt:tt)*) => {
+        ({\$(\$tt:tt)*}) => {
             \$(\$tt)*
         };
     }
     macro_rules! cfg_no_fast_atomic_64 {
-        (\$(\$tt:tt)*) => {};
+        ({\$(\$tt:tt)*}) => {};
     }
 }
 #[cfg(not(any(
@@ -140,10 +143,10 @@ $(sed -E 's/^/    target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 #[macro_use]
 mod fast_atomic_64_macros {
     macro_rules! cfg_has_fast_atomic_64 {
-        (\$(\$tt:tt)*) => {};
+        ({\$(\$tt:tt)*}) => {};
     }
     macro_rules! cfg_no_fast_atomic_64 {
-        (\$(\$tt:tt)*) => {
+        ({\$(\$tt:tt)*}) => {
             \$(\$tt)*
         };
     }

@@ -55,17 +55,17 @@ mod utils;
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock and reduce chunks of byte-wise atomic memcpy.
-cfg_has_fast_atomic_64! {
+cfg_has_fast_atomic_64!({
     mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU64;
     type Chunk = u64;
-}
-cfg_no_fast_atomic_64! {
+});
+cfg_no_fast_atomic_64!({
     #[path = "seq_lock_wide.rs"]
     mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU32;
     type Chunk = u32;
-}
+});
 
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
@@ -552,10 +552,10 @@ macro_rules! atomic {
         ))
     ))
 )]
-cfg_no_fast_atomic_64! {
+cfg_no_fast_atomic_64!({
     atomic!(AtomicI64, i64, 8);
     atomic!(AtomicU64, u64, 8);
-}
+});
 
 atomic!(AtomicI128, i128, 16);
 atomic!(AtomicU128, u128, 16);
@@ -564,17 +564,17 @@ atomic!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    cfg_no_fast_atomic_64! {
+    cfg_no_fast_atomic_64!({
         test_atomic_int!(i64);
         test_atomic_int!(u64);
-    }
+    });
     test_atomic_int!(i128);
     test_atomic_int!(u128);
 
     // load/store/swap implementation is not affected by signedness, so it is
     // enough to test only unsigned types.
-    cfg_no_fast_atomic_64! {
+    cfg_no_fast_atomic_64!({
         stress_test!(u64);
-    }
+    });
     stress_test!(u128);
 }
