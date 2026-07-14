@@ -73,7 +73,7 @@ mod riscv;
     not(any(miri, portable_atomic_sanitize_thread)),
     any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
 ))]
-mod x86;
+pub(crate) mod x86;
 
 // 64-bit atomic implementations on 32-bit architectures
 #[cfg(any(target_arch = "arm", target_arch = "riscv32"))]

@@ -71,7 +71,7 @@ use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use self::{
     seq_lock::{SeqLock, SeqLockWriteGuard},
-    utils::{CachePadded, sc_fence},
+    utils::CachePadded,
 };
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
@@ -103,7 +103,7 @@ impl ScFenceGuard {
     #[inline]
     fn new(emit_sc_fence: bool) -> Option<Self> {
         if unlikely(emit_sc_fence) {
-            sc_fence();
+            crate::fence(Ordering::SeqCst);
             Some(ScFenceGuard)
         } else {
             None
@@ -113,7 +113,7 @@ impl ScFenceGuard {
 impl Drop for ScFenceGuard {
     #[inline]
     fn drop(&mut self) {
-        sc_fence();
+        crate::fence(Ordering::SeqCst);
     }
 }
 

@@ -36,6 +36,11 @@ mod tests {
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/mod.rs"]
 mod imp;
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+use core::sync::atomic::fence;
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use self::imp::x86::fence;
 #[cfg(any(
     target_arch = "x86_64",
     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")

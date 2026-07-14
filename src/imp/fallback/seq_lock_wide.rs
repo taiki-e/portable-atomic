@@ -4,7 +4,7 @@
 
 use core::{
     mem::ManuallyDrop,
-    sync::atomic::{self, AtomicU32, Ordering},
+    sync::atomic::{AtomicU32, Ordering},
 };
 
 use super::utils::Backoff;
@@ -61,7 +61,7 @@ impl SeqLock {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
         // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
         // visible.
-        atomic::fence(Ordering::Acquire);
+        crate::fence(Ordering::Acquire);
 
         // So if `state_lo` coincides with `stamp.1`, then either (1) we're noticing no modification
         // to the data after the critical section of `(stamp.0, stamp.1)`, or (2) `state_lo` wrapped
@@ -95,7 +95,7 @@ impl SeqLock {
             if previous != LOCKED {
                 // To synchronize with the acquire fence in `validate_read` via any modification to
                 // the data at the critical section of `(state_hi, previous)`.
-                atomic::fence(Ordering::Release);
+                crate::fence(Ordering::Release);
 
                 return SeqLockWriteGuard {
                     lock: self,

@@ -4,7 +4,7 @@
 
 use core::{
     mem::ManuallyDrop,
-    sync::atomic::{self, AtomicU64, Ordering},
+    sync::atomic::{AtomicU64, Ordering},
 };
 
 use super::utils::Backoff;
@@ -45,7 +45,7 @@ impl SeqLock {
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[inline]
     pub(super) fn validate_read(&self, stamp: State) -> bool {
-        atomic::fence(Ordering::Acquire);
+        crate::fence(Ordering::Acquire);
         self.state.load(Ordering::Relaxed) == stamp
     }
 
@@ -62,7 +62,7 @@ impl SeqLock {
             let previous = self.state.swap(LOCKED, Ordering::Acquire);
 
             if previous != LOCKED {
-                atomic::fence(Ordering::Release);
+                crate::fence(Ordering::Release);
 
                 return SeqLockWriteGuard {
                     lock: self,
