@@ -414,6 +414,9 @@ build() {
           armv[4-5]t* | thumbv[4-5]t* | thumbv6m* | riscv??[ie]-*-none* | riscv??[ie]m-*-none* | riscv??[ie]mc-*-none* | xtensa-esp32s2-*)
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
+          xtensa-esp32*)
+            # At this time, these chips require critical-section to be enabled, which is incompatible with the single-core and privileged assumptions.
+            ;;
         esac
       fi
       # TODO: handle SIGILL and ERR
