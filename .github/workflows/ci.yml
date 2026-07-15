@@ -170,19 +170,23 @@ jobs:
       # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_gcc/src/builder.rs#L1916
       - run: |
           rustflags="${RUSTFLAGS:-}"
-          if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f16; then
+          if rustc --print cfg --target "${TARGET}" | grep -Fq has_reliable_f16; then
             rustflags+=' --cfg portable_atomic_unstable_f16 --cfg quickcheck_unstable_f16 --cfg rand_unstable_f16'
           fi
-          if rustc --print cfg ${TARGET:-} | grep -Fq has_reliable_f128; then
-            case "${TARGET:-}" in
-              # TODO(f128): undefined reference to `f{maximum,minimum}_numl' (symbols added in glibc 2.35)
-              *=armeb-unknown-linux-gnueabi | *=riscv32gc-unknown-linux-gnu) ;;
+          if rustc --print cfg --target "${TARGET}" | grep -Fq has_reliable_f128; then
+            case "${TARGET}" in
+              # TODO(f128):
+              # linux: undefined reference to `f{maximum,minimum}_numl' (symbols added in glibc 2.35)
+              # windows: unresolved external symbol exp2f128 referenced in function
+              armeb-unknown-linux-gnueabi | riscv32gc-unknown-linux-gnu | *-windows*) ;;
               *) rustflags+=' --cfg portable_atomic_unstable_f128 --cfg quickcheck_unstable_f128 --cfg rand_unstable_f128' ;;
             esac
           fi
           if [[ "${rustflags}" != "${RUSTFLAGS:-}" ]]; then
             printf 'RUSTFLAGS=%s\n' "${rustflags}" >>"${GITHUB_ENV}"
           fi
+        env:
+          TARGET: ${{ matrix.target }}
         if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift') && !contains(matrix.flags, 'codegen-backend=gcc')
       # TODO(gcc): for disabling some failing tests
       - run: printf 'RUSTC_CODEGEN_GCC=1\n' >>"${GITHUB_ENV}"
