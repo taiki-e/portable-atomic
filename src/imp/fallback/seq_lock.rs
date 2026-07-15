@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/seq_lock_wide.rs.
+// Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/seq_lock.rs.
 
 use core::{
     mem::ManuallyDrop,
@@ -35,6 +35,8 @@ impl SeqLock {
     /// This method should be called before optimistic reads.
     #[inline]
     pub(super) fn optimistic_read(&self) -> Option<State> {
+        // The acquire load from `state` synchronizes with the release stores in
+        // `SeqLockWriteGuard::drop` and `SeqLockWriteGuard::abort`.
         let state = self.state.load(Ordering::Acquire);
         if state == LOCKED { None } else { Some(state) }
     }
@@ -45,6 +47,9 @@ impl SeqLock {
     /// argument `stamp` should correspond to the one returned by method `optimistic_read`.
     #[inline]
     pub(super) fn validate_read(&self, stamp: State) -> bool {
+        // Thanks to the fence, if we're noticing any modification to the data at the critical
+        // section of `stamp`, then the critical section's write of 1 to state
+        // should be visible.
         crate::fence(Ordering::Acquire);
         self.state.load(Ordering::Relaxed) == stamp
     }

@@ -59,8 +59,8 @@ impl SeqLock {
     #[inline]
     pub(super) fn validate_read(&self, stamp: (State, State)) -> bool {
         // Thanks to the fence, if we're noticing any modification to the data at the critical
-        // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo should be
-        // visible.
+        // section of `(stamp.0, stamp.1)`, then the critical section's write of 1 to state_lo
+        // should be visible.
         crate::fence(Ordering::Acquire);
 
         // So if `state_lo` coincides with `stamp.1`, then either (1) we're noticing no modification
