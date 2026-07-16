@@ -12,6 +12,38 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Guarantee that `is_lock_free` to always return the same result. ([e74f384](https://github.com/taiki-e/portable-atomic/commit/e74f384efab9eae540087a20ed140dddc0d06ce7))
+
+- Fix bug in 128-bit `fetch_{min,max}` on pre-z196 s390x.  ([a6c6c4b](https://github.com/taiki-e/portable-atomic/commit/a6c6c4bdb7c1b4f9d406ebbdcc54805e5e7eec10))
+
+- Fix bug in atomic float `fetch_{add,sub,max,min}` on AArch64 when FEAT_LSFE is enabled. (There are currently no known CPUs that support FEAT_LSFE.) ([b105f9bc](https://github.com/taiki-e/portable-atomic/commit/b105f9bc612e07c6f6a07291fa2be8cba38fa5df))
+
+- Fix panic in build script when custom target with non-standard name on non-nightly rustc. ([02ca737](https://github.com/taiki-e/portable-atomic/commit/02ca7371eecd005fa1b170c12f8a0bad5e77a7fb))
+
+- Improve robustness of interrupt disable/restore on RISC-V and Xtensa. ([88cb3d5](https://github.com/taiki-e/portable-atomic/commit/88cb3d50c66569dab95cc93250bd1e4202508a65))
+
+- Optimize 128-bit CAS when FEAT_LSE is not enabled. ([671b9a89](https://github.com/taiki-e/portable-atomic/commit/671b9a89d1e324547a3f29ae09a5a306b3b54a3b))
+
+- Optimize SeqCst atomics on AArch64 Windows MSVC. ([671b9a89](https://github.com/taiki-e/portable-atomic/commit/671b9a89d1e324547a3f29ae09a5a306b3b54a3b))
+
+- Optimize 8-bit fetch_and/fetch_or/fetch_xor/fetch_not on AVR when RMW instructions available. ([6f2f11f2](https://github.com/taiki-e/portable-atomic/commit/6f2f11f243673380e8732c5c5c1e18e6a5b553ff))
+
+- Optimize 128-bit RMW on s390x. ([b8c502a9](https://github.com/taiki-e/portable-atomic/commit/b8c502a9238e9aed4e169f909b3d25c797f76cc4))
+
+- Optimize run-time CPU feature detection. ([cae7032](https://github.com/taiki-e/portable-atomic/commit/cae703222aca87d2a014372a02afb14c0b80ed32))
+
+- Enable run-time detection by default on AArch64 Apple targets. ([6c92015](https://github.com/taiki-e/portable-atomic/commit/6c920155e7645b859e6f667963c90f775e561213))
+
+- Enable run-time detection by default on AArch64 illumos. ([59e3636b](https://github.com/taiki-e/portable-atomic/commit/59e3636bbe5515121c137d3b939e2cd39b50f1a4))
+
+- aarch64: Support run-time detection of FEAT_LSE2 on Windows. ([16bc44f0](https://github.com/taiki-e/portable-atomic/commit/16bc44f07b0709828a9d2f100dccde7db5477794))
+
+- Make `portable_atomic_no_outline_atomics` cfg no-op instead of compile error on unsupported architectures. ([6b8e3eb](https://github.com/taiki-e/portable-atomic/commit/6b8e3eb3b92bd64a0a6516bf4f72feb467ccbb3d))
+
+- Improve compile-time detection of AVR target features. ([2b5a9a4f](https://github.com/taiki-e/portable-atomic/commit/2b5a9a4f6df1736f536aecade53181ca24446846))
+
+- Documentation improvements.
+
 ## [1.13.1] - 2026-01-31
 
 - Update to stabilized [PowerPC64](https://github.com/rust-lang/rust/pull/147996) inline assembly. ([92b02f8a](https://github.com/taiki-e/portable-atomic/commit/92b02f8a279327a1780cbe127d9effb2baae9b2f))
