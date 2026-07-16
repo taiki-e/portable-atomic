@@ -803,6 +803,10 @@ mod tests {
     #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
     #[test]
     fn test_dlsym_elf_aux_info() {
+        #[cfg(target_os = "openbsd")]
+        unsafe {
+            assert_eq!(libc::pledge(c!("stdio").as_ptr(), core::ptr::null()), 0);
+        }
         unsafe {
             let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
             if cfg!(target_feature = "crt-static") {
