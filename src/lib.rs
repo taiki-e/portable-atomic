@@ -2507,7 +2507,7 @@ impl<T> AtomicPtr<T> {
         self.inner.bit_set(bit, order)
     }
 
-    /// Clears the bit at the specified bit-position to 1.
+    /// Clears the bit at the specified bit-position to 0.
     ///
     /// Returns `true` if the specified bit was previously set to 1.
     ///
@@ -3757,7 +3757,7 @@ assert_eq!(foo.load(Ordering::Relaxed), 0b0001);
             }
 
             doc_comment! {
-                concat!("Clears the bit at the specified bit-position to 1.
+                concat!("Clears the bit at the specified bit-position to 0.
 
 Returns `true` if the specified bit was previously set to 1.
 
