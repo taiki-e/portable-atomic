@@ -327,56 +327,60 @@ fn main() {
                 // #[cfg(target_feature = "v7")] and others don't work on stable.
                 // armv7-unknown-linux-gnueabihf
                 //    ^^
-                let mut subarch =
-                    strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb")).unwrap();
-                subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
-                subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
-                let mut i = subarch.splitn(2, '.');
-                subarch = i.next().unwrap();
-                let suffix = i.next().unwrap_or_default(); // .base/.main suffix
-                let mut known = true;
-                // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
                 let mut mclass = false;
-                match subarch {
-                    "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8" | "v8a" | "v9" | "v9a" => {} // aclass
-                    "v7r" | "v8r" | "v9r" => {} // rclass
-                    "v6m" | "v7em" | "v7m" | "v8m" => mclass = true,
-                    // arm-linux-androideabi is v5te
-                    // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
-                    _ if target == "arm-linux-androideabi" => subarch = "v5te",
-                    // armeb-unknown-linux-gnueabi is v8 & aclass
-                    // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
-                    _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
-                    // Legacy Arm architectures (pre-v7 except v6m) don't have *class target feature.
-                    "" => subarch = "v6",
-                    "v4t" | "v5te" | "v6" | "v6k" => {}
-                    _ => {
-                        known = false;
-                        if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
-                            panic!("unrecognized Arm subarch: {}", target)
+                let mut v6 = false;
+                let mut v7 = false;
+                if let Some(mut subarch) =
+                    strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb"))
+                {
+                    subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
+                    subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
+                    let mut i = subarch.splitn(2, '.');
+                    subarch = i.next().unwrap();
+                    let suffix = i.next().unwrap_or_default(); // .base/.main suffix
+                    let mut known = true;
+                    // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
+                    match subarch {
+                        "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8" | "v8a" | "v9" | "v9a" => {} // aclass
+                        "v7r" | "v8r" | "v9r" => {} // rclass
+                        "v6m" | "v7em" | "v7m" | "v8m" => mclass = true,
+                        // arm-linux-androideabi is v5te
+                        // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
+                        _ if target == "arm-linux-androideabi" => subarch = "v5te",
+                        // armeb-unknown-linux-gnueabi is v8 & aclass
+                        // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
+                        _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
+                        // Legacy Arm architectures (pre-v7 except v6m) don't have *class target feature.
+                        "" => subarch = "v6",
+                        "v4t" | "v5te" | "v6" | "v6k" => {}
+                        _ => {
+                            known = false;
+                            if env::var_os("PORTABLE_ATOMIC_DENY_WARNINGS").is_some() {
+                                panic!("unrecognized Arm subarch: {}", target)
+                            }
+                            println!(
+                                "cargo:warning={}: unrecognized Arm subarch: {}",
+                                env!("CARGO_PKG_NAME"),
+                                target
+                            );
                         }
-                        println!(
-                            "cargo:warning={}: unrecognized Arm subarch: {}",
-                            env!("CARGO_PKG_NAME"),
-                            target
-                        );
                     }
-                }
-                let mut v6 = known && subarch.starts_with("v6");
-                let mut v7 = known && subarch.starts_with("v7");
-                if known && (subarch.starts_with("v8") || subarch.starts_with("v9")) {
-                    // Armv8-M is not considered as v8 by LLVM.
-                    // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
-                    if mclass {
-                        // Armv8-M Mainline is a superset of Armv7-M.
-                        // Armv8-M Baseline is a superset of Armv6-M.
-                        // That said, LLVM handles thumbv8m.main without v8m like v6m, not v7m: https://godbolt.org/z/Ph96v9zae
-                        // TODO: Armv9-M has not yet been released,
-                        // so it is not clear how it will be handled here.
-                        v6 = true;
-                        v7 = suffix == "main";
-                    } else {
-                        v7 = true;
+                    v6 = known && subarch.starts_with("v6");
+                    v7 = known && subarch.starts_with("v7");
+                    if known && (subarch.starts_with("v8") || subarch.starts_with("v9")) {
+                        // Armv8-M is not considered as v8 by LLVM.
+                        // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
+                        if mclass {
+                            // Armv8-M Mainline is a superset of Armv7-M.
+                            // Armv8-M Baseline is a superset of Armv6-M.
+                            // That said, LLVM handles thumbv8m.main without v8m like v6m, not v7m: https://godbolt.org/z/Ph96v9zae
+                            // TODO: Armv9-M has not yet been released,
+                            // so it is not clear how it will be handled here.
+                            v6 = true;
+                            v7 = suffix == "main";
+                        } else {
+                            v7 = true;
+                        }
                     }
                 }
                 v6 |= target_feature_fallback("v7", v7);
