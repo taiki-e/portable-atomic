@@ -203,11 +203,11 @@ unsafe fn byte_wise_atomic_load(src: *const u128) -> u128 {
     unsafe {
         let (out_hi, out_lo);
         asm!(
-            "lg {out_lo}, 8({src})", // atomic { out_lo = *src.byte_add(8) }
-            "lg {out_hi}, 0({src})", // atomic { out_hi = *src }
-            src = in(reg) src,
-            out_hi = out(reg) out_hi,
-            out_lo = out(reg) out_lo,
+            "lg %r1, 8({src})", // atomic { r1 = *src.byte_add(8) }
+            "lg %r0, 0({src})", // atomic { r0 = *src }
+            src = in(reg) ptr_reg!(src),
+            out("r0") out_hi,
+            out("r1") out_lo,
             options(pure, nostack, preserves_flags, readonly),
         );
         U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
