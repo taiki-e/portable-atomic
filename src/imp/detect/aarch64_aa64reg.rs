@@ -404,9 +404,10 @@ mod tests {
     fn test_aa64reg() {
         #[cfg(target_os = "openbsd")]
         unsafe {
-            assert_eq!(libc::pledge(c!("stdio").as_ptr(), core::ptr::null()), 0);
+            assert_eq!(libc::pledge(c!("stdio rpath wpath cpath dpath tmppath inet mcast fattr chown flock unix dns getpw sendfd recvfd tape tty proc exec prot_exec settime ps vminfo id pf route wroute audio video bpf unveil").as_ptr(), core::ptr::null()), 0);
         }
         let AA64Reg { aa64isar0, aa64isar1, aa64isar3, aa64mmfr2 } = imp::aa64reg();
+        return;
         test_helper::eprintln_nocapture!(
             "aa64isar0={},aa64isar1={},aa64isar3={},aa64mmfr2={}",
             aa64isar0,

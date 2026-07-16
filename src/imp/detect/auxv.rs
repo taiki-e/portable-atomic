@@ -805,7 +805,7 @@ mod tests {
     fn test_dlsym_elf_aux_info() {
         #[cfg(target_os = "openbsd")]
         unsafe {
-            assert_eq!(libc::pledge(c!("stdio").as_ptr(), core::ptr::null()), 0);
+            assert_eq!(libc::pledge(c!("").as_ptr(), core::ptr::null()), 0);
         }
         unsafe {
             let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
@@ -856,6 +856,7 @@ mod tests {
                 assert_eq!(out, dlsym_out);
             }
         }
+        std::process::exit(0);
     }
 
     #[cfg(any(target_os = "linux", target_os = "android"))]

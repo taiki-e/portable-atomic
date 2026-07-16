@@ -403,7 +403,7 @@ jobs:
         if: matrix.os == 'omnios'
       - uses: taiki-e/cross-platform-actions-action@6520aa58510f3aaf6a4f19095add23cf34d13c60 # neoverse-v1 # zizmor: ignore[stale-action-refs]
         with:
-          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
@@ -422,7 +422,7 @@ jobs:
               "$@"
             }
             export CI=true
-            export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+            export RUSTFLAGS="${RUSTFLAGS:-} --cfg qemu"
             # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
             case "$(uname -s)" in
               FreeBSD) retry sudo pkg install -y rust ;;
@@ -455,6 +455,7 @@ jobs:
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
             cargo test --features std --tests -- test_dlsym_elf_aux_info
+            cargo test --features std --tests -- test_aa64reg
             case "$(uname -s)" in
               FreeBSD)
                 RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
