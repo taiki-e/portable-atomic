@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-07-17
+
 - Guarantee that `is_lock_free` to always return the same result. ([e74f384](https://github.com/taiki-e/portable-atomic/commit/e74f384efab9eae540087a20ed140dddc0d06ce7))
 
 - Fix bug in 128-bit `fetch_{min,max}` on pre-z196 s390x.  ([a6c6c4b](https://github.com/taiki-e/portable-atomic/commit/a6c6c4bdb7c1b4f9d406ebbdcc54805e5e7eec10))
@@ -606,7 +608,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.13.1...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/taiki-e/portable-atomic/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/taiki-e/portable-atomic/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/taiki-e/portable-atomic/compare/v1.11.1...v1.12.0
