@@ -2769,12 +2769,11 @@ asm_test::compare_exchange::bool::release_relaxed:
         br                %r14
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2783,16 +2782,14 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::seqcst_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2801,16 +2798,14 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::acqrel_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2819,16 +2814,14 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::acqrel_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2837,16 +2830,14 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::acquire_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2855,16 +2846,14 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::relaxed_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2873,16 +2862,14 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::release_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2891,16 +2878,14 @@ asm_test::compare_exchange::u128::release_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::seqcst_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2909,16 +2894,14 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::seqcst_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2927,16 +2910,14 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::acquire_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2945,16 +2926,14 @@ asm_test::compare_exchange::u128::acquire_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::acquire_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2963,16 +2942,14 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::relaxed_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2981,16 +2958,14 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::relaxed_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -2999,16 +2974,14 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::release_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -3017,16 +2990,14 @@ asm_test::compare_exchange::u128::release_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange::u128::release_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -3035,7 +3006,6 @@ asm_test::compare_exchange::u128::release_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -4419,12 +4389,11 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4433,16 +4402,14 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::seqcst_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4451,16 +4418,14 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acqrel_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4469,16 +4434,14 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acqrel_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4487,16 +4450,14 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acquire_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4505,16 +4466,14 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::relaxed_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4523,16 +4482,14 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::release_seqcst:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4541,16 +4498,14 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::seqcst_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4559,16 +4514,14 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::seqcst_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4577,16 +4530,14 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acquire_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4595,16 +4546,14 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::acquire_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4613,16 +4562,14 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::relaxed_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4631,16 +4578,14 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::relaxed_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4649,16 +4594,14 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::release_acquire:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4667,16 +4610,14 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::compare_exchange_weak::u128::release_relaxed:
-        stmg              %r12,%r15,96(%r15)
         lg                %r0,0(%r4)
         lg                %r1,8(%r4)
-        lg                %r12,0(%r5)
-        lg                %r13,8(%r5)
-        cdsg              %r0,%r12,0(%r3)
+        lg                %r4,0(%r5)
+        lg                %r5,8(%r5)
+        cdsg              %r0,%r4,0(%r3)
         ipm               %r3
         algfi             %r3,4026531840
         lcgr              %r3,%r3
@@ -4685,7 +4626,6 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::or::u8::acqrel:
@@ -7526,73 +7466,68 @@ asm_test::swap::bool::release:
         br                %r14
 
 asm_test::swap::u128::acqrel:
-        stmg              %r12,%r15,96(%r15)
-        lg                %r12,0(%r4)
-        lg                %r13,8(%r4)
+        lg                %r0,0(%r4)
+        lg                %r5,8(%r4)
+        lgr               %r4,%r0
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
 0:
-        cdsg              %r0,%r12,0(%r3)
+        cdsg              %r0,%r4,0(%r3)
         jl                0b
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::swap::u128::seqcst:
-        stmg              %r12,%r15,96(%r15)
-        lg                %r12,0(%r4)
-        lg                %r13,8(%r4)
+        lg                %r0,0(%r4)
+        lg                %r5,8(%r4)
+        lgr               %r4,%r0
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
 0:
-        cdsg              %r0,%r12,0(%r3)
+        cdsg              %r0,%r4,0(%r3)
         jl                0b
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::swap::u128::acquire:
-        stmg              %r12,%r15,96(%r15)
-        lg                %r12,0(%r4)
-        lg                %r13,8(%r4)
+        lg                %r0,0(%r4)
+        lg                %r5,8(%r4)
+        lgr               %r4,%r0
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
 0:
-        cdsg              %r0,%r12,0(%r3)
+        cdsg              %r0,%r4,0(%r3)
         jl                0b
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::swap::u128::relaxed:
-        stmg              %r12,%r15,96(%r15)
-        lg                %r12,0(%r4)
-        lg                %r13,8(%r4)
+        lg                %r0,0(%r4)
+        lg                %r5,8(%r4)
+        lgr               %r4,%r0
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
 0:
-        cdsg              %r0,%r12,0(%r3)
+        cdsg              %r0,%r4,0(%r3)
         jl                0b
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::swap::u128::release:
-        stmg              %r12,%r15,96(%r15)
-        lg                %r12,0(%r4)
-        lg                %r13,8(%r4)
+        lg                %r0,0(%r4)
+        lg                %r5,8(%r4)
+        lgr               %r4,%r0
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
 0:
-        cdsg              %r0,%r12,0(%r3)
+        cdsg              %r0,%r4,0(%r3)
         jl                0b
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
-        lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::store::u8::seqcst:
