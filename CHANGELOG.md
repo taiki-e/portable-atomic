@@ -24,6 +24,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - Improve robustness of interrupt disable/restore on RISC-V and Xtensa. ([88cb3d5](https://github.com/taiki-e/portable-atomic/commit/88cb3d50c66569dab95cc93250bd1e4202508a65))
 
+- Optimize SeqCst fence on x86. ([9127b31](https://github.com/taiki-e/portable-atomic/commit/9127b31caae0545424254b5ba6dcf5c91b7d59e6))
+
 - Optimize 128-bit CAS when FEAT_LSE is not enabled. ([671b9a89](https://github.com/taiki-e/portable-atomic/commit/671b9a89d1e324547a3f29ae09a5a306b3b54a3b))
 
 - Optimize SeqCst atomics on AArch64 Windows MSVC. ([671b9a89](https://github.com/taiki-e/portable-atomic/commit/671b9a89d1e324547a3f29ae09a5a306b3b54a3b))
