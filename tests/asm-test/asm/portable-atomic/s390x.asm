@@ -925,191 +925,116 @@ asm_test::fetch_umax::u64::release:
 
 asm_test::fetch_umax::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjh            %r12,%r0,2f
+        clgrjl            %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umax::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjh            %r12,%r0,2f
+        clgrjl            %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umax::u128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjh            %r12,%r0,2f
+        clgrjl            %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umax::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjh            %r12,%r0,2f
+        clgrjl            %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umax::u128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjh            %r12,%r0,2f
+        clgrjl            %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
@@ -1485,191 +1410,116 @@ asm_test::fetch_umin::u64::release:
 
 asm_test::fetch_umin::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjl            %r12,%r0,2f
+        clgrjh            %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umin::u128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjl            %r12,%r0,2f
+        clgrjh            %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umin::u128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjl            %r12,%r0,2f
+        clgrjh            %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umin::u128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjl            %r12,%r0,2f
+        clgrjh            %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_umin::u128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        clgrjl            %r12,%r0,2f
+        clgrjh            %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r4,%r0
-        ipm               %r14
-        clgr              %r5,%r1
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
@@ -9881,191 +9731,116 @@ asm_test::fetch_max::i64::release:
 
 asm_test::fetch_max::i128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjh             %r12,%r0,2f
+        cgrjl             %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_max::i128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjh             %r12,%r0,2f
+        cgrjl             %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_max::i128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjh             %r12,%r0,2f
+        cgrjl             %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_max::i128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjh             %r12,%r0,2f
+        cgrjl             %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_max::i128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjh             %r12,%r0,2f
+        cgrjl             %r12,%r0,1f
+        clgrjnl           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,35
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
@@ -10441,191 +10216,116 @@ asm_test::fetch_min::i64::release:
 
 asm_test::fetch_min::i128::acqrel:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjl             %r12,%r0,2f
+        cgrjh             %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_min::i128::seqcst:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjl             %r12,%r0,2f
+        cgrjh             %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_min::i128::acquire:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjl             %r12,%r0,2f
+        cgrjh             %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_min::i128::relaxed:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjl             %r12,%r0,2f
+        cgrjh             %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
 asm_test::fetch_min::i128::release:
         stmg              %r12,%r15,96(%r15)
-        lg                %r5,8(%r4)
-        lg                %r4,0(%r4)
+        lg                %r12,0(%r4)
+        lg                %r13,8(%r4)
         lg                %r1,8(%r3)
         lg                %r0,0(%r3)
-        j                 1f
 0:
-        cdsg              %r0,%r12,0(%r3)
-        ipm               %r14
-        afi               %r14,-268435456
-        jl                4f
+        cgrjl             %r12,%r0,2f
+        cgrjh             %r12,%r0,1f
+        clgrjnh           %r13,%r1,2f
 1:
-        clgr              %r5,%r1
-        ipm               %r14
-        cgr               %r4,%r0
-        ipm               %r13
-        cgrjne            %r4,%r0,2f
-        risbgz            %r14,%r14,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r0,0(%r3)
+        jl                0b
         j                 3f
 2:
-        risbgz            %r14,%r13,63,63,36
-        lgr               %r12,%r4
-        lgr               %r13,%r5
-        cijne             %r14,0,0b
+        cdsg              %r0,%r12,0(%r3)
+        jl                0b
 3:
-        lgr               %r12,%r0
-        lgr               %r13,%r1
-        j                 0b
-4:
-        stg               %r0,0(%r2)
         stg               %r1,8(%r2)
+        stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
         br                %r14
 

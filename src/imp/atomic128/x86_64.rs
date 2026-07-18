@@ -8,6 +8,9 @@ This architecture provides the following 128-bit atomic instructions:
 - CMPXCHG16B: CAS (CMPXCHG16B)
 - VMOVDQA: load/store (AVX)
 
+We could use asm byte_wise_atomic_load + asm atomic_compare_exchange pattern for RMW here, but using an
+inline assembly allows omitting the comparison of results and the storing/comparing of flags.
+
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use intrinsics.rs instead.
 

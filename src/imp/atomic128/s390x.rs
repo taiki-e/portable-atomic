@@ -17,6 +17,9 @@ https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/Sys
 This does not appear to have changed since the current s390x backend was added in LLVM 3.3:
 https://github.com/llvm/llvm-project/commit/5f613dfd1f7edb0ae95d521b7107b582d9df5103#diff-cbaef692b3958312e80fd5507a7e2aff071f1acb086f10e8a96bc06a7bb289db
 
+We could use asm byte_wise_atomic_load + asm atomic_compare_exchange pattern for RMW here, but using an
+inline assembly allows omitting the comparison of results and the storing/comparing of condition flags.
+
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use intrinsics.rs instead.
 
@@ -169,8 +172,8 @@ unsafe fn atomic_compare_exchange(
     let r;
 
     // SAFETY: the caller must uphold the safety contract.
+    // CDSG has SeqCst semantics.
     let prev = unsafe {
-        // atomic CAS is always SeqCst.
         asm!(
             "cdsg %r0, %r12, 0({dst})", // atomic { if *dst == r0:r1 { cc = 0; *dst = r12:13 } else { cc = 1; r0:r1 = *dst } }
             "ipm {r}",                  // r[:] = cc
@@ -192,57 +195,6 @@ unsafe fn atomic_compare_exchange(
 // cdsg is always strong.
 use self::atomic_compare_exchange as atomic_compare_exchange_weak;
 
-// 128-bit atomic load by two 64-bit atomic loads.
-#[cfg(not(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-)))]
-#[inline]
-unsafe fn byte_wise_atomic_load(src: *const u128) -> u128 {
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        let (out_hi, out_lo);
-        asm!(
-            "lg %r1, 8({src})", // atomic { r1 = *src.byte_add(8) }
-            "lg %r0, 0({src})", // atomic { r0 = *src }
-            src = in(reg) ptr_reg!(src),
-            out("r0") out_hi,
-            out("r1") out_lo,
-            options(pure, nostack, preserves_flags, readonly),
-        );
-        U128 { pair: Pair { hi: out_hi, lo: out_lo } }.whole
-    }
-}
-
-#[cfg(not(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-)))]
-#[inline(always)]
-unsafe fn atomic_update<F>(dst: *mut u128, order: Ordering, mut f: F) -> u128
-where
-    F: FnMut(u128) -> u128,
-{
-    // SAFETY: the caller must uphold the safety contract.
-    unsafe {
-        // This is not single-copy atomic reads, but this is ok because subsequent
-        // CAS will check for consistency.
-        //
-        // Note that the C++20 memory model does not allow mixed-sized atomic access,
-        // so we must use inline assembly to implement byte_wise_atomic_load.
-        // (i.e., byte-wise atomic based on the standard library's atomic types
-        // cannot be used here).
-        let mut prev = byte_wise_atomic_load(dst);
-        loop {
-            let next = f(prev);
-            match atomic_compare_exchange_weak(dst, prev, next, order, Ordering::Relaxed) {
-                Ok(x) => return x,
-                Err(x) => prev = x,
-            }
-        }
-    }
-}
-
 #[inline]
 unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
     debug_assert!(dst.addr() % 16 == 0);
@@ -250,9 +202,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
     let (mut prev_hi, mut prev_lo);
 
     // SAFETY: the caller must uphold the safety contract.
-    //
-    // We could use atomic_update here, but using an inline assembly allows omitting
-    // the comparison of results and the storing/comparing of condition flags.
+    // CDSG has SeqCst semantics.
     //
     // Do not use atomic_rmw_cas_3 because it needs extra LGR to implement swap.
     unsafe {
@@ -283,8 +233,6 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
 /// - val_hi/val_lo pair: val argument (read-only for `$op`)
 /// - r0/r1 pair: previous value loaded (read-only for `$op`)
 /// - r12/r13 pair: new value that will be stored
-// We could use atomic_update here, but using an inline assembly allows omitting
-// the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_3 {
     ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
@@ -294,8 +242,8 @@ macro_rules! atomic_rmw_cas_3 {
             let (mut prev_hi, mut prev_lo);
 
             // SAFETY: the caller must uphold the safety contract.
+            // CDSG has SeqCst semantics.
             unsafe {
-                // atomic RMW is always SeqCst.
                 asm!(
                     "lg %r1, 8({dst})",             // atomic { r1 = *dst.byte_add(8) }
                     "lg %r0, 0({dst})",             // atomic { r0 = *dst }
@@ -326,8 +274,6 @@ macro_rules! atomic_rmw_cas_3 {
 /// `$op` can use the following registers:
 /// - r0/r1 pair: previous value loaded (read-only for `$op`)
 /// - r12/r13 pair: new value that will be stored
-// We could use atomic_update here, but using an inline assembly allows omitting
-// the comparison of results and the storing/comparing of condition flags.
 macro_rules! atomic_rmw_cas_2 {
     ($name:ident, [$($reg:tt)*], $($op:tt)*) => {
         #[inline]
@@ -336,8 +282,8 @@ macro_rules! atomic_rmw_cas_2 {
             let (mut prev_hi, mut prev_lo);
 
             // SAFETY: the caller must uphold the safety contract.
+            // CDSG has SeqCst semantics.
             unsafe {
-                // atomic RMW is always SeqCst.
                 asm!(
                     "lg %r1, 8({dst})",             // atomic { r1 = *dst.byte_add(8) }
                     "lg %r0, 0({dst})",             // atomic { r0 = *dst }
@@ -414,69 +360,121 @@ atomic_rmw_cas_3! {
     distinct_op!("xgr", "%r12", "%r0", "{val_hi}"), // r12 = r0 ^ val_hi
 }
 
-#[cfg(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-))]
-atomic_rmw_cas_3! {
-    atomic_max, [],
-    "clgr %r1, {val_lo}",                       // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
-    select_op!("h", "%r12", "%r1", "{val_lo}"), // if cc == 2 { r12 = r1 } else { r12 = val_lo }
-    "cgr %r0, {val_hi}",                        // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
-    select_op!("h", "%r13", "%r1", "{val_lo}"), // if cc == 2 { r13 = r1 } else { r13 = val_lo }
-    "locgre %r13, %r12",                        // if cc == 0 { r13 = r12 }
-    select_op!("h", "%r12", "%r0", "{val_hi}"), // if cc == 2 { r12 = r0 } else { r12 = val_hi }
-}
-#[cfg(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-))]
-atomic_rmw_cas_3! {
-    atomic_umax, [tmp = out(reg) _,],
-    "clgr %r1, {val_lo}",                        // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
-    select_op!("h", "{tmp}", "%r1", "{val_lo}"), // if cc == 2 { tmp = r1 } else { tmp = val_lo }
-    "clgr %r0, {val_hi}",                        // if r0(u) < val_hi(u) { cc = 1 } else if r0(u) > val_hi(u) { cc = 2 } else { cc = 0 }
-    select_op!("h", "%r12", "%r0", "{val_hi}"),  // if cc == 2 { r12 = r0 } else { r12 = val_hi }
-    select_op!("h", "%r13", "%r1", "{val_lo}"),  // if cc == 2 { r13 = r1 } else { r13 = val_lo }
-    "cgr %r0, {val_hi}",                         // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
-    "locgre %r13, {tmp}",                        // if cc == 0 { r13 = tmp }
-}
-#[cfg(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-))]
-atomic_rmw_cas_3! {
-    atomic_min, [],
-    "clgr %r1, {val_lo}",                       // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
-    select_op!("l", "%r12", "%r1", "{val_lo}"), // if cc == 1 { r12 = r1 } else { r12 = val_lo }
-    "cgr %r0, {val_hi}",                        // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
-    select_op!("l", "%r13", "%r1", "{val_lo}"), // if cc == 1 { r13 = r1 } else { r13 = val_lo }
-    "locgre %r13, %r12",                        // if cc == 0 { r13 = r12 }
-    select_op!("l", "%r12", "%r0", "{val_hi}"), // if cc == 1 { r12 = r0 } else { r12 = val_hi }
-}
-#[cfg(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-))]
-atomic_rmw_cas_3! {
-    atomic_umin, [tmp = out(reg) _,],
-    "clgr %r1, {val_lo}",                        // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
-    select_op!("l", "{tmp}", "%r1", "{val_lo}"), // if cc == 1 { tmp = r1 } else { tmp = val_lo }
-    "clgr %r0, {val_hi}",                        // if r0(u) < val_hi(u) { cc = 1 } else if r0(u) > val_hi(u) { cc = 2 } else { cc = 0 }
-    select_op!("l", "%r12", "%r0", "{val_hi}"),  // if cc == 1 { r12 = r0 } else { r12 = val_hi }
-    select_op!("l", "%r13", "%r1", "{val_lo}"),  // if cc == 1 { r13 = r1 } else { r13 = val_lo }
-    "cgr %r0, {val_hi}",                         // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
-    "locgre %r13, {tmp}",                        // if cc == 0 { r13 = tmp }
-}
-// We use atomic_update for atomic min/max on pre-z196 because
-// z10 doesn't seem to have a good way to implement 128-bit min/max.
-// loc{,g}r requires z196 or later.
-// https://godbolt.org/z/EqoMEP8b3
-#[cfg(not(any(
-    target_feature = "load-store-on-cond",
-    portable_atomic_target_feature = "load-store-on-cond",
-)))]
-atomic_rmw_by_atomic_update!(cmp);
+cfg_sel!({
+    #[cfg(any(
+        target_feature = "load-store-on-cond",
+        portable_atomic_target_feature = "load-store-on-cond",
+    ))]
+    {
+        atomic_rmw_cas_3! {
+            atomic_max, [],
+            "clgr %r1, {val_lo}",                       // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
+            select_op!("h", "%r12", "%r1", "{val_lo}"), // if cc == 2 { r12 = r1 } else { r12 = val_lo }
+            "cgr %r0, {val_hi}",                        // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
+            select_op!("h", "%r13", "%r1", "{val_lo}"), // if cc == 2 { r13 = r1 } else { r13 = val_lo }
+            "locgre %r13, %r12",                        // if cc == 0 { r13 = r12 }
+            select_op!("h", "%r12", "%r0", "{val_hi}"), // if cc == 2 { r12 = r0 } else { r12 = val_hi }
+        }
+        atomic_rmw_cas_3! {
+            atomic_umax, [tmp = out(reg) _,],
+            "clgr %r1, {val_lo}",                        // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
+            select_op!("h", "{tmp}", "%r1", "{val_lo}"), // if cc == 2 { tmp = r1 } else { tmp = val_lo }
+            "clgr %r0, {val_hi}",                        // if r0(u) < val_hi(u) { cc = 1 } else if r0(u) > val_hi(u) { cc = 2 } else { cc = 0 }
+            select_op!("h", "%r12", "%r0", "{val_hi}"),  // if cc == 2 { r12 = r0 } else { r12 = val_hi }
+            select_op!("h", "%r13", "%r1", "{val_lo}"),  // if cc == 2 { r13 = r1 } else { r13 = val_lo }
+            "cgr %r0, {val_hi}",                         // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
+            "locgre %r13, {tmp}",                        // if cc == 0 { r13 = tmp }
+        }
+        atomic_rmw_cas_3! {
+            atomic_min, [],
+            "clgr %r1, {val_lo}",                       // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
+            select_op!("l", "%r12", "%r1", "{val_lo}"), // if cc == 1 { r12 = r1 } else { r12 = val_lo }
+            "cgr %r0, {val_hi}",                        // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
+            select_op!("l", "%r13", "%r1", "{val_lo}"), // if cc == 1 { r13 = r1 } else { r13 = val_lo }
+            "locgre %r13, %r12",                        // if cc == 0 { r13 = r12 }
+            select_op!("l", "%r12", "%r0", "{val_hi}"), // if cc == 1 { r12 = r0 } else { r12 = val_hi }
+        }
+        atomic_rmw_cas_3! {
+            atomic_umin, [tmp = out(reg) _,],
+            "clgr %r1, {val_lo}",                        // if r1(u) < val_lo(u) { cc = 1 } else if r1(u) > val_lo(u) { cc = 2 } else { cc = 0 }
+            select_op!("l", "{tmp}", "%r1", "{val_lo}"), // if cc == 1 { tmp = r1 } else { tmp = val_lo }
+            "clgr %r0, {val_hi}",                        // if r0(u) < val_hi(u) { cc = 1 } else if r0(u) > val_hi(u) { cc = 2 } else { cc = 0 }
+            select_op!("l", "%r12", "%r0", "{val_hi}"),  // if cc == 1 { r12 = r0 } else { r12 = val_hi }
+            select_op!("l", "%r13", "%r1", "{val_lo}"),  // if cc == 1 { r13 = r1 } else { r13 = val_lo }
+            "cgr %r0, {val_hi}",                         // if r0(i) < val_hi(i) { cc = 1 } else if r0(i) > val_hi(i) { cc = 2 } else { cc = 0 }
+            "locgre %r13, {tmp}",                        // if cc == 0 { r13 = tmp }
+        }
+    }
+    #[cfg(else)]
+    {
+        #[rustfmt::skip]
+        macro_rules! atomic_cmp {
+            ($name:ident, $cmp_hi1:tt, $cmp_hi2:tt, $cmp_lo:tt,) => {
+                #[inline]
+                unsafe fn $name(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
+                    debug_assert!(dst.addr() % 16 == 0);
+                    let val = U128 { whole: val };
+                    let (mut prev_hi, mut prev_lo);
+
+                    // SAFETY: the caller must uphold the safety contract.
+                    // CDSG has SeqCst semantics.
+                    unsafe {
+                        asm!(
+                            "lg %r1, 8({dst})",                      // atomic { r1 = *dst.byte_add(8) }
+                            "lg %r0, 0({dst})",                      // atomic { r0 = *dst }
+                            "2:", // 'retry:
+                                concat!($cmp_hi1, " %r12, %r0, 4f"), // if $cmp_hi1(r12, r0) { jump 'val }
+                                concat!($cmp_hi2, " %r12, %r0, 3f"), // if $cmp_hi2(r12, r0) { jump 'prev }
+                                concat!($cmp_lo, " %r13, %r1, 4f"),  // if $cmp_lo(r13, r1) { jump 'val }
+                            "3:", // 'prev:
+                                "cdsg %r0, %r0, 0({dst})",           // atomic { if *dst == r0:r1 { cc = 0; *dst = r0:r1 } else { cc = 1; r0:r1 = *dst } }
+                                "jl 2b",                             // if cc == 1 { jump 'retry }
+                                "j 5f",
+                            "4:", // 'val:
+                                "cdsg %r0, %r12, 0({dst})",          // atomic { if *dst == r0:r1 { cc = 0; *dst = r12:r13 } else { cc = 1; r0:r1 = *dst } }
+                                "jl 2b",                             // if cc == 1 { jump 'retry }
+                            "5:",
+                            dst = in(reg) ptr_reg!(dst),
+                            // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
+                            out("r0") prev_hi,
+                            out("r1") prev_lo,
+                            in("r12") val.pair.hi,
+                            in("r13") val.pair.lo,
+                            // Do not use `preserves_flags` because CDSG modifies the condition code.
+                            options(nostack),
+                        );
+                        U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
+                    }
+                }
+            };
+        }
+        // loc{,g}r requires z196 or later.
+        atomic_cmp! {
+            atomic_max,
+            "cgrjh",   // signed >
+            "cgrjl",   // signed <
+            "clgrjhe", // unsigned >=
+        }
+        atomic_cmp! {
+            atomic_umax,
+            "clgrjh",  // unsigned >
+            "clgrjl",  // unsigned <
+            "clgrjhe", // unsigned >=
+        }
+        atomic_cmp! {
+            atomic_min,
+            "cgrjl",   // signed <
+            "cgrjh",   // signed >
+            "clgrjle", // unsigned <=
+        }
+        atomic_cmp! {
+            atomic_umin,
+            "clgrjl",   // unsigned <
+            "clgrjh",   // unsigned >
+            "clgrjle",  // unsigned <=
+        }
+    }
+});
 
 atomic_rmw_cas_2! {
     atomic_not, [],

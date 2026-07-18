@@ -23,7 +23,13 @@ casx
 cbnz
 ccmp
 cdsg
+cgrjh
+cgrjl
 clgr
+clgrjh
+clgrjhe
+clgrjl
+clgrjle
 clidr
 cmovae
 cmovb
