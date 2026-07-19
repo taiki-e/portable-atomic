@@ -666,7 +666,7 @@ jobs:
           cargo generate-lockfile
           cargo update -p proc-macro2 --precise 1.0.103
           cargo update -p quote --precise 1.0.41
-          cargo update -p syn --precise 2.0.106
+          cargo update -p syn@2.0.119 --precise 2.0.106
           cargo update -p unicode-ident --precise 1.0.22
         working-directory: tests/no-std-qemu
         if: startsWith(matrix.rust, '1.6')
