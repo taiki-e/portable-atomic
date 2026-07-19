@@ -756,10 +756,10 @@ impl AtomicBool {
 
     // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
     const_fn! {
-        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
         /// Creates a new `AtomicBool` from a pointer.
         ///
-        /// This is `const fn` on Rust 1.83+.
+        /// This is `const fn` on Rust 1.58+.
         ///
         /// # Safety
         ///
@@ -789,7 +789,7 @@ impl AtomicBool {
         pub const unsafe fn from_ptr<'a>(ptr: *mut bool) -> &'a Self {
             #[allow(clippy::cast_ptr_alignment)]
             // SAFETY: guaranteed by the caller
-            unsafe { &*(ptr as *mut Self) }
+            unsafe { &*(ptr as *mut Self as *const Self) }
         }
     }
 
@@ -1805,10 +1805,10 @@ impl<T> AtomicPtr<T> {
 
     // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
     const_fn! {
-        const_if: #[cfg(not(portable_atomic_no_const_mut_refs))];
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
         /// Creates a new `AtomicPtr` from a pointer.
         ///
-        /// This is `const fn` on Rust 1.83+.
+        /// This is `const fn` on Rust 1.58+.
         ///
         /// # Safety
         ///
@@ -1838,7 +1838,7 @@ impl<T> AtomicPtr<T> {
         pub const unsafe fn from_ptr<'a>(ptr: *mut *mut T) -> &'a Self {
             #[allow(clippy::cast_ptr_alignment)]
             // SAFETY: guaranteed by the caller
-            unsafe { &*(ptr as *mut Self) }
+            unsafe { &*(ptr as *mut Self as *const Self) }
         }
     }
 
@@ -2794,11 +2794,11 @@ let atomic_forty_two = ", stringify!($atomic_type), "::new(42);
             }
 
             // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
-            #[cfg(not(portable_atomic_no_const_mut_refs))]
+            #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
                 concat!("Creates a new reference to an atomic integer from a pointer.
 
-This is `const fn` on Rust 1.83+.
+This is `const fn` on Rust 1.58+.
 
 # Safety
 
@@ -2829,14 +2829,14 @@ This is `const fn` on Rust 1.83+.
                 pub const unsafe fn from_ptr<'a>(ptr: *mut $int_type) -> &'a Self {
                     #[allow(clippy::cast_ptr_alignment)]
                     // SAFETY: guaranteed by the caller
-                    unsafe { &*(ptr as *mut Self) }
+                    unsafe { &*(ptr as *mut Self as *const Self) }
                 }
             }
-            #[cfg(portable_atomic_no_const_mut_refs)]
+            #[cfg(portable_atomic_no_const_raw_ptr_deref)]
             doc_comment! {
                 concat!("Creates a new reference to an atomic integer from a pointer.
 
-This is `const fn` on Rust 1.83+.
+This is `const fn` on Rust 1.58+.
 
 # Safety
 
@@ -2867,7 +2867,7 @@ This is `const fn` on Rust 1.83+.
                 pub unsafe fn from_ptr<'a>(ptr: *mut $int_type) -> &'a Self {
                     #[allow(clippy::cast_ptr_alignment)]
                     // SAFETY: guaranteed by the caller
-                    unsafe { &*(ptr as *mut Self) }
+                    unsafe { &*(ptr as *mut Self as *const Self) }
                 }
             }
 
@@ -4227,11 +4227,11 @@ This type has the same in-memory representation as the underlying floating point
             }
 
             // TODO: update docs based on https://github.com/rust-lang/rust/pull/116762
-            #[cfg(not(portable_atomic_no_const_mut_refs))]
+            #[cfg(not(portable_atomic_no_const_raw_ptr_deref))]
             doc_comment! {
                 concat!("Creates a new reference to an atomic float from a pointer.
 
-This is `const fn` on Rust 1.83+.
+This is `const fn` on Rust 1.58+.
 
 # Safety
 
@@ -4262,14 +4262,14 @@ This is `const fn` on Rust 1.83+.
                 pub const unsafe fn from_ptr<'a>(ptr: *mut $float_type) -> &'a Self {
                     #[allow(clippy::cast_ptr_alignment)]
                     // SAFETY: guaranteed by the caller
-                    unsafe { &*(ptr as *mut Self) }
+                    unsafe { &*(ptr as *mut Self as *const Self) }
                 }
             }
-            #[cfg(portable_atomic_no_const_mut_refs)]
+            #[cfg(portable_atomic_no_const_raw_ptr_deref)]
             doc_comment! {
                 concat!("Creates a new reference to an atomic float from a pointer.
 
-This is `const fn` on Rust 1.83+.
+This is `const fn` on Rust 1.58+.
 
 # Safety
 
@@ -4300,7 +4300,7 @@ This is `const fn` on Rust 1.83+.
                 pub unsafe fn from_ptr<'a>(ptr: *mut $float_type) -> &'a Self {
                     #[allow(clippy::cast_ptr_alignment)]
                     // SAFETY: guaranteed by the caller
-                    unsafe { &*(ptr as *mut Self) }
+                    unsafe { &*(ptr as *mut Self as *const Self) }
                 }
             }
 
