@@ -8,6 +8,7 @@ on:
     branches:
       - main
       - dev
+      - futex
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
@@ -364,6 +365,9 @@ jobs:
       matrix:
         include:
           # We don't test x86_64 here because there is no OS-specific code on x86_64.
+          - target: x86_64-unknown-freebsd
+            os: freebsd
+            version: '13.5'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '13.5'
@@ -376,6 +380,9 @@ jobs:
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
+          - target: x86_64-unknown-openbsd
+            os: openbsd
+            version: '7.6'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.6'
@@ -403,7 +410,7 @@ jobs:
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
-          architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
+          architecture: ${{ (matrix.os != 'omnios' && startsWith(matrix.target, 'aarch64')) && 'aarch64' || 'x86_64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
           shell: bash
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
@@ -452,11 +459,23 @@ jobs:
             esac
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
-            cargo test --features std --tests -- aarch64
-            case "$(uname -s)" in
-              FreeBSD)
-                RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
-                  cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
+            arch="$(uname -m)"
+            case "${arch}" in
+              aarch64 | arm64 | evbarm)
+                cargo test --features std --tests -- aarch64
+                case "$(uname -s)" in
+                  FreeBSD)
+                    RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
+                      cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
+                    ;;
+                esac
+                ;;
+              x86_64 | x86-64 | x64 | amd64)
+                cargo test --features std --tests -- fallback
+                ;;
+              *)
+                printf '%s\n' "unsupported host architecture '${arch}'"
+                exit 1
                 ;;
             esac
       - run: |
@@ -692,6 +711,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             flags: -C target-feature=+cmpxchg16b
           - target: x86_64-pc-windows-msvc
+          - target: x86_64-unknown-freebsd
           - target: aarch64-unknown-linux-gnu
           - target: aarch64-apple-darwin
           - target: i686-unknown-linux-gnu

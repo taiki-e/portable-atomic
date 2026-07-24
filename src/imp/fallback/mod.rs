@@ -47,22 +47,17 @@ compile_error!(
     "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
 );
 
-mod utils;
+pub(crate) mod cache_padded; // pub(crate) for benchmark
+mod wait;
 
-// Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
-// around.
-//
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock and reduce chunks of byte-wise atomic memcpy.
 cfg_has_fast_atomic_64!({
-    mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU64;
     type Chunk = u64;
 });
 cfg_no_fast_atomic_64!({
-    #[path = "seq_lock_wide.rs"]
-    mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU32;
     type Chunk = u32;
 });
@@ -70,8 +65,8 @@ cfg_no_fast_atomic_64!({
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use self::{
-    seq_lock::{SeqLock, SeqLockWriteGuard},
-    utils::CachePadded,
+    cache_padded::CachePadded,
+    wait::seq_lock::{self, SeqLock, SeqLockWriteGuard},
 };
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
@@ -101,10 +96,25 @@ fn lock(addr: usize) -> &'static SeqLock {
 struct ScFenceGuard;
 impl ScFenceGuard {
     #[inline]
-    fn new(emit_sc_fence: bool) -> Option<Self> {
+    fn new_for_load(emit_sc_fence: bool) -> Option<Self> {
         if unlikely(emit_sc_fence) {
             crate::fence(Ordering::SeqCst);
             Some(ScFenceGuard)
+        } else {
+            None
+        }
+    }
+    #[inline]
+    fn new(emit_sc_fence: bool) -> Option<Self> {
+        if unlikely(emit_sc_fence) {
+            if seq_lock::WRITE_LOCK_ACQUIRE_ORDER != Ordering::SeqCst {
+                crate::fence(Ordering::SeqCst);
+            }
+            if seq_lock::WRITE_LOCK_RELEASE_ORDER == Ordering::SeqCst {
+                None
+            } else {
+                Some(ScFenceGuard)
+            }
         } else {
             None
         }
@@ -365,7 +375,7 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
+                let _sc_fence = ScFenceGuard::new_for_load(order == Ordering::SeqCst);
                 let lock = lock(self.v.get().addr());
 
                 // Try doing an optimistic read first.

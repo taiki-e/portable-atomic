@@ -72,6 +72,21 @@
       "flags": "-Z codegen-backend=cranelift"
     },
     {
+      "rust": "1.71-x86_64-pc-windows-gnu",
+      "target": "x86_64-pc-windows-gnu",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "nightly-2021-08-21-x86_64-pc-windows-gnu",
+      "target": "x86_64-pc-windows-gnu",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "stable-x86_64-pc-windows-gnu",
+      "target": "x86_64-pc-windows-gnu",
+      "os": "windows-latest"
+    },
+    {
       "rust": "nightly-x86_64-pc-windows-gnu",
       "target": "x86_64-pc-windows-gnu",
       "os": "windows-latest"
@@ -97,8 +112,38 @@
       "target": "i686-unknown-linux-gnu"
     },
     {
+      "rust": "1.71-i686-pc-windows-msvc",
+      "target": "i686-pc-windows-msvc",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "nightly-2021-08-21-i686-pc-windows-msvc",
+      "target": "i686-pc-windows-msvc",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "stable-i686-pc-windows-msvc",
+      "target": "i686-pc-windows-msvc",
+      "os": "windows-latest"
+    },
+    {
       "rust": "nightly-2026-03-05-i686-pc-windows-msvc",
       "target": "i686-pc-windows-msvc",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "1.71-i686-pc-windows-gnu",
+      "target": "i686-pc-windows-gnu",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "nightly-2021-08-21-i686-pc-windows-gnu",
+      "target": "i686-pc-windows-gnu",
+      "os": "windows-latest"
+    },
+    {
+      "rust": "stable-i686-pc-windows-gnu",
+      "target": "i686-pc-windows-gnu",
       "os": "windows-latest"
     },
     {
@@ -316,6 +361,21 @@
       "target": "armv7-unknown-linux-gnueabi"
     },
     {
+      "rust": "1.59",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf",
       "os": "ubuntu-24.04-arm"
@@ -323,6 +383,21 @@
     {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf"
+    },
+    {
+      "rust": "1.59",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
     },
     {
       "rust": "nightly",

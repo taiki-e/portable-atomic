@@ -52,7 +52,7 @@ serde = { version = "1.0.60", optional = true, default-features = false }
 critical-section = { version = "1", optional = true }
 
 # [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
-# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "e1f372423748f3d11a6e1eb911c1f2bec3f476d2" } #build:static_assert_ffi
+# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "4074198cf05a40488c5f67ee52296b132b1c6646" } #build:static_assert_ffi
 # [target.'cfg(all(portable_atomic_test_no_std_static_assert_ffi, target_os = "aix"))'.dependencies] #build:static_assert_ffi
 # libc = "=0.2.163" #build:static_assert_ffi
 
@@ -66,16 +66,20 @@ rustversion = "1"
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "df513c55a97f0a72fa67bad5396ed09123e5676c" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "e1f372423748f3d11a6e1eb911c1f2bec3f476d2" }
+test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "4074198cf05a40488c5f67ee52296b132b1c6646" }
 
-[target.'cfg(unix)'.dev-dependencies]
+[target.'cfg(any(unix, target_os = "hermit"))'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
 
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
-    "Win32_System_Threading", # IsProcessorFeaturePresent
+    "Win32_System_LibraryLoader", # GetModuleHandleA/GetProcAddress
+    "Win32_System_Threading", # IsProcessorFeaturePresent/WaitOnAddress
 ] }
+
+[target.'cfg(target_os = "redox")'.dev-dependencies]
+redox_syscall = "0.9"
 
 [target.'cfg(valgrind)'.dev-dependencies]
 crabgrind = "0.1"
@@ -102,6 +106,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_arch,values("xtensa"))', # 1.81+ https://github.com/rust-lang/rust/pull/125141
     'cfg(target_arch,values("amdgpu"))', # 1.86+ https://github.com/rust-lang/rust/pull/134740
     'cfg(target_arch,values("loongarch32"))', # 1.89+ https://github.com/rust-lang/rust/pull/142053
+    'cfg(target_arch,values("alpha","arc","arc64","hppa","hppa64","ia64","microblaze","nios2","or1k","sh"))', # see src/imp/fallback/wait.rs
     'cfg(target_os,values("trusty"))', # 1.82+ https://github.com/rust-lang/rust/pull/129490
     'cfg(target_os,values("psx"))', # 1.84+ https://github.com/rust-lang/rust/pull/131168
     'cfg(target_os,values("zos"))', # https://github.com/rust-lang/compiler-team/issues/992

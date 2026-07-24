@@ -47,6 +47,9 @@ default_targets=(
   # x86_64
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "x86_64" then .key else empty end'
   x86_64-unknown-linux-gnu
+  x86_64-unknown-dragonfly
+  x86_64-unknown-redox
+  x86_64-unknown-hermit
   # with CMPXCHG16B
   x86_64-apple-darwin
   # X32 ABI
@@ -60,6 +63,9 @@ default_targets=(
   i586-unknown-linux-gnu
   # with SSE2
   i686-unknown-linux-gnu
+  i686-unknown-freebsd
+  i686-unknown-openbsd
+  i586-unknown-redox
 
   # aarch64
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "aarch64" then .key else empty end'
@@ -89,10 +95,13 @@ default_targets=(
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "arm64ec" then .key else empty end'
   arm64ec-pc-windows-msvc
 
-  # arm pre-v6 linux-like
+  # arm
+  # pre-v6 linux-like
   armv4t-unknown-linux-gnueabi
   armv5te-unknown-linux-gnueabi
   arm-linux-androideabi
+  # thumb mode
+  thumbv7neon-unknown-linux-gnueabihf
 
   # riscv
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "riscv32" or .value.arch == "riscv64" then .key else empty end'
@@ -105,6 +114,10 @@ default_targets=(
   riscv64gc-unknown-linux-gnu
   riscv64gc-unknown-linux-musl
   riscv64-linux-android
+  riscv64gc-unknown-redox
+
+  # powerpc
+  powerpc-unknown-linux-gnu
 
   # powerpc64
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "powerpc64" then .key else empty end'
@@ -121,6 +134,11 @@ default_targets=(
   # s390x
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
   s390x-unknown-linux-gnu
+
+  # TODO: remove once enabled in matrix.sh
+  csky-unknown-linux-gnuabiv2
+  hexagon-unknown-linux-musl
+  m68k-unknown-linux-gnu
 )
 # NB: sync with:
 # - docs.rs metadata in Cargo.toml
