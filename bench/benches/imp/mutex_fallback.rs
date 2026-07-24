@@ -2,69 +2,142 @@
 
 // Fallback implementation using global locks.
 //
-// This implementation uses spinlock for global locks.
+// This implementation uses mutex for global locks.
 //
 // Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
 // type and the value type must be the same.
 //
 // This module is currently only enabled on benchmark.
+//
+// Mutex logic is adapted from https://github.com/rust-lang/rust/blob/1.97.0/library/std/src/sys/sync/mutex/futex.rs.
 
 use core::{
     cell::UnsafeCell,
-    sync::atomic::{AtomicUsize, Ordering},
+    sync::atomic::{AtomicU32, Ordering},
 };
 
-use super::fallback::utils::{Backoff, CachePadded};
+use super::fallback::cache_padded::CachePadded;
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
+use crate::utils::unlikely;
 
-struct Spinlock {
-    state: AtomicUsize,
+type State = u32;
+
+struct Mutex {
+    state: AtomicU32,
 }
 
-impl Spinlock {
+const UNLOCKED: State = 0;
+const LOCKED: State = 1; // locked, no other threads waiting
+const CONTENDED: State = 2; // locked, and other threads waiting (contended)
+
+impl Mutex {
     #[inline]
     const fn new() -> Self {
-        Self { state: AtomicUsize::new(0) }
+        Self { state: AtomicU32::new(0) }
     }
 
     #[inline]
-    fn lock(&self) -> SpinlockGuard<'_> {
-        let mut backoff = Backoff::new();
-        loop {
-            if self.state.compare_exchange_weak(0, 1, Ordering::Acquire, Ordering::Relaxed).is_ok()
-            {
-                return SpinlockGuard { lock: self };
-            }
+    fn lock(&self) -> MutexGuard<'_> {
+        if self
+            .state
+            .compare_exchange(UNLOCKED, LOCKED, Ordering::Acquire, Ordering::Relaxed)
+            .is_err()
+        {
+            self.lock_contended();
+        }
 
-            while self.state.load(Ordering::Relaxed) == 1 {
-                backoff.snooze();
+        MutexGuard { lock: self }
+    }
+
+    #[cold]
+    fn lock_contended(&self) {
+        // Spin first to speed things up if the lock is released quickly.
+        let mut state = self.spin();
+
+        // If it's unlocked now, attempt to take the lock
+        // without marking it as contended.
+        if state == UNLOCKED {
+            match self.state.compare_exchange(
+                UNLOCKED,
+                LOCKED,
+                Ordering::Acquire,
+                Ordering::Relaxed,
+            ) {
+                Ok(_) => return, // Locked!
+                Err(s) => state = s,
             }
         }
+
+        loop {
+            // Put the lock in contended state.
+            // We avoid an unnecessary write if it as already set to CONTENDED,
+            // to be friendlier for the caches.
+            if state != CONTENDED && self.state.swap(CONTENDED, Ordering::Acquire) == UNLOCKED {
+                // We changed it from UNLOCKED to CONTENDED, so we just successfully locked it.
+                return;
+            }
+
+            // Wait for the futex to change state, assuming it is still CONTENDED.
+            atomic_wait::wait(&self.state, CONTENDED);
+
+            // Spin again after waking up.
+            state = self.spin();
+        }
+    }
+
+    fn spin(&self) -> State {
+        let mut spin = 100;
+        loop {
+            // We only use `load` (and not `swap` or `compare_exchange`)
+            // while spinning, to be easier on the caches.
+            let state = self.state.load(Ordering::Relaxed);
+
+            // We stop spinning when the mutex is UNLOCKED,
+            // but also when it's CONTENDED.
+            if state != LOCKED || spin == 0 {
+                return state;
+            }
+
+            #[allow(deprecated)]
+            core::sync::atomic::spin_loop_hint();
+            spin -= 1;
+        }
+    }
+
+    #[cold]
+    fn notify(&self) {
+        atomic_wait::wake_one(&self.state);
     }
 }
 
 #[must_use]
-struct SpinlockGuard<'a> {
+struct MutexGuard<'a> {
     /// The parent lock.
-    lock: &'a Spinlock,
+    lock: &'a Mutex,
 }
 
-impl Drop for SpinlockGuard<'_> {
+impl Drop for MutexGuard<'_> {
     #[inline]
     fn drop(&mut self) {
-        self.lock.state.store(0, Ordering::Release);
+        if self.lock.state.swap(UNLOCKED, Ordering::Release) == CONTENDED {
+            // We only wake up one thread. When that thread locks the mutex, it
+            // will mark the mutex as CONTENDED (see lock_contended above),
+            // which makes sure that any other waiting threads will also be
+            // woken up eventually.
+            self.lock.notify();
+        }
     }
 }
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/atomic_cell.rs#L970-L1010.
 #[inline]
-fn lock(addr: usize) -> SpinlockGuard<'static> {
+fn lock(addr: usize) -> MutexGuard<'static> {
     // The number of locks is a prime number because we want to make sure `addr % LEN` gets
     // dispersed across all locks.
     const LEN: usize = 67;
-    const L: CachePadded<Spinlock> = CachePadded::new(Spinlock::new());
-    static LOCKS: [CachePadded<Spinlock>; LEN] = [
+    const L: CachePadded<Mutex> = CachePadded::new(Mutex::new());
+    static LOCKS: [CachePadded<Mutex>; LEN] = [
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L, L,
         L, L, L, L, L, L, L,
@@ -74,6 +147,27 @@ fn lock(addr: usize) -> SpinlockGuard<'static> {
     // a sequence of cheap arithmetic operations rather than using the slow modulo instruction.
     let lock = &LOCKS[addr % LEN];
     lock.lock()
+}
+
+// Emit SeqCst fence to ensure SeqCst semantics when ordering is SeqCst.
+#[must_use]
+struct ScFenceGuard;
+impl ScFenceGuard {
+    #[inline]
+    fn new(emit_sc_fence: bool) -> Option<Self> {
+        if unlikely(emit_sc_fence) {
+            crate::fence(Ordering::SeqCst);
+            Some(ScFenceGuard)
+        } else {
+            None
+        }
+    }
+}
+impl Drop for ScFenceGuard {
+    #[inline]
+    fn drop(&mut self) {
+        crate::fence(Ordering::SeqCst);
+    }
 }
 
 macro_rules! atomic_int {
@@ -105,6 +199,7 @@ macro_rules! atomic_int {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -117,6 +212,7 @@ macro_rules! atomic_int {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn store(&self, val: $int_type, order: Ordering) {
                 crate::utils::assert_store_ordering(order);
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -126,7 +222,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn swap(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -147,6 +244,8 @@ macro_rules! atomic_int {
                 failure: Ordering,
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
+                let _sc_fence =
+                    ScFenceGuard::new(success == Ordering::SeqCst || failure == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -174,7 +273,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_add(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -186,7 +286,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_sub(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -198,7 +299,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_and(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -210,7 +312,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_nand(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -222,7 +325,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_or(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -234,7 +338,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_xor(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -246,7 +351,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_max(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -258,7 +364,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_min(&self, val: $int_type, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -270,7 +377,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_not(&self, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_not(&self, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -286,7 +394,8 @@ macro_rules! atomic_int {
             }
 
             #[inline]
-            pub(crate) fn fetch_neg(&self, _order: Ordering) -> $int_type {
+            pub(crate) fn fetch_neg(&self, order: Ordering) -> $int_type {
+                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
                 // SAFETY: any data races are prevented by the lock and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
@@ -309,12 +418,6 @@ macro_rules! atomic_int {
     };
 }
 
-atomic_int!(AtomicI8, i8, 1);
-atomic_int!(AtomicU8, u8, 1);
-atomic_int!(AtomicI16, i16, 2);
-atomic_int!(AtomicU16, u16, 2);
-atomic_int!(AtomicI32, i32, 4);
-atomic_int!(AtomicU32, u32, 4);
 atomic_int!(AtomicI64, i64, 8);
 atomic_int!(AtomicU64, u64, 8);
 atomic_int!(AtomicI128, i128, 16);
@@ -324,12 +427,6 @@ atomic_int!(AtomicU128, u128, 16);
 mod tests {
     use super::*;
 
-    test_atomic_int!(i8);
-    test_atomic_int!(u8);
-    test_atomic_int!(i16);
-    test_atomic_int!(u16);
-    test_atomic_int!(i32);
-    test_atomic_int!(u32);
     test_atomic_int!(i64);
     test_atomic_int!(u64);
     test_atomic_int!(i128);

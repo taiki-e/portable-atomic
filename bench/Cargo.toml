@@ -12,6 +12,7 @@ std = []
 
 [dev-dependencies]
 # atomic = "0.6"
+atomic-wait = "1"
 build-context = "0.1"
 criterion = { default-features = false, git = "https://github.com/taiki-e/criterion.rs.git", rev = "18cc8b6f211b266564e6d5311ef1defa0677a815" } # reduce deps
 crossbeam-utils = "0.8"
@@ -19,7 +20,7 @@ fastrand = "2"
 paste = "1"
 quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", rev = "83b1d5955557fc9dacc52d4a78098d8e6d7eda3b" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "e1f372423748f3d11a6e1eb911c1f2bec3f476d2" }
+test-helper = { features = ["sys", "critical-section-std"], git = "https://github.com/taiki-e/test-helper.git", rev = "4074198cf05a40488c5f67ee52296b132b1c6646" }
 
 [target.'cfg(unix)'.dev-dependencies]
 libc = "0.2"
@@ -27,7 +28,8 @@ libc = "0.2"
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
-    "Win32_System_Threading", # IsProcessorFeaturePresent
+    "Win32_System_LibraryLoader", # GetModuleHandleA/GetProcAddress
+    "Win32_System_Threading", # IsProcessorFeaturePresent/WaitOnAddress
 ] }
 
 [[bench]]

@@ -1,6 +1,7 @@
 # Development Guide
 
 - [Project layout](#project-layout)
+- [Why not use libc/windows-sys in detection/futex-related code?](#why-not-use-libcwindows-sys-in-detectionfutex-related-code)
 - [Testing powerpc64le using POWER Functional Simulator](#testing-powerpc64le-using-power-functional-simulator)
 - [Testing Fuchsia](#testing-fuchsia)
 
@@ -39,6 +40,10 @@ portable-atomic/
 │   └── xtensa/                   -- tests for no-std Xtensa targets
 └── tools/                        -- tools for CI and/or development
 ```
+
+## Why not use libc/windows-sys in detection/futex-related code?
+
+portable-atomic has a lower MSRV than those, a thorough static testing system for FFI bindings (e.g., checks that caught [long-missed type definition bugs in the standard library and libc](https://github.com/rust-lang/rust/issues/129945)), and a [CI that covers a huge number of targets](https://github.com/taiki-e/portable-atomic/pull/97).
 
 ## Testing powerpc64le using POWER Functional Simulator
 
