@@ -130,7 +130,6 @@ muldi
 mvfr
 mysim
 negs
-neoverse
 netdev
 newrepo
 newtype

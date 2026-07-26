@@ -364,6 +364,7 @@ jobs:
       matrix:
         include:
           # We don't test x86_64 here because there is no OS-specific code on x86_64.
+          # FreeBSD 12 packages are no longer available in pkg.FreeBSD.org.
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '13.5'
@@ -372,13 +373,13 @@ jobs:
             version: '14.4'
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '15.0'
+            version: '15.1'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
           - target: aarch64-unknown-openbsd
             os: openbsd
-            version: '7.6'
+            version: '7.9'
           - target: aarch64-unknown-illumos
             os: omnios
     runs-on: ubuntu-24.04
@@ -399,13 +400,14 @@ jobs:
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
             | tar xJf -
         if: matrix.os == 'omnios'
-      - uses: taiki-e/cross-platform-actions-action@6520aa58510f3aaf6a4f19095add23cf34d13c60 # neoverse-v1 # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/cross-platform-actions-action@cb6e07ca8dc262ff76d3b81712d294cb83f43725 # dev # zizmor: ignore[stale-action-refs]
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
           shell: bash
+          cpu: ${{ matrix.os == 'omnios' && '' || 'cortex-a76' }}
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
           run: |
             set -CeEuxo pipefail
@@ -488,7 +490,7 @@ jobs:
             -accel tcg,thread=multi \
             -m 6G \
             -smp 2 \
-            -cpu neoverse-v1 \
+            -cpu cortex-a76 \
             -bios u-boot.bin \
             -netdev user,id=net0,hostfwd=tcp::10022-:22 \
             -device virtio-net-device,netdev=net0 \
