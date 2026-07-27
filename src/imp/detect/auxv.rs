@@ -1095,23 +1095,24 @@ mod tests {
                 sys::KERN_PROC_AUXV as c_int,
                 pid,
             ];
-
             #[allow(clippy::cast_possible_truncation)]
+            let mib_len = mib.len() as c_uint;
             // SAFETY:
-            // - `mib.len()` does not exceed the size of `mib`.
+            // - `mib_len` does not exceed the size of `mib`.
             // - `len` does not exceed the size of `auxv`.
             // - `sysctl` is thread-safe.
             let res = unsafe {
                 libc::sysctl(
                     mib.as_ptr(),
-                    mib.len() as c_uint,
+                    mib_len,
                     auxv.as_mut_ptr().cast::<c_void>(),
                     &mut len,
                     ptr::null_mut(),
                     0,
                 )
             };
-            if res == -1 {
+            // FreeBSD sysctl returns 0 on success, -1 on failure.
+            if res != 0 {
                 return Err(res);
             }
 
@@ -1241,8 +1242,9 @@ mod tests {
                         options(nostack, preserves_flags),
                     );
                 }
+                // FreeBSD sysctl returns 0 on success, -1 on failure.
                 #[allow(clippy::cast_possible_truncation)]
-                if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
+                if r as c_int == 0 { Ok(r as c_int) } else { Err(n as c_int) }
             }
 
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
@@ -1256,16 +1258,16 @@ mod tests {
                 sys::KERN_PROC_AUXV as c_int,
                 pid,
             ];
-
             #[allow(clippy::cast_possible_truncation)]
+            let mib_len = mib.len() as c_uint;
             // SAFETY:
-            // - `mib.len()` does not exceed the size of `mib`.
+            // - `mib_len` does not exceed the size of `mib`.
             // - `len` does not exceed the size of `auxv`.
             // - `sysctl` is thread-safe.
             unsafe {
                 sysctl(
                     mib.as_ptr(),
-                    mib.len() as c_uint,
+                    mib_len,
                     auxv.as_mut_ptr().cast::<c_void>(),
                     &mut len,
                     ptr::null_mut(),

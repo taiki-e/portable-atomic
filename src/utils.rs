@@ -664,9 +664,9 @@ pub(crate) mod ptr {
 // This module provides:
 // - core::ffi polyfill (c_* type aliases and CStr) for pre-1.64 rustc compatibility.
 //   (core::ffi::* (except c_void) requires Rust 1.64)
-// - safe abstraction (c! macro) for creating static C strings without runtime checks.
+// - Safe abstraction (c! macro) for creating static C strings without runtime checks.
 //   (c"..." requires Rust 1.77)
-// - helper macros for defining FFI bindings.
+// - Helper macros for defining FFI bindings with static signature/type/value assertions.
 #[cfg(any(
     test,
     portable_atomic_test_no_std_static_assert_ffi,
@@ -676,27 +676,38 @@ pub(crate) mod ptr {
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
 pub(crate) mod ffi {
+    // -------------------------------------------------------------------------
+    // core::ffi polyfill and c"..." equivalent
+
     pub(crate) type c_void = core::ffi::c_void;
     // c_{,u}int is {i,u}16 on 16-bit targets, otherwise {i,u}32.
     // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L156
-    #[cfg(target_pointer_width = "16")]
-    pub(crate) type c_int = i16;
-    #[cfg(target_pointer_width = "16")]
-    pub(crate) type c_uint = u16;
-    #[cfg(not(target_pointer_width = "16"))]
-    pub(crate) type c_int = i32;
-    #[cfg(not(target_pointer_width = "16"))]
-    pub(crate) type c_uint = u32;
+    cfg_sel!({
+        #[cfg(target_pointer_width = "16")]
+        {
+            pub(crate) type c_int = i16;
+            pub(crate) type c_uint = u16;
+        }
+        #[cfg(else)]
+        {
+            pub(crate) type c_int = i32;
+            pub(crate) type c_uint = u32;
+        }
+    });
     // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise {i,u}32.
     // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L168
-    #[cfg(all(target_pointer_width = "64", not(windows)))]
-    pub(crate) type c_long = i64;
-    #[cfg(all(target_pointer_width = "64", not(windows)))]
-    pub(crate) type c_ulong = u64;
-    #[cfg(not(all(target_pointer_width = "64", not(windows))))]
-    pub(crate) type c_long = i32;
-    #[cfg(not(all(target_pointer_width = "64", not(windows))))]
-    pub(crate) type c_ulong = u32;
+    cfg_sel!({
+        #[cfg(all(target_pointer_width = "64", not(windows)))]
+        {
+            pub(crate) type c_long = i64;
+            pub(crate) type c_ulong = u64;
+        }
+        #[cfg(else)]
+        {
+            pub(crate) type c_long = i32;
+            pub(crate) type c_ulong = u32;
+        }
+    });
     // c_size_t is currently always usize.
     // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L76
     pub(crate) type c_size_t = usize;
@@ -826,6 +837,9 @@ pub(crate) mod ffi {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Helper macros for defining FFI bindings with static signature/type/value assertions.
+
     /// Defines types with #[cfg(test)] static assertions which checks
     /// types are the same as the platform's latest header files' ones.
     // Note: This macro is sys_ty!({ }), not sys_ty! { }.
@@ -908,7 +922,7 @@ pub(crate) mod ffi {
     macro_rules! sys_fn {
         ({
             $(#[$extern_attr:meta])*
-            extern $abi:literal {$(
+            extern $abi:tt {$(
                 $(#[$fn_attr:meta])*
                 $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
                     $($args:tt)*

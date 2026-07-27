@@ -367,7 +367,7 @@ mod imp {
         #[allow(clippy::cast_possible_truncation)]
         let mib_len = mib.len() as ffi::c_uint;
         // SAFETY:
-        // - `mib.len()` does not exceed the size of `mib`.
+        // - `mib_len` does not exceed the size of `mib`.
         // - `out_len` does not exceed the size of `out`.
         // - `sysctl` is thread-safe.
         let res = unsafe {
@@ -380,6 +380,7 @@ mod imp {
                 0,
             )
         };
+        // OpenBSD sysctl returns -1 on failure.
         if res == -1 {
             return None;
         }
@@ -512,8 +513,9 @@ mod tests {
                         options(nostack),
                     );
                 }
+                // NetBSD sysctl returns 0 on success, -1 on failure.
                 #[allow(clippy::cast_possible_truncation)]
-                if r as c_int == -1 { Err(n as c_int) } else { Ok(r as c_int) }
+                if r as c_int == 0 { Ok(r as c_int) } else { Err(n as c_int) }
             }
 
             // https://github.com/golang/sys/blob/v0.35.0/cpu/cpu_netbsd_arm64.go
