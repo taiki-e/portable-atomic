@@ -68,7 +68,7 @@ sptr = "0.3"
 static_assertions = "1"
 test-helper = { features = ["sys", "critical-section-std", "valgrind"], git = "https://github.com/taiki-e/test-helper.git", rev = "834438095d5cca0b518814430bd8eedb2513cf06" }
 
-[target.'cfg(unix)'.dev-dependencies]
+[target.'cfg(any(unix, target_os = "hermit"))'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
 
 [target.'cfg(windows)'.dev-dependencies]
@@ -114,7 +114,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     # Public APIs, considered unstable unless documented as stable in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Not public API.
-    'cfg(portable_atomic_test_detect_false,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind,valgrind_cross)',
+    'cfg(portable_atomic_test_detect_false,portable_atomic_test_asm_syscall,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind,valgrind_cross)',
 ] }
 unnameable_types = "warn"
 unreachable_pub = "warn"

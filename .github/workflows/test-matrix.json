@@ -316,6 +316,21 @@
       "target": "armv7-unknown-linux-gnueabi"
     },
     {
+      "rust": "1.59",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "armv7-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf",
       "os": "ubuntu-24.04-arm"
@@ -323,6 +338,21 @@
     {
       "rust": "nightly",
       "target": "armv7-unknown-linux-gnueabihf"
+    },
+    {
+      "rust": "1.59",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
+    },
+    {
+      "rust": "stable",
+      "target": "thumbv7neon-unknown-linux-gnueabihf",
+      "os": "ubuntu-24.04-arm"
     },
     {
       "rust": "nightly",
@@ -341,6 +371,18 @@
     {
       "rust": "nightly-2024-08-30",
       "target": "arm-linux-androideabi"
+    },
+    {
+      "rust": "1.72",
+      "target": "loongarch64-unknown-linux-gnu"
+    },
+    {
+      "rust": "nightly-2023-04-26",
+      "target": "loongarch64-unknown-linux-gnu"
+    },
+    {
+      "rust": "stable",
+      "target": "loongarch64-unknown-linux-gnu"
     },
     {
       "rust": "nightly",
@@ -377,6 +419,18 @@
     {
       "rust": "nightly-2026-01-28",
       "target": "mipsisa64r6el-unknown-linux-gnuabi64"
+    },
+    {
+      "rust": "1.95",
+      "target": "powerpc-unknown-linux-gnu"
+    },
+    {
+      "rust": "nightly-2021-08-21",
+      "target": "powerpc-unknown-linux-gnu"
+    },
+    {
+      "rust": "stable",
+      "target": "powerpc-unknown-linux-gnu"
     },
     {
       "rust": "nightly",

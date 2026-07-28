@@ -941,7 +941,10 @@ mod tests {
             use crate::utils::{RegISize, RegSize};
 
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
-                #[cfg_attr(target_arch = "arm", allow(unused_variables))]
+                #[cfg_attr(
+                    any(target_arch = "x86", target_arch = "arm", target_arch = "s390x"),
+                    allow(unused_variables)
+                )]
                 let number = sys::__NR_prctl as RegSize;
                 let arg1 = sys::PR_GET_AUXV as RegSize;
                 let arg2 = ptr_reg!(out);
@@ -952,11 +955,17 @@ mod tests {
                 // SAFETY: the caller must uphold the safety contract.
                 // we've extended the syscall number and arguments to the register size.
                 unsafe {
-                    #[cfg(target_arch = "arm")]
+                    #[cfg(target_arch = "x86")]
+                    asm_syscall!(sys::__NR_prctl, 172, r, arg1, arg2, arg3, 0, arg5);
+                    #[cfg(any(target_arch = "arm", target_arch = "s390x"))]
                     asm_syscall!(sys::__NR_prctl, 172, r, arg1, arg2, arg3, arg4, arg5);
                     // POWER9+ has fast syscall using SCV, but since detection is cold path,
                     // there’s no need to consider it here.
-                    #[cfg(not(target_arch = "arm"))]
+                    #[cfg(not(any(
+                        target_arch = "x86",
+                        target_arch = "arm",
+                        target_arch = "s390x",
+                    )))]
                     asm_syscall!(number, r, arg1, arg2, arg3, arg4, arg5);
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
