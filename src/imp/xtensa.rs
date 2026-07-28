@@ -88,16 +88,33 @@ macro_rules! rmw {
     }};
 }
 
-// Atomic store that is serialized against the emulated PSRAM RMWs.
+// PSRAM operations are emulated with non-atomic volatile accesses under a
+// critical section, so synchronization lives on the critical section's lock, not
+// on the atomic's address. Loads and stores must take the same critical section
+// for every ordering: otherwise they race with the emulated write and have no
+// release on this address to pair with, and the ordering argument cannot be used
+// to opt out because `Relaxed` load + `fence(Acquire)` must work too.
+// `src/imp/interrupt` ignores the ordering for the same reason.
 //
-// A naturally aligned store is itself atomic on these CPUs (only the
-// read-modify-write instruction misbehaves on PSRAM), but it must take the
-// same critical section as the RMW path. Otherwise, on the dual-core
-// ESP32 / ESP32-S3, a plain store on one core could land between the read
-// and write of an in-progress RMW on the other core and be lost.
-//
-// When the `critical-section` feature is disabled, RMWs on PSRAM panic, so no
-// store-vs-RMW race can occur and a plain native store stays correct.
+// Without the `critical-section` feature, PSRAM RMWs panic instead of being
+// emulated, so all accesses are native and the native load/store are correct.
+macro_rules! load {
+    ($self:ident, $order:ident) => {{
+        #[cfg(feature = "critical-section")]
+        {
+            let p: *mut _ = $self.as_ptr();
+            if in_psram(p) {
+                return critical_section::with(|_cs| {
+                    // SAFETY: `p` is valid and aligned (from `&self`), and the
+                    // critical section excludes the RMW and store paths.
+                    unsafe { core::ptr::read_volatile(p) }
+                });
+            }
+        }
+        $self.inner.load($order)
+    }};
+}
+
 macro_rules! store {
     ($self:ident, $val:ident, $order:ident) => {{
         #[cfg(feature = "critical-section")]
@@ -105,10 +122,8 @@ macro_rules! store {
             let p: *mut _ = $self.as_ptr();
             if in_psram(p) {
                 critical_section::with(|_cs| {
-                    // SAFETY: inside a critical section we have exclusive
-                    // access to `p`, which is valid and aligned because it
-                    // came from `&self`. The store is serialized with the
-                    // RMW path, which takes the same critical section.
+                    // SAFETY: `p` is valid and aligned (from `&self`), and the
+                    // critical section excludes the RMW and load paths.
                     unsafe { core::ptr::write_volatile(p, $val) }
                 });
                 return;
@@ -135,18 +150,16 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn is_lock_free() -> bool {
         Self::IS_ALWAYS_LOCK_FREE
     }
-    // Not lock-free: if the atomic happens to live in PSRAM, RMWs take a
-    // critical section. We can only give a conservative compile-time answer.
+    // Not lock-free: if the atomic happens to live in PSRAM, every access
+    // takes a critical section. We can only give a conservative compile-time
+    // answer.
     pub(crate) const IS_ALWAYS_LOCK_FREE: bool = false;
 
     #[inline]
     #[cfg_attr(any(debug_assertions, miri), track_caller)]
     pub(crate) fn load(&self, order: Ordering) -> *mut T {
         crate::utils::assert_load_ordering(order);
-        // No critical section needed: A naturally aligned load always
-        // observes a complete value written by a store or by the RMW
-        // path's single `write_volatile`.
-        self.inner.load(order)
+        load!(self, order)
     }
     #[inline]
     #[cfg_attr(any(debug_assertions, miri), track_caller)]
@@ -389,17 +402,14 @@ macro_rules! atomic_int {
                 Self::IS_ALWAYS_LOCK_FREE
             }
             // We cannot promise lock-freedom without knowing the address
-            // at compile time; RMWs on PSRAM take a critical section.
+            // at compile time; every access on PSRAM takes a critical section.
             pub(crate) const IS_ALWAYS_LOCK_FREE: bool = false;
 
             #[inline]
             #[cfg_attr(any(debug_assertions, miri), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                // No critical section needed: A naturally aligned load always
-                // observes a complete value written by a store or by the RMW
-                // path's single `write_volatile`.
-                self.inner.load(order)
+                load!(self, order)
             }
             #[inline]
             #[cfg_attr(any(debug_assertions, miri), track_caller)]
