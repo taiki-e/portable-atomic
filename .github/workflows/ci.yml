@@ -862,7 +862,8 @@ jobs:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/install-action@8b3c737da4b541bf0fb5a3e0488ff20535badac9 # v2.82.1
         with:
-          tool: rust@nightly+rust-src,espup
+          # TODO: https://github.com/taiki-e/asmtest/issues/2
+          tool: rust@nightly-2026-07-30+rust-src,espup
           fallback: none
       - run: |
           retry() {
