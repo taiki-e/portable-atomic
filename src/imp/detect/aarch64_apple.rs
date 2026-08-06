@@ -58,7 +58,7 @@ mod ffi {
     sys_fn!({
         extern "C" {
             // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname
-            // https://github.com/apple-oss-distributions/xnu/blob/8d741a5de7ff4191bf97d57b9f54c2f6d4a15585/bsd/sys/sysctl.h
+            // https://github.com/apple-oss-distributions/xnu/blob/xnu-12377.121.6/bsd/sys/sysctl.h
             pub(crate) fn sysctlbyname(
                 name: *const c_char,
                 old_p: *mut c_void,

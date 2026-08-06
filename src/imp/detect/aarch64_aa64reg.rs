@@ -200,7 +200,7 @@ mod imp {
 
         sys_struct!({
             // Defined in machine/armreg.h.
-            // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/arch/aarch64/include/armreg.h#L1863
+            // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/sys/arch/aarch64/include/armreg.h#L1863
             pub(crate) struct aarch64_sysctl_cpu_id {
                 // NetBSD 9.0+
                 // https://github.com/NetBSD/src/commit/0e9d25528729f7fea53e78275d1bc5039dfe8ffb
@@ -232,7 +232,7 @@ mod imp {
             extern "C" {
                 // Defined in sys/sysctl.h.
                 // https://man.netbsd.org/sysctl.3
-                // https://github.com/NetBSD/src/blob/432a1357026b10c184d8a0ddb683008a23cc7cd9/sys/sys/sysctl.h
+                // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/sys/sys/sysctl.h
                 pub(crate) fn sysctlbyname(
                     name: *const c_char,
                     old_p: *mut c_void,
@@ -312,11 +312,11 @@ mod imp {
 
         sys_const!({
             // Defined in sys/sysctl.h.
-            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h#L82
+            // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/sys/sysctl.h
             pub(crate) const CTL_MACHDEP: c_int = 7;
 
             // Defined in machine/cpu.h.
-            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/cpu.h#L25-L40
+            // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/arm64/include/cpu.h
             // OpenBSD 7.1+
             // https://github.com/openbsd/src/commit/d335af936b9d7dd9cf655cae1ce19560c45de6c8
             pub(crate) const CPU_ID_AA64ISAR0: c_int = 2;
@@ -332,7 +332,7 @@ mod imp {
             extern "C" {
                 // Defined in sys/sysctl.h.
                 // https://man.openbsd.org/sysctl.2
-                // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/sysctl.h
+                // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/sys/sysctl.h
                 pub(crate) fn sysctl(
                     name: *const c_int,
                     name_len: c_uint,

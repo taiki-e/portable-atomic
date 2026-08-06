@@ -341,10 +341,10 @@ mod os {
         sys_const!({
             // FreeBSD
             // Defined in sys/elf_common.h.
-            // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/sys/sys/elf_common.h
+            // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/sys/elf_common.h
             // OpenBSD
             // Defined in sys/auxv.h.
-            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
+            // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/sys/auxv.h
             pub(crate) const AT_HWCAP: c_int = 25;
             #[cfg(any(
                 test,
@@ -364,11 +364,11 @@ mod os {
             // FreeBSD
             // Defined in dlfcn.h.
             // https://man.freebsd.org/dlsym(3)
-            // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/include/dlfcn.h
+            // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/include/dlfcn.h
             // OpenBSD
             // Defined in dlfcn.h.
             // https://man.openbsd.org/dlsym.3
-            // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/include/dlfcn.h
+            // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/include/dlfcn.h
             #[cfg(any(
                 test,
                 not(any(
@@ -392,11 +392,11 @@ mod os {
                 // FreeBSD
                 // Defined in sys/auxv.h.
                 // https://man.freebsd.org/elf_aux_info(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/sys/sys/auxv.h
+                // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/sys/auxv.h
                 // OpenBSD
                 // Defined in sys/auxv.h.
                 // https://man.openbsd.org/elf_aux_info.3
-                // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/sys/auxv.h
+                // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/sys/auxv.h
                 #[cfg(any(
                     test,
                     any(
@@ -415,11 +415,11 @@ mod os {
                 // FreeBSD
                 // Defined in dlfcn.h.
                 // https://man.freebsd.org/dlsym(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/include/dlfcn.h
+                // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/include/dlfcn.h
                 // OpenBSD
                 // Defined in dlfcn.h.
                 // https://man.openbsd.org/dlsym.3
-                // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/include/dlfcn.h
+                // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/include/dlfcn.h
                 #[cfg(any(
                     test,
                     not(any(
@@ -499,10 +499,10 @@ mod arch {
         // https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/arm64/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/elf.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/sys/arm64/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/arm64/include/elf.h
         // OpenBSD
         // Defined in machine/elf.h.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm64/include/elf.h
+        // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/arm64/include/elf.h
         // Linux 4.3+
         // https://github.com/torvalds/linux/commit/40a1db2434a1b62332b1af25cfa14d7b8c0301fe
         // FreeBSD 13.0+/12.2+
@@ -628,10 +628,10 @@ mod arch {
         // https://github.com/torvalds/linux/blob/v6.19/arch/arm/include/uapi/asm/hwcap.h
         // FreeBSD
         // Defined in machine/elf.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/sys/arm/include/elf.h
+        // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/arm/include/elf.h
         // OpenBSD
         // Defined in machine/elf.h.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/arm/include/elf.h
+        // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/arm/include/elf.h
         // Linux 3.11+
         // https://github.com/torvalds/linux/commit/a469abd0f868c902b75532579bf87553dcf1b360
         // FreeBSD 12.0+/11.2+
@@ -674,10 +674,10 @@ mod arch {
         // https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/powerpc/elf_hwcaps.rst
         // FreeBSD
         // Defined in machine/cpu.h.
-        // https://github.com/freebsd/freebsd-src/blob/release/15.0.0/sys/powerpc/include/cpu.h
+        // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/powerpc/include/cpu.h
         // OpenBSD
         // Defined in machine/elf.h.
-        // https://github.com/openbsd/src/blob/ed8f5e8d82ace15e4cefca2c82941b15cb1a7830/sys/arch/powerpc64/include/elf.h
+        // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/powerpc64/include/elf.h
         // Linux 2.6.16+
         // https://github.com/torvalds/linux/commit/80f15dc703b3677d0b025bafd215f1f3664c8978
         // FreeBSD 11.0+
@@ -724,8 +724,8 @@ mod arch {
         }
         let hwcap2 = os::getauxval(ffi::AT_HWCAP2);
         // Check both 2_07 and later ISAs (which are superset of 2_07) because
-        // OpenBSD currently doesn't set 2_07 even when 3_00 is set.
-        // https://github.com/openbsd/src/blob/d8ec5edcdf1fb224619831ad90668c95e45c3e36/sys/arch/powerpc64/powerpc64/cpu.c#L222-L238
+        // OpenBSD (as of 8.0-beta) doesn't set 2_07 even when 3_00 is set.
+        // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/powerpc64/powerpc64/cpu.c#L222-L238
         // Other OSes should be fine, but check all OSs in the same way just in case.
         let isa_2_07_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
