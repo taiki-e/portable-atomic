@@ -78,7 +78,7 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare.outputs.test-matrix) }}
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     container: ${{ matrix.container && fromJSON(format('{{"image":"{0}","options":"--privileged"}}', matrix.container)) || '' }}
-    timeout-minutes: 120 # TODO: reduce
+    timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc libc6-dev
@@ -159,7 +159,7 @@ jobs:
           RUST: ${{ matrix.rust }}
       - name: Workaround for rustc/LLVM bug about SPARC-V8+
         run: |
-          # Workaround for "rustc-LLVM ERROR: Unsupported instruction : <MCInst 11 <MCOperand Reg:174>>" with LLVM 20-22
+          # Workaround for "rustc-LLVM ERROR: Unsupported instruction : <MCInst 11 <MCOperand Reg:174>>" with LLVM 20-23
           printf 'CARGO_PROFILE_RELEASE_OPT_LEVEL=0\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'sparc-')
       # for f16 and f128
@@ -383,7 +383,7 @@ jobs:
           - target: aarch64-unknown-illumos
             os: omnios
     runs-on: ubuntu-24.04
-    timeout-minutes: 120 # TODO: build on OpenBSD is too slow
+    timeout-minutes: 30
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - run: |
@@ -581,6 +581,7 @@ jobs:
           # - '1.86' # LLVM 19
           # - '1.90' # LLVM 20
           # - '1.94' # LLVM 21
+          # - '1.98' # LLVM 22
           - stable
           # - beta
           # - nightly-2022-08-12 # Rust 1.65, LLVM 14
@@ -591,6 +592,7 @@ jobs:
           # - nightly-2025-02-17 # Rust 1.87, LLVM 19
           # - nightly-2025-08-06 # Rust 1.91, LLVM 20
           # - nightly-2026-01-28 # Rust 1.95, LLVM 21
+          # - nightly-2026-08-05 # Rust 1.99, LLVM 22
           - nightly
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -786,7 +788,7 @@ jobs:
           - target: s390x-unknown-linux-gnu
             arch: s390x
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
@@ -859,7 +861,7 @@ jobs:
   asm-test:
     needs: tidy
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4

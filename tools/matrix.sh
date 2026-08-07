@@ -119,7 +119,8 @@ targets=(
 # - LLVM 19 : stable 1.82 - 1.86, nightly-2024-08-01 (1.82) - nightly-2025-02-17 (1.87)
 # - LLVM 20 : stable 1.87 - 1.90, nightly-2025-02-18 (1.87) - nightly-2025-08-06 (1.91)
 # - LLVM 21 : stable 1.91 - 1.94, nightly-2025-08-07 (1.91) - nightly-2026-01-28 (1.95), since https://github.com/rust-lang/rust/pull/143684
-# - LLVM 22 : stable 1.95 -     , nightly-2026-01-29 (1.95)                            , since https://github.com/rust-lang/rust/pull/150722
+# - LLVM 22 : stable 1.95 - 1.98, nightly-2026-01-29 (1.95) - nightly-2026-08-05 (1.99), since https://github.com/rust-lang/rust/pull/150722
+# - LLVM 23 : stable 1.99 -     , nightly-2026-08-06 (1.99) -                          , since https://github.com/rust-lang/rust/pull/158734
 # (see also https://github.com/rust-lang/rust/commits/HEAD/src/llvm-project)
 # Minimum external LLVM version table:
 # - LLVM 3.9: stable 1.23 - 1.28, since https://github.com/rust-lang/rust/pull/45326
@@ -149,6 +150,7 @@ toolchains=(
   1.86 # LLVM 19
   1.90 # LLVM 20
   1.94 # LLVM 21
+  # 1.98 # LLVM 22
   stable
   beta
   nightly
@@ -230,6 +232,12 @@ convert_toolchain_for_unstable_asm() {
       # LLVM 21
       case "${target}" in
         *) toolchain=nightly-2026-01-28 ;; # Rust 1.95
+      esac
+      ;;
+    1.9[5-8])
+      # LLVM 22
+      case "${target}" in
+        *) toolchain=nightly-2026-08-05 ;; # Rust 1.99
       esac
       ;;
     1.*) bail "unhandled ${toolchain}" ;;
@@ -384,6 +392,20 @@ for target in "${targets[@]}"; do
           1.96) toolchain='' ;; # LLVM OOM with Rust 1.96
           # TODO(x86): LLVM OOM with Rust 1.96
           nightly) toolchain=nightly-2026-03-05 ;;
+        esac
+        ;;
+      i586-unknown-linux-gnu)
+        case "${toolchain}" in
+          1.99) toolchain='' ;; # hang with LLVM 23 + QEMU 11.0
+          # TODO(x86): hang with LLVM 23 + QEMU 11.0
+          nightly) toolchain=nightly-2026-08-05 ;;
+        esac
+        ;;
+      mips64*)
+        case "${toolchain}" in
+          1.99) toolchain='' ;; # LLVM 23 bug https://github.com/llvm/llvm-project/issues/112010
+          # TODO(mips): LLVM 23 bug https://github.com/llvm/llvm-project/issues/112010
+          nightly) toolchain=nightly-2026-08-05 ;;
         esac
         ;;
     esac
