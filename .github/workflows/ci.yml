@@ -511,6 +511,221 @@ jobs:
           kill -- "${qemu_pid}"
         if: matrix.os == 'omnios'
 
+  test-vm-fuchsia:
+    name: test (${{ matrix.target }})
+    needs: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          # We don't test x86_64 here because there is no OS-specific code on x86_64.
+          - aarch64-unknown-fuchsia
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@nightly+${{ matrix.target }}
+          fallback: none
+      # Refs:
+      # - https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/doc/rustc/src/platform-support/fuchsia.md
+      # - https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/ci/docker/scripts/fuchsia-test-runner.py
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          bail() {
+            printf >&2 'error: %s\n' "$*"
+            exit 1
+          }
+
+          # https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/ci/docker/scripts/build-fuchsia-toolchain.sh#L7
+          sdk_id='version:26.20241211.7.1'
+          sdk_path="${RUNNER_TEMP}/fuchsia-sdk"
+          tmp_dir="${RUNNER_TEMP}/fuchsia-test"
+          mkdir -p -- "${tmp_dir}"/{home,ffx-isolate,output}
+          tool_dir="${sdk_path}/tools/x64"
+          rest_cargo_options=(--test-threads=1)
+          case "${TARGET}" in
+            aarch64*)
+              target_arch=arm64
+              product_name=terminal.qemu-"${target_arch}"
+              emulator_dev_config_path="${tmp_dir}/emulator-dev-config.json"
+              printf '{"args":["-cpu","cortex-a76"]}\n' >"${emulator_dev_config_path}"
+              emulator_options=(
+                --engine qemu --accel none
+                --dev-config "${emulator_dev_config_path}"
+              )
+              # VM is very slow, so only test OS-specific code and code using them.
+              rest_cargo_options+=(aarch64)
+              ;;
+            *) bail "unrecognized target '${TARGET}'" ;;
+          esac
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -o "${sdk_path}.zip" "https://chrome-infra-packages.appspot.com/dl/fuchsia/sdk/core/linux-amd64/+/${sdk_id}"
+          sha256sum -c - <<<"2cb7a9a0419f7413a46e0ccef7dad89f7c9979940d7c1ee87fac70ff499757d6  ${sdk_path}.zip"
+          sdk_exclude=('.build-id/*' 'docs/*' 'obj/*' 'packages/*' 'tools/arm64/*')
+          for arch in arm64 riscv64 x64; do
+            [[ "${arch}" == "${target_arch}" ]] || sdk_exclude+=("arch/${arch}/*")
+          done
+          unzip -q "${sdk_path}.zip" -x "${sdk_exclude[@]}" -d "${sdk_path}"
+          rm -f -- "${sdk_path}.zip"
+
+          sdk_version=$(jq -er '.id' "${sdk_path}/meta/manifest.json")
+          package_dir="${tmp_dir}/package"
+          test_output_dir="${tmp_dir}/output"
+          emulator_log_path="${tmp_dir}/emulator.log"
+          ffx_daemon_log_path="${tmp_dir}/ffx-daemon.log"
+          test_repo_name=fuchsia-test
+          repo_dir="${tmp_dir}/${test_repo_name}"
+          local_pb_path="${tmp_dir}/product-bundle"
+          ffx() {
+            env \
+              HOME="${tmp_dir}/home" \
+              FFX_ISOLATE_DIR="${tmp_dir}/ffx-isolate" \
+              TMP="${tmp_dir}" \
+              TEMP="${tmp_dir}" \
+              TMPDIR="${tmp_dir}" \
+              TEMPDIR="${tmp_dir}" \
+              "${tool_dir}/ffx" "$@"
+          }
+
+          cleanup() {
+            local status=$?
+            if [[ "${status}" != '0' ]]; then
+              if [[ -f "${emulator_log_path}" ]]; then
+                printf '============== emulator logs ==============\n'
+                cat -- "${emulator_log_path}"
+              fi
+              if [[ -f "${ffx_daemon_log_path}" ]]; then
+                printf '============== ffx daemon log =============\n'
+                cat -- "${ffx_daemon_log_path}"
+              fi
+            fi
+            ffx emu stop || true
+            ffx repository server stop "${test_repo_name}" || true
+            ffx daemon stop || true
+            exit "${status}"
+          }
+          trap -- cleanup EXIT
+
+          ffx daemon start &>"${ffx_daemon_log_path}" &
+          ffx config analytics disable
+          ffx config set log.enabled true
+          ffx config set log.dir "${tmp_dir}"
+          ffx config set test.is_isolated true
+          ffx config set test.experimental_structured_output true
+          transfer_manifest_url=$(
+            ffx --machine json product lookup \
+              "${product_name}" \
+              "${sdk_version}" \
+              --base-url "gs://fuchsia/development/${sdk_version}" \
+              | jq -er '.transfer_manifest_url'
+          )
+          ffx product download "${transfer_manifest_url}" "${local_pb_path}"
+
+          ffx emu start \
+            "${local_pb_path}" \
+            --headless \
+            --log "${emulator_log_path}" \
+            --net auto \
+            --startup-timeout 600 \
+            "${emulator_options[@]}"
+
+          ffx repository create "${repo_dir}"
+          ffx repository server start \
+            --background \
+            --address '[::]:0' \
+            --repo-path "${repo_dir}" \
+            --repository "${test_repo_name}"
+          ffx target repository register --repository "${test_repo_name}"
+
+          target_libdir=$(rustc --print target-libdir --target "${TARGET}")
+          libstd_name=$(basename -- "$(ls -- "${target_libdir}"/libstd-*.so)")
+          export RUSTFLAGS="${RUSTFLAGS:-} --cfg qemu -L native=${sdk_path}/arch/${target_arch}/lib -L native=${sdk_path}/arch/${target_arch}/sysroot/lib"
+          binary_path=$(./tools/test.sh build --target "${TARGET}" --release)
+
+          package_name=t
+          mkdir -p -- "${package_dir}/meta" "${test_output_dir}"
+          cml_path="${package_dir}/meta/${package_name}.cml"
+          cm_path="${package_dir}/meta/${package_name}.cm"
+          manifest_path="${package_dir}/${package_name}.manifest"
+
+          cat >"${package_dir}/meta/package" <<EOF
+          {
+            "name": "${package_name}",
+            "version": "0"
+          }
+          EOF
+          cat >"${manifest_path}" <<EOF
+          meta/package=${package_dir}/meta/package
+          meta/${package_name}.cm=${cm_path}
+          bin/${package_name}=${binary_path}
+          lib/${libstd_name}=${target_libdir}/${libstd_name}
+          lib/ld.so.1=${sdk_path}/arch/${target_arch}/sysroot/dist/lib/ld.so.1
+          lib/libfdio.so=${sdk_path}/arch/${target_arch}/dist/libfdio.so
+          EOF
+          cat >"${cml_path}" <<EOF
+          {
+              program: {
+                  runner: "elf_test_runner",
+                  binary: "bin/${package_name}",
+                  forward_stderr_to: "log",
+                  forward_stdout_to: "log",
+                  environ: [
+                      "RUST_BACKTRACE=${RUST_BACKTRACE:-0}",
+                      "RUST_TEST_THREADS=${RUST_TEST_THREADS:-1}",
+                      "RUST_TEST_TMPDIR=/tmp",
+                  ],
+              },
+              capabilities: [
+                  { protocol: "fuchsia.test.Suite" },
+              ],
+              expose: [
+                  { protocol: "fuchsia.test.Suite", from: "self" },
+              ],
+          }
+          EOF
+
+          "${tool_dir}/cmc" compile \
+            "${cml_path}" \
+            --output "${cm_path}"
+          api_level=$(ffx --machine json version | jq -er '.tool_version.api_level')
+          ffx package build \
+            "${manifest_path}" \
+            -o "${package_dir}" \
+            --api-level "${api_level}"
+          ffx repository publish \
+            --package "${package_dir}/package_manifest.json" \
+            "${repo_dir}"
+
+          ffx_status=0
+          ffx test run \
+            "fuchsia-pkg://${test_repo_name}/${package_name}#meta/${package_name}.cm" \
+            --min-severity-logs TRACE \
+            --output-directory "${test_output_dir}" \
+            -- \
+            "${rest_cargo_options[@]}" \
+            || ffx_status=$?
+
+          run_summary_path="${test_output_dir}/run_summary.json"
+          if [[ ! -f "${run_summary_path}" ]]; then
+            bail "failed to open test run summary (${run_summary_path}) (ffx exit with ${ffx_status})"
+          fi
+          outcome=$(jq -er '.data.suites[0].cases[0].outcome' "${run_summary_path}")
+          if [[ "${outcome}" != 'PASSED' ]]; then
+            bail "test failed: ${outcome} (ffx exit with ${ffx_status})"
+          fi
+        env:
+          TARGET: ${{ matrix.target }}
+
   build:
     name: build (${{ matrix.name || matrix.rust }})
     needs: tidy
