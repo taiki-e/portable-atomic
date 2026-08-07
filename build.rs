@@ -160,8 +160,10 @@ fn main() {
             // The part of this feature we use has not been changed since nightly-2020-06-21
             // until it was stabilized, so it can safely be enabled in nightly for that period.
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
-            if (target_arch == "riscv32" || target_arch == "riscv64") && version.minor < 55 {
-                // Clobber-only registers needed for asm syscall require Rust 1.55 (https://github.com/rust-lang/rust/pull/86416).
+            if (target_arch == "riscv32" || target_arch == "riscv64")
+                && !version.probe(56, 2021, 8, 15)
+            {
+                // Clobbering vector status needed for asm syscall require Rust 1.56 (nightly-2021-08-16): https://github.com/rust-lang/rust/pull/87581
                 println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
             }
         }
@@ -197,6 +199,18 @@ fn main() {
                         println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
                     } else {
                         println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                    if !version.probe(92, 2025, 9, 22)
+                        || env::var("CARGO_CFG_TARGET_ABI")
+                            .unwrap_or_default()
+                            .split(',')
+                            .any(|abi| abi == "spu")
+                    {
+                        // Clobbering ctr register needed for asm syscall require Rust 1.92 (nightly-2025-09-23): https://github.com/rust-lang/rust/pull/146831
+                        // Cell/B.E. Linux's SPU syscalls support a subset of powerpc64 syscalls with the exact semantics: https://github.com/torvalds/linux/blob/v7.1/arch/powerpc/platforms/cell/spu_callbacks.c#L17
+                        // but have a different syscall sequence: https://github.com/mirror/newlib-cygwin/blob/newlib-4.4.0/libgloss/spu/linux_syscalls.c#L37
+                        // This is currently used only for testing.
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
                     }
                 }
             }

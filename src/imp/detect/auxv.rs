@@ -855,13 +855,9 @@ mod tests {
     }
 
     #[cfg(any(target_os = "linux", target_os = "android"))]
-    #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
-    #[cfg_attr(target_arch = "arm", rustversion::nightly)] // cfg(target_feature = "thumb-mode") is nightly-only
-    #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
+    #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
     #[test]
     fn test_alternative() {
-        #[cfg(not(portable_atomic_no_asm))]
-        use std::arch::asm;
         use std::{eprintln, str, vec};
 
         #[cfg(target_pointer_width = "32")]
@@ -870,94 +866,36 @@ mod tests {
         use sys::Elf64_auxv_t as Elf_auxv_t;
         use test_helper::sys;
 
-        use crate::utils::{RegISize, RegSize, ffi::*};
+        use crate::utils::ffi::*;
 
         // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
         // https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
         // (Actually 6.5? https://github.com/torvalds/linux/commit/636e348353a7cc52609fdba5ff3270065da140d5)
         //
         // This is currently used only for testing.
+        #[cfg(not(target_os = "android"))]
+        #[cfg(not(portable_atomic_no_asm_syscall))]
         fn getauxval_pr_get_auxv_no_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
-            // Refs:
-            // - aarch64
-            //   https://git.musl-libc.org/cgit/musl/tree/arch/aarch64/syscall_arch.h?h=v1.2.5
-            // - arm
-            //   https://git.musl-libc.org/cgit/musl/tree/arch/arm/syscall_arch.h?h=v1.2.5
-            // - powerpc64
-            //   https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/powerpc/syscall64-abi.rst
-            //   https://git.musl-libc.org/cgit/musl/tree/arch/powerpc64/syscall_arch.h?h=1b76ff0767d01df72f692806ee5adee13c67ef88
+            use crate::utils::{RegISize, RegSize};
+
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
-                // arguments must be extended to 64-bit if 64-bit arch
+                #[cfg_attr(target_arch = "arm", allow(unused_variables))]
                 let number = sys::__NR_prctl as RegSize;
                 let arg1 = sys::PR_GET_AUXV as RegSize;
                 let arg2 = ptr_reg!(out);
                 let arg3 = len as RegSize;
+                let arg4: RegSize = 0;
+                let arg5: RegSize = 0;
                 let r: RegISize;
+                // SAFETY: the caller must uphold the safety contract.
+                // we've extended the syscall number and arguments to the register size.
                 unsafe {
-                    #[cfg(target_arch = "aarch64")]
-                    asm!(
-                        "svc 0",
-                        in("x8") number,
-                        inout("x0") arg1 => r,
-                        in("x1") arg2,
-                        in("x2") arg3,
-                        // arg4 and arg5 must be zero.
-                        in("x3") 0_u64,
-                        in("x4") 0_u64,
-                        options(nostack, preserves_flags),
-                    );
-                    #[cfg(all(target_arch = "arm", not(target_feature = "thumb-mode")))]
-                    asm!(
-                        "svc 0",
-                        in("r7") number,
-                        inout("r0") arg1 => r,
-                        in("r1") arg2,
-                        in("r2") arg3,
-                        // arg4 and arg5 must be zero.
-                        in("r3") 0_u32,
-                        in("r4") 0_u32,
-                        options(nostack, preserves_flags),
-                    );
-                    #[cfg(all(target_arch = "arm", target_feature = "thumb-mode"))]
-                    asm!(
-                        // r7 is reserved on thumb
-                        "mov {tmp}, r7",
-                        "mov r7, {number}",
-                        "svc 0",
-                        "mov r7, {tmp}",
-                        number = in(reg) number,
-                        tmp = out(reg) _,
-                        inout("r0") arg1 => r,
-                        in("r1") arg2,
-                        in("r2") arg3,
-                        // arg4 and arg5 must be zero.
-                        in("r3") 0_u32,
-                        in("r4") 0_u32,
-                        options(nostack, preserves_flags),
-                    );
-                    #[cfg(target_arch = "powerpc64")]
-                    asm!(
-                        "sc",
-                        "bns+ 2f",
-                        "neg %r3, %r3",
-                        "2:",
-                        inout("r0") number => _,
-                        inout("r3") arg1 => r,
-                        inout("r4") arg2 => _,
-                        inout("r5") arg3 => _,
-                        // arg4 and arg5 must be zero.
-                        inout("r6") 0_u64 => _,
-                        inout("r7") 0_u64 => _,
-                        out("r8") _,
-                        out("r9") _,
-                        out("r10") _,
-                        out("r11") _,
-                        out("r12") _,
-                        out("cr0") _,
-                        out("ctr") _,
-                        out("xer") _,
-                        options(nostack, preserves_flags),
-                    );
+                    #[cfg(target_arch = "arm")]
+                    asm_syscall!(sys::__NR_prctl, 172, r, arg1, arg2, arg3, arg4, arg5);
+                    // POWER9+ has fast syscall using SCV, but since detection is cold path,
+                    // there’s no need to consider it here.
+                    #[cfg(not(target_arch = "arm"))]
+                    asm_syscall!(number, r, arg1, arg2, arg3, arg4, arg5);
                 }
                 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
                 if (r as c_int) < 0 { Err(r as c_int) } else { Ok(r as usize) }
@@ -982,7 +920,7 @@ mod tests {
         }
         // Similar to the above, but call libc prctl instead of syscall using asm.
         //
-        // This is currently used only for testing.
+        // This is used only for testing.
         fn getauxval_pr_get_auxv_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
                 // arg4 and arg5 must be zero.
@@ -1023,6 +961,8 @@ mod tests {
                 eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
                     assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
+                    #[cfg(not(target_os = "android"))]
+                    #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                 }
             } else {
@@ -1031,15 +971,21 @@ mod tests {
                     if cfg!(all(valgrind, target_arch = "powerpc64")) {
                         // TODO: valgrind bug (as of Valgrind 3.26)
                         assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
+                        #[cfg(not(target_os = "android"))]
+                        #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                     } else if cfg!(all(valgrind, target_arch = "aarch64"))
                         || cfg!(all(valgrind, target_arch = "arm")) && at == ffi::AT_HWCAP2
                     {
                         // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.26)
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
+                        #[cfg(not(target_os = "android"))]
+                        #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     } else {
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
+                        #[cfg(not(target_os = "android"))]
+                        #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     }
                 }
@@ -1048,6 +994,8 @@ mod tests {
                         os::getauxval(at),
                         getauxval_pr_get_auxv_libc(at).unwrap_or_default()
                     );
+                    #[cfg(not(target_os = "android"))]
+                    #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(
                         os::getauxval(at),
                         getauxval_pr_get_auxv_no_libc(at).unwrap_or_default()
@@ -1058,16 +1006,13 @@ mod tests {
     }
     #[allow(clippy::cast_possible_wrap)]
     #[cfg(target_os = "freebsd")]
-    #[cfg_attr(target_arch = "powerpc64", rustversion::since(1.92))] // requires https://github.com/rust-lang/rust/pull/146831
     #[test]
     fn test_alternative() {
-        #[cfg(not(portable_atomic_no_asm))]
-        use std::arch::asm;
         use std::ptr;
 
         use test_helper::sys;
 
-        use crate::utils::{RegISize, RegSize, ffi::*};
+        use crate::utils::ffi::*;
 
         // This is almost equivalent to what elf_aux_info does.
         // https://man.freebsd.org/elf_aux_info(3)
@@ -1126,177 +1071,15 @@ mod tests {
             }
             Err(0)
         }
-        // Similar to the above, but call syscall using asm instead of libc.
-        // Note that FreeBSD does not guarantee the stability of raw syscall as
-        // much as Linux does (It may actually be stable enough, though:
-        // https://lists.llvm.org/pipermail/llvm-dev/2019-June/133393.html,
-        // https://github.com/ziglang/zig/issues/16590).
-        //
-        // This is currently used only for testing.
-        fn getauxval_sysctl_no_libc(type_: ffi::c_int) -> Result<ffi::c_ulong, c_int> {
-            #[allow(non_camel_case_types)]
-            type pid_t = c_int;
-
-            // Refs:
-            // - aarch64
-            //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/aarch64/SYS.h
-            //   https://github.com/golang/go/blob/go1.26.0/src/syscall/asm_freebsd_arm64.s
-            // - powerpc64
-            //   https://github.com/freebsd/freebsd-src/blob/release/15.0.0/lib/libsys/powerpc64/SYS.h
-            #[inline]
-            fn getpid() -> pid_t {
-                let n = sys::SYS_getpid as RegSize;
-                let r: RegISize;
-                // SAFETY: calling getpid is safe.
-                unsafe {
-                    #[cfg(target_arch = "aarch64")]
-                    asm!(
-                        "svc 0",
-                        in("x8") n,
-                        out("x0") r,
-                        // Do not use `preserves_flags` because AArch64 FreeBSD syscalls modify the condition flags.
-                        options(nostack, readonly),
-                    );
-                    #[cfg(target_arch = "powerpc64")]
-                    asm!(
-                        "sc",
-                        inout("r0") n => _,
-                        out("r3") r,
-                        out("r4") _,
-                        out("r5") _,
-                        out("r6") _,
-                        out("r7") _,
-                        out("r8") _,
-                        out("r9") _,
-                        out("r10") _,
-                        out("r11") _,
-                        out("r12") _,
-                        out("cr0") _,
-                        out("ctr") _,
-                        out("xer") _,
-                        options(nostack, preserves_flags, readonly),
-                    );
-                }
-                #[allow(clippy::cast_possible_truncation)]
-                {
-                    r as pid_t
-                }
-            }
-            #[inline]
-            unsafe fn sysctl(
-                name: *const c_int,
-                name_len: c_uint,
-                old_p: *mut c_void,
-                old_len_p: *mut c_size_t,
-                new_p: *const c_void,
-                new_len: c_size_t,
-            ) -> Result<c_int, c_int> {
-                let mut n = sys::SYS___sysctl as RegSize;
-                let arg1 = ptr_reg!(name);
-                let arg2 = name_len as RegSize;
-                let arg3 = ptr_reg!(old_p);
-                let arg4 = ptr_reg!(old_len_p);
-                let arg5 = ptr_reg!(new_p);
-                let arg6 = new_len as RegSize;
-                let r: RegISize;
-                // SAFETY: the caller must uphold the safety contract.
-                unsafe {
-                    #[cfg(target_arch = "aarch64")]
-                    asm!(
-                        "svc 0",
-                        "b.cc 2f",
-                        "mov x8, x0",
-                        "mov x0, #-1",
-                        "2:",
-                        inout("x8") n,
-                        inout("x0") arg1 => r,
-                        inout("x1") arg2 => _,
-                        in("x2") arg3,
-                        in("x3") arg4,
-                        in("x4") arg5,
-                        in("x5") arg6,
-                        // Do not use `preserves_flags` because AArch64 FreeBSD syscalls modify the condition flags.
-                        options(nostack),
-                    );
-                    #[cfg(target_arch = "powerpc64")]
-                    asm!(
-                        "sc",
-                        "bns+ 2f",
-                        "mr %r0, %r3",
-                        "li %r3, -1",
-                        "2:",
-                        inout("r0") n,
-                        inout("r3") arg1 => r,
-                        inout("r4") arg2 => _,
-                        inout("r5") arg3 => _,
-                        inout("r6") arg4 => _,
-                        inout("r7") arg5 => _,
-                        inout("r8") arg6 => _,
-                        out("r9") _,
-                        out("r10") _,
-                        out("r11") _,
-                        out("r12") _,
-                        out("cr0") _,
-                        out("ctr") _,
-                        out("xer") _,
-                        options(nostack, preserves_flags),
-                    );
-                }
-                // FreeBSD sysctl returns 0 on success, -1 on failure.
-                #[allow(clippy::cast_possible_truncation)]
-                if r as c_int == 0 { Ok(r as c_int) } else { Err(n as c_int) }
-            }
-
-            let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
-
-            let mut len = mem::size_of_val(&auxv) as c_size_t;
-
-            let pid = getpid();
-            let mib = [
-                sys::CTL_KERN as c_int,
-                sys::KERN_PROC as c_int,
-                sys::KERN_PROC_AUXV as c_int,
-                pid,
-            ];
-            #[allow(clippy::cast_possible_truncation)]
-            let mib_len = mib.len() as c_uint;
-            // SAFETY:
-            // - `mib_len` does not exceed the size of `mib`.
-            // - `len` does not exceed the size of `auxv`.
-            // - `sysctl` is thread-safe.
-            unsafe {
-                sysctl(
-                    mib.as_ptr(),
-                    mib_len,
-                    auxv.as_mut_ptr().cast::<c_void>(),
-                    &mut len,
-                    ptr::null_mut(),
-                    0,
-                )?;
-            }
-
-            for aux in &auxv {
-                #[allow(clippy::cast_sign_loss)]
-                if aux.a_type == type_ as c_long {
-                    // SAFETY: aux.a_un is #[repr(C)] union and all fields have
-                    // the same size and can be safely transmuted to integers.
-                    return Ok(unsafe { aux.a_un.a_val as c_ulong });
-                }
-            }
-            Err(0)
-        }
 
         // AT_HWCAP2 is only available on FreeBSD 13+ on AArch64.
         let hwcap2_else = |e| if cfg!(target_arch = "aarch64") { 0 } else { panic!("{:?}", e) };
         let at = ffi::AT_HWCAP;
         assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap());
-        assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap());
         let at = ffi::AT_HWCAP2;
         assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_else(hwcap2_else));
-        assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap_or_else(hwcap2_else));
         for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
             assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_default());
-            assert_eq!(os::getauxval(at), getauxval_sysctl_no_libc(at).unwrap_or_default());
         }
     }
 }

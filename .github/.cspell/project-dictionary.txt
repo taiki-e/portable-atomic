@@ -58,6 +58,7 @@ espup
 exynos
 fild
 fistp
+FPSR
 getauxval
 getisax
 getpid
@@ -97,6 +98,7 @@ libelf
 libfdio
 libslirp
 libstd
+libsys
 libtcl
 libtest
 linkall
@@ -123,6 +125,7 @@ miscompiles
 mmfr
 movlps
 movq
+movs
 mpidr
 mspdebug
 mstatus
@@ -171,6 +174,7 @@ slbgr
 slgr
 slgrk
 sllw
+smstop
 sreg
 srlw
 sshpass
@@ -191,7 +195,6 @@ swpp
 syscall
 syscalls
 sysctlbyname
-sysctlnode
 systemsim
 tagme
 uart
