@@ -399,6 +399,10 @@ jobs:
           }
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
             | tar xJf -
+          retry sudo apt-get -o Acquire::Retries=10 -qq update
+          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+            libslirp0 \
+            sshpass
         if: matrix.os == 'omnios'
       - uses: taiki-e/cross-platform-actions-action@cb6e07ca8dc262ff76d3b81712d294cb83f43725 # dev # zizmor: ignore[stale-action-refs]
         with:
@@ -472,9 +476,6 @@ jobs:
             done
             "$@"
           }
-          retry sudo apt-get -o Acquire::Retries=10 -qq update
-          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
-            sshpass
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0/qemu-ubuntu-24.04.tar.xz \
             | tar xJf -
           sudo cp -r -- qemu/. /usr/local/
@@ -614,17 +615,20 @@ jobs:
             done
             "$@"
           }
+          apt_packages=(
+            libslirp0
+          )
           if [[ "${RUST}" == "nightly"* ]]; then
-            apt_packages=(
+            apt_packages+=(
               avr-libc
               gcc-avr
               libelf-dev
               mspdebug
               simavr
             )
-            retry sudo apt-get -o Acquire::Retries=10 -qq update
-            retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           fi
+          retry sudo apt-get -o Acquire::Retries=10 -qq update
+          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           if [[ "${RUST}" == "nightly"* ]]; then
             mkdir -p -- "${HOME}"/msp430-gcc "${HOME}"/aarch64-l4re-gcc
             # https://www.ti.com/tool/MSP430-GCC-OPENSOURCE
