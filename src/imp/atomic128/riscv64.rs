@@ -17,7 +17,7 @@ this module and use fallback implementation instead.
 Refs:
 - RISC-V Instruction Set Manual
   "Zacas" Extension for Atomic Compare-and-Swap (CAS) Instructions
-  https://github.com/riscv/riscv-isa-manual/blob/riscv-isa-release-56e76be-2025-08-26/src/zacas.adoc
+  https://docs.riscv.org/reference/isa/v20260120/unpriv/zacas.html
 - RISC-V Atomics ABI Specification
   https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/draft-20250812-301374e92976e298e676e7129a6212926b2299ce/riscv-atomic.adoc
 
