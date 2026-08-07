@@ -4488,8 +4488,6 @@ This is `const fn` on Rust 1.58+.
 
             /// Adds to the current value, returning the previous value.
             ///
-            /// This operation wraps around on overflow.
-            ///
             /// `fetch_add` takes an [`Ordering`] argument which describes the memory ordering
             /// of this operation. All ordering modes are possible. Note that using
             /// [`Acquire`] makes the store part of this operation [`Relaxed`], and
@@ -4501,8 +4499,6 @@ This is `const fn` on Rust 1.58+.
             }
 
             /// Subtracts from the current value, returning the previous value.
-            ///
-            /// This operation wraps around on overflow.
             ///
             /// `fetch_sub` takes an [`Ordering`] argument which describes the memory ordering
             /// of this operation. All ordering modes are possible. Note that using
