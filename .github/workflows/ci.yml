@@ -356,6 +356,120 @@ jobs:
         # -Z direct-minimal-versions requires Cargo 1.70.
         if: (!(startsWith(matrix.rust, '1.5') || startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, 'nightly-2021') || startsWith(matrix.rust, 'nightly-2022') || startsWith(matrix.rust, 'nightly-2023')))
 
+  test-x32:
+    name: test (x86_64-unknown-linux-gnux32)
+    needs: tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@nightly
+          fallback: none
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          retry sudo apt-get -o Acquire::Retries=10 -qq update
+          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+            busybox-static \
+            cpio \
+            gcc-x86-64-linux-gnux32 \
+            libc6-dev-x32-cross \
+            qemu-system-x86
+          # https://github.blog/changelog/2024-04-02-github-actions-hardware-accelerated-android-virtualization-now-available/
+          sudo tee -- /etc/udev/rules.d/99-kvm4all.rules <<<'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+          target=x86_64-unknown-linux-gnux32
+          tmp=$(mktemp -d)
+          trap -- 'rm -rf -- "${tmp:?}"' EXIT
+          root="${tmp}/root"
+          mkdir -p -- "${root}"/{bin,dev,libx32,proc,tmp}
+          chmod 1777 "${root}/tmp"
+          sudo mknod "${root}/dev/console" c 5 1
+          sudo chmod 0600 "${root}/dev/console"
+          for src_lib in /usr/x86_64-linux-gnux32/lib/*.so.*; do
+            dst="${root}/libx32/$(basename -- "${src_lib}")"
+            install -m 0755 -- "${src_lib}" "${dst}"
+          done
+          install -m 0755 -- "$(type -P busybox)" "${root}/bin/busybox"
+
+          kernel="${tmp}/linux"
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 \
+            -o "${kernel}" \
+            https://deb.debian.org/debian/dists/trixie/main/installer-amd64/20250803/images/netboot/debian-installer/amd64/linux
+          sha256sum -c - >/dev/null <<<"123e30d376f800b70848505a1193d0fce03359052677ed4e068eb60231a4bb02 *${kernel}"
+
+          run=''
+          build() {
+            local output=$1
+            local extra_flags=${2:-}
+            local binary_path
+            binary_path=$(
+              RUSTFLAGS="${RUSTFLAGS:-} -C panic=abort -Z panic_abort_tests${extra_flags}" \
+                CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNUX32_LINKER=x86_64-linux-gnux32-gcc \
+                ./tools/test.sh build --target "${target}" -r
+            )
+            install -m 0755 -- "${binary_path}" "${root}/${output}"
+            run+="/\"${output}\" --test-threads=1 || status=1"$'\n'
+          }
+          build baseline
+          build cmpxchg16b ' -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics'
+          build cmpxchg16b_avx ' -C target-feature=+cmpxchg16b,+avx'
+
+          cat >"${root}/init" <<EOF
+          #!/bin/busybox sh
+          /bin/busybox mount -t devtmpfs devtmpfs /dev
+          /bin/busybox mount -t proc proc /proc
+          export LD_LIBRARY_PATH=/libx32
+          status=0
+          ${run}
+          if [ "\${status}" -eq 0 ]; then
+            printf 'Tests finished successfully\n'
+          fi
+          /bin/busybox poweroff -f
+          while true; do
+            /bin/busybox sleep 1
+          done
+          EOF
+          chmod 0755 "${root}/init"
+
+          initrd="${tmp}/initrd"
+          (
+            cd -- "${root}"
+            find . -print0 \
+              | cpio --null --create --format=newc --owner=0:0 \
+              | gzip -9 >"${initrd}"
+          )
+
+          log="${tmp}/qemu.log"
+          timeout 6m qemu-system-x86_64 \
+            -display none \
+            -monitor none \
+            -serial stdio \
+            -accel kvm \
+            -cpu host \
+            -m 6G \
+            -smp 2 \
+            -no-user-config \
+            -nic none \
+            -kernel "${kernel}" \
+            -initrd "${initrd}" \
+            -append 'console=ttyS0 rdinit=/init syscall.x32=y random.trust_cpu=on panic=-1' \
+            -no-reboot \
+            | tee -- "${log}"
+          grep -Fq 'Tests finished successfully' "${log}"
+
   test-vm:
     name: test (${{ matrix.target }}${{ matrix.version }})
     needs: tidy
