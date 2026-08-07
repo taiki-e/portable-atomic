@@ -39,6 +39,7 @@ cmpd
 cmpld
 cmpw
 cmpxchg
+cpio
 cpsid
 CPSR
 cpuid
@@ -51,6 +52,7 @@ cxchg
 cxchgweak
 devkitc
 devkitm
+devtmpfs
 dlfcn
 dlsym
 ecall
@@ -99,6 +101,7 @@ libslirp
 libstd
 libsys
 libtcl
+libx
 linkall
 lldp
 llwp
@@ -120,6 +123,7 @@ mgba
 midr
 minu
 miscompiles
+mknod
 mmfr
 movlps
 movq
@@ -133,6 +137,7 @@ mvfr
 mysim
 negs
 netdev
+newc
 newtype
 nngrk
 nostartfiles
@@ -143,12 +148,14 @@ osxsave
 outputdir
 phdr
 picolibc
+poweroff
 prctl
 prefetcher
 PRIMASK
 pstq
 quadword
 rcpc
+rdinit
 revidr
 rsbegin
 rsend
@@ -195,6 +202,7 @@ sysctlbyname
 systemsim
 tagme
 uart
+udevadm
 umax
 umin
 usart
