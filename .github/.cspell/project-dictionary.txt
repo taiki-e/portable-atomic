@@ -69,7 +69,6 @@ hostfwd
 HWCAP
 hwprobe
 ILRCPC
-includepath
 insn
 INTLEVEL
 isel
@@ -100,7 +99,6 @@ libslirp
 libstd
 libsys
 libtcl
-libtest
 linkall
 lldp
 llwp
@@ -135,7 +133,6 @@ mvfr
 mysim
 negs
 netdev
-newrepo
 newtype
 nngrk
 nostartfiles
