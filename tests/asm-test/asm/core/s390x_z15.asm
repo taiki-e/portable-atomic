@@ -260,7 +260,8 @@ asm_test::fetch_nand::u64::release:
 
 asm_test::fetch_nand::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
@@ -275,7 +276,8 @@ asm_test::fetch_nand::u128::acqrel:
 
 asm_test::fetch_nand::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
@@ -290,7 +292,8 @@ asm_test::fetch_nand::u128::seqcst:
 
 asm_test::fetch_nand::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
@@ -305,7 +308,8 @@ asm_test::fetch_nand::u128::acquire:
 
 asm_test::fetch_nand::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
@@ -320,7 +324,8 @@ asm_test::fetch_nand::u128::relaxed:
 
 asm_test::fetch_nand::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
@@ -635,7 +640,8 @@ asm_test::fetch_umax::u64::release:
 
 asm_test::fetch_umax::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -660,7 +666,8 @@ asm_test::fetch_umax::u128::acqrel:
 
 asm_test::fetch_umax::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -685,7 +692,8 @@ asm_test::fetch_umax::u128::seqcst:
 
 asm_test::fetch_umax::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -710,7 +718,8 @@ asm_test::fetch_umax::u128::acquire:
 
 asm_test::fetch_umax::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -735,7 +744,8 @@ asm_test::fetch_umax::u128::relaxed:
 
 asm_test::fetch_umax::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -1060,7 +1070,8 @@ asm_test::fetch_umin::u64::release:
 
 asm_test::fetch_umin::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -1085,7 +1096,8 @@ asm_test::fetch_umin::u128::acqrel:
 
 asm_test::fetch_umin::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -1110,7 +1122,8 @@ asm_test::fetch_umin::u128::seqcst:
 
 asm_test::fetch_umin::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -1135,7 +1148,8 @@ asm_test::fetch_umin::u128::acquire:
 
 asm_test::fetch_umin::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -1160,7 +1174,8 @@ asm_test::fetch_umin::u128::relaxed:
 
 asm_test::fetch_umin::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -3751,7 +3766,8 @@ asm_test::swap::u64::release:
 
 asm_test::swap::u128::acqrel:
         vl                %v1,0(%r4),3
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
 0:
@@ -3765,7 +3781,8 @@ asm_test::swap::u128::acqrel:
 
 asm_test::swap::u128::seqcst:
         vl                %v1,0(%r4),3
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
 0:
@@ -3779,7 +3796,8 @@ asm_test::swap::u128::seqcst:
 
 asm_test::swap::u128::acquire:
         vl                %v1,0(%r4),3
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
 0:
@@ -3793,7 +3811,8 @@ asm_test::swap::u128::acquire:
 
 asm_test::swap::u128::relaxed:
         vl                %v1,0(%r4),3
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
 0:
@@ -3807,7 +3826,8 @@ asm_test::swap::u128::relaxed:
 
 asm_test::swap::u128::release:
         vl                %v1,0(%r4),3
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
         vlgvg             %r1,%v1,1
         vlgvg             %r0,%v1,0
 0:
@@ -4082,7 +4102,8 @@ asm_test::fetch_or::u64::release:
 
 asm_test::fetch_or::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vo                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4097,7 +4118,8 @@ asm_test::fetch_or::u128::acqrel:
 
 asm_test::fetch_or::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vo                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4112,7 +4134,8 @@ asm_test::fetch_or::u128::seqcst:
 
 asm_test::fetch_or::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vo                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4127,7 +4150,8 @@ asm_test::fetch_or::u128::acquire:
 
 asm_test::fetch_or::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vo                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4142,7 +4166,8 @@ asm_test::fetch_or::u128::relaxed:
 
 asm_test::fetch_or::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vo                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4347,7 +4372,8 @@ asm_test::fetch_add::u64::release:
 
 asm_test::fetch_add::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vaq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4362,7 +4388,8 @@ asm_test::fetch_add::u128::acqrel:
 
 asm_test::fetch_add::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vaq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4377,7 +4404,8 @@ asm_test::fetch_add::u128::seqcst:
 
 asm_test::fetch_add::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vaq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4392,7 +4420,8 @@ asm_test::fetch_add::u128::acquire:
 
 asm_test::fetch_add::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vaq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4407,7 +4436,8 @@ asm_test::fetch_add::u128::relaxed:
 
 asm_test::fetch_add::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vaq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4622,7 +4652,8 @@ asm_test::fetch_and::u64::release:
 
 asm_test::fetch_and::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vn                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4637,7 +4668,8 @@ asm_test::fetch_and::u128::acqrel:
 
 asm_test::fetch_and::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vn                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4652,7 +4684,8 @@ asm_test::fetch_and::u128::seqcst:
 
 asm_test::fetch_and::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vn                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4667,7 +4700,8 @@ asm_test::fetch_and::u128::acquire:
 
 asm_test::fetch_and::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vn                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4682,7 +4716,8 @@ asm_test::fetch_and::u128::relaxed:
 
 asm_test::fetch_and::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vn                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -4997,7 +5032,8 @@ asm_test::fetch_max::i64::release:
 
 asm_test::fetch_max::i128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5022,7 +5058,8 @@ asm_test::fetch_max::i128::acqrel:
 
 asm_test::fetch_max::i128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5047,7 +5084,8 @@ asm_test::fetch_max::i128::seqcst:
 
 asm_test::fetch_max::i128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5072,7 +5110,8 @@ asm_test::fetch_max::i128::acquire:
 
 asm_test::fetch_max::i128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5097,7 +5136,8 @@ asm_test::fetch_max::i128::relaxed:
 
 asm_test::fetch_max::i128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5422,7 +5462,8 @@ asm_test::fetch_min::i64::release:
 
 asm_test::fetch_min::i128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5447,7 +5488,8 @@ asm_test::fetch_min::i128::acqrel:
 
 asm_test::fetch_min::i128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5472,7 +5514,8 @@ asm_test::fetch_min::i128::seqcst:
 
 asm_test::fetch_min::i128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5497,7 +5540,8 @@ asm_test::fetch_min::i128::acquire:
 
 asm_test::fetch_min::i128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -5522,7 +5566,8 @@ asm_test::fetch_min::i128::relaxed:
 
 asm_test::fetch_min::i128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
         j                 1f
 0:
         vlgvg             %r1,%v1,1
@@ -6881,7 +6926,8 @@ asm_test::fetch_not::u64::release:
         br                %r14
 
 asm_test::fetch_not::u128::acqrel:
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
 0:
         vlgvg             %r1,%v0,1
         vlgvg             %r0,%v0,0
@@ -6895,7 +6941,8 @@ asm_test::fetch_not::u128::acqrel:
         br                %r14
 
 asm_test::fetch_not::u128::seqcst:
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
 0:
         vlgvg             %r1,%v0,1
         vlgvg             %r0,%v0,0
@@ -6909,7 +6956,8 @@ asm_test::fetch_not::u128::seqcst:
         br                %r14
 
 asm_test::fetch_not::u128::acquire:
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
 0:
         vlgvg             %r1,%v0,1
         vlgvg             %r0,%v0,0
@@ -6923,7 +6971,8 @@ asm_test::fetch_not::u128::acquire:
         br                %r14
 
 asm_test::fetch_not::u128::relaxed:
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
 0:
         vlgvg             %r1,%v0,1
         vlgvg             %r0,%v0,0
@@ -6937,7 +6986,8 @@ asm_test::fetch_not::u128::relaxed:
         br                %r14
 
 asm_test::fetch_not::u128::release:
-        vl                %v0,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v0,%r0,%r1
 0:
         vlgvg             %r1,%v0,1
         vlgvg             %r0,%v0,0
@@ -7152,7 +7202,8 @@ asm_test::fetch_sub::u64::release:
 
 asm_test::fetch_sub::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vsq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7167,7 +7218,8 @@ asm_test::fetch_sub::u128::acqrel:
 
 asm_test::fetch_sub::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vsq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7182,7 +7234,8 @@ asm_test::fetch_sub::u128::seqcst:
 
 asm_test::fetch_sub::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vsq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7197,7 +7250,8 @@ asm_test::fetch_sub::u128::acquire:
 
 asm_test::fetch_sub::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vsq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7212,7 +7266,8 @@ asm_test::fetch_sub::u128::relaxed:
 
 asm_test::fetch_sub::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vsq               %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7417,7 +7472,8 @@ asm_test::fetch_xor::u64::release:
 
 asm_test::fetch_xor::u128::acqrel:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vx                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7432,7 +7488,8 @@ asm_test::fetch_xor::u128::acqrel:
 
 asm_test::fetch_xor::u128::seqcst:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vx                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7447,7 +7504,8 @@ asm_test::fetch_xor::u128::seqcst:
 
 asm_test::fetch_xor::u128::acquire:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vx                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7462,7 +7520,8 @@ asm_test::fetch_xor::u128::acquire:
 
 asm_test::fetch_xor::u128::relaxed:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vx                %v2,%v1,%v0
         vlgvg             %r1,%v2,1
@@ -7477,7 +7536,8 @@ asm_test::fetch_xor::u128::relaxed:
 
 asm_test::fetch_xor::u128::release:
         vl                %v0,0(%r4),3
-        vl                %v1,0(%r3),4
+        lpq               %r0,0(%r3)
+        vlvgp             %v1,%r0,%r1
 0:
         vx                %v2,%v1,%v0
         vlgvg             %r1,%v2,1

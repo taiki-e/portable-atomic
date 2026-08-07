@@ -63,9 +63,9 @@
         ret
 5:
         li                a5, 0xff
-        sll               a2, a2, a0
         sll               a5, a5, a0
         not               a5, a5
+        sll               a2, a2, a0
         li                a6, 0x2
         or                a2, a2, a5
         blt               a6, a3, 10f
@@ -334,91 +334,91 @@ asm_test::fetch_nand::u32::release:
         ret
 
 asm_test::fetch_nand::bool::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0x1
-        sll               a3, a3, a0
+        andi              a0, a0, -0x4
+        sll               a3, a3, a2
         beqz              a1, 0f
-        amoxor.w.aqrl     a1, a3, (a2)
-        srl               a0, a1, a0
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 0:
-        amoor.w.aqrl      a1, a3, (a2)
-        srl               a0, a1, a0
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_nand::bool::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0x1
-        sll               a3, a3, a0
+        andi              a0, a0, -0x4
+        sll               a3, a3, a2
         beqz              a1, 0f
-        amoxor.w.aqrl     a1, a3, (a2)
-        srl               a0, a1, a0
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 0:
-        amoor.w.aqrl      a1, a3, (a2)
-        srl               a0, a1, a0
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_nand::bool::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0x1
-        sll               a3, a3, a0
+        andi              a0, a0, -0x4
+        sll               a3, a3, a2
         beqz              a1, 0f
-        amoxor.w.aq       a1, a3, (a2)
-        srl               a0, a1, a0
+        amoxor.w.aq       a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 0:
-        amoor.w.aq        a1, a3, (a2)
-        srl               a0, a1, a0
+        amoor.w.aq        a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_nand::bool::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0x1
-        sll               a3, a3, a0
+        andi              a0, a0, -0x4
+        sll               a3, a3, a2
         beqz              a1, 0f
-        amoxor.w          a1, a3, (a2)
-        srl               a0, a1, a0
+        amoxor.w          a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 0:
-        amoor.w           a1, a3, (a2)
-        srl               a0, a1, a0
+        amoor.w           a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_nand::bool::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0x1
-        sll               a3, a3, a0
+        andi              a0, a0, -0x4
+        sll               a3, a3, a2
         beqz              a1, 0f
-        amoxor.w.rl       a1, a3, (a2)
-        srl               a0, a1, a0
+        amoxor.w.rl       a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 0:
-        amoor.w.rl        a1, a3, (a2)
-        srl               a0, a1, a0
+        amoor.w.rl        a0, a3, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
@@ -709,10 +709,10 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -722,10 +722,10 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -735,10 +735,10 @@ asm_test::compare_exchange::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -748,10 +748,10 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -761,10 +761,10 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -774,10 +774,10 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -787,10 +787,10 @@ asm_test::compare_exchange::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -800,10 +800,10 @@ asm_test::compare_exchange::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -813,10 +813,10 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -826,10 +826,10 @@ asm_test::compare_exchange::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -839,10 +839,10 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -852,10 +852,10 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -865,10 +865,10 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -878,10 +878,10 @@ asm_test::compare_exchange::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -891,10 +891,10 @@ asm_test::compare_exchange::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1704,10 +1704,10 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1717,10 +1717,10 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1730,10 +1730,10 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1743,10 +1743,10 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1756,10 +1756,10 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1769,10 +1769,10 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1782,10 +1782,10 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1795,10 +1795,10 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1808,10 +1808,10 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1821,10 +1821,10 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1834,10 +1834,10 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1847,10 +1847,10 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1860,10 +1860,10 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1873,10 +1873,10 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -1886,10 +1886,10 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x8
-        csrs              mstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x8
         snez              a0, a1
+        csrs              mstatus, a4
         mv                a1, a3
         ret
 
@@ -2694,73 +2694,73 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         jr                t0b
 
 asm_test::or::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aqrl      a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
         ret
 
 asm_test::or::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aqrl      a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
         ret
 
 asm_test::or::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aq        a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aq        a0, a1, (a0)
         ret
 
 asm_test::or::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w           a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w           a0, a1, (a0)
         ret
 
 asm_test::or::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.rl        a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.rl        a0, a1, (a0)
         ret
 
 asm_test::or::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aqrl      a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
         ret
 
 asm_test::or::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aqrl      a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
         ret
 
 asm_test::or::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.aq        a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aq        a0, a1, (a0)
         ret
 
 asm_test::or::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w           a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w           a0, a1, (a0)
         ret
 
 asm_test::or::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoor.w.rl        a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.rl        a0, a1, (a0)
         ret
 
 asm_test::or::u32::acqrel:
@@ -2894,118 +2894,118 @@ asm_test::add::u32::release:
         ret
 
 asm_test::and::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aqrl     a0, a0, (a2)
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::and::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aqrl     a0, a0, (a2)
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::and::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aq       a0, a0, (a2)
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aq       a0, a1, (a0)
         ret
 
 asm_test::and::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w          a0, a0, (a2)
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w          a0, a1, (a0)
         ret
 
 asm_test::and::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.rl       a0, a0, (a2)
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.rl       a0, a1, (a0)
         ret
 
 asm_test::and::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aqrl     a0, a0, (a2)
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::and::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aqrl     a0, a0, (a2)
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::and::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.aq       a0, a0, (a2)
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aq       a0, a1, (a0)
         ret
 
 asm_test::and::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w          a0, a0, (a2)
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w          a0, a1, (a0)
         ret
 
 asm_test::and::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a0, a1, a0
-        or                a0, a0, a3
-        amoand.w.rl       a0, a0, (a2)
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.rl       a0, a1, (a0)
         ret
 
 asm_test::and::u32::acqrel:
@@ -3164,88 +3164,88 @@ asm_test::neg::u32::release:
         ret
 
 asm_test::not::u8::acqrel:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a0, a2, a0
-        amoxor.w.aqrl     a0, a0, (a1)
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::not::u8::seqcst:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a0, a2, a0
-        amoxor.w.aqrl     a0, a0, (a1)
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::not::u8::acquire:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a0, a2, a0
-        amoxor.w.aq       a0, a0, (a1)
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
         ret
 
 asm_test::not::u8::relaxed:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a0, a2, a0
-        amoxor.w          a0, a0, (a1)
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
         ret
 
 asm_test::not::u8::release:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a0, a2, a0
-        amoxor.w.rl       a0, a0, (a1)
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
         ret
 
 asm_test::not::u16::acqrel:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a0, a2, a0
-        amoxor.w.aqrl     a0, a0, (a1)
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::not::u16::seqcst:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a0, a2, a0
-        amoxor.w.aqrl     a0, a0, (a1)
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::not::u16::acquire:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a0, a2, a0
-        amoxor.w.aq       a0, a0, (a1)
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
         ret
 
 asm_test::not::u16::relaxed:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a0, a2, a0
-        amoxor.w          a0, a0, (a1)
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
         ret
 
 asm_test::not::u16::release:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a0, a2, a0
-        amoxor.w.rl       a0, a0, (a1)
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
         ret
 
 asm_test::not::u32::acqrel:
@@ -3389,73 +3389,73 @@ asm_test::sub::u32::release:
         ret
 
 asm_test::xor::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aqrl     a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::xor::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aqrl     a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::xor::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aq       a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
         ret
 
 asm_test::xor::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w          a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
         ret
 
 asm_test::xor::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.rl       a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
         ret
 
 asm_test::xor::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aqrl     a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::xor::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aqrl     a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
         ret
 
 asm_test::xor::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.aq       a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
         ret
 
 asm_test::xor::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w          a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
         ret
 
 asm_test::xor::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a0, a1, a0
-        amoxor.w.rl       a0, a0, (a2)
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
         ret
 
 asm_test::xor::u32::acqrel:
@@ -3830,83 +3830,83 @@ asm_test::store::bool::release:
         ret
 
 asm_test::fetch_or::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aq        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aq        a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w           a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w           a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.rl        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.rl        a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aq        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.aq        a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w           a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w           a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.rl        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoor.w.rl        a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_or::u32::acqrel:
@@ -3930,51 +3930,51 @@ asm_test::fetch_or::u32::release:
         ret
 
 asm_test::fetch_or::bool::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_or::bool::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aqrl      a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aqrl      a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_or::bool::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.aq        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.aq        a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_or::bool::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w           a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w           a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_or::bool::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoor.w.rl        a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoor.w.rl        a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
@@ -4100,128 +4100,128 @@ asm_test::fetch_add::u32::release:
         ret
 
 asm_test::fetch_and::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_and::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_and::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_and::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w          a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_and::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_and::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a1, a1, a0
-        or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a3
         ret
 
 asm_test::fetch_and::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a1, a1, a0
-        or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a3
         ret
 
 asm_test::fetch_and::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a1, a1, a0
-        or                a1, a1, a3
-        amoand.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.aq       a0, a1, (a0)
+        srl               a0, a0, a3
         ret
 
 asm_test::fetch_and::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a1, a1, a0
-        or                a1, a1, a3
-        amoand.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w          a0, a1, (a0)
+        srl               a0, a0, a3
         ret
 
 asm_test::fetch_and::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a3, 0x10
-        addi              a3, a3, -0x1
-        sll               a3, a3, a0
-        not               a3, a3
-        sll               a1, a1, a0
-        or                a1, a1, a3
-        amoand.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        lui               a2, 0x10
+        slli              a3, a0, 0x3
+        addi              a2, a2, -0x1
+        sll               a2, a2, a3
+        not               a2, a2
+        sll               a1, a1, a3
+        andi              a0, a0, -0x3
+        or                a1, a1, a2
+        amoand.w.rl       a0, a1, (a0)
+        srl               a0, a0, a3
         ret
 
 asm_test::fetch_and::u32::acqrel:
@@ -4245,71 +4245,71 @@ asm_test::fetch_and::u32::release:
         ret
 
 asm_test::fetch_and::bool::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_and::bool::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_and::bool::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_and::bool::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w          a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_and::bool::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
+        slli              a2, a0, 0x3
         li                a3, 0xff
-        sll               a3, a3, a0
+        sll               a3, a3, a2
         not               a3, a3
-        sll               a1, a1, a0
+        sll               a1, a1, a2
+        andi              a0, a0, -0x4
         or                a1, a1, a3
-        amoand.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        amoand.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
@@ -4745,98 +4745,98 @@ asm_test::fetch_neg::u32::release:
         ret
 
 asm_test::fetch_not::u8::acqrel:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u8::seqcst:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u8::acquire:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a2, a2, a0
-        amoxor.w.aq       a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u8::relaxed:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a2, a2, a0
-        amoxor.w          a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u8::release:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0xff
-        sll               a2, a2, a0
-        amoxor.w.rl       a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0xff
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u16::acqrel:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u16::seqcst:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u16::acquire:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a2, a2, a0
-        amoxor.w.aq       a1, a2, (a1)
-        srl               a0, a1, a0
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u16::relaxed:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a2, a2, a0
-        amoxor.w          a1, a2, (a1)
-        srl               a0, a1, a0
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u16::release:
-        andi              a1, a0, -0x3
-        slli              a0, a0, 0x3
-        lui               a2, 0x10
-        addi              a2, a2, -0x1
-        sll               a2, a2, a0
-        amoxor.w.rl       a1, a2, (a1)
-        srl               a0, a1, a0
+        lui               a1, 0x10
+        slli              a2, a0, 0x3
+        addi              a1, a1, -0x1
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_not::u32::acqrel:
@@ -4865,56 +4865,56 @@ asm_test::fetch_not::u32::release:
         ret
 
 asm_test::fetch_not::bool::acqrel:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0x1
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_not::bool::seqcst:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0x1
-        sll               a2, a2, a0
-        amoxor.w.aqrl     a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_not::bool::acquire:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0x1
-        sll               a2, a2, a0
-        amoxor.w.aq       a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_not::bool::relaxed:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0x1
-        sll               a2, a2, a0
-        amoxor.w          a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_not::bool::release:
-        andi              a1, a0, -0x4
-        slli              a0, a0, 0x3
-        li                a2, 0x1
-        sll               a2, a2, a0
-        amoxor.w.rl       a1, a2, (a1)
-        srl               a0, a1, a0
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
@@ -5045,83 +5045,83 @@ asm_test::fetch_sub::u32::release:
         ret
 
 asm_test::fetch_xor::u8::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u8::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u8::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u8::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u8::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u16::acqrel:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u16::seqcst:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u16::acquire:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u16::relaxed:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u16::release:
-        andi              a2, a0, -0x3
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         ret
 
 asm_test::fetch_xor::u32::acqrel:
@@ -5145,51 +5145,51 @@ asm_test::fetch_xor::u32::release:
         ret
 
 asm_test::fetch_xor::bool::acqrel:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_xor::bool::seqcst:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aqrl     a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aqrl     a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_xor::bool::acquire:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.aq       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.aq       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_xor::bool::relaxed:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w          a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w          a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret
 
 asm_test::fetch_xor::bool::release:
-        andi              a2, a0, -0x4
-        slli              a0, a0, 0x3
-        sll               a1, a1, a0
-        amoxor.w.rl       a1, a1, (a2)
-        srl               a0, a1, a0
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a1, a1, a2
+        amoxor.w.rl       a0, a1, (a0)
+        srl               a0, a0, a2
         zext.b            a0, a0
         snez              a0, a0
         ret

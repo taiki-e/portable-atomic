@@ -5653,7 +5653,6 @@ asm_test::fetch_neg::u128::acqrel:
         b                 2f
 1:
         cmp               x9, x12
-        stp               x10, x9, [x8]
         ccmp              x10, x11, #0x0, eq
         b.eq              5f
 2:
@@ -5676,6 +5675,7 @@ asm_test::fetch_neg::u128::acqrel:
         cbnz              w15, 3b
         b                 1b
 5:
+        stp               x10, x9, [x8]
         ret
 
 asm_test::fetch_neg::u128::seqcst:
@@ -5687,7 +5687,6 @@ asm_test::fetch_neg::u128::seqcst:
         b                 2f
 1:
         cmp               x9, x12
-        stp               x10, x9, [x8]
         ccmp              x10, x11, #0x0, eq
         b.eq              5f
 2:
@@ -5710,6 +5709,7 @@ asm_test::fetch_neg::u128::seqcst:
         cbnz              w15, 3b
         b                 1b
 5:
+        stp               x10, x9, [x8]
         ret
 
 asm_test::fetch_neg::u128::acquire:
@@ -5721,7 +5721,6 @@ asm_test::fetch_neg::u128::acquire:
         b                 2f
 1:
         cmp               x9, x12
-        stp               x10, x9, [x8]
         ccmp              x10, x11, #0x0, eq
         b.eq              5f
 2:
@@ -5744,6 +5743,7 @@ asm_test::fetch_neg::u128::acquire:
         cbnz              w15, 3b
         b                 1b
 5:
+        stp               x10, x9, [x8]
         ret
 
 asm_test::fetch_neg::u128::relaxed:
@@ -5788,7 +5788,6 @@ asm_test::fetch_neg::u128::release:
         b                 2f
 1:
         cmp               x9, x12
-        stp               x10, x9, [x8]
         ccmp              x10, x11, #0x0, eq
         b.eq              5f
 2:
@@ -5811,6 +5810,7 @@ asm_test::fetch_neg::u128::release:
         cbnz              w15, 3b
         b                 1b
 5:
+        stp               x10, x9, [x8]
         ret
 
 asm_test::fetch_not::u8::acqrel:

@@ -5535,16 +5535,17 @@ asm_test::fetch_and::bool::release:
 asm_test::fetch_max::i8::acqrel:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrlt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5552,16 +5553,17 @@ asm_test::fetch_max::i8::acqrel:
 asm_test::fetch_max::i8::seqcst:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrlt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5569,16 +5571,17 @@ asm_test::fetch_max::i8::seqcst:
 asm_test::fetch_max::i8::acquire:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrlt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5586,16 +5589,17 @@ asm_test::fetch_max::i8::acquire:
 asm_test::fetch_max::i8::relaxed:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrlt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5603,16 +5607,17 @@ asm_test::fetch_max::i8::relaxed:
 asm_test::fetch_max::i8::release:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrlt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5620,16 +5625,17 @@ asm_test::fetch_max::i8::release:
 asm_test::fetch_max::i16::acqrel:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrlt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5637,16 +5643,17 @@ asm_test::fetch_max::i16::acqrel:
 asm_test::fetch_max::i16::seqcst:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrlt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5654,16 +5661,17 @@ asm_test::fetch_max::i16::seqcst:
 asm_test::fetch_max::i16::acquire:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrlt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5671,16 +5679,17 @@ asm_test::fetch_max::i16::acquire:
 asm_test::fetch_max::i16::relaxed:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrlt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5688,16 +5697,17 @@ asm_test::fetch_max::i16::relaxed:
 asm_test::fetch_max::i16::release:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrlt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrgt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5780,16 +5790,17 @@ asm_test::fetch_max::i32::release:
 asm_test::fetch_min::i8::acqrel:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrgt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5797,16 +5808,17 @@ asm_test::fetch_min::i8::acqrel:
 asm_test::fetch_min::i8::seqcst:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrgt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5814,16 +5826,17 @@ asm_test::fetch_min::i8::seqcst:
 asm_test::fetch_min::i8::acquire:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrgt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5831,16 +5844,17 @@ asm_test::fetch_min::i8::acquire:
 asm_test::fetch_min::i8::relaxed:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrgt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5848,16 +5862,17 @@ asm_test::fetch_min::i8::relaxed:
 asm_test::fetch_min::i8::release:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #24
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsb             r3, [r0]
-        cmp               r3, r2, asr #24
-        mov               r1, r3
-        asrgt             r1, r2, #24
-        strb              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #24
+        ldrsb             r2, [r0]
+        asr               r3, r1, #24
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #24
+        strb              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5865,16 +5880,17 @@ asm_test::fetch_min::i8::release:
 asm_test::fetch_min::i16::acqrel:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrgt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5882,16 +5898,17 @@ asm_test::fetch_min::i16::acqrel:
 asm_test::fetch_min::i16::seqcst:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrgt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5899,16 +5916,17 @@ asm_test::fetch_min::i16::seqcst:
 asm_test::fetch_min::i16::acquire:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrgt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5916,16 +5934,17 @@ asm_test::fetch_min::i16::acquire:
 asm_test::fetch_min::i16::relaxed:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrgt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr
@@ -5933,16 +5952,17 @@ asm_test::fetch_min::i16::relaxed:
 asm_test::fetch_min::i16::release:
         push              {r11, lr}
         mov               r11, sp
-        lsl               r2, r1, #16
         mrs               r12, apsr
-        orr               r1, r12, #128
-        msr               CPSR_c, r1
-        ldrsh             r3, [r0]
-        cmp               r3, r2, asr #16
-        mov               r1, r3
-        asrgt             r1, r2, #16
-        strh              r1, [r0]
-        mov               r0, r3
+        orr               r2, r12, #128
+        msr               CPSR_c, r2
+        lsl               r1, r1, #16
+        ldrsh             r2, [r0]
+        asr               r3, r1, #16
+        cmp               r3, r2
+        mov               r3, r2
+        asrlt             r3, r1, #16
+        strh              r3, [r0]
+        mov               r0, r2
         msr               CPSR_c, r12
         pop               {r11, lr}
         bx                lr

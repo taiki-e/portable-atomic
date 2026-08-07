@@ -614,10 +614,10 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -627,10 +627,10 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -640,10 +640,10 @@ asm_test::compare_exchange::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -653,10 +653,10 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -666,10 +666,10 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -679,10 +679,10 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -692,10 +692,10 @@ asm_test::compare_exchange::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -705,10 +705,10 @@ asm_test::compare_exchange::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -718,10 +718,10 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -731,10 +731,10 @@ asm_test::compare_exchange::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -744,10 +744,10 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -757,10 +757,10 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -770,10 +770,10 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -783,10 +783,10 @@ asm_test::compare_exchange::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -796,10 +796,10 @@ asm_test::compare_exchange::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1784,10 +1784,10 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1797,10 +1797,10 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1810,10 +1810,10 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1823,10 +1823,10 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1836,10 +1836,10 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1849,10 +1849,10 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1862,10 +1862,10 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1875,10 +1875,10 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1888,10 +1888,10 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1901,10 +1901,10 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1914,10 +1914,10 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1927,10 +1927,10 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1940,10 +1940,10 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1953,10 +1953,10 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 
@@ -1966,10 +1966,10 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
 0:
-        andi              a4, a4, 0x2
-        csrs              sstatus, a4
         xor               a1, a3, a1
+        andi              a4, a4, 0x2
         snez              a0, a1
+        csrs              sstatus, a4
         mv                a1, a3
         ret
 

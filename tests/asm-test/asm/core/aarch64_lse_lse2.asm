@@ -2237,6 +2237,7 @@ asm_test::load::u64::relaxed:
         ret
 
 asm_test::load::u128::seqcst:
+        ldar              xzr, [x0]
         ldp               x0, x1, [x0]
         dmb               ish
         ret

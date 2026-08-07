@@ -4732,9 +4732,9 @@ asm_test::fetch_neg::u128::acqrel:
         mov               ecx, 0x0
         sbb               rcx, rdx
         lock cmpxchg16b   xmmword ptr [esi]
+        jne               0b
         mov               qword ptr [edi], rax
         mov               qword ptr [edi + 0x8], rdx
-        jne               0b
         mov               eax, edi
         pop               rbx
         ret
@@ -4752,9 +4752,9 @@ asm_test::fetch_neg::u128::seqcst:
         mov               ecx, 0x0
         sbb               rcx, rdx
         lock cmpxchg16b   xmmword ptr [esi]
+        jne               0b
         mov               qword ptr [edi], rax
         mov               qword ptr [edi + 0x8], rdx
-        jne               0b
         mov               eax, edi
         pop               rbx
         ret
@@ -4772,9 +4772,9 @@ asm_test::fetch_neg::u128::acquire:
         mov               ecx, 0x0
         sbb               rcx, rdx
         lock cmpxchg16b   xmmword ptr [esi]
+        jne               0b
         mov               qword ptr [edi], rax
         mov               qword ptr [edi + 0x8], rdx
-        jne               0b
         mov               eax, edi
         pop               rbx
         ret
@@ -4811,9 +4811,9 @@ asm_test::fetch_neg::u128::release:
         mov               ecx, 0x0
         sbb               rcx, rdx
         lock cmpxchg16b   xmmword ptr [esi]
+        jne               0b
         mov               qword ptr [edi], rax
         mov               qword ptr [edi + 0x8], rdx
-        jne               0b
         mov               eax, edi
         pop               rbx
         ret
