@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        lwsync
+        blr
+
+asm_test::fence::seqcst:
+        sync
+        blr
+
+asm_test::fence::acquire:
+        lwsync
+        blr
+
+asm_test::fence::release:
+        lwsync
+        blr
+
 asm_test::fetch_nand::u8::acqrel:
         lwsync
 0:

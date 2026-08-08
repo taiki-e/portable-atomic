@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        push              eax
+        mov               eax, esp
+        xchg              dword ptr [eax], ecx
+        pop               eax
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         mov               edx, dword ptr [esp + 0x4]
         movzx             ecx, byte ptr [esp + 0x8]

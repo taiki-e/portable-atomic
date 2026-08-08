@@ -1,3 +1,15 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movw              r26, r24
         in                r25, 0x3f	; 63

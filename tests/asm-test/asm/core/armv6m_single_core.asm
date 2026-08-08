@@ -1,3 +1,27 @@
+asm_test::fence::acqrel:
+        push              {r7, lr}
+        add               r7, sp, #0x0
+        dmb               sy
+        pop               {r7, pc}
+
+asm_test::fence::seqcst:
+        push              {r7, lr}
+        add               r7, sp, #0x0
+        dmb               sy
+        pop               {r7, pc}
+
+asm_test::fence::acquire:
+        push              {r7, lr}
+        add               r7, sp, #0x0
+        dmb               sy
+        pop               {r7, pc}
+
+asm_test::fence::release:
+        push              {r7, lr}
+        add               r7, sp, #0x0
+        dmb               sy
+        pop               {r7, pc}
+
 asm_test::load::u8::seqcst:
         push              {r7, lr}
         add               r7, sp, #0x0

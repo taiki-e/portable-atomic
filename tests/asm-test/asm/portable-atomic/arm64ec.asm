@@ -1,4 +1,20 @@
 .text:
+        dmb               ish
+        ret
+
+.text:
+        dmb               ish
+        ret
+
+.text:
+        dmb               ishld
+        ret
+
+.text:
+        dmb               ish
+        ret
+
+.text:
 0:
         ldaxrb            w8, [x0]
         and               w9, w8, w1
@@ -8825,6 +8841,26 @@
         cbnz              w11, 0b
         mov               x0, x8
         ret
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
 
 .wowthk$aa:
 0:

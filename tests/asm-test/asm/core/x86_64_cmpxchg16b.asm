@@ -1,3 +1,16 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        lock or           dword ptr [rsp - 0x40], 0x0
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movzx             eax, byte ptr [rdi]
         nop               word ptr cs:[rax + rax]

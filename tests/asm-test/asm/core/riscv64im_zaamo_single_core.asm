@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        fence.tso
+        ret
+
+asm_test::fence::seqcst:
+        fence             rw, rw
+        ret
+
+asm_test::fence::acquire:
+        fence             r, rw
+        ret
+
+asm_test::fence::release:
+        fence             rw, w
+        ret
+
 asm_test::load::u8::seqcst:
         fence             rw, rw
         lb                a0, 0x0(a0)

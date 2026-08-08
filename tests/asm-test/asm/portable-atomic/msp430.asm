@@ -1,3 +1,15 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         mov               r2,	r15	;
         dint

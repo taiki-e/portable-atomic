@@ -1,3 +1,16 @@
+asm_test::fence::acqrel:
+        br                %r14
+
+asm_test::fence::seqcst:
+        br                %r0
+        br                %r14
+
+asm_test::fence::acquire:
+        br                %r14
+
+asm_test::fence::release:
+        br                %r14
+
 asm_test::fetch_nand::u8::acqrel:
         risbgz            %r1,%r2,0,61
         sll               %r3,24

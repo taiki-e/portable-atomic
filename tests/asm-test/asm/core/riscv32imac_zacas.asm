@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        fence.tso
+        ret
+
+asm_test::fence::seqcst:
+        fence             rw, rw
+        ret
+
+asm_test::fence::acquire:
+        fence             r, rw
+        ret
+
+asm_test::fence::release:
+        fence             rw, w
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         andi              a2, a0, -0x4
         slli              a0, a0, 0x3

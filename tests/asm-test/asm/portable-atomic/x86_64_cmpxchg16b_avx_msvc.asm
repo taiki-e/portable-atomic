@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        push              rax
+        mov               rax, rsp
+        xchg              qword ptr [rax], rcx
+        pop               rax
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movzx             eax, byte ptr [rcx]
         nop               word ptr cs:[rax + rax]

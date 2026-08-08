@@ -1,3 +1,19 @@
+asm_test::fence::acqrel:
+        dmb               ish
+        ret
+
+asm_test::fence::seqcst:
+        dmb               ish
+        ret
+
+asm_test::fence::acquire:
+        dmb               ishld
+        ret
+
+asm_test::fence::release:
+        dmb               ish
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         ldrb              w8, [x0]
         mov               w9, w8

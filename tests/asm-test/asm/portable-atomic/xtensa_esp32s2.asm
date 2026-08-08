@@ -1,3 +1,23 @@
+asm_test::fence::acqrel:
+        entry             a1, 32
+        memw
+        retw.n
+
+asm_test::fence::seqcst:
+        entry             a1, 32
+        memw
+        retw.n
+
+asm_test::fence::acquire:
+        entry             a1, 32
+        memw
+        retw.n
+
+asm_test::fence::release:
+        entry             a1, 32
+        memw
+        retw.n
+
 asm_test::fetch_nand::u8::acqrel:
         entry             a1, 32
         rsil              a14, 15

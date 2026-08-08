@@ -1,3 +1,27 @@
+asm_test::fence::acqrel:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, pc}
+
+asm_test::fence::seqcst:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, pc}
+
+asm_test::fence::acquire:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, pc}
+
+asm_test::fence::release:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, pc}
+
 asm_test::fetch_nand::u8::acqrel:
         push              {r11, lr}
 0:

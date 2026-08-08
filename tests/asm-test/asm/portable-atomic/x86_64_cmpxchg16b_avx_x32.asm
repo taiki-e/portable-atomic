@@ -1,3 +1,17 @@
+asm_test::fence::acqrel:
+        ret
+
+asm_test::fence::seqcst:
+        lea               eax, [rsp - 0x4]
+        xchg              dword ptr [eax], ecx
+        ret
+
+asm_test::fence::acquire:
+        ret
+
+asm_test::fence::release:
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movzx             eax, byte ptr [edi]
         nop               word ptr cs:[rax + rax]

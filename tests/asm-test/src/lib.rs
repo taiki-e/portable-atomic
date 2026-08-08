@@ -11,6 +11,26 @@
 // feature = "portable-atomic"
 
 #[cfg(feature = "portable-atomic")]
+pub mod fence {
+    use core::sync::atomic::Ordering;
+    #[inline(never)]
+    pub unsafe fn acquire() {
+        portable_atomic::fence(Ordering::Acquire);
+    }
+    #[inline(never)]
+    pub unsafe fn release() {
+        portable_atomic::fence(Ordering::Release);
+    }
+    #[inline(never)]
+    pub unsafe fn acqrel() {
+        portable_atomic::fence(Ordering::AcqRel);
+    }
+    #[inline(never)]
+    pub unsafe fn seqcst() {
+        portable_atomic::fence(Ordering::SeqCst);
+    }
+}
+#[cfg(feature = "portable-atomic")]
 pub mod load {
     macro_rules! t {
         ($t:ident) => {
@@ -1760,6 +1780,27 @@ atomic_update!(u64);
     all(target_arch = "x86_64", target_feature = "cmpxchg16b"),
 ))]
 atomic_update!(u128);
+#[cfg(feature = "core")]
+#[cfg(not(target_arch = "msp430"))]
+pub mod fence {
+    use core::sync::atomic::Ordering;
+    #[inline(never)]
+    pub unsafe fn acquire() {
+        core::sync::atomic::fence(Ordering::Acquire);
+    }
+    #[inline(never)]
+    pub unsafe fn release() {
+        core::sync::atomic::fence(Ordering::Release);
+    }
+    #[inline(never)]
+    pub unsafe fn acqrel() {
+        core::sync::atomic::fence(Ordering::AcqRel);
+    }
+    #[inline(never)]
+    pub unsafe fn seqcst() {
+        core::sync::atomic::fence(Ordering::SeqCst);
+    }
+}
 #[cfg(feature = "core")]
 pub mod load {
     macro_rules! t {
