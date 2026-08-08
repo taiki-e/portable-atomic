@@ -991,7 +991,7 @@ jobs:
           #   cargo install mgba-test-runner --git https://github.com/agbrs/agb.git --rev 5fb928a
           tool: mgba-test-runner
           git: https://github.com/agbrs/agb.git
-          rev: 5fb928a
+          rev: 5fb928adb8757f73a370dbf329761b392693997d
         env:
           RUSTFLAGS: -W warnings
         if: startsWith(matrix.rust, 'nightly')
