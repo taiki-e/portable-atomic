@@ -7,8 +7,6 @@ use std::{
     sync::atomic::{AtomicIsize, AtomicUsize, Ordering},
 };
 
-#[cfg(valgrind)]
-use crabgrind::memcheck;
 use crossbeam_utils::thread;
 
 macro_rules! __test_atomic_common {
@@ -2811,13 +2809,7 @@ pub(crate) const IMP_EMU_SUB_WORD_CAS: bool = cfg!(target_arch = "s390x");
 #[cfg(valgrind)]
 #[inline(always)]
 pub(crate) fn mark_aligned_defined<T: ?Sized>(a: &T) {
-    assert!(size_of_val(a) <= 2);
-    memcheck::mark_mem(
-        (a as *const T as *mut core::ffi::c_void).map_addr(|a| a & !3),
-        4,
-        memcheck::MemState::Defined,
-    )
-    .unwrap();
+    test_helper::valgrind::make_aligned_mem_defined::<T, 4>(a);
 }
 
 fn skip_should_panic_test() -> bool {

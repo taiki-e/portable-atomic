@@ -2,7 +2,6 @@
 # It is not intended for manual editing.
 
 asmtest
-crabgrind
 fastrand
 quickcheck
 rustversion
