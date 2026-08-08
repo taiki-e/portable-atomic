@@ -1212,7 +1212,7 @@ jobs:
             done
             "$@"
           }
-          retry espup install --targets esp32s2
+          retry espup install --targets esp32s2,esp32s3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml

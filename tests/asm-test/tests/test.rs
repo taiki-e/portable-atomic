@@ -96,6 +96,7 @@ fn test() {
         // Xtensa
         Revision::new("xtensa_esp32s2", "xtensa-esp32s2-none-elf")
             .rustc_args(["--cfg", "portable_atomic_unsafe_assume_single_core"]),
+        Revision::new("xtensa_esp32s3", "xtensa-esp32s3-none-elf"),
     ];
     let revisions = if build_context::RUSTC.contains(".rustup/toolchains/esp/bin/") {
         &esp_revisions[..]
