@@ -103,6 +103,8 @@ impl Drop for SeqLockWriteGuard<'_> {
 #[cfg(test)]
 #[allow(clippy::items_after_test_module)]
 mod tests {
+    use core::sync::atomic::Ordering;
+
     use super::SeqLock;
 
     #[test]
@@ -121,9 +123,9 @@ mod tests {
 
     #[test]
     fn test_wrap() {
-        let mut lock = SeqLock::new();
+        let lock = SeqLock::new();
         let zero = lock.optimistic_read().unwrap();
-        *lock.state.get_mut() = 0xFFFF_FFFE; // u32::MAX & !1
+        lock.state.store(0xFFFF_FFFE, Ordering::Relaxed); // u32::MAX & !1
         let before = lock.optimistic_read().unwrap();
         assert!(lock.validate_read(before));
         {
@@ -136,7 +138,7 @@ mod tests {
         assert_ne!(after, zero);
         #[allow(clippy::identity_op)]
         {
-            assert_eq!(*lock.state.get_mut() & 0xFFFF_FFFF, 0);
+            assert_eq!(lock.state.load(Ordering::Relaxed) & 0xFFFF_FFFF, 0);
         }
     }
 

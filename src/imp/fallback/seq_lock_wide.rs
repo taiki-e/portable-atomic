@@ -4,7 +4,7 @@
 
 include!("seq_lock_common.rs");
 
-use core::sync::atomic::AtomicU32;
+use crate::imp::core_atomic::AtomicU32;
 
 pub(super) type State = u32;
 

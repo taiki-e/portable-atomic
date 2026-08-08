@@ -349,6 +349,11 @@ jobs:
         env:
           SKIP_DEFAULT_TARGET: 1
           TARGET: ${{ matrix.target }}
+      # See comments on atomic_int! macro in src/imp/arm_linux.rs.
+      - run: cargo build --target arm-unknown-linux-gnueabi -Z build-std=core
+        env:
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=-v6
+        if: startsWith(matrix.rust, 'nightly') && matrix.target == 'arm-unknown-linux-gnueabi'
 
       - run: cargo minimal-versions build --workspace --no-private --detach-path-deps=skip-exact --features "${TEST_FEATURES}" --ignore-unknown-features ${TARGET:-} ${BUILD_STD:-}
         if: matrix.rust != 'nightly-2021-08-21'

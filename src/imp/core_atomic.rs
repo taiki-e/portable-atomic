@@ -25,7 +25,7 @@ unsafe impl Sync for NotRefUnwindSafe {}
 
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
-    inner: core::sync::atomic::AtomicPtr<T>,
+    pub(super) inner: core::sync::atomic::AtomicPtr<T>,
     // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
     _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
 }
@@ -39,6 +39,24 @@ impl<T> AtomicPtr<T> {
         Self::IS_ALWAYS_LOCK_FREE
     }
     pub(crate) const IS_ALWAYS_LOCK_FREE: bool = true;
+    const_fn! {
+        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+        #[inline]
+        pub(crate) const fn as_ptr(&self) -> *mut *mut T {
+            // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
+            // See also https://github.com/rust-lang/rust/pull/66705 and
+            // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+            unsafe { (*(self as *const Self as *const UnsafeCell<*mut T>)).get() }
+        }
+    }
+}
+#[cfg(not(all(
+    target_arch = "arm",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(target_os = "linux", target_os = "android"),
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+)))]
+impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
         any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -57,20 +75,16 @@ impl<T> AtomicPtr<T> {
         crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
         self.inner.store(ptr, order);
     }
-    const_fn! {
-        const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
-        #[inline]
-        pub(crate) const fn as_ptr(&self) -> *mut *mut T {
-            // SAFETY: Self is #[repr(C)] and internally UnsafeCell<*mut T>.
-            // See also https://github.com/rust-lang/rust/pull/66705 and
-            // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-            unsafe { (*(self as *const Self as *const UnsafeCell<*mut T>)).get() }
-        }
-    }
 }
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 items!({
+    #[cfg(not(all(
+        target_arch = "arm",
+        not(any(miri, portable_atomic_sanitize_thread)),
+        any(target_os = "linux", target_os = "android"),
+        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+    )))]
     impl<T> AtomicPtr<T> {
         #[inline]
         #[cfg_attr(
@@ -241,11 +255,12 @@ impl<T> core::ops::Deref for AtomicPtr<T> {
     }
 }
 
+// NB: Sync with atomic_int! macro in arm_linux.rs
 macro_rules! atomic_int {
     ($atomic_type:ident, $int_type:ident) => {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
-            inner: core::sync::atomic::$atomic_type,
+            pub(super) inner: core::sync::atomic::$atomic_type,
             // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
             _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
         }
@@ -268,6 +283,26 @@ macro_rules! atomic_int {
                 target_os = "espidf",
             ))) | (core::mem::size_of::<$int_type>()
                 < 8);
+            const_fn! {
+                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
+                #[inline]
+                pub(crate) const fn as_ptr(&self) -> *mut $int_type {
+                    // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
+                    // See also https://github.com/rust-lang/rust/pull/66705 and
+                    // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
+                    unsafe {
+                        (*(self as *const Self as *const UnsafeCell<$int_type>)).get()
+                    }
+                }
+            }
+        }
+        #[cfg(not(all(
+            target_arch = "arm",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(target_os = "linux", target_os = "android"),
+            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+        )))]
+        impl $atomic_type {
             #[inline]
             #[cfg_attr(
                 any(all(debug_assertions, not(portable_atomic_no_track_caller)), miri),
@@ -286,18 +321,6 @@ macro_rules! atomic_int {
                 crate::utils::assert_store_ordering(order); // for track_caller (compiler can omit double check)
                 self.inner.store(val, order);
             }
-            const_fn! {
-                const_if: #[cfg(not(portable_atomic_no_const_raw_ptr_deref))];
-                #[inline]
-                pub(crate) const fn as_ptr(&self) -> *mut $int_type {
-                    // SAFETY: Self is #[repr(C)] and internally UnsafeCell<$int_type>.
-                    // See also https://github.com/rust-lang/rust/pull/66705 and
-                    // https://github.com/rust-lang/rust/issues/66136#issuecomment-557867116.
-                    unsafe {
-                        (*(self as *const Self as *const UnsafeCell<$int_type>)).get()
-                    }
-                }
-            }
         }
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,
@@ -306,6 +329,12 @@ macro_rules! atomic_int {
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         items!({
             impl_default_no_fetch_ops!($atomic_type, $int_type);
+            #[cfg(not(all(
+                target_arch = "arm",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                any(target_os = "linux", target_os = "android"),
+                not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+            )))]
             impl $atomic_type {
                 #[inline]
                 #[cfg_attr(
@@ -341,6 +370,8 @@ macro_rules! atomic_int {
                     let success = crate::utils::upgrade_success_ordering(success, failure);
                     self.inner.compare_exchange_weak(current, new, success, failure)
                 }
+            }
+            impl $atomic_type {
                 #[allow(dead_code)]
                 #[inline]
                 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces

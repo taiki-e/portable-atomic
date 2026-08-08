@@ -10,9 +10,10 @@ https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/src/arch/README.md#arm
 Refs:
 - https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/arm/kernel_user_helpers.rst
 - https://github.com/rust-lang/compiler-builtins/blob/compiler_builtins-v0.1.124/src/arm_linux.rs
+- https://github.com/taiki-e/atomic-maybe-uninit
 
 Note: __kuser_cmpxchg64 is always SeqCst.
-https://github.com/torvalds/linux/blob/v6.19/arch/arm/kernel/entry-armv.S#L700-L707
+https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.21/src/arch/arm.rs#L230
 
 Note: On Miri and ThreadSanitizer which do not support inline assembly, we don't use
 this module and use fallback implementation instead.
@@ -85,7 +86,9 @@ fn has_kuser_cmpxchg64() -> bool {
 }
 #[inline]
 unsafe fn __kuser_cmpxchg64(old_val: *const u64, new_val: *const u64, ptr: *mut u64) -> bool {
-    // SAFETY: the caller must uphold the safety contract.
+    // SAFETY: kernel docs specify a known address with the given signature.
+    // And the caller must guarantee that the pointer is valid for read and write,
+    // aligned to the element size, and __kuser_helper_version >= 5.
     unsafe {
         let f: extern "C" fn(*const u64, *const u64, *mut u64) -> u32 =
             mem::transmute(crate::utils::ptr::with_exposed_provenance::<()>(KUSER_CMPXCHG64));

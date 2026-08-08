@@ -13,6 +13,15 @@ cfg_core_atomic!({
 #[cfg(not(feature = "critical-section"))]
 mod avr;
 
+// pre-v6 Arm Linux
+#[cfg(all(
+    target_arch = "arm",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(target_os = "linux", target_os = "android"),
+    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
+))]
+pub(crate) mod arm_linux;
+
 // MSP430
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
