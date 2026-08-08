@@ -1,26 +1,22 @@
 asm_test::fence::acqrel:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        bx                r0
 
 asm_test::fence::seqcst:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        bx                r0
 
 asm_test::fence::acquire:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        bx                r0
 
 asm_test::fence::release:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        bx                r0
 
 asm_test::fetch_nand::u8::acqrel:
         push              {r11, lr}
@@ -743,43 +739,61 @@ asm_test::fetch_umin::u32::release:
         pop               {r11, pc}
 
 asm_test::compare_exchange::u8::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::acqrel_relaxed:
         push              {r4, lr}
@@ -795,56 +809,80 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u8::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::seqcst_relaxed:
         push              {r4, lr}
@@ -860,17 +898,23 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u8::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::acquire_relaxed:
         push              {r4, lr}
@@ -886,17 +930,23 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u8::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::relaxed_relaxed:
         push              {r4, lr}
@@ -912,17 +962,23 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u8::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u8::release_relaxed:
         push              {r4, lr}
@@ -938,49 +994,67 @@ asm_test::compare_exchange::u8::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u16::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::acqrel_relaxed:
         push              {r4, lr}
@@ -998,64 +1072,88 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u16::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::seqcst_relaxed:
         push              {r4, lr}
@@ -1073,19 +1171,25 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u16::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::acquire_relaxed:
         push              {r4, lr}
@@ -1103,19 +1207,25 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u16::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::relaxed_relaxed:
         push              {r4, lr}
@@ -1133,19 +1243,25 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u16::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u16::release_relaxed:
         push              {r4, lr}
@@ -1163,40 +1279,61 @@ asm_test::compare_exchange::u16::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u32::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::acqrel_relaxed:
         push              {r4, lr}
@@ -1211,52 +1348,80 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u32::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::seqcst_relaxed:
         push              {r4, lr}
@@ -1271,16 +1436,23 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u32::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::acquire_relaxed:
         push              {r4, lr}
@@ -1295,16 +1467,23 @@ asm_test::compare_exchange::u32::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u32::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::relaxed_relaxed:
         push              {r4, lr}
@@ -1319,16 +1498,23 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::u32::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::u32::release_relaxed:
         push              {r4, lr}
@@ -1343,46 +1529,64 @@ asm_test::compare_exchange::u32::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         push              {r4, lr}
@@ -1399,60 +1603,84 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::bool::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         push              {r4, lr}
@@ -1469,18 +1697,24 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         push              {r4, lr}
@@ -1497,18 +1731,24 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::bool::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         push              {r4, lr}
@@ -1525,18 +1765,24 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange::bool::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange::bool::release_relaxed:
         push              {r4, lr}
@@ -1553,43 +1799,61 @@ asm_test::compare_exchange::bool::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         push              {r4, lr}
@@ -1605,56 +1869,80 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u8::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         push              {r4, lr}
@@ -1670,17 +1958,23 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u8::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::acquire_relaxed:
         push              {r4, lr}
@@ -1696,17 +1990,23 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u8::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         push              {r4, lr}
@@ -1722,17 +2022,23 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u8::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        and               r0, r4, #255
-        sub               r0, r1, r0
+        mov               r4, r0
+        and               r0, r5, #255
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u8::release_relaxed:
         push              {r4, lr}
@@ -1748,49 +2054,67 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         push              {r4, lr}
@@ -1808,64 +2132,88 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u16::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         push              {r4, lr}
@@ -1883,19 +2231,25 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u16::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::acquire_relaxed:
         push              {r4, lr}
@@ -1913,19 +2267,25 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u16::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         push              {r4, lr}
@@ -1943,19 +2303,25 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u16::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
+        mov               r4, r0
         mov               r0, #255
         orr               r0, r0, #65280
-        and               r0, r4, r0
-        sub               r0, r1, r0
+        and               r0, r5, r0
+        sub               r0, r4, r0
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        eor               r0, r5, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u16::release_relaxed:
         push              {r4, lr}
@@ -1973,40 +2339,61 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u32::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         push              {r4, lr}
@@ -2021,52 +2408,80 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u32::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         push              {r4, lr}
@@ -2081,16 +2496,23 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u32::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::acquire_relaxed:
         push              {r4, lr}
@@ -2105,16 +2527,23 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u32::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         push              {r4, lr}
@@ -2129,16 +2558,23 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::u32::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        sub               r0, r0, r4
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r0, r0, #5
+        mov               r0, #0
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, #1
+1:
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::u32::release_relaxed:
         push              {r4, lr}
@@ -2153,46 +2589,64 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         push              {r4, lr}
@@ -2209,60 +2663,84 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         push              {r4, lr}
@@ -2279,18 +2757,24 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         push              {r4, lr}
@@ -2307,18 +2791,24 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         push              {r4, lr}
@@ -2335,18 +2825,24 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         pop               {r4, pc}
 
 asm_test::compare_exchange_weak::bool::release_acquire:
-        push              {r4, lr}
-        mov               r4, r1
+        push              {r4, r5, r11, lr}
+        mov               r5, r1
 0:
         bl                0f
-        mov               r1, r0
-        cmp               r0, #0
-        sub               r0, r0, r4
-        movne             r1, #1
+        mov               r4, r0
+        sub               r0, r0, r5
         clz               r0, r0
-        lsr               r0, r0, #5
-        eor               r0, r0, #1
-        pop               {r4, pc}
+        lsrs              r5, r0, #5
+        bne               1f
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+1:
+        cmp               r4, #0
+        eor               r0, r5, #1
+        movne             r4, #1
+        mov               r1, r4
+        pop               {r4, r5, r11, pc}
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         push              {r4, lr}
@@ -3208,84 +3704,92 @@ asm_test::xor::u32::release:
         pop               {r11, pc}
 
 asm_test::load::u8::seqcst:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrb              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u8::acquire:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrb              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u8::relaxed:
         ldrb              r0, [r0]
         bx                lr
 
 asm_test::load::u16::seqcst:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrh              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u16::acquire:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrh              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u16::relaxed:
         ldrh              r0, [r0]
         bx                lr
 
 asm_test::load::u32::seqcst:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldr               r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u32::acquire:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldr               r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::u32::relaxed:
         ldr               r0, [r0]
         bx                lr
 
 asm_test::load::bool::seqcst:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        cmp               r0, #0
-        movne             r0, #1
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrb              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        cmp               r4, #0
+        movne             r4, #1
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::bool::acquire:
-        push              {r11, lr}
-        mov               r1, #0
-        mov               r2, #0
-0:
-        bl                0f
-        cmp               r0, #0
-        movne             r0, #1
-        pop               {r11, pc}
+        push              {r4, lr}
+        ldrb              r4, [r0]
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        blx               r0
+        cmp               r4, #0
+        movne             r4, #1
+        mov               r0, r4
+        pop               {r4, pc}
 
 asm_test::load::bool::relaxed:
         ldrb              r0, [r0]
@@ -3424,68 +3928,108 @@ asm_test::swap::bool::release:
         pop               {r11, pc}
 
 asm_test::store::u8::seqcst:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r6, lr}
+        mvn               r6, #95
+        mov               r4, r1
+        sub               r6, r6, #61440
+        mov               r5, r0
+        blx               r6
+        strb              r4, [r5]
+        mov               r0, r6
+        pop               {r4, r5, r6, lr}
+        bx                r0
 
 asm_test::store::u8::relaxed:
         strb              r1, [r0]
         bx                lr
 
 asm_test::store::u8::release:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r11, lr}
+        mov               r5, r0
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        mov               r4, r1
+        blx               r0
+        strb              r4, [r5]
+        pop               {r4, r5, r11, pc}
 
 asm_test::store::u16::seqcst:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r6, lr}
+        mvn               r6, #95
+        mov               r4, r1
+        sub               r6, r6, #61440
+        mov               r5, r0
+        blx               r6
+        strh              r4, [r5]
+        mov               r0, r6
+        pop               {r4, r5, r6, lr}
+        bx                r0
 
 asm_test::store::u16::relaxed:
         strh              r1, [r0]
         bx                lr
 
 asm_test::store::u16::release:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r11, lr}
+        mov               r5, r0
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        mov               r4, r1
+        blx               r0
+        strh              r4, [r5]
+        pop               {r4, r5, r11, pc}
 
 asm_test::store::u32::seqcst:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r6, lr}
+        mvn               r6, #95
+        mov               r4, r1
+        sub               r6, r6, #61440
+        mov               r5, r0
+        blx               r6
+        str               r4, [r5]
+        mov               r0, r6
+        pop               {r4, r5, r6, lr}
+        bx                r0
 
 asm_test::store::u32::relaxed:
         str               r1, [r0]
         bx                lr
 
 asm_test::store::u32::release:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r11, lr}
+        mov               r5, r0
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        mov               r4, r1
+        blx               r0
+        str               r4, [r5]
+        pop               {r4, r5, r11, pc}
 
 asm_test::store::bool::seqcst:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r6, lr}
+        mvn               r6, #95
+        mov               r4, r1
+        sub               r6, r6, #61440
+        mov               r5, r0
+        blx               r6
+        strb              r4, [r5]
+        mov               r0, r6
+        pop               {r4, r5, r6, lr}
+        bx                r0
 
 asm_test::store::bool::relaxed:
         strb              r1, [r0]
         bx                lr
 
 asm_test::store::bool::release:
-        push              {r11, lr}
-0:
-        bl                0f
-        pop               {r11, pc}
+        push              {r4, r5, r11, lr}
+        mov               r5, r0
+        mvn               r0, #95
+        sub               r0, r0, #61440
+        mov               r4, r1
+        blx               r0
+        strb              r4, [r5]
+        pop               {r4, r5, r11, pc}
 
 asm_test::fetch_or::u8::acqrel:
         push              {r11, lr}
