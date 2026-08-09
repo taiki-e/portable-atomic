@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-08-09
+
 - Work around [`core::sync::atomic` bug](https://github.com/rust-lang/compiler-builtins/pull/1234) which may cause data races with non-relaxed load/CAS on pre-v6 ARM Linux/Android due to missing memory barrier. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
 
 - Make {8,16,32}-bit non-relaxed load compatible with read-only memory on pre-v6 ARM Linux/Android. Previously only relaxed load was compatible with read-only memory. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
@@ -624,7 +626,8 @@ The latest version of portable-atomic is 1.x. This release makes portable-atomic
 
 Initial release
 
-[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/taiki-e/portable-atomic/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/taiki-e/portable-atomic/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/taiki-e/portable-atomic/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/taiki-e/portable-atomic/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/taiki-e/portable-atomic/compare/v1.12.0...v1.13.0
