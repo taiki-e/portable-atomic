@@ -12,6 +12,20 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
+- Work around [`core::sync::atomic` bug](https://github.com/rust-lang/compiler-builtins/pull/1234) which may cause data races with non-relaxed load/CAS on pre-v6 ARM Linux/Android due to missing memory barrier. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
+
+- Make {8,16,32}-bit non-relaxed load compatible with read-only memory on pre-v6 ARM Linux/Android. Previously only relaxed load was compatible with read-only memory. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
+
+- Make `from_ptr` `const fn` on Rust 1.58+. Previously it was `const fn` only on Rust 1.83+. ([c09d0e6](https://github.com/taiki-e/portable-atomic/commit/c09d0e624f1416a01bbb11bba22c148b42dcb081))
+
+- Optimize non-relaxed load/store on pre-v6 ARM Linux/Android. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
+
+- Optimize fence on pre-v6 ARM Linux/Android. ([#112](https://github.com/taiki-e/portable-atomic/pull/112))
+
+- Optimize 128-bit CAS/swap/min/max on s390x. This also includes removing the code complexity that caused the bug fixed in 1.14.0. ([33cd7e5](https://github.com/taiki-e/portable-atomic/commit/33cd7e55acfe1438c853b20b09ec786613228122), [6c8f764](https://github.com/taiki-e/portable-atomic/commit/6c8f764bee3c3ca570552e49a8117402b0186ead))
+
+- Documentation improvements.
+
 ## [1.14.0] - 2026-07-17
 
 - Guarantee that `is_lock_free` to always return the same result. ([e74f384](https://github.com/taiki-e/portable-atomic/commit/e74f384efab9eae540087a20ed140dddc0d06ce7))
