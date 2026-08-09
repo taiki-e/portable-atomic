@@ -1093,6 +1093,7 @@ jobs:
         if: matrix.sanitizer == 'memory'
       - run: |
           printf 'TARGET=x86_64-unknown-linux-gnutsan\n' >>"${GITHUB_ENV}"
+          printf 'TSAN_OPTIONS=enable_adaptive_delay=1\n' >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
       - run: tools/test.sh ${BUILD_STD:-} -vv --target "${TARGET}"
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
