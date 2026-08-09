@@ -61,19 +61,9 @@ const KUSER_HELPER_VERSION: usize = 0xFFFF0FFC;
 const KUSER_CMPXCHG64: usize = 0xFFFF0F60;
 #[inline]
 fn __kuser_helper_version() -> i32 {
-    use core::sync::atomic::AtomicI32;
-
-    static CACHE: AtomicI32 = AtomicI32::new(0);
-    let mut v = CACHE.load(Ordering::Relaxed);
-    if v != 0 {
-        return v;
-    }
-    // SAFETY: core assumes that at least __kuser_memory_barrier (__kuser_helper_version >= 3,
-    // kernel version 2.6.15+) is available on this platform. __kuser_helper_version
-    // is always available on such a platform.
-    v = unsafe { crate::utils::ptr::with_exposed_provenance::<i32>(KUSER_HELPER_VERSION).read() };
-    CACHE.store(v, Ordering::Relaxed);
-    v
+    // SAFETY: core assumes that at least __kuser_memory_barrier (__kuser_helper_version >= 3) is
+    // available on this platform. __kuser_helper_version is always available on such a platform.
+    unsafe { crate::utils::ptr::with_exposed_provenance::<i32>(KUSER_HELPER_VERSION).read() }
 }
 #[inline]
 fn has_kuser_cmpxchg64() -> bool {
