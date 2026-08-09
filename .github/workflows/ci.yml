@@ -1081,24 +1081,24 @@ jobs:
           fallback: none
       # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
+          printf 'TARGET=x86_64-unknown-linux-gnuasan\n' >>"${GITHUB_ENV}"
           printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
-          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
-          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=address" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'address'
       - run: |
+          printf 'TARGET=x86_64-unknown-linux-gnumsan\n' >>"${GITHUB_ENV}"
+          printf 'BUILD_STD=-Z''build-std\n' >>"${GITHUB_ENV}"
           printf 'MSAN_OPTIONS=verbosity=2\n' >>"${GITHUB_ENV}"
-          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
-          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=memory -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
+          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer-memory-track-origins" >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'memory'
       - run: |
-          printf 'RUSTFLAGS=%s\n' "${RUSTFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
-          printf 'RUSTDOCFLAGS=%s\n' "${RUSTDOCFLAGS} -Z sanitizer=thread" >>"${GITHUB_ENV}"
+          printf 'TARGET=x86_64-unknown-linux-gnutsan\n' >>"${GITHUB_ENV}"
         if: matrix.sanitizer == 'thread'
-      - run: tools/test.sh -Z build-std -vv
+      - run: tools/test.sh ${BUILD_STD:-} -vv --target "${TARGET}"
       # We test doctest only once with the default build conditions because doctest is slow. Both api-test
       # and src/tests have extended copies of doctest, so this will not reduce test coverage.
       # +cmpxchg16b
-      - run: tools/test.sh -Z build-std -vv --tests
+      - run: tools/test.sh ${BUILD_STD:-} -vv --tests --target "${TARGET}"
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+cmpxchg16b --cfg portable_atomic_no_outline_atomics
