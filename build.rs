@@ -200,16 +200,9 @@ fn main() {
                     } else {
                         println!("cargo:rustc-cfg=portable_atomic_no_asm");
                     }
-                    if !version.probe(92, 2025, 9, 22)
-                        || env::var("CARGO_CFG_TARGET_ABI")
-                            .unwrap_or_default()
-                            .split(',')
-                            .any(|abi| abi == "spu")
-                    {
+                    if !version.probe(92, 2025, 9, 22) {
                         // Clobbering ctr register needed for asm syscall require Rust 1.92 (nightly-2025-09-23): https://github.com/rust-lang/rust/pull/146831
-                        // Cell/B.E. Linux's SPU syscalls support a subset of powerpc64 syscalls with the exact semantics: https://github.com/torvalds/linux/blob/v7.1/arch/powerpc/platforms/cell/spu_callbacks.c#L17
-                        // but have a different syscall sequence: https://github.com/mirror/newlib-cygwin/blob/newlib-4.4.0/libgloss/spu/linux_syscalls.c#L37
-                        // This is currently used only for testing.
+                        // Note: code referring this cfg is currently used only for testing.
                         println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
                     }
                 }
@@ -460,6 +453,18 @@ fn main() {
                 // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L484
                 // lqarx and stqcx.
                 target_feature_fallback("quadword-atomics", pwr8_features);
+            }
+            if env::var("CARGO_CFG_TARGET_ABI")
+                .unwrap_or_default()
+                .split(',')
+                .any(|abi| abi == "spu")
+            {
+                // Cell Broadband Engine SPU syscalls support a subset of powerpc64 syscalls with the exact semantics: https://github.com/torvalds/linux/blob/v7.1/arch/powerpc/platforms/cell/spu_callbacks.c#L17
+                // but have a different syscall sequence: https://github.com/mirror/newlib-cygwin/blob/newlib-4.4.0/libgloss/spu/linux_syscalls.c#L37
+                // GCC 10 (https://gcc.gnu.org/gcc-9/changes.html) and LLVM 3.3.0 (https://releases.llvm.org/3.3/docs/ReleaseNotes.html#non-comprehensive-list-of-changes-in-this-release)
+                // removed support for SPU, so this is unlikely to be supported in rust-lang/rust: https://github.com/rust-lang/compiler-team/issues/614
+                // Note: code referring this cfg is currently used only for testing.
+                println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
             }
         }
         "s390x" => {
