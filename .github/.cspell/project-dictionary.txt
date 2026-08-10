@@ -18,6 +18,8 @@ BOOKE
 braich
 buildx
 callthru
+candebug
+CAPRD
 casp
 casx
 cbnz
@@ -48,6 +50,7 @@ csel
 csrrci
 csrs
 cssc
+CTLFLAG
 cxchg
 cxchgweak
 devkitc

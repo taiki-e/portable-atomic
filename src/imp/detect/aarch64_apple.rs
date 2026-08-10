@@ -45,16 +45,6 @@ use core::{mem, ptr};
 mod ffi {
     pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_void};
 
-    #[cfg(test)] // test-only
-    sys_const!({
-        // https://github.com/apple-oss-distributions/xnu/blob/xnu-12377.121.6/osfmk/arm/cpu_capabilities_public.h
-        pub(crate) const CAP_BIT_FEAT_LSE: usize = 6;
-        pub(crate) const CAP_BIT_FEAT_LRCPC: usize = 15;
-        pub(crate) const CAP_BIT_FEAT_LRCPC2: usize = 16;
-        pub(crate) const CAP_BIT_FEAT_LSE2: usize = 30;
-        pub(crate) const CAP_BIT_NB: usize = 92;
-    });
-
     sys_fn!({
         extern "C" {
             // https://developer.apple.com/documentation/kernel/1387446-sysctlbyname
@@ -134,13 +124,15 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
 mod tests {
     use std::{format, process::Command, str, string::String};
 
+    use test_helper::sys;
+
     use super::*;
 
     #[test]
     fn test_alternative() {
         use crate::utils::ffi::*;
 
-        const CAPS_LEN: usize = (ffi::CAP_BIT_NB + 63) / 64;
+        const CAPS_LEN: usize = (sys::CAP_BIT_NB as usize + 63) / 64;
         fn arm_caps(caps: &mut [u64; CAPS_LEN]) -> bool {
             let mut caps_len = CAPS_LEN * 8;
             // SAFETY:
@@ -183,13 +175,13 @@ mod tests {
         let has_caps = arm_caps(&mut caps);
         let sysctl_output = SysctlHwOptionalOutput::new();
         for (name, expected_on_macos, cap_bit) in [
-            (c!("hw.optional.arm.FEAT_LSE"), Some(1), ffi::CAP_BIT_FEAT_LSE),
-            (c!("hw.optional.armv8_1_atomics"), Some(1), ffi::CAP_BIT_FEAT_LSE),
-            (c!("hw.optional.arm.FEAT_LSE2"), Some(1), ffi::CAP_BIT_FEAT_LSE2),
+            (c!("hw.optional.arm.FEAT_LSE"), Some(1), sys::CAP_BIT_FEAT_LSE),
+            (c!("hw.optional.armv8_1_atomics"), Some(1), sys::CAP_BIT_FEAT_LSE),
+            (c!("hw.optional.arm.FEAT_LSE2"), Some(1), sys::CAP_BIT_FEAT_LSE2),
             (c!("hw.optional.arm.FEAT_LSE128"), None, 0),
             (c!("hw.optional.arm.FEAT_LSFE"), None, 0),
-            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1), ffi::CAP_BIT_FEAT_LRCPC),
-            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1), ffi::CAP_BIT_FEAT_LRCPC2),
+            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1), sys::CAP_BIT_FEAT_LRCPC),
+            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1), sys::CAP_BIT_FEAT_LRCPC2),
             (c!("hw.optional.arm.FEAT_LRCPC3"), None, 0),
         ] {
             let res = sysctlbyname32(name);
@@ -207,7 +199,7 @@ mod tests {
             if let Some(res) = res {
                 assert_eq!(res, sysctl_output.field(name).unwrap());
                 if has_caps {
-                    assert_eq!(caps[cap_bit / 64] & (1 << (cap_bit & 63)) != 0, res != 0);
+                    assert_eq!(caps[cap_bit as usize / 64] & (1 << (cap_bit & 63)) != 0, res != 0);
                 }
             } else {
                 assert!(sysctl_output.field(name).is_none());

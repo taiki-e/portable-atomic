@@ -162,10 +162,12 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
 )]
 #[cfg(test)]
 mod tests {
+    use test_helper::sys;
+
     use super::*;
 
     // We use asm-based syscall for compatibility with non-libc targets.
-    // This test tests that our ones and libc::syscall returns the same result.
+    // This test tests that our ones and libc syscall returns the same result.
     #[test]
     fn test_alternative() {
         unsafe fn __riscv_hwprobe_libc(
@@ -177,7 +179,7 @@ mod tests {
         ) -> ffi::c_long {
             // SAFETY: the caller must uphold the safety contract.
             unsafe {
-                libc::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
+                sys::syscall(ffi::__NR_riscv_hwprobe, pairs, pair_count, cpu_set_size, cpus, flags)
             }
         }
         fn riscv_hwprobe_libc(out: &mut [ffi::riscv_hwprobe]) -> bool {

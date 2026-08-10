@@ -1013,26 +1013,34 @@ mod tests {
 
         use crate::utils::ffi::*;
 
-        // This is almost equivalent to what elf_aux_info does.
-        // https://man.freebsd.org/elf_aux_info(3)
-        // On FreeBSD, [AArch64 support is available on FreeBSD 11.0+](https://www.freebsd.org/releases/11.0R/announce),
-        // but elf_aux_info is available on FreeBSD 12.0+ and 11.4+:
-        // https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
-        // https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
-        // so use sysctl instead of elf_aux_info.
+        // This is almost equivalent to what elf_aux_info does,
+        // but use sysctl instead of elf_aux_info which requires FreeBSD 12.0+/11.4+.
         // Note that FreeBSD 11 (11.4) was EoL on 2021-09-30, and FreeBSD 11.3 was EoL on 2020-09-30:
         // https://www.freebsd.org/security/unsupported
+        //
+        // KERN_PROC_AUXV has been added in FreeBSD 10.0/9.1,
+        // https://github.com/freebsd/freebsd-src/commit/c5cfcb1c19dc03c8ca165f42ae8b75b0fddc0bbd
+        // https://github.com/freebsd/freebsd-src/blob/release/9.1.0/sys/sys/sysctl.h
+        // but AT_HWCAP has been added in FreeBSD 12.0/11.2.
+        // https://github.com/freebsd/freebsd-src/commit/c2f37b92452cec6ab7fc5b9d2b682ac9af4bd436
+        // https://github.com/freebsd/freebsd-src/blob/release/11.2.0/sys/arm64/include/elf.h
+        //
+        // KERN_PROC_AUXV will fail with capability mode because CTLFLAG_CAPRD is not set.
+        // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/kern/kern_proc.c#L3390
+        // KERN_PROC_AUXV will also fail with p_candebug in old FreeBSD.
+        // https://github.com/freebsd/freebsd-src/commit/c65932be9d57ee04bcec8c580928fe1254c6c6b0
+        // https://github.com/freebsd/freebsd-src/commit/55a0aa21628ad7b3bd8d6a42e51d79867d8996a9
         //
         // This is currently used only for testing.
         // If you want us to use this implementation for compatibility with the older FreeBSD
         // version that came to EoL a few years ago, please open an issue.
-        fn getauxval_sysctl_libc(type_: ffi::c_int) -> Result<ffi::c_ulong, c_int> {
+        fn getauxval_sysctl(type_: ffi::c_int) -> Option<ffi::c_ulong> {
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
 
             let mut len = mem::size_of_val(&auxv) as c_size_t;
 
             // SAFETY: calling getpid is safe.
-            let pid = unsafe { libc::getpid() };
+            let pid = unsafe { sys::getpid() };
             let mib = [
                 sys::CTL_KERN as c_int,
                 sys::KERN_PROC as c_int,
@@ -1046,7 +1054,7 @@ mod tests {
             // - `len` does not exceed the size of `auxv`.
             // - `sysctl` is thread-safe.
             let res = unsafe {
-                libc::sysctl(
+                sys::sysctl(
                     mib.as_ptr(),
                     mib_len,
                     auxv.as_mut_ptr().cast::<c_void>(),
@@ -1057,7 +1065,7 @@ mod tests {
             };
             // FreeBSD sysctl returns 0 on success, -1 on failure.
             if res != 0 {
-                return Err(res);
+                return None;
             }
 
             for aux in &auxv {
@@ -1065,20 +1073,20 @@ mod tests {
                 if aux.a_type == type_ as c_long {
                     // SAFETY: aux.a_un is #[repr(C)] union and all fields have
                     // the same size and can be safely transmuted to integers.
-                    return Ok(unsafe { aux.a_un.a_val as c_ulong });
+                    return Some(unsafe { aux.a_un.a_val as c_ulong });
                 }
             }
-            Err(0)
+            None
         }
 
         // AT_HWCAP2 is only available on FreeBSD 13+ on AArch64.
-        let hwcap2_else = |e| if cfg!(target_arch = "aarch64") { 0 } else { panic!("{:?}", e) };
+        let hwcap2_else = || if cfg!(target_arch = "aarch64") { 0 } else { panic!() };
         let at = ffi::AT_HWCAP;
-        assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap());
+        assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap());
         let at = ffi::AT_HWCAP2;
-        assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_else(hwcap2_else));
+        assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap_or_else(hwcap2_else));
         for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-            assert_eq!(os::getauxval(at), getauxval_sysctl_libc(at).unwrap_or_default());
+            assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap_or_default());
         }
     }
 }
