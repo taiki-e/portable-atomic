@@ -455,6 +455,132 @@ mod tests {
         }
     }
 
+    #[allow(clippy::cast_possible_wrap)]
+    #[cfg(target_os = "netbsd")]
+    #[test]
+    fn test_alternative() {
+        use std::{mem, ptr, vec, vec::Vec};
+
+        use test_helper::sys;
+
+        use super::imp::ffi;
+        use crate::utils::ffi::*;
+
+        // This is almost equivalent to what sysctlbyname does.
+        //
+        // This is currently used only for testing.
+        fn sysctl_cpu_id_no_libc() -> Option<AA64Reg> {
+            // https://github.com/golang/sys/blob/v0.47.0/cpu/cpu_netbsd_arm64.go
+            // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/lib/libc/gen/sysctlbyname.c
+            // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/lib/libc/gen/sysctlgetmibinfo.c
+            fn sysctl_nodes(
+                mib: &[i32; MIB_LEN],
+                mib_len: c_uint,
+                nodes: &mut Vec<sys::sysctlnode>,
+            ) -> Option<()> {
+                let mut q_node = sys::sysctlnode {
+                    sysctl_flags: sys::SYSCTL_VERS_1,
+                    // SAFETY: sysctlnode can be safely zeroed.
+                    ..unsafe { mem::zeroed() }
+                };
+                let qp = (&mut q_node as *mut sys::sysctlnode).cast::<ffi::c_void>();
+                let sz = mem::size_of::<sys::sysctlnode>();
+                let mut olen = 0;
+                // SAFETY:
+                // - `mib_len` does not exceed the size of `mib`.
+                // - `sz` does not exceed the size of `qp`.
+                // - `sysctl` is thread-safe.
+                let res = unsafe {
+                    sys::sysctl(mib.as_ptr(), mib_len, ptr::null_mut(), &mut olen, qp, sz)
+                };
+                // NetBSD sysctl returns 0 on success, -1 on failure.
+                if res != 0 {
+                    return None;
+                }
+
+                nodes.clear();
+                nodes.reserve_exact(olen / sz);
+                let np = nodes.as_mut_ptr().cast::<ffi::c_void>();
+                // SAFETY:
+                // - `mib_len` does not exceed the size of `mib`.
+                // - `olen` does not exceed the size of `np`.
+                // - `sz` does not exceed the size of `qp`.
+                // - `sysctl` is thread-safe.
+                let res = unsafe { sys::sysctl(mib.as_ptr(), mib_len, np, &mut olen, qp, sz) };
+                // NetBSD sysctl returns 0 on success, -1 on failure.
+                if res != 0 {
+                    return None;
+                }
+                // SAFETY: sysctl wrote olen bytes.
+                unsafe { nodes.set_len(olen / sz) }
+                Some(())
+            }
+            fn name_to_mib(parts: &[&[u8]; MIB_LEN - 1], mib: &mut [i32; MIB_LEN]) -> Option<()> {
+                let mut nodes = vec![];
+                let mut mib_len = 1;
+                'outer: for &part in parts {
+                    sysctl_nodes(mib, mib_len + 1 /* include CTL_QUERY */, &mut nodes)?;
+                    for node in &nodes {
+                        if node.sysctl_name.get(part.len()) == Some(&0)
+                            && node.sysctl_name[..part.len()] == *part
+                        {
+                            mib[mib_len as usize] = node.sysctl_num;
+                            mib_len += 1;
+                            continue 'outer;
+                        }
+                    }
+                    return None;
+                }
+                Some(())
+            }
+
+            const OUT_LEN: ffi::c_size_t =
+                mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
+            const MIB_LEN: ffi::c_size_t = 3;
+
+            let mut mib: [ffi::c_int; MIB_LEN] = [
+                sys::CTL_MACHDEP as ffi::c_int,
+                sys::CTL_QUERY as ffi::c_int,
+                sys::CTL_QUERY as ffi::c_int,
+            ];
+            let parts = [&b"cpu0"[..], b"cpu_id"];
+            name_to_mib(&parts, &mut mib)?;
+
+            #[allow(clippy::cast_possible_truncation)]
+            let mib_len = MIB_LEN as libc::c_uint;
+            let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
+            let mut out_len = OUT_LEN;
+            // SAFETY:
+            // - `mib_len` does not exceed the size of `mib`.
+            // - `out_len` does not exceed the size of `buf`.
+            // - `sysctl` is thread-safe.
+            let res = unsafe {
+                sys::sysctl(
+                    mib.as_ptr(),
+                    mib_len,
+                    (&mut buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
+                    &mut out_len,
+                    ptr::null_mut(),
+                    0,
+                )
+            };
+            // NetBSD sysctl returns 0 on success, -1 on failure.
+            if res != 0 {
+                return None;
+            }
+            Some(AA64Reg {
+                aa64isar0: buf.ac_aa64isar0,
+                aa64isar1: buf.ac_aa64isar1,
+                aa64isar3: 0,
+                aa64mmfr2: buf.ac_aa64mmfr2,
+            })
+        }
+
+        assert_eq!(
+            imp::sysctl_cpu_id(c!("machdep.cpu0.cpu_id")).unwrap(),
+            sysctl_cpu_id_no_libc().unwrap()
+        );
+    }
     #[cfg(target_os = "openbsd")]
     #[test]
     fn test_alternative() {
