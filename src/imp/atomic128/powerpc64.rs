@@ -87,7 +87,7 @@ mod detect;
     )),
 ))]
 #[cfg(target_os = "aix")]
-#[cfg(not(portable_atomic_pre_llvm_20))] // SIGTRAP on LLVM 19
+#[cfg(not(portable_atomic_pre_llvm_20))] // compiler SIGTRAP on LLVM 19
 #[cfg(any(test, portable_atomic_outline_atomics))] // TODO(aix): currently disabled by default
 #[path = "../detect/powerpc64_aix.rs"]
 mod detect;
@@ -261,7 +261,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
                     end_pwr8!(),
                     src = in(reg_nonzero) ptr_reg!(src),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     out("r4") out_hi,
                     out("r5") out_lo,
                     out("cr0") _,
@@ -277,7 +277,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
                     end_pwr8!(),
                     src = in(reg_nonzero) ptr_reg!(src),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     out("r4") out_hi,
                     out("r5") out_lo,
                     options(nostack, preserves_flags),
@@ -367,7 +367,7 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
                     end_pwr8!(),
                     dst = in(reg_nonzero) ptr_reg!(dst),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     in("r4") val.pair.hi,
                     in("r5") val.pair.lo,
                     options(nostack, preserves_flags),
@@ -514,7 +514,7 @@ unsafe fn atomic_compare_exchange_pwr8(
                     tmp_hi = out(reg) _,
                     tmp_lo = out(reg) r,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     in("r6") new.pair.hi,
                     in("r7") new.pair.lo,
                     out("r8") prev_hi,
@@ -598,7 +598,7 @@ unsafe fn atomic_compare_exchange_weak_pwr8(
                     tmp_hi = out(reg) _,
                     tmp_lo = out(reg) r,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     in("r6") new.pair.hi,
                     in("r7") new.pair.lo,
                     out("r8") prev_hi,
@@ -637,7 +637,7 @@ unsafe fn atomic_swap_pwr8(dst: *mut u128, val: u128, order: Ordering) -> u128 {
                     end_pwr8!(),
                     dst = in(reg_nonzero) ptr_reg!(dst),
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                    // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                     out("r6") prev_hi,
                     out("r7") prev_lo,
                     in("r8") val.pair.hi,
@@ -687,7 +687,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                             val_lo = in(reg) val.pair.lo,
                             $($reg)*
                             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                            // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                            // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                             out("r6") prev_hi,
                             out("r7") prev_lo,
                             out("r8") _, // new (hi)
@@ -734,7 +734,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                             dst = in(reg_nonzero) ptr_reg!(dst),
                             $($reg)*
                             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
-                            // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or grater.
+                            // We cannot use r1 (sp) and r2 (system reserved), so start with r4 or greater.
                             out("r6") prev_hi,
                             out("r7") prev_lo,
                             out("r8") _, // new (hi)

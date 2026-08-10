@@ -36,8 +36,8 @@ macro_rules! doc_comment {
 // Adapted from https://github.com/BurntSushi/memchr/blob/2.4.1/src/memchr/x86/mod.rs#L9-L71.
 /// # Safety
 ///
-/// - the caller must uphold the safety contract for the function returned by $detect_body.
-/// - the memory pointed by the function pointer returned by $detect_body must be visible from any threads.
+/// - the caller must uphold the safety contract for the function returned by $init_body.
+/// - the memory pointed by the function pointer returned by $init_body must be visible from any threads.
 ///
 /// The second requirement is always met if the function pointer is to the function definition.
 /// (Currently, all uses of this macro in our code are in this case.)
