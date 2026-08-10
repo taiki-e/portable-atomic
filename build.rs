@@ -248,16 +248,15 @@ fn main() {
         }
     }
 
-    if version.nightly {
-        // `cfg(sanitize = "..")` is not stabilized.
-        let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
-        if sanitize.contains("thread") {
-            // Most kinds of sanitizers are not compatible with asm
-            // (https://github.com/google/sanitizers/issues/192),
-            // but it seems that ThreadSanitizer is the only one that can cause
-            // false positives in our code.
-            println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
-        }
+    // `cfg(sanitize = "..")` is not stabilized.
+    // x86_64-unknown-linux-gnutsan is available on stable since Rust 1.96: https://github.com/rust-lang/rust/pull/152757
+    let sanitize = env::var("CARGO_CFG_SANITIZE").unwrap_or_default();
+    if sanitize.contains("thread") || target == "x86_64-unknown-linux-gnutsan" {
+        // Most kinds of sanitizers are not compatible with asm
+        // (https://github.com/google/sanitizers/issues/192),
+        // but it seems that ThreadSanitizer is the only one that can cause
+        // false positives in our code.
+        println!("cargo:rustc-cfg=portable_atomic_sanitize_thread");
     }
 
     match target_arch {
