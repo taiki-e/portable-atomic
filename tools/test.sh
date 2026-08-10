@@ -334,44 +334,20 @@ esac
 
 run() {
   if [[ ${#release[@]} -eq 0 ]]; then
-    if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer= ]]; then
-      # doctest with debug build on Sanitizer is slow
-      x_cargo test ${build_std[@]+"${build_std[@]}"} --tests "$@"
-    else
-      x_cargo test ${build_std[@]+"${build_std[@]}"} ${tests[@]+"${tests[@]}"} "$@"
-    fi
+    x_cargo test ${build_std[@]+"${build_std[@]}"} ${tests[@]+"${tests[@]}"} "$@"
   fi
 
   # release mode + doctests is slow on some platforms (probably related to the fact that they compile binaries for each example)
-  if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
-    # Workaround https://github.com/google/sanitizers/issues/558
-    CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-      x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
-  else
-    x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
-  fi
+  x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
 
   if [[ -n "${cranelift}" ]] || [[ -n "${gcc}" ]]; then
     return # LTO is not supported
   fi
 
-  # TODO: asan and msan are broken with fat LTO since nightly-2025-02-01.
-  if [[ ! "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]] && [[ ! "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=address ]]; then
-    # LTO + doctests is very slow on some platforms (probably related to the fact that they compile binaries for each example)
-    if [[ "${RUSTFLAGS:-}" =~ -Z\ *sanitizer=memory ]]; then
-      # Workaround https://github.com/google/sanitizers/issues/558
-      CARGO_TARGET_DIR="${target_dir}/fat-lto" \
-        CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-        CARGO_PROFILE_RELEASE_LTO=fat \
-        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
-    else
-      CARGO_TARGET_DIR="${target_dir}/fat-lto" \
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
-        CARGO_PROFILE_RELEASE_LTO=fat \
-        x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
-    fi
-  fi
+  CARGO_TARGET_DIR="${target_dir}/fat-lto" \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_LTO=fat \
+    x_cargo test ${build_std[@]+"${build_std[@]}"} --release --tests "$@"
 
   # cargo-careful only supports nightly. rustc-build-sysroot doesn't work on old nightly (at least on nightly-2022-08-12 - 1.65.0-nightly).
   if [[ "${rustc_minor_version}" -ge 66 ]] && [[ -n "${nightly}" ]] && type -P cargo-careful >/dev/null && [[ "${cargo}" == "cargo" ]]; then
