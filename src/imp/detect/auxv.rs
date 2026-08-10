@@ -208,7 +208,7 @@ mod os {
             // Defined in sys/system_properties.h.
             // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
             #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-            pub(crate) const PROP_VALUE_MAX: c_int = 92;
+            pub(crate) const PROP_VALUE_MAX: usize = 92;
         });
 
         sys_fn!({
@@ -561,30 +561,20 @@ mod arch {
         pub(crate) const HWCAP3_LSFE: ffi::c_ulong = 1 << 2;
     });
 
+    #[cfg(target_os = "android")]
+    pub(crate) fn system_property_get_ro_arch(arch: &mut [u8; ffi::PROP_VALUE_MAX]) -> ffi::c_int {
+        // SAFETY: we've passed a valid C string and a buffer with max length.
+        unsafe {
+            ffi::__system_property_get(
+                c!("ro.arch").as_ptr(),
+                arch.as_mut_ptr().cast::<ffi::c_char>(),
+            )
+        }
+    }
+
     #[cold]
     #[must_use]
     pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
-        #[cfg(target_os = "android")]
-        {
-            // Samsung Exynos 9810 has a bug that big and little cores have different
-            // ISAs. And on older Android (pre-9), the kernel incorrectly reports
-            // that features available only on some cores are available on all cores.
-            // https://reviews.llvm.org/D114523
-            let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
-            // SAFETY: we've passed a valid C string and a buffer with max length.
-            let len = unsafe {
-                ffi::__system_property_get(
-                    c!("ro.arch").as_ptr(),
-                    arch.as_mut_ptr().cast::<ffi::c_char>(),
-                )
-            };
-            // On Exynos, ro.arch is not available on Android 12+, but it is fine
-            // because Android 9+ includes the fix.
-            if len > 0 && arch.starts_with(b"exynos9810") {
-                return info;
-            }
-        }
-
         macro_rules! check {
             ($x:ident, $flag:ident, $bit:ident) => {
                 if $x & $bit != 0 {
@@ -593,7 +583,23 @@ mod arch {
             };
         }
         let hwcap = os::getauxval(ffi::AT_HWCAP);
-        check!(hwcap, lse, HWCAP_ATOMICS);
+        if hwcap & HWCAP_ATOMICS != 0 {
+            #[cfg(target_os = "android")]
+            {
+                // Samsung Exynos 9810 has a bug that big and little cores have different
+                // ISAs. And on older Android (pre-9), the kernel incorrectly reports
+                // that features available only on some cores are available on all cores.
+                // https://reviews.llvm.org/D114523
+                // On Exynos, ro.arch is not available on Android 12+, but it is fine
+                // because Android 9+ includes the fix.
+                let mut arch = [0; ffi::PROP_VALUE_MAX];
+                let len = system_property_get_ro_arch(&mut arch);
+                if len > 0 && arch.starts_with(b"exynos9810") {
+                    return info;
+                }
+            }
+            info.set(CpuInfoFlag::lse);
+        }
         check!(hwcap, lse2, HWCAP_USCAT);
         #[cfg(test)]
         check!(hwcap, rcpc, HWCAP_LRCPC);
@@ -751,20 +757,15 @@ mod tests {
     #[cfg(all(target_arch = "aarch64", target_os = "android"))]
     #[test]
     fn test_android() {
-        use std::{slice, str};
-        unsafe {
-            let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
-            let len = ffi::__system_property_get(
-                c!("ro.arch").as_ptr(),
-                arch.as_mut_ptr().cast::<ffi::c_char>(),
-            );
-            assert!(len >= 0);
-            test_helper::eprintln_nocapture!("ro.arch=raw={:?},len={}", arch, len);
-            test_helper::eprintln_nocapture!(
-                "ro.arch={:?}",
-                str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
-            );
-        }
+        use std::str;
+        let mut arch = [1; ffi::PROP_VALUE_MAX];
+        let len = arch::system_property_get_ro_arch(&mut arch);
+        assert!(len >= 0);
+        test_helper::eprintln_nocapture!("ro.arch=raw={:?},len={}", arch, len);
+        test_helper::eprintln_nocapture!(
+            "ro.arch={:?}",
+            str::from_utf8(&arch[..len as usize]).unwrap()
+        );
     }
 
     #[cfg(any(target_os = "linux", target_os = "android"))]
