@@ -59,6 +59,7 @@ devtmpfs
 dlfcn
 dlsym
 ecall
+Espressif
 espup
 exynos
 fild
@@ -155,6 +156,7 @@ poweroff
 prctl
 prefetcher
 PRIMASK
+PSRAM
 pstq
 quadword
 rcpc
