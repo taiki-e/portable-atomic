@@ -510,6 +510,14 @@ EOF
             x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
         done
         ;;
+      xtensa-esp32-* | xtensa-esp32s3-*)
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-critical-section" \
+          RUSTFLAGS="${target_rustflags}" \
+          x_cargo "${args[@]}" --features portable-atomic/critical-section "$@"
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-critical-section" \
+          RUSTFLAGS="${target_rustflags}" \
+          x_cargo "${args[@]}" --release --features portable-atomic/critical-section "$@"
+        ;;
     esac
   )
 }
