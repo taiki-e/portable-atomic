@@ -305,7 +305,8 @@ mod os {
                 portable_atomic_outline_atomics,
             ))]
             {
-                let getauxval: GetauxvalTy = ffi::getauxval;
+                use self::ffi::getauxval;
+                let _: GetauxvalTy = getauxval;
             }
             #[cfg(else)]
             {
@@ -454,7 +455,8 @@ mod os {
                 portable_atomic_outline_atomics,
             ))]
             {
-                let elf_aux_info: ElfAuxInfoTy = ffi::elf_aux_info;
+                use self::ffi::elf_aux_info;
+                let _: ElfAuxInfoTy = elf_aux_info;
             }
             #[cfg(else)]
             {
