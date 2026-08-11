@@ -4440,7 +4440,8 @@ This is `const fn` on Rust 1.58+.
 
             cfg_has_atomic_cas! {
             /// Stores a value into the atomic float if the current value is the same as
-            /// the `current` value.
+            /// the `current` value. Here, "the same" is determined using byte-wise
+            /// equality, not `PartialEq`.
             ///
             /// The return value is a result indicating whether the new value was written and
             /// containing the previous value. On success this value is guaranteed to be equal to
@@ -4474,7 +4475,8 @@ This is `const fn` on Rust 1.58+.
             }
 
             /// Stores a value into the atomic float if the current value is the same as
-            /// the `current` value.
+            /// the `current` value. Here, "the same" is determined using byte-wise
+            /// equality, not `PartialEq`.
             /// Unlike [`compare_exchange`](Self::compare_exchange)
             /// this function is allowed to spuriously fail even
             /// when the comparison succeeds, which can result in more efficient code on some
