@@ -8,7 +8,7 @@ pub(crate) use self::generated::{RegISize, RegSize};
 #[path = "gen/utils.rs"]
 mod generated;
 
-use core::sync::atomic::Ordering;
+use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 macro_rules! static_assert {
     ($cond:expr $(,)?) => {{
@@ -442,6 +442,21 @@ pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> 
         _ => success,
     }
 }
+
+// core::panic::RefUnwindSafe is only available on Rust 1.56+, so on pre-1.56
+// Rust, we implement RefUnwindSafe when "std" feature is enabled.
+// However, on pre-1.56 Rust, the standard library's atomic types implement
+// RefUnwindSafe when "linked to std", and that's behavior that our other atomic
+// implementations can't emulate, so use PhantomData<NotRefUnwindSafe> to match
+// conditions where our other atomic implementations implement RefUnwindSafe.
+//
+// If we do not do this, for example, downstream that is only tested on x86_64
+// may incorrectly assume that AtomicU64 always implements RefUnwindSafe even on
+// older rustc, and may be broken on platforms where std AtomicU64 is not available.
+#[allow(dead_code)]
+pub(crate) struct NotRefUnwindSafe(UnsafeCell<()>);
+// SAFETY: this is a marker type and we'll never access the value.
+unsafe impl Sync for NotRefUnwindSafe {}
 
 #[cfg(not(portable_atomic_no_asm_maybe_uninit))]
 #[cfg(target_pointer_width = "32")]

@@ -20,14 +20,6 @@ attribute in `src/imp/mod.rs`, so it exposes exactly the same public API.
 
 use core::{cell::UnsafeCell, marker::PhantomData, sync::atomic::Ordering};
 
-// See `src/imp/core_atomic.rs` for why this marker is necessary — it
-// prevents the `#[repr(transparent)]` wrapper below from inheriting
-// `RefUnwindSafe` via the std atomic auto-impl, so that portable-atomic's
-// public types carry `RefUnwindSafe` uniformly on every backend.
-struct NotRefUnwindSafe(UnsafeCell<()>);
-// SAFETY: marker type; the UnsafeCell value is never accessed.
-unsafe impl Sync for NotRefUnwindSafe {}
-
 // The external (PSRAM / data bus) address ranges that do not support
 // atomic RMW instructions on these CPUs.
 
@@ -139,7 +131,8 @@ macro_rules! store {
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
     inner: core::sync::atomic::AtomicPtr<T>,
-    _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
+    // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
+    _not_ref_unwind_safe: PhantomData<crate::utils::NotRefUnwindSafe>,
 }
 impl<T> AtomicPtr<T> {
     #[inline]
@@ -387,7 +380,8 @@ macro_rules! atomic_int {
         #[repr(transparent)]
         pub(crate) struct $atomic_type {
             inner: core::sync::atomic::$atomic_type,
-            _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
+            // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
+            _not_ref_unwind_safe: PhantomData<crate::utils::NotRefUnwindSafe>,
         }
         impl $atomic_type {
             #[inline]

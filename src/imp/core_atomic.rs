@@ -9,25 +9,11 @@ https://github.com/rust-lang/rust/pull/98383 to old compilers.
 
 use core::{cell::UnsafeCell, marker::PhantomData, sync::atomic::Ordering};
 
-// core::panic::RefUnwindSafe is only available on Rust 1.56+, so on pre-1.56
-// Rust, we implement RefUnwindSafe when "std" feature is enabled.
-// However, on pre-1.56 Rust, the standard library's atomic types implement
-// RefUnwindSafe when "linked to std", and that's behavior that our other atomic
-// implementations can't emulate, so use PhantomData<NotRefUnwindSafe> to match
-// conditions where our other atomic implementations implement RefUnwindSafe.
-//
-// If we do not do this, for example, downstream that is only tested on x86_64
-// may incorrectly assume that AtomicU64 always implements RefUnwindSafe even on
-// older rustc, and may be broken on platforms where std AtomicU64 is not available.
-struct NotRefUnwindSafe(UnsafeCell<()>);
-// SAFETY: this is a marker type and we'll never access the value.
-unsafe impl Sync for NotRefUnwindSafe {}
-
 #[repr(transparent)]
 pub(crate) struct AtomicPtr<T> {
     pub(super) inner: core::sync::atomic::AtomicPtr<T>,
     // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
-    _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
+    _not_ref_unwind_safe: PhantomData<crate::utils::NotRefUnwindSafe>,
 }
 impl<T> AtomicPtr<T> {
     #[inline]
@@ -262,7 +248,7 @@ macro_rules! atomic_int {
         pub(crate) struct $atomic_type {
             pub(super) inner: core::sync::atomic::$atomic_type,
             // Prevent RefUnwindSafe from being propagated from the std atomic type. See NotRefUnwindSafe for more.
-            _not_ref_unwind_safe: PhantomData<NotRefUnwindSafe>,
+            _not_ref_unwind_safe: PhantomData<crate::utils::NotRefUnwindSafe>,
         }
         impl $atomic_type {
             #[inline]
