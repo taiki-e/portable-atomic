@@ -415,7 +415,11 @@ build() {
             target_rustflags+=" --cfg portable_atomic_unsafe_assume_single_core"
             ;;
           xtensa-esp32*)
-            # At this time, these chips require critical-section to be enabled, which is incompatible with the single-core and privileged assumptions.
+            # At this time, these chips require critical-section to be enabled, which is incompatible with 
+            # the single-core and privileged assumptions.
+            # Given that esp-idf appears to always allow interrupts to be disabled from users on Xtensa, 
+            # we may enable `unsafe-assume-privileged` by default for them in the future.
+            # https://github.com/espressif/esp-idf/blob/v6.0.2/components/esp_hw_support/cpu.c#L209
             ;;
         esac
       fi
