@@ -710,6 +710,22 @@ build() {
       CARGO_TARGET_DIR="${target_dir}/lsfe" \
         RUSTFLAGS="${target_rustflags} -C target-feature=+lsfe" \
         x_cargo "${args[@]}" "$@"
+      if [[ -z "${TESTS:-}" ]]; then
+        args+=(--exclude-features "serde,critical-section")
+      fi
+      # +rcpc3 without +lse2 is technically possible since both are OPTIONAL from Armv8.2,
+      # but considering that FEAT_LRCPC3 was added in Armv8.9, it is a somewhat strange case.
+      CARGO_TARGET_DIR="${target_dir}/rcpc3-alone" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+rcpc3" \
+        x_cargo "${args[@]}" "$@"
+      # +lse128 without +lse2 is a strange case since FEAT_LSE2 is mandatory from Armv8.4 and
+      # FEAT_LSE128 is OPTIONAL from Armv9.3.
+      CARGO_TARGET_DIR="${target_dir}/lse128-alone" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lse128" \
+        x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3-alone" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+rcpc3" \
+        x_cargo "${args[@]}" "$@"
       ;;
     powerpc64-*)
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default

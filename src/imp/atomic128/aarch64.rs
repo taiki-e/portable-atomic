@@ -553,7 +553,10 @@ cfg_sel!({
                 atomic_load_lse2_relaxed = _atomic_load_ldp(Ordering::Relaxed);
                 atomic_load_lse2_acquire = _atomic_load_ldp(Ordering::Acquire);
                 atomic_load_lse2_seqcst = _atomic_load_ldp(Ordering::SeqCst);
+                // _atomic_load_ldp uses rcpc3 when enabled at compile-time.
+                #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
                 atomic_load_lse2_rcpc3_acquire = _atomic_load_ldiapp(Ordering::Acquire);
+                #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
                 atomic_load_lse2_rcpc3_seqcst = _atomic_load_ldiapp(Ordering::SeqCst);
             }
             fn_alias! {
@@ -582,12 +585,13 @@ cfg_sel!({
                         ifunc!(unsafe fn(src: *mut u128) -> u128 {
                             let cpuinfo = detect::detect();
                             if cpuinfo.lse2() {
-                                if cpuinfo.rcpc3() {
+                                match () {
                                     // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
-                                    atomic_load_lse2_rcpc3_acquire
-                                } else {
+                                    // atomic_load_lse2_acquire uses rcpc3 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                                    () if cpuinfo.rcpc3() => atomic_load_lse2_rcpc3_acquire,
                                     // if detect(FEAT_LSE2) => lse2 (ldp)
-                                    atomic_load_lse2_acquire
+                                    () => atomic_load_lse2_acquire,
                                 }
                             } else {
                                 // else => no_lse2:
@@ -599,12 +603,13 @@ cfg_sel!({
                         ifunc!(unsafe fn(src: *mut u128) -> u128 {
                             let cpuinfo = detect::detect();
                             if cpuinfo.lse2() {
-                                if cpuinfo.rcpc3() {
+                                match () {
                                     // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (ldiapp)
-                                    atomic_load_lse2_rcpc3_seqcst
-                                } else {
+                                    // atomic_load_lse2_seqcst uses rcpc3 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                                    () if cpuinfo.rcpc3() => atomic_load_lse2_rcpc3_seqcst,
                                     // if detect(FEAT_LSE2) => lse2 (ldp)
-                                    atomic_load_lse2_seqcst
+                                    () => atomic_load_lse2_seqcst,
                                 }
                             } else {
                                 // else => no_lse2:
@@ -950,9 +955,17 @@ cfg_sel!({
                 atomic_store_lse2_relaxed = _atomic_store_stp(Ordering::Relaxed);
                 atomic_store_lse2_release = _atomic_store_stp(Ordering::Release);
                 atomic_store_lse2_seqcst = _atomic_store_stp(Ordering::SeqCst);
+                // _atomic_store_stp uses rcpc3 when enabled at compile-time.
+                #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
                 atomic_store_lse2_rcpc3_release = _atomic_store_stilp(Ordering::Release);
+                #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
                 atomic_store_lse2_rcpc3_seqcst = _atomic_store_stilp(Ordering::SeqCst);
+                // _atomic_store_stp uses lse128 when enabled at compile-time.
+                #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
+                #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
                 atomic_store_lse128_release = _atomic_store_swpp(Ordering::Release);
+                #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
                 atomic_store_lse128_seqcst = _atomic_store_swpp(Ordering::SeqCst);
             }
             fn_alias! {
@@ -981,15 +994,18 @@ cfg_sel!({
                         ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                             let cpuinfo = detect::detect();
                             if cpuinfo.lse2() {
-                                if cpuinfo.rcpc3() {
+                                match () {
                                     // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
-                                    atomic_store_lse2_rcpc3_release
-                                } else if cpuinfo.lse128() {
+                                    // atomic_store_lse2_release uses rcpc3 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                                    () if cpuinfo.rcpc3() => atomic_store_lse2_rcpc3_release,
                                     // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order != relaxed => lse128 (swpp)
-                                    atomic_store_lse128_release
-                                } else {
+                                    // atomic_store_lse2_release uses lse128 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                                    #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
+                                    () if cpuinfo.lse128() => atomic_store_lse128_release,
                                     // if detect(FEAT_LSE2) => lse2 (stp)
-                                    atomic_store_lse2_release
+                                    () => atomic_store_lse2_release,
                                 }
                             } else {
                                 // else => no_lse2:
@@ -1001,15 +1017,18 @@ cfg_sel!({
                         ifunc!(unsafe fn(dst: *mut u128, val: u128) {
                             let cpuinfo = detect::detect();
                             if cpuinfo.lse2() {
-                                if cpuinfo.lse128() {
+                                match () {
                                     // if detect(FEAT_LSE2) && detect(FEAT_LSE128) && order == seqcst => lse128 (swpp)
-                                    atomic_store_lse128_seqcst
-                                } else if cpuinfo.rcpc3() {
+                                    // atomic_store_lse128_seqcst uses lse128 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
+                                    () if cpuinfo.lse128() => atomic_store_lse128_seqcst,
                                     // if detect(FEAT_LSE2) && detect(FEAT_LRCPC3) && order != relaxed => lse2_rcpc3 (stilp)
-                                    atomic_store_lse2_rcpc3_seqcst
-                                } else {
+                                    // atomic_store_lse128_seqcst uses rcpc3 when enabled at compile-time.
+                                    #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
+                                    #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
+                                    () if cpuinfo.rcpc3() => atomic_store_lse2_rcpc3_seqcst,
                                     // if detect(FEAT_LSE2) => lse2 (stp)
-                                    atomic_store_lse2_seqcst
+                                    () => atomic_store_lse2_seqcst,
                                 }
                             } else {
                                 // else => no_lse2:
