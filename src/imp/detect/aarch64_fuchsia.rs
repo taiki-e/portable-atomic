@@ -29,12 +29,13 @@ mod ffi {
         pub(crate) const ZX_ARM64_FEATURE_ISA_ATOMICS: u32 = 1 << 8;
     });
 
-    // TODO: use sys_fn!
-    #[link(name = "zircon")]
-    extern "C" {
-        // https://fuchsia.dev/reference/syscalls/system_get_features
-        pub(crate) fn zx_system_get_features(kind: u32, features: *mut u32) -> zx_status_t;
-    }
+    sys_fn!({
+        #[link(name = "zircon")]
+        extern "C" {
+            // https://fuchsia.dev/reference/syscalls/system_get_features
+            pub(crate) fn zx_system_get_features(kind: u32, features: *mut u32) -> zx_status_t;
+        }
+    });
 }
 
 fn zx_system_get_features(kind: u32) -> u32 {
