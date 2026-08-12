@@ -451,7 +451,12 @@ build() {
             ;;
           avr*) test_dir=tests/avr ;;
           msp430*) test_dir=tests/msp430 ;;
-          xtensa*) test_dir=tests/xtensa ;;
+          xtensa*)
+            test_dir=tests/xtensa
+            local cpu
+            cpu=$(cut -d- -f2 <<<"${target}")
+            args+=(--features "esp-println/${cpu},esp-hal/${cpu}")
+            ;;
         esac
         if [[ -n "${test_dir}" ]]; then
           RUSTFLAGS="${target_rustflags}" \
