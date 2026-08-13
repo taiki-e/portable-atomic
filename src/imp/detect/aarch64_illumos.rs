@@ -60,3 +60,122 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
     check!(v2, lse2, AV_AARCH64_2_LSE2);
     info
 }
+
+#[allow(
+    clippy::alloc_instead_of_core,
+    clippy::std_instead_of_alloc,
+    clippy::std_instead_of_core,
+    clippy::undocumented_unsafe_blocks,
+    clippy::wildcard_imports
+)]
+#[cfg(test)]
+mod tests {
+    use std::mem;
+
+    use test_helper::sys;
+
+    use super::*;
+
+    #[test]
+    fn test_alternative() {
+        use crate::utils::ffi::*;
+
+        // This is almost equivalent to what getisax does.
+        //
+        // getisax also reads /proc/self/auxv, but unlike getisax, this doesn't use mutex/heap.
+        // https://github.com/illumos/illumos-gate/blob/201ceaf7f1701846dee31985748eea1186540f7b/usr/src/lib/libc/port/gen/getauxv.c
+        //
+        // This is currently used only for testing.
+        fn getisax_proc_self_auxv(out: &mut [u32]) -> bool {
+            if out.is_empty() {
+                return false;
+            }
+            #[allow(clippy::cast_possible_wrap)]
+            let fd =
+                unsafe { sys::open(c!("/proc/self/auxv").as_ptr(), sys::O_RDONLY as c_int, 0) };
+            if fd == -1 {
+                return false;
+            }
+            let mask = (1 << out.len()) - 1;
+            let mut state = mask;
+            // SAFETY: auxv_t can be safely zeroed.
+            let mut buf: [sys::auxv_t; 8] = unsafe { mem::zeroed() };
+            let buf_len = mem::size_of_val(&buf);
+            'outer: loop {
+                let mut read = 0;
+                loop {
+                    match unsafe {
+                        sys::read(
+                            fd,
+                            buf.as_mut_ptr().cast::<u8>().add(read).cast::<c_void>(),
+                            buf_len - read,
+                        )
+                    } {
+                        0 => break,
+                        n if n < 0 => {
+                            #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+                            // SAFETY: errno is thread-local
+                            if unsafe { *sys::___errno() as u32 == sys::EINTR } {
+                                continue;
+                            }
+                            state = mask;
+                            break 'outer;
+                        }
+                        #[allow(clippy::cast_sign_loss)]
+                        n => {
+                            read += n as usize;
+                            if read == buf_len {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if read == 0 {
+                    break;
+                }
+                let len = read / mem::size_of::<sys::auxv_t>();
+                for aux in &buf[..len] {
+                    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+                    match aux.a_type as u32 {
+                        sys::AT_SUN_HWCAP if state & 0b0001 != 0 => {
+                            // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                            // the same size and can be safely transmuted to integers.
+                            out[0] = unsafe { aux.a_un.a_val as u32 };
+                            state &= !0b0001;
+                        }
+                        sys::AT_SUN_HWCAP2 if state & 0b0010 != 0 => {
+                            // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                            // the same size and can be safely transmuted to integers.
+                            out[1] = unsafe { aux.a_un.a_val as u32 };
+                            state &= !0b0010;
+                        }
+                        sys::AT_SUN_HWCAP3 if state & 0b0100 != 0 => {
+                            // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                            // the same size and can be safely transmuted to integers.
+                            out[2] = unsafe { aux.a_un.a_val as u32 };
+                            state &= !0b0100;
+                        }
+                        sys::AT_NULL => break 'outer,
+                        _ => continue,
+                    }
+                    if state == 0 {
+                        break 'outer;
+                    }
+                }
+            }
+            unsafe {
+                sys::close(fd);
+            }
+            state != mask
+        }
+
+        let mut out1 = [0; 3];
+        // SAFETY: the pointer is valid because we got it from a reference.
+        unsafe {
+            ffi::getisax(out1.as_mut_ptr(), 3);
+        }
+        let mut out2 = [0; 3];
+        assert!(getisax_proc_self_auxv(&mut out2));
+        assert_eq!(out1, out2);
+    }
+}
