@@ -5,6 +5,8 @@ Run-time CPU feature detection on AArch64 Windows by using IsProcessorFeaturePre
 
 Run-time detection of FEAT_LSE on Windows by is_aarch64_feature_detected is supported on Rust 1.70+.
 https://github.com/rust-lang/stdarch/pull/1373
+Run-time detection of FEAT_LSE2 on Windows by is_aarch64_feature_detected is supported on Rust 1.97+.
+https://github.com/rust-lang/rust/pull/155856
 
 Refs: https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
 */

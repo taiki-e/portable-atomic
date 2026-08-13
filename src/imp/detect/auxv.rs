@@ -4,10 +4,12 @@
 Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
-- Linux 6.4+ (through prctl)
+- Linux 6.5+/6.4.7+ (through prctl)
+  This was added in 6.4, but due to a bug, earlier versions return EINVAL.
   https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
-  prctl returns an unsupported error if operation is not supported,
-  so we can safely use this on older versions.
+  https://github.com/torvalds/linux/commit/636e348353a7cc52609fdba5ff3270065da140d5
+  https://github.com/gregkh/linux/commit/ffb4aa1c05645cdd50657dd605c0ad5188126533
+  prctl returns EINVAL if operation is not supported, so we can safely use this on older versions.
 - glibc 2.16+ (through getauxval)
   https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.16#l83
   Always available on:
@@ -57,12 +59,12 @@ Supported platforms:
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
   Always available on:
-  - arm (v7) (FreeBSD 12.0+ https://www.freebsd.org/releases/12.0R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
-  - powerpc64 (le) (FreeBSD 12.4+ https://www.freebsd.org/releases/12.4R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
+  - arm (v7) (FreeBSD 12.0+ https://www.freebsd.org/releases/12.0R/announce, https://man.freebsd.org/arch(7))
+  - powerpc64 (le) (FreeBSD 12.4+ https://www.freebsd.org/releases/12.4R/announce, https://man.freebsd.org/arch(7))
   Not always available on:
-  - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
-  - arm (v6) (FreeBSD 10.1+ https://www.freebsd.org/releases/10.1R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
-  - powerpc64 (be) (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce, https://man.freebsd.org/cgi/man.cgi?arch)
+  - aarch64 (FreeBSD 11.0+ https://www.freebsd.org/releases/11.0R/announce, https://man.freebsd.org/arch(7))
+  - arm (v6) (FreeBSD 10.1+ https://www.freebsd.org/releases/10.1R/announce, https://man.freebsd.org/arch(7))
+  - powerpc64 (be) (FreeBSD 9.0+ https://www.freebsd.org/releases/9.0R/announce, https://man.freebsd.org/arch(7))
   Since Rust 1.75, std requires FreeBSD 12+ https://github.com/rust-lang/rust/pull/114521
   Since Rust 1.97, std requires FreeBSD 14+ https://github.com/rust-lang/rust/pull/156607
 - OpenBSD 7.6+ (through elf_aux_info)
@@ -114,9 +116,11 @@ See tests::test_alternative and aarch64_aa64reg.rs for (test-only) alternative i
 
 # FreeBSD
 
-As of Rust 1.94, is_aarch64_feature_detected always uses mrs on
-AArch64 FreeBSD. However, they do not work on FreeBSD 12 on QEMU (confirmed
-on FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+As of Rust 1.97, is_aarch64_feature_detected always uses mrs on AArch64 FreeBSD.
+https://github.com/rust-lang/rust/blob/1.97.0/library/std_detect/src/detect/os/freebsd/aarch64.rs
+However, that approach causes SIGILL on FreeBSD 12.{2,3,4} on QEMU (works on FreeBSD 13 and 14).
+Run-time detection of FEAT_LSE2 on FreeBSD by is_aarch64_feature_detected is supported on Rust 1.70+.
+https://github.com/rust-lang/stdarch/pull/1379
 
 So use elf_aux_info instead of mrs like compiler-rt does.
 https://reviews.llvm.org/D109330
@@ -555,8 +559,9 @@ mod arch {
         pub(crate) const HWCAP2_LSE128: ffi::c_ulong = 1 << 47;
         // Linux 6.18+
         // https://github.com/torvalds/linux/commit/220928e52cb03d223b3acad3888baf0687486d21
-        // FreeBSD 16.0+
+        // FreeBSD 16.0+/15.1+
         // https://github.com/freebsd/freebsd-src/commit/3a960425df759a7bb8f946d23f035c63f3a5de7a
+        // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/sys/arm64/include/elf.h
         #[cfg(test)]
         #[cfg(not(target_os = "openbsd"))]
         #[cfg(target_pointer_width = "64")]
@@ -855,28 +860,84 @@ mod tests {
         }
     }
 
+    #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
+    #[cfg(not(all(target_os = "linux", target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
+    items!({
+        use test_helper::sys;
+
+        #[cfg(target_os = "freebsd")]
+        use self::sys::Elf_Auxinfo as Elf_auxv_t;
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "32")]
+        use self::sys::Elf32_auxv_t as Elf_auxv_t;
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[cfg(target_pointer_width = "64")]
+        use self::sys::Elf64_auxv_t as Elf_auxv_t;
+
+        fn hwcap_from_auxv(out: &mut [ffi::c_ulong], auxv: &[Elf_auxv_t]) -> bool {
+            use crate::utils::ffi::*;
+            #[cfg(target_os = "freebsd")]
+            type AtTy = c_int;
+            #[cfg(any(target_os = "linux", target_os = "android"))]
+            type AtTy = c_ulong;
+            if out.is_empty() {
+                return false;
+            }
+            let mask = (1 << out.len()) - 1;
+            let mut state = mask;
+            for aux in auxv {
+                #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+                match aux.a_type as AtTy {
+                    ffi::AT_HWCAP if state & 0b0001 != 0 => {
+                        // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                        // the same size and can be safely transmuted to integers.
+                        out[0] = unsafe { aux.a_un.a_val as c_ulong };
+                        state &= !0b0001;
+                    }
+                    ffi::AT_HWCAP2 if state & 0b0010 != 0 => {
+                        // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                        // the same size and can be safely transmuted to integers.
+                        out[1] = unsafe { aux.a_un.a_val as c_ulong };
+                        state &= !0b0010;
+                    }
+                    ffi::AT_HWCAP3 if state & 0b0100 != 0 => {
+                        // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                        // the same size and can be safely transmuted to integers.
+                        out[2] = unsafe { aux.a_un.a_val as c_ulong };
+                        state &= !0b0100;
+                    }
+                    ffi::AT_HWCAP4 if state & 0b1000 != 0 => {
+                        // SAFETY: aux.a_un is #[repr(C)] union and all fields have
+                        // the same size and can be safely transmuted to integers.
+                        out[3] = unsafe { aux.a_un.a_val as c_ulong };
+                        state &= !0b1000;
+                    }
+                    0 /* ffi::AT_NULL */ => break,
+                    _ => continue,
+                }
+                if state == 0 {
+                    break;
+                }
+            }
+            state != mask
+        }
+    });
+
     #[cfg(any(target_os = "linux", target_os = "android"))]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
     #[test]
     fn test_alternative() {
         use std::{eprintln, str, vec};
 
-        #[cfg(target_pointer_width = "32")]
-        use sys::Elf32_auxv_t as Elf_auxv_t;
-        #[cfg(target_pointer_width = "64")]
-        use sys::Elf64_auxv_t as Elf_auxv_t;
-        use test_helper::sys;
-
         use crate::utils::ffi::*;
 
-        // Linux kernel 6.4 has added a way to read auxv without depending on either libc or mrs trap.
-        // https://github.com/torvalds/linux/commit/ddc65971bb677aa9f6a4c21f76d3133e106f88eb
-        // (Actually 6.5? https://github.com/torvalds/linux/commit/636e348353a7cc52609fdba5ff3270065da140d5)
+        // Linux kernel 6.5+/6.4.7+ has added a way to read auxv without depending on either libc or mrs trap.
+        //
+        // qemu-user (as of 11.0) and Valgrind (as of 27) do not fully support this.
         //
         // This is currently used only for testing.
-        #[cfg(not(target_os = "android"))]
-        #[cfg(not(portable_atomic_no_asm_syscall))]
-        fn getauxval_pr_get_auxv_no_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
+        #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+        fn getauxval_pr_get_auxv_no_libc(out: &mut [ffi::c_ulong]) -> Result<(), c_int> {
             use crate::utils::{RegISize, RegSize};
 
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
@@ -903,26 +964,18 @@ mod tests {
             }
 
             let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
-
             let old_len = auxv.len() * mem::size_of::<Elf_auxv_t>();
 
             // SAFETY:
             // - `out_len` does not exceed the size of `auxv`.
             let _len = unsafe { prctl_get_auxv(auxv.as_mut_ptr().cast::<c_void>(), old_len)? };
 
-            for aux in &auxv {
-                if aux.a_type == type_ {
-                    // SAFETY: aux.a_un is #[repr(C)] union and all fields have
-                    // the same size and can be safely transmuted to integers.
-                    return Ok(unsafe { aux.a_un.a_val });
-                }
-            }
-            Err(0)
+            if hwcap_from_auxv(out, &auxv) { Ok(()) } else { Err(0) }
         }
         // Similar to the above, but call libc prctl instead of syscall using asm.
         //
         // This is used only for testing.
-        fn getauxval_pr_get_auxv_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
+        fn getauxval_pr_get_auxv_libc(out: &mut [ffi::c_ulong]) -> Result<(), c_int> {
             unsafe fn prctl_get_auxv(out: *mut c_void, len: usize) -> Result<usize, c_int> {
                 // arg4 and arg5 must be zero.
                 #[allow(clippy::cast_possible_wrap)]
@@ -932,21 +985,13 @@ mod tests {
             }
 
             let mut auxv = vec![unsafe { mem::zeroed::<Elf_auxv_t>() }; 38];
-
             let old_len = auxv.len() * mem::size_of::<Elf_auxv_t>();
 
             // SAFETY:
             // - `out_len` does not exceed the size of `auxv`.
             let _len = unsafe { prctl_get_auxv(auxv.as_mut_ptr().cast::<c_void>(), old_len)? };
 
-            for aux in &auxv {
-                if aux.a_type == type_ {
-                    // SAFETY: aux.a_un is #[repr(C)] union and all fields have
-                    // the same size and can be safely transmuted to integers.
-                    return Ok(unsafe { aux.a_un.a_val });
-                }
-            }
-            Err(0)
+            if hwcap_from_auxv(out, &auxv) { Ok(()) } else { Err(0) }
         }
 
         unsafe {
@@ -954,53 +999,54 @@ mod tests {
             assert_eq!(libc::uname(&mut u), 0);
             let release = std::ffi::CStr::from_ptr(u.release.as_ptr());
             let release = str::from_utf8(release.to_bytes()).unwrap();
-            let mut digits = release.split('.');
+            let mut digits = release.split('-').next().unwrap().split('.');
             let major = digits.next().unwrap().parse::<u32>().unwrap();
             let minor = digits.next().unwrap().parse::<u32>().unwrap();
-            // TODO: qemu-user bug (fails even on kernel >= 6.4) (as of 9.2)
-            if (major, minor) < (6, 4) || cfg!(qemu) {
-                eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
-                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-                    assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                    #[cfg(not(target_os = "android"))]
-                    #[cfg(not(portable_atomic_no_asm_syscall))]
-                    assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
+            let patch = digits.next().unwrap_or("0").parse::<u32>().unwrap();
+            // TODO: qemu-user bug (fails even on kernel >= 6.4.7) (as of 11.0)
+            // (valgrind run on qemu-user is also affected.)
+            if (major, minor, patch) < (6, 4, 7)
+                || cfg!(qemu)
+                || cfg!(all(valgrind, target_arch = "powerpc64"))
+            {
+                eprintln!("kernel version: {}.{}.{} (no pr_get_auxv)", major, minor, patch);
+                let mut out = [0; 4];
+                assert_eq!(getauxval_pr_get_auxv_libc(&mut out).unwrap_err(), -1);
+                assert_eq!(std::io::Error::last_os_error().raw_os_error().unwrap(), libc::EINVAL);
+                #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                {
+                    let mut out = [0; 4];
+                    assert_eq!(getauxval_pr_get_auxv_no_libc(&mut out).unwrap_err(), -libc::EINVAL);
                 }
             } else {
-                eprintln!("kernel version: {}.{} (has pr_get_auxv)", major, minor);
-                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
-                    if cfg!(all(valgrind, target_arch = "powerpc64")) {
-                        // TODO: valgrind bug (as of Valgrind 3.26)
-                        assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                        #[cfg(not(target_os = "android"))]
-                        #[cfg(not(portable_atomic_no_asm_syscall))]
-                        assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
-                    } else if cfg!(all(valgrind, target_arch = "aarch64"))
-                        || cfg!(all(valgrind, target_arch = "arm")) && at == ffi::AT_HWCAP2
+                eprintln!("kernel version: {}.{}.{} (has pr_get_auxv)", major, minor, patch);
+                let out1 = [
+                    os::getauxval(ffi::AT_HWCAP),
+                    os::getauxval(ffi::AT_HWCAP2),
+                    os::getauxval(ffi::AT_HWCAP3),
+                    os::getauxval(ffi::AT_HWCAP4),
+                ];
+                let mut out2 = [0; 4];
+                getauxval_pr_get_auxv_libc(&mut out2).unwrap();
+                #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                let mut out3 = [0; 4];
+                #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                getauxval_pr_get_auxv_no_libc(&mut out3).unwrap();
+                for i in 0..4 {
+                    if cfg!(all(valgrind, target_arch = "aarch64")) && i <= 1
+                        || cfg!(all(valgrind, target_arch = "arm")) && i == 1
                     {
-                        // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.26)
-                        assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
-                        #[cfg(not(portable_atomic_no_asm_syscall))]
-                        assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                        // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.27)
+                        assert_ne!(out1[i], out2[i]);
+                        #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                        assert_ne!(out1[i], out3[i]);
                     } else {
-                        assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
-                        #[cfg(not(portable_atomic_no_asm_syscall))]
-                        assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
+                        assert_eq!(out1[i], out2[i]);
+                        #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                        assert_eq!(out1[i], out3[i]);
                     }
-                }
-                for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-                    assert_eq!(
-                        os::getauxval(at),
-                        getauxval_pr_get_auxv_libc(at).unwrap_or_default()
-                    );
-                    #[cfg(not(target_os = "android"))]
-                    #[cfg(not(portable_atomic_no_asm_syscall))]
-                    assert_eq!(
-                        os::getauxval(at),
-                        getauxval_pr_get_auxv_no_libc(at).unwrap_or_default()
-                    );
+                    #[cfg(not(any(target_os = "android", portable_atomic_no_asm_syscall)))]
+                    assert_eq!(out2[i], out3[i]);
                 }
             }
         }
@@ -1010,8 +1056,6 @@ mod tests {
     #[test]
     fn test_alternative() {
         use std::ptr;
-
-        use test_helper::sys;
 
         use crate::utils::ffi::*;
 
@@ -1034,11 +1078,8 @@ mod tests {
         // https://github.com/freebsd/freebsd-src/commit/55a0aa21628ad7b3bd8d6a42e51d79867d8996a9
         //
         // This is currently used only for testing.
-        // If you want us to use this implementation for compatibility with the older FreeBSD
-        // version that came to EoL a few years ago, please open an issue.
-        fn getauxval_sysctl(type_: ffi::c_int) -> Option<ffi::c_ulong> {
+        fn getauxval_sysctl(out: &mut [ffi::c_ulong]) -> Option<()> {
             let mut auxv: [sys::Elf_Auxinfo; sys::AT_COUNT as usize] = unsafe { mem::zeroed() };
-
             let mut len = mem::size_of_val(&auxv) as c_size_t;
 
             // SAFETY: calling getpid is safe.
@@ -1069,26 +1110,14 @@ mod tests {
             if res != 0 {
                 return None;
             }
-
-            for aux in &auxv {
-                #[allow(clippy::cast_sign_loss)]
-                if aux.a_type == type_ as c_long {
-                    // SAFETY: aux.a_un is #[repr(C)] union and all fields have
-                    // the same size and can be safely transmuted to integers.
-                    return Some(unsafe { aux.a_un.a_val as c_ulong });
-                }
-            }
-            None
+            if hwcap_from_auxv(out, &auxv) { Some(()) } else { None }
         }
 
-        // AT_HWCAP2 is only available on FreeBSD 13+ on AArch64.
-        let hwcap2_else = || if cfg!(target_arch = "aarch64") { 0 } else { panic!() };
-        let at = ffi::AT_HWCAP;
-        assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap());
-        let at = ffi::AT_HWCAP2;
-        assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap_or_else(hwcap2_else));
-        for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-            assert_eq!(os::getauxval(at), getauxval_sysctl(at).unwrap_or_default());
-        }
+        let mut out = [0; 4];
+        getauxval_sysctl(&mut out).unwrap();
+        assert_eq!(os::getauxval(ffi::AT_HWCAP), out[0]);
+        assert_eq!(os::getauxval(ffi::AT_HWCAP2), out[1]);
+        assert_eq!(os::getauxval(ffi::AT_HWCAP3), out[2]);
+        assert_eq!(os::getauxval(ffi::AT_HWCAP4), out[3]);
     }
 }

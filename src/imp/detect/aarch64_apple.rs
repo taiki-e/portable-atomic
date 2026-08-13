@@ -32,7 +32,10 @@ target_feature="wfxt"
 
 Non-macOS targets doesn't always supports FEAT_LSE2, so we use this module on them.
 As used in the example in https://developer.apple.com/documentation/xcode/writing-arm64-code-for-apple-platforms#Enable-DIT-for-constant-time-cryptographic-operations,
-sysctlbyname is supported on all Apple platforms.
+and is_aarch64_feature_detected (https://github.com/rust-lang/stdarch/pull/1636) and swift
+(https://github.com/swiftlang/swift/blob/swift-6.4.x-DEVELOPMENT-SNAPSHOT-2026-08-01-a/stdlib/public/RuntimeModule/ImageMap%2BDarwin.swift#L17)
+use it, sysctlbyname is considered supported on all Apple platforms, although https://developer.apple.com/documentation/kernel/1387446-sysctlbyname
+only mentions macOS.
 
 Refs: https://developer.apple.com/documentation/kernel/1387446-sysctlbyname/determining_instruction_set_characteristics
 */
@@ -169,37 +172,50 @@ mod tests {
                 let prefix = format!("{}: ", name);
                 Some(self.0.lines().find_map(|s| s.strip_prefix(&prefix))?.parse().unwrap())
             }
+            fn has_field(&self, name: &CStr) -> bool {
+                let name = name.to_bytes_with_nul();
+                let name = str::from_utf8(&name[..name.len() - 1]).unwrap();
+                let prefix = format!("{}: ", name);
+                self.0.lines().any(|s| s.starts_with(&prefix))
+            }
         }
 
         let mut caps = [0_u64; CAPS_LEN];
         let has_caps = arm_caps(&mut caps);
         let sysctl_output = SysctlHwOptionalOutput::new();
+        assert_eq!(has_caps, sysctl_output.has_field(c!("hw.optional.arm.caps")));
         for (name, expected_on_macos, cap_bit) in [
-            (c!("hw.optional.arm.FEAT_LSE"), Some(1), sys::CAP_BIT_FEAT_LSE),
-            (c!("hw.optional.armv8_1_atomics"), Some(1), sys::CAP_BIT_FEAT_LSE),
-            (c!("hw.optional.arm.FEAT_LSE2"), Some(1), sys::CAP_BIT_FEAT_LSE2),
-            (c!("hw.optional.arm.FEAT_LSE128"), None, 0),
-            (c!("hw.optional.arm.FEAT_LSFE"), None, 0),
-            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1), sys::CAP_BIT_FEAT_LRCPC),
-            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1), sys::CAP_BIT_FEAT_LRCPC2),
-            (c!("hw.optional.arm.FEAT_LRCPC3"), None, 0),
+            (c!("hw.optional.arm.FEAT_LSE"), Some(1), Some(sys::CAP_BIT_FEAT_LSE)),
+            (c!("hw.optional.armv8_1_atomics"), Some(1), Some(sys::CAP_BIT_FEAT_LSE)),
+            (c!("hw.optional.arm.FEAT_LSE2"), Some(1), Some(sys::CAP_BIT_FEAT_LSE2)),
+            (c!("hw.optional.arm.FEAT_LSE128"), None, None),
+            (c!("hw.optional.arm.FEAT_LSFE"), None, None),
+            (c!("hw.optional.arm.FEAT_LRCPC"), Some(1), Some(sys::CAP_BIT_FEAT_LRCPC)),
+            (c!("hw.optional.arm.FEAT_LRCPC2"), Some(1), Some(sys::CAP_BIT_FEAT_LRCPC2)),
+            (c!("hw.optional.arm.FEAT_LRCPC3"), None, None),
         ] {
             let res = sysctlbyname32(name);
             if res.is_none() {
                 assert_eq!(std::io::Error::last_os_error().kind(), std::io::ErrorKind::NotFound);
             }
             if cfg!(any(target_os = "macos", target_abi = "macabi")) {
+                let name = name.to_bytes_with_nul();
                 assert_eq!(
                     res,
                     expected_on_macos,
                     "{}",
-                    str::from_utf8(name.to_bytes_with_nul()).unwrap()
+                    str::from_utf8(&name[..name.len() - 1]).unwrap()
                 );
             }
             if let Some(res) = res {
                 assert_eq!(res, sysctl_output.field(name).unwrap());
                 if has_caps {
-                    assert_eq!(caps[cap_bit as usize / 64] & (1 << (cap_bit & 63)) != 0, res != 0);
+                    if let Some(cap_bit) = cap_bit {
+                        assert_eq!(
+                            caps[cap_bit as usize / 64] & (1 << (cap_bit & 63)) != 0,
+                            res != 0
+                        );
+                    }
                 }
             } else {
                 assert!(sysctl_output.field(name).is_none());

@@ -6,8 +6,8 @@ Run-time CPU feature detection on PowerPC64 AIX by using getsystemcfg.
 Refs:
 - https://github.com/golang/go/blob/go1.26.0/src/internal/cpu/cpu_ppc64x_aix.go
 
-As of Rust 1.94, is_powerpc_feature_detected doesn't support run-time detection on AIX.
-https://github.com/rust-lang/rust/blob/1.94.0/library/std_detect/src/detect/mod.rs
+As of Rust 1.97, is_powerpc_feature_detected is unstable and doesn't support run-time detection on AIX.
+https://github.com/rust-lang/rust/blob/1.97.0/library/std_detect/src/detect/mod.rs
 
 Run-time detection on PowerPC64 AIX is currently disabled by default as experimental
 because we cannot run tests on the VM or real machine.
@@ -22,6 +22,7 @@ mod ffi {
     sys_const!({
         // https://github.com/rust-lang/libc/blob/0.2.158/src/unix/aix/mod.rs#L2058
         // https://github.com/golang/go/blob/go1.26.0/src/internal/cpu/cpu_ppc64x_aix.go
+        // https://github.com/gcc-mirror/gcc/blob/releases/gcc-16.2.0/gcc/config/rs6000/driver-rs6000.cc#L376
         pub(crate) const SC_IMPL: c_int = 2;
         pub(crate) const POWER_8: c_ulong = 0x10000;
         pub(crate) const POWER_9: c_ulong = 0x20000;

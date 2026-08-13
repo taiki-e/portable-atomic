@@ -3,10 +3,10 @@
 /*
 Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
 
-As of Rust 1.94, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
-https://github.com/rust-lang/rust/blob/1.94.0/library/std_detect/src/detect/mod.rs
+As of Rust 1.97, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
+https://github.com/rust-lang/rust/blob/1.97.0/library/std_detect/src/detect/mod.rs
 Run-time detection on OpenBSD by is_aarch64_feature_detected is supported on Rust 1.70+.
-https://github.com/rust-lang/stdarch/pull/1374
+https://github.com/rust-lang/stdarch/pull/1374 / https://github.com/rust-lang/stdarch/pull/1379
 
 Refs:
 - https://developer.arm.com/documentation/ddi0601/2025-06/AArch64-Registers
@@ -34,9 +34,10 @@ On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
   and also does not work with qemu-user (as of QEMU 7.2) and Valgrind (as of Valgrind 3.24).
   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
   to false correctly, but qemu-user is setting it to true.)
-  - qemu-user issue seem to be fixed as of QEMU 9.2.
-- On FreeBSD, this approach does not work on FreeBSD 12 on QEMU (confirmed on
-  FreeBSD 12.{2,3,4}), and we got SIGILL (worked on FreeBSD 13 and 14).
+  - qemu-user issue has been fixed in fixed in 8.0/7.2.11.
+    https://github.com/qemu/qemu/commit/bc6bd20ee3538347afb750c4bd06edca4a922897
+    https://github.com/qemu/qemu/commit/4002b76c1cf14101ac5cbdcce936330234a9de8f
+- On FreeBSD, this approach causes SIGILL on FreeBSD 12.{2,3,4} on QEMU (works on FreeBSD 13 and 14).
 */
 
 include!("common.rs");
@@ -459,7 +460,7 @@ mod tests {
     #[cfg(target_os = "netbsd")]
     #[test]
     fn test_alternative() {
-        use std::{mem, ptr, vec, vec::Vec};
+        use std::{mem, ptr};
 
         use test_helper::sys;
 
@@ -468,59 +469,52 @@ mod tests {
 
         // This is almost equivalent to what sysctlbyname does.
         //
+        // Unlike sysctlbyname, this doesn't use mutex/heap.
+        //
         // This is currently used only for testing.
-        fn sysctl_cpu_id_no_libc() -> Option<AA64Reg> {
+        fn sysctl_cpu_id() -> Option<AA64Reg> {
             // https://github.com/golang/sys/blob/v0.47.0/cpu/cpu_netbsd_arm64.go
             // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/lib/libc/gen/sysctlbyname.c
             // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/lib/libc/gen/sysctlgetmibinfo.c
             fn sysctl_nodes(
                 mib: &[i32; MIB_LEN],
                 mib_len: c_uint,
-                nodes: &mut Vec<sys::sysctlnode>,
-            ) -> Option<()> {
+                nodes: &mut [sys::sysctlnode; NODES_MAX],
+            ) -> Option<usize> {
                 let mut q_node = sys::sysctlnode {
                     sysctl_flags: sys::SYSCTL_VERS_1,
                     // SAFETY: sysctlnode can be safely zeroed.
                     ..unsafe { mem::zeroed() }
                 };
                 let qp = (&mut q_node as *mut sys::sysctlnode).cast::<ffi::c_void>();
-                let sz = mem::size_of::<sys::sysctlnode>();
-                let mut olen = 0;
+                let node_size = mem::size_of::<sys::sysctlnode>();
+                let nodes_size = mem::size_of_val(nodes);
+                let mut out_size = nodes_size;
+                let nodes_ptr = nodes.as_mut_ptr().cast::<ffi::c_void>();
                 // SAFETY:
                 // - `mib_len` does not exceed the size of `mib`.
-                // - `sz` does not exceed the size of `qp`.
+                // - `out_size` does not exceed the size of `nodes_ptr`.
+                // - `node_size` does not exceed the size of `qp`.
                 // - `sysctl` is thread-safe.
                 let res = unsafe {
-                    sys::sysctl(mib.as_ptr(), mib_len, ptr::null_mut(), &mut olen, qp, sz)
+                    sys::sysctl(mib.as_ptr(), mib_len, nodes_ptr, &mut out_size, qp, node_size)
                 };
                 // NetBSD sysctl returns 0 on success, -1 on failure.
-                if res != 0 {
+                #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+                // SAFETY: errno is thread-local
+                if res != 0 && unsafe { *sys::__errno() as u32 != sys::ENOMEM } {
                     return None;
                 }
-
-                nodes.clear();
-                nodes.reserve_exact(olen / sz);
-                let np = nodes.as_mut_ptr().cast::<ffi::c_void>();
-                // SAFETY:
-                // - `mib_len` does not exceed the size of `mib`.
-                // - `olen` does not exceed the size of `np`.
-                // - `sz` does not exceed the size of `qp`.
-                // - `sysctl` is thread-safe.
-                let res = unsafe { sys::sysctl(mib.as_ptr(), mib_len, np, &mut olen, qp, sz) };
-                // NetBSD sysctl returns 0 on success, -1 on failure.
-                if res != 0 {
-                    return None;
-                }
-                // SAFETY: sysctl wrote olen bytes.
-                unsafe { nodes.set_len(olen / sz) }
-                Some(())
+                Some(out_size.min(nodes_size) / node_size)
             }
             fn name_to_mib(parts: &[&[u8]; MIB_LEN - 1], mib: &mut [i32; MIB_LEN]) -> Option<()> {
-                let mut nodes = vec![];
+                // SAFETY: sysctlnode can be safely zeroed.
+                let mut nodes: [sys::sysctlnode; NODES_MAX] = unsafe { mem::zeroed() };
                 let mut mib_len = 1;
                 'outer: for &part in parts {
-                    sysctl_nodes(mib, mib_len + 1 /* include CTL_QUERY */, &mut nodes)?;
-                    for node in &nodes {
+                    let nodes_len =
+                        sysctl_nodes(mib, mib_len + 1 /* include CTL_QUERY */, &mut nodes)?;
+                    for node in &nodes[..nodes_len] {
                         if node.sysctl_name.get(part.len()) == Some(&0)
                             && node.sysctl_name[..part.len()] == *part
                         {
@@ -537,6 +531,7 @@ mod tests {
             const OUT_LEN: ffi::c_size_t =
                 mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
             const MIB_LEN: ffi::c_size_t = 3;
+            const NODES_MAX: ffi::c_size_t = 32;
 
             let mut mib: [ffi::c_int; MIB_LEN] = [
                 sys::CTL_MACHDEP as ffi::c_int,
@@ -578,7 +573,7 @@ mod tests {
 
         assert_eq!(
             imp::sysctl_cpu_id(c!("machdep.cpu0.cpu_id")).unwrap(),
-            sysctl_cpu_id_no_libc().unwrap()
+            sysctl_cpu_id().unwrap()
         );
     }
     #[cfg(target_os = "openbsd")]
