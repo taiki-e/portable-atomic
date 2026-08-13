@@ -482,16 +482,23 @@ jobs:
       matrix:
         include:
           # We don't test x86_64 here because there is no OS-specific code on x86_64.
-          # FreeBSD 12 packages are no longer available in pkg.FreeBSD.org.
+          - target: aarch64-unknown-freebsd
+            os: freebsd
+            version: '12.4'
+            toolchain: '12'
+            rust: nightly-2026-05-18 # https://github.com/rust-lang/rust/pull/156607
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '13.5'
+            toolchain: '13'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '14.4'
+            toolchain: '14'
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '15.1'
+            # toolchain: '15' # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
@@ -525,14 +532,40 @@ jobs:
             libslirp0 \
             sshpass
         if: matrix.os == 'omnios'
-      - uses: taiki-e/cross-platform-actions-action@63e3c031895caac4783f1f778f3e2e0e409353b3 # dev # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
-          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          tool: rust@${{ matrix.rust ||'nightly' }}+rust-src
+          fallback: none
+        if: matrix.toolchain != ''
+      - uses: taiki-e/setup-cross-toolchain-action@12b7ad4acfa95a1476779d6c06699b96ec1691f8 # v1.42.0
+        with:
+          target: ${{ matrix.target }}@${{ matrix.toolchain }}
+        if: matrix.toolchain != ''
+      - run: |
+          export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+          binary_path=$(
+            ./tools/test.sh build --features std ${BUILD_STD:-} --target "${TARGET}" -r
+          )
+          mv -- "${binary_path}" ./release
+          binary_path=$(
+            RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
+              ./tools/test.sh build --features std ${BUILD_STD:-} --target "${TARGET}" -r
+          )
+          mv -- "${binary_path}" ./release-static
+          cargo clean
+        env:
+          TARGET: ${{ matrix.target }}
+        if: matrix.toolchain != ''
+      - uses: taiki-e/cross-platform-actions-action@63e3c031895caac4783f1f778f3e2e0e409353b3 # dev # zizmor: ignore[stale-action-refs]
+        env:
+          TOOLCHAIN: ${{ matrix.toolchain }}
+        with:
+          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES TOOLCHAIN
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
           shell: bash
-          cpu: ${{ matrix.os == 'omnios' && '' || 'cortex-a76' }}
+          cpu: ${{ matrix.os != 'omnios' && 'cortex-a76' || '' }}
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
           run: |
             set -CeEuxo pipefail
@@ -550,7 +583,15 @@ jobs:
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
             # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
             case "$(uname -s)" in
-              FreeBSD) retry sudo pkg install -y rust ;;
+              FreeBSD)
+                if [[ -n "${TOOLCHAIN}" ]]; then
+                  # VM is very slow, so only test OS-specific code and code using them.
+                  ./release aarch64
+                  ./release-static aarch64
+                  exit
+                fi
+                retry sudo pkg install -y rust
+                ;;
               NetBSD) retry sudo pkgin -y install rust ;;
               OpenBSD) retry sudo pkg_add rust ;;
               SunOS)
@@ -631,6 +672,96 @@ jobs:
           sshpass -p "" ssh -p 10022 root@localhost /debug -- aarch64
           kill -- "${qemu_pid}"
         if: matrix.os == 'omnios'
+
+  # test arch unsupported by cross-platform-actions
+  test-vm-powerpc64-freebsd:
+    name: test (powerpc64-unknown-freebsd${{ matrix.version }})
+    needs: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { version: '13.5', toolchain: '13' }
+          - { version: '14.4', toolchain: '14' }
+          - { version: '15.1', toolchain: '14' } # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@nightly+rust-src
+          fallback: none
+      - uses: taiki-e/setup-cross-toolchain-action@12b7ad4acfa95a1476779d6c06699b96ec1691f8 # v1.42.0
+        with:
+          target: powerpc64-unknown-freebsd@${{ matrix.toolchain }}
+      - run: |
+          export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+          binary_path=$(
+            ./tools/test.sh build --features std ${BUILD_STD:-} --target powerpc64-unknown-freebsd -r
+          )
+          mv -- "${binary_path}" ./release
+          binary_path=$(
+            RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
+              ./tools/test.sh build --features std ${BUILD_STD:-} --target powerpc64-unknown-freebsd -r
+          )
+          mv -- "${binary_path}" ./release-static
+          cargo clean
+      - uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
+        with:
+          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          arch: powerpc64
+          release: ${{ matrix.version }}
+          usesh: true
+          copyback: false
+          run: |
+            # shellcheck disable=SC3040,SC3041
+            set -CeEuxo pipefail
+            export CI=true
+            # VM is very slow, so only test OS-specific code and code using them.
+            ./release powerpc64
+            ./release-static powerpc64
+
+  # test old version unsupported by cross-platform-actions
+  test-vm-old-aarch64-netbsd:
+    name: test (aarch64-unknown-netbsd${{ matrix.version }})
+    needs: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '9.4'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: vmactions/netbsd-vm@bf34bcd909bb50856f934a67d09a8fbe2b966a1b # v1.4.4
+        with:
+          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          arch: aarch64
+          release: ${{ matrix.version }}
+          usesh: true
+          copyback: false
+          run: |
+            # shellcheck disable=SC3040,SC3041
+            set -CeEuxo pipefail
+            retry() {
+              for i in 1 2 3 4 5 6 7 8 9 10; do
+                if "$@"; then
+                  return 0
+                else
+                  sleep "${i}"
+                fi
+              done
+              "$@"
+            }
+            export CI=true
+            export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+            # AArch64 NetBSD is tier 3 targets, so install Rust from package manager instead of rustup.
+            retry pkg_add rust-bin mozilla-rootcerts-openssl
+            rustc -vV
+            # VM is very slow, so only test OS-specific code and code using them.
+            cargo test --features std --tests -- aarch64
 
   test-vm-fuchsia:
     name: test (${{ matrix.target }})

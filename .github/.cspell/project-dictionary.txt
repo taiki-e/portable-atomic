@@ -41,6 +41,7 @@ cmpd
 cmpld
 cmpw
 cmpxchg
+copyback
 cpio
 cpsid
 CPSR
@@ -163,6 +164,7 @@ rcpc
 rdinit
 RDONLY
 revidr
+rootcerts
 rsbegin
 rsend
 rsil
@@ -214,6 +216,7 @@ umax
 umin
 usart
 uscat
+usesh
 versatilepb
 virt
 virtio
