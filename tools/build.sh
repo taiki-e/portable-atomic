@@ -262,6 +262,9 @@ else
 fi
 export CARGO_TARGET_DIR="${target_dir}"
 export PORTABLE_ATOMIC_DENY_WARNINGS=1
+# When RUSTDOCFLAGS is set, xtensa-lx-rt will mistakenly assume that is doc build.
+# https://github.com/esp-rs/esp-hal/blob/xtensa-lx-rt-v0.22.0/xtensa-lx-rt/build.rs#L120
+unset RUSTDOCFLAGS
 
 has_asm=''
 # asm! requires 1.59

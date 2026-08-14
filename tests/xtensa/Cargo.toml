@@ -8,8 +8,10 @@ publish = false
 [dependencies]
 portable-atomic = { path = "../..", features = ["float"] }
 
-esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f43d2308c91c579a80830b3ecac44acd12" }
-esp-println = { default-features = false, features = ["uart"], git = "https://github.com/taiki-e/esp-hal.git", rev = "293a19f43d2308c91c579a80830b3ecac44acd12" }
+# Use fork of esp-hal because it may enable unsafe-assume-single-core or critical-section features,
+# and it may not work well in our use case, where multiple options of portable-atomic may be tested.
+esp-hal = { git = "https://github.com/taiki-e/esp-hal.git", rev = "ce73bea33bf066fc6abef3c38d7a02acf3a0d19d" }
+esp-println = { default-features = false, features = ["uart"], git = "https://github.com/taiki-e/esp-hal.git", rev = "ce73bea33bf066fc6abef3c38d7a02acf3a0d19d" }
 paste = "1"
 
 [lints]
