@@ -168,9 +168,22 @@ macro_rules! atomic {
 
             #[inline]
             fn read(&self, _guard: &SeqLockWriteGuard<'static>) -> $int_type {
-                // This calls optimistic_read that can return teared value, but the resulting value
-                // is guaranteed not to be teared because we hold the lock to write.
-                self.optimistic_read()
+                #[cfg(not(all(miri, portable_atomic_old_miri)))]
+                // SAFETY:
+                // - The guard guarantees that we hold the lock to write.
+                // - The raw pointer is valid because we got it from a reference.
+                // - This could race with atomic loads in optimistic_read, but atomic and non-atomic
+                //   read race are allowed in Rust atomics (core::sync::atomic, which is always lock-free).
+                //   See also https://github.com/rust-lang/rust/pull/128778, which formally documented this.
+                unsafe {
+                    self.v.get().read()
+                }
+                #[cfg(all(miri, portable_atomic_old_miri))]
+                {
+                    // However, before the above PR was merged, Miri had been handling this conservatively,
+                    // so use atomic loads on old Miri.
+                    self.optimistic_read()
+                }
             }
 
             #[inline]
