@@ -53,7 +53,7 @@ fn psram_rmw_without_cs() -> ! {
 // disabled, the PSRAM path panics.
 //
 // `$ptr` is the backing raw pointer; the CS-path closure is an
-// `unsafe` block that uses `read_volatile`/`write_volatile` on it.
+// `unsafe` block that uses `read`/`write` on it.
 macro_rules! rmw {
     ($self:ident, $native:expr, |$ptr:ident| $cs:block) => {{
         let $ptr: *mut _ = $self.as_ptr();
@@ -63,9 +63,7 @@ macro_rules! rmw {
                 critical_section::with(|_cs| {
                     // SAFETY: inside a critical section, we have exclusive
                     // access to `$ptr` and the pointer is valid because
-                    // we got it from `&self`. The accesses use volatile
-                    // reads/writes and so are not reordered with respect
-                    // to each other or with the CS entry/exit barriers.
+                    // we got it from `&self`.
                     unsafe { $cs }
                 })
             }
@@ -80,13 +78,12 @@ macro_rules! rmw {
     }};
 }
 
-// PSRAM operations are emulated with non-atomic volatile accesses under a
-// critical section, so synchronization lives on the critical section's lock, not
-// on the atomic's address. Loads and stores must take the same critical section
-// for every ordering: otherwise they race with the emulated write and have no
-// release on this address to pair with, and the ordering argument cannot be used
-// to opt out because `Relaxed` load + `fence(Acquire)` must work too.
-// `src/imp/interrupt` ignores the ordering for the same reason.
+// PSRAM operations are emulated with non-atomic accesses under a critical section,
+// so synchronization lives on the critical section's lock, not on the atomic's
+// address. Loads and stores must take the same critical section for every ordering:
+// otherwise they race with the emulated write and have no release on this address
+// to pair with, and the ordering argument cannot be used to opt out because
+// `Relaxed` load + `fence(Acquire)` must work too.
 //
 // Without the `critical-section` feature, PSRAM RMWs panic instead of being
 // emulated, so all accesses are native and the native load/store are correct.
@@ -99,7 +96,7 @@ macro_rules! load {
                 return critical_section::with(|_cs| {
                     // SAFETY: `p` is valid and aligned (from `&self`), and the
                     // critical section excludes the RMW and store paths.
-                    unsafe { core::ptr::read_volatile(p) }
+                    unsafe { core::ptr::read(p) }
                 });
             }
         }
@@ -116,7 +113,7 @@ macro_rules! store {
                 critical_section::with(|_cs| {
                     // SAFETY: `p` is valid and aligned (from `&self`), and the
                     // critical section excludes the RMW and load paths.
-                    unsafe { core::ptr::write_volatile(p, $val) }
+                    unsafe { core::ptr::write(p, $val) }
                 });
                 return;
             }
@@ -165,8 +162,8 @@ impl<T> AtomicPtr<T> {
     #[cfg_attr(miri, track_caller)]
     pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
         rmw!(self, self.inner.swap(ptr, order), |p| {
-            let prev = core::ptr::read_volatile(p);
-            core::ptr::write_volatile(p, ptr);
+            let prev = core::ptr::read(p);
+            core::ptr::write(p, ptr);
             prev
         })
     }
@@ -182,9 +179,9 @@ impl<T> AtomicPtr<T> {
     ) -> Result<*mut T, *mut T> {
         crate::utils::assert_compare_exchange_ordering(success, failure);
         rmw!(self, self.inner.compare_exchange(current, new, success, failure), |p| {
-            let prev = core::ptr::read_volatile(p);
+            let prev = core::ptr::read(p);
             if prev == current {
-                core::ptr::write_volatile(p, new);
+                core::ptr::write(p, new);
                 Ok(prev)
             } else {
                 Err(prev)
@@ -202,9 +199,9 @@ impl<T> AtomicPtr<T> {
     ) -> Result<*mut T, *mut T> {
         crate::utils::assert_compare_exchange_ordering(success, failure);
         rmw!(self, self.inner.compare_exchange_weak(current, new, success, failure), |p| {
-            let prev = core::ptr::read_volatile(p);
+            let prev = core::ptr::read(p);
             if prev == current {
-                core::ptr::write_volatile(p, new);
+                core::ptr::write(p, new);
                 Ok(prev)
             } else {
                 Err(prev)
@@ -232,9 +229,9 @@ impl<T> AtomicPtr<T> {
                 }
             },
             |p| {
-                let prev = core::ptr::read_volatile(p);
+                let prev = core::ptr::read(p);
                 let next = prev.with_addr(prev.addr().wrapping_add(val));
-                core::ptr::write_volatile(p, next);
+                core::ptr::write(p, next);
                 prev
             }
         )
@@ -259,9 +256,9 @@ impl<T> AtomicPtr<T> {
                 }
             },
             |p| {
-                let prev = core::ptr::read_volatile(p);
+                let prev = core::ptr::read(p);
                 let next = prev.with_addr(prev.addr().wrapping_sub(val));
-                core::ptr::write_volatile(p, next);
+                core::ptr::write(p, next);
                 prev
             }
         )
@@ -286,9 +283,9 @@ impl<T> AtomicPtr<T> {
                 }
             },
             |p| {
-                let prev = core::ptr::read_volatile(p);
+                let prev = core::ptr::read(p);
                 let next = prev.with_addr(prev.addr() | val);
-                core::ptr::write_volatile(p, next);
+                core::ptr::write(p, next);
                 prev
             }
         )
@@ -313,9 +310,9 @@ impl<T> AtomicPtr<T> {
                 }
             },
             |p| {
-                let prev = core::ptr::read_volatile(p);
+                let prev = core::ptr::read(p);
                 let next = prev.with_addr(prev.addr() & val);
-                core::ptr::write_volatile(p, next);
+                core::ptr::write(p, next);
                 prev
             }
         )
@@ -340,9 +337,9 @@ impl<T> AtomicPtr<T> {
                 }
             },
             |p| {
-                let prev = core::ptr::read_volatile(p);
+                let prev = core::ptr::read(p);
                 let next = prev.with_addr(prev.addr() ^ val);
-                core::ptr::write_volatile(p, next);
+                core::ptr::write(p, next);
                 prev
             }
         )
@@ -416,8 +413,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.swap(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, val);
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, val);
                     prev
                 })
             }
@@ -433,9 +430,9 @@ macro_rules! atomic_int {
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
                 rmw!(self, self.inner.compare_exchange(current, new, success, failure), |p| {
-                    let prev = core::ptr::read_volatile(p);
+                    let prev = core::ptr::read(p);
                     if prev == current {
-                        core::ptr::write_volatile(p, new);
+                        core::ptr::write(p, new);
                         Ok(prev)
                     } else {
                         Err(prev)
@@ -453,9 +450,9 @@ macro_rules! atomic_int {
             ) -> Result<$int_type, $int_type> {
                 crate::utils::assert_compare_exchange_ordering(success, failure);
                 rmw!(self, self.inner.compare_exchange_weak(current, new, success, failure), |p| {
-                    let prev = core::ptr::read_volatile(p);
+                    let prev = core::ptr::read(p);
                     if prev == current {
-                        core::ptr::write_volatile(p, new);
+                        core::ptr::write(p, new);
                         Ok(prev)
                     } else {
                         Err(prev)
@@ -485,8 +482,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_add(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_add(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev.wrapping_add(val));
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev.wrapping_add(val));
                     prev
                 })
             }
@@ -494,8 +491,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_sub(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_sub(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev.wrapping_sub(val));
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev.wrapping_sub(val));
                     prev
                 })
             }
@@ -505,8 +502,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_and(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev & val);
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev & val);
                     prev
                 })
             }
@@ -514,8 +511,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_nand(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_nand(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, !(prev & val));
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, !(prev & val));
                     prev
                 })
             }
@@ -523,8 +520,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_or(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev | val);
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev | val);
                     prev
                 })
             }
@@ -532,8 +529,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_xor(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_xor(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev ^ val);
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev ^ val);
                     prev
                 })
             }
@@ -548,8 +545,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_max(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, core::cmp::max(prev, val));
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, core::cmp::max(prev, val));
                     prev
                 })
             }
@@ -557,8 +554,8 @@ macro_rules! atomic_int {
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
                 rmw!(self, self.inner.fetch_min(val, order), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, core::cmp::min(prev, val));
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, core::cmp::min(prev, val));
                     prev
                 })
             }
@@ -576,8 +573,8 @@ macro_rules! atomic_int {
                 // SRAM path is a CAS loop. The PSRAM path does the negate
                 // inside a single critical section.
                 rmw!(self, self.fetch_update_(order, $int_type::wrapping_neg), |p| {
-                    let prev = core::ptr::read_volatile(p);
-                    core::ptr::write_volatile(p, prev.wrapping_neg());
+                    let prev = core::ptr::read(p);
+                    core::ptr::write(p, prev.wrapping_neg());
                     prev
                 })
             }
