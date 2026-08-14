@@ -11,13 +11,13 @@ Supported platforms:
   https://github.com/gregkh/linux/commit/ffb4aa1c05645cdd50657dd605c0ad5188126533
   prctl returns EINVAL if operation is not supported, so we can safely use this on older versions.
 - glibc 2.16+ (through getauxval)
-  https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.16#l83
+  https://gitlab.com/gnutools/glibc/-/blob/glibc-2.16/NEWS#L83
   Always available on:
-  - aarch64 (glibc 2.17+ https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.17#l36)
-  - powerpc64 (le) (glibc 2.19+ or RHEL/CentOS's patched glibc 2.17+ https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.19#l108)
+  - aarch64 (glibc 2.17+ https://gitlab.com/gnutools/glibc/-/blob/glibc-2.17/NEWS#L36)
+  - powerpc64 (le) (glibc 2.19+ or RHEL/CentOS's patched glibc 2.17+ https://gitlab.com/gnutools/glibc/-/blob/glibc-2.19/NEWS#L108)
   Not always available on:
-  - arm (glibc 2.1+ https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.1#l97)
-  - powerpc64 (be) (glibc 2.3+ https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;hb=glibc-2.3#l56)
+  - arm (glibc 2.1+ https://gitlab.com/gnutools/glibc/-/blob/glibc-2.1/NEWS#L97)
+  - powerpc64 (be) (glibc 2.3+ https://gitlab.com/gnutools/glibc/-/blob/glibc-2.3/NEWS#L56)
   Since Rust 1.64, std requires glibc 2.17+ https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements
 - musl 1.1.0+ (through getauxval)
   https://git.musl-libc.org/cgit/musl/tree/WHATSNEW?h=v1.1.0#n1197
@@ -176,7 +176,7 @@ mod os {
             pub(crate) const AT_HWCAP4: c_ulong = 30;
 
             // Defined in dlfcn.h.
-            // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.43
+            // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/dlfcn/dlfcn.h
             // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
             // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
@@ -219,7 +219,7 @@ mod os {
             extern "C" {
                 // Defined in sys/auxv.h.
                 // https://man7.org/linux/man-pages/man3/getauxval.3.html
-                // https://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sys/auxv.h;hb=glibc-2.43
+                // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/misc/sys/auxv.h
                 // https://git.musl-libc.org/cgit/musl/tree/include/sys/auxv.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/sys/auxv.h
@@ -248,7 +248,7 @@ mod os {
 
                 // Defined in dlfcn.h.
                 // https://man7.org/linux/man-pages/man3/dlsym.3.html
-                // https://sourceware.org/git/?p=glibc.git;a=blob;f=dlfcn/dlfcn.h;hb=glibc-2.43
+                // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/dlfcn/dlfcn.h
                 // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
