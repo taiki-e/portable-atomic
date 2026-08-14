@@ -729,7 +729,7 @@ build() {
         RUSTFLAGS="${target_rustflags} -C target-feature=+lse128" \
         x_cargo "${args[@]}" "$@"
       CARGO_TARGET_DIR="${target_dir}/lse128-rcpc3-alone" \
-        RUSTFLAGS="${target_rustflags} -C target-feature=+rcpc3" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lse128,+rcpc3" \
         x_cargo "${args[@]}" "$@"
       ;;
     powerpc64-*)
