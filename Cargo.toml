@@ -35,6 +35,7 @@ doc-scrape-examples = false
 [features]
 default = ["fallback"]
 fallback = []
+pi-fallback = ["fallback", "libc"]
 float = []
 std = []
 require-cas = []
@@ -51,8 +52,11 @@ disable-fiq = []
 serde = { version = "1.0.60", optional = true, default-features = false }
 critical-section = { version = "1", optional = true }
 
+[target.'cfg(unix)'.dependencies]
+libc = { version = "0.2.163", default-features = false, optional = true }
+
 # [target.'cfg(portable_atomic_test_no_std_static_assert_ffi)'.dependencies] #build:static_assert_ffi
-# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "834438095d5cca0b518814430bd8eedb2513cf06" } #build:static_assert_ffi
+# test-helper = { features = ["sys"], git = "https://github.com/taiki-e/test-helper.git", rev = "ecce9d7f2200e13c163cef4c79db41a543a03816" } #build:static_assert_ffi
 # [target.'cfg(all(portable_atomic_test_no_std_static_assert_ffi, target_os = "aix"))'.dependencies] #build:static_assert_ffi
 # libc = "=0.2.163" #build:static_assert_ffi
 
@@ -66,10 +70,13 @@ rustversion = "1"
 serde_test = { git = "https://github.com/taiki-e/serde_test.git", rev = "df513c55a97f0a72fa67bad5396ed09123e5676c" } # support {i,u}128
 sptr = "0.3"
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std", "valgrind"], git = "https://github.com/taiki-e/test-helper.git", rev = "834438095d5cca0b518814430bd8eedb2513cf06" }
+test-helper = { features = ["sys", "critical-section-std", "valgrind"], git = "https://github.com/taiki-e/test-helper.git", rev = "ecce9d7f2200e13c163cef4c79db41a543a03816" }
 
-[target.'cfg(unix)'.dev-dependencies]
+[target.'cfg(any(unix, target_os = "hermit"))'.dev-dependencies]
 libc = "=0.2.163" # newer libc requires Rust 1.63
+
+[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))'.dev-dependencies]
+thread-priority = "3"
 
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.61", features = [
@@ -114,7 +121,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     # Public APIs, considered unstable unless documented as stable in readme.
     'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Not public API.
-    'cfg(portable_atomic_test_detect_false,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind,valgrind_cross)',
+    'cfg(portable_atomic_test_detect_false,portable_atomic_test_asm_syscall,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind,valgrind_cross)',
 ] }
 unnameable_types = "warn"
 unreachable_pub = "warn"

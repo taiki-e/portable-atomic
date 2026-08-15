@@ -3292,3 +3292,95 @@ pub(crate) mod float_rand {
         f128::from_bits(rng.u128(..))
     }
 }
+
+// Helpers for PI fallback test
+#[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
+#[allow(dead_code)]
+pub(crate) mod pi {
+    use std::convert::TryFrom as _;
+
+    #[repr(u8)]
+    pub(crate) enum Priority {
+        Low = 1,
+        Mid = 2,
+        High = 3,
+    }
+    pub(crate) fn set_priority(priority: Priority) {
+        use thread_priority::*;
+        let priority = if cfg!(target_os = "freebsd") {
+            // For old FreeBSD: https://github.com/freebsd/freebsd-src/commit/af8de65ef23e7e447916370851f39aea3f74e16a
+            priority as u8 * 4
+        } else {
+            priority as u8
+        };
+        set_thread_priority_and_policy(
+            thread_native_id(),
+            ThreadPriority::Crossplatform(ThreadPriorityValue::try_from(priority).unwrap()),
+            ThreadSchedulePolicy::Realtime(RealtimeThreadSchedulePolicy::RoundRobin),
+        )
+        .unwrap();
+    }
+    cfg_sel!({
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        {
+            use core::mem;
+            pub(crate) fn target_cpu() -> usize {
+                // SAFETY: all-zero is a valid empty cpu_set_t.
+                let mut set = unsafe { mem::zeroed::<libc::cpu_set_t>() };
+                // SAFETY: set points to writable memory of the size passed.
+                let result = unsafe {
+                    libc::sched_getaffinity(0, mem::size_of::<libc::cpu_set_t>(), &mut set)
+                };
+                if result != 0 {
+                    panic!("sched_getaffinity failed: {}", std::io::Error::last_os_error());
+                }
+                (0..mem::size_of::<libc::cpu_set_t>() * 8)
+                // SAFETY: cpu is within the bounds of set.
+                .find(|&cpu| unsafe { libc::CPU_ISSET(cpu, &set) })
+                .expect("the test thread has no available CPU")
+            }
+            pub(crate) fn pin_to_cpu(cpu: usize) {
+                // SAFETY: all-zero is a valid empty cpu_set_t.
+                let mut set = unsafe { mem::zeroed::<libc::cpu_set_t>() };
+                // SAFETY: cpu came from a cpu_set_t of the same size in target_cpu.
+                unsafe { libc::CPU_SET(cpu, &mut set) };
+                // SAFETY: set points to readable memory of the size passed.
+                let result =
+                    unsafe { libc::sched_setaffinity(0, mem::size_of::<libc::cpu_set_t>(), &set) };
+                if result != 0 {
+                    panic!("sched_setaffinity failed: {}", std::io::Error::last_os_error());
+                }
+            }
+        }
+        #[cfg(target_os = "freebsd")]
+        {
+            use core::mem;
+            pub(crate) fn target_cpu() -> usize {
+                let mut set = unsafe { mem::zeroed::<libc::cpuset_t>() };
+                let res = unsafe {
+                    libc::pthread_getaffinity_np(
+                        libc::pthread_self(),
+                        mem::size_of::<libc::cpuset_t>(),
+                        &mut set,
+                    )
+                };
+                assert_eq!(res, 0, "pthread_getaffinity_np failed");
+                (0..mem::size_of::<libc::cpuset_t>() * 8)
+                    .find(|&cpu| unsafe { libc::CPU_ISSET(cpu, &set) })
+                    .expect("the test thread has no available CPU")
+            }
+            pub(crate) fn pin_to_cpu(cpu: usize) {
+                let mut set = unsafe { mem::zeroed::<libc::cpuset_t>() };
+                unsafe { libc::CPU_SET(cpu, &mut set) };
+                let res = unsafe {
+                    libc::pthread_setaffinity_np(
+                        libc::pthread_self(),
+                        mem::size_of::<libc::cpuset_t>(),
+                        &set,
+                    )
+                };
+                assert_eq!(res, 0, "pthread_setaffinity_np failed");
+            }
+        }
+    });
+}

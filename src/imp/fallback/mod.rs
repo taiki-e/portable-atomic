@@ -47,22 +47,57 @@ compile_error!(
     "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
 );
 
-mod utils;
+pub(crate) mod cache_padded; // pub(crate) for benchmark
 
-// Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
-// around.
-//
+#[macro_use]
+#[path = "seqlock_common.rs"]
+mod seq_lock_common;
+cfg_sel!({
+    #[cfg(any(not(feature = "pi-fallback"), portable_atomic_unsafe_assume_privileged))]
+    {
+        #[path = "seqlock_normal.rs"]
+        mod seq_lock;
+        pub(crate) mod wait; // pub(crate) for benchmark
+    }
+    #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
+    {
+        #[path = "seqlock_pi_futex.rs"]
+        mod seq_lock;
+    }
+    #[cfg(target_os = "fuchsia")]
+    {
+        #[path = "seqlock_pi_fuchsia.rs"]
+        mod seq_lock;
+    }
+    #[cfg(unix)]
+    {
+        #[path = "seqlock_pi_posix.rs"]
+        mod seq_lock;
+    }
+    #[cfg(else)]
+    {
+        // - macOS https://github.com/apple-oss-distributions/Libc/blob/Libc-1752.120.2/include/unistd.h#L143
+        //
+        // TODO: RTOS and Windows (?) should support it.
+        // - POSIX:
+        //   - NuttX https://github.com/apache/nuttx/blob/nuttx-13.0.0/libs/libc/pthread/pthread_mutexattr_setprotocol.c#L68
+        //   - RTEMS https://gitlab.rtems.org/rtems/rtos/rtems/-/blob/6.2/cpukit/posix/src/mutexinit.c?ref_type=tags#L141
+        //   - QNX, VxWorks, LynxOs
+        // - https://en.wikipedia.org/wiki/Priority_inheritance#Operating_systems_supporting_priority_inheritance
+        // - https://learn.microsoft.com/en-us/windows/win32/procthread/priority-inversion
+        // - https://learn.microsoft.com/en-us/windows/iot/iot-enterprise/soft-real-time/soft-real-time
+        compile_error!("pi-fallback feature is not yet supported on this target");
+    }
+});
+
 // Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
 // AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
 // so use it to implement normal sequence lock and reduce chunks of byte-wise atomic memcpy.
 cfg_has_fast_atomic_64!({
-    mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU64;
     type Chunk = u64;
 });
 cfg_no_fast_atomic_64!({
-    #[path = "seq_lock_wide.rs"]
-    mod seq_lock;
     type AtomicChunk = core::sync::atomic::AtomicU32;
     type Chunk = u32;
 });
@@ -70,8 +105,8 @@ cfg_no_fast_atomic_64!({
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use self::{
+    cache_padded::CachePadded,
     seq_lock::{SeqLock, SeqLockWriteGuard},
-    utils::CachePadded,
 };
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
@@ -101,10 +136,21 @@ fn lock(addr: usize) -> &'static SeqLock {
 struct ScFenceGuard;
 impl ScFenceGuard {
     #[inline]
-    fn new(emit_sc_fence: bool) -> Option<Self> {
+    fn new_for_load(emit_sc_fence: bool) -> Option<Self> {
         if unlikely(emit_sc_fence) {
             crate::fence(Ordering::SeqCst);
             Some(ScFenceGuard)
+        } else {
+            None
+        }
+    }
+    #[inline]
+    fn new(emit_sc_fence: bool) -> Option<Self> {
+        if unlikely(emit_sc_fence) {
+            if LOCK_ACQUIRE_ORDER != Ordering::SeqCst {
+                crate::fence(Ordering::SeqCst);
+            }
+            if LOCK_RELEASE_ORDER == Ordering::SeqCst { None } else { Some(ScFenceGuard) }
         } else {
             None
         }
@@ -116,6 +162,32 @@ impl Drop for ScFenceGuard {
         crate::fence(Ordering::SeqCst);
     }
 }
+// In some architectures, SeqCst/Acquire/Release swap/CAS are the same. Therefore,
+// using SeqCst here allows us to omit the SeqCst fence in operations other
+// than load (that may not use write lock), without degrading performance in
+// non-SeqCst ops.
+// LoongArch64 v1.1 added Acquire/Release LL/SC, but is also added
+// Relaxed/SeqCst CAS which is more preferred for CAS.
+cfg_sel!({
+    #[cfg(any(
+        target_arch = "loongarch64",
+        target_arch = "m68k",
+        target_arch = "s390x",
+        target_arch = "x86",
+        target_arch = "x86_64",
+    ))]
+    {
+        // pub(crate) for benchmark
+        pub(crate) const LOCK_ACQUIRE_ORDER: Ordering = Ordering::SeqCst;
+        pub(crate) const LOCK_RELEASE_ORDER: Ordering = Ordering::SeqCst;
+    }
+    #[cfg(else)]
+    {
+        // pub(crate) for benchmark
+        pub(crate) const LOCK_ACQUIRE_ORDER: Ordering = Ordering::Acquire;
+        pub(crate) const LOCK_RELEASE_ORDER: Ordering = Ordering::Release;
+    }
+});
 
 macro_rules! atomic {
     ($atomic_type:ident, $int_type:ident, $align:literal) => {
@@ -378,7 +450,7 @@ macro_rules! atomic {
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
             pub(crate) fn load(&self, order: Ordering) -> $int_type {
                 crate::utils::assert_load_ordering(order);
-                let _sc_fence = ScFenceGuard::new(order == Ordering::SeqCst);
+                let _sc_fence = ScFenceGuard::new_for_load(order == Ordering::SeqCst);
                 let lock = lock(self.v.get().addr());
 
                 // Try doing an optimistic read first.
@@ -393,8 +465,8 @@ macro_rules! atomic {
                 // Grab a regular write lock so that writers don't starve this load.
                 let guard = lock.write();
                 let val = self.read(&guard);
-                // The value hasn't been changed. Drop the guard without incrementing the stamp.
-                guard.abort();
+                // SAFETY: The value hasn't been changed. Drop the guard without incrementing the stamp.
+                unsafe { guard.abort() }
                 val
             }
 
@@ -435,8 +507,8 @@ macro_rules! atomic {
                     self.write(new, &guard);
                     Ok(prev)
                 } else {
-                    // The value hasn't been changed. Drop the guard without incrementing the stamp.
-                    guard.abort();
+                    // SAFETY: The value hasn't been changed. Drop the guard without incrementing the stamp.
+                    unsafe { guard.abort() }
                     Err(prev)
                 }
             }

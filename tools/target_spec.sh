@@ -71,7 +71,6 @@ $(sed -E 's/^/        target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 ))]
 #[macro_use]
 mod imp {
-    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     macro_rules! ptr_reg {
         (\$ptr:ident) => {{
             let _: *const _ = \$ptr; // ensure \$ptr is a pointer (*mut _ or *const _)
@@ -102,7 +101,6 @@ $(sed -E 's/^/        target_arch = "/g; s/$/",/g' <<<"${known_64_bit_arch[*]}")
 )))]
 #[macro_use]
 mod imp {
-    #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
     macro_rules! ptr_reg {
         (\$ptr:ident) => {{
             let _: *const _ = \$ptr; // ensure \$ptr is a pointer (*mut _ or *const _)

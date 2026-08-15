@@ -194,7 +194,37 @@ fn main() {
                     }
                 }
             }
-            "powerpc64" => {
+            "loongarch64" => {
+                // asm! on LoongArch64 stabilized in Rust 1.72 (nightly-2023-05-30): https://github.com/rust-lang/rust/pull/111235
+                if !version.probe(72, 2023, 5, 29) {
+                    if version.nightly
+                        && version.probe(71, 2023, 4, 25)
+                        && is_allowed_feature("asm_experimental_arch")
+                    {
+                        // https://github.com/rust-lang/rust/pull/101069 merged in Rust 1.71 (nightly-2023-04-26).
+                        // The part of this feature we use has not been changed since nightly-2023-04-26
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
+                        // (Note that https://github.com/rust-lang/rust/pull/111332 is needless because we don't need to clobber fcc*.)
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                }
+            }
+            "loongarch32" => {
+                // asm! on loongarch32 stabilized in Rust 1.91 (nightly-2025-08-11): https://github.com/rust-lang/rust/pull/144402
+                if !version.probe(91, 2025, 8, 10) {
+                    if version.nightly && is_allowed_feature("asm_experimental_arch") {
+                        // Inline assembly support is implemented from the beginning: https://github.com/rust-lang/rust/pull/142053
+                        // The part of this feature we use has not been changed since added
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                }
+            }
+            "powerpc" | "powerpc64" => {
                 // asm! on PowerPC stabilized in Rust 1.95 (nightly-2026-01-28): https://github.com/rust-lang/rust/pull/147996
                 if !version.probe(95, 2026, 1, 27) {
                     if version.nightly
@@ -210,7 +240,6 @@ fn main() {
                     }
                     if !version.probe(92, 2025, 9, 22) {
                         // Clobbering ctr register needed for asm syscall require Rust 1.92 (nightly-2025-09-23): https://github.com/rust-lang/rust/pull/146831
-                        // Note: code referring this cfg is currently used only for testing.
                         println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
                     }
                 }
@@ -470,7 +499,6 @@ fn main() {
                 // but have a different syscall sequence: https://github.com/mirror/newlib-cygwin/blob/newlib-4.4.0/libgloss/spu/linux_syscalls.c#L37
                 // GCC 10 (https://gcc.gnu.org/gcc-9/changes.html) and LLVM 3.3.0 (https://releases.llvm.org/3.3/docs/ReleaseNotes.html#non-comprehensive-list-of-changes-in-this-release)
                 // removed support for SPU, so this is unlikely to be supported in rust-lang/rust: https://github.com/rust-lang/compiler-team/issues/614
-                // Note: code referring this cfg is currently used only for testing.
                 println!("cargo:rustc-cfg=portable_atomic_no_asm_syscall");
             }
         }

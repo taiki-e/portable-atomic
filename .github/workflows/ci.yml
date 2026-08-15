@@ -280,6 +280,12 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+avx
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+avx
         if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
+      # x86 Linux asm syscall in fallback futex
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_asm_syscall
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_asm_syscall
+        if: (startsWith(matrix.target, 'i586') || startsWith(matrix.target, 'i686')) && contains(matrix.target, '-linux') && !contains(matrix.target, 'android')
       # aarch64 +lse
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
@@ -338,6 +344,18 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15
         if: startsWith(matrix.target, 's390x')
+      # PI fallback
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-} --features pi-fallback -- fallback
+        if: contains(matrix.target, '-linux') || contains(matrix.target, '-android')
+      - run: |
+          sudo prlimit --pid "$$" --rtprio=3:3
+          test "$(ulimit -Sr)" -ge 3
+          timeout --kill-after=5s 2m cargo test --lib --features pi-fallback \
+            test_pi -- --ignored --nocapture --test-threads=1
+          # Test that the default fallback will deadlock on PI case.
+          timeout --kill-after=5s 2m cargo test --lib \
+            test_pi -- --ignored --nocapture --test-threads=1
+        if: contains(matrix.target, '-linux') || contains(matrix.target, '-android')
 
       # Skip targets that also checked by "build" job.
       - run: tools/build.sh "${TARGET}"
@@ -726,7 +744,20 @@ jobs:
               x86_64)
                 cargo test --features std --tests -- fallback
                 case "$(uname -s)" in
-                  FreeBSD) cargo test --features std --tests --target i686-unknown-freebsd -- fallback ;;
+                  FreeBSD)
+                    cargo test --features std,pi-fallback --tests -- fallback
+                    cargo test --features std --tests --target i686-unknown-freebsd -- fallback
+                    cargo test --features std,pi-fallback --tests --target i686-unknown-freebsd -- fallback
+                    # PI fallback
+                    sudo kldload -n mac_priority
+                    sudo sysctl security.mac.priority.realtime=1
+                    sudo sysctl "security.mac.priority.realtime_gid=$(id -g)"
+                    timeout --kill-after=5s 2m cargo test --lib --features pi-fallback \
+                      test_pi -- --ignored --nocapture --test-threads=1
+                    # Test that the default fallback will deadlock on PI case.
+                    timeout --kill-after=5s 2m cargo test --lib \
+                      test_pi -- --ignored --nocapture --test-threads=1
+                    ;;
                 esac
                 ;;
               *) bail "unsupported host architecture '${arch}'" ;;

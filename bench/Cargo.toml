@@ -19,10 +19,13 @@ fastrand = "2"
 paste = "1"
 quickcheck = { version = "1", default-features = false, git = "https://github.com/taiki-e/quickcheck.git", rev = "83b1d5955557fc9dacc52d4a78098d8e6d7eda3b" } # https://github.com/BurntSushi/quickcheck/pull/304 + https://github.com/BurntSushi/quickcheck/pull/282 + https://github.com/BurntSushi/quickcheck/pull/296 + f16/f128 support + lower MSRV
 static_assertions = "1"
-test-helper = { features = ["sys", "critical-section-std", "valgrind"], git = "https://github.com/taiki-e/test-helper.git", rev = "834438095d5cca0b518814430bd8eedb2513cf06" }
+test-helper = { features = ["sys", "critical-section-std", "valgrind"], git = "https://github.com/taiki-e/test-helper.git", rev = "ecce9d7f2200e13c163cef4c79db41a543a03816" }
 
-[target.'cfg(unix)'.dev-dependencies]
+[target.'cfg(any(unix, target_os = "hermit"))'.dev-dependencies]
 libc = "0.2"
+
+[target.'cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))'.dev-dependencies]
+thread-priority = "3"
 
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { version = "0.61", features = [

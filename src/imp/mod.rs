@@ -141,7 +141,7 @@ mod atomic128;
         ),
     ))
 ))]
-mod fallback;
+pub(crate) mod fallback; // pub(crate) for benchmark
 
 // -----------------------------------------------------------------------------
 // Fallback implementation based on disabling interrupts or critical-section
