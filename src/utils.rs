@@ -91,6 +91,230 @@ macro_rules! __asm {
         asm!($($tt)*)
     };
 }
+#[cfg(not(portable_atomic_no_asm))]
+#[allow(unused_macros)]
+macro_rules! __global_asm {
+    ($($tt:tt)*) => {
+        core::arch::global_asm!($($tt)*);
+    };
+}
+#[cfg(portable_atomic_no_asm)]
+#[allow(unused_macros)]
+macro_rules! __global_asm {
+    ($($tt:tt)*) => {
+        global_asm!($($tt)*);
+    };
+}
+
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
+    target_arch = "aarch64",
+    all(target_arch = "arm", test), // test-only
+    all(target_arch = "powerpc64", target_pointer_width = "64"),
+))]
+// TODO: use cfg(target_object_format = "elf") once stabilized: https://github.com/rust-lang/rust/issues/152586
+#[cfg(not(any(
+    // rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value."binary-format" then .key else empty end' | LC_ALL=C sort -u
+    target_vendor = "apple", // Mach-O
+    windows, // COFF
+    target_os = "cygwin", // COFF
+    target_os = "uefi", // COFF
+    target_os = "aix", // XCOFF
+    target_os = "zos", // XPLINK
+    target_arch = "wasm32", // WASM
+    target_arch = "wasm64", // WASM
+)))]
+#[allow(unused_macros)]
+#[macro_use]
+mod elf {
+    /// Stable and sound `#[linkage = "extern_weak"]` (<https://github.com/rust-lang/rust/issues/29603>)
+    /// alternative using .weakref.
+    ///
+    /// # Safety
+    ///
+    /// The caller of this macro must pass nullable `$ty` with the correct signature.
+    ///
+    /// # Notes
+    ///
+    /// - An unresolved weak reference is resolved to null.
+    /// - Usually this only works with dynamic linking (see below for the exception).
+    /// - Unlike extern_weak:
+    ///   - This works with stable.
+    ///   - This can be soundly used with "fat LTO + other strong reference + symbol resolved to null" case:
+    ///     <https://github.com/rust-lang/rust/issues/154439>
+    /// - Unlike dlsym:
+    ///   - This only works with ELF.
+    ///   - Even if statically linked, this works if there are other strong references to the same symbol.
+    ///     (See test_weak_* tests in auxv.rs.)
+    ///   - This must not be used for internal symbols: <https://github.com/rust-lang/rust/issues/23628>
+    ///
+    /// Refs: <https://sourceware.org/binutils/docs/as/Weakref.html>
+    #[rustfmt::skip]
+    macro_rules! weakref {
+        ($name:ident, $ty:ty $(,)?) => {
+            cfg_sel!({
+                // -------------------------------------------------------------
+                // CHERI
+                // #[cfg(target_abi)] stabilized in Rust 1.78, but known Morello port uses 1.72.
+                // https://github.com/kent-weak-memory/rust/blob/hacking-1.72.1-descended/compiler/rustc_target/src/spec/aarch64_unknown_freebsd_purecap.rs
+                #[cfg_attr(
+                    portable_atomic_no_target_abi,
+                    cfg(all(target_arch = "aarch64", portable_atomic_purecap))
+                )]
+                #[cfg_attr(
+                    not(portable_atomic_no_target_abi),
+                    cfg(all(target_arch = "aarch64", target_abi = "purecap"))
+                )]
+                {
+                    // https://github.com/ARM-software/abi-aa/blob/2025Q4/aaelf64-morello/aaelf64-morello.rst
+                    weakref_slot_asm!($name, $ty, 16, concat!(".chericap ", weakref_name!($name)));
+                }
+                // -------------------------------------------------------------
+                // ILP32
+                // FDPIC ABI is not yet implemented in LLVM https://github.com/llvm/llvm-project/issues/146959
+                #[cfg_attr(portable_atomic_no_target_abi, cfg(any(/* always false */)))]
+                #[cfg_attr(
+                    not(portable_atomic_no_target_abi),
+                    cfg(all(target_pointer_width = "32", target_arch = "arm", target_abi = "fdpic"))
+                )]
+                {
+                    // https://github.com/mickael-guene/fdpic_doc
+                    weakref_slot_asm!(
+                        $name,
+                        $ty,
+                        4,
+                        concat!(".long ", weakref_name!($name), "(FUNCDESC)"),
+                    );
+                }
+                #[cfg(all(
+                    target_pointer_width = "32",
+                    any(
+                        target_arch = "aarch64",
+                        target_arch = "arm",
+                        // LLVM's PowerPC64 ILP32 support is quite incomplete; looking at the reported issues,
+                        // it appears that it is attempting to read a 4-byte TOC entry as an 8-byte entry?
+                        // https://github.com/llvm/llvm-project/issues/52826
+                        // https://github.com/llvm/llvm-project/issues/169283
+                        // target_arch = "powerpc64",
+                    ),
+                ))]
+                {
+                    // aarch64: ELF32 in https://github.com/ARM-software/abi-aa/blob/2025Q4/aaelf64/aaelf64.rst
+                    // arm: https://github.com/ARM-software/abi-aa/blob/2025Q4/aaelf32/aaelf32.rst
+                    // powerpc64: https://github.com/ps3dev/PSL1GHT/blob/f649a08fd536a9e27c08c7db2d93a2d7ee4c3bbe/ppu/include/ppu-types.h#L91
+                    weakref_slot_asm!($name, $ty, 4, concat!(".long ", weakref_name!($name)));
+                }
+                // -------------------------------------------------------------
+                // LP64
+                // pauthtest target has been added in Rust 1.98: https://github.com/rust-lang/rust/pull/155722
+                #[cfg_attr(portable_atomic_no_target_abi, cfg(any(/* always false */)))]
+                #[cfg_attr(
+                    not(portable_atomic_no_target_abi),
+                    cfg(all(
+                        target_pointer_width = "64",
+                        target_arch = "aarch64",
+                        target_abi = "pauthtest",
+                        not(portable_atomic_pauth_no_calls),
+                    ))
+                )]
+                {
+                    // The compiler normally reject this, but just in case.
+                    // https://github.com/rust-lang/rust/blob/0844f35a32c98882d77e39da8c2a872ec74615cd/compiler/rustc_session/src/session.rs#L1510
+                    #[cfg(target_feature = "crt-static")]
+                    compile_error!("pointer authentication requires dynamic linking");
+                    // https://github.com/ARM-software/abi-aa/blob/2025Q4/pauthabielf64/pauthabielf64.rst
+                    // https://llvm.org/docs/PointerAuth.html#assembly-representation
+                    // https://github.com/rust-lang/rust/blob/1ed2df61a19042f231709eb05d032ae9e2cb2084/compiler/rustc_session/src/session.rs#L125
+                    weakref_slot_asm!(
+                        $name,
+                        $ty,
+                        8,
+                        concat!(".quad ", weakref_name!($name), "@AUTH(ia,0)"),
+                    );
+                }
+                #[cfg(all(
+                    target_pointer_width = "64",
+                    any(target_arch = "aarch64", target_arch = "powerpc64"),
+                ))]
+                {
+                    // aarch64: ELF64 in https://github.com/ARM-software/abi-aa/blob/2025Q4/aaelf64/aaelf64.rst
+                    // powerpc64 (ELFv1): https://refspecs.linuxfoundation.org/ELF/ppc64/PPC-elf64abi.html
+                    // powerpc64 (ELFv2): https://openpowerfoundation.org/specifications/64bitelfabi/
+                    weakref_slot_asm!($name, $ty, 8, concat!(".quad ", weakref_name!($name)));
+                }
+                // -------------------------------------------------------------
+                // Unsupported
+                #[cfg(else)]
+                {
+                    compile_error!("internal error: unreachable");
+                }
+            });
+            extern "C" {
+                #[link_name = weakref_slot!($name)]
+                pub(crate) static $name: $ty;
+            }
+        };
+    }
+    macro_rules! weakref_slot_asm {
+        ($name:ident, $ty:ty, $balign:literal, $value:expr $(,)?) => {
+            const _: () = static_assert!(core::mem::size_of::<$ty>() == $balign);
+            __global_asm!(
+                // Use .weak (for non-LTO) + .ifndef (for LTO) to avoid duplicated definition error.
+                // See also https://github.com/bytecodealliance/rustix/blob/v1.1.4/src/backend/linux_raw/vdso_wrappers.rs#L424
+                // and https://github.com/rust-lang/rust/issues/133974#issuecomment-2525247548.
+                concat!(".ifndef ", weakref_slot!($name)),
+                concat!(".weakref ", weakref_name!($name), ", ", stringify!($name)),
+                concat!(
+                    ".pushsection .data.rel.ro.",
+                    weakref_name!($name),
+                    ",\"aw\",",
+                    type_prefix!(),
+                    "progbits"
+                ),
+                concat!(".balign ", stringify!($balign)),
+                concat!(".weak ", weakref_slot!($name)),
+                concat!(".hidden ", weakref_slot!($name)),
+                concat!(".type ", weakref_slot!($name), ", ", type_prefix!(), "object"),
+                concat!(weakref_slot!($name), ":"),
+                $value,
+                concat!(".size ", weakref_slot!($name), ", .-", weakref_slot!($name)),
+                ".popsection",
+                ".endif",
+            );
+        };
+    }
+    #[cfg(target_arch = "arm")]
+    macro_rules! type_prefix {
+        () => {
+            "%"
+        };
+    }
+    #[cfg(not(target_arch = "arm"))]
+    macro_rules! type_prefix {
+        () => {
+            "@"
+        };
+    }
+    // We include the version number in the symbol to prevent situations such as when there is a
+    // fork of an older version within the dependency graph that contains a bug, from causing that
+    // symbol to override the correct implementation in the newer version.
+    // NB: Increase version number when the implementation changed.
+    macro_rules! weakref_prefix {
+        () => {
+            "__portable_atomic_1_16_weakref_"
+        };
+    }
+    macro_rules! weakref_slot {
+        ($name:ident) => {
+            concat!(weakref_prefix!(), "slot_", stringify!($name))
+        };
+    }
+    macro_rules! weakref_name {
+        ($name:ident) => {
+            concat!(weakref_prefix!(), stringify!($name))
+        };
+    }
+}
 
 #[allow(unused_macros)]
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -339,6 +563,21 @@ macro_rules! cfg_sel {
         $(
             #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not($cfg1)))]
             #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not($cfg2)))]
+            cfg_sel! {{ $($rest)+ }}
+        )?
+    };
+    ({
+        #[cfg_attr(portable_atomic_no_target_abi, cfg($cfg1:meta))]
+        #[cfg_attr(not(portable_atomic_no_target_abi), cfg($cfg2:meta))]
+        { $($output:tt)* }
+        $($( $rest:tt )+)?
+    }) => {
+        #[cfg_attr(portable_atomic_no_target_abi, cfg($cfg1))]
+        #[cfg_attr(not(portable_atomic_no_target_abi), cfg($cfg2))]
+        cfg_sel! {{#[cfg(else)] { $($output)* }}}
+        $(
+            #[cfg_attr(portable_atomic_no_target_abi, cfg(not($cfg1)))]
+            #[cfg_attr(not(portable_atomic_no_target_abi), cfg(not($cfg2)))]
             cfg_sel! {{ $($rest)+ }}
         )?
     };
