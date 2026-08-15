@@ -206,13 +206,13 @@ jobs:
 
       # {,no-}outline-atomics
       # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
-      # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking, and AIX.
+      # outline-atomics is disabled by default on AIX.
       # powerpc64le- (little-endian) is skipped because it is pwr8 by default
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_no_outline_atomics
           RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_no_outline_atomics
-        if: startsWith(matrix.target, 'x86_64') || ((startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) || startsWith(matrix.target, 'powerpc64-')) && !(contains(matrix.target, '-musl') && matrix.flags == '') || startsWith(matrix.target, 'armv4t') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
+        if: startsWith(matrix.target, 'x86_64') || ((startsWith(matrix.target, 'aarch64') || startsWith(matrix.target, 'arm64')) || startsWith(matrix.target, 'powerpc64-')) || startsWith(matrix.target, 'armv4t') || startsWith(matrix.target, 'armv5te') || matrix.target == 'arm-linux-androideabi' || startsWith(matrix.target, 'riscv')
       # powerpc64 and RISC-V are skipped because tested below.
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
@@ -508,6 +508,9 @@ jobs:
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.9'
+          - target: aarch64-unknown-openbsd
+            os: openbsd
+            version: '7.5' # no elf_aux_info
           - target: aarch64-unknown-illumos
             os: omnios
     runs-on: ubuntu-24.04
@@ -558,9 +561,10 @@ jobs:
         if: matrix.toolchain != ''
       - uses: taiki-e/cross-platform-actions-action@63e3c031895caac4783f1f778f3e2e0e409353b3 # dev # zizmor: ignore[stale-action-refs]
         env:
+          OS_VERSION: ${{ matrix.version }}
           TOOLCHAIN: ${{ matrix.toolchain }}
         with:
-          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES TOOLCHAIN
+          environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES OS_VERSION TOOLCHAIN
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}

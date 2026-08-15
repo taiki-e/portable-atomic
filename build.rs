@@ -56,7 +56,7 @@ fn main() {
         // Custom cfgs set by build script. Not public API.
         // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
+            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_outline_atomics,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_target_abi,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pauth_no_calls,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_purecap,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line target_feature_fallback
         // grep -F 'target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
@@ -120,6 +120,19 @@ fn main() {
     if !version.probe(74, 2023, 8, 23) {
         println!("cargo:rustc-cfg=portable_atomic_no_asm_maybe_uninit");
     }
+    // #[cfg(target_abi)] stabilized in Rust 1.78 (nightly-2024-02-26): https://github.com/rust-lang/rust/pull/119590
+    if !version.probe(78, 2024, 2, 25) {
+        println!("cargo:rustc-cfg=portable_atomic_no_target_abi");
+        if target_arch == "aarch64"
+            && (env::var("CARGO_CFG_TARGET_ABI")
+                .unwrap_or_default()
+                .split(',')
+                .any(|abi| abi == "purecap")
+                || target.ends_with("-purecap"))
+        {
+            println!("cargo:rustc-cfg=portable_atomic_purecap");
+        }
+    }
     // #[diagnostic] stabilized in Rust 1.78 (nightly-2024-03-09): https://github.com/rust-lang/rust/pull/119888
     if !version.probe(78, 2024, 3, 8) {
         println!("cargo:rustc-cfg=portable_atomic_no_diagnostic_namespace");
@@ -168,6 +181,13 @@ fn main() {
             // The part of this feature we use has not been changed since nightly-2020-06-21
             // until it was stabilized, so it can safely be enabled in nightly for that period.
             println!("cargo:rustc-cfg=portable_atomic_unstable_asm");
+            if (target_arch == "aarch64"/* test-only: || target_arch == "arm" */)
+                && (!is_allowed_feature("global_asm") || !version.probe(54, 2021, 5, 19))
+            {
+                // weakref macro needs global_asm! and extended_key_value_attributes
+                // (stabilized in 1.54 (nightly-2021-05-20): https://github.com/rust-lang/rust/pull/83366).
+                println!("cargo:rustc-cfg=portable_atomic_no_outline_atomics");
+            }
             if (target_arch == "riscv32" || target_arch == "riscv64")
                 && !version.probe(56, 2021, 8, 15)
             {
@@ -219,7 +239,7 @@ fn main() {
         }
     }
 
-    // feature(cfg_target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824
+    // cfg(target_has_atomic) stabilized in Rust 1.60 (nightly-2022-02-11): https://github.com/rust-lang/rust/pull/93824
     if !version.probe(60, 2022, 2, 10) {
         if version.nightly
             && version.probe(40, 2019, 10, 13)
@@ -325,6 +345,12 @@ fn main() {
             let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";
             if is_apple || target_cpu().map_or(false, |cpu| cpu.starts_with("apple-")) {
                 println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
+            }
+            // There is no need to emit something like portable_atomic_pauth_calls for Some(true)
+            // because -Z pointer-authentication is currently pauthtest ABI specific.
+            // https://github.com/rust-lang/rust/blob/1ed2df61a19042f231709eb05d032ae9e2cb2084/compiler/rustc_session/src/session.rs#L1448
+            if let Some(false) = pointer_authentication("calls") {
+                println!("cargo:rustc-cfg=portable_atomic_pauth_no_calls");
             }
         }
         "arm" => {
@@ -623,6 +649,26 @@ fn target_cpu() -> Option<String> {
 // `target_cpu` is not a valid cfg option. Where there is absolutely no other option, inject a cfg fallback.
 fn target_cpu_fallback(cpu: &str) {
     println!("cargo:rustc-cfg=portable_atomic_target_cpu=\"{}\"", cpu);
+}
+
+fn pointer_authentication(name: &str) -> Option<bool> {
+    // https://github.com/rust-lang/rust/blob/1ed2df61a19042f231709eb05d032ae9e2cb2084/src/doc/rustc/src/platform-support/aarch64-unknown-linux-pauthtest.md#controlling-pointer-authentication-features
+    let mut res = None;
+    if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
+        for mut flag in rustflags.to_string_lossy().split('\x1f') {
+            flag = strip_prefix(flag, "-Z").unwrap_or(flag);
+            if let Some(flag) = strip_prefix(flag, "pointer-authentication=") {
+                for s in flag.split(',') {
+                    match (s.as_bytes().first(), s.as_bytes().get(1..)) {
+                        (Some(b'+'), Some(f)) if f == name.as_bytes() => res = Some(true),
+                        (Some(b'-'), Some(f)) if f == name.as_bytes() => res = Some(false),
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+    res
 }
 
 fn is_allowed_feature(name: &str) -> bool {

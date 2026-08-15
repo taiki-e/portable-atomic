@@ -79,8 +79,6 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 include!("macros.rs");
 
-// On musl with static linking, it seems that getauxval is not always available.
-// See detect/auxv.rs for more.
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
     test,
@@ -94,9 +92,9 @@ include!("macros.rs");
         target_os = "linux",
         any(
             target_env = "gnu",
-            all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")),
+            target_env = "musl",
             target_env = "ohos",
-            all(target_env = "uclibc", not(target_feature = "crt-static")),
+            target_env = "uclibc",
             portable_atomic_outline_atomics,
         ),
     ),
@@ -190,12 +188,9 @@ macro_rules! debug_assert_lse {
                     target_os = "linux",
                     any(
                         target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
+                        target_env = "musl",
                         target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
+                        target_env = "uclibc",
                         portable_atomic_outline_atomics,
                     ),
                 ),
@@ -230,12 +225,9 @@ macro_rules! debug_assert_lse2 {
                     target_os = "linux",
                     any(
                         target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
+                        target_env = "musl",
                         target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
+                        target_env = "uclibc",
                         portable_atomic_outline_atomics,
                     ),
                 ),
@@ -274,12 +266,9 @@ macro_rules! debug_assert_lse128 {
                     target_os = "linux",
                     any(
                         target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
+                        target_env = "musl",
                         target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
+                        target_env = "uclibc",
                         portable_atomic_outline_atomics,
                     ),
                 ),
@@ -318,12 +307,9 @@ macro_rules! debug_assert_rcpc3 {
                     target_os = "linux",
                     any(
                         target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
+                        target_env = "musl",
                         target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
+                        target_env = "uclibc",
                         portable_atomic_outline_atomics,
                     ),
                 ),
@@ -522,12 +508,9 @@ cfg_sel!({
                 target_os = "linux",
                 any(
                     target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
+                    target_env = "musl",
                     target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
+                    target_env = "uclibc",
                     portable_atomic_outline_atomics,
                 ),
             ),
@@ -909,12 +892,9 @@ cfg_sel!({
                 target_os = "linux",
                 any(
                     target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
+                    target_env = "musl",
                     target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
+                    target_env = "uclibc",
                     portable_atomic_outline_atomics,
                 ),
             ),
@@ -1275,12 +1255,9 @@ unsafe fn atomic_compare_exchange(
                 target_os = "linux",
                 any(
                     target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
+                    target_env = "musl",
                     target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
+                    target_env = "uclibc",
                     portable_atomic_outline_atomics,
                 ),
             ),
@@ -1414,12 +1391,9 @@ unsafe fn atomic_compare_exchange(
                 target_os = "linux",
                 any(
                     target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
+                    target_env = "musl",
                     target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
+                    target_env = "uclibc",
                     portable_atomic_outline_atomics,
                 ),
             ),
