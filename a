@@ -1,0 +1,486 @@
+> cargo bench -p bench --bench bench
+warning: ignoring `registry.global-min-publish-age` without `-Zmin-publish-age`
+    Updating git repository `https://github.com/taiki-e/test-helper.git`
+remote: Enumerating objects: 29, done.
+remote: Counting objects: 100% (29/29), done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 17 (delta 8), reused 17 (delta 8), pack-reused 0 (from 0)
+Unpacking objects: 100% (17/17), 3.12 KiB | 457.00 KiB/s, done.
+From https://github.com/taiki-e/test-helper
+ * [new ref]         ecce9d7f2200e13c163cef4c79db41a543a03816 -> refs/commit/ecce9d7f2200e13c163cef4c79db41a543a03816
+  Downloaded serde_derive v1.0.210
+  Downloaded serde_json v1.0.143
+  Downloaded syn v2.0.56
+  Downloaded 3 crates (455.3KiB) in 0.12s
+   Compiling libc v0.2.163
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling cfg-if v1.0.4
+   Compiling memchr v2.5.0
+   Compiling serde v1.0.210
+   Compiling rustversion v1.0.23
+   Compiling serde_json v1.0.143
+   Compiling regex-syntax v0.7.2
+   Compiling same-file v1.0.6
+   Compiling build-context v0.1.4
+   Compiling paste v1.0.15
+   Compiling ryu v1.0.23
+   Compiling crossbeam-utils v0.8.22
+   Compiling itoa v1.0.18
+   Compiling walkdir v2.5.0
+   Compiling critical-section v1.2.0
+   Compiling lexopt v0.3.2
+   Compiling fastrand v2.5.0
+   Compiling anes v0.2.1
+   Compiling bench v0.0.0 (/mnt/mac/Users/taiki/projects/sources/taiki-e/portable-atomic/bench)
+warning: unexpected `cfg` condition value: `unsafe-assume-single-core`
+  --> bench/build.rs:21:11
+   |
+21 |     #[cfg(feature = "unsafe-assume-single-core")]
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `default`, `fallback`, and `std`
+   = help: consider adding `unsafe-assume-single-core` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: requested on the command line with `-W unexpected-cfgs`
+
+warning: unexpected `cfg` condition value: `unsafe-assume-privileged`
+  --> bench/build.rs:23:11
+   |
+23 |     #[cfg(feature = "unsafe-assume-privileged")]
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `default`, `fallback`, and `std`
+   = help: consider adding `unsafe-assume-privileged` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `s-mode`
+  --> bench/build.rs:25:11
+   |
+25 |     #[cfg(feature = "s-mode")]
+   |           ^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `default`, `fallback`, and `std`
+   = help: consider adding `s-mode` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `force-amo`
+  --> bench/build.rs:27:11
+   |
+27 |     #[cfg(feature = "force-amo")]
+   |           ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `default`, `fallback`, and `std`
+   = help: consider adding `force-amo` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `disable-fiq`
+  --> bench/build.rs:29:11
+   |
+29 |     #[cfg(feature = "disable-fiq")]
+   |           ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `default`, `fallback`, and `std`
+   = help: consider adding `disable-fiq` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+   Compiling static_assertions v1.1.0
+   Compiling getrandom v0.2.17
+warning: `bench` (build script) generated 5 warnings
+   Compiling rand_core v0.6.4 (https://github.com/taiki-e/rand.git?branch=0.8-dev#f77e22f2)
+   Compiling syn v2.0.56
+   Compiling rand v0.8.5 (https://github.com/taiki-e/rand.git?branch=0.8-dev#f77e22f2)
+   Compiling test-helper v0.0.0 (https://github.com/taiki-e/test-helper.git?rev=ecce9d7f2200e13c163cef4c79db41a543a03816#ecce9d7f)
+   Compiling regex v1.8.4
+   Compiling quickcheck v1.0.3 (https://github.com/taiki-e/quickcheck.git?rev=83b1d5955557fc9dacc52d4a78098d8e6d7eda3b#83b1d595)
+   Compiling serde_derive v1.0.210
+   Compiling criterion v0.8.2 (https://github.com/taiki-e/criterion.rs.git?rev=18cc8b6f211b266564e6d5311ef1defa0677a815#18cc8b6f)
+    Finished `bench` profile [optimized + debuginfo] target(s) in 5.09s
+     Running benches/bench.rs (target/release/build/bench/c36a6886c5562759/out/bench-c36a6886c5562759)
+bench_portable_atomic_seqlock_fallback/u128_load
+                        time:   [1.1544 ns 1.1601 ns 1.1654 ns]
+                        change: [+108.11% +109.53% +111.20%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_store
+                        time:   [2.3334 ns 2.3422 ns 2.3512 ns]
+                        change: [+7.8833% +8.5483% +9.2286%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_swap
+                        time:   [2.4296 ns 2.4388 ns 2.4477 ns]
+                        change: [+9.5105% +10.229% +11.059%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_compare_exchange_success
+                        time:   [2.4977 ns 2.5014 ns 2.5050 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) low mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_compare_exchange_fail
+                        time:   [2.0720 ns 2.0755 ns 2.0788 ns]
+Found 13 outliers among 100 measurements (13.00%)
+  3 (3.00%) low severe
+  5 (5.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_fetch_add
+                        time:   [2.3251 ns 2.3297 ns 2.3338 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_load2_threads
+                        time:   [57.219 µs 57.735 µs 58.371 µs]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_load1_store1_threads: Collecting 100 samples in estimated 5.4527 s (61k iterationbench_portable_atomic_seqlock_fallback/u128_concurrent_load1_store1_threads
+                        time:   [88.743 µs 89.313 µs 89.969 µs]
+bench_portable_atomic_seqlock_fallback/u128_concurrent_store2_threads
+                        time:   [419.01 µs 433.36 µs 447.17 µs]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  4 (4.00%) low mild
+  1 (1.00%) high mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_swap2_threads
+                        time:   [429.46 µs 449.06 µs 468.22 µs]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_store1swap1_threads: Collecting 100 samples in estimated 6.0410 s (15k iterationsbench_portable_atomic_seqlock_fallback/u128_concurrent_store1swap1_threads
+                        time:   [414.97 µs 430.16 µs 444.63 µs]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) low mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_fetch_add2_threads
+                        time:   [450.52 µs 465.55 µs 480.67 µs]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low severe
+  3 (3.00%) low mild
+  1 (1.00%) high mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_load12_threads
+                        time:   [261.01 µs 262.94 µs 265.24 µs]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_load6_store6_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 5.4s, enable flat sampling, or reduce sample count to 60.
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_load6_store6_threads: Collecting 100 samples in estimated 5.3879 s (5050 iteratiobench_portable_atomic_seqlock_fallback/u128_concurrent_load6_store6_threads
+                        time:   [1.0509 ms 1.0567 ms 1.0628 ms]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) low mild
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_store12_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 9.6s, enable flat sampling, or reduce sample count to 50.
+bench_portable_atomic_seqlock_fallback/u128_concurrent_store12_threads
+                        time:   [1.8955 ms 1.9014 ms 1.9073 ms]
+Found 12 outliers among 100 measurements (12.00%)
+  4 (4.00%) low mild
+  6 (6.00%) high mild
+  2 (2.00%) high severe
+bench_portable_atomic_seqlock_fallback/u128_concurrent_swap12_threads
+                        time:   [2.0481 ms 2.0563 ms 2.0642 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) low mild
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_store6swap6_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 9.6s, enable flat sampling, or reduce sample count to 50.
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_store6swap6_threads: Collecting 100 samples in estimated 9.6220 s (5050 iterationbench_portable_atomic_seqlock_fallback/u128_concurrent_store6swap6_threads
+                        time:   [1.8976 ms 1.9029 ms 1.9083 ms]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_fetch_add12_threads: Collecting 100 samples in estimated 5.1536 s (2500 iterationbench_portable_atomic_seqlock_fallback/u128_concurrent_fetch_add12_threads
+                        time:   [2.0435 ms 2.0513 ms 2.0592 ms]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_load48_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.3s, enable flat sampling, or reduce sample count to 60.
+bench_portable_atomic_seqlock_fallback/u128_concurrent_load48_threads
+                        time:   [1.2461 ms 1.2513 ms 1.2565 ms]
+Found 11 outliers among 100 measurements (11.00%)
+  1 (1.00%) low severe
+  3 (3.00%) low mild
+  6 (6.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_load24_store24_threads: Collecting 100 samples in estimated 5.4842 s (1100 iteratbench_portable_atomic_seqlock_fallback/u128_concurrent_load24_store24_threads
+                        time:   [3.7676 ms 3.8147 ms 3.8611 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_store48_threads
+                        time:   [6.7052 ms 6.7553 ms 6.8038 ms]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) low mild
+bench_portable_atomic_seqlock_fallback/u128_concurrent_swap48_threads
+                        time:   [7.1346 ms 7.1935 ms 7.2501 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) low mild
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_store24swap24_threads: Collecting 100 samples in estimated 5.6208 s (700 iteratiobench_portable_atomic_seqlock_fallback/u128_concurrent_store24swap24_threads
+                        time:   [6.7274 ms 6.7789 ms 6.8293 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) low mild
+  1 (1.00%) high mild
+Benchmarking bench_portable_atomic_seqlock_fallback/u128_concurrent_fetch_add48_threads: Collecting 100 samples in estimated 5.1088 s (600 iterationsbench_portable_atomic_seqlock_fallback/u128_concurrent_fetch_add48_threads
+                        time:   [7.2412 ms 7.2883 ms 7.3333 ms]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) low mild
+
+bench_portable_atomic_seqlock64_futex32_fallback/u128_load
+                        time:   [576.73 ps 578.60 ps 581.03 ps]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) low mild
+  2 (2.00%) high severe
+bench_portable_atomic_seqlock64_futex32_fallback/u128_store
+                        time:   [2.5713 ns 2.5808 ns 2.5903 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  1 (1.00%) low severe
+  7 (7.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock64_futex32_fallback/u128_swap
+                        time:   [2.7324 ns 2.7412 ns 2.7494 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_compare_exchange_success: Collecting 100 samples in estimated 5.0000 s (1.7B iterabench_portable_atomic_seqlock64_futex32_fallback/u128_compare_exchange_success
+                        time:   [2.8914 ns 2.8971 ns 2.9030 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_compare_exchange_fail: Collecting 100 samples in estimated 5.0000 s (1.9B iteratiobench_portable_atomic_seqlock64_futex32_fallback/u128_compare_exchange_fail
+                        time:   [2.6403 ns 2.6462 ns 2.6518 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_seqlock64_futex32_fallback/u128_fetch_add
+                        time:   [2.6454 ns 2.6499 ns 2.6546 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load2_threads: Collecting 100 samples in estimated 5.2766 s (96k iteratbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load2_threads
+                        time:   [55.255 µs 55.573 µs 55.921 µs]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load1_store1_threads: Collecting 100 samples in estimated 5.3652 s (56kbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load1_store1_threads
+                        time:   [89.667 µs 90.084 µs 90.470 µs]
+Found 11 outliers among 100 measurements (11.00%)
+  2 (2.00%) low severe
+  7 (7.00%) low mild
+  2 (2.00%) high mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store2_threads: Collecting 100 samples in estimated 5.5359 s (45k iterabench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store2_threads
+                        time:   [126.32 µs 127.79 µs 129.14 µs]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap2_threads: Collecting 100 samples in estimated 5.4760 s (35k iteratbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap2_threads
+                        time:   [163.51 µs 165.55 µs 167.65 µs]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store1swap1_threads: Collecting 100 samples in estimated 5.5856 s (45k bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store1swap1_threads
+                        time:   [124.99 µs 126.60 µs 128.28 µs]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low severe
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add2_threads: Collecting 100 samples in estimated 5.4840 s (35k ibench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add2_threads
+                        time:   [166.14 µs 168.29 µs 170.54 µs]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load12_threads: Collecting 100 samples in estimated 5.1434 s (20k iterabench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load12_threads
+                        time:   [254.44 µs 256.23 µs 258.14 µs]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load6_store6_threads: Collecting 100 samples in estimated 8.1133 s (10kbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load6_store6_threads
+                        time:   [814.74 µs 817.33 µs 820.06 µs]
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store12_threads: Collecting 100 samples in estimated 5.1192 s (2500 itebench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store12_threads
+                        time:   [2.0330 ms 2.0435 ms 2.0540 ms]
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap12_threads: Collecting 100 samples in estimated 5.0754 s (2300 iterbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap12_threads
+                        time:   [2.1479 ms 2.1617 ms 2.1752 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store6swap6_threads: Collecting 100 samples in estimated 5.0685 s (2500bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store6swap6_threads
+                        time:   [2.0076 ms 2.0186 ms 2.0295 ms]
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add12_threads: Collecting 100 samples in estimated 5.1027 s (2300bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add12_threads
+                        time:   [2.1501 ms 2.1636 ms 2.1770 ms]
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load48_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.1s, enable flat sampling, or reduce sample count to 60.
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load48_threads: Collecting 100 samples in estimated 6.0555 s (5050 iterbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load48_threads
+                        time:   [1.1946 ms 1.2011 ms 1.2076 ms]
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low severe
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load24_store24_threads: Collecting 100 samples in estimated 5.2375 s (1bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_load24_store24_threads
+                        time:   [5.1791 ms 5.2179 ms 5.2547 ms]
+Found 7 outliers among 100 measurements (7.00%)
+  7 (7.00%) low mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store48_threads: Collecting 100 samples in estimated 5.8847 s (600 iterbench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store48_threads
+                        time:   [9.7353 ms 9.7650 ms 9.7959 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap48_threads: Collecting 100 samples in estimated 5.2219 s (500 iterabench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_swap48_threads
+                        time:   [10.064 ms 10.091 ms 10.118 ms]
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store24swap24_threads: Collecting 100 samples in estimated 5.8660 s (60bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_store24swap24_threads
+                        time:   [9.7283 ms 9.7572 ms 9.7857 ms]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) low mild
+  3 (3.00%) high mild
+Benchmarking bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add48_threads: Collecting 100 samples in estimated 5.2508 s (500 bench_portable_atomic_seqlock64_futex32_fallback/u128_concurrent_fetch_add48_threads
+                        time:   [10.053 ms 10.090 ms 10.125 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+
+bench_portable_atomic_mutex_fallback/u128_load
+                        time:   [1.7513 ns 1.7557 ns 1.7609 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_store
+                        time:   [1.7812 ns 1.7839 ns 1.7866 ns]
+Found 7 outliers among 100 measurements (7.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_swap
+                        time:   [1.8586 ns 1.8608 ns 1.8630 ns]
+Found 8 outliers among 100 measurements (8.00%)
+  1 (1.00%) low severe
+  3 (3.00%) low mild
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_compare_exchange_success
+                        time:   [2.0908 ns 2.0954 ns 2.1000 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_compare_exchange_fail
+                        time:   [2.0747 ns 2.0773 ns 2.0800 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_fetch_add
+                        time:   [2.2163 ns 2.2194 ns 2.2225 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) low severe
+  1 (1.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_concurrent_load2_threads
+                        time:   [93.184 µs 93.672 µs 94.110 µs]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_load1_store1_threads
+                        time:   [77.273 µs 77.685 µs 78.095 µs]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_store2_threads
+                        time:   [87.598 µs 89.054 µs 90.390 µs]
+bench_portable_atomic_mutex_fallback/u128_concurrent_swap2_threads
+                        time:   [123.45 µs 125.23 µs 126.87 µs]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) low mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_store1swap1_threads
+                        time:   [87.110 µs 88.515 µs 89.896 µs]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+bench_portable_atomic_mutex_fallback/u128_concurrent_fetch_add2_threads
+                        time:   [146.74 µs 148.39 µs 150.03 µs]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) low mild
+  1 (1.00%) high mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_load12_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 5.7s, enable flat sampling, or reduce sample count to 60.
+bench_portable_atomic_mutex_fallback/u128_concurrent_load12_threads
+                        time:   [1.1440 ms 1.1482 ms 1.1531 ms]
+Found 8 outliers among 100 measurements (8.00%)
+  1 (1.00%) low severe
+  3 (3.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_load6_store6_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.7s, enable flat sampling, or reduce sample count to 60.
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_load6_store6_threads: Collecting 100 samples in estimated 6.7425 s (5050 iterationsbench_portable_atomic_mutex_fallback/u128_concurrent_load6_store6_threads
+                        time:   [1.3334 ms 1.3385 ms 1.3436 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_store12_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.9s, enable flat sampling, or reduce sample count to 50.
+bench_portable_atomic_mutex_fallback/u128_concurrent_store12_threads
+                        time:   [1.3830 ms 1.3895 ms 1.3960 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) low severe
+  2 (2.00%) low mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_swap12_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 8.0s, enable flat sampling, or reduce sample count to 50.
+bench_portable_atomic_mutex_fallback/u128_concurrent_swap12_threads
+                        time:   [1.5727 ms 1.5779 ms 1.5833 ms]
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low severe
+  1 (1.00%) low mild
+  5 (5.00%) high mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_store6swap6_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.9s, enable flat sampling, or reduce sample count to 50.
+bench_portable_atomic_mutex_fallback/u128_concurrent_store6swap6_threads
+                        time:   [1.3822 ms 1.3871 ms 1.3920 ms]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_fetch_add12_threads: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 8.6s, enable flat sampling, or reduce sample count to 50.
+bench_portable_atomic_mutex_fallback/u128_concurrent_fetch_add12_threads
+                        time:   [1.6938 ms 1.6982 ms 1.7026 ms]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_load48_threads
+                        time:   [4.4223 ms 4.4445 ms 4.4657 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_load24_store24_threads: Collecting 100 samples in estimated 5.4280 s (1000 iteratiobench_portable_atomic_mutex_fallback/u128_concurrent_load24_store24_threads
+                        time:   [5.4300 ms 5.4512 ms 5.4710 ms]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  5 (5.00%) low mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_store48_threads
+                        time:   [5.8628 ms 5.8829 ms 5.9020 ms]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low severe
+  2 (2.00%) high mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_swap48_threads
+                        time:   [6.4391 ms 6.4654 ms 6.4896 ms]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low severe
+  3 (3.00%) low mild
+Benchmarking bench_portable_atomic_mutex_fallback/u128_concurrent_store24swap24_threads: Collecting 100 samples in estimated 5.1591 s (900 iterationsbench_portable_atomic_mutex_fallback/u128_concurrent_store24swap24_threads
+                        time:   [5.8460 ms 5.8716 ms 5.8954 ms]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low severe
+  3 (3.00%) low mild
+  1 (1.00%) high mild
+bench_portable_atomic_mutex_fallback/u128_concurrent_fetch_add48_threads
+                        time:   [6.8813 ms 6.9067 ms 6.9308 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) low severe
+  1 (1.00%) low mild
+  1 (1.00%) high severe
+
+cargo bench -p bench --bench bench  956.91s user 2106.01s system 411% cpu 12:23.83 total

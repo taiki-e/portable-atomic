@@ -336,46 +336,46 @@ macro_rules! benches {
         pub(crate) fn $name(c: &mut Criterion) {
             type A = $atomic_type;
             let mut g = c.benchmark_group(stringify!($name));
-            g.bench_function(concat!(stringify!($int_type), "_load"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<$int_type>::load_(&a));
-            });
-            g.bench_function(concat!(stringify!($int_type), "_store"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<$int_type>::store_(&a, black_box(2)));
-                black_box(a);
-            });
-            g.bench_function(concat!(stringify!($int_type), "_swap"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<$int_type>::swap_(&a, black_box(2)));
-                black_box(a);
-            });
-            g.bench_function(concat!(stringify!($int_type), "_compare_exchange_success"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| {
-                    AtomicInt::<$int_type>::compare_exchange_(&a, black_box(1), black_box(1))
-                });
-                black_box(a);
-            });
-            g.bench_function(concat!(stringify!($int_type), "_compare_exchange_fail"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| {
-                    AtomicInt::<$int_type>::compare_exchange_(&a, black_box(2), black_box(3))
-                });
-                black_box(a);
-            });
-            g.bench_function(concat!(stringify!($int_type), "_fetch_add"), |b| {
-                let a = A::new(black_box(1));
-                b.iter(|| AtomicInt::<$int_type>::fetch_add_(&a, black_box(2)));
-                black_box(a);
-            });
+            // g.bench_function(concat!(stringify!($int_type), "_load"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| AtomicInt::<$int_type>::load_(&a));
+            // });
+            // g.bench_function(concat!(stringify!($int_type), "_store"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| AtomicInt::<$int_type>::store_(&a, black_box(2)));
+            //     black_box(a);
+            // });
+            // g.bench_function(concat!(stringify!($int_type), "_swap"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| AtomicInt::<$int_type>::swap_(&a, black_box(2)));
+            //     black_box(a);
+            // });
+            // g.bench_function(concat!(stringify!($int_type), "_compare_exchange_success"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| {
+            //         AtomicInt::<$int_type>::compare_exchange_(&a, black_box(1), black_box(1))
+            //     });
+            //     black_box(a);
+            // });
+            // g.bench_function(concat!(stringify!($int_type), "_compare_exchange_fail"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| {
+            //         AtomicInt::<$int_type>::compare_exchange_(&a, black_box(2), black_box(3))
+            //     });
+            //     black_box(a);
+            // });
+            // g.bench_function(concat!(stringify!($int_type), "_fetch_add"), |b| {
+            //     let a = A::new(black_box(1));
+            //     b.iter(|| AtomicInt::<$int_type>::fetch_add_(&a, black_box(2)));
+            //     black_box(a);
+            // });
             let mut set = vec![];
             let num_cpus = std::thread::available_parallelism().unwrap().get() & !1;
             if num_cpus > 2 {
                 set.push(2);
             }
             set.push(num_cpus);
-            set.push(num_cpus * 4);
+            // set.push(num_cpus * 4);
             for threads in set {
                 g.bench_function(
                     &format!("{}_concurrent_load{threads}_threads", stringify!($int_type)),
@@ -466,7 +466,7 @@ mod bench {
 
     criterion_group!(
         benches,
-        bench_portable_atomic_arch,
+        // bench_portable_atomic_arch,
         // bench_portable_atomic_intrinsics,
         bench_portable_atomic_seqlock_fallback,
         bench_portable_atomic_seqlock64_futex32_fallback,
