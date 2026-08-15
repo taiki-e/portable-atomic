@@ -47,6 +47,7 @@ compile_error!(
     "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
 );
 
+pub(crate) mod cache_padded; // pub(crate) for benchmark
 mod utils;
 
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
@@ -70,8 +71,8 @@ cfg_no_fast_atomic_64!({
 use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
 
 use self::{
+    cache_padded::CachePadded,
     seq_lock::{SeqLock, SeqLockWriteGuard},
-    utils::CachePadded,
 };
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
