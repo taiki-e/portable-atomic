@@ -25,6 +25,7 @@ casx
 cbnz
 ccmp
 cdsg
+Ceuxo
 cgrjh
 cgrjl
 clgr
@@ -62,6 +63,7 @@ dlsym
 ecall
 Espressif
 espup
+evbarm
 exynos
 fild
 fistp
@@ -78,6 +80,8 @@ hwprobe
 ILRCPC
 insn
 INTLEVEL
+iobase
+iosize
 isel
 iseleq
 iselgt
@@ -117,6 +121,7 @@ lpae
 lqarx
 lrcpc
 lsfe
+lstatic
 lwsync
 maxu
 mcpu
@@ -130,6 +135,7 @@ minu
 miscompiles
 mknod
 mmfr
+mmio
 movlps
 movq
 movs
@@ -232,6 +238,7 @@ xmegau
 xmmword
 xsave
 xsub
+xtask
 zaamo
 zabha
 zacas
