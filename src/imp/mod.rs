@@ -11,7 +11,7 @@ cfg_core_atomic!({
         any(portable_atomic_target_cpu = "esp32", portable_atomic_target_cpu = "esp32s3"),
         path = "xtensa.rs"
     )]
-    mod core_atomic;
+    pub(crate) mod core_atomic; // pub(crate) for benchmark
 });
 
 // AVR
@@ -141,7 +141,7 @@ mod atomic128;
         ),
     ))
 ))]
-mod fallback;
+pub(crate) mod fallback; // pub(crate) for benchmark
 
 // -----------------------------------------------------------------------------
 // Fallback implementation based on disabling interrupts or critical-section

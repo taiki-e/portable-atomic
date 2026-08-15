@@ -348,7 +348,7 @@ macro_rules! cfg_sel {
 #[allow(dead_code)]
 #[inline(always)]
 #[cold]
-fn cold_path() {}
+pub(crate) fn cold_path() {}
 // Stable equivalent of core::hint::{likely, unlikely}.
 #[allow(dead_code)]
 #[inline(always)]
@@ -698,12 +698,6 @@ pub(crate) mod ptr {
 //   (c"..." requires Rust 1.77)
 // - Helper macros for defining FFI bindings with static signature/type/value assertions.
 // - Helper macros for defining asm-based syscalls on Linux.
-#[cfg(any(
-    test,
-    portable_atomic_test_no_std_static_assert_ffi,
-    not(any(target_arch = "x86", target_arch = "x86_64"))
-))]
-#[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
 #[allow(dead_code, non_camel_case_types, unused_macros)]
 #[macro_use]
 pub(crate) mod ffi {
@@ -820,33 +814,33 @@ pub(crate) mod ffi {
 
     macro_rules! c {
         ($s:expr) => {{
-            const BYTES: &[u8] = concat!($s, "\0").as_bytes();
-            const _: () = static_assert!(crate::utils::ffi::_const_is_c_str(BYTES));
+            // const str::as_bytes requires Rust 1.39
+            const BYTES: &str = concat!($s, "\0");
+            const _CHECK: () = static_assert!(crate::utils::ffi::_const_is_c_str(BYTES));
             #[allow(unused_unsafe)]
             // SAFETY: we've checked `BYTES` is a valid C string
             unsafe {
-                crate::utils::ffi::CStr::from_bytes_with_nul_unchecked(BYTES)
+                crate::utils::ffi::CStr::from_bytes_with_nul_unchecked(BYTES.as_bytes())
             }
         }};
     }
 
+    #[cfg_attr(portable_atomic_no_track_caller, allow(unused_variables))]
     #[must_use]
-    pub(crate) const fn _const_is_c_str(bytes: &[u8]) -> bool {
-        #[cfg(portable_atomic_no_track_caller)]
-        {
-            // const_if_match/const_loop was stabilized (nightly-2020-06-30) 2 days before
-            // track_caller was stabilized (nightly-2020-07-02), so we reuse the cfg for
-            // track_caller here instead of emitting a cfg for const_if_match/const_loop.
-            // https://github.com/rust-lang/rust/pull/72437
-            // track_caller was stabilized 11 days after the oldest nightly version
-            // that uses this module, and is included in the same 1.46 stable release.
-            // The check here is insufficient in this case, but this is fine because this function
-            // is internal code that is not used to process input from the user and our CI checks
-            // all builtin targets and some custom targets with some versions of newer compilers.
-            !bytes.is_empty()
-        }
+    pub(crate) const fn _const_is_c_str(bytes: &str) -> bool {
+        // const_slice_is_empty requires Rust 1.39.
+        // const_if_match/const_loop was stabilized (nightly-2020-06-30) 2 days before
+        // track_caller was stabilized (nightly-2020-07-02), so we reuse the cfg for
+        // track_caller here instead of emitting a cfg for const_if_match/const_loop.
+        // https://github.com/rust-lang/rust/pull/72437
+        // track_caller was stabilized 11 days after the oldest nightly version
+        // that uses this module, and is included in the same 1.46 stable release.
+        // The check here is insufficient in this case, but this is fine because this function
+        // is internal code that is not used to process input from the user and our CI checks
+        // all builtin targets and some custom targets with some versions of newer compilers.
         #[cfg(not(portable_atomic_no_track_caller))]
         {
+            let bytes = bytes.as_bytes();
             // Based on https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/c_str.rs#L417
             // - bytes must be nul-terminated.
             // - bytes must not contain any interior nul bytes.
@@ -864,8 +858,8 @@ pub(crate) mod ffi {
                     return false;
                 }
             }
-            true
         }
+        true
     }
 
     // -------------------------------------------------------------------------
@@ -1012,23 +1006,114 @@ pub(crate) mod ffi {
         //
         // Refs:
         // - https://man7.org/linux/man-pages/man2/syscall.2.html
+        // - x86
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/i386/syscall_arch.h?h=v1.2.6
+        //   https://github.com/torvalds/linux/blob/v7.1/arch/x86/entry/entry_32.S#L906
+        // - x86_64
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/x86_64/syscall_arch.h?h=v1.2.6
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/x32/syscall_arch.h?h=v1.2.6
+        //   https://github.com/torvalds/linux/blob/v7.1/arch/x86/entry/entry_64.S#L50
         // - aarch64 (test-only)
         //   https://git.musl-libc.org/cgit/musl/tree/arch/aarch64/syscall_arch.h?h=v1.2.6
-        // - arm (test-only)
+        // - arm
         //   https://git.musl-libc.org/cgit/musl/tree/arch/arm/syscall_arch.h?h=v1.2.6
-        // - powerpc64 (test-only)
+        // - loongarch32/loongarch64
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/loongarch64/syscall_arch.h?h=v1.2.6
+        //   loongarch32 (which has not yet been upstreamed) also uses the same instructions.
+        //   https://github.com/jiegec/glibc/commit/f835547fc4e5801ad414db1929764248c24eab1b
+        // - powerpc/powerpc64
         //   https://github.com/torvalds/linux/blob/v7.1/Documentation/arch/powerpc/syscall64-abi.rst
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/powerpc/syscall_arch.h?h=v1.2.6
         //   https://git.musl-libc.org/cgit/musl/tree/arch/powerpc64/syscall_arch.h?h=v1.2.6
         // - riscv32/riscv64
         //   https://git.musl-libc.org/cgit/musl/tree/arch/riscv32/syscall_arch.h?h=v1.2.6
         //   https://git.musl-libc.org/cgit/musl/tree/arch/riscv64/syscall_arch.h?h=v1.2.6
+        // - s390x (test-only)
+        //   https://git.musl-libc.org/cgit/musl/tree/arch/s390x/syscall_arch.h?h=v1.2.6
 
+        // x86_32 has fast syscall using __kernel_vsyscall, but is complex,
+        // needs access to auxv (usually exposed via getauxval), and syscalls
+        // are called only in the slow path in the current our use cases, so we
+        // don't use it here.
+        #[cfg(target_arch = "x86")]
+        macro_rules! asm_syscall {
+            (
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident )?)?)?
+            ) => {
+                __asm!(
+                    "int 0x80",
+                    inout("eax") $number => $r,
+                    $(in("ebx") $arg1,
+                        $(in("ecx") $arg2,
+                            $(in("edx") $arg3, )?
+                        )?
+                    )?
+                    // Do not use `preserves_flags` because the kernel does not guarantee that
+                    // EFLAGS is preserved across syscalls.
+                    // https://github.com/torvalds/linux/commit/c25be94f2870bf75552a41ad8b15f756e19ffb1d
+                    options(nostack),
+                )
+            };
+            (
+                $number:ident, $r:ident,
+                $arg1:ident, $arg2:ident, $arg3:ident, $arg4:ident
+            ) => {
+                __asm!(
+                    // esi is reserved by LLVM
+                    "xchg esi, {esi}", // arg4
+                    "int 0x80",
+                    "xchg esi, {esi}",
+                    esi = in(reg) $arg4,
+                    inout("eax") $number => $r,
+                    in("ebx") $arg1,
+                    in("ecx") $arg2,
+                    in("edx") $arg3,
+                    // Do not use `preserves_flags` because the kernel does not guarantee that
+                    // EFLAGS is preserved across syscalls.
+                    // https://github.com/torvalds/linux/commit/c25be94f2870bf75552a41ad8b15f756e19ffb1d
+                    options(nostack),
+                )
+            };
+        }
+        #[cfg(target_arch = "x86_64")]
+        macro_rules! asm_syscall {
+            (
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
+                    $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
+                )?)?)?
+            ) => {
+                __asm!(
+                    "syscall",
+                    in("rax") $number,
+                    lateout("rax") $r,
+                    $(in("rdi") $arg1,
+                        $(in("rsi") $arg2,
+                            $(in("rdx") $arg3,
+                                $(in("r10") $arg4,
+                                    $(in("r8") $arg5,
+                                        $(in("r9") $arg6, )?
+                                    )?
+                                )?
+                            )?
+                        )?
+                    )?
+                    out("rcx") _,
+                    out("r11") _,
+                    // Do not use `preserves_flags` because the kernel does not guarantee that
+                    // EFLAGS is preserved across syscalls.
+                    // https://github.com/torvalds/linux/commit/c25be94f2870bf75552a41ad8b15f756e19ffb1d
+                    options(nostack),
+                )
+            };
+        }
         #[cfg(test)] // test-only
         #[cfg(all(target_arch = "aarch64", target_pointer_width = "64"))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
@@ -1107,12 +1192,11 @@ pub(crate) mod ffi {
                 )
             };
         }
-        #[cfg(test)] // test-only
         #[cfg(target_arch = "arm")]
         macro_rules! asm_syscall {
             (
-                $number_const:path, $number:literal, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number_const:path, $number:literal, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {{
@@ -1149,13 +1233,54 @@ pub(crate) mod ffi {
                 )
             }};
         }
-        // POWER9+ has fast syscall using SCV, but it is needless in the current our use cases.
-        #[cfg(test)] // test-only
-        #[cfg(all(target_arch = "powerpc64", target_pointer_width = "64"))]
+        #[cfg(any(
+            target_arch = "loongarch32",
+            all(target_arch = "loongarch64", target_pointer_width = "64"),
+        ))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
+                    $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
+                )?)?)?
+            ) => {
+                __asm!(
+                    "syscall 0",
+                    in("$a7") $number,
+                    lateout("$a0") $r,
+                    $(in("$a0") $arg1,
+                        $(in("$a1") $arg2,
+                            $(in("$a2") $arg3,
+                                $(in("$a3") $arg4,
+                                    $(in("$a4") $arg5,
+                                        $(in("$a5") $arg6, )?
+                                    )?
+                                )?
+                            )?
+                        )?
+                    )?
+                    out("$t0") _,
+                    out("$t1") _,
+                    out("$t2") _,
+                    out("$t3") _,
+                    out("$t4") _,
+                    out("$t5") _,
+                    out("$t6") _,
+                    out("$t7") _,
+                    out("$t8") _,
+                    options(nostack, preserves_flags),
+                )
+            };
+        }
+        // POWER9+ has fast syscall using SCV, but it is needless in the current our use cases.
+        #[cfg(any(
+            target_arch = "powerpc",
+            all(target_arch = "powerpc64", target_pointer_width = "64"),
+        ))]
+        macro_rules! asm_syscall {
+            (
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
@@ -1199,8 +1324,8 @@ pub(crate) mod ffi {
         ))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
@@ -1257,6 +1382,34 @@ pub(crate) mod ffi {
                 )
             };
         }
+        #[cfg(test)] // test-only
+        #[cfg(all(target_arch = "s390x", target_pointer_width = "64"))]
+        macro_rules! asm_syscall {
+            (
+                $number_const:path, $number:literal, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
+                    $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
+                )?)?)?
+            ) => {{
+                static_assert!($number_const == $number && 1 <= $number && $number <= 255);
+                __asm!(
+                    concat!("svc ", $number),
+                    lateout("r2") $r,
+                    $(in("r2") $arg1,
+                        $(in("r3") $arg2,
+                            $(in("r4") $arg3,
+                                $(in("r5") $arg4,
+                                    $(in("r6") $arg5,
+                                        $(in("r7") $arg6, )?
+                                    )?
+                                )?
+                            )?
+                        )?
+                    )?
+                    options(nostack, preserves_flags),
+                );
+            }};
+        }
     }
 
     #[allow(
@@ -1283,22 +1436,22 @@ pub(crate) mod ffi {
         #[test]
         fn test_is_c_str() {
             #[track_caller]
-            fn t(bytes: &[u8]) {
+            fn t(bytes: &str) {
                 assert_eq!(
                     super::_const_is_c_str(bytes),
-                    std::ffi::CStr::from_bytes_with_nul(bytes).is_ok()
+                    std::ffi::CStr::from_bytes_with_nul(bytes.as_bytes()).is_ok()
                 );
             }
-            t(b"\0");
-            t(b"a\0");
-            t(b"abc\0");
-            t(b"");
-            t(b"a");
-            t(b"abc");
-            t(b"\0a");
-            t(b"\0a\0");
-            t(b"ab\0c\0");
-            t(b"\0\0");
+            t("\0");
+            t("a\0");
+            t("abc\0");
+            t("");
+            t("a");
+            t("abc");
+            t("\0a");
+            t("\0a\0");
+            t("ab\0c\0");
+            t("\0\0");
         }
     }
 }

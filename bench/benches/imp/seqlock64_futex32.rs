@@ -1,81 +1,203 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-/*
-Fallback implementation using global locks.
+// SeqLock with separated lock state and stamp.
+//
+// This is for platforms that cannot use 64-bit futex but can use 64-bit registers.
+//
+// This module is currently only enabled on benchmark.
+//
+// Seqlock logic is adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/seq_lock.rs.
+// Lock and wait logic is adapted from https://github.com/rust-lang/rust/blob/1.97.0/library/std/src/sys/sync/mutex/futex.rs.
 
-This implementation uses seqlock for global locks.
-
-This is basically based on global locks in crossbeam-utils's `AtomicCell`,
-but seqlock is implemented in a way that does not depend on UB
-(see comments in optimistic_read method in atomic! macro for details).
-
-Note that we cannot use a lock per atomic type, since the in-memory representation of the atomic
-type and the value type must be the same.
-*/
-
-#![cfg_attr(
-    any(
-        all(
-            target_arch = "riscv32",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            not(portable_atomic_no_outline_atomics),
-            any(target_os = "linux", target_os = "android"),
-        ),
-        all(
-            target_arch = "arm",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_os = "linux", target_os = "android"),
-            any(test, not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))),
-            not(portable_atomic_no_outline_atomics),
-        ),
-    ),
-    allow(dead_code)
-)]
-
-// This module requires CAS and this crate only provides atomics up to 128-bit.
-// I don't believe there are any 16-bit multi-core systems with CAS, and
-// at least no such architecture is currently supported in Rust.
-// 128-bit targets that lack atomic usize CAS also do not reach this module.
-#[cfg(target_pointer_width = "16")]
-compile_error!(
-    "internal error: unreachable since atomics for 16-bit targets can always be provided by disable interrupts"
-);
-#[cfg(target_pointer_width = "128")]
-compile_error!(
-    "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
-);
-
-pub(crate) mod cache_padded; // pub(crate) for benchmark
-#[macro_use]
-#[path = "seq_lock_common.rs"]
-mod seq_lock_common;
-#[path = "seq_lock_normal.rs"]
-mod seq_lock;
-pub(crate) mod wait; // pub(crate) for benchmark
-
-// Some 64-bit architectures have ABI with 32-bit pointer width (e.g., x86_64 X32 ABI,
-// AArch64 ILP32 ABI, mips64 N32 ABI). On those targets, AtomicU64 is available and fast,
-// so use it to implement normal sequence lock and reduce chunks of byte-wise atomic memcpy.
-cfg_has_fast_atomic_64!({
-    type AtomicChunk = core::sync::atomic::AtomicU64;
-    type Chunk = u64;
-});
+#[cfg(portable_atomic_unsafe_assume_privileged)]
+compile_error!("internal error: unreachable");
 cfg_no_fast_atomic_64!({
-    type AtomicChunk = core::sync::atomic::AtomicU32;
-    type Chunk = u32;
+    compile_error!("internal error: unreachable");
 });
 
-use core::{cell::UnsafeCell, mem, sync::atomic::Ordering};
+use self as seq_lock;
+#[macro_use]
+#[path = "../../../src/imp/fallback/seq_lock_common.rs"]
+mod seq_lock_common;
 
-use self::{
-    cache_padded::CachePadded,
-    seq_lock::{SeqLock, SeqLockWriteGuard},
+use core::{
+    cell::UnsafeCell,
+    mem::{self, ManuallyDrop},
+    ops,
+    sync::atomic::Ordering,
 };
-#[cfg(portable_atomic_no_strict_provenance)]
-use crate::utils::ptr::PtrExt as _;
-use crate::utils::unlikely;
+
+use self::seq_lock_common::stamp;
+use super::fallback::{
+    LOCK_ACQUIRE_ORDER, LOCK_RELEASE_ORDER, ScFenceGuard,
+    cache_padded::CachePadded,
+    wait::{notify32_one as notify_one, wait32 as wait},
+};
+use crate::{imp::core_atomic::AtomicU32, utils::unlikely};
+
+type AtomicChunk = core::sync::atomic::AtomicU64;
+type Chunk = u64;
+
+type State = u32;
+pub(crate) type Stamp = u64;
+
+pub(crate) struct SeqLock {
+    /// The current state of the lock.
+    lock: AtomicU32,
+
+    /// The the current stamp.
+    stamp: stamp::Stamp,
+}
+
+const UNLOCKED: State = 0;
+const LOCKED: State = 1; // locked, no other threads waiting
+const CONTENDED: State = 2; // locked, and other threads waiting (contended)
+
+impl SeqLock {
+    #[inline]
+    pub(crate) const fn new() -> Self {
+        Self { lock: AtomicU32::new(UNLOCKED), stamp: stamp::Stamp::new() }
+    }
+
+    #[inline]
+    pub(crate) fn write(&self) -> SeqLockWriteGuard<'_> {
+        if self
+            .lock
+            .compare_exchange(UNLOCKED, LOCKED, LOCK_ACQUIRE_ORDER, Ordering::Relaxed)
+            .is_err()
+        {
+            self.write_contended();
+        }
+        let stamp = self.stamp.state.load(Ordering::Relaxed).wrapping_add(1);
+        self.stamp.state.store(stamp, Ordering::Relaxed);
+        // To synchronize with the acquire fence in `validate_read` via any modification to
+        // the data at the critical section of `stamp`.
+        crate::fence(Ordering::Release);
+
+        SeqLockWriteGuard { lock: self, stamp }
+    }
+
+    #[cold]
+    fn write_contended(&self) {
+        // Spin first to speed things up if the lock is released quickly.
+        let mut state = self.spin();
+
+        // If it's unlocked now, attempt to take the lock
+        // without marking it as contended.
+        if state == UNLOCKED {
+            match self.lock.compare_exchange(
+                UNLOCKED,
+                LOCKED,
+                LOCK_ACQUIRE_ORDER,
+                Ordering::Relaxed,
+            ) {
+                Ok(_) => return, // Locked!
+                Err(s) => state = s,
+            }
+        }
+
+        loop {
+            // Put the lock in contended state.
+            // We avoid an unnecessary write if it as already set to CONTENDED,
+            // to be friendlier for the caches.
+            if state != CONTENDED && self.lock.swap(CONTENDED, LOCK_ACQUIRE_ORDER) == UNLOCKED {
+                // We changed it from UNLOCKED to CONTENDED, so we just successfully locked it.
+                return;
+            }
+
+            // Wait for the futex to change state, assuming it is still CONTENDED.
+            wait(&self.lock, CONTENDED);
+
+            // Spin again after waking up.
+            state = self.spin();
+        }
+    }
+
+    fn spin(&self) -> State {
+        let mut spin = 100;
+        loop {
+            // We only use `load` (and not `swap` or `compare_exchange`)
+            // while spinning, to be easier on the caches.
+            let state = self.lock.load(Ordering::Relaxed);
+
+            // We stop spinning when the mutex is UNLOCKED,
+            // but also when it's CONTENDED.
+            if state != LOCKED || spin == 0 {
+                return state;
+            }
+
+            #[allow(deprecated)]
+            core::sync::atomic::spin_loop_hint();
+            spin -= 1;
+        }
+    }
+
+    /// Release the lock with the given stamp.
+    #[inline]
+    unsafe fn unlock(&self, next_stamp: Stamp) {
+        // Release ordering for synchronizing with `optimistic_read`.
+        self.stamp.state.store(next_stamp, Ordering::Release);
+
+        // Release ordering for synchronizing with `write`.
+        if self.lock.swap(UNLOCKED, LOCK_RELEASE_ORDER) == CONTENDED {
+            // We only wake up one thread. When that thread locks the mutex, it
+            // will mark the mutex as CONTENDED (see lock_contended above),
+            // which makes sure that any other waiting threads will also be
+            // woken up eventually.
+            self.notify();
+        }
+    }
+
+    #[cold]
+    fn notify(&self) {
+        notify_one(&self.lock);
+    }
+}
+
+impl ops::Deref for SeqLock {
+    type Target = stamp::Stamp;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.stamp
+    }
+}
+
+#[must_use]
+pub(crate) struct SeqLockWriteGuard<'a> {
+    /// The parent lock.
+    lock: &'a SeqLock,
+
+    /// The current stamp.
+    stamp: Stamp,
+}
+
+impl SeqLockWriteGuard<'_> {
+    /// Releases the lock without incrementing the stamp.
+    #[inline]
+    pub(crate) unsafe fn abort(self) {
+        // We specifically don't want to call drop(), since that's
+        // what increments the stamp.
+        let this = ManuallyDrop::new(self);
+
+        // Restore the stamp and release the lock.
+        // SAFETY: the stamp is the same was the one retrieved by the previous `write`.
+        // the caller must guarantee that the value hasn't been changed.
+        unsafe { this.lock.unlock(this.stamp.wrapping_sub(1)) }
+    }
+}
+
+impl Drop for SeqLockWriteGuard<'_> {
+    #[inline]
+    fn drop(&mut self) {
+        let next_stamp = self.stamp.wrapping_add(1);
+        self.lock.stamp.handle_next_stamp(next_stamp);
+
+        // Increment the stamp and release the lock.
+        // SAFETY: handle_next_stamp ensures the state that has never been used.
+        unsafe { self.lock.unlock(next_stamp) }
+    }
+}
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/crossbeam-utils/src/atomic/atomic_cell.rs#L970-L1010.
 #[inline]
@@ -95,65 +217,6 @@ fn lock(addr: usize) -> &'static SeqLock {
     // a sequence of cheap arithmetic operations rather than using the slow modulo instruction.
     &LOCKS[addr % LEN]
 }
-
-// Emit SeqCst fence to ensure SeqCst semantics when ordering is SeqCst.
-// pub(crate) for benchmark
-#[must_use]
-pub(crate) struct ScFenceGuard;
-impl ScFenceGuard {
-    #[inline]
-    pub(crate) fn new_for_load(emit_sc_fence: bool) -> Option<Self> {
-        if unlikely(emit_sc_fence) {
-            crate::fence(Ordering::SeqCst);
-            Some(ScFenceGuard)
-        } else {
-            None
-        }
-    }
-    #[inline]
-    pub(crate) fn new(emit_sc_fence: bool) -> Option<Self> {
-        if unlikely(emit_sc_fence) {
-            if LOCK_ACQUIRE_ORDER != Ordering::SeqCst {
-                crate::fence(Ordering::SeqCst);
-            }
-            if LOCK_RELEASE_ORDER == Ordering::SeqCst { None } else { Some(ScFenceGuard) }
-        } else {
-            None
-        }
-    }
-}
-impl Drop for ScFenceGuard {
-    #[inline]
-    fn drop(&mut self) {
-        crate::fence(Ordering::SeqCst);
-    }
-}
-// In some architectures, SeqCst/Acquire/Release swap/CAS are the same. Therefore,
-// using SeqCst here allows us to omit the SeqCst fence in operations other
-// than load (that may not use write lock), without degrading performance in
-// non-SeqCst ops.
-// LoongArch64 v1.1 added Acquire/Release LL/SC, but is also added
-// Relaxed/SeqCst CAS which is more preferred for CAS.
-cfg_sel!({
-    #[cfg(any(
-        target_arch = "loongarch64",
-        target_arch = "m68k",
-        target_arch = "s390x",
-        target_arch = "x86",
-        target_arch = "x86_64",
-    ))]
-    {
-        // pub(crate) for benchmark
-        pub(crate) const LOCK_ACQUIRE_ORDER: Ordering = Ordering::SeqCst;
-        pub(crate) const LOCK_RELEASE_ORDER: Ordering = Ordering::SeqCst;
-    }
-    #[cfg(else)]
-    {
-        // pub(crate) for benchmark
-        pub(crate) const LOCK_ACQUIRE_ORDER: Ordering = Ordering::Acquire;
-        pub(crate) const LOCK_RELEASE_ORDER: Ordering = Ordering::Release;
-    }
-});
 
 macro_rules! atomic {
     ($atomic_type:ident, $int_type:ident, $align:literal) => {
@@ -573,36 +636,6 @@ macro_rules! atomic {
     };
 }
 
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        test,
-        not(any(
-            not(portable_atomic_no_atomic_64),
-            all(
-                target_arch = "riscv32",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
-            ),
-        ))
-    ))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        test,
-        not(any(
-            target_has_atomic = "64",
-            all(
-                target_arch = "riscv32",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
-            ),
-        ))
-    ))
-)]
 cfg_no_fast_atomic_64!({
     atomic!(AtomicI64, i64, 8);
     atomic!(AtomicU64, u64, 8);
