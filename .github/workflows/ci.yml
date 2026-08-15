@@ -481,7 +481,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # We don't test x86_64 here because there is no OS-specific code on x86_64.
+          - target: x86_64-unknown-freebsd
+            os: freebsd
+            version: '12.4'
+            toolchain: '12'
+            rust: nightly-2026-05-18 # https://github.com/rust-lang/rust/pull/156607
+          - target: x86_64-unknown-freebsd
+            os: freebsd
+            version: '13.5'
+            toolchain: '13'
+          - target: x86_64-unknown-freebsd
+            os: freebsd
+            version: '14.4'
+            toolchain: '14'
+          - target: x86_64-unknown-freebsd
+            os: freebsd
+            version: '15.1'
+            # toolchain: '15' # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
           - target: aarch64-unknown-freebsd
             os: freebsd
             version: '12.4'
@@ -499,18 +515,31 @@ jobs:
             os: freebsd
             version: '15.1'
             # toolchain: '15' # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
+          - target: x86_64-unknown-netbsd
+            os: netbsd
+            version: '9.4'
+          - target: x86_64-unknown-netbsd
+            os: netbsd
+            version: '10.1'
+          - target: x86_64-unknown-netbsd
+            os: netbsd
+            version: '11.0'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '10.1'
           - target: aarch64-unknown-netbsd
             os: netbsd
             version: '11.0'
+          - target: x86_64-unknown-openbsd
+            os: openbsd
+            version: '7.9'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.9'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.5' # no elf_aux_info
+          # We don't test x86_64 illumos here because there is no OS-specific code on x86_64.
           - target: aarch64-unknown-illumos
             os: omnios
     runs-on: ubuntu-24.04
@@ -528,13 +557,27 @@ jobs:
             done
             "$@"
           }
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
-            | tar xJf -
-          retry sudo apt-get -o Acquire::Retries=10 -qq update
-          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
-            libslirp0 \
-            sshpass
-        if: matrix.os == 'omnios'
+          case "${TARGET}" in
+            x86_64-unknown-freebsd* | x86_64-unknown-netbsd*)
+              if [[ -z "${TOOLCHAIN}" ]]; then
+                retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -o rustup-init https://sh.rustup.rs
+                chmod +x ./rustup-init
+                case "${TARGET}" in
+                  x86_64-unknown-netbsd9.*) retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -o mozilla-rootcerts-openssl.tgz https://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/x86_64/9.0_2026Q1/All/mozilla-rootcerts-openssl-2.21.tgz ;;
+                esac
+              fi
+              ;;
+            aarch64-unknown-illumos)
+              retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/illumos-gate/releases/download/braich-151055/missing-libs.tar.xz \
+                | tar xJf -
+              retry sudo apt-get -o Acquire::Retries=10 -qq update
+              retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+                libslirp0 \
+                sshpass
+              ;;
+          esac
+        env:
+          TARGET: ${{ matrix.target }}${{ matrix.version }}
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
           tool: rust@${{ matrix.rust ||'nightly' }}+rust-src
@@ -566,10 +609,10 @@ jobs:
         with:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES OS_VERSION TOOLCHAIN
           operating_system: ${{ matrix.os }}
-          architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
+          architecture: ${{ (matrix.os != 'omnios' && startsWith(matrix.target, 'aarch64')) && 'aarch64' || 'x86_64' }}
           version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
           shell: bash
-          cpu: ${{ matrix.os != 'omnios' && 'cortex-a76' || '' }}
+          cpu: ${{ (matrix.os != 'omnios' && startsWith(matrix.target, 'aarch64')) && 'cortex-a76' || '' }}
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
           run: |
             set -CeEuxo pipefail
@@ -583,20 +626,69 @@ jobs:
               done
               "$@"
             }
+            bail() {
+              printf >&2 'error: %s\n' "$*"
+              exit 1
+            }
+            arch="$(uname -m)"
+            case "${arch}" in
+              aarch64 | arm64 | evbarm) arch=aarch64 ;;
+              x86_64 | x86-64 | x64 | amd64 | i86pc) arch=x86_64 ;;
+              *) bail "unsupported host architecture '${arch}'" ;;
+            esac
             export CI=true
             export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
-            # AArch64 FreeBSD/NetBSD/OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
+            # AArch64 FreeBSD/NetBSD and all OpenBSD are tier 3 targets, so install Rust from package manager instead of rustup.
             case "$(uname -s)" in
               FreeBSD)
-                if [[ -n "${TOOLCHAIN}" ]]; then
-                  # VM is very slow, so only test OS-specific code and code using them.
-                  ./release aarch64
-                  ./release-static aarch64
-                  exit
-                fi
-                retry sudo pkg install -y rust
+                case "${arch}" in
+                  x86_64)
+                    if [[ -n "${TOOLCHAIN}" ]]; then
+                      # VM is very slow, so only test OS-specific code and code using them.
+                      ./release fallback
+                      ./release-static fallback
+                      exit
+                    fi
+                    # https://github.com/rust-lang/rust/pull/156607
+                    case "${OS_VERSION}" in
+                      12.*) toolchain=nightly-2026-05-18 ;;
+                      *) toolchain=nightly ;;
+                    esac
+                    retry ./rustup-init -y --profile minimal --default-toolchain "${toolchain}" --no-modify-path
+                    rm -- ./rustup-init
+                    export PATH="${HOME}/.cargo/bin:${PATH}"
+                    retry rustup target add i686-unknown-freebsd
+                    case "${OS_VERSION}" in
+                      1[23].*) retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -O "https://archive.freebsd.org/old-releases/amd64/${OS_VERSION}-RELEASE/lib32.txz" ;;
+                      *) retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -O "https://download.freebsd.org/releases/amd64/${OS_VERSION}-RELEASE/lib32.txz" ;;
+                    esac
+                    sudo tar xf lib32.txz -C /
+                    ;;
+                  *)
+                    if [[ -n "${TOOLCHAIN}" ]]; then
+                      # VM is very slow, so only test OS-specific code and code using them.
+                      ./release aarch64
+                      ./release-static aarch64
+                      exit
+                    fi
+                    retry sudo pkg install -y rust
+                    ;;
+                esac
                 ;;
-              NetBSD) retry sudo pkgin -y install rust ;;
+              NetBSD)
+                case "${arch}" in
+                  x86_64)
+                    case "${OS_VERSION}" in
+                      9.*) retry sudo pkg_add ./mozilla-rootcerts-openssl.tgz ;;
+                    esac
+                    toolchain=nightly
+                    retry ./rustup-init -y --profile minimal --default-toolchain "${toolchain}" --no-modify-path
+                    rm -- ./rustup-init
+                    export PATH="${HOME}/.cargo/bin:${PATH}"
+                    ;;
+                  *) retry sudo pkgin -y install rust ;;
+                esac
+                ;;
               OpenBSD) retry sudo pkg_add rust ;;
               SunOS)
                 if [[ "$(/usr/bin/uname -o)" == 'illumos' ]]; then
@@ -624,12 +716,23 @@ jobs:
             esac
             rustc -vV
             # VM is very slow, so only test OS-specific code and code using them.
-            cargo test --features std --tests -- aarch64
-            case "$(uname -s)" in
-              FreeBSD)
-                RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
-                  cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
+            case "${arch}" in
+              aarch64)
+                cargo test --features std --tests -- aarch64
+                case "$(uname -s)" in
+                  FreeBSD)
+                    RUSTFLAGS="${RUSTFLAGS} -C target-feature=+crt-static" \
+                      cargo test --features std --tests --target aarch64-unknown-freebsd -- aarch64
+                    ;;
+                esac
                 ;;
+              x86_64)
+                cargo test --features std --tests -- fallback
+                case "$(uname -s)" in
+                  FreeBSD) cargo test --features std --tests --target i686-unknown-freebsd -- fallback ;;
+                esac
+                ;;
+              *) bail "unsupported host architecture '${arch}'" ;;
             esac
       - run: |
           retry() {
@@ -767,6 +870,78 @@ jobs:
             # VM is very slow, so only test OS-specific code and code using them.
             cargo test --features std --tests -- aarch64
 
+  test-vm-dragonfly:
+    name: test (x86_64-unknown-dragonfly)
+    needs: tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: vmactions/dragonflybsd-vm@4ba8127bd95c94b66fc4b885e37c99955ba308ea # v1.3.0
+        with:
+          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          usesh: true
+          copyback: false
+          run: |
+            # DragonFly BSD sh's -E means -o emacs
+            # shellcheck disable=SC3040
+            set -Ceuxo pipefail
+            # shellcheck disable=SC3009
+            retry() {
+              for i in {1..10}; do
+                if "$@"; then
+                  return 0
+                else
+                  sleep "${i}"
+                fi
+              done
+              "$@"
+            }
+            # DragonFly BSD targets are tier 3 targets, so install Rust from package manager instead of rustup.
+            retry pkg install -y bash rust
+            rustc -vV
+            # VM is very slow, so only test OS-specific code and code using them.
+            cargo test --features std --tests -- fallback
+
+  test-vm-hurd:
+    name: test (x86_64-unknown-hurd-gnu)
+    needs: tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: vmactions/hurd-vm@12ce185b5e88948ae6f23f8675d356a35ff665f3 # v1.0.0
+        with:
+          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          release: '2025'
+          usesh: true
+          copyback: false
+          sync: rsync
+          run: |
+            # shellcheck disable=SC3040,SC3041
+            set -CeEuxo pipefail
+            # shellcheck disable=SC3009
+            retry() {
+              for i in {1..10}; do
+                if "$@"; then
+                  return 0
+                else
+                  sleep "${i}"
+                fi
+              done
+              "$@"
+            }
+            retry apt-get -o Acquire::Retries=10 -qq update
+            retry apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+              gcc \
+              cargo \
+              rustc
+            apt-get clean
+            rustc --version --verbose
+            cargo --version --verbose
+            # VM is very slow, so only test OS-specific code and code using them.
+            cargo test --features std --tests -- fallback
+
   test-vm-fuchsia:
     name: test (${{ matrix.target }})
     needs: tidy
@@ -774,7 +949,7 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          # We don't test x86_64 here because there is no OS-specific code on x86_64.
+          - x86_64-unknown-fuchsia
           - aarch64-unknown-fuchsia
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -822,6 +997,17 @@ jobs:
               )
               # VM is very slow, so only test OS-specific code and code using them.
               rest_cargo_options+=(aarch64)
+              ;;
+            x86_64*)
+              target_arch=x64
+              product_name=terminal."${target_arch}"
+              # https://github.blog/changelog/2024-04-02-github-actions-hardware-accelerated-android-virtualization-now-available/
+              sudo tee -- /etc/udev/rules.d/99-kvm4all.rules <<<'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'
+              sudo udevadm control --reload-rules
+              sudo udevadm trigger --name-match=kvm
+              emulator_options=(--accel auto)
+              # VM is very slow, so only test OS-specific code and code using them.
+              rest_cargo_options+=(fallback)
               ;;
             *) bail "unrecognized target '${TARGET}'" ;;
           esac
@@ -981,6 +1167,88 @@ jobs:
           fi
         env:
           TARGET: ${{ matrix.target }}
+
+  test-vm-hermit:
+    name: test (x86_64-unknown-hermit)
+    needs: tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@nightly
+          fallback: none
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          retry sudo apt-get -o Acquire::Retries=10 -qq update
+          retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends \
+            qemu-system-x86
+          # https://github.blog/changelog/2024-04-02-github-actions-hardware-accelerated-android-virtualization-now-available/
+          sudo tee -- /etc/udev/rules.d/99-kvm4all.rules <<<'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+          # https://github.com/hermit-os/kernel/releases
+          kernel_version=f51061476ecaa2066779c473a683d8b35b315d9b # 0.13.2
+          kernel_src="${RUNNER_TEMP}/hermit-kernel"
+          kernel_target="${RUNNER_TEMP}/hermit-target"
+          git init -q -- "${kernel_src}"
+          (
+            cd -- "${kernel_src}"
+            git remote add origin https://github.com/hermit-os/kernel.git
+            retry git fetch --depth 1 origin "${kernel_version}"
+            git checkout --detach FETCH_HEAD
+            cargo xtask build \
+              --arch x86_64 \
+              --profile dev \
+              --target-dir "${kernel_target}" \
+              --no-default-features
+          )
+
+          # https://github.com/hermit-os/loader/releases
+          loader_version=0.5.6
+          loader="${RUNNER_TEMP}/hermit-loader-x86_64"
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 -o "${loader}" "https://github.com/hermit-os/loader/releases/download/v${loader_version}/hermit-loader-x86_64"
+          sha256sum -c - <<<"185f7ec843a18484aa72182eca77ff3e070c041a8ea35f2b1b415308d673d549  ${loader}"
+
+          # https://github.com/hermit-os/hermit-rs/blob/2ab233479340800792cd108e4fb60e297fed53ec/hermit/build.rs#L110-L111
+          export RUSTFLAGS="${RUSTFLAGS} --cfg qemu -L native=${kernel_target}/x86_64/debug -lstatic=hermit"
+          export RUSTDOCFLAGS="${RUSTDOCFLAGS} --cfg qemu"
+          binary_path=$(./tools/test.sh build -Z build-std=std,panic_abort --target "${TARGET}")
+
+          # VM is very slow, so only test OS-specific code and code using them.
+          test_args='-- fallback'
+          # Refs: https://github.com/hermit-os/kernel/blob/5418d7fdac8bd704c083094947341d972874f223/xtask/src/ci/qemu.rs
+          qemu_status=0
+          timeout --foreground 6m qemu-system-x86_64 \
+            -display none \
+            -serial stdio \
+            -kernel "${loader}" \
+            -initrd "${binary_path}" \
+            -accel kvm \
+            -cpu host \
+            -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
+            -smp 2 \
+            -m 6G \
+            -global virtio-mmio.force-legacy=off \
+            -append "${test_args}" \
+            || qemu_status="$?"
+          # https://github.com/hermit-os/kernel/blob/5418d7fdac8bd704c083094947341d972874f223/xtask/src/ci/qemu.rs#L526
+          if [[ "${qemu_status}" != '0' ]] && [[ "${qemu_status}" != '3' ]]; then
+            exit "${qemu_status}"
+          fi
+        env:
+          TARGET: x86_64-unknown-hermit
 
   build:
     name: build (${{ matrix.name || matrix.rust }})
@@ -1231,6 +1499,7 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             flags: -C target-feature=+cmpxchg16b
           - target: x86_64-pc-windows-msvc
+          - target: x86_64-unknown-freebsd
           - target: aarch64-unknown-linux-gnu
           - target: aarch64-apple-darwin
           - target: i686-unknown-linux-gnu
