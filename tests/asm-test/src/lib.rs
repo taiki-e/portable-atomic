@@ -1704,6 +1704,36 @@ pub mod fetch_umin {
 
 // -----------------------------------------------------------------------------
 // feature = "core"
+#[cfg(feature = "core")]
+#[cfg(not(target_arch = "xtensa"))]
+macro_rules! atomic_load {
+    ($ptr:ident, $order:ident) => {
+        core::intrinsics::atomic_load::<_, { AtomicOrdering::$order }, /* VOLATILE */ false>($ptr)
+    };
+}
+#[cfg(feature = "core")]
+#[cfg(target_arch = "xtensa")] // xtensa toolchain is based on stable
+macro_rules! atomic_load {
+    ($ptr:ident, $order:ident) => {
+        core::intrinsics::atomic_load::<_, { AtomicOrdering::$order }>($ptr)
+    };
+}
+#[cfg(feature = "core")]
+#[cfg(not(target_arch = "xtensa"))]
+macro_rules! atomic_store {
+    ($ptr:ident, $val:ident, $order:ident) => {
+        core::intrinsics::atomic_store::<_, { AtomicOrdering::$order }, /* VOLATILE */ false>(
+            $ptr, $val,
+        )
+    };
+}
+#[cfg(feature = "core")]
+#[cfg(target_arch = "xtensa")] // xtensa toolchain is based on stable
+macro_rules! atomic_store {
+    ($ptr:ident, $val:ident, $order:ident) => {
+        core::intrinsics::atomic_store::<_, { AtomicOrdering::$order }>($ptr, $val)
+    };
+}
 
 #[cfg(feature = "core")]
 macro_rules! atomic_update {
@@ -1718,7 +1748,7 @@ macro_rules! atomic_update {
             {
                 // This is a private function and all instances of `f` only operate on the value
                 // loaded, so there is no need to synchronize the first load/failed CAS.
-                let mut old = core::intrinsics::atomic_load::<_, { AtomicOrdering::Relaxed }>(dst);
+                let mut old = atomic_load!(dst, Relaxed);
                 loop {
                     let next = f(old);
                     let (x, ok) = match order {
@@ -1810,15 +1840,15 @@ pub mod load {
                 type A = *mut T;
                 #[inline(never)]
                 pub unsafe fn relaxed(a: A) -> T {
-                    core::intrinsics::atomic_load::<_, { AtomicOrdering::Relaxed }>(a)
+                    atomic_load!(a, Relaxed)
                 }
                 #[inline(never)]
                 pub unsafe fn acquire(a: A) -> T {
-                    core::intrinsics::atomic_load::<_, { AtomicOrdering::Acquire }>(a)
+                    atomic_load!(a, Acquire)
                 }
                 #[inline(never)]
                 pub unsafe fn seqcst(a: A) -> T {
-                    core::intrinsics::atomic_load::<_, { AtomicOrdering::SeqCst }>(a)
+                    atomic_load!(a, SeqCst)
                 }
             }
         };
@@ -1850,15 +1880,15 @@ pub mod store {
                 type A = *mut T;
                 #[inline(never)]
                 pub unsafe fn relaxed(a: A, val: T) {
-                    core::intrinsics::atomic_store::<_, { AtomicOrdering::Relaxed }>(a, val)
+                    atomic_store!(a, val, Relaxed);
                 }
                 #[inline(never)]
                 pub unsafe fn release(a: A, val: T) {
-                    core::intrinsics::atomic_store::<_, { AtomicOrdering::Release }>(a, val)
+                    atomic_store!(a, val, Release);
                 }
                 #[inline(never)]
                 pub unsafe fn seqcst(a: A, val: T) {
-                    core::intrinsics::atomic_store::<_, { AtomicOrdering::SeqCst }>(a, val)
+                    atomic_store!(a, val, SeqCst);
                 }
             }
         };
