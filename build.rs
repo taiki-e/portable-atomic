@@ -6,12 +6,17 @@
 
 #[path = "src/gen/build.rs"]
 mod generated;
+#[path = "src/build/rustflags.rs"]
+mod rustflags;
 #[path = "src/build/version.rs"]
 mod version;
 
 use std::{env, str};
 
-use self::version::{Version, rustc_version};
+use self::{
+    rustflags::{Rustflags, strip_prefix, strip_suffix},
+    version::{Version, rustc_version},
+};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -30,6 +35,10 @@ fn main() {
     let target = &*env::var("TARGET").expect("TARGET not set");
     let target_arch = &*env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
     let target_os = &*env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
+    let rustflags = env::var_os("CARGO_ENCODED_RUSTFLAGS").unwrap_or_default();
+    let rustflags = rustflags.to_string_lossy();
+    let cargo_unstable_allow_features = env::var("CARGO_UNSTABLE_ALLOW_FEATURES").ok();
+    let rustflags = Rustflags::new(&rustflags, cargo_unstable_allow_features.as_ref());
 
     let version = match rustc_version() {
         Some(version) => version,
@@ -157,7 +166,7 @@ fn main() {
         if version.nightly
             && version.probe(46, 2020, 6, 20)
             && ((target_arch != "x86" && target_arch != "x86_64") || version.llvm >= 10)
-            && is_allowed_feature("asm")
+            && rustflags.is_allowed_feature("asm")
         {
             // This feature was added in Rust 1.45 (nightly-2020-05-20), but
             // concat! in asm! requires Rust 1.46 (nightly-2020-06-21).
@@ -181,7 +190,7 @@ fn main() {
                 if !version.probe(84, 2024, 11, 10) {
                     if version.nightly
                         && (target_arch != "s390x" || version.probe(71, 2023, 5, 8))
-                        && is_allowed_feature("asm_experimental_arch")
+                        && rustflags.is_allowed_feature("asm_experimental_arch")
                     {
                         // https://github.com/rust-lang/rust/pull/111331 merged in Rust 1.71 (nightly-2023-05-09).
                         // The part of this feature we use has not been changed since nightly-2023-05-09
@@ -197,7 +206,7 @@ fn main() {
                 if !version.probe(95, 2026, 1, 27) {
                     if version.nightly
                         && version.probe(60, 2022, 2, 12)
-                        && is_allowed_feature("asm_experimental_arch")
+                        && rustflags.is_allowed_feature("asm_experimental_arch")
                     {
                         // https://github.com/rust-lang/rust/pull/93868 merged in Rust 1.60 (nightly-2022-02-13).
                         // The part of this feature we use has not been changed since nightly-2022-02-13
@@ -221,7 +230,7 @@ fn main() {
     if !version.probe(60, 2022, 2, 10) {
         if version.nightly
             && version.probe(40, 2019, 10, 13)
-            && is_allowed_feature("cfg_target_has_atomic")
+            && rustflags.is_allowed_feature("cfg_target_has_atomic")
         {
             // The part of this feature we use has not been changed since nightly-2019-10-14
             // until it was stabilized, so it can safely be enabled in nightly for that period.
@@ -291,7 +300,7 @@ fn main() {
                 let cmpxchg16b = is_apple;
                 // LLVM recognizes this also as cx16 target feature: https://godbolt.org/z/KM3jz616j
                 // However, it is unlikely that rustc will support that name, so we ignore it.
-                target_feature_fallback("cmpxchg16b", cmpxchg16b);
+                target_feature_fallback("cmpxchg16b", cmpxchg16b, &rustflags);
             }
         }
         "aarch64" | "arm64ec" => {
@@ -306,22 +315,22 @@ fn main() {
                 // $ (for target in $(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "aarch64" or .value.arch == "arm64ec" then .key else empty end'); do rustc --print cfg --target "${target}" | grep -Fq '"lse2"' && printf '%s\n' "${target}"; done)
                 let is_macos = target_os == "macos";
                 let mut lse = is_macos;
-                target_feature_fallback("lse2", is_macos);
-                lse |= target_feature_fallback("lse128", false);
-                target_feature_fallback("rcpc3", false);
+                target_feature_fallback("lse2", is_macos, &rustflags);
+                lse |= target_feature_fallback("lse128", false, &rustflags);
+                target_feature_fallback("rcpc3", false, &rustflags);
                 // aarch64_target_feature stabilized in Rust 1.61.
                 if needs_target_feature_fallback(&version, Some(61)) {
-                    target_feature_fallback("lse", lse);
+                    target_feature_fallback("lse", lse, &rustflags);
                 }
             }
             // As of Rust 1.85, target_feature "lsfe" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.85.0/compiler/rustc_target/src/target_features.rs
-            target_feature_fallback("lsfe", false);
+            target_feature_fallback("lsfe", false, &rustflags);
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS-loop-based RMW is much slower than
             // LL/SC-loop-based RMW: https://github.com/taiki-e/portable-atomic/pull/89
             let is_apple = env::var("CARGO_CFG_TARGET_VENDOR").unwrap_or_default() == "apple";
-            if is_apple || target_cpu().map_or(false, |cpu| cpu.starts_with("apple-")) {
+            if is_apple || rustflags.target_cpu.map_or(false, |cpu| cpu.starts_with("apple-")) {
                 println!("cargo:rustc-cfg=portable_atomic_ll_sc_rmw");
             }
         }
@@ -392,9 +401,9 @@ fn main() {
                         }
                     }
                 }
-                v6 |= target_feature_fallback("v7", v7);
-                target_feature_fallback("v6", v6);
-                target_feature_fallback("mclass", mclass);
+                v6 |= target_feature_fallback("v7", v7, &rustflags);
+                target_feature_fallback("v6", v6, &rustflags);
+                target_feature_fallback("mclass", mclass, &rustflags);
             }
         }
         "riscv32" | "riscv64" => {
@@ -414,7 +423,7 @@ fn main() {
                 // amocas.{w,d,q} (and amocas.{b,h} if zabha is also available)
                 // available as experimental since LLVM 17 https://github.com/llvm/llvm-project/commit/29f630a1ddcbb03caa31b5002f0cbc105ff3a869
                 // available non-experimental since LLVM 20 https://github.com/llvm/llvm-project/commit/614aeda93b2225c6eb42b00ba189ba7ca2585c60
-                zaamo |= target_feature_fallback("zacas", false);
+                zaamo |= target_feature_fallback("zacas", false, &rustflags);
             }
             // target_feature "zaamo"/"zabha" is available as unstable on rustc side
             // since nightly-2024-10-02 (https://github.com/rust-lang/rust/pull/130877),
@@ -424,18 +433,18 @@ fn main() {
                 if version.llvm >= 19 {
                     // amo*.{b,h}
                     // available since LLVM 19 https://github.com/llvm/llvm-project/commit/89f87c387627150d342722b79c78cea2311cddf7 / https://github.com/llvm/llvm-project/commit/6b7444964a8d028989beee554a1f5c61d16a1cac
-                    zaamo |= target_feature_fallback("zabha", false);
+                    zaamo |= target_feature_fallback("zabha", false, &rustflags);
                 }
                 // amo*.{w,d}
-                target_feature_fallback("zaamo", zaamo);
+                target_feature_fallback("zaamo", zaamo, &rustflags);
             }
         }
         "powerpc64" => {
             // target_feature "quadword-atomics" is unstable and available on rustc side since nightly-2024-09-28: https://github.com/rust-lang/rust/pull/130873
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
                 let mut pwr8_features = false;
-                if let Some(cpu) = target_cpu() {
-                    if let Some(mut cpu_version) = strip_prefix(&cpu, "pwr") {
+                if let Some(cpu) = rustflags.target_cpu {
+                    if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
                             pwr8_features = cpu_version >= 8;
@@ -457,7 +466,7 @@ fn main() {
                 }
                 // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L484
                 // lqarx and stqcx.
-                target_feature_fallback("quadword-atomics", pwr8_features);
+                target_feature_fallback("quadword-atomics", pwr8_features, &rustflags);
             }
             if env::var("CARGO_CFG_TARGET_ABI")
                 .unwrap_or_default()
@@ -475,17 +484,17 @@ fn main() {
         "s390x" => {
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
-            if let Some(cpu) = target_cpu() {
+            if let Some(cpu) = rustflags.target_cpu {
                 // LLVM and GCC recognize the same names:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-15.2.0/gcc/config/s390/s390.opt#L58-L128
-                if let Some(arch_version) = strip_prefix(&cpu, "arch") {
+                if let Some(arch_version) = strip_prefix(cpu, "arch") {
                     if let Ok(arch_version) = arch_version.parse::<u32>() {
                         arch9_features = arch_version >= 9;
                         arch13_features = arch_version >= 13;
                     }
                 } else {
-                    match &*cpu {
+                    match cpu {
                         "z196" | "zEC12" | "z13" | "z14" => arch9_features = true,
                         "z15" | "z16" | "z17" => {
                             arch9_features = true;
@@ -501,25 +510,25 @@ fn main() {
             if !version.probe(89, 2025, 6, 4) || needs_target_feature_fallback(&version, Some(93)) {
                 // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
-                target_feature_fallback("miscellaneous-extensions-3", arch13_features);
+                target_feature_fallback("miscellaneous-extensions-3", arch13_features, &rustflags);
             }
             // As of Rust 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
             // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
             // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
             // bcr 14,0
-            target_feature_fallback("fast-serialization", arch9_features);
+            target_feature_fallback("fast-serialization", arch9_features, &rustflags);
             // {l,st}oc{,g}{,r}
-            target_feature_fallback("load-store-on-cond", arch9_features);
+            target_feature_fallback("load-store-on-cond", arch9_features, &rustflags);
             // {al,sl,n,o,x}{,g}rk
-            target_feature_fallback("distinct-ops", arch9_features);
+            target_feature_fallback("distinct-ops", arch9_features, &rustflags);
         }
         "avr" => {
             // target_feature "rmw" is unstable and available on rustc side since nightly-2026-02-08: https://github.com/rust-lang/rust/pull/146900
             if !version.probe(95, 2026, 2, 7) || needs_target_feature_fallback(&version, None) {
                 // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AVR/AVRDevices.td
                 let mut xmegau = false; // FamilyXMEGAU
-                if let Some(cpu) = target_cpu() {
-                    match &*cpu {
+                if let Some(cpu) = rustflags.target_cpu {
+                    match cpu {
                         "atxmega16a4u" | "atxmega16c4" | "atxmega32a4u" | "atxmega32c3"
                         | "atxmega32c4" | "atxmega32e5" | "atxmega16e5" | "atxmega8e5"
                         | "atxmega64a3u" | "atxmega64a4u" | "atxmega64b1" | "atxmega64b3"
@@ -530,7 +539,7 @@ fn main() {
                         _ => {}
                     }
                 }
-                target_feature_fallback("rmw", xmegau);
+                target_feature_fallback("rmw", xmegau, &rustflags);
             }
         }
         "xtensa" => {
@@ -543,9 +552,9 @@ fn main() {
             // target triples when no target-cpu is specified.
             // ESP32-S2 has no atomic CAS at all and is handled by the generic
             // no-CAS path, so it is intentionally absent here.
-            if let Some(cpu) = target_cpu() {
+            if let Some(cpu) = rustflags.target_cpu {
                 if cpu == "esp32" || cpu == "esp32s3" {
-                    target_cpu_fallback(&cpu);
+                    target_cpu_fallback(cpu);
                 }
             } else {
                 let esp_cpu = match target {
@@ -582,21 +591,18 @@ fn needs_target_feature_fallback(version: &Version, stable: Option<u32>) -> bool
         _ => true,
     }
 }
-fn target_feature_fallback(name: &str, mut has_target_feature: bool) -> bool {
-    if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
-        for mut flag in rustflags.to_string_lossy().split('\x1f') {
-            flag = strip_prefix(flag, "-C").unwrap_or(flag);
-            if let Some(flag) = strip_prefix(flag, "target-feature=") {
-                for s in flag.split(',') {
-                    // TODO: Handles cases where a specific target feature
-                    // implicitly enables another target feature.
-                    match (s.as_bytes().first(), s.as_bytes().get(1..)) {
-                        (Some(b'+'), Some(f)) if f == name.as_bytes() => has_target_feature = true,
-                        (Some(b'-'), Some(f)) if f == name.as_bytes() => has_target_feature = false,
-                        _ => {}
-                    }
-                }
-            }
+fn target_feature_fallback(
+    name: &str,
+    mut has_target_feature: bool,
+    rustflags: &Rustflags<'_>,
+) -> bool {
+    for &s in &rustflags.target_feature {
+        // TODO: Handles cases where a specific target feature
+        // implicitly enables another target feature.
+        match s.as_bytes().split_first() {
+            Some((b'+', f)) if f == name.as_bytes() => has_target_feature = true,
+            Some((b'-', f)) if f == name.as_bytes() => has_target_feature = false,
+            _ => {}
         }
     }
     if has_target_feature {
@@ -605,42 +611,9 @@ fn target_feature_fallback(name: &str, mut has_target_feature: bool) -> bool {
     has_target_feature
 }
 
-fn target_cpu() -> Option<String> {
-    let rustflags = env::var_os("CARGO_ENCODED_RUSTFLAGS")?;
-    let rustflags = rustflags.to_string_lossy();
-    let mut cpu = None;
-    for mut flag in rustflags.split('\x1f') {
-        flag = strip_prefix(flag, "-C").unwrap_or(flag);
-        if let Some(flag) = strip_prefix(flag, "target-cpu=") {
-            cpu = Some(flag);
-        }
-    }
-    cpu.map(str::to_owned)
-}
-
 // `target_cpu` is not a valid cfg option. Where there is absolutely no other option, inject a cfg fallback.
 fn target_cpu_fallback(cpu: &str) {
     println!("cargo:rustc-cfg=portable_atomic_target_cpu=\"{}\"", cpu);
-}
-
-fn is_allowed_feature(name: &str) -> bool {
-    // https://github.com/dtolnay/thiserror/pull/248
-    if env::var_os("RUSTC_STAGE").is_some() {
-        return false;
-    }
-
-    // allowed by default
-    let mut allowed = true;
-    if let Some(rustflags) = env::var_os("CARGO_ENCODED_RUSTFLAGS") {
-        for mut flag in rustflags.to_string_lossy().split('\x1f') {
-            flag = strip_prefix(flag, "-Z").unwrap_or(flag);
-            if let Some(flag) = strip_prefix(flag, "allow-features=") {
-                // If it is specified multiple times, the last value will be preferred.
-                allowed = flag.split(',').any(|allowed| allowed == name);
-            }
-        }
-    }
-    allowed
 }
 
 // Adapted from https://github.com/crossbeam-rs/crossbeam/blob/crossbeam-utils-0.8.21/build-common.rs.
@@ -657,15 +630,4 @@ fn convert_custom_linux_target(target: &str) -> String {
         parts[1] = "unknown";
     }
     parts.join("-")
-}
-
-// str::strip_prefix requires Rust 1.45
-#[must_use]
-fn strip_prefix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
-    if s.starts_with(pat) { Some(&s[pat.len()..]) } else { None }
-}
-// str::strip_suffix requires Rust 1.45
-#[must_use]
-fn strip_suffix<'a>(s: &'a str, pat: &str) -> Option<&'a str> {
-    if s.ends_with(pat) { Some(&s[..s.len() - pat.len()]) } else { None }
 }

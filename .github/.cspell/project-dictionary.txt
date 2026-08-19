@@ -6,6 +6,7 @@ alcgr
 algr
 amocas
 aqrl
+argfile
 armasm
 armreg
 atomicsabi
@@ -51,6 +52,7 @@ csel
 csrrci
 csrs
 cssc
+Ctarget
 CTLFLAG
 cxchg
 cxchgweak
@@ -236,6 +238,7 @@ zaamo
 zabha
 zacas
 zalasr
+Zallow
 zalrsc
 Zhaoxin
 ztso

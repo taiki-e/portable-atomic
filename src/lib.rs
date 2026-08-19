@@ -625,6 +625,7 @@ mod build {
         clippy::std_instead_of_alloc,
         clippy::std_instead_of_core
     )]
+    mod rustflags;
     mod tests;
     mod version;
 }

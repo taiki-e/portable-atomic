@@ -1,6 +1,190 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use super::version::{Date, Version};
+use std::{borrow::ToOwned as _, format, string::String};
+
+use super::{
+    rustflags::Rustflags,
+    version::{Date, Version},
+};
+
+// test rustflags parsing used in the build script.
+#[test]
+fn test_rustflags() {
+    type TF<'a> = [&'a str; 0];
+    fn encode(s: &[&str]) -> String {
+        s.join("\x1f")
+    }
+
+    // empty
+    let f = Rustflags::new("", None);
+    assert_eq!(f.target_feature, [] as TF<'_>);
+    assert_eq!(f.target_cpu, None);
+    assert_eq!(f.allow_features, None);
+
+    // -C target-feature, -C target-cpu
+    for flag in &[
+        &["-Ctarget-feature=+a,-b,invalid", "-Ctarget-cpu=u"][..],
+        &[
+            "--C=target-cpu=u",
+            "--Ctarget-cpu=v",
+            "--C=target-feature=+a,-b,invalid",
+            "-C",
+            "lto=false",
+            "-g",
+        ],
+        &[
+            "-C",
+            "target-feature=+a",
+            "-C",
+            "target-cpu=t",
+            "--C",
+            "target-feature=-b,invalid",
+            "--C",
+            "target-cpu=u",
+            "-C",
+        ],
+        &[
+            "-OCtarget-feature=+a,-b",
+            "--verbose",
+            "--C=target_feature=invalid",
+            "-vOgCtarget_cpu=u",
+            "-é=foo",
+        ],
+        &[
+            "--codegen=target-feature=+a,-b,invalid",
+            "--codegen=target-cpu=u",
+            "--codegen-=target-feature=+c",
+            "--codegen",
+        ],
+        &[
+            "--codegen",
+            "target-cpu=u",
+            "--codegen",
+            "target-feature=+a,-b,invalid",
+            "--target-feature=+c",
+        ],
+    ] {
+        let f = encode(flag);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, ["+a", "-b", "invalid"], "{:?}", flag);
+        assert_eq!(f.target_cpu, Some("u"), "{:?}", flag);
+        assert_eq!(f.allow_features, None, "{:?}", flag);
+        assert!(f.is_allowed_feature("a"));
+    }
+    for flag in &["L", "l", "o", "A", "W", "D", "F", "j"] {
+        let f = format!("-{}Ctarget-feature=+a", flag);
+        let f = encode(&[&f]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+        let flag = format!("-{}", flag);
+        let f = encode(&[&flag, "-Ctarget-feature=+a"]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+        let f = encode(&[&flag, "-C", "target-feature=+a"]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+    }
+    for flag in &[
+        "L",
+        "l",
+        "o",
+        "A",
+        "W",
+        "D",
+        "F",
+        "j",
+        "cfg",
+        "check-cfg",
+        "crate-name",
+        "edition",
+        "emit",
+        "print",
+        "out-dir",
+        "explain",
+        "target",
+        "allow",
+        "warn",
+        "force-warn",
+        "deny",
+        "forbid",
+        "cap-lints",
+        "extern",
+        "sysroot",
+        "error-format",
+        "json",
+        "color",
+        "diagnostic-width",
+        "remap-path-prefix",
+        "remap-path-scope",
+        "env-set",
+        "jobs",
+        "jobs-frontend",
+        "jobs-backend",
+        "jobs-linker",
+    ] {
+        let flag = format!("--{}", flag);
+        let f = encode(&[&flag, "-Ctarget-feature=+a"]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+        let f = encode(&[&flag, "-C", "target-feature=+a"]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+        let f = encode(&[&flag, "target-feature=+a"]);
+        let f = Rustflags::new(&f, None);
+        assert_eq!(f.target_feature, [] as TF<'_>, "{}", flag);
+        assert_eq!(f.target_cpu, None);
+        assert_eq!(f.allow_features, None);
+    }
+
+    // -Z allow-features, CARGO_UNSTABLE_ALLOW_FEATURES
+    for &(flag, ref c) in &[
+        (&["-Z", "allow-features="][..], None),
+        (&["-Z", "allow_features="], None),
+        (&["-Zallow-features=a", "-Zallow-features=", "-Z"], None),
+        (&["-Z", "allow_features=", "-Z", "allow-partial-mitigations=val"], Some("a".to_owned())),
+        (&[], Some(String::new())),
+    ] {
+        let f = encode(flag);
+        let f = Rustflags::new(&f, c.as_ref());
+        assert_eq!(f.target_feature, [] as TF<'_>, "{:?}", flag);
+        assert_eq!(f.target_cpu, None, "{:?}", flag);
+        assert_eq!(f.allow_features.unwrap().1, "", "{:?}", flag);
+        assert!(!f.is_allowed_feature("a"));
+    }
+    for &(flag, ref c) in &[
+        (&["-Z", "allow-features=a,b"][..], None),
+        (&["-Z", "allow_features=a,b"], None),
+        (&["-Zallow-features=a", "-Zallow-features=a,b"], None),
+        (&["--Z", "allow-features=a,b"], None),
+        (&["--Z=allow-features=a,b", "--Zallow-features=a"], None),
+        (&["-Z", "allow_features=a,b"], Some(String::new())),
+        (&[], Some("a b".to_owned())),
+        (&[], Some("a,b".to_owned())),
+    ] {
+        let f = encode(flag);
+        let f = Rustflags::new(&f, c.as_ref());
+        assert_eq!(f.target_feature, [] as TF<'_>, "{:?}", flag);
+        assert_eq!(f.target_cpu, None, "{:?}", flag);
+        assert!(
+            matches!(f.allow_features, Some((false, "a b") | (_, "a,b"))),
+            "{:?}",
+            f.allow_features
+        );
+        assert!(f.is_allowed_feature("a"));
+        assert!(f.is_allowed_feature("b"));
+        assert!(!f.is_allowed_feature("c"));
+    }
+}
 
 // test rustc version parsing code used in the build script.
 #[test]
