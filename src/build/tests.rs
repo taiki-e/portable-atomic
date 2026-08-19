@@ -10,7 +10,7 @@ use super::{
 // test rustflags parsing used in the build script.
 #[test]
 fn test_rustflags() {
-    type TF<'a> = [&'a str; 0];
+    type TF<'a> = [(bool, &'a [u8]); 0];
     fn encode(s: &[&str]) -> String {
         s.join("\x1f")
     }
@@ -66,7 +66,7 @@ fn test_rustflags() {
     ] {
         let f = encode(flag);
         let f = Rustflags::new(&f, None);
-        assert_eq!(f.target_feature, ["+a", "-b", "invalid"], "{:?}", flag);
+        assert_eq!(f.target_feature, [(true, &b"a"[..]), (false, b"b")], "{:?}", flag);
         assert_eq!(f.target_cpu, Some("u"), "{:?}", flag);
         assert_eq!(f.allow_features, None, "{:?}", flag);
         assert!(f.is_allowed_feature("a"));

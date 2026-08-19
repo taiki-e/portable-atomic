@@ -8,7 +8,7 @@ use std::{env, string::String, vec, vec::Vec};
 // and -Z allow-features passed via CLI (https://github.com/rust-lang/cargo/issues/17065).
 pub(crate) struct Rustflags<'a> {
     // -C target-feature=...
-    pub(crate) target_feature: Vec<&'a str>,
+    pub(crate) target_feature: Vec<(bool, &'a [u8])>,
     // -C target-cpu=...
     pub(crate) target_cpu: Option<&'a str>,
     // -Z allow-features=... / CARGO_UNSTABLE_ALLOW_FEATURES
@@ -124,7 +124,11 @@ impl<'a> Rustflags<'a> {
             }
             if let Some(flag) = strip_flag(flag, "target-feature=", "target_feature=") {
                 for s in flag.split(',') {
-                    target_feature.push(s);
+                    match s.as_bytes().split_first() {
+                        Some((b'+', f)) => target_feature.push((true, f)),
+                        Some((b'-', f)) => target_feature.push((false, f)),
+                        _ => {}
+                    }
                 }
             } else if let Some(flag) = strip_flag(flag, "target-cpu=", "target_cpu=") {
                 // If it is specified multiple times, the last value will be preferred.
