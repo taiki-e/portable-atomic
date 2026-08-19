@@ -592,30 +592,24 @@ fn main() {
         "powerpc64" => {
             // target_feature "quadword-atomics" is unstable and available on rustc side since nightly-2024-09-28: https://github.com/rust-lang/rust/pull/130873
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
-                let mut pwr8_features = false;
+                // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L498
+                let mut quadword_atomics = false;
                 if let Some(cpu) = rustflags.target_cpu {
                     if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
-                            pwr8_features = cpu_version >= 8;
+                            quadword_atomics = cpu_version >= 8;
                         }
-                    } else {
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L789
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L557
-                        // On the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
-                        // on this target (see CI config for more), "future" is based on pwr10 features.
-                        // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
-                        pwr8_features = cpu == "future" || cpu == "ppc64le";
+                    } else if generated::POWERPC_QUADWORD_ATOMICS_CPU.contains(&cpu) {
+                        quadword_atomics = true;
                     }
                 } else {
-                    // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L789
+                    // powerpc64le is pwr8 by default https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L804
                     // See also https://github.com/rust-lang/rust/issues/59932
-                    pwr8_features = env::var("CARGO_CFG_TARGET_ENDIAN")
+                    quadword_atomics = env::var("CARGO_CFG_TARGET_ENDIAN")
                         .expect("CARGO_CFG_TARGET_ENDIAN not set")
                         == "little";
                 }
-                // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L498
-                let mut quadword_atomics = pwr8_features;
                 for &(enabled, name) in &rustflags.target_feature {
                     // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L595
                     match name {
@@ -697,21 +691,13 @@ fn main() {
         "avr" => {
             // target_feature "rmw" is unstable and available on rustc side since nightly-2026-02-08: https://github.com/rust-lang/rust/pull/146900
             if !version.probe(95, 2026, 2, 7) || needs_target_feature_fallback(&version, None) {
-                // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AVR/AVRDevices.td
-                let mut xmegau = false; // FamilyXMEGAU
+                let mut rmw = false; // FamilyXMEGAU
                 if let Some(cpu) = rustflags.target_cpu {
-                    match cpu {
-                        "atxmega16a4u" | "atxmega16c4" | "atxmega32a4u" | "atxmega32c3"
-                        | "atxmega32c4" | "atxmega32e5" | "atxmega16e5" | "atxmega8e5"
-                        | "atxmega64a3u" | "atxmega64a4u" | "atxmega64b1" | "atxmega64b3"
-                        | "atxmega64c3" | "atxmega64a1u" | "atxmega128a3u" | "atxmega128b1"
-                        | "atxmega128b3" | "atxmega128c3" | "atxmega192a3u" | "atxmega192c3"
-                        | "atxmega256a3u" | "atxmega256a3bu" | "atxmega256c3" | "atxmega384c3"
-                        | "atxmega128a1u" | "atxmega128a4u" => xmegau = true,
-                        _ => {}
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/AVR/AVRDevices.td#L256
+                    if generated::AVR_RMW_CPU.contains(&cpu) {
+                        rmw = true;
                     }
                 }
-                let mut rmw = xmegau;
                 for &(enabled, name) in &rustflags.target_feature {
                     // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L981
                     match name {

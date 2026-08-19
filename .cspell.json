@@ -49,6 +49,7 @@
     }
   ],
   "ignorePaths": [
+    "src/gen/build.rs",
     "target-specs/**",
     "tools/valgrind/**",
     "tests/asm-test/asm/**",
