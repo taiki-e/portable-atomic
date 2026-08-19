@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use std::{env, iter, process::Command, str};
+// rustc version parsing used in the build script.
+
+use std::{env, ffi::OsString, iter, process::Command, str};
 
 pub(crate) fn rustc_version() -> Option<Version> {
     let rustc = env::var_os("RUSTC")?;
     let rustc_wrapper = if env::var_os("CARGO_ENCODED_RUSTFLAGS").is_some() {
         env::var_os("RUSTC_WRAPPER").filter(|v| !v.is_empty())
     } else {
-        // Cargo sets environment variables for wrappers correctly only since https://github.com/rust-lang/cargo/pull/9601.
+        // Cargo sets environment variables for wrappers correctly only since Cargo 1.55 (https://github.com/rust-lang/cargo/pull/9601).
         None
     };
     // Do not apply RUSTC_WORKSPACE_WRAPPER: https://github.com/cuviper/autocfg/issues/58#issuecomment-2067625980
@@ -19,14 +21,14 @@ pub(crate) fn rustc_version() -> Option<Version> {
     // -vV is also matched with that cargo internally uses: https://github.com/rust-lang/cargo/blob/0.80.0/src/cargo/util/rustc.rs#L65
     let output = cmd.arg("-vV").output().ok()?;
     let verbose_version = str::from_utf8(&output.stdout).ok()?;
-    Version::parse(verbose_version)
+    Version::parse(verbose_version, env::var_os("RUSTC_BOOTSTRAP").as_ref())
 }
 
 #[cfg_attr(test, derive(Debug, PartialEq))]
 pub(crate) struct Version {
     pub(crate) minor: u32,
     pub(crate) nightly: bool,
-    commit_date: Date,
+    pub(crate) commit_date: Option<Date>,
     pub(crate) llvm: u32,
 }
 
@@ -39,24 +41,21 @@ impl Version {
     pub(crate) const LATEST: Self = Self::stable(97, 21);
 
     pub(crate) const fn stable(rustc_minor: u32, llvm_major: u32) -> Self {
-        Self { minor: rustc_minor, nightly: false, commit_date: Date::UNKNOWN, llvm: llvm_major }
+        Self { minor: rustc_minor, nightly: false, commit_date: None, llvm: llvm_major }
     }
 
     pub(crate) fn probe(&self, minor: u32, year: u16, month: u8, day: u8) -> bool {
-        if self.nightly {
-            self.minor > minor
-                || self.minor == minor && self.commit_date >= Date::new(year, month, day)
+        if self.minor != minor {
+            return self.minor > minor;
+        }
+        if let Some(commit_date) = &self.commit_date {
+            *commit_date >= Date::new(year, month, day)
         } else {
-            self.minor >= minor
+            true
         }
     }
 
-    #[cfg(test)]
-    pub(crate) fn commit_date(&self) -> &Date {
-        &self.commit_date
-    }
-
-    pub(crate) fn parse(verbose_version: &str) -> Option<Self> {
+    pub(crate) fn parse(verbose_version: &str, rustc_bootstrap: Option<&OsString>) -> Option<Self> {
         let mut release = verbose_version
             .lines()
             .find(|line| line.starts_with("release: "))
@@ -71,11 +70,16 @@ impl Version {
         }
         let minor = digits.next()?.parse::<u32>().ok()?;
         let _patch = digits.next().unwrap_or("0").parse::<u32>().ok()?;
-        let nightly = match env::var_os("RUSTC_BOOTSTRAP") {
+        let nightly = channel == "nightly" || channel == "dev";
+        // We don't refer commit date on stable/beta, but refer it even if RUSTC_BOOTSTRAP=-1 is set.
+        let refer_commit_date = nightly;
+        let nightly = match rustc_bootstrap {
             // When -1 is passed rustc works like stable, e.g., cfg(target_feature = "unstable_target_feature") will never be set. https://github.com/rust-lang/rust/pull/132993
-            Some(ref v) if v == "-1" => false,
-            // When 1 is passed stable rustc works like nightly, but we ignore it for now.
-            _ => channel == "nightly" || channel == "dev",
+            Some(v) if v == "-1" => false,
+            // When 1 or this crate name is passed stable rustc works like nightly, but we ignore it
+            // since there is no guarantee that this will continue to work in the future.
+            // https://doc.rust-lang.org/nightly/unstable-book/compiler-environment-variables/RUSTC_BOOTSTRAP.html
+            _ => nightly,
         };
 
         // Note that rustc 1.49-1.50 (and 1.13 or older) don't print LLVM version.
@@ -92,8 +96,7 @@ impl Version {
         })()
         .unwrap_or(0);
 
-        // we don't refer commit date on stable/beta.
-        if nightly {
+        if refer_commit_date {
             let commit_date = (|| {
                 let mut commit_date = verbose_version
                     .lines()
@@ -111,7 +114,7 @@ impl Version {
             Some(Self {
                 minor,
                 nightly,
-                commit_date: commit_date.unwrap_or(Date::UNKNOWN),
+                commit_date: Some(commit_date.unwrap_or(Date::UNKNOWN)),
                 llvm: llvm_major,
             })
         } else {
@@ -129,9 +132,9 @@ pub(crate) struct Date {
 }
 
 impl Date {
-    const UNKNOWN: Self = Self::new(0, 0, 0);
+    pub(crate) const UNKNOWN: Self = Self::new(0, 0, 0);
 
-    const fn new(year: u16, month: u8, day: u8) -> Self {
+    pub(crate) const fn new(year: u16, month: u8, day: u8) -> Self {
         Self { year, month, day }
     }
 }

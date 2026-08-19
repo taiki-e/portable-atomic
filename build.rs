@@ -6,7 +6,7 @@
 
 #[path = "src/gen/build.rs"]
 mod generated;
-#[path = "version.rs"]
+#[path = "src/build/version.rs"]
 mod version;
 
 use std::{env, str};
@@ -15,8 +15,6 @@ use self::version::{Version, rustc_version};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=src/gen/build.rs");
-    println!("cargo:rerun-if-changed=version.rs");
 
     #[cfg(feature = "unsafe-assume-single-core")]
     println!("cargo:rustc-cfg=portable_atomic_unsafe_assume_single_core");
