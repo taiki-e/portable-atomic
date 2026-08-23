@@ -1063,13 +1063,11 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::seqcst_seqcst:
@@ -1081,13 +1079,11 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::acqrel_acquire:
@@ -1099,13 +1095,11 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::acqrel_relaxed:
@@ -1117,13 +1111,11 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::acquire_seqcst:
@@ -1135,13 +1127,11 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::relaxed_seqcst:
@@ -1153,13 +1143,11 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::release_seqcst:
@@ -1171,13 +1159,11 @@ asm_test::compare_exchange::u16::release_seqcst:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::seqcst_acquire:
@@ -1189,13 +1175,11 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::seqcst_relaxed:
@@ -1207,13 +1191,11 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::acquire_acquire:
@@ -1225,13 +1207,11 @@ asm_test::compare_exchange::u16::acquire_acquire:
         stxrh             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::acquire_relaxed:
@@ -1243,13 +1223,11 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         stxrh             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::relaxed_acquire:
@@ -1261,13 +1239,11 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         stxrh             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::relaxed_relaxed:
@@ -1279,13 +1255,11 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         stxrh             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::release_acquire:
@@ -1297,13 +1271,11 @@ asm_test::compare_exchange::u16::release_acquire:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u16::release_relaxed:
@@ -1315,13 +1287,11 @@ asm_test::compare_exchange::u16::release_relaxed:
         stlxrh            w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w9, #0xff               // =255
-        bic               w0, w9, w8
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w9, #0xff               // =255
-        bic               w0, w9, wzr
         ret
 
 asm_test::compare_exchange::u32::acqrel_seqcst:
@@ -1333,10 +1303,10 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1349,10 +1319,10 @@ asm_test::compare_exchange::u32::seqcst_seqcst:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1365,10 +1335,10 @@ asm_test::compare_exchange::u32::acqrel_acquire:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1381,10 +1351,10 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1397,10 +1367,10 @@ asm_test::compare_exchange::u32::acquire_seqcst:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1413,10 +1383,10 @@ asm_test::compare_exchange::u32::relaxed_seqcst:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1429,10 +1399,10 @@ asm_test::compare_exchange::u32::release_seqcst:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1445,10 +1415,10 @@ asm_test::compare_exchange::u32::seqcst_acquire:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1461,10 +1431,10 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1477,10 +1447,10 @@ asm_test::compare_exchange::u32::acquire_acquire:
         stxr              w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1493,10 +1463,10 @@ asm_test::compare_exchange::u32::acquire_relaxed:
         stxr              w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1509,10 +1479,10 @@ asm_test::compare_exchange::u32::relaxed_acquire:
         stxr              w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1525,10 +1495,10 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
         stxr              w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1541,10 +1511,10 @@ asm_test::compare_exchange::u32::release_acquire:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1557,10 +1527,10 @@ asm_test::compare_exchange::u32::release_relaxed:
         stlxr             w9, w2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        eor               w0, w8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         clrex
         ret
 
@@ -1573,13 +1543,11 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::seqcst_seqcst:
@@ -1591,13 +1559,11 @@ asm_test::compare_exchange::u64::seqcst_seqcst:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::acqrel_acquire:
@@ -1609,13 +1575,11 @@ asm_test::compare_exchange::u64::acqrel_acquire:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::acqrel_relaxed:
@@ -1627,13 +1591,11 @@ asm_test::compare_exchange::u64::acqrel_relaxed:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::acquire_seqcst:
@@ -1645,13 +1607,11 @@ asm_test::compare_exchange::u64::acquire_seqcst:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::relaxed_seqcst:
@@ -1663,13 +1623,11 @@ asm_test::compare_exchange::u64::relaxed_seqcst:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::release_seqcst:
@@ -1681,13 +1639,11 @@ asm_test::compare_exchange::u64::release_seqcst:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::seqcst_acquire:
@@ -1699,13 +1655,11 @@ asm_test::compare_exchange::u64::seqcst_acquire:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::seqcst_relaxed:
@@ -1717,13 +1671,11 @@ asm_test::compare_exchange::u64::seqcst_relaxed:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::acquire_acquire:
@@ -1735,13 +1687,11 @@ asm_test::compare_exchange::u64::acquire_acquire:
         stxr              w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::acquire_relaxed:
@@ -1753,13 +1703,11 @@ asm_test::compare_exchange::u64::acquire_relaxed:
         stxr              w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::relaxed_acquire:
@@ -1771,13 +1719,11 @@ asm_test::compare_exchange::u64::relaxed_acquire:
         stxr              w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::relaxed_relaxed:
@@ -1789,13 +1735,11 @@ asm_test::compare_exchange::u64::relaxed_relaxed:
         stxr              w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::release_acquire:
@@ -1807,13 +1751,11 @@ asm_test::compare_exchange::u64::release_acquire:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u64::release_relaxed:
@@ -1825,13 +1767,11 @@ asm_test::compare_exchange::u64::release_relaxed:
         stlxr             w9, x2, [x0]
         cbnz              w9, 0b
         mov               w8, #0x1                // =1
-        mov               w8, w8
-        eor               x0, x8, #0xff
+        eor               w0, w8, #0x1
         ret
 1:
+        eor               w0, wzr, #0x1
         clrex
-        mov               w8, wzr
-        eor               x0, x8, #0xff
         ret
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
@@ -1852,9 +1792,7 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1876,9 +1814,7 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1900,9 +1836,7 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1924,9 +1858,7 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1948,9 +1880,7 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1972,9 +1902,7 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -1996,9 +1924,7 @@ asm_test::compare_exchange::u128::release_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2020,9 +1946,7 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2044,9 +1968,7 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2068,9 +1990,7 @@ asm_test::compare_exchange::u128::acquire_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2092,9 +2012,7 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2116,9 +2034,7 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2140,9 +2056,7 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2164,9 +2078,7 @@ asm_test::compare_exchange::u128::release_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2188,9 +2100,7 @@ asm_test::compare_exchange::u128::release_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -2441,15 +2351,13 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::seqcst_seqcst:
@@ -2459,15 +2367,13 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_acquire:
@@ -2477,15 +2383,13 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_relaxed:
@@ -2495,15 +2399,13 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::acquire_seqcst:
@@ -2513,15 +2415,13 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::relaxed_seqcst:
@@ -2531,15 +2431,13 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::release_seqcst:
@@ -2549,15 +2447,13 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::seqcst_acquire:
@@ -2567,15 +2463,13 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::seqcst_relaxed:
@@ -2585,15 +2479,13 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::acquire_acquire:
@@ -2603,15 +2495,13 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         stxrh             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::acquire_relaxed:
@@ -2621,15 +2511,13 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         stxrh             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::relaxed_acquire:
@@ -2639,15 +2527,13 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         stxrh             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::relaxed_relaxed:
@@ -2657,15 +2543,13 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         stxrh             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::release_acquire:
@@ -2675,15 +2559,13 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u16::release_relaxed:
@@ -2693,15 +2575,13 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         stlxrh            w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w10, #0xff              // =255
+        eor               w0, w9, #0x1
         mov               w1, w8
-        bic               w0, w10, w9
         ret
 0:
         clrex
-        mov               w10, #0xff              // =255
+        eor               w0, wzr, #0x1
         mov               w1, w8
-        bic               w0, w10, wzr
         ret
 
 asm_test::compare_exchange_weak::u32::acqrel_seqcst:
@@ -2711,12 +2591,12 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2727,12 +2607,12 @@ asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2743,12 +2623,12 @@ asm_test::compare_exchange_weak::u32::acqrel_acquire:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2759,12 +2639,12 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2775,12 +2655,12 @@ asm_test::compare_exchange_weak::u32::acquire_seqcst:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2791,12 +2671,12 @@ asm_test::compare_exchange_weak::u32::relaxed_seqcst:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2807,12 +2687,12 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2823,12 +2703,12 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2839,12 +2719,12 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2855,12 +2735,12 @@ asm_test::compare_exchange_weak::u32::acquire_acquire:
         stxr              w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2871,12 +2751,12 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
         stxr              w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2887,12 +2767,12 @@ asm_test::compare_exchange_weak::u32::relaxed_acquire:
         stxr              w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2903,12 +2783,12 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         stxr              w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2919,12 +2799,12 @@ asm_test::compare_exchange_weak::u32::release_acquire:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2935,12 +2815,12 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         stlxr             w9, w2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        eor               w0, w9, #0xff
+        eor               w0, w9, #0x1
         mov               w1, w8
         ret
 0:
         clrex
-        eor               w0, wzr, #0xff
+        eor               w0, wzr, #0x1
         mov               w1, w8
         ret
 
@@ -2951,15 +2831,13 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::seqcst_seqcst:
@@ -2969,15 +2847,13 @@ asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::acqrel_acquire:
@@ -2987,15 +2863,13 @@ asm_test::compare_exchange_weak::u64::acqrel_acquire:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::acqrel_relaxed:
@@ -3005,15 +2879,13 @@ asm_test::compare_exchange_weak::u64::acqrel_relaxed:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::acquire_seqcst:
@@ -3023,15 +2895,13 @@ asm_test::compare_exchange_weak::u64::acquire_seqcst:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::relaxed_seqcst:
@@ -3041,15 +2911,13 @@ asm_test::compare_exchange_weak::u64::relaxed_seqcst:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::release_seqcst:
@@ -3059,15 +2927,13 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::seqcst_acquire:
@@ -3077,15 +2943,13 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::seqcst_relaxed:
@@ -3095,15 +2959,13 @@ asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::acquire_acquire:
@@ -3113,15 +2975,13 @@ asm_test::compare_exchange_weak::u64::acquire_acquire:
         stxr              w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::acquire_relaxed:
@@ -3131,15 +2991,13 @@ asm_test::compare_exchange_weak::u64::acquire_relaxed:
         stxr              w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::relaxed_acquire:
@@ -3149,15 +3007,13 @@ asm_test::compare_exchange_weak::u64::relaxed_acquire:
         stxr              w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::relaxed_relaxed:
@@ -3167,15 +3023,13 @@ asm_test::compare_exchange_weak::u64::relaxed_relaxed:
         stxr              w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::release_acquire:
@@ -3185,15 +3039,13 @@ asm_test::compare_exchange_weak::u64::release_acquire:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u64::release_relaxed:
@@ -3203,15 +3055,13 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         stlxr             w9, x2, [x0]
         cmp               w9, #0x0
         cset              w9, eq
-        mov               w9, w9
+        eor               w0, w9, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 0:
         clrex
-        mov               w9, wzr
+        eor               w0, wzr, #0x1
         mov               x1, x8
-        eor               x0, x9, #0xff
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
@@ -3232,9 +3082,7 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3256,9 +3104,7 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3280,9 +3126,7 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3304,9 +3148,7 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3328,9 +3170,7 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3352,9 +3192,7 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3376,9 +3214,7 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3400,9 +3236,7 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3424,9 +3258,7 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3448,9 +3280,7 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3472,9 +3302,7 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3496,9 +3324,7 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3520,9 +3346,7 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3544,9 +3368,7 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
@@ -3568,9 +3390,7 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         cmp               x9, x2
         stp               x9, x10, [x8, #0x10]
         ccmp              x10, x3, #0x0, eq
-        cset              w11, eq
-        mvn               w10, w11
-        and               x9, x10, #0xff
+        cset              w9, ne
         stp               x9, xzr, [x8]
         ret
 
