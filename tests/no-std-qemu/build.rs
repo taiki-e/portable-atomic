@@ -22,7 +22,7 @@ fn main() {
         }
     }
     if target_arch.starts_with("riscv") {
-        // cfg(target_feature = "f") and cfg(target_feature = "d") requires Rust 1.98 https://github.com/rust-lang/rust/pull/156188
+        // cfg(target_feature = "f") and cfg(target_feature = "d") are nightly-only https://github.com/rust-lang/rust/pull/161385
         let mut subarch = target.strip_prefix(target_arch).unwrap();
         subarch = subarch.split('-').next().unwrap();
         if subarch.contains('f') || subarch.contains('d') || subarch.contains('g') {

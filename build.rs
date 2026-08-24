@@ -329,7 +329,7 @@ fn main() {
             // target_feature "lse2"/"lse128"/"rcpc3" is unstable and available on rustc side since nightly-2024-08-30: https://github.com/rust-lang/rust/pull/128192
             let no_unstable =
                 !version.probe(82, 2024, 8, 29) || needs_target_feature_fallback(&version, None);
-            // TODO: Handles cases where a specific target cpu
+            // TODO: Handles cases where a specific target cpu / ver target feature
             // implicitly enables target feature.
             for &(enabled, name) in &rustflags.target_feature {
                 // As of 1.99.0-nightly (nightly-2026-08-15):
