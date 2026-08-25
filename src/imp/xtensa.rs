@@ -161,6 +161,10 @@ impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(miri, track_caller)]
     pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
+        // Workaround for https://github.com/llvm/llvm-project/issues/60418
+        // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+        #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+        let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
         rmw!(self, self.inner.swap(ptr, order), |p| {
             let prev = core::ptr::read(p);
             core::ptr::write(p, ptr);
@@ -412,6 +416,10 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                 rmw!(self, self.inner.swap(val, order), |p| {
                     let prev = core::ptr::read(p);
                     core::ptr::write(p, val);
@@ -501,6 +509,10 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
+                // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                 rmw!(self, self.inner.fetch_and(val, order), |p| {
                     let prev = core::ptr::read(p);
                     core::ptr::write(p, prev & val);
@@ -519,6 +531,10 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
+                // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                 rmw!(self, self.inner.fetch_or(val, order), |p| {
                     let prev = core::ptr::read(p);
                     core::ptr::write(p, prev | val);
@@ -544,6 +560,10 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_max(&self, val: $int_type, order: Ordering) -> $int_type {
+                // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                 rmw!(self, self.inner.fetch_max(val, order), |p| {
                     let prev = core::ptr::read(p);
                     core::ptr::write(p, core::cmp::max(prev, val));
@@ -553,6 +573,10 @@ macro_rules! atomic_int {
             #[inline]
             #[cfg_attr(miri, track_caller)]
             pub(crate) fn fetch_min(&self, val: $int_type, order: Ordering) -> $int_type {
+                // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                 rmw!(self, self.inner.fetch_min(val, order), |p| {
                     let prev = core::ptr::read(p);
                     core::ptr::write(p, core::cmp::min(prev, val));

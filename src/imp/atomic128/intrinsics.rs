@@ -251,6 +251,10 @@ atomic_rmw_by_atomic_update!(cmp);
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_swap(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
@@ -302,6 +306,10 @@ unsafe fn atomic_sub(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
@@ -336,6 +344,10 @@ unsafe fn atomic_nand(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
@@ -374,6 +386,10 @@ unsafe fn atomic_xor(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -396,6 +412,10 @@ unsafe fn atomic_max(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
@@ -418,6 +438,10 @@ unsafe fn atomic_min(dst: *mut u128, val: u128, order: Ordering) -> i128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {
@@ -439,6 +463,10 @@ unsafe fn atomic_umax(dst: *mut u128, val: u128, order: Ordering) -> u128 {
 #[inline]
 #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
 unsafe fn atomic_umin(dst: *mut u128, val: u128, order: Ordering) -> u128 {
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         match order {

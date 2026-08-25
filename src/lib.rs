@@ -14,7 +14,7 @@ Portable atomic types including support for 128-bit atomics, atomic float, etc.
 - Provide atomic load/store for targets where atomic is not available at all in the standard library. (RISC-V without A-extension, MSP430, AVR)
 - Provide atomic CAS for targets where atomic CAS is not available in the standard library. (thumbv6m, pre-v6 Arm, RISC-V without A-extension, MSP430, AVR, Xtensa, etc.) (always enabled for MSP430 and AVR, [optional](#optional-features-critical-section) otherwise)
 - Make features that require newer compilers, such as [`fetch_{max,min}`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max), [`fetch_update`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_update), [`as_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.as_ptr), [`from_ptr`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.from_ptr), [`AtomicBool::fetch_not`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.fetch_not), [`AtomicPtr::fetch_*`](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.fetch_and), and [stronger CAS failure ordering](https://github.com/rust-lang/rust/pull/98383) available on Rust 1.34+.
-- Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/compiler-builtins#1234], [rust-lang/rust#100650], `fence`/`compiler_fence` on MSP430 that cause LLVM error, etc.
+- Provide workaround for bugs in the standard library's atomic-related APIs, such as [rust-lang/compiler-builtins#1234](https://github.com/rust-lang/compiler-builtins/pull/1234), [rust-lang/rust#100650](https://github.com/rust-lang/rust/issues/100650), `fence`/`compiler_fence` on MSP430 that cause LLVM error, [llvm/llvm-project#60418](https://github.com/llvm/llvm-project/issues/60418) (pre-17 LLVM), etc.
 
 <!-- TODO:
 - mention Atomic{I,U}*::fetch_neg, Atomic{I*,U*,Ptr}::bit_*, etc.
@@ -266,8 +266,6 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 [atomic-memcpy]: https://github.com/taiki-e/atomic-memcpy
 [critical-section]: https://github.com/rust-embedded/critical-section
 [portable-atomic-util]: https://github.com/taiki-e/portable-atomic-util
-[rust-lang/compiler-builtins#1234]: https://github.com/rust-lang/compiler-builtins/pull/1234
-[rust-lang/rust#100650]: https://github.com/rust-lang/rust/issues/100650
 [serde]: https://github.com/serde-rs/serde
 
 <!-- tidy:sync-markdown-to-rustdoc:end -->

@@ -443,6 +443,24 @@ pub(crate) fn upgrade_success_ordering(success: Ordering, failure: Ordering) -> 
     }
 }
 
+// Workaround for https://github.com/llvm/llvm-project/issues/60418
+// This affects:
+// - swap
+// - fetch_and(0)
+// - fetch_or(!0)
+// - fetch_min(MIN)
+// - fetch_max(MAX)
+#[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn upgrade_rmw_ordering_for_pre_17_llvm(order: Ordering) -> Ordering {
+    match order {
+        Ordering::Relaxed => Ordering::Acquire,
+        Ordering::Release => Ordering::AcqRel,
+        _ => order,
+    }
+}
+
 // core::panic::RefUnwindSafe is only available on Rust 1.56+, so on pre-1.56
 // Rust, we implement RefUnwindSafe when "std" feature is enabled.
 // However, on pre-1.56 Rust, the standard library's atomic types implement

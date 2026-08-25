@@ -63,7 +63,7 @@ fn main() {
         // Custom cfgs set by build script. Not public API.
         // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_16_or_later,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
+            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_16_or_later,portable_atomic_llvm_17_or_later,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line emit_target_feature_fallback
         // grep -F 'emit_target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*emit_target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
@@ -264,6 +264,9 @@ fn main() {
     }
     if version_pass && version.llvm >= 16 {
         println!("cargo:rustc-cfg=portable_atomic_llvm_16_or_later");
+        if version.llvm >= 17 {
+            println!("cargo:rustc-cfg=portable_atomic_llvm_17_or_later");
+        }
     }
 
     // `cfg(sanitize = "..")` is not stabilized.

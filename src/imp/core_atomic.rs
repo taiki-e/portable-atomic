@@ -107,6 +107,17 @@ items!({
             self.inner.compare_exchange_weak(current, new, success, failure)
         }
     }
+    // Workaround for https://github.com/llvm/llvm-project/issues/60418
+    // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+    #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+    impl<T> AtomicPtr<T> {
+        #[inline]
+        #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+        pub(crate) fn swap(&self, ptr: *mut T, order: Ordering) -> *mut T {
+            let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
+            self.inner.swap(ptr, order)
+        }
+    }
     // Ideally, we would always use AtomicPtr::fetch_* since it is strict-provenance
     // compatible, but it requires 1.91+. So, for now emulate it only on cfg(miri).
     // Code using AtomicUsize::fetch_* via casts is still permissive-provenance
@@ -357,6 +368,29 @@ macro_rules! atomic_int {
                     self.inner.compare_exchange_weak(current, new, success, failure)
                 }
             }
+            // Workaround for https://github.com/llvm/llvm-project/issues/60418
+            // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+            #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+            impl $atomic_type {
+                #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+                pub(crate) fn swap(&self, val: $int_type, order: Ordering) -> $int_type {
+                    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
+                    self.inner.swap(val, order)
+                }
+                #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+                pub(crate) fn fetch_and(&self, val: $int_type, order: Ordering) -> $int_type {
+                    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
+                    self.inner.fetch_and(val, order)
+                }
+                #[inline]
+                #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+                pub(crate) fn fetch_or(&self, val: $int_type, order: Ordering) -> $int_type {
+                    let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
+                    self.inner.fetch_or(val, order)
+                }
+            }
             impl $atomic_type {
                 #[allow(dead_code)]
                 #[inline]
@@ -424,6 +458,10 @@ macro_rules! atomic_int {
                                 return self.fetch_update_(order, |x| core::cmp::max(x, val));
                             }
                         }
+                        // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                        // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                        #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                        let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                         self.inner.fetch_max(val, order)
                     }
                     #[cfg(portable_atomic_no_atomic_min_max)]
@@ -479,6 +517,10 @@ macro_rules! atomic_int {
                                 return self.fetch_update_(order, |x| core::cmp::min(x, val));
                             }
                         }
+                        // Workaround for https://github.com/llvm/llvm-project/issues/60418
+                        // See comments on upgrade_rmw_ordering_for_pre_17_llvm for more.
+                        #[cfg(all(not(portable_atomic_llvm_17_or_later), not(miri)))]
+                        let order = crate::utils::upgrade_rmw_ordering_for_pre_17_llvm(order);
                         self.inner.fetch_min(val, order)
                     }
                     #[cfg(portable_atomic_no_atomic_min_max)]
