@@ -4821,6 +4821,76 @@ asm_test::or::u64::release:
         laog              %r0,%r3,0(%r2)
         br                %r14
 
+asm_test::or::bool::acqrel:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::or::bool::seqcst:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::or::bool::acquire:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::or::bool::relaxed:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::or::bool::release:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        or                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
 asm_test::or::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r4,0(%r3)
@@ -5334,6 +5404,81 @@ asm_test::and::u64::relaxed:
 
 asm_test::and::u64::release:
         lang              %r0,%r3,0(%r2)
+        br                %r14
+
+asm_test::and::bool::acqrel:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::and::bool::seqcst:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::and::bool::acquire:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::and::bool::relaxed:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::and::bool::release:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+        oilf              %r3,16777215
+0:
+        rll               %r5,%r0,0(%r2)
+        nr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
         br                %r14
 
 asm_test::and::u128::acqrel:
@@ -6496,6 +6641,71 @@ asm_test::not::u64::release:
         laxg              %r0,%r0,0(%r2)
         br                %r14
 
+asm_test::not::bool::acqrel:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::not::bool::seqcst:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::not::bool::acquire:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::not::bool::relaxed:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::not::bool::release:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        lcr               %r3,%r2
+0:
+        rll               %r4,%r0,0(%r2)
+        xilf              %r4,16777216
+        rll               %r4,%r4,0(%r3)
+        cs                %r0,%r4,0(%r1)
+        jl                0b
+        br                %r14
+
 asm_test::not::u128::acqrel:
         stmg              %r12,%r15,96(%r15)
         lg                %r1,8(%r2)
@@ -7009,6 +7219,76 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         laxg              %r0,%r3,0(%r2)
+        br                %r14
+
+asm_test::xor::bool::acqrel:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::xor::bool::seqcst:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::xor::bool::acquire:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::xor::bool::relaxed:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
+        br                %r14
+
+asm_test::xor::bool::release:
+        risbgz            %r1,%r2,0,61
+        l                 %r0,0(%r1)
+        sll               %r2,3
+        sll               %r3,24
+        lcr               %r4,%r2
+0:
+        rll               %r5,%r0,0(%r2)
+        xr                %r5,%r3
+        rll               %r5,%r5,0(%r4)
+        cs                %r0,%r5,0(%r1)
+        jl                0b
         br                %r14
 
 asm_test::xor::u128::acqrel:

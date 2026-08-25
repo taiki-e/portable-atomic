@@ -2724,6 +2724,26 @@ asm_test::or::u64::release:
         ldsetl            x1, x8, [x0]
         ret
 
+asm_test::or::bool::acqrel:
+        ldsetalb          w1, w8, [x0]
+        ret
+
+asm_test::or::bool::seqcst:
+        ldsetalb          w1, w8, [x0]
+        ret
+
+asm_test::or::bool::acquire:
+        ldsetab           w1, w8, [x0]
+        ret
+
+asm_test::or::bool::relaxed:
+        ldsetb            w1, w8, [x0]
+        ret
+
+asm_test::or::bool::release:
+        ldsetlb           w1, w8, [x0]
+        ret
+
 asm_test::or::u128::acqrel:
         ldsetpal          x2, x3, [x0]
         ret
@@ -2987,6 +3007,31 @@ asm_test::and::u64::relaxed:
 asm_test::and::u64::release:
         mvn               x8, x1
         ldclrl            x8, x8, [x0]
+        ret
+
+asm_test::and::bool::acqrel:
+        mvn               w8, w1
+        ldclralb          w8, w8, [x0]
+        ret
+
+asm_test::and::bool::seqcst:
+        mvn               w8, w1
+        ldclralb          w8, w8, [x0]
+        ret
+
+asm_test::and::bool::acquire:
+        mvn               w8, w1
+        ldclrab           w8, w8, [x0]
+        ret
+
+asm_test::and::bool::relaxed:
+        mvn               w8, w1
+        ldclrb            w8, w8, [x0]
+        ret
+
+asm_test::and::bool::release:
+        mvn               w8, w1
+        ldclrlb           w8, w8, [x0]
         ret
 
 asm_test::and::u128::acqrel:
@@ -3404,6 +3449,31 @@ asm_test::not::u64::release:
         ldeorl            x8, x8, [x0]
         ret
 
+asm_test::not::bool::acqrel:
+        mov               w8, #0x1                // =1
+        ldeoralb          w8, w8, [x0]
+        ret
+
+asm_test::not::bool::seqcst:
+        mov               w8, #0x1                // =1
+        ldeoralb          w8, w8, [x0]
+        ret
+
+asm_test::not::bool::acquire:
+        mov               w8, #0x1                // =1
+        ldeorab           w8, w8, [x0]
+        ret
+
+asm_test::not::bool::relaxed:
+        mov               w8, #0x1                // =1
+        ldeorb            w8, w8, [x0]
+        ret
+
+asm_test::not::bool::release:
+        mov               w8, #0x1                // =1
+        ldeorlb           w8, w8, [x0]
+        ret
+
 asm_test::not::u128::acqrel:
         ldp               x6, x7, [x0]
 0:
@@ -3712,6 +3782,26 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         ldeorl            x1, x8, [x0]
+        ret
+
+asm_test::xor::bool::acqrel:
+        ldeoralb          w1, w8, [x0]
+        ret
+
+asm_test::xor::bool::seqcst:
+        ldeoralb          w1, w8, [x0]
+        ret
+
+asm_test::xor::bool::acquire:
+        ldeorab           w1, w8, [x0]
+        ret
+
+asm_test::xor::bool::relaxed:
+        ldeorb            w1, w8, [x0]
+        ret
+
+asm_test::xor::bool::release:
+        ldeorlb           w1, w8, [x0]
         ret
 
 asm_test::xor::u128::acqrel:

@@ -3218,6 +3218,41 @@ asm_test::or::u32::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::or::bool::acqrel:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::or::bool::seqcst:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::or::bool::acquire:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::or::bool::relaxed:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::or::bool::release:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::add::u8::acqrel:
         push              {r11, lr}
 0:
@@ -3422,6 +3457,41 @@ asm_test::and::u32::relaxed:
         bx                lr
 
 asm_test::and::u32::release:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::and::bool::acqrel:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::and::bool::seqcst:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::and::bool::acquire:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::and::bool::relaxed:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::and::bool::release:
         push              {r11, lr}
 0:
         bl                0f
@@ -3853,6 +3923,46 @@ asm_test::not::u32::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::not::bool::acqrel:
+        push              {r11, lr}
+        mov               r1, #1
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::not::bool::seqcst:
+        push              {r11, lr}
+        mov               r1, #1
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::not::bool::acquire:
+        push              {r11, lr}
+        mov               r1, #1
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::not::bool::relaxed:
+        push              {r11, lr}
+        mov               r1, #1
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::not::bool::release:
+        push              {r11, lr}
+        mov               r1, #1
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::sub::u8::acqrel:
         push              {r11, lr}
 0:
@@ -4057,6 +4167,41 @@ asm_test::xor::u32::relaxed:
         bx                lr
 
 asm_test::xor::u32::release:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::xor::bool::acqrel:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::xor::bool::seqcst:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::xor::bool::acquire:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::xor::bool::relaxed:
+        push              {r11, lr}
+0:
+        bl                0f
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::xor::bool::release:
         push              {r11, lr}
 0:
         bl                0f

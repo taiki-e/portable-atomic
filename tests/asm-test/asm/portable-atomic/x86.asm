@@ -3414,6 +3414,36 @@ asm_test::or::u64::release:
         pop               ebp
         ret
 
+asm_test::or::bool::acqrel:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock or           byte ptr [ecx], al
+        ret
+
+asm_test::or::bool::seqcst:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock or           byte ptr [ecx], al
+        ret
+
+asm_test::or::bool::acquire:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock or           byte ptr [ecx], al
+        ret
+
+asm_test::or::bool::relaxed:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock or           byte ptr [ecx], al
+        ret
+
+asm_test::or::bool::release:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock or           byte ptr [ecx], al
+        ret
+
 asm_test::add::u8::acqrel:
         movzx             eax, byte ptr [esp + 0x8]
         mov               ecx, dword ptr [esp + 0x4]
@@ -3834,6 +3864,36 @@ asm_test::and::u64::release:
         pop               ebp
         ret
 
+asm_test::and::bool::acqrel:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock and          byte ptr [ecx], al
+        ret
+
+asm_test::and::bool::seqcst:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock and          byte ptr [ecx], al
+        ret
+
+asm_test::and::bool::acquire:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock and          byte ptr [ecx], al
+        ret
+
+asm_test::and::bool::relaxed:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock and          byte ptr [ecx], al
+        ret
+
+asm_test::and::bool::release:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock and          byte ptr [ecx], al
+        ret
+
 asm_test::neg::u8::acqrel:
         mov               eax, dword ptr [esp + 0x4]
         lock neg          byte ptr [eax]
@@ -4172,6 +4232,31 @@ asm_test::not::u64::release:
         jne               0b
         pop               esi
         pop               ebx
+        ret
+
+asm_test::not::bool::acqrel:
+        mov               eax, dword ptr [esp + 0x4]
+        lock xor          byte ptr [eax], 0x1
+        ret
+
+asm_test::not::bool::seqcst:
+        mov               eax, dword ptr [esp + 0x4]
+        lock xor          byte ptr [eax], 0x1
+        ret
+
+asm_test::not::bool::acquire:
+        mov               eax, dword ptr [esp + 0x4]
+        lock xor          byte ptr [eax], 0x1
+        ret
+
+asm_test::not::bool::relaxed:
+        mov               eax, dword ptr [esp + 0x4]
+        lock xor          byte ptr [eax], 0x1
+        ret
+
+asm_test::not::bool::release:
+        mov               eax, dword ptr [esp + 0x4]
+        lock xor          byte ptr [eax], 0x1
         ret
 
 asm_test::sub::u8::acqrel:
@@ -4592,6 +4677,36 @@ asm_test::xor::u64::release:
         pop               edi
         pop               ebx
         pop               ebp
+        ret
+
+asm_test::xor::bool::acqrel:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock xor          byte ptr [ecx], al
+        ret
+
+asm_test::xor::bool::seqcst:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock xor          byte ptr [ecx], al
+        ret
+
+asm_test::xor::bool::acquire:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock xor          byte ptr [ecx], al
+        ret
+
+asm_test::xor::bool::relaxed:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock xor          byte ptr [ecx], al
+        ret
+
+asm_test::xor::bool::release:
+        movzx             eax, byte ptr [esp + 0x8]
+        mov               ecx, dword ptr [esp + 0x4]
+        lock xor          byte ptr [ecx], al
         ret
 
 asm_test::load::u8::seqcst:

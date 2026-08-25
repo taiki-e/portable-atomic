@@ -2565,6 +2565,26 @@ asm_test::or::u16::release:
         bis               r13,	0(r12)	;
         ret
 
+asm_test::or::bool::acqrel:
+        bis.b             r13,	0(r12)	;
+        ret
+
+asm_test::or::bool::seqcst:
+        bis.b             r13,	0(r12)	;
+        ret
+
+asm_test::or::bool::acquire:
+        bis.b             r13,	0(r12)	;
+        ret
+
+asm_test::or::bool::relaxed:
+        bis.b             r13,	0(r12)	;
+        ret
+
+asm_test::or::bool::release:
+        bis.b             r13,	0(r12)	;
+        ret
+
 asm_test::add::u8::acqrel:
         add.b             r13,	0(r12)	;
         ret
@@ -2643,6 +2663,26 @@ asm_test::and::u16::relaxed:
 
 asm_test::and::u16::release:
         and               r13,	0(r12)	;
+        ret
+
+asm_test::and::bool::acqrel:
+        and.b             r13,	0(r12)	;
+        ret
+
+asm_test::and::bool::seqcst:
+        and.b             r13,	0(r12)	;
+        ret
+
+asm_test::and::bool::acquire:
+        and.b             r13,	0(r12)	;
+        ret
+
+asm_test::and::bool::relaxed:
+        and.b             r13,	0(r12)	;
+        ret
+
+asm_test::and::bool::release:
+        and.b             r13,	0(r12)	;
         ret
 
 asm_test::neg::u8::acqrel:
@@ -2805,6 +2845,31 @@ asm_test::not::u16::release:
         xor               #-1,	0(r12)	;r3 As==11
         ret
 
+asm_test::not::bool::acqrel:
+        mov.b             #1,	r13	;r3 As==01
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::not::bool::seqcst:
+        mov.b             #1,	r13	;r3 As==01
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::not::bool::acquire:
+        mov.b             #1,	r13	;r3 As==01
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::not::bool::relaxed:
+        mov.b             #1,	r13	;r3 As==01
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::not::bool::release:
+        mov.b             #1,	r13	;r3 As==01
+        xor.b             r13,	0(r12)	;
+        ret
+
 asm_test::sub::u8::acqrel:
         sub.b             r13,	0(r12)	;
         ret
@@ -2883,6 +2948,26 @@ asm_test::xor::u16::relaxed:
 
 asm_test::xor::u16::release:
         xor               r13,	0(r12)	;
+        ret
+
+asm_test::xor::bool::acqrel:
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::xor::bool::seqcst:
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::xor::bool::acquire:
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::xor::bool::relaxed:
+        xor.b             r13,	0(r12)	;
+        ret
+
+asm_test::xor::bool::release:
+        xor.b             r13,	0(r12)	;
         ret
 
 asm_test::load::u8::seqcst:

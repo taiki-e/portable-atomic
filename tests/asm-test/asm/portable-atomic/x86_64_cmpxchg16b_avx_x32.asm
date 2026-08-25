@@ -3057,6 +3057,26 @@ asm_test::or::u64::release:
         lock or           qword ptr [edi], rsi
         ret
 
+asm_test::or::bool::acqrel:
+        lock or           byte ptr [edi], sil
+        ret
+
+asm_test::or::bool::seqcst:
+        lock or           byte ptr [edi], sil
+        ret
+
+asm_test::or::bool::acquire:
+        lock or           byte ptr [edi], sil
+        ret
+
+asm_test::or::bool::relaxed:
+        lock or           byte ptr [edi], sil
+        ret
+
+asm_test::or::bool::release:
+        lock or           byte ptr [edi], sil
+        ret
+
 asm_test::or::u128::acqrel:
         mov               r8, rsi
         mov               r9, rdx
@@ -3377,6 +3397,26 @@ asm_test::and::u64::release:
         lock and          qword ptr [edi], rsi
         ret
 
+asm_test::and::bool::acqrel:
+        lock and          byte ptr [edi], sil
+        ret
+
+asm_test::and::bool::seqcst:
+        lock and          byte ptr [edi], sil
+        ret
+
+asm_test::and::bool::acquire:
+        lock and          byte ptr [edi], sil
+        ret
+
+asm_test::and::bool::relaxed:
+        lock and          byte ptr [edi], sil
+        ret
+
+asm_test::and::bool::release:
+        lock and          byte ptr [edi], sil
+        ret
+
 asm_test::and::u128::acqrel:
         mov               r8, rsi
         mov               r9, rdx
@@ -3687,6 +3727,26 @@ asm_test::not::u64::release:
         lock not          qword ptr [edi]
         ret
 
+asm_test::not::bool::acqrel:
+        lock xor          byte ptr [edi], 0x1
+        ret
+
+asm_test::not::bool::seqcst:
+        lock xor          byte ptr [edi], 0x1
+        ret
+
+asm_test::not::bool::acquire:
+        lock xor          byte ptr [edi], 0x1
+        ret
+
+asm_test::not::bool::relaxed:
+        lock xor          byte ptr [edi], 0x1
+        ret
+
+asm_test::not::bool::release:
+        lock xor          byte ptr [edi], 0x1
+        ret
+
 asm_test::not::u128::acqrel:
         mov               rsi, rbx
         mov               rax, qword ptr [edi]
@@ -3995,6 +4055,26 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         lock xor          qword ptr [edi], rsi
+        ret
+
+asm_test::xor::bool::acqrel:
+        lock xor          byte ptr [edi], sil
+        ret
+
+asm_test::xor::bool::seqcst:
+        lock xor          byte ptr [edi], sil
+        ret
+
+asm_test::xor::bool::acquire:
+        lock xor          byte ptr [edi], sil
+        ret
+
+asm_test::xor::bool::relaxed:
+        lock xor          byte ptr [edi], sil
+        ret
+
+asm_test::xor::bool::release:
+        lock xor          byte ptr [edi], sil
         ret
 
 asm_test::xor::u128::acqrel:

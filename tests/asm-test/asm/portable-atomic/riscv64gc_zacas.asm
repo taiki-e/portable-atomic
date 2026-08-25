@@ -5141,6 +5141,41 @@ asm_test::or::u64::release:
         amoor.d.rl        zero, a1, (a0)
         ret
 
+asm_test::or::bool::acqrel:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoor.w.aqrl      zero, a1, (a0)
+        ret
+
+asm_test::or::bool::seqcst:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoor.w.aqrl      zero, a1, (a0)
+        ret
+
+asm_test::or::bool::acquire:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoor.w.aq        zero, a1, (a0)
+        ret
+
+asm_test::or::bool::relaxed:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoor.w           zero, a1, (a0)
+        ret
+
+asm_test::or::bool::release:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoor.w.rl        zero, a1, (a0)
+        ret
+
 asm_test::or::u128::acqrel:
         mv                a6, a2
         ld                a7, 0x0(a0)
@@ -5689,6 +5724,61 @@ asm_test::and::u64::relaxed:
 
 asm_test::and::u64::release:
         amoand.d.rl       zero, a1, (a0)
+        ret
+
+asm_test::and::bool::acqrel:
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a2
+        not               a3, a3
+        sllw              a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::and::bool::seqcst:
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a2
+        not               a3, a3
+        sllw              a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::and::bool::acquire:
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a2
+        not               a3, a3
+        sllw              a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.aq       zero, a1, (a0)
+        ret
+
+asm_test::and::bool::relaxed:
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a2
+        not               a3, a3
+        sllw              a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w          zero, a1, (a0)
+        ret
+
+asm_test::and::bool::release:
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sllw              a3, a3, a2
+        not               a3, a3
+        sllw              a1, a1, a2
+        andi              a0, a0, -0x4
+        or                a1, a1, a3
+        amoand.w.rl       zero, a1, (a0)
         ret
 
 asm_test::and::u128::acqrel:
@@ -6376,6 +6466,46 @@ asm_test::not::u64::release:
         amoxor.d.rl       zero, a1, (a0)
         ret
 
+asm_test::not::bool::acqrel:
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::not::bool::seqcst:
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::not::bool::acquire:
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aq       zero, a1, (a0)
+        ret
+
+asm_test::not::bool::relaxed:
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w          zero, a1, (a0)
+        ret
+
+asm_test::not::bool::release:
+        li                a1, 0x1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.rl       zero, a1, (a0)
+        ret
+
 asm_test::not::u128::acqrel:
         ld                a1, 0x0(a0)
         ld                a6, 0x8(a0)
@@ -6884,6 +7014,41 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         amoxor.d.rl       zero, a1, (a0)
+        ret
+
+asm_test::xor::bool::acqrel:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::xor::bool::seqcst:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aqrl     zero, a1, (a0)
+        ret
+
+asm_test::xor::bool::acquire:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.aq       zero, a1, (a0)
+        ret
+
+asm_test::xor::bool::relaxed:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w          zero, a1, (a0)
+        ret
+
+asm_test::xor::bool::release:
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sllw              a1, a1, a2
+        amoxor.w.rl       zero, a1, (a0)
         ret
 
 asm_test::xor::u128::acqrel:

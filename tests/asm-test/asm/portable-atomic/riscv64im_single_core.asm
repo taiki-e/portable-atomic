@@ -3859,6 +3859,51 @@ asm_test::or::u64::release:
         csrs              mstatus, a2
         ret
 
+asm_test::or::bool::acqrel:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        or                a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::or::bool::seqcst:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        or                a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::or::bool::acquire:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        or                a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::or::bool::relaxed:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        or                a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::or::bool::release:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        or                a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
 asm_test::add::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
@@ -4216,6 +4261,51 @@ asm_test::and::u64::release:
         andi              a2, a2, 0x8
         and               a1, a3, a1
         sd                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::and::bool::acqrel:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        and               a1, a1, a3
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::and::bool::seqcst:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        and               a1, a1, a3
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::and::bool::acquire:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        and               a1, a1, a3
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::and::bool::relaxed:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        and               a1, a1, a3
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::and::bool::release:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        and               a1, a1, a3
+        sb                a1, 0x0(a0)
         csrs              mstatus, a2
         ret
 
@@ -4579,6 +4669,51 @@ asm_test::not::u64::release:
         csrs              mstatus, a1
         ret
 
+asm_test::not::bool::acqrel:
+        csrrci            a1, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
+        xori              a2, a2, 0x1
+        sb                a2, 0x0(a0)
+        csrs              mstatus, a1
+        ret
+
+asm_test::not::bool::seqcst:
+        csrrci            a1, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
+        xori              a2, a2, 0x1
+        sb                a2, 0x0(a0)
+        csrs              mstatus, a1
+        ret
+
+asm_test::not::bool::acquire:
+        csrrci            a1, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
+        xori              a2, a2, 0x1
+        sb                a2, 0x0(a0)
+        csrs              mstatus, a1
+        ret
+
+asm_test::not::bool::relaxed:
+        csrrci            a1, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
+        xori              a2, a2, 0x1
+        sb                a2, 0x0(a0)
+        csrs              mstatus, a1
+        ret
+
+asm_test::not::bool::release:
+        csrrci            a1, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a1, a1, 0x8
+        xori              a2, a2, 0x1
+        sb                a2, 0x0(a0)
+        csrs              mstatus, a1
+        ret
+
 asm_test::sub::u8::acqrel:
         csrrci            a2, mstatus, 0x8
         lbu               a3, 0x0(a0)
@@ -4936,6 +5071,51 @@ asm_test::xor::u64::release:
         andi              a2, a2, 0x8
         xor               a1, a3, a1
         sd                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::xor::bool::acqrel:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        xor               a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::xor::bool::seqcst:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        xor               a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::xor::bool::acquire:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        xor               a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::xor::bool::relaxed:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        xor               a1, a3, a1
+        sb                a1, 0x0(a0)
+        csrs              mstatus, a2
+        ret
+
+asm_test::xor::bool::release:
+        csrrci            a2, mstatus, 0x8
+        lbu               a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        xor               a1, a3, a1
+        sb                a1, 0x0(a0)
         csrs              mstatus, a2
         ret
 

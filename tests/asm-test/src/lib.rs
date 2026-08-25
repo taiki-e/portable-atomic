@@ -885,6 +885,7 @@ pub mod and {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -1070,6 +1071,7 @@ pub mod or {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -1193,6 +1195,7 @@ pub mod xor {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {
@@ -1316,6 +1319,7 @@ pub mod not {
         };
     }
     portable_atomic::cfg_has_atomic_8! {
+        t!(bool);
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {

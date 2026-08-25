@@ -4184,6 +4184,47 @@ asm_test::or::u64::release:
         cbnz              w9, 0b
         ret
 
+asm_test::or::bool::acqrel:
+0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::or::bool::seqcst:
+0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+asm_test::or::bool::acquire:
+0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::or::bool::relaxed:
+0:
+        ldxrb             w8, [x0]
+        orr               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::or::bool::release:
+0:
+        ldxrb             w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
 asm_test::or::u128::acqrel:
 0:
         ldaxp             x8, x9, [x0]
@@ -4601,6 +4642,47 @@ asm_test::and::u64::release:
         ldxr              x8, [x0]
         and               x8, x8, x1
         stlxr             w9, x8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::and::bool::acqrel:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::and::bool::seqcst:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+asm_test::and::bool::acquire:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::and::bool::relaxed:
+0:
+        ldxrb             w8, [x0]
+        and               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::and::bool::release:
+0:
+        ldxrb             w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
         ret
 
@@ -5224,6 +5306,47 @@ asm_test::not::u64::release:
         cbnz              w9, 0b
         ret
 
+asm_test::not::bool::acqrel:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::not::bool::seqcst:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+asm_test::not::bool::acquire:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::not::bool::relaxed:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, #0x1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::not::bool::release:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
 asm_test::not::u128::acqrel:
 0:
         ldaxp             x8, x9, [x0]
@@ -5641,6 +5764,47 @@ asm_test::xor::u64::release:
         ldxr              x8, [x0]
         eor               x8, x8, x1
         stlxr             w9, x8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::xor::bool::acqrel:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::xor::bool::seqcst:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+asm_test::xor::bool::acquire:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::xor::bool::relaxed:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+asm_test::xor::bool::release:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
         ret
 

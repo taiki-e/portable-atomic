@@ -5332,6 +5332,52 @@ asm_test::or::u64::release:
         bf-               2, 0b
         blr
 
+asm_test::or::bool::acqrel:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        or                5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::seqcst:
+        sync
+0:
+        lbarx             5, 0, 3
+        or                5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::acquire:
+0:
+        lbarx             5, 0, 3
+        or                5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::relaxed:
+0:
+        lbarx             5, 0, 3
+        or                5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::bool::release:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        or                5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::or::u128::acqrel:
         lwsync
 0:
@@ -5799,6 +5845,52 @@ asm_test::and::u64::release:
         ldarx             5, 0, 3
         and               5, 4, 5
         stdcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::bool::acqrel:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::seqcst:
+        sync
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::acquire:
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::relaxed:
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::bool::release:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
         bf-               2, 0b
         blr
 
@@ -6552,6 +6644,52 @@ asm_test::not::u64::release:
         bf-               2, 0b
         blr
 
+asm_test::not::bool::acqrel:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::not::bool::seqcst:
+        sync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::not::bool::acquire:
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::not::bool::relaxed:
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::not::bool::release:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::not::u128::acqrel:
         li                4, -1
         lwsync
@@ -7024,6 +7162,52 @@ asm_test::xor::u64::release:
         ldarx             5, 0, 3
         xor               5, 4, 5
         stdcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::bool::acqrel:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        xor               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::seqcst:
+        sync
+0:
+        lbarx             5, 0, 3
+        xor               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::acquire:
+0:
+        lbarx             5, 0, 3
+        xor               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::relaxed:
+0:
+        lbarx             5, 0, 3
+        xor               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::bool::release:
+        lwsync
+0:
+        lbarx             5, 0, 3
+        xor               5, 4, 5
+        stbcx.            5, 0, 3
         bf-               2, 0b
         blr
 

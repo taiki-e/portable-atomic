@@ -9784,6 +9784,227 @@ asm_test::or::u32::release:
         l32r              a8, fffc0038 <asm_test::or::u32::release+0xfffc0038>
         callx8            a8
 
+.literal.asm_test::or::bool::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::or::bool::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::or::bool::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::or::bool::acqrel+0x8> (ffff8105 <asm_test::or::bool::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        or                a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::or::bool::acqrel+0x48> (a1f01d00 <asm_test::or::bool::acqrel+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::or::bool::acqrel+0x4c> (ff81ffff <asm_test::or::bool::acqrel+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::or::bool::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::or::bool::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::or::bool::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::or::bool::seqcst+0x8> (ffff8105 <asm_test::or::bool::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        or                a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::or::bool::seqcst+0x48> (a1f01d00 <asm_test::or::bool::seqcst+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::or::bool::seqcst+0x4c> (ff81ffff <asm_test::or::bool::seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::or::bool::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::or::bool::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::or::bool::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::or::bool::acquire+0x8> (ffff8105 <asm_test::or::bool::acquire+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        or                a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::or::bool::acquire+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::or::bool::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::or::bool::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::or::bool::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::or::bool::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::or::bool::relaxed+0x8> (ffff8105 <asm_test::or::bool::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        or                a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, 44 <asm_test::or::bool::relaxed+0x44> (ffffa1f0 <asm_test::or::bool::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0048 <asm_test::or::bool::relaxed+0xfffc0048>
+        callx8            a8
+
+.literal.asm_test::or::bool::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::or::bool::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::or::bool::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::or::bool::release+0x8> (ffff8105 <asm_test::or::bool::release+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        or                a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::or::bool::release+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::or::bool::release+0x810000a1>)
+        callx8            a8
+
 .literal.asm_test::add::u8::acqrel:
         ill
         movi.n            a15, 63
@@ -11218,6 +11439,257 @@ asm_test::and::u32::release:
 5:
         l32r              a10, 34 <asm_test::and::u32::release+0x34> (ffffa1f0 <asm_test::and::u32::release+0xffffa1f0>)
         l32r              a8, fffc0038 <asm_test::and::u32::release+0xfffc0038>
+        callx8            a8
+
+.literal.asm_test::and::bool::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::and::bool::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::and::bool::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::and::bool::acqrel+0x8> (ffff8105 <asm_test::and::bool::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a9, a3
+        movi              a10, 255
+        ssl               a8
+        sll               a8, a10
+        movi.n            a10, -1
+        xor               a8, a8, a10
+        or                a8, a9, a8
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        and               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, fffc005c <asm_test::and::bool::acqrel+0xfffc005c>
+        l32r              a8, 5b (810000a1 <asm_test::and::bool::acqrel+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::and::bool::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::and::bool::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::and::bool::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::and::bool::seqcst+0x8> (ffff8105 <asm_test::and::bool::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a9, a3
+        movi              a10, 255
+        ssl               a8
+        sll               a8, a10
+        movi.n            a10, -1
+        xor               a8, a8, a10
+        or                a8, a9, a8
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        and               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, fffc005c <asm_test::and::bool::seqcst+0xfffc005c>
+        l32r              a8, 5b (810000a1 <asm_test::and::bool::seqcst+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::and::bool::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::and::bool::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::and::bool::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::and::bool::acquire+0x8> (ffff8105 <asm_test::and::bool::acquire+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a9, a3
+        movi              a10, 255
+        ssl               a8
+        sll               a8, a10
+        movi.n            a10, -1
+        xor               a8, a8, a10
+        or                a8, a9, a8
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        and               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 58 <asm_test::and::bool::acquire+0x58> (ffffa1f0 <asm_test::and::bool::acquire+0xffffa1f0>)
+        l32r              a8, fffc005c <asm_test::and::bool::acquire+0xfffc005c>
+        callx8            a8
+
+.literal.asm_test::and::bool::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::and::bool::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::and::bool::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::and::bool::relaxed+0x8> (ffff8105 <asm_test::and::bool::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a9, a3
+        movi              a10, 255
+        ssl               a8
+        sll               a8, a10
+        movi.n            a10, -1
+        xor               a8, a8, a10
+        or                a8, a9, a8
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        and               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, 4b (ffa1f01d <asm_test::and::bool::relaxed+0xffa1f01d>)
+        l32r              a8, 58 <asm_test::and::bool::relaxed+0x58> (ffff81ff <asm_test::and::bool::relaxed+0xffff81ff>)
+        callx8            a8
+
+.literal.asm_test::and::bool::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::and::bool::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::and::bool::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::and::bool::release+0x8> (ffff8105 <asm_test::and::bool::release+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a9, a3
+        movi              a10, 255
+        ssl               a8
+        sll               a8, a10
+        movi.n            a10, -1
+        xor               a8, a8, a10
+        or                a8, a9, a8
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        and               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, 58 <asm_test::and::bool::release+0x58> (ffffa1f0 <asm_test::and::bool::release+0xffffa1f0>)
+        l32r              a8, fffc005c <asm_test::and::bool::release+0xfffc005c>
         callx8            a8
 
 .literal.asm_test::neg::u8::acqrel:
@@ -12655,6 +13127,227 @@ asm_test::not::u32::release:
         l32r              a8, 38 <asm_test::not::u32::release+0x38> (ff81ffff <asm_test::not::u32::release+0xff81ffff>)
         callx8            a8
 
+.literal.asm_test::not::bool::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::not::bool::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::not::bool::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::not::bool::acqrel+0x8> (ffff8105 <asm_test::not::bool::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a9, a8, a9
+        movi.n            a8, 1
+        ssl               a9
+        sll               a9, a8
+        movi.n            a10, -4
+        and               a10, a2, a10
+        memw
+        l32i.n            a12, a10, 0
+        movi.n            a11, 0
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a9
+        wsr.scompare1     a12
+        s32c1i            a13, a10, 0
+        mov.n             a14, a8
+        beq               a13, a12, 2b
+        mov.n             a14, a11
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::not::bool::acqrel+0x48> (a1f01d00 <asm_test::not::bool::acqrel+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::not::bool::acqrel+0x4c> (ff81ffff <asm_test::not::bool::acqrel+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::not::bool::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::not::bool::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::not::bool::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::not::bool::seqcst+0x8> (ffff8105 <asm_test::not::bool::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a9, a8, a9
+        movi.n            a8, 1
+        ssl               a9
+        sll               a9, a8
+        movi.n            a10, -4
+        and               a10, a2, a10
+        memw
+        l32i.n            a12, a10, 0
+        movi.n            a11, 0
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a9
+        wsr.scompare1     a12
+        s32c1i            a13, a10, 0
+        mov.n             a14, a8
+        beq               a13, a12, 2b
+        mov.n             a14, a11
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::not::bool::seqcst+0x48> (a1f01d00 <asm_test::not::bool::seqcst+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::not::bool::seqcst+0x4c> (ff81ffff <asm_test::not::bool::seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::not::bool::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::not::bool::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::not::bool::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::not::bool::acquire+0x8> (ffff8105 <asm_test::not::bool::acquire+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a9, a8, a9
+        movi.n            a8, 1
+        ssl               a9
+        sll               a9, a8
+        movi.n            a10, -4
+        and               a10, a2, a10
+        l32i.n            a12, a10, 0
+        movi.n            a11, 0
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a9
+        wsr.scompare1     a12
+        s32c1i            a13, a10, 0
+        mov.n             a14, a8
+        beq               a13, a12, 2b
+        mov.n             a14, a11
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::not::bool::acquire+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::not::bool::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::not::bool::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::not::bool::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::not::bool::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::not::bool::relaxed+0x8> (ffff8105 <asm_test::not::bool::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a9, a8, a9
+        movi.n            a8, 1
+        ssl               a9
+        sll               a9, a8
+        movi.n            a10, -4
+        and               a10, a2, a10
+        l32i.n            a12, a10, 0
+        movi.n            a11, 0
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a9
+        wsr.scompare1     a12
+        s32c1i            a13, a10, 0
+        mov.n             a14, a8
+        beq               a13, a12, 2b
+        mov.n             a14, a11
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, 44 <asm_test::not::bool::relaxed+0x44> (ffffa1f0 <asm_test::not::bool::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0048 <asm_test::not::bool::relaxed+0xfffc0048>
+        callx8            a8
+
+.literal.asm_test::not::bool::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::not::bool::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::not::bool::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::not::bool::release+0x8> (ffff8105 <asm_test::not::bool::release+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a9, a8, a9
+        movi.n            a8, 1
+        ssl               a9
+        sll               a9, a8
+        movi.n            a10, -4
+        and               a10, a2, a10
+        memw
+        l32i.n            a12, a10, 0
+        movi.n            a11, 0
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a9
+        wsr.scompare1     a12
+        s32c1i            a13, a10, 0
+        mov.n             a14, a8
+        beq               a13, a12, 2b
+        mov.n             a14, a11
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::not::bool::release+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::not::bool::release+0x810000a1>)
+        callx8            a8
+
 .literal.asm_test::sub::u8::acqrel:
         ill
         movi.n            a15, 63
@@ -14043,6 +14736,227 @@ asm_test::xor::u32::release:
 5:
         l32r              a10, 34 <asm_test::xor::u32::release+0x34> (ffffa1f0 <asm_test::xor::u32::release+0xffffa1f0>)
         l32r              a8, fffc0038 <asm_test::xor::u32::release+0xfffc0038>
+        callx8            a8
+
+.literal.asm_test::xor::bool::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::xor::bool::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::xor::bool::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::xor::bool::acqrel+0x8> (ffff8105 <asm_test::xor::bool::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::xor::bool::acqrel+0x48> (a1f01d00 <asm_test::xor::bool::acqrel+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::xor::bool::acqrel+0x4c> (ff81ffff <asm_test::xor::bool::acqrel+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::xor::bool::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::xor::bool::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::xor::bool::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::xor::bool::seqcst+0x8> (ffff8105 <asm_test::xor::bool::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, 48 <asm_test::xor::bool::seqcst+0x48> (a1f01d00 <asm_test::xor::bool::seqcst+0xa1f01d00>)
+        l32r              a8, 4c <asm_test::xor::bool::seqcst+0x4c> (ff81ffff <asm_test::xor::bool::seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::xor::bool::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::xor::bool::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::xor::bool::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::xor::bool::acquire+0x8> (ffff8105 <asm_test::xor::bool::acquire+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        memw
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::xor::bool::acquire+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::xor::bool::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::xor::bool::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::xor::bool::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::xor::bool::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::xor::bool::relaxed+0x8> (ffff8105 <asm_test::xor::bool::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, 44 <asm_test::xor::bool::relaxed+0x44> (ffffa1f0 <asm_test::xor::bool::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0048 <asm_test::xor::bool::relaxed+0xfffc0048>
+        callx8            a8
+
+.literal.asm_test::xor::bool::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::xor::bool::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::xor::bool::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::xor::bool::release+0x8> (ffff8105 <asm_test::xor::bool::release+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        slli              a8, a2, 3
+        movi.n            a9, 24
+        and               a8, a8, a9
+        ssl               a8
+        sll               a8, a3
+        movi.n            a9, -4
+        and               a9, a2, a9
+        memw
+        l32i.n            a12, a9, 0
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a12, a13
+        beqi              a14, 1, 4f
+3:
+        xor               a13, a12, a8
+        wsr.scompare1     a12
+        s32c1i            a13, a9, 0
+        mov.n             a14, a11
+        beq               a13, a12, 2b
+        mov.n             a14, a10
+        j                 2b
+4:
+        retw.n
+5:
+        l32r              a10, fffc0048 <asm_test::xor::bool::release+0xfffc0048>
+        l32r              a8, 5b (810000a1 <asm_test::xor::bool::release+0x810000a1>)
         callx8            a8
 
 asm_test::load::u8::seqcst:

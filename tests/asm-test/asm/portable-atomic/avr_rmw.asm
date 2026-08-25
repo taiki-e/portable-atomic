@@ -2840,6 +2840,31 @@ asm_test::or::u16::release:
         out               0x3f, r18	; 63
         ret
 
+asm_test::or::bool::acqrel:
+        movw              r30, r24
+        las               Z, r22
+        ret
+
+asm_test::or::bool::seqcst:
+        movw              r30, r24
+        las               Z, r22
+        ret
+
+asm_test::or::bool::acquire:
+        movw              r30, r24
+        las               Z, r22
+        ret
+
+asm_test::or::bool::relaxed:
+        movw              r30, r24
+        las               Z, r22
+        ret
+
+asm_test::or::bool::release:
+        movw              r30, r24
+        las               Z, r22
+        ret
+
 asm_test::add::u8::acqrel:
         movw              r26, r24
         in                r24, 0x3f	; 63
@@ -3048,6 +3073,36 @@ asm_test::and::u16::release:
         st                Z, r24
         std               Z+1, r25	; 0x01
         out               0x3f, r18	; 63
+        ret
+
+asm_test::and::bool::acqrel:
+        com               r22
+        movw              r30, r24
+        lac               Z, r22
+        ret
+
+asm_test::and::bool::seqcst:
+        com               r22
+        movw              r30, r24
+        lac               Z, r22
+        ret
+
+asm_test::and::bool::acquire:
+        com               r22
+        movw              r30, r24
+        lac               Z, r22
+        ret
+
+asm_test::and::bool::relaxed:
+        com               r22
+        movw              r30, r24
+        lac               Z, r22
+        ret
+
+asm_test::and::bool::release:
+        com               r22
+        movw              r30, r24
+        lac               Z, r22
         ret
 
 asm_test::neg::u8::acqrel:
@@ -3265,6 +3320,36 @@ asm_test::not::u16::release:
         out               0x3f, r18	; 63
         ret
 
+asm_test::not::bool::acqrel:
+        ldi               r18, 0x01	; 1
+        movw              r30, r24
+        lat               Z, r18
+        ret
+
+asm_test::not::bool::seqcst:
+        ldi               r18, 0x01	; 1
+        movw              r30, r24
+        lat               Z, r18
+        ret
+
+asm_test::not::bool::acquire:
+        ldi               r18, 0x01	; 1
+        movw              r30, r24
+        lat               Z, r18
+        ret
+
+asm_test::not::bool::relaxed:
+        ldi               r18, 0x01	; 1
+        movw              r30, r24
+        lat               Z, r18
+        ret
+
+asm_test::not::bool::release:
+        ldi               r18, 0x01	; 1
+        movw              r30, r24
+        lat               Z, r18
+        ret
+
 asm_test::sub::u8::acqrel:
         movw              r26, r24
         in                r24, 0x3f	; 63
@@ -3468,6 +3553,31 @@ asm_test::xor::u16::release:
         st                Z, r24
         std               Z+1, r25	; 0x01
         out               0x3f, r18	; 63
+        ret
+
+asm_test::xor::bool::acqrel:
+        movw              r30, r24
+        lat               Z, r22
+        ret
+
+asm_test::xor::bool::seqcst:
+        movw              r30, r24
+        lat               Z, r22
+        ret
+
+asm_test::xor::bool::acquire:
+        movw              r30, r24
+        lat               Z, r22
+        ret
+
+asm_test::xor::bool::relaxed:
+        movw              r30, r24
+        lat               Z, r22
+        ret
+
+asm_test::xor::bool::release:
+        movw              r30, r24
+        lat               Z, r22
         ret
 
 asm_test::load::u8::seqcst:

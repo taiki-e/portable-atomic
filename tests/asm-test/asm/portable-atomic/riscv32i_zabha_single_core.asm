@@ -2679,6 +2679,26 @@ asm_test::or::u32::release:
         amoor.w.rl        a0, a1, (a0)
         ret
 
+asm_test::or::bool::acqrel:
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::seqcst:
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::acquire:
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::bool::relaxed:
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::or::bool::release:
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
 asm_test::add::u8::acqrel:
         amoadd.b.aqrl     a0, a1, (a0)
         ret
@@ -2797,6 +2817,26 @@ asm_test::and::u32::relaxed:
 
 asm_test::and::u32::release:
         amoand.w.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acqrel:
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::seqcst:
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acquire:
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::relaxed:
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::and::bool::release:
+        amoand.b.rl       a0, a1, (a0)
         ret
 
 asm_test::neg::u8::acqrel:
@@ -3009,6 +3049,31 @@ asm_test::not::u32::release:
         amoxor.w.rl       a0, a1, (a0)
         ret
 
+asm_test::not::bool::acqrel:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::not::bool::seqcst:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::not::bool::acquire:
+        li                a1, 0x1
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::not::bool::relaxed:
+        li                a1, 0x1
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::not::bool::release:
+        li                a1, 0x1
+        amoxor.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::sub::u8::acqrel:
         neg               a1, a1
         amoadd.b.aqrl     a0, a1, (a0)
@@ -3142,6 +3207,26 @@ asm_test::xor::u32::relaxed:
 
 asm_test::xor::u32::release:
         amoxor.w.rl       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acqrel:
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::seqcst:
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acquire:
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::relaxed:
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::release:
+        amoxor.b.rl       a0, a1, (a0)
         ret
 
 asm_test::load::u8::seqcst:

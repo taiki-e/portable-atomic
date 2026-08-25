@@ -4186,6 +4186,47 @@
 
 .text:
 0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        orr               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        orr               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        orr               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
         ldaxp             x8, x9, [x0]
         orr               x10, x8, x2
         orr               x11, x9, x3
@@ -4601,6 +4642,47 @@
         ldxr              x8, [x0]
         and               x8, x8, x1
         stlxr             w9, x8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        and               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        and               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        and               w8, w8, w1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
         ret
 
@@ -5226,6 +5308,47 @@
 
 .text:
 0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, #0x1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, #0x1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, #0x1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
         ldaxp             x8, x9, [x0]
         mvn               x10, x8
         mvn               x11, x9
@@ -5641,6 +5764,47 @@
         ldxr              x8, [x0]
         eor               x8, x8, x1
         stlxr             w9, x8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxrb            w8, [x0]
+        eor               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, w1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        ret
+
+.text:
+0:
+        ldxrb             w8, [x0]
+        eor               w8, w8, w1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
         ret
 

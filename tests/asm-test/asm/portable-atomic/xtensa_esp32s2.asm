@@ -3423,6 +3423,56 @@ asm_test::or::u32::release:
         rsync
         retw.n
 
+asm_test::or::bool::acqrel:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        or                a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::or::bool::seqcst:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        or                a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::or::bool::acquire:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        or                a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::or::bool::relaxed:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        or                a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::or::bool::release:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        or                a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
 asm_test::add::u8::acqrel:
         entry             a1, 32
         rsil              a14, 15
@@ -3719,6 +3769,56 @@ asm_test::and::u32::release:
         l32i.n            a8, a2, 0
         and               a8, a8, a3
         s32i.n            a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::and::bool::acqrel:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        and               a8, a3, a8
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::and::bool::seqcst:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        and               a8, a3, a8
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::and::bool::acquire:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        and               a8, a3, a8
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::and::bool::relaxed:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        and               a8, a3, a8
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::and::bool::release:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        and               a8, a3, a8
+        s8i               a8, a2, 0
         wsr.ps            a14
         rsync
         retw.n
@@ -4038,6 +4138,61 @@ asm_test::not::u32::release:
         rsync
         retw.n
 
+asm_test::not::bool::acqrel:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a8, a8, a9
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::not::bool::seqcst:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a8, a8, a9
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::not::bool::acquire:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a8, a8, a9
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::not::bool::relaxed:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a8, a8, a9
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::not::bool::release:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a8, a8, a9
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
 asm_test::sub::u8::acqrel:
         entry             a1, 32
         rsil              a14, 15
@@ -4334,6 +4489,56 @@ asm_test::xor::u32::release:
         l32i.n            a8, a2, 0
         xor               a8, a8, a3
         s32i.n            a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::xor::bool::acqrel:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        xor               a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::xor::bool::seqcst:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        xor               a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::xor::bool::acquire:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        xor               a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::xor::bool::relaxed:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        xor               a8, a8, a3
+        s8i               a8, a2, 0
+        wsr.ps            a14
+        rsync
+        retw.n
+
+asm_test::xor::bool::release:
+        entry             a1, 32
+        rsil              a14, 15
+        l8ui              a8, a2, 0
+        xor               a8, a8, a3
+        s8i               a8, a2, 0
         wsr.ps            a14
         rsync
         retw.n
